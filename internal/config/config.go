@@ -1,0 +1,333 @@
+// Package config загружает конфигурацию приложения из переменных окружения.
+// Набор параметров и значения по умолчанию соответствуют приложению C ТЗ.
+package config
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+)
+
+// Config — полная конфигурация API и worker.
+type Config struct {
+	App      App
+	HTTP     HTTP
+	DB       DB
+	Auth     Auth
+	Argon    Argon
+	RateLim  RateLim
+	Notify   Notify
+	Retent   Retention
+	Telegram Telegram
+	Email    Email
+	Ops      Ops
+}
+
+// App — общие параметры процесса.
+type App struct {
+	Env        string // dev | staging | prod
+	LogLevel   string // debug | info | warn | error
+	SystemTZ   *time.Location
+	SystemTZID string
+	PublicURL  string // базовый URL фронтенда для ссылок в письмах
+}
+
+// HTTP — параметры HTTP-сервера.
+type HTTP struct {
+	Addr            string
+	ReadTimeout     time.Duration
+	WriteTimeout    time.Duration
+	IdleTimeout     time.Duration
+	ShutdownTimeout time.Duration
+	CORSOrigins     []string
+	CookieDomain    string
+	CookieSecure    bool
+	SwaggerEnabled  bool
+}
+
+// DB — параметры подключения к PostgreSQL.
+type DB struct {
+	DSN             string
+	MaxConns        int32
+	MinConns        int32
+	MaxConnLifetime time.Duration
+	AppRole         string // роль, у которой отзываются UPDATE/DELETE на audit_log
+}
+
+// Auth — сроки жизни токенов и параметры сессий.
+type Auth struct {
+	JWTSecret          string
+	AccessTTL          time.Duration
+	RefreshTTL         time.Duration
+	EmailVerifyTTL     time.Duration
+	PasswordResetTTL   time.Duration
+	InviteTTL          time.Duration
+	TelegramLinkTTL    time.Duration
+	MinPasswordLength  int
+	FirstAdminEmail    string
+	FirstAdminPassword string
+	FirstAdminName     string
+}
+
+// Argon — параметры Argon2id.
+type Argon struct {
+	Memory      uint32
+	Iterations  uint32
+	Parallelism uint8
+	SaltLength  uint32
+	KeyLength   uint32
+}
+
+// RateLim — ограничения частоты запросов.
+type RateLim struct {
+	LoginAttempts  int
+	LoginWindow    time.Duration
+	ResendAttempts int
+	ResendWindow   time.Duration
+}
+
+// Notify — параметры планировщика и worker доставки.
+type Notify struct {
+	SchedulerInterval time.Duration
+	SchedulerBatch    int
+	WorkerInterval    time.Duration
+	WorkerBatch       int
+	LeaseTTL          time.Duration
+	RecoveryInterval  time.Duration
+	MaxProviderCalls  int
+	Backoff           []time.Duration
+	MaxRulesPerReg    int
+	MaxOffsetMinutes  int
+}
+
+// Retention — сроки хранения данных.
+type Retention struct {
+	NotificationPayload time.Duration
+	AuditLog            time.Duration
+	Interval            time.Duration
+}
+
+// Telegram — параметры адаптера Telegram.
+type Telegram struct {
+	Driver   string // bot | log
+	BotToken string
+	BotName  string
+	APIBase  string
+	Timeout  time.Duration
+}
+
+// Email — параметры адаптера Email.
+type Email struct {
+	Driver   string // smtp | log
+	Host     string
+	Port     int
+	Username string
+	Password string
+	From     string
+	FromName string
+	Timeout  time.Duration
+	StartTLS bool
+}
+
+// Ops — параметры служебных endpoint.
+type Ops struct {
+	MetricsToken       string
+	PageSizeMax        int
+	PageSizeDef        int
+	UserSearchPageSize int
+}
+
+// Load читает конфигурацию из окружения и подставляет значения по умолчанию.
+func Load() (*Config, error) {
+	tzID := env("SYSTEM_TIMEZONE", "Europe/Moscow")
+	loc, err := time.LoadLocation(tzID)
+	if err != nil {
+		return nil, fmt.Errorf("системная таймзона %q: %w", tzID, err)
+	}
+
+	cfg := &Config{
+		App: App{
+			Env:        env("APP_ENV", "dev"),
+			LogLevel:   env("LOG_LEVEL", "info"),
+			SystemTZ:   loc,
+			SystemTZID: tzID,
+			PublicURL:  strings.TrimRight(env("PUBLIC_URL", "http://localhost:5173"), "/"),
+		},
+		HTTP: HTTP{
+			Addr:            env("HTTP_ADDR", ":8080"),
+			ReadTimeout:     envDuration("HTTP_READ_TIMEOUT", 15*time.Second),
+			WriteTimeout:    envDuration("HTTP_WRITE_TIMEOUT", 30*time.Second),
+			IdleTimeout:     envDuration("HTTP_IDLE_TIMEOUT", 60*time.Second),
+			ShutdownTimeout: envDuration("HTTP_SHUTDOWN_TIMEOUT", 20*time.Second),
+			CORSOrigins:     envList("CORS_ALLOWED_ORIGINS", []string{"http://localhost:5173"}),
+			CookieDomain:    env("COOKIE_DOMAIN", ""),
+			CookieSecure:    envBool("COOKIE_SECURE", false),
+			SwaggerEnabled:  envBool("SWAGGER_ENABLED", true),
+		},
+		DB: DB{
+			DSN:             env("DATABASE_URL", "postgres://hackathon:hackathon@localhost:5432/hackathon?sslmode=disable"),
+			MaxConns:        int32(envInt("DATABASE_MAX_CONNS", 10)),
+			MinConns:        int32(envInt("DATABASE_MIN_CONNS", 2)),
+			MaxConnLifetime: envDuration("DATABASE_CONN_LIFETIME", time.Hour),
+			AppRole:         env("DATABASE_APP_ROLE", ""),
+		},
+		Auth: Auth{
+			JWTSecret:          env("JWT_SECRET", "dev-insecure-secret-change-me"),
+			AccessTTL:          envDuration("ACCESS_TOKEN_TTL", 15*time.Minute),
+			RefreshTTL:         envDuration("REFRESH_TOKEN_TTL", 30*24*time.Hour),
+			EmailVerifyTTL:     envDuration("EMAIL_VERIFICATION_TTL", 24*time.Hour),
+			PasswordResetTTL:   envDuration("PASSWORD_RESET_TTL", 30*time.Minute),
+			InviteTTL:          envDuration("INVITE_TTL", 72*time.Hour),
+			TelegramLinkTTL:    envDuration("TELEGRAM_LINK_TTL", time.Hour),
+			MinPasswordLength:  envInt("PASSWORD_MIN_LENGTH", 10),
+			FirstAdminEmail:    env("FIRST_ADMIN_EMAIL", ""),
+			FirstAdminPassword: env("FIRST_ADMIN_PASSWORD", ""),
+			FirstAdminName:     env("FIRST_ADMIN_NAME", "Администратор"),
+		},
+		Argon: Argon{
+			Memory:      uint32(envInt("ARGON2_MEMORY_KIB", 65536)),
+			Iterations:  uint32(envInt("ARGON2_ITERATIONS", 3)),
+			Parallelism: uint8(envInt("ARGON2_PARALLELISM", 2)),
+			SaltLength:  uint32(envInt("ARGON2_SALT_LENGTH", 16)),
+			KeyLength:   uint32(envInt("ARGON2_KEY_LENGTH", 32)),
+		},
+		RateLim: RateLim{
+			LoginAttempts:  envInt("RATE_LIMIT_LOGIN_ATTEMPTS", 10),
+			LoginWindow:    envDuration("RATE_LIMIT_LOGIN_WINDOW", 15*time.Minute),
+			ResendAttempts: envInt("RATE_LIMIT_RESEND_ATTEMPTS", 5),
+			ResendWindow:   envDuration("RATE_LIMIT_RESEND_WINDOW", time.Hour),
+		},
+		Notify: Notify{
+			SchedulerInterval: envDuration("SCHEDULER_INTERVAL", 5*time.Minute),
+			SchedulerBatch:    envInt("SCHEDULER_BATCH_SIZE", 500),
+			WorkerInterval:    envDuration("WORKER_POLL_INTERVAL", 5*time.Second),
+			WorkerBatch:       envInt("WORKER_BATCH_SIZE", 20),
+			LeaseTTL:          envDuration("WORKER_LEASE_TTL", 2*time.Minute),
+			RecoveryInterval:  envDuration("WORKER_RECOVERY_INTERVAL", time.Minute),
+			MaxProviderCalls:  envInt("NOTIFICATION_MAX_PROVIDER_CALLS", 4),
+			Backoff:           envDurationList("NOTIFICATION_BACKOFF", []time.Duration{time.Minute, 5 * time.Minute, 30 * time.Minute}),
+			MaxRulesPerReg:    envInt("NOTIFICATION_MAX_RULES", 10),
+			MaxOffsetMinutes:  envInt("NOTIFICATION_MAX_OFFSET_MINUTES", 525600),
+		},
+		Retent: Retention{
+			NotificationPayload: envDuration("RETENTION_NOTIFICATION_PAYLOAD", 90*24*time.Hour),
+			AuditLog:            envDuration("RETENTION_AUDIT_LOG", 365*24*time.Hour),
+			Interval:            envDuration("RETENTION_INTERVAL", 24*time.Hour),
+		},
+		Telegram: Telegram{
+			Driver:   env("TELEGRAM_DRIVER", "log"),
+			BotToken: env("TELEGRAM_BOT_TOKEN", ""),
+			BotName:  env("TELEGRAM_BOT_NAME", "hackathon_tracker_bot"),
+			APIBase:  env("TELEGRAM_API_BASE", "https://api.telegram.org"),
+			Timeout:  envDuration("TELEGRAM_TIMEOUT", 10*time.Second),
+		},
+		Email: Email{
+			Driver:   env("EMAIL_DRIVER", "log"),
+			Host:     env("SMTP_HOST", ""),
+			Port:     envInt("SMTP_PORT", 587),
+			Username: env("SMTP_USERNAME", ""),
+			Password: env("SMTP_PASSWORD", ""),
+			From:     env("EMAIL_FROM", "no-reply@hackathon.local"),
+			FromName: env("EMAIL_FROM_NAME", "Hackathon Tracker"),
+			Timeout:  envDuration("SMTP_TIMEOUT", 15*time.Second),
+			StartTLS: envBool("SMTP_STARTTLS", true),
+		},
+		Ops: Ops{
+			MetricsToken:       env("METRICS_TOKEN", ""),
+			PageSizeMax:        envInt("PAGE_SIZE_MAX", 200),
+			PageSizeDef:        envInt("PAGE_SIZE_DEFAULT", 50),
+			UserSearchPageSize: envInt("USER_SEARCH_PAGE_SIZE", 50),
+		},
+	}
+
+	if err := cfg.validate(); err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+func (c *Config) validate() error {
+	if c.DB.DSN == "" {
+		return fmt.Errorf("DATABASE_URL обязателен")
+	}
+	if c.App.Env != "dev" && c.Auth.JWTSecret == "dev-insecure-secret-change-me" {
+		return fmt.Errorf("JWT_SECRET обязателен вне dev-окружения")
+	}
+	if len(c.Notify.Backoff) == 0 {
+		return fmt.Errorf("NOTIFICATION_BACKOFF не может быть пустым")
+	}
+	if c.Notify.MaxProviderCalls < 1 {
+		return fmt.Errorf("NOTIFICATION_MAX_PROVIDER_CALLS должен быть не меньше 1")
+	}
+	return nil
+}
+
+func env(key, def string) string {
+	if v, ok := os.LookupEnv(key); ok && v != "" {
+		return v
+	}
+	return def
+}
+
+func envInt(key string, def int) int {
+	if v, ok := os.LookupEnv(key); ok && v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			return n
+		}
+	}
+	return def
+}
+
+func envBool(key string, def bool) bool {
+	if v, ok := os.LookupEnv(key); ok && v != "" {
+		if b, err := strconv.ParseBool(v); err == nil {
+			return b
+		}
+	}
+	return def
+}
+
+func envDuration(key string, def time.Duration) time.Duration {
+	if v, ok := os.LookupEnv(key); ok && v != "" {
+		if d, err := time.ParseDuration(v); err == nil {
+			return d
+		}
+	}
+	return def
+}
+
+func envList(key string, def []string) []string {
+	v, ok := os.LookupEnv(key)
+	if !ok || strings.TrimSpace(v) == "" {
+		return def
+	}
+	parts := strings.Split(v, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	if len(out) == 0 {
+		return def
+	}
+	return out
+}
+
+func envDurationList(key string, def []time.Duration) []time.Duration {
+	raw := envList(key, nil)
+	if raw == nil {
+		return def
+	}
+	out := make([]time.Duration, 0, len(raw))
+	for _, r := range raw {
+		d, err := time.ParseDuration(r)
+		if err != nil {
+			return def
+		}
+		out = append(out, d)
+	}
+	return out
+}

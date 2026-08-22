@@ -1,0 +1,94 @@
+package models
+
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+// NotificationPayload — неизменяемый снимок содержимого уведомления
+// на момент создания (раздел 9.6 ТЗ).
+type NotificationPayload struct {
+	HackathonTitle  string    `json:"hackathon_title"`
+	RegistrationURL string    `json:"registration_url"`
+	DeadlineUTC     time.Time `json:"deadline_utc"`
+	DeadlineLocal   string    `json:"deadline_local"`
+	TimezoneID      string    `json:"timezone_id"`
+	Type            string    `json:"type"`
+	Subject         string    `json:"subject"`
+	Body            string    `json:"body"`
+}
+
+// Notification — запись очереди доставки (раздел 9.2 ТЗ).
+type Notification struct {
+	ID               uuid.UUID        `json:"id"`
+	NotificationType NotificationType `json:"notification_type"`
+	// RecipientUserID — неизменяемый снимок получателя.
+	RecipientUserID      uuid.UUID  `json:"recipient_user_id"`
+	RegistrationStatusID uuid.UUID  `json:"registration_status_id"`
+	RuleID               *uuid.UUID `json:"rule_id,omitempty"`
+
+	ScheduleVersion   *int `json:"schedule_version,omitempty"`
+	TodoCycle         *int `json:"todo_cycle,omitempty"`
+	AssignmentVersion *int `json:"assignment_version,omitempty"`
+	ActivationVersion *int `json:"activation_version,omitempty"`
+	// NotificationContentVersion обязателен для всех типов.
+	NotificationContentVersion int `json:"notification_content_version"`
+
+	LogicalKey string `json:"logical_key"`
+	// RequestedChannel — канал, выбранный правилами раздела 10 при создании.
+	RequestedChannel Channel `json:"requested_channel"`
+	// ActualChannel — канал последнего выполненного вызова провайдера.
+	ActualChannel *Channel `json:"actual_channel,omitempty"`
+	// FailedChannels — каналы, закрытые постоянной ошибкой провайдера.
+	FailedChannels []Channel `json:"failed_channels,omitempty"`
+
+	Status      NotificationStatus `json:"status"`
+	ScheduledAt time.Time          `json:"scheduled_at"`
+	// NextAttemptAt — момент, начиная с которого запись готова к обработке.
+	NextAttemptAt *time.Time `json:"next_attempt_at,omitempty"`
+	// AttemptCount — число выполненных вызовов провайдера.
+	AttemptCount int `json:"attempt_count"`
+	// LeaseExpiresAt — срок аренды записи worker-ом.
+	LeaseExpiresAt *time.Time `json:"lease_expires_at,omitempty"`
+	// ProviderCallStartedAt фиксирует начало вызова провайдера: после него
+	// гарантированная отмена невозможна.
+	ProviderCallStartedAt *time.Time           `json:"provider_call_started_at,omitempty"`
+	Payload               *NotificationPayload `json:"payload,omitempty"`
+	LastError             *string              `json:"last_error,omitempty"`
+	SentAt                *time.Time           `json:"sent_at,omitempty"`
+	CreatedAt             time.Time            `json:"created_at"`
+	UpdatedAt             time.Time            `json:"updated_at"`
+}
+
+// Terminal сообщает, что запись достигла конечного состояния.
+func (n *Notification) Terminal() bool {
+	switch n.Status {
+	case NotificationSent, NotificationFailed, NotificationCancelled, NotificationUndeliverable:
+		return true
+	}
+	return false
+}
+
+// ChannelFailed сообщает, что канал уже закрыт постоянной ошибкой.
+func (n *Notification) ChannelFailed(ch Channel) bool {
+	for _, c := range n.FailedChannels {
+		if c == ch {
+			return true
+		}
+	}
+	return false
+}
+
+// AuditLog — запись журнала административных изменений (раздел 13 ТЗ).
+type AuditLog struct {
+	ID          uuid.UUID   `json:"id"`
+	ActorUserID *uuid.UUID  `json:"actor_user_id,omitempty"`
+	Action      AuditAction `json:"action"`
+	EntityType  EntityType  `json:"entity_type"`
+	EntityID    *uuid.UUID  `json:"entity_id,omitempty"`
+	BeforeJSON  any         `json:"before,omitempty"`
+	AfterJSON   any         `json:"after,omitempty"`
+	RequestID   *string     `json:"request_id,omitempty"`
+	CreatedAt   time.Time   `json:"created_at"`
+}
