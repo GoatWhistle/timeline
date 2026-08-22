@@ -92,3 +92,42 @@ type AuditLog struct {
 	RequestID   *string     `json:"request_id,omitempty"`
 	CreatedAt   time.Time   `json:"created_at"`
 }
+
+// ReconcileCandidate — строка, отобранная планировщиком для согласования
+// уведомлений: опубликованный неархивный хакатон, активная регистрация,
+// назначенный участник, статус TODO и активный получатель.
+type ReconcileCandidate struct {
+	HackathonID       uuid.UUID
+	HackathonTitle    string
+	HackathonEndAt    time.Time
+	RegistrationID    uuid.UUID
+	RegistrationURL   string
+	DeadlineAt        time.Time
+	ScheduleVersion   int
+	ActivationVersion int
+	ContentVersion    int
+	ParticipantID     uuid.UUID
+	AssignmentVersion int
+	StatusID          uuid.UUID
+	TodoCycle         int
+	RecipientID       uuid.UUID
+	RecipientChannels RecipientChannels
+}
+
+// RecipientChannels — доступность каналов доставки получателя на момент отбора.
+type RecipientChannels struct {
+	TelegramLinked   bool
+	EmailVerified    bool
+	PreferredChannel *Channel
+}
+
+// Available сообщает, доступен ли канал получателю.
+func (c RecipientChannels) Available(ch Channel) bool {
+	switch ch {
+	case ChannelTelegram:
+		return c.TelegramLinked
+	case ChannelEmail:
+		return c.EmailVerified
+	}
+	return false
+}
