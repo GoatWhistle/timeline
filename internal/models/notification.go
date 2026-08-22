@@ -131,3 +131,43 @@ func (c RecipientChannels) Available(ch Channel) bool {
 	}
 	return false
 }
+
+// OutboundMessage — сообщение, передаваемое адаптеру канала доставки.
+type OutboundMessage struct {
+	// IdempotencyKey — идентификатор уведомления; передаётся провайдеру,
+	// если тот поддерживает ключ идемпотентности.
+	IdempotencyKey string
+	// Recipient — адрес назначения: email либо идентификатор чата Telegram.
+	Recipient string
+	Subject   string
+	Body      string
+}
+
+// DeliveryError — ошибка адаптера доставки. Постоянная ошибка закрывает канал
+// для этого уведомления, временная приводит к повтору с задержкой.
+type DeliveryError struct {
+	Permanent bool
+	Reason    string
+	Err       error
+}
+
+// Error реализует интерфейс error.
+func (e *DeliveryError) Error() string {
+	if e.Err != nil {
+		return e.Reason + ": " + e.Err.Error()
+	}
+	return e.Reason
+}
+
+// Unwrap возвращает исходную ошибку.
+func (e *DeliveryError) Unwrap() error { return e.Err }
+
+// NewPermanentDeliveryError создаёт постоянную ошибку доставки.
+func NewPermanentDeliveryError(reason string, err error) *DeliveryError {
+	return &DeliveryError{Permanent: true, Reason: reason, Err: err}
+}
+
+// NewTemporaryDeliveryError создаёт временную ошибку доставки.
+func NewTemporaryDeliveryError(reason string, err error) *DeliveryError {
+	return &DeliveryError{Permanent: false, Reason: reason, Err: err}
+}
