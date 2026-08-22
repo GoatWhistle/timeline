@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    name: Сборка и тесты
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: hackathon
+          POSTGRES_PASSWORD: hackathon
+          POSTGRES_DB: hackathon_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U hackathon"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://hackathon:hackathon@localhost:5432/hackathon_test?sslmode=disable
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+          cache: true
+
+      - name: Проверка форматирования
+        run: |
+          unformatted=$(gofmt -l $(find . -name '*.go' -not -path './docs/*'))
+          if [ -n "$unformatted" ]; then
+            echo "Не отформатированы:"; echo "$unformatted"; exit 1
+          fi
+
+      - name: Сборка
+        run: go build ./...
+
+      - name: Статический анализ
+        run: go vet ./...
+
+      - name: Модульные тесты
+        run: go test -race ./...
+
+      - name: Интеграционные тесты
+        run: go test -tags=integration -race -count=1 ./...
+
+      - name: Актуальность спецификации OpenAPI
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@latest
+          swag init -g internal/controllers/router.go -o docs --parseInternal --outputTypes go,json,yaml
+          if ! git diff --quiet -- docs; then
+            echo "Спецификация OpenAPI устарела: выполните make docs"; git diff --stat -- docs; exit 1
+          fi
+
+  image:
+    name: Публикация образа
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ github.sha }}
