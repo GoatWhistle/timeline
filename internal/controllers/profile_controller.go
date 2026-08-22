@@ -21,13 +21,13 @@ func NewProfileController(svc ProfileService, cookies CookieOptions) *ProfileCon
 
 // Get godoc
 //
-//	@Summary		Собственный профиль
-//	@Tags			profile
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Success		200	{object}	models.MeResponse
-//	@Failure		401	{object}	models.ErrorResponse
-//	@Router			/me [get]
+//	@Summary	Собственный профиль
+//	@Tags		profile
+//	@Produce	json
+//	@Security	CookieAuth
+//	@Success	200	{object}	models.MeResponse
+//	@Failure	401	{object}	models.ErrorResponse
+//	@Router		/me [get]
 func (c *ProfileController) Get(w http.ResponseWriter, r *http.Request) {
 	user, err := c.svc.Get(r.Context(), middleware.ActorFrom(r).UserID)
 	if err != nil {
@@ -86,13 +86,13 @@ func (c *ProfileController) TelegramLink(w http.ResponseWriter, r *http.Request)
 
 // TelegramUnlink godoc
 //
-//	@Summary		Отвязка Telegram
-//	@Tags			profile
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Success		200	{object}	models.MessageResponse
-//	@Failure		401	{object}	models.ErrorResponse
-//	@Router			/me/telegram [delete]
+//	@Summary	Отвязка Telegram
+//	@Tags		profile
+//	@Produce	json
+//	@Security	CookieAuth
+//	@Success	200	{object}	models.MessageResponse
+//	@Failure	401	{object}	models.ErrorResponse
+//	@Router		/me/telegram [delete]
 func (c *ProfileController) TelegramUnlink(w http.ResponseWriter, r *http.Request) {
 	if err := c.svc.UnlinkTelegram(r.Context(), middleware.ActorFrom(r)); err != nil {
 		httpx.Error(w, r, err)

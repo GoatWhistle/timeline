@@ -22,21 +22,21 @@ func NewParticipantController(svc ParticipantService, pageDef, pageMax int) *Par
 
 // List godoc
 //
-//	@Summary		Состав участников хакатона
-//	@Tags			participants
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id					path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Param			team_role			query		string	false	"Фильтр по функции участника"
-//	@Param			registration_status	query		string	false	"Фильтр по статусу регистрации"	Enums(TODO,DONE,NOT_REQUIRED)
-//	@Param			include_removed		query		bool	false	"Включая удалённых из состава"
-//	@Param			search				query		string	false	"Поиск по имени и email"
-//	@Param			page				query		int		false	"Номер страницы"	default(1)
-//	@Param			page_size			query		int		false	"Размер страницы"	default(50)
-//	@Success		200					{object}	models.ParticipantPage
-//	@Failure		403					{object}	models.ErrorResponse
-//	@Failure		404					{object}	models.ErrorResponse
-//	@Router			/admin/hackathons/{id}/participants [get]
+//	@Summary	Состав участников хакатона
+//	@Tags		participants
+//	@Produce	json
+//	@Security	CookieAuth
+//	@Param		id					path		string	true	"Идентификатор хакатона"	format(uuid)
+//	@Param		team_role			query		string	false	"Фильтр по функции участника"
+//	@Param		registration_status	query		string	false	"Фильтр по статусу регистрации"	Enums(TODO,DONE,NOT_REQUIRED)
+//	@Param		include_removed		query		bool	false	"Включая удалённых из состава"
+//	@Param		search				query		string	false	"Поиск по имени и email"
+//	@Param		page				query		int		false	"Номер страницы"	default(1)
+//	@Param		page_size			query		int		false	"Размер страницы"	default(50)
+//	@Success	200					{object}	models.ParticipantPage
+//	@Failure	403					{object}	models.ErrorResponse
+//	@Failure	404					{object}	models.ErrorResponse
+//	@Router		/admin/hackathons/{id}/participants [get]
 func (c *ParticipantController) List(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {

@@ -27,15 +27,15 @@ func NewRegistrationController(reg RegistrationService, st StatusService, rules 
 
 // Get godoc
 //
-//	@Summary		Регистрация хакатона
-//	@Tags			registration
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Success		200	{object}	models.RegistrationResponse
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Router			/admin/hackathons/{id}/registration [get]
+//	@Summary	Регистрация хакатона
+//	@Tags		registration
+//	@Produce	json
+//	@Security	CookieAuth
+//	@Param		id	path		string	true	"Идентификатор хакатона"	format(uuid)
+//	@Success	200	{object}	models.RegistrationResponse
+//	@Failure	403	{object}	models.ErrorResponse
+//	@Failure	404	{object}	models.ErrorResponse
+//	@Router		/admin/hackathons/{id}/registration [get]
 func (c *RegistrationController) Get(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -61,7 +61,7 @@ func (c *RegistrationController) Get(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Security		CookieAuth
-//	@Param			id		path		string							true	"Идентификатор хакатона"	format(uuid)
+//	@Param			id		path		string								true	"Идентификатор хакатона"	format(uuid)
 //	@Param			request	body		models.CreateRegistrationRequest	true	"Ссылка и дедлайн"
 //	@Success		201		{object}	models.RegistrationResponse
 //	@Failure		400		{object}	models.ErrorResponse
@@ -98,7 +98,7 @@ func (c *RegistrationController) Create(w http.ResponseWriter, r *http.Request) 
 //	@Accept			json
 //	@Produce		json
 //	@Security		CookieAuth
-//	@Param			id		path		string							true	"Идентификатор хакатона"	format(uuid)
+//	@Param			id		path		string								true	"Идентификатор хакатона"	format(uuid)
 //	@Param			request	body		models.UpdateRegistrationRequest	true	"Изменяемые поля"
 //	@Success		200		{object}	models.RegistrationResponse
 //	@Failure		400		{object}	models.ErrorResponse
@@ -176,17 +176,17 @@ func (c *RegistrationController) setState(w http.ResponseWriter, r *http.Request
 
 // ListStatuses godoc
 //
-//	@Summary		Статусы регистрации участников
-//	@Tags			registration
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id			path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Param			page		query		int		false	"Номер страницы"			default(1)
-//	@Param			page_size	query		int		false	"Размер страницы"			default(50)
-//	@Success		200			{object}	models.RegistrationStatusPage
-//	@Failure		403			{object}	models.ErrorResponse
-//	@Failure		404			{object}	models.ErrorResponse
-//	@Router			/admin/hackathons/{id}/registration-statuses [get]
+//	@Summary	Статусы регистрации участников
+//	@Tags		registration
+//	@Produce	json
+//	@Security	CookieAuth
+//	@Param		id			path		string	true	"Идентификатор хакатона"	format(uuid)
+//	@Param		page		query		int		false	"Номер страницы"			default(1)
+//	@Param		page_size	query		int		false	"Размер страницы"			default(50)
+//	@Success	200			{object}	models.RegistrationStatusPage
+//	@Failure	403			{object}	models.ErrorResponse
+//	@Failure	404			{object}	models.ErrorResponse
+//	@Router		/admin/hackathons/{id}/registration-statuses [get]
 func (c *RegistrationController) ListStatuses(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -342,15 +342,15 @@ func (c *RegistrationController) batchInput(w http.ResponseWriter, r *http.Reque
 
 // ListRules godoc
 //
-//	@Summary		Правила напоминаний
-//	@Tags			rules
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Success		200	{array}		models.NotificationRuleResponse
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Router			/admin/hackathons/{id}/registration/rules [get]
+//	@Summary	Правила напоминаний
+//	@Tags		rules
+//	@Produce	json
+//	@Security	CookieAuth
+//	@Param		id	path		string	true	"Идентификатор хакатона"	format(uuid)
+//	@Success	200	{array}		models.NotificationRuleResponse
+//	@Failure	403	{object}	models.ErrorResponse
+//	@Failure	404	{object}	models.ErrorResponse
+//	@Router		/admin/hackathons/{id}/registration/rules [get]
 func (c *RegistrationController) ListRules(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -379,7 +379,7 @@ func (c *RegistrationController) ListRules(w http.ResponseWriter, r *http.Reques
 //	@Accept			json
 //	@Produce		json
 //	@Security		CookieAuth
-//	@Param			id		path		string					true	"Идентификатор хакатона"	format(uuid)
+//	@Param			id		path		string						true	"Идентификатор хакатона"	format(uuid)
 //	@Param			request	body		models.CreateRuleRequest	true	"Параметры правила"
 //	@Success		201		{object}	models.NotificationRuleResponse
 //	@Failure		400		{object}	models.ErrorResponse
@@ -415,7 +415,7 @@ func (c *RegistrationController) CreateRule(w http.ResponseWriter, r *http.Reque
 //	@Accept			json
 //	@Produce		json
 //	@Security		CookieAuth
-//	@Param			id		path		string					true	"Идентификатор правила"	format(uuid)
+//	@Param			id		path		string						true	"Идентификатор правила"	format(uuid)
 //	@Param			request	body		models.UpdateRuleRequest	true	"Изменяемые поля"
 //	@Success		200		{object}	models.NotificationRuleResponse
 //	@Failure		400		{object}	models.ErrorResponse

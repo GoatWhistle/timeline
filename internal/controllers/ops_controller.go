@@ -23,11 +23,11 @@ func NewOpsController(svc OpsService, metricsToken string, metrics http.Handler)
 
 // Health godoc
 //
-//	@Summary		Проверка живости
-//	@Tags			ops
-//	@Produce		json
-//	@Success		200	{object}	models.HealthResponse
-//	@Router			/healthz [get]
+//	@Summary	Проверка живости
+//	@Tags		ops
+//	@Produce	json
+//	@Success	200	{object}	models.HealthResponse
+//	@Router		/healthz [get]
 func (c *OpsController) Health(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, models.HealthResponse{Status: "ok", Time: time.Now().UTC()})
 }

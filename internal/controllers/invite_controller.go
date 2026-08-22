@@ -59,15 +59,15 @@ func (c *InviteController) Create(w http.ResponseWriter, r *http.Request) {
 
 // List godoc
 //
-//	@Summary		Список приглашений
-//	@Tags			invites
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			page		query		int	false	"Номер страницы"	default(1)
-//	@Param			page_size	query		int	false	"Размер страницы"	default(50)
-//	@Success		200			{object}	models.InvitePage
-//	@Failure		403			{object}	models.ErrorResponse
-//	@Router			/admin/invites [get]
+//	@Summary	Список приглашений
+//	@Tags		invites
+//	@Produce	json
+//	@Security	CookieAuth
+//	@Param		page		query		int	false	"Номер страницы"	default(1)
+//	@Param		page_size	query		int	false	"Размер страницы"	default(50)
+//	@Success	200			{object}	models.InvitePage
+//	@Failure	403			{object}	models.ErrorResponse
+//	@Router		/admin/invites [get]
 func (c *InviteController) List(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
 	if err != nil {
@@ -88,15 +88,15 @@ func (c *InviteController) List(w http.ResponseWriter, r *http.Request) {
 
 // Revoke godoc
 //
-//	@Summary		Отзыв приглашения
-//	@Tags			invites
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path		string	true	"Идентификатор приглашения"	format(uuid)
-//	@Success		200	{object}	models.MessageResponse
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Router			/admin/invites/{id}/revoke [post]
+//	@Summary	Отзыв приглашения
+//	@Tags		invites
+//	@Produce	json
+//	@Security	CookieAuth
+//	@Param		id	path		string	true	"Идентификатор приглашения"	format(uuid)
+//	@Success	200	{object}	models.MessageResponse
+//	@Failure	403	{object}	models.ErrorResponse
+//	@Failure	404	{object}	models.ErrorResponse
+//	@Router		/admin/invites/{id}/revoke [post]
 func (c *InviteController) Revoke(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {

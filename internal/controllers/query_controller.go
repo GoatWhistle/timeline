@@ -29,10 +29,10 @@ func NewQueryController(svc QueryService, pageDef, pageMax int) *QueryController
 //	@Tags			queries
 //	@Produce		json
 //	@Security		CookieAuth
-//	@Param			include_archived	query	bool	false	"Показывать архивные"
-//	@Param			state				query	string	false	"Фильтр состояний через запятую"	Enums(UPCOMING,ACTIVE,FINISHED,ARCHIVED)
-//	@Param			page				query	int		false	"Номер страницы"	default(1)
-//	@Param			page_size			query	int		false	"Размер страницы"	default(50)
+//	@Param			include_archived	query		bool	false	"Показывать архивные"
+//	@Param			state				query		string	false	"Фильтр состояний через запятую"	Enums(UPCOMING,ACTIVE,FINISHED,ARCHIVED)
+//	@Param			page				query		int		false	"Номер страницы"					default(1)
+//	@Param			page_size			query		int		false	"Размер страницы"					default(50)
 //	@Success		200					{object}	models.MyHackathonPage
 //	@Failure		401					{object}	models.ErrorResponse
 //	@Router			/me/hackathons [get]

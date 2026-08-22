@@ -30,13 +30,13 @@ func NewHackathonController(h HackathonService, s StageService, pageDef, pageMax
 //	@Tags			hackathons
 //	@Produce		json
 //	@Security		CookieAuth
-//	@Param			search			query		string	false	"Поиск по названию и организатору"
-//	@Param			state			query		string	false	"Фильтр состояний через запятую"	Enums(UNPUBLISHED,UPCOMING,ACTIVE,FINISHED,ARCHIVED)
-//	@Param			include_archived	query	bool	false	"Показывать архивные"
-//	@Param			page			query		int		false	"Номер страницы"	default(1)
-//	@Param			page_size		query		int		false	"Размер страницы"	default(50)
-//	@Success		200				{object}	models.HackathonPage
-//	@Failure		403				{object}	models.ErrorResponse
+//	@Param			search				query		string	false	"Поиск по названию и организатору"
+//	@Param			state				query		string	false	"Фильтр состояний через запятую"	Enums(UNPUBLISHED,UPCOMING,ACTIVE,FINISHED,ARCHIVED)
+//	@Param			include_archived	query		bool	false	"Показывать архивные"
+//	@Param			page				query		int		false	"Номер страницы"	default(1)
+//	@Param			page_size			query		int		false	"Размер страницы"	default(50)
+//	@Success		200					{object}	models.HackathonPage
+//	@Failure		403					{object}	models.ErrorResponse
 //	@Router			/admin/hackathons [get]
 func (c *HackathonController) List(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
@@ -292,18 +292,18 @@ func (c *HackathonController) CreateStage(w http.ResponseWriter, r *http.Request
 
 // UpdateStage godoc
 //
-//	@Summary		Изменение этапа
-//	@Tags			stages
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string						true	"Идентификатор этапа"	format(uuid)
-//	@Param			request	body		models.UpdateStageRequest	true	"Изменяемые поля"
-//	@Success		200		{object}	models.StageResponse
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Router			/admin/stages/{id} [patch]
+//	@Summary	Изменение этапа
+//	@Tags		stages
+//	@Accept		json
+//	@Produce	json
+//	@Security	CookieAuth
+//	@Param		id		path		string						true	"Идентификатор этапа"	format(uuid)
+//	@Param		request	body		models.UpdateStageRequest	true	"Изменяемые поля"
+//	@Success	200		{object}	models.StageResponse
+//	@Failure	400		{object}	models.ErrorResponse
+//	@Failure	403		{object}	models.ErrorResponse
+//	@Failure	404		{object}	models.ErrorResponse
+//	@Router		/admin/stages/{id} [patch]
 func (c *HackathonController) UpdateStage(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -325,15 +325,15 @@ func (c *HackathonController) UpdateStage(w http.ResponseWriter, r *http.Request
 
 // DeleteStage godoc
 //
-//	@Summary		Удаление этапа
-//	@Tags			stages
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path	string	true	"Идентификатор этапа"	format(uuid)
-//	@Success		204	"этап удалён"
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Router			/admin/stages/{id} [delete]
+//	@Summary	Удаление этапа
+//	@Tags		stages
+//	@Produce	json
+//	@Security	CookieAuth
+//	@Param		id	path	string	true	"Идентификатор этапа"	format(uuid)
+//	@Success	204	"этап удалён"
+//	@Failure	403	{object}	models.ErrorResponse
+//	@Failure	404	{object}	models.ErrorResponse
+//	@Router		/admin/stages/{id} [delete]
 func (c *HackathonController) DeleteStage(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
