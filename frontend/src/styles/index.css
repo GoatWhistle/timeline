@@ -1,0 +1,163 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Токены темы. Контраст пар «фон / текст» проверяется по WCAG 2.1 AA
+ * (раздел 18 ТЗ), палитра типов этапов задаётся здесь и нигде не дублируется.
+ */
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.006 285.9);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.006 285.9);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.006 285.9);
+  --primary: oklch(0.45 0.19 264);
+  --primary-foreground: oklch(0.98 0.003 247.9);
+  --secondary: oklch(0.967 0.001 286.4);
+  --secondary-foreground: oklch(0.21 0.006 285.9);
+  --muted: oklch(0.967 0.001 286.4);
+  --muted-foreground: oklch(0.45 0.016 285.9);
+  --accent: oklch(0.967 0.001 286.4);
+  --accent-foreground: oklch(0.21 0.006 285.9);
+  --destructive: oklch(0.505 0.213 27.5);
+  --destructive-foreground: oklch(0.98 0.003 247.9);
+  --border: oklch(0.92 0.004 286.3);
+  --input: oklch(0.92 0.004 286.3);
+  --ring: oklch(0.45 0.19 264);
+
+  /* Состояния хакатона */
+  --state-unpublished: oklch(0.45 0.016 285.9);
+  --state-upcoming: oklch(0.48 0.14 250);
+  --state-active: oklch(0.45 0.13 155);
+  --state-finished: oklch(0.44 0.02 286);
+  --state-archived: oklch(0.5 0.02 286);
+
+  /* Статус регистрации */
+  --status-todo: oklch(0.52 0.16 65);
+  --status-done: oklch(0.45 0.13 155);
+  --status-not-required: oklch(0.45 0.016 285.9);
+
+  /* Типы этапов (раздел 5.2 ТЗ) */
+  --stage-registration: oklch(0.48 0.14 250);
+  --stage-selection: oklch(0.5 0.15 300);
+  --stage-participation: oklch(0.45 0.13 155);
+  --stage-checkpoint: oklch(0.52 0.16 65);
+  --stage-submission: oklch(0.5 0.17 20);
+  --stage-demo: oklch(0.5 0.14 200);
+  --stage-results: oklch(0.47 0.15 330);
+  --stage-other: oklch(0.45 0.016 285.9);
+  /* Подпись на плашке этапа: переворачивается вместе с темой, потому что
+     в тёмной теме плашки светлые и белый текст на них нечитаем. */
+  --stage-foreground: oklch(0.99 0 0);
+}
+
+.dark {
+  --background: oklch(0.18 0.006 285.9);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.23 0.006 285.9);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.23 0.006 285.9);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.72 0.15 264);
+  --primary-foreground: oklch(0.18 0.006 285.9);
+  --secondary: oklch(0.28 0.006 286);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.28 0.006 286);
+  --muted-foreground: oklch(0.72 0.015 286);
+  --accent: oklch(0.28 0.006 286);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.68 0.19 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.72 0.15 264);
+
+  --state-unpublished: oklch(0.72 0.015 286);
+  --state-upcoming: oklch(0.75 0.13 250);
+  --state-active: oklch(0.75 0.13 155);
+  --state-finished: oklch(0.7 0.02 286);
+  --state-archived: oklch(0.66 0.02 286);
+
+  --status-todo: oklch(0.78 0.14 65);
+  --status-done: oklch(0.75 0.13 155);
+  --status-not-required: oklch(0.72 0.015 286);
+
+  --stage-registration: oklch(0.75 0.13 250);
+  --stage-selection: oklch(0.75 0.14 300);
+  --stage-participation: oklch(0.75 0.13 155);
+  --stage-checkpoint: oklch(0.78 0.14 65);
+  --stage-submission: oklch(0.72 0.16 20);
+  --stage-demo: oklch(0.75 0.12 200);
+  --stage-results: oklch(0.74 0.14 330);
+  --stage-other: oklch(0.72 0.015 286);
+  --stage-foreground: oklch(0.18 0.006 285.9);
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-state-unpublished: var(--state-unpublished);
+  --color-state-upcoming: var(--state-upcoming);
+  --color-state-active: var(--state-active);
+  --color-state-finished: var(--state-finished);
+  --color-state-archived: var(--state-archived);
+
+  --color-status-todo: var(--status-todo);
+  --color-status-done: var(--status-done);
+  --color-status-not-required: var(--status-not-required);
+
+  --color-stage-registration: var(--stage-registration);
+  --color-stage-selection: var(--stage-selection);
+  --color-stage-participation: var(--stage-participation);
+  --color-stage-checkpoint: var(--stage-checkpoint);
+  --color-stage-submission: var(--stage-submission);
+  --color-stage-demo: var(--stage-demo);
+  --color-stage-results: var(--stage-results);
+  --color-stage-other: var(--stage-other);
+  --color-stage-foreground: var(--stage-foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11";
+    /* Desktop MVP: минимальная поддерживаемая ширина — 1024 px (раздел 18 ТЗ). */
+    min-width: 1024px;
+  }
+
+  /* Видимый фокус обязателен на всех критических потоках. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+}

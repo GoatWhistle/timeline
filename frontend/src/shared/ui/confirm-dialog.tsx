@@ -1,0 +1,63 @@
+import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog'
+import type * as React from 'react'
+import { cn } from '@/shared/lib/cn'
+import { buttonVariants } from './button'
+
+type ConfirmDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  title: string
+  description: React.ReactNode
+  confirmLabel?: string
+  cancelLabel?: string
+  destructive?: boolean
+  onConfirm: () => void
+  disabled?: boolean
+}
+
+/**
+ * Подтверждение необратимых и заметных операций: публикация, архивирование,
+ * удаление участников, удаление аккаунта.
+ */
+export function ConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  confirmLabel = 'Подтвердить',
+  cancelLabel = 'Отмена',
+  destructive = false,
+  onConfirm,
+  disabled = false,
+}: ConfirmDialogProps) {
+  return (
+    <AlertDialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <AlertDialogPrimitive.Portal>
+        <AlertDialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50" />
+        <AlertDialogPrimitive.Content className="fixed top-1/2 left-1/2 z-50 grid w-full max-w-md -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border bg-background p-6 shadow-lg">
+          <AlertDialogPrimitive.Title className="font-semibold text-lg">
+            {title}
+          </AlertDialogPrimitive.Title>
+          <AlertDialogPrimitive.Description asChild>
+            <div className="text-muted-foreground text-sm">{description}</div>
+          </AlertDialogPrimitive.Description>
+          <div className="flex justify-end gap-2">
+            <AlertDialogPrimitive.Cancel className={cn(buttonVariants({ variant: 'outline' }))}>
+              {cancelLabel}
+            </AlertDialogPrimitive.Cancel>
+            <AlertDialogPrimitive.Action
+              disabled={disabled}
+              onClick={onConfirm}
+              className={cn(
+                buttonVariants({ variant: destructive ? 'destructive' : 'default' }),
+                disabled && 'pointer-events-none opacity-50',
+              )}
+            >
+              {confirmLabel}
+            </AlertDialogPrimitive.Action>
+          </div>
+        </AlertDialogPrimitive.Content>
+      </AlertDialogPrimitive.Portal>
+    </AlertDialogPrimitive.Root>
+  )
+}
