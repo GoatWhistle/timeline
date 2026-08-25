@@ -14,6 +14,8 @@ const unauthorized = () =>
 describe('Клиент API', () => {
   beforeEach(() => {
     resetCsrfToken()
+    // biome-ignore lint/suspicious/noDocumentCookie: в jsdom нет Cookie Store API
+    document.cookie = 'csrf_token=; Max-Age=0; path=/'
     setUnauthenticatedHandler(() => {})
   })
 
@@ -29,6 +31,23 @@ describe('Клиент API', () => {
     await api.POST('/auth/logout')
 
     expect(seen).toEqual(['mock-csrf-token'])
+  })
+
+  it('берёт CSRF-токен из cookie после ротации на входе', async () => {
+    const seen: (string | null)[] = []
+    server.use(
+      http.post('*/api/v1/auth/logout', ({ request }) => {
+        seen.push(request.headers.get('X-CSRF-Token'))
+        return new HttpResponse(null, { status: 204 })
+      }),
+    )
+    // Backend выдаёт новый токен вместе с сессией; кэш в памяти уже неверен.
+    // biome-ignore lint/suspicious/noDocumentCookie: в jsdom нет Cookie Store API
+    document.cookie = 'csrf_token=rotated-token; path=/'
+
+    await api.POST('/auth/logout')
+
+    expect(seen).toEqual(['rotated-token'])
   })
 
   it('не запрашивает CSRF-токен для чтения', async () => {

@@ -11,6 +11,8 @@ const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
  */
 const NO_REFRESH = ['/auth/login', '/auth/refresh', '/auth/logout', '/auth/csrf']
 
+const CSRF_COOKIE = 'csrf_token'
+
 let csrfToken: string | null = null
 let csrfHeader = 'X-CSRF-Token'
 let csrfRequest: Promise<void> | null = null
@@ -27,6 +29,19 @@ let onUnauthenticated: () => void = () => {}
  */
 export function setUnauthenticatedHandler(handler: () => void): void {
   onUnauthenticated = handler
+}
+
+/**
+ * Значение CSRF-cookie. Cookie намеренно доступна JavaScript: схема double
+ * submit требует вернуть её значение заголовком. Backend выдаёт новый токен
+ * при входе и обновлении сессии, поэтому cookie — источник истины, а кэш в
+ * памяти после ротации устаревает.
+ */
+function readCsrfCookie(): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${CSRF_COOKIE}=([^;]*)`))
+  const value = match?.[1]
+  return value ? decodeURIComponent(value) : null
 }
 
 /** Сбрасывает кэш CSRF: нужен после logout и в тестах. */
@@ -47,6 +62,20 @@ async function fetchCsrfToken(): Promise<void> {
   if (body.header_name) csrfHeader = body.header_name
 }
 
+/**
+ * Токен для очередного изменяющего запроса: сначала актуальная cookie, затем
+ * запрос к /auth/csrf, если её нет.
+ */
+async function currentCsrfToken(): Promise<string | null> {
+  const fromCookie = readCsrfCookie()
+  if (fromCookie) {
+    csrfToken = fromCookie
+    return csrfToken
+  }
+  await ensureCsrfToken()
+  return csrfToken
+}
+
 /** Гарантирует наличие CSRF-токена, схлопывая параллельные запросы в один. */
 async function ensureCsrfToken(): Promise<void> {
   if (csrfToken) return
@@ -65,12 +94,12 @@ async function ensureCsrfToken(): Promise<void> {
 function refreshSession(): Promise<boolean> {
   if (!refreshRequest) {
     refreshRequest = (async () => {
-      await ensureCsrfToken()
+      const token = await currentCsrfToken()
       try {
         const response = await fetch(`${BASE_URL}/auth/refresh`, {
           method: 'POST',
           credentials: 'include',
-          headers: csrfToken ? { [csrfHeader]: csrfToken } : {},
+          headers: token ? { [csrfHeader]: token } : {},
         })
         return response.ok
       } catch {
@@ -86,8 +115,8 @@ function refreshSession(): Promise<boolean> {
 const authMiddleware: Middleware = {
   async onRequest({ request }) {
     if (MUTATING.has(request.method)) {
-      await ensureCsrfToken()
-      if (csrfToken) request.headers.set(csrfHeader, csrfToken)
+      const token = await currentCsrfToken()
+      if (token) request.headers.set(csrfHeader, token)
     }
     // Копия снимается до отправки: тело уже отправленного запроса недоступно.
     retryClones.set(request, request.clone())
@@ -107,7 +136,11 @@ const authMiddleware: Middleware = {
     }
 
     // Повтор идёт мимо middleware, поэтому цикл повторов невозможен.
-    if (MUTATING.has(retry.method) && csrfToken) retry.headers.set(csrfHeader, csrfToken)
+    // Обновление сессии выдало новый CSRF-токен: заголовок берётся заново.
+    if (MUTATING.has(retry.method)) {
+      const token = await currentCsrfToken()
+      if (token) retry.headers.set(csrfHeader, token)
+    }
     return fetch(retry)
   },
 }
