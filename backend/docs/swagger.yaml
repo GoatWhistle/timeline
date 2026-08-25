@@ -1,0 +1,3514 @@
+basePath: /api/v1
+definitions:
+  models.AcceptInviteRequest:
+    properties:
+      display_name:
+        example: Иван Петров
+        type: string
+      password:
+        example: correct-horse-battery
+        type: string
+      token:
+        example: abc123
+        type: string
+    type: object
+  models.AddParticipantItem:
+    properties:
+      team_role:
+        example: Разработчик
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.AddParticipantsRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.AddParticipantItem'
+        type: array
+    type: object
+  models.AdminChangeStatusRequest:
+    properties:
+      note:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.RegistrationStatusValue'
+        enum:
+        - TODO
+        - DONE
+        - NOT_REQUIRED
+    type: object
+  models.AuditAction:
+    enum:
+    - USER_REGISTER
+    - USER_DEACTIVATE
+    - USER_ACTIVATE
+    - USER_DELETE
+    - USER_PROFILE_CHANGE
+    - USER_ADMIN_FLAG_CHANGE
+    - INVITE_CREATE
+    - INVITE_REVOKE
+    - INVITE_ACCEPT
+    - HACKATHON_CREATE
+    - HACKATHON_UPDATE
+    - HACKATHON_PUBLISH
+    - HACKATHON_ARCHIVE
+    - STAGE_CREATE
+    - STAGE_UPDATE
+    - STAGE_DELETE
+    - PARTICIPANT_ADD
+    - PARTICIPANT_REMOVE
+    - PARTICIPANT_REACTIVATE
+    - TEAM_ROLE_CHANGE
+    - REGISTRATION_CHANGE
+    - STATUS_CHANGE
+    - RULE_CHANGE
+    type: string
+    x-enum-varnames:
+    - AuditUserRegister
+    - AuditUserDeactivate
+    - AuditUserActivate
+    - AuditUserDelete
+    - AuditUserProfileChange
+    - AuditUserAdminFlagChange
+    - AuditInviteCreate
+    - AuditInviteRevoke
+    - AuditInviteAccept
+    - AuditHackathonCreate
+    - AuditHackathonUpdate
+    - AuditHackathonPublish
+    - AuditHackathonArchive
+    - AuditStageCreate
+    - AuditStageUpdate
+    - AuditStageDelete
+    - AuditParticipantAdd
+    - AuditParticipantRemove
+    - AuditParticipantReactive
+    - AuditTeamRoleChange
+    - AuditRegistrationChange
+    - AuditStatusChange
+    - AuditRuleChange
+  models.AuditPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.AuditResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.AuditResponse:
+    properties:
+      action:
+        allOf:
+        - $ref: '#/definitions/models.AuditAction'
+        example: STATUS_CHANGE
+      actor_email:
+        type: string
+      actor_user_id:
+        type: string
+      after: {}
+      before: {}
+      created_at:
+        type: string
+      entity_id:
+        type: string
+      entity_type:
+        allOf:
+        - $ref: '#/definitions/models.EntityType'
+        example: REGISTRATION_STATUS
+      id:
+        type: string
+      request_id:
+        type: string
+    type: object
+  models.AuthResponse:
+    properties:
+      access_expires_at:
+        type: string
+      refresh_expires_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.MeResponse'
+    type: object
+  models.BatchItemResult:
+    properties:
+      code:
+        example: already_assigned
+        type: string
+      id:
+        type: string
+      index:
+        example: 0
+        type: integer
+      key:
+        example: 3f1c1e6e-0b0e-4a2b-9c1a-7d1f1f5a1c11
+        type: string
+      message:
+        example: участник уже назначен
+        type: string
+      status:
+        enum:
+        - ok
+        - skipped
+        - error
+        example: ok
+        type: string
+    type: object
+  models.BatchResult:
+    properties:
+      failed:
+        example: 0
+        type: integer
+      results:
+        items:
+          $ref: '#/definitions/models.BatchItemResult'
+        type: array
+      skipped:
+        example: 1
+        type: integer
+      succeeded:
+        example: 2
+        type: integer
+    type: object
+  models.BatchSetStatusRequest:
+    properties:
+      note:
+        type: string
+      participant_ids:
+        items:
+          type: string
+        type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/models.RegistrationStatusValue'
+        enum:
+        - TODO
+        - NOT_REQUIRED
+    type: object
+  models.CSRFResponse:
+    properties:
+      csrf_token:
+        example: 0f2a5c8d1b3e4f60
+        type: string
+      header_name:
+        example: X-CSRF-Token
+        type: string
+    type: object
+  models.ChangeEmailRequest:
+    properties:
+      new_email:
+        example: new@example.com
+        type: string
+      password:
+        example: correct-horse-battery
+        type: string
+    type: object
+  models.ChangeSource:
+    enum:
+    - SYSTEM
+    - USER
+    - ADMIN
+    type: string
+    x-enum-varnames:
+    - SourceSystem
+    - SourceUser
+    - SourceAdmin
+  models.Channel:
+    enum:
+    - TELEGRAM
+    - EMAIL
+    type: string
+    x-enum-varnames:
+    - ChannelTelegram
+    - ChannelEmail
+  models.CopyParticipantsRequest:
+    properties:
+      overrides:
+        items:
+          $ref: '#/definitions/models.CopyRoleOverride'
+        type: array
+      source_hackathon_id:
+        type: string
+    type: object
+  models.CopyRoleOverride:
+    properties:
+      team_role:
+        example: Ментор
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.CreateHackathonRequest:
+    properties:
+      description:
+        type: string
+      end_at:
+        type: string
+      notes:
+        type: string
+      organizer:
+        type: string
+      start_at:
+        type: string
+      title:
+        example: Всероссийский хакатон
+        type: string
+      website_url:
+        example: https://example.com
+        type: string
+    type: object
+  models.CreateInviteRequest:
+    properties:
+      email:
+        example: new@example.com
+        type: string
+    type: object
+  models.CreateInviteResponse:
+    properties:
+      accept_link:
+        example: https://tracker.local/invite/abc123
+        type: string
+      invite:
+        $ref: '#/definitions/models.InviteResponse'
+    type: object
+  models.CreateRegistrationRequest:
+    properties:
+      deadline_at:
+        type: string
+      description:
+        type: string
+      url:
+        example: https://example.com/register
+        type: string
+    type: object
+  models.CreateRuleRequest:
+    properties:
+      channel_override:
+        enum:
+        - TELEGRAM
+        - EMAIL
+        type: string
+      enabled:
+        example: true
+        type: boolean
+      offset_minutes:
+        example: 1440
+        type: integer
+      slot_no:
+        example: 1
+        type: integer
+    type: object
+  models.CreateStageRequest:
+    properties:
+      description:
+        type: string
+      end_at:
+        type: string
+      name:
+        example: Приём заявок
+        type: string
+      sort_order:
+        type: integer
+      start_at:
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/models.StageType'
+        enum:
+        - REGISTRATION
+        - SELECTION
+        - PARTICIPATION
+        - CHECKPOINT
+        - SUBMISSION
+        - DEMO
+        - RESULTS
+        - OTHER
+      url:
+        type: string
+    type: object
+  models.DeadlineItem:
+    properties:
+      deadline_at:
+        type: string
+      hackathon_id:
+        type: string
+      hackathon_title:
+        type: string
+      overdue_minutes:
+        example: 120
+        type: integer
+      participant_id:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.RegistrationStatusValue'
+        enum:
+        - TODO
+        - DONE
+        - NOT_REQUIRED
+      user:
+        $ref: '#/definitions/models.UserSummary'
+    type: object
+  models.DeadlinePage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.DeadlineItem'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.EmailRequest:
+    properties:
+      email:
+        example: ivan@example.com
+        type: string
+    type: object
+  models.EntityType:
+    enum:
+    - USER
+    - INVITE
+    - HACKATHON
+    - STAGE
+    - HACKATHON_PARTICIPANT
+    - REGISTRATION
+    - REGISTRATION_STATUS
+    - NOTIFICATION_RULE
+    type: string
+    x-enum-varnames:
+    - EntityUser
+    - EntityInvite
+    - EntityHackathon
+    - EntityStage
+    - EntityParticipant
+    - EntityRegistration
+    - EntityRegistrationStatus
+    - EntityNotificationRule
+  models.ErrorBody:
+    properties:
+      code:
+        example: validation_failed
+        type: string
+      fields:
+        items:
+          $ref: '#/definitions/models.FieldError'
+        type: array
+      message:
+        example: некорректные данные запроса
+        type: string
+      request_id:
+        example: 01HZY0Q2K7
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/models.ErrorBody'
+    type: object
+  models.FieldError:
+    properties:
+      field:
+        example: email
+        type: string
+      message:
+        example: некорректный адрес
+        type: string
+    type: object
+  models.HackathonCard:
+    properties:
+      can_mark_done:
+        example: true
+        type: boolean
+      hackathon:
+        $ref: '#/definitions/models.HackathonResponse'
+      next_stage:
+        $ref: '#/definitions/models.StageShort'
+      registration:
+        $ref: '#/definitions/models.RegistrationPublic'
+      registration_status:
+        $ref: '#/definitions/models.RegistrationStatusShort'
+      stages:
+        items:
+          $ref: '#/definitions/models.StageResponse'
+        type: array
+      team_role:
+        example: Разработчик
+        type: string
+    type: object
+  models.HackathonPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.HackathonResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.HackathonResponse:
+    properties:
+      archived_at:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      end_at:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      organizer:
+        example: Оргкомитет
+        type: string
+      published_at:
+        type: string
+      start_at:
+        type: string
+      state:
+        allOf:
+        - $ref: '#/definitions/models.HackathonState'
+        enum:
+        - UNPUBLISHED
+        - UPCOMING
+        - ACTIVE
+        - FINISHED
+        - ARCHIVED
+      title:
+        example: Всероссийский хакатон
+        type: string
+      updated_at:
+        type: string
+      website_url:
+        example: https://example.com
+        type: string
+    type: object
+  models.HackathonState:
+    enum:
+    - UNPUBLISHED
+    - UPCOMING
+    - ACTIVE
+    - FINISHED
+    - ARCHIVED
+    type: string
+    x-enum-varnames:
+    - HackathonUnpublished
+    - HackathonUpcoming
+    - HackathonActive
+    - HackathonFinished
+    - HackathonArchived
+  models.HealthResponse:
+    properties:
+      status:
+        example: ok
+        type: string
+      time:
+        type: string
+    type: object
+  models.InvitePage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.InviteResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.InvitePreview:
+    properties:
+      email:
+        example: new@example.com
+        type: string
+      expires_at:
+        type: string
+      valid:
+        example: true
+        type: boolean
+    type: object
+  models.InviteResponse:
+    properties:
+      accepted_at:
+        type: string
+      created_at:
+        type: string
+      created_by_user_id:
+        type: string
+      email:
+        example: new@example.com
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      revoked_at:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        example: ivan@example.com
+        type: string
+      password:
+        example: correct-horse-battery
+        type: string
+    type: object
+  models.MeResponse:
+    properties:
+      created_at:
+        type: string
+      display_name:
+        example: Иван Петров
+        type: string
+      email:
+        example: ivan@example.com
+        type: string
+      email_verified:
+        example: true
+        type: boolean
+      id:
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      is_admin:
+        example: false
+        type: boolean
+      pending_email:
+        type: string
+      preferred_channel:
+        allOf:
+        - $ref: '#/definitions/models.Channel'
+        enum:
+        - TELEGRAM
+        - EMAIL
+      telegram_linked:
+        example: false
+        type: boolean
+      telegram_username:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.MessageResponse:
+    properties:
+      message:
+        example: операция выполнена
+        type: string
+    type: object
+  models.MyHackathonItem:
+    properties:
+      end_at:
+        type: string
+      id:
+        type: string
+      next_stage:
+        $ref: '#/definitions/models.StageShort'
+      organizer:
+        type: string
+      registration_deadline:
+        type: string
+      registration_status:
+        $ref: '#/definitions/models.RegistrationStatusShort'
+      registration_url:
+        type: string
+      start_at:
+        type: string
+      state:
+        allOf:
+        - $ref: '#/definitions/models.HackathonState'
+        enum:
+        - UPCOMING
+        - ACTIVE
+        - FINISHED
+        - ARCHIVED
+      team_role:
+        example: Разработчик
+        type: string
+      title:
+        example: Всероссийский хакатон
+        type: string
+    type: object
+  models.MyHackathonPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.MyHackathonItem'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.NotificationRuleResponse:
+    properties:
+      channel_override:
+        allOf:
+        - $ref: '#/definitions/models.Channel'
+        enum:
+        - TELEGRAM
+        - EMAIL
+      created_at:
+        type: string
+      enabled:
+        example: true
+        type: boolean
+      id:
+        type: string
+      offset_minutes:
+        example: 1440
+        type: integer
+      registration_id:
+        type: string
+      slot_no:
+        example: 1
+        type: integer
+      type:
+        allOf:
+        - $ref: '#/definitions/models.NotificationType'
+        enum:
+        - REGISTRATION_REMINDER
+        - REGISTRATION_OVERDUE
+      updated_at:
+        type: string
+    type: object
+  models.NotificationType:
+    enum:
+    - REGISTRATION_REQUIRED
+    - REGISTRATION_REMINDER
+    - REGISTRATION_OVERDUE
+    type: string
+    x-enum-varnames:
+    - NotificationRequired
+    - NotificationReminder
+    - NotificationOverdue
+  models.PageMeta:
+    properties:
+      has_next:
+        example: true
+        type: boolean
+      page:
+        example: 1
+        type: integer
+      page_size:
+        example: 50
+        type: integer
+      total:
+        example: 137
+        type: integer
+    type: object
+  models.ParticipantPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.ParticipantResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.ParticipantResponse:
+    properties:
+      assigned_at:
+        type: string
+      assignment_version:
+        example: 1
+        type: integer
+      hackathon_id:
+        type: string
+      id:
+        type: string
+      participation_status:
+        allOf:
+        - $ref: '#/definitions/models.ParticipationStatus'
+        enum:
+        - ASSIGNED
+        - REMOVED
+      registration_status:
+        $ref: '#/definitions/models.RegistrationStatusShort'
+      removed_at:
+        type: string
+      team_role:
+        example: Разработчик
+        type: string
+      user:
+        $ref: '#/definitions/models.UserSummary'
+    type: object
+  models.ParticipationStatus:
+    enum:
+    - ASSIGNED
+    - REMOVED
+    type: string
+    x-enum-varnames:
+    - ParticipationAssigned
+    - ParticipationRemoved
+  models.PreviewResponse:
+    properties:
+      affected:
+        example: 12
+        type: integer
+      skipped:
+        example: 3
+        type: integer
+    type: object
+  models.ReadyResponse:
+    properties:
+      database:
+        example: ok
+        type: string
+      status:
+        example: ready
+        type: string
+    type: object
+  models.RegisterRequest:
+    properties:
+      display_name:
+        example: Иван Петров
+        type: string
+      email:
+        example: ivan@example.com
+        type: string
+      invite_token:
+        description: 'InviteToken необязателен: при передаче приглашение принимается
+          той же транзакцией.'
+        type: string
+      password:
+        example: correct-horse-battery
+        type: string
+    type: object
+  models.RegistrationPublic:
+    properties:
+      deadline_at:
+        type: string
+      description:
+        type: string
+      state:
+        allOf:
+        - $ref: '#/definitions/models.RegistrationState'
+        enum:
+        - ACTIVE
+        - DISABLED
+      url:
+        example: https://example.com/register
+        type: string
+    type: object
+  models.RegistrationResponse:
+    properties:
+      activation_version:
+        example: 1
+        type: integer
+      created_at:
+        type: string
+      deadline_at:
+        type: string
+      description:
+        type: string
+      hackathon_id:
+        type: string
+      id:
+        type: string
+      notification_content_version:
+        example: 1
+        type: integer
+      schedule_version:
+        example: 1
+        type: integer
+      state:
+        allOf:
+        - $ref: '#/definitions/models.RegistrationState'
+        enum:
+        - ACTIVE
+        - DISABLED
+      updated_at:
+        type: string
+      url:
+        example: https://example.com/register
+        type: string
+    type: object
+  models.RegistrationState:
+    enum:
+    - ACTIVE
+    - DISABLED
+    type: string
+    x-enum-varnames:
+    - RegistrationActive
+    - RegistrationDisabled
+  models.RegistrationStatusPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.RegistrationStatusResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.RegistrationStatusResponse:
+    properties:
+      hackathon_id:
+        type: string
+      id:
+        type: string
+      last_change_source:
+        allOf:
+        - $ref: '#/definitions/models.ChangeSource'
+        enum:
+        - SYSTEM
+        - USER
+        - ADMIN
+      last_changed_by_user_id:
+        type: string
+      note:
+        type: string
+      participant_id:
+        type: string
+      registered_at:
+        type: string
+      registration_id:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.RegistrationStatusValue'
+        enum:
+        - TODO
+        - DONE
+        - NOT_REQUIRED
+      todo_cycle:
+        example: 1
+        type: integer
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.UserSummary'
+    type: object
+  models.RegistrationStatusShort:
+    properties:
+      id:
+        type: string
+      note:
+        type: string
+      registered_at:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.RegistrationStatusValue'
+        enum:
+        - TODO
+        - DONE
+        - NOT_REQUIRED
+      todo_cycle:
+        example: 1
+        type: integer
+    type: object
+  models.RegistrationStatusValue:
+    enum:
+    - TODO
+    - DONE
+    - NOT_REQUIRED
+    type: string
+    x-enum-varnames:
+    - StatusTODO
+    - StatusDONE
+    - StatusNotRequired
+  models.RemoveParticipantsRequest:
+    properties:
+      participant_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  models.ResetPasswordRequest:
+    properties:
+      password:
+        example: new-correct-horse
+        type: string
+      token:
+        example: 7f9c0f0e2f4b4a1d
+        type: string
+    type: object
+  models.StageResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      end_at:
+        type: string
+      hackathon_id:
+        type: string
+      id:
+        type: string
+      name:
+        example: Приём заявок
+        type: string
+      sort_order:
+        example: 0
+        type: integer
+      start_at:
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/models.StageType'
+        enum:
+        - REGISTRATION
+        - SELECTION
+        - PARTICIPATION
+        - CHECKPOINT
+        - SUBMISSION
+        - DEMO
+        - RESULTS
+        - OTHER
+      updated_at:
+        type: string
+      url:
+        example: https://example.com/stage
+        type: string
+    type: object
+  models.StageShort:
+    properties:
+      end_at:
+        type: string
+      id:
+        type: string
+      name:
+        example: Приём заявок
+        type: string
+      start_at:
+        type: string
+      type:
+        $ref: '#/definitions/models.StageType'
+    type: object
+  models.StageType:
+    enum:
+    - REGISTRATION
+    - SELECTION
+    - PARTICIPATION
+    - CHECKPOINT
+    - SUBMISSION
+    - DEMO
+    - RESULTS
+    - OTHER
+    type: string
+    x-enum-varnames:
+    - StageRegistration
+    - StageSelection
+    - StageParticipation
+    - StageCheckpoint
+    - StageSubmission
+    - StageDemo
+    - StageResults
+    - StageOther
+  models.TelegramLinkResponse:
+    properties:
+      deep_link:
+        example: https://t.me/hackathon_tracker_bot?start=abc123
+        type: string
+      expires_at:
+        type: string
+    type: object
+  models.TimeRange:
+    properties:
+      from:
+        type: string
+      to:
+        type: string
+    type: object
+  models.TimelineItem:
+    properties:
+      end_at:
+        type: string
+      id:
+        type: string
+      name:
+        example: Приём заявок
+        type: string
+      start_at:
+        type: string
+      type:
+        $ref: '#/definitions/models.StageType'
+    type: object
+  models.TimelineResponse:
+    properties:
+      range:
+        $ref: '#/definitions/models.TimeRange'
+      rows:
+        items:
+          $ref: '#/definitions/models.TimelineRow'
+        type: array
+    type: object
+  models.TimelineRow:
+    properties:
+      end_at:
+        type: string
+      hackathon_id:
+        type: string
+      registration_deadline:
+        type: string
+      stages:
+        items:
+          $ref: '#/definitions/models.TimelineItem'
+        type: array
+      start_at:
+        type: string
+      state:
+        $ref: '#/definitions/models.HackathonState'
+      team_role:
+        type: string
+      title:
+        example: Всероссийский хакатон
+        type: string
+    type: object
+  models.TokenRequest:
+    properties:
+      token:
+        example: 7f9c0f0e2f4b4a1d
+        type: string
+    type: object
+  models.UpdateHackathonRequest:
+    properties:
+      description:
+        type: string
+      end_at:
+        type: string
+      notes:
+        type: string
+      organizer:
+        type: string
+      start_at:
+        type: string
+      title:
+        type: string
+      website_url:
+        type: string
+    type: object
+  models.UpdateProfileRequest:
+    properties:
+      display_name:
+        example: Иван Петров
+        type: string
+      preferred_channel:
+        description: 'PreferredChannel: TELEGRAM, EMAIL либо null для сброса явного
+          выбора.'
+        enum:
+        - TELEGRAM
+        - EMAIL
+        type: string
+      telegram_username:
+        example: '@ivan'
+        type: string
+    type: object
+  models.UpdateRegistrationRequest:
+    properties:
+      deadline_at:
+        type: string
+      description:
+        type: string
+      url:
+        type: string
+    type: object
+  models.UpdateRuleRequest:
+    properties:
+      channel_override:
+        enum:
+        - TELEGRAM
+        - EMAIL
+        type: string
+      enabled:
+        type: boolean
+      offset_minutes:
+        type: integer
+    type: object
+  models.UpdateStageRequest:
+    properties:
+      description:
+        type: string
+      end_at:
+        type: string
+      name:
+        type: string
+      sort_order:
+        type: integer
+      start_at:
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/models.StageType'
+        enum:
+        - REGISTRATION
+        - SELECTION
+        - PARTICIPATION
+        - CHECKPOINT
+        - SUBMISSION
+        - DEMO
+        - RESULTS
+        - OTHER
+      url:
+        type: string
+    type: object
+  models.UpdateTeamRoleRequest:
+    properties:
+      team_role:
+        example: Капитан
+        type: string
+    type: object
+  models.UserPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.UserSummary'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.UserSummary:
+    properties:
+      display_name:
+        example: Иван Петров
+        type: string
+      email:
+        example: ivan@example.com
+        type: string
+      id:
+        type: string
+      is_active:
+        example: true
+        type: boolean
+    type: object
+  models.WorkerHeartbeatResponse:
+    properties:
+      failed_count:
+        example: 0
+        type: integer
+      healthy:
+        example: true
+        type: boolean
+      oldest_pending_age_seconds:
+        example: 12.5
+        type: number
+      pending_count:
+        example: 3
+        type: integer
+      processing_count:
+        example: 1
+        type: integer
+      scheduler_last_run_at:
+        type: string
+      undeliverable_count:
+        example: 0
+        type: integer
+      worker_last_run_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: Команда Hackathon Tracker
+  description: |-
+    REST API системы Hackathon Tracker. Реализует техническое задание v0.8:
+    учётные записи и приглашения, хакатоны и этапы, назначения участников,
+    регистрацию с самоотчётом статуса, правила напоминаний и журнал аудита.
+
+    Система не проверяет внешний сайт регистрации: статус является самоотчётом
+    пользователя либо административно установленным состоянием.
+
+    Аутентификация — cookie-схема: access token живёт 15 минут, refresh token
+    ротируется и живёт 30 дней. Все изменяющие запросы обязаны передавать
+    CSRF-токен заголовком X-CSRF-Token; получить его можно на GET /auth/csrf.
+    Все моменты времени передаются в UTC в формате RFC 3339.
+  license:
+    name: MIT
+  termsOfService: https://github.com/kaifarikman/hackathon-os
+  title: Hackathon Tracker API
+  version: 0.8.0
+paths:
+  /admin/audit:
+    get:
+      description: Доступен только администратору. Записи неизменяемы; выгрузка файлом
+        в MVP не поддерживается.
+      parameters:
+      - description: Фильтр по актору
+        format: uuid
+        in: query
+        name: actor_user_id
+        type: string
+      - description: Фильтр по действию
+        in: query
+        name: action
+        type: string
+      - description: Фильтр по типу объекта
+        in: query
+        name: entity_type
+        type: string
+      - description: Фильтр по идентификатору объекта
+        format: uuid
+        in: query
+        name: entity_id
+        type: string
+      - description: Начало периода, RFC3339
+        in: query
+        name: from
+        type: string
+      - description: Конец периода, RFC3339
+        in: query
+        name: to
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Размер страницы
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuditPage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Журнал аудита
+      tags:
+      - audit
+  /admin/hackathons:
+    get:
+      description: Административный список со всеми состояниями, поиском и фильтрами.
+      parameters:
+      - description: Поиск по названию и организатору
+        in: query
+        name: search
+        type: string
+      - description: Фильтр состояний через запятую
+        enum:
+        - UNPUBLISHED
+        - UPCOMING
+        - ACTIVE
+        - FINISHED
+        - ARCHIVED
+        in: query
+        name: state
+        type: string
+      - description: Показывать архивные
+        in: query
+        name: include_archived
+        type: boolean
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Размер страницы
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HackathonPage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Список хакатонов
+      tags:
+      - hackathons
+    post:
+      consumes:
+      - application/json
+      description: Хакатон создаётся неопубликованным; end_at обязан быть позже start_at.
+      parameters:
+      - description: Данные хакатона
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateHackathonRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.HackathonResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Создание хакатона
+      tags:
+      - hackathons
+  /admin/hackathons/{id}:
+    get:
+      description: Административное чтение, включая заметки.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HackathonResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Хакатон целиком
+      tags:
+      - hackathons
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Изменение end_at увеличивает schedule_version регистрации, отменяет устаревшие
+        ожидающие уведомления и запускает согласование. Нарушение условия
+        deadline_at <= end_at отклоняется.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Изменяемые поля
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateHackathonRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HackathonResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: дедлайн регистрации выходит за end_at
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Изменение хакатона
+      tags:
+      - hackathons
+  /admin/hackathons/{id}/archive:
+    post:
+      description: 'Конечное состояние MVP: ожидающие уведомления отменяются, новые
+        не создаются.'
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HackathonResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: хакатон уже архивирован
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Архивирование хакатона
+      tags:
+      - hackathons
+  /admin/hackathons/{id}/participants:
+    get:
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Фильтр по функции участника
+        in: query
+        name: team_role
+        type: string
+      - description: Фильтр по статусу регистрации
+        enum:
+        - TODO
+        - DONE
+        - NOT_REQUIRED
+        in: query
+        name: registration_status
+        type: string
+      - description: Включая удалённых из состава
+        in: query
+        name: include_removed
+        type: boolean
+      - description: Поиск по имени и email
+        in: query
+        name: search
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Размер страницы
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantPage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Состав участников хакатона
+      tags:
+      - participants
+  /admin/hackathons/{id}/participants/batch-add:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Повторное добавление ранее удалённого участника реактивирует запись и увеличивает
+        assignment_version. Назначение, статус регистрации, первичное уведомление и запись
+        аудита выполняются одной транзакцией на участника; результат возвращается по каждому элементу.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Список пользователей и их функций
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddParticipantsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BatchResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Массовое добавление участников
+      tags:
+      - participants
+  /admin/hackathons/{id}/participants/batch-remove:
+    post:
+      consumes:
+      - application/json
+      description: Переводит участие в REMOVED и отменяет ожидающие уведомления. Отправленные
+        сохраняются.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Идентификаторы участников
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RemoveParticipantsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BatchResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Массовое удаление участников
+      tags:
+      - participants
+  /admin/hackathons/{id}/participants/copy-from:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Переносятся только назначенные участники. Функция участника переносится как значение
+        по умолчанию и может быть переопределена. Существующие участники пропускаются
+        и возвращаются отдельными элементами результата.
+      parameters:
+      - description: Идентификатор целевого хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Источник и переопределения функций
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CopyParticipantsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BatchResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Копирование состава из другого хакатона
+      tags:
+      - participants
+  /admin/hackathons/{id}/publish:
+    post:
+      description: |-
+        Хакатон становится видимым участникам и планировщику; отложенные первичные
+        уведомления создаются согласованием.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HackathonResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: хакатон уже опубликован или архивирован
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Публикация хакатона
+      tags:
+      - hackathons
+  /admin/hackathons/{id}/registration:
+    get:
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Регистрация хакатона
+      tags:
+      - registration
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Изменение ссылки увеличивает notification_content_version, изменение дедлайна —
+        schedule_version. В обоих случаях ожидающие уведомления отменяются, а актуальные
+        создаются согласованием с новым логическим ключом.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Изменяемые поля
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Изменение регистрации
+      tags:
+      - registration
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Создание активной регистрации создаёт недостающие статусы TODO всем назначенным
+        участникам. Первичные уведомления создаются только для опубликованного неархивного
+        хакатона; иначе они откладываются до публикации. Дедлайн обязан удовлетворять
+        условию deadline_at <= hackathon.end_at.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Ссылка и дедлайн
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.RegistrationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: регистрация уже существует или дедлайн выходит за end_at
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Создание регистрации
+      tags:
+      - registration
+  /admin/hackathons/{id}/registration-statuses:
+    get:
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Размер страницы
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationStatusPage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Статусы регистрации участников
+      tags:
+      - registration
+  /admin/hackathons/{id}/registration-statuses/batch-set:
+    post:
+      consumes:
+      - application/json
+      description: Допускаются значения TODO и NOT_REQUIRED. Результат возвращается
+        по каждому участнику.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Участники и целевой статус
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.BatchSetStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BatchResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Массовая установка статуса
+      tags:
+      - registration
+  /admin/hackathons/{id}/registration-statuses/batch-set/preview:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает количество изменяемых и пропускаемых записей без изменения
+        данных.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Участники и целевой статус
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.BatchSetStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PreviewResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Предпросмотр массовой установки статуса
+      tags:
+      - registration
+  /admin/hackathons/{id}/registration/disable:
+    post:
+      description: Ожидающие уведомления отменяются, статусы сохраняются, но перестают
+        быть actionable.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: регистрация уже выключена
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Выключение регистрации
+      tags:
+      - registration
+  /admin/hackathons/{id}/registration/enable:
+    post:
+      description: |-
+        Увеличивает activation_version и schedule_version, создаёт недостающие статусы;
+        участники в TODO снова получают первичное уведомление.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: регистрация уже активна
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Включение регистрации
+      tags:
+      - registration
+  /admin/hackathons/{id}/registration/rules:
+    get:
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NotificationRuleResponse'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Правила напоминаний
+      tags:
+      - rules
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Знак offset_minutes задаёт тип: положительное значение — напоминание до дедлайна,
+        ноль — в момент дедлайна, отрицательное — уведомление о просрочке.
+        На регистрацию допускается не более 10 правил.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Параметры правила
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateRuleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.NotificationRuleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: правило с таким смещением уже есть или исчерпан лимит слотов
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Создание правила напоминания
+      tags:
+      - rules
+  /admin/hackathons/{id}/stages:
+    post:
+      consumes:
+      - application/json
+      description: Пересечения этапов и выход за период хакатона допускаются. Этап
+        не порождает уведомлений.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные этапа
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateStageRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.StageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Создание этапа
+      tags:
+      - stages
+  /admin/invites:
+    get:
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Размер страницы
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.InvitePage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Список приглашений
+      tags:
+      - invites
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Создание сериализуется по нормализованному email: предыдущее непринятое приглашение отзывается,
+        затем создаётся новое. Приглашение на адрес существующего пользователя отклоняется конфликтом
+        независимо от его активности.
+      parameters:
+      - description: Адрес приглашаемого
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateInviteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CreateInviteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: пользователь с таким email уже существует
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Создание приглашения
+      tags:
+      - invites
+  /admin/invites/{id}/revoke:
+    post:
+      parameters:
+      - description: Идентификатор приглашения
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Отзыв приглашения
+      tags:
+      - invites
+  /admin/participants/{id}/reactivate:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Возвращает участие в ASSIGNED, увеличивает assignment_version, очищает removed_at
+        и заново задаёт функцию. Существующий статус регистрации сохраняется.
+      parameters:
+      - description: Идентификатор участника
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Функция участника
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateTeamRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: участник уже назначен
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Реактивация участника
+      tags:
+      - participants
+  /admin/participants/{id}/team-role:
+    patch:
+      consumes:
+      - application/json
+      description: team_role — свободнотекстовая функция на хакатоне, а не право доступа.
+      parameters:
+      - description: Идентификатор участника
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Новая функция
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateTeamRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Изменение функции участника
+      tags:
+      - participants
+  /admin/queries/overdue:
+    get:
+      description: Участники со статусом TODO, у которых дедлайн уже прошёл, а хакатон
+        ещё не завершён.
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Размер страницы
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeadlinePage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Просроченные регистрации
+      tags:
+      - queries
+  /admin/queries/upcoming:
+    get:
+      description: Участники со статусом TODO, у которых дедлайн наступает в пределах
+        указанного окна.
+      parameters:
+      - default: 72
+        description: Окно в часах
+        in: query
+        name: within_hours
+        type: integer
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Размер страницы
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeadlinePage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Ближайшие дедлайны регистрации
+      tags:
+      - queries
+  /admin/registration-rules/{id}:
+    delete:
+      description: |-
+        Правило переводится в enabled=false; строка сохраняется, чтобы занятый слот
+        и смещение оставались зафиксированными.
+      parameters:
+      - description: Идентификатор правила
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: правило выключено
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Выключение правила напоминания
+      tags:
+      - rules
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Изменение полей расписания увеличивает schedule_version один раз на транзакцию
+        и запускает согласование уведомлений.
+      parameters:
+      - description: Идентификатор правила
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Изменяемые поля
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateRuleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NotificationRuleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Изменение правила напоминания
+      tags:
+      - rules
+  /admin/registration-statuses/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Допустимые переходы: TODO → DONE, DONE → TODO, TODO/DONE → NOT_REQUIRED,
+        NOT_REQUIRED → TODO. Вход в TODO увеличивает todo_cycle и очищает registered_at.
+      parameters:
+      - description: Идентификатор статуса
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Новый статус
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AdminChangeStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationStatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Административный переход статуса
+      tags:
+      - registration
+  /admin/stages/{id}:
+    delete:
+      parameters:
+      - description: Идентификатор этапа
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: этап удалён
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Удаление этапа
+      tags:
+      - stages
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Идентификатор этапа
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Изменяемые поля
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateStageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Изменение этапа
+      tags:
+      - stages
+  /admin/timeline:
+    get:
+      description: Все хакатоны с фильтрами по состоянию, участнику и диапазону дат.
+      parameters:
+      - description: Начало периода, RFC3339
+        in: query
+        name: from
+        type: string
+      - description: Конец периода, RFC3339
+        in: query
+        name: to
+        type: string
+      - description: Фильтр состояний через запятую
+        in: query
+        name: state
+        type: string
+      - description: Фильтр по участнику
+        format: uuid
+        in: query
+        name: participant_user_id
+        type: string
+      - description: Показывать архивные
+        in: query
+        name: include_archived
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TimelineResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Административная временная шкала
+      tags:
+      - queries
+  /admin/users:
+    get:
+      description: |-
+        Поиск по display_name и нормализованному email для выбора участников.
+        Возвращаются только минимальные поля; credentials и данные каналов не отдаются.
+      parameters:
+      - description: Строка поиска
+        in: query
+        name: query
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Размер страницы
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserPage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Поиск пользователей
+      tags:
+      - users
+  /admin/users/{id}:
+    delete:
+      description: |-
+        Удаляет credentials и каналы доставки, обезличивает имя и email.
+        Ссылки участия и записи аудита сохраняются.
+      parameters:
+      - description: Идентификатор пользователя
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Необратимое удаление пользователя
+      tags:
+      - users
+  /admin/users/{id}/activate:
+    post:
+      description: Восстанавливает доступ. Ранее отменённые уведомления не воскрешаются.
+      parameters:
+      - description: Идентификатор пользователя
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Обратная активация пользователя
+      tags:
+      - users
+  /admin/users/{id}/deactivate:
+    post:
+      description: Отзывает сессии, удаляет привязку Telegram и переводит ожидающие
+        уведомления в CANCELLED.
+      parameters:
+      - description: Идентификатор пользователя
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Деактивация пользователя
+      tags:
+      - users
+  /auth/csrf:
+    get:
+      description: Выдаёт токен в cookie и в теле ответа. Все изменяющие запросы обязаны
+        передавать его заголовком X-CSRF-Token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CSRFResponse'
+      summary: Получение CSRF-токена
+      tags:
+      - auth
+  /auth/email-change/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Переносит pending_email в основной адрес. До подтверждения вход
+        работает по прежнему адресу.
+      parameters:
+      - description: Токен подтверждения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.TokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: адрес уже занят
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Подтверждение смены email
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Выдаёт access token на 15 минут и rotating refresh token на 30 дней в HttpOnly cookie.
+        Ограничение частоты: 10 попыток за 15 минут на пару IP и email.
+      parameters:
+      - description: Учётные данные
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: неверные учётные данные или деактивированная запись
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Вход по email и паролю
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Отзывает refresh token текущей сессии и очищает cookie.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+      summary: Выход из текущей сессии
+      tags:
+      - auth
+  /auth/logout-all:
+    post:
+      description: Отзывает все активные сессии пользователя.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Выход из всех сессий
+      tags:
+      - auth
+  /auth/password/forgot:
+    post:
+      consumes:
+      - application/json
+      description: Выдаёт одноразовый токен на 30 минут. Ответ не раскрывает существование
+        учётной записи.
+      parameters:
+      - description: Адрес электронной почты
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.EmailRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Запрос восстановления пароля
+      tags:
+      - auth
+  /auth/password/reset:
+    post:
+      consumes:
+      - application/json
+      description: После смены пароля все активные сессии пользователя отзываются.
+      parameters:
+      - description: Токен и новый пароль
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Установка нового пароля
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      description: Ротация refresh token. Повторное использование отозванного токена
+        отзывает всю цепочку сессии.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Обновление сессии
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Создаёт учётную запись, отправляет письмо подтверждения на 24 часа и открывает сессию.
+        До подтверждения адреса вход разрешён, продуктовые уведомления по email — нет.
+        Если передан invite_token, приглашение принимается в той же транзакции.
+      parameters:
+      - description: Данные регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: email уже занят
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Регистрация пользователя
+      tags:
+      - auth
+  /auth/verify-email:
+    post:
+      consumes:
+      - application/json
+      description: Потребляет одноразовый токен подтверждения со сроком 24 часа.
+      parameters:
+      - description: Токен подтверждения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.TokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: токен недействителен или истёк
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Подтверждение email
+      tags:
+      - auth
+  /auth/verify-email/resend:
+    post:
+      consumes:
+      - application/json
+      description: 'Ограничение частоты: 5 запросов в час на пару IP и email. Ответ
+        не раскрывает существование учётной записи.'
+      parameters:
+      - description: Адрес электронной почты
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.EmailRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Повторная отправка письма подтверждения
+      tags:
+      - auth
+  /hackathons/{id}:
+    get:
+      description: |-
+        Функция участника, вычисляемое состояние, этапы, ближайший этап, статус регистрации,
+        дедлайн и ссылка. Административные заметки участнику не отдаются.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HackathonCard'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Карточка назначенного хакатона
+      tags:
+      - queries
+  /hackathons/{id}/registration/done:
+    post:
+      description: |-
+        Самоотчёт участника: перевод собственного статуса TODO в DONE. Доступен при активной
+        регистрации, назначенном участии и неархивном хакатоне. Система не проверяет внешний сайт.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationStatusResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: недопустимый переход состояния
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Отметка о выполненной регистрации
+      tags:
+      - registration
+  /hackathons/{id}/stages:
+    get:
+      description: Доступно назначенному участнику для опубликованного хакатона и
+        администратору всегда.
+      parameters:
+      - description: Идентификатор хакатона
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.StageResponse'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Этапы хакатона
+      tags:
+      - stages
+  /healthz:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HealthResponse'
+      summary: Проверка живости
+      tags:
+      - ops
+  /invites/{token}:
+    get:
+      description: Возвращает адрес и срок действия приглашения без раскрытия иных
+        данных.
+      parameters:
+      - description: Токен приглашения
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.InvitePreview'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Публичный просмотр приглашения
+      tags:
+      - invites
+  /invites/accept:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Создаёт учётную запись на адрес приглашения и открывает сессию.
+        Остальные неистёкшие приглашения этого адреса отзываются в той же транзакции.
+      parameters:
+      - description: Токен и данные учётной записи
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AcceptInviteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Принятие приглашения
+      tags:
+      - invites
+  /me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Собственный профиль
+      tags:
+      - profile
+    patch:
+      consumes:
+      - application/json
+      description: Флаг администратора, chat_id Telegram и пароль этим endpoint не
+        изменяются.
+      parameters:
+      - description: Изменяемые поля
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Изменение собственного профиля
+      tags:
+      - profile
+  /me/deactivate:
+    post:
+      description: |-
+        Отзывает сессии, удаляет привязку Telegram и отменяет ожидающие уведомления.
+        Обратная активация выполняется администратором.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Деактивация собственной учётной записи
+      tags:
+      - profile
+  /me/email-change:
+    post:
+      consumes:
+      - application/json
+      description: Новый адрес сохраняется как pending_email и становится основным
+        только после подтверждения.
+      parameters:
+      - description: Новый адрес и текущий пароль
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChangeEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: адрес уже занят
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Запрос смены email
+      tags:
+      - profile
+  /me/hackathons:
+    get:
+      description: |-
+        Опубликованные хакатоны с назначенным участием: UPCOMING, ACTIVE и FINISHED.
+        Архивные скрыты по умолчанию и доступны фильтром.
+      parameters:
+      - description: Показывать архивные
+        in: query
+        name: include_archived
+        type: boolean
+      - description: Фильтр состояний через запятую
+        enum:
+        - UPCOMING
+        - ACTIVE
+        - FINISHED
+        - ARCHIVED
+        in: query
+        name: state
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Размер страницы
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MyHackathonPage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Мои хакатоны
+      tags:
+      - queries
+  /me/telegram:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Отвязка Telegram
+      tags:
+      - profile
+  /me/telegram/link:
+    post:
+      description: |-
+        Возвращает одноразовый deep-link, связанный с текущим пользователем.
+        Идентификатор чата устанавливается только этим потоком.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TelegramLinkResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Ссылка привязки Telegram
+      tags:
+      - profile
+  /me/timeline:
+    get:
+      description: |-
+        Только назначенные опубликованные неархивные хакатоны. Каждый хакатон — отдельная строка,
+        этапы отдаются интервалами, дедлайн регистрации — отдельным маркером.
+      parameters:
+      - description: Начало периода, RFC3339
+        in: query
+        name: from
+        type: string
+      - description: Конец периода, RFC3339
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TimelineResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Временная шкала пользователя
+      tags:
+      - queries
+  /metrics:
+    get:
+      description: |-
+        Защищённый endpoint. Требует заголовок Authorization с bearer-токеном METRICS_TOKEN,
+        если токен задан конфигурацией.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: метрики в формате Prometheus
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Метрики Prometheus
+      tags:
+      - ops
+  /ops/worker-heartbeat:
+    get:
+      description: |-
+        Время последних запусков планировщика и worker, длины очереди по статусам
+        и возраст самой старой ожидающей записи.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.WorkerHeartbeatResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Состояние фоновых процессов
+      tags:
+      - ops
+  /readyz:
+    get:
+      description: Проверяет доступность базы данных.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReadyResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/models.ReadyResponse'
+      summary: Проверка готовности
+      tags:
+      - ops
+schemes:
+- http
+- https
+securityDefinitions:
+  CookieAuth:
+    description: Access token в HttpOnly cookie, выдаётся при входе и обновлении сессии.
+    in: cookie
+    name: access_token
+    type: apiKey
+swagger: "2.0"

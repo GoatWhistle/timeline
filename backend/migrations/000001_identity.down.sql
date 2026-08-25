@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS invites;
+DROP TABLE IF EXISTS one_time_tokens;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS users;
+DROP FUNCTION IF EXISTS set_updated_at();
