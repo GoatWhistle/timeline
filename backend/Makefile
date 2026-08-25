@@ -1,7 +1,9 @@
 BINARY := bin/hackathon
 PKG := ./...
 SWAG := swag
-SPEC_REPO := ../hackathon-os
+# Спецификация публикуется в docs/ монорепозитория: фронтенд генерирует
+# из неё типы.
+SPEC_REPO := ..
 
 .PHONY: help build run worker docs docs-publish fmt vet lint test test-integration migrate-up migrate-down compose-up compose-down clean
 
@@ -26,9 +28,9 @@ docs-generate:
 docs-publish: docs-generate ## Скопировать спецификацию в репозиторий с ТЗ
 	@if [ -d "$(SPEC_REPO)/docs" ]; then \
 		cp docs/swagger.yaml docs/swagger.json docs/api-conventions.md $(SPEC_REPO)/docs/; \
-		echo "спецификация скопирована в $(SPEC_REPO)/docs"; \
+		echo "спецификация скопирована в docs/"; \
 	else \
-		echo "репозиторий с ТЗ не найден в $(SPEC_REPO), копирование пропущено"; \
+		echo "каталог docs не найден в $(SPEC_REPO), копирование пропущено"; \
 	fi
 
 fmt: ## Форматировать код

@@ -1,9 +1,21 @@
-name: CI
+name: Backend CI
 
+# Бэкенд живёт в подкаталоге монорепозитория, поэтому все шаги выполняются
+# из backend/, а запуск ограничен изменениями в нём и в самом workflow.
 on:
   push:
     branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
   pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+
+defaults:
+  run:
+    working-directory: backend
 
 jobs:
   build:
@@ -35,6 +47,7 @@ jobs:
         with:
           go-version: "1.25"
           cache: true
+          cache-dependency-path: backend/go.sum
 
       - name: Проверка форматирования
         run: |
@@ -59,8 +72,8 @@ jobs:
         run: |
           go install github.com/swaggo/swag/cmd/swag@latest
           swag init -g internal/controllers/router.go -o docs --parseInternal --outputTypes go,json,yaml
-          if ! git diff --quiet -- docs; then
-            echo "Спецификация OpenAPI устарела: выполните make docs"; git diff --stat -- docs; exit 1
+          if ! git diff --quiet -- .; then
+            echo "Спецификация OpenAPI устарела: выполните make docs"; git diff --stat -- .; exit 1
           fi
 
   image:
@@ -81,7 +94,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@v6
         with:
-          context: .
-          file: deploy/Dockerfile
+          context: backend
+          file: backend/deploy/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ github.sha }}

@@ -1,2 +1,5 @@
 # Служебные файлы запуска (make up / make down)
 .run/
+
+# Служебный чекпоинт Claude Code (в любом подкаталоге)
+**/.claude/RESUME.md
