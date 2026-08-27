@@ -11,7 +11,7 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "termsOfService": "https://github.com/kaifarikman/hackathon-os",
         "contact": {
-            "name": "Команда Hackathon Tracker"
+            "name": "Hackathon Tracker team"
         },
         "license": {
             "name": "MIT"
@@ -28,64 +28,64 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Доступен только администратору. Записи неизменяемы; выгрузка файлом в MVP не поддерживается.",
+                "description": "Restricted to administrators. Entries are immutable; file export is not supported in the MVP.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "audit"
                 ],
-                "summary": "Журнал аудита",
+                "summary": "Audit log",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Фильтр по актору",
+                        "description": "Filter by actor",
                         "name": "actor_user_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Фильтр по действию",
+                        "description": "Filter by action",
                         "name": "action",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Фильтр по типу объекта",
+                        "description": "Filter by entity type",
                         "name": "entity_type",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Фильтр по идентификатору объекта",
+                        "description": "Filter by entity identifier",
                         "name": "entity_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Начало периода, RFC3339",
+                        "description": "Start of the period, RFC3339",
                         "name": "from",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Конец периода, RFC3339",
+                        "description": "End of the period, RFC3339",
                         "name": "to",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Номер страницы",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 50,
-                        "description": "Размер страницы",
+                        "description": "Page size",
                         "name": "page_size",
                         "in": "query"
                     }
@@ -112,25 +112,25 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons": {
+        "/admin/events": {
             "get": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Административный список со всеми состояниями, поиском и фильтрами.",
+                "description": "Administrative list with every state, search and filters.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Список хакатонов",
+                "summary": "Event list",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Поиск по названию и организатору",
+                        "description": "Search by title and organiser",
                         "name": "search",
                         "in": "query"
                     },
@@ -143,27 +143,27 @@ const docTemplate = `{
                             "ARCHIVED"
                         ],
                         "type": "string",
-                        "description": "Фильтр состояний через запятую",
+                        "description": "Comma-separated state filter",
                         "name": "state",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "description": "Показывать архивные",
+                        "description": "Include archived records",
                         "name": "include_archived",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Номер страницы",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 50,
-                        "description": "Размер страницы",
+                        "description": "Page size",
                         "name": "page_size",
                         "in": "query"
                     }
@@ -172,7 +172,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonPage"
+                            "$ref": "#/definitions/models.EventPage"
                         }
                     },
                     "403": {
@@ -189,7 +189,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Хакатон создаётся неопубликованным; end_at обязан быть позже start_at.",
+                "description": "The event is created unpublished; end_at must be later than start_at.",
                 "consumes": [
                     "application/json"
                 ],
@@ -197,17 +197,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Создание хакатона",
+                "summary": "Create an event",
                 "parameters": [
                     {
-                        "description": "Данные хакатона",
+                        "description": "Event payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateHackathonRequest"
+                            "$ref": "#/definitions/models.CreateEventRequest"
                         }
                     }
                 ],
@@ -215,7 +215,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonResponse"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "400": {
@@ -233,26 +233,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}": {
+        "/admin/events/{id}": {
             "get": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Административное чтение, включая заметки.",
+                "description": "Administrative read, including notes.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Хакатон целиком",
+                "summary": "The whole event",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -262,7 +262,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonResponse"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "403": {
@@ -285,7 +285,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Изменение end_at увеличивает schedule_version регистрации, отменяет устаревшие\nожидающие уведомления и запускает согласование. Нарушение условия\ndeadline_at \u003c= end_at отклоняется.",
+                "description": "Changing end_at increments the registration schedule_version, cancels stale\npending notifications and triggers reconciliation. Violating the condition\ndeadline_at \u003c= end_at отклоняется.",
                 "consumes": [
                     "application/json"
                 ],
@@ -293,25 +293,25 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Изменение хакатона",
+                "summary": "Update an event",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Изменяемые поля",
+                        "description": "Mutable fields",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateHackathonRequest"
+                            "$ref": "#/definitions/models.UpdateEventRequest"
                         }
                     }
                 ],
@@ -319,7 +319,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonResponse"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "400": {
@@ -341,7 +341,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "дедлайн регистрации выходит за end_at",
+                        "description": "the registration deadline falls outside end_at",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -349,26 +349,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/archive": {
+        "/admin/events/{id}/archive": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Конечное состояние MVP: ожидающие уведомления отменяются, новые не создаются.",
+                "description": "Terminal state in the MVP: pending notifications are cancelled and no new ones are created.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Архивирование хакатона",
+                "summary": "Archive an event",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -378,7 +378,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonResponse"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "403": {
@@ -394,7 +394,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "хакатон уже архивирован",
+                        "description": "event is already archived",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -402,7 +402,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/participants": {
+        "/admin/events/{id}/participants": {
             "get": {
                 "security": [
                     {
@@ -415,19 +415,19 @@ const docTemplate = `{
                 "tags": [
                     "participants"
                 ],
-                "summary": "Состав участников хакатона",
+                "summary": "Event participant roster",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Фильтр по функции участника",
+                        "description": "Filter by participant role",
                         "name": "team_role",
                         "in": "query"
                     },
@@ -438,33 +438,33 @@ const docTemplate = `{
                             "NOT_REQUIRED"
                         ],
                         "type": "string",
-                        "description": "Фильтр по статусу регистрации",
+                        "description": "Filter by registration status",
                         "name": "registration_status",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "description": "Включая удалённых из состава",
+                        "description": "Include participants removed from the roster",
                         "name": "include_removed",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Поиск по имени и email",
+                        "description": "Search by name and email",
                         "name": "search",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Номер страницы",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 50,
-                        "description": "Размер страницы",
+                        "description": "Page size",
                         "name": "page_size",
                         "in": "query"
                     }
@@ -491,14 +491,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/participants/batch-add": {
+        "/admin/events/{id}/participants/batch-add": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Повторное добавление ранее удалённого участника реактивирует запись и увеличивает\nassignment_version. Назначение, статус регистрации, первичное уведомление и запись\nаудита выполняются одной транзакцией на участника; результат возвращается по каждому элементу.",
+                "description": "Re-adding a previously removed participant reactivates the record and increments\nassignment_version. The assignment, registration status, primary notification and audit\nentry run in a single transaction per participant; the result is returned per entry.",
                 "consumes": [
                     "application/json"
                 ],
@@ -508,18 +508,18 @@ const docTemplate = `{
                 "tags": [
                     "participants"
                 ],
-                "summary": "Массовое добавление участников",
+                "summary": "Bulk participant assignment",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Список пользователей и их функций",
+                        "description": "List of users and their roles",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -556,14 +556,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/participants/batch-remove": {
+        "/admin/events/{id}/participants/batch-remove": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Переводит участие в REMOVED и отменяет ожидающие уведомления. Отправленные сохраняются.",
+                "description": "Moves participation to REMOVED and cancels pending notifications. Sent ones are preserved.",
                 "consumes": [
                     "application/json"
                 ],
@@ -573,18 +573,18 @@ const docTemplate = `{
                 "tags": [
                     "participants"
                 ],
-                "summary": "Массовое удаление участников",
+                "summary": "Bulk participant removal",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Идентификаторы участников",
+                        "description": "Participant identifiers",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -621,14 +621,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/participants/copy-from": {
+        "/admin/events/{id}/participants/copy-from": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Переносятся только назначенные участники. Функция участника переносится как значение\nпо умолчанию и может быть переопределена. Существующие участники пропускаются\nи возвращаются отдельными элементами результата.",
+                "description": "Only assigned participants are copied. The participant role is copied as a value\nby default and can be overridden. Existing participants are skipped\nand returned as separate result entries.",
                 "consumes": [
                     "application/json"
                 ],
@@ -638,18 +638,18 @@ const docTemplate = `{
                 "tags": [
                     "participants"
                 ],
-                "summary": "Копирование состава из другого хакатона",
+                "summary": "Copy the roster from another event",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор целевого хакатона",
+                        "description": "Target event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Источник и переопределения функций",
+                        "description": "Source and role overrides",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -686,26 +686,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/publish": {
+        "/admin/events/{id}/publish": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Хакатон становится видимым участникам и планировщику; отложенные первичные\nуведомления создаются согласованием.",
+                "description": "The event becomes visible to participants and the scheduler; deferred primary\nnotifications are created by reconciliation.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Публикация хакатона",
+                "summary": "Publish an event",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -715,7 +715,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonResponse"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "403": {
@@ -731,7 +731,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "хакатон уже опубликован или архивирован",
+                        "description": "the event is already published or archived",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -739,7 +739,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/registration": {
+        "/admin/events/{id}/registration": {
             "get": {
                 "security": [
                     {
@@ -752,12 +752,12 @@ const docTemplate = `{
                 "tags": [
                     "registration"
                 ],
-                "summary": "Регистрация хакатона",
+                "summary": "Event registration",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -790,7 +790,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Создание активной регистрации создаёт недостающие статусы TODO всем назначенным\nучастникам. Первичные уведомления создаются только для опубликованного неархивного\nхакатона; иначе они откладываются до публикации. Дедлайн обязан удовлетворять\nусловию deadline_at \u003c= hackathon.end_at.",
+                "description": "Creating an active registration creates missing TODO statuses for every assigned\nparticipant. Primary notifications are created only for a published, non-archived\nevent; otherwise they are deferred until publication. The deadline must satisfy\nусловию deadline_at \u003c= event.end_at.",
                 "consumes": [
                     "application/json"
                 ],
@@ -800,18 +800,18 @@ const docTemplate = `{
                 "tags": [
                     "registration"
                 ],
-                "summary": "Создание регистрации",
+                "summary": "Create a registration",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Ссылка и дедлайн",
+                        "description": "Link and deadline",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -846,7 +846,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "регистрация уже существует или дедлайн выходит за end_at",
+                        "description": "registration already exists or the deadline falls outside end_at",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -859,7 +859,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Изменение ссылки увеличивает notification_content_version, изменение дедлайна —\nschedule_version. В обоих случаях ожидающие уведомления отменяются, а актуальные\nсоздаются согласованием с новым логическим ключом.",
+                "description": "Changing the link increments notification_content_version; changing the deadline increments\nschedule_version. In both cases pending notifications are cancelled and current ones\nare created by reconciliation with a new logical key.",
                 "consumes": [
                     "application/json"
                 ],
@@ -869,18 +869,18 @@ const docTemplate = `{
                 "tags": [
                     "registration"
                 ],
-                "summary": "Изменение регистрации",
+                "summary": "Update a registration",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Изменяемые поля",
+                        "description": "Mutable fields",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -923,7 +923,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/registration-statuses": {
+        "/admin/events/{id}/registration-statuses": {
             "get": {
                 "security": [
                     {
@@ -936,12 +936,12 @@ const docTemplate = `{
                 "tags": [
                     "registration"
                 ],
-                "summary": "Статусы регистрации участников",
+                "summary": "Participant registration statuses",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -949,14 +949,14 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Номер страницы",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 50,
-                        "description": "Размер страницы",
+                        "description": "Page size",
                         "name": "page_size",
                         "in": "query"
                     }
@@ -983,14 +983,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/registration-statuses/batch-set": {
+        "/admin/events/{id}/registration-statuses/batch-set": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Допускаются значения TODO и NOT_REQUIRED. Результат возвращается по каждому участнику.",
+                "description": "Only TODO and NOT_REQUIRED are accepted. The result is returned per participant.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1000,18 +1000,18 @@ const docTemplate = `{
                 "tags": [
                     "registration"
                 ],
-                "summary": "Массовая установка статуса",
+                "summary": "Bulk status assignment",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Участники и целевой статус",
+                        "description": "Participants and target status",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1048,14 +1048,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/registration-statuses/batch-set/preview": {
+        "/admin/events/{id}/registration-statuses/batch-set/preview": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Возвращает количество изменяемых и пропускаемых записей без изменения данных.",
+                "description": "Returns the number of records to be changed and skipped without modifying data.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1065,18 +1065,18 @@ const docTemplate = `{
                 "tags": [
                     "registration"
                 ],
-                "summary": "Предпросмотр массовой установки статуса",
+                "summary": "Preview a bulk status assignment",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Участники и целевой статус",
+                        "description": "Participants and target status",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1113,26 +1113,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/registration/disable": {
+        "/admin/events/{id}/registration/disable": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Ожидающие уведомления отменяются, статусы сохраняются, но перестают быть actionable.",
+                "description": "Pending notifications are cancelled; statuses are preserved but stop being actionable.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "registration"
                 ],
-                "summary": "Выключение регистрации",
+                "summary": "Disable registration",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1158,7 +1158,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "регистрация уже выключена",
+                        "description": "registration is already disabled",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -1166,26 +1166,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/registration/enable": {
+        "/admin/events/{id}/registration/enable": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Увеличивает activation_version и schedule_version, создаёт недостающие статусы;\nучастники в TODO снова получают первичное уведомление.",
+                "description": "Increments activation_version and schedule_version and creates missing statuses;\nparticipants in TODO receive the primary notification again.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "registration"
                 ],
-                "summary": "Включение регистрации",
+                "summary": "Enable registration",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1211,7 +1211,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "регистрация уже активна",
+                        "description": "registration is already active",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -1219,7 +1219,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/registration/rules": {
+        "/admin/events/{id}/registration/rules": {
             "get": {
                 "security": [
                     {
@@ -1232,12 +1232,12 @@ const docTemplate = `{
                 "tags": [
                     "rules"
                 ],
-                "summary": "Правила напоминаний",
+                "summary": "Reminder rules",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1273,7 +1273,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Знак offset_minutes задаёт тип: положительное значение — напоминание до дедлайна,\nноль — в момент дедлайна, отрицательное — уведомление о просрочке.\nНа регистрацию допускается не более 10 правил.",
+                "description": "The sign of offset_minutes selects the type: a positive value is a reminder before the deadline,\nzero fires at the deadline, and a negative value is an overdue notification.\nA registration accepts at most 10 rules.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1283,18 +1283,18 @@ const docTemplate = `{
                 "tags": [
                     "rules"
                 ],
-                "summary": "Создание правила напоминания",
+                "summary": "Create a reminder rule",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Параметры правила",
+                        "description": "Rule parameters",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1329,7 +1329,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "правило с таким смещением уже есть или исчерпан лимит слотов",
+                        "description": "a rule with this offset already exists or the slot limit is reached",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -1337,14 +1337,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/hackathons/{id}/stages": {
+        "/admin/events/{id}/stages": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Пересечения этапов и выход за период хакатона допускаются. Этап не порождает уведомлений.",
+                "description": "Overlapping stages and stages outside the event period are allowed. A stage produces no notifications.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1354,18 +1354,18 @@ const docTemplate = `{
                 "tags": [
                     "stages"
                 ],
-                "summary": "Создание этапа",
+                "summary": "Create a stage",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Данные этапа",
+                        "description": "Stage payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1415,19 +1415,19 @@ const docTemplate = `{
                 "tags": [
                     "invites"
                 ],
-                "summary": "Список приглашений",
+                "summary": "Invite list",
                 "parameters": [
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Номер страницы",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 50,
-                        "description": "Размер страницы",
+                        "description": "Page size",
                         "name": "page_size",
                         "in": "query"
                     }
@@ -1453,7 +1453,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Создание сериализуется по нормализованному email: предыдущее непринятое приглашение отзывается,\nзатем создаётся новое. Приглашение на адрес существующего пользователя отклоняется конфликтом\nнезависимо от его активности.",
+                "description": "Creation is serialised by normalised email: a previous unaccepted invite is revoked,\nthen a new one is created. An invite for an existing user address is rejected with a conflict\nregardless of that user's activity.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1463,10 +1463,10 @@ const docTemplate = `{
                 "tags": [
                     "invites"
                 ],
-                "summary": "Создание приглашения",
+                "summary": "Create an invite",
                 "parameters": [
                     {
-                        "description": "Адрес приглашаемого",
+                        "description": "Address of the invited person",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1495,7 +1495,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "пользователь с таким email уже существует",
+                        "description": "a user with this email already exists",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -1516,12 +1516,12 @@ const docTemplate = `{
                 "tags": [
                     "invites"
                 ],
-                "summary": "Отзыв приглашения",
+                "summary": "Revoke an invite",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор приглашения",
+                        "description": "Invite identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1556,7 +1556,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Возвращает участие в ASSIGNED, увеличивает assignment_version, очищает removed_at\nи заново задаёт функцию. Существующий статус регистрации сохраняется.",
+                "description": "Returns participation to ASSIGNED, increments assignment_version, clears removed_at\nand sets the role again. An existing registration status is preserved.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1566,18 +1566,18 @@ const docTemplate = `{
                 "tags": [
                     "participants"
                 ],
-                "summary": "Реактивация участника",
+                "summary": "Reactivate a participant",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор участника",
+                        "description": "Participant identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Функция участника",
+                        "description": "Participant role",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1612,7 +1612,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "участник уже назначен",
+                        "description": "the participant is already assigned",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -1627,7 +1627,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "team_role — свободнотекстовая функция на хакатоне, а не право доступа.",
+                "description": "team_role is a free-text role on the event, not an access permission.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1637,18 +1637,18 @@ const docTemplate = `{
                 "tags": [
                     "participants"
                 ],
-                "summary": "Изменение функции участника",
+                "summary": "Update a participant role",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор участника",
+                        "description": "Participant identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Новая функция",
+                        "description": "New role",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1692,26 +1692,26 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Участники со статусом TODO, у которых дедлайн уже прошёл, а хакатон ещё не завершён.",
+                "description": "Participants in TODO whose deadline has passed while the event has not finished.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "queries"
                 ],
-                "summary": "Просроченные регистрации",
+                "summary": "Overdue registrations",
                 "parameters": [
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Номер страницы",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 50,
-                        "description": "Размер страницы",
+                        "description": "Page size",
                         "name": "page_size",
                         "in": "query"
                     }
@@ -1739,33 +1739,33 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Участники со статусом TODO, у которых дедлайн наступает в пределах указанного окна.",
+                "description": "Participants in TODO whose deadline falls within the given window.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "queries"
                 ],
-                "summary": "Ближайшие дедлайны регистрации",
+                "summary": "Upcoming registration deadlines",
                 "parameters": [
                     {
                         "type": "integer",
                         "default": 72,
-                        "description": "Окно в часах",
+                        "description": "Window in hours",
                         "name": "within_hours",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Номер страницы",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 50,
-                        "description": "Размер страницы",
+                        "description": "Page size",
                         "name": "page_size",
                         "in": "query"
                     }
@@ -1793,19 +1793,19 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Правило переводится в enabled=false; строка сохраняется, чтобы занятый слот\nи смещение оставались зафиксированными.",
+                "description": "The rule is set to enabled=false; the row is preserved so that the occupied slot\nand offset stay reserved.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "rules"
                 ],
-                "summary": "Выключение правила напоминания",
+                "summary": "Disable a reminder rule",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор правила",
+                        "description": "Rule identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1813,7 +1813,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "правило выключено"
+                        "description": "the rule is disabled"
                     },
                     "403": {
                         "description": "Forbidden",
@@ -1835,7 +1835,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Изменение полей расписания увеличивает schedule_version один раз на транзакцию\nи запускает согласование уведомлений.",
+                "description": "Changing schedule fields increments schedule_version once per transaction\nand triggers notification reconciliation.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1845,18 +1845,18 @@ const docTemplate = `{
                 "tags": [
                     "rules"
                 ],
-                "summary": "Изменение правила напоминания",
+                "summary": "Update a reminder rule",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор правила",
+                        "description": "Rule identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Изменяемые поля",
+                        "description": "Mutable fields",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1906,7 +1906,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Допустимые переходы: TODO → DONE, DONE → TODO, TODO/DONE → NOT_REQUIRED,\nNOT_REQUIRED → TODO. Вход в TODO увеличивает todo_cycle и очищает registered_at.",
+                "description": "Allowed transitions: TODO to DONE, DONE to TODO, TODO/DONE to NOT_REQUIRED,\nNOT_REQUIRED to TODO. Entering TODO increments todo_cycle and clears registered_at.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1916,18 +1916,18 @@ const docTemplate = `{
                 "tags": [
                     "registration"
                 ],
-                "summary": "Административный переход статуса",
+                "summary": "Administrative status transition",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор статуса",
+                        "description": "Status identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Новый статус",
+                        "description": "New status",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1983,12 +1983,12 @@ const docTemplate = `{
                 "tags": [
                     "stages"
                 ],
-                "summary": "Удаление этапа",
+                "summary": "Delete a stage",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор этапа",
+                        "description": "Stage identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1996,7 +1996,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "этап удалён"
+                        "description": "the stage is deleted"
                     },
                     "403": {
                         "description": "Forbidden",
@@ -2027,18 +2027,18 @@ const docTemplate = `{
                 "tags": [
                     "stages"
                 ],
-                "summary": "Изменение этапа",
+                "summary": "Update a stage",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор этапа",
+                        "description": "Stage identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Изменяемые поля",
+                        "description": "Mutable fields",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2082,43 +2082,43 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Все хакатоны с фильтрами по состоянию, участнику и диапазону дат.",
+                "description": "All events with filters by state, participant and date range.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "queries"
                 ],
-                "summary": "Административная временная шкала",
+                "summary": "Administrative timeline",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Начало периода, RFC3339",
+                        "description": "Start of the period, RFC3339",
                         "name": "from",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Конец периода, RFC3339",
+                        "description": "End of the period, RFC3339",
                         "name": "to",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Фильтр состояний через запятую",
+                        "description": "Comma-separated state filter",
                         "name": "state",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Фильтр по участнику",
+                        "description": "Filter by participant",
                         "name": "participant_user_id",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "description": "Показывать архивные",
+                        "description": "Include archived records",
                         "name": "include_archived",
                         "in": "query"
                     }
@@ -2152,32 +2152,32 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Поиск по display_name и нормализованному email для выбора участников.\nВозвращаются только минимальные поля; credentials и данные каналов не отдаются.",
+                "description": "Search by display_name and normalised email to pick participants.\nOnly minimal fields are returned; credentials and channel data are withheld.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Поиск пользователей",
+                "summary": "Search users",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Строка поиска",
+                        "description": "Search string",
                         "name": "query",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Номер страницы",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 50,
-                        "description": "Размер страницы",
+                        "description": "Page size",
                         "name": "page_size",
                         "in": "query"
                     }
@@ -2205,19 +2205,19 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Удаляет credentials и каналы доставки, обезличивает имя и email.\nСсылки участия и записи аудита сохраняются.",
+                "description": "Removes credentials and delivery channels, anonymises the name and email.\nParticipation references and audit entries are preserved.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Необратимое удаление пользователя",
+                "summary": "Irreversible user deletion",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор пользователя",
+                        "description": "User identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2252,19 +2252,19 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Восстанавливает доступ. Ранее отменённые уведомления не воскрешаются.",
+                "description": "Restores access. Previously cancelled notifications are not revived.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Обратная активация пользователя",
+                "summary": "Reactivate a user",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор пользователя",
+                        "description": "User identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2299,19 +2299,19 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Отзывает сессии, удаляет привязку Telegram и переводит ожидающие уведомления в CANCELLED.",
+                "description": "Revokes sessions, removes the Telegram link and moves pending notifications to CANCELLED.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Деактивация пользователя",
+                "summary": "Deactivate a user",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор пользователя",
+                        "description": "User identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2341,14 +2341,14 @@ const docTemplate = `{
         },
         "/auth/csrf": {
             "get": {
-                "description": "Выдаёт токен в cookie и в теле ответа. Все изменяющие запросы обязаны передавать его заголовком X-CSRF-Token.",
+                "description": "Issues the token in a cookie and in the response body. Every mutating request must send it in the X-CSRF-Token header.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "auth"
                 ],
-                "summary": "Получение CSRF-токена",
+                "summary": "Obtain a CSRF token",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2361,7 +2361,7 @@ const docTemplate = `{
         },
         "/auth/email-change/confirm": {
             "post": {
-                "description": "Переносит pending_email в основной адрес. До подтверждения вход работает по прежнему адресу.",
+                "description": "Promotes pending_email to the primary address. Until confirmation, sign-in uses the previous address.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2371,10 +2371,10 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Подтверждение смены email",
+                "summary": "Confirm an email change",
                 "parameters": [
                     {
-                        "description": "Токен подтверждения",
+                        "description": "Confirmation token",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2397,7 +2397,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "адрес уже занят",
+                        "description": "address is already taken",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -2407,7 +2407,7 @@ const docTemplate = `{
         },
         "/auth/login": {
             "post": {
-                "description": "Выдаёт access token на 15 минут и rotating refresh token на 30 дней в HttpOnly cookie.\nОграничение частоты: 10 попыток за 15 минут на пару IP и email.",
+                "description": "Issues a 15-minute access token and a rotating 30-day refresh token in HttpOnly cookies.\nRate limit: 10 attempts per 15 minutes per IP and email pair.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2417,10 +2417,10 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Вход по email и паролю",
+                "summary": "Sign in with email and password",
                 "parameters": [
                     {
-                        "description": "Учётные данные",
+                        "description": "Credentials",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2443,7 +2443,7 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "неверные учётные данные или деактивированная запись",
+                        "description": "invalid credentials or a deactivated account",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -2459,14 +2459,14 @@ const docTemplate = `{
         },
         "/auth/logout": {
             "post": {
-                "description": "Отзывает refresh token текущей сессии и очищает cookie.",
+                "description": "Revokes the refresh token of the current session and clears the cookies.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "auth"
                 ],
-                "summary": "Выход из текущей сессии",
+                "summary": "Sign out of the current session",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2484,14 +2484,14 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Отзывает все активные сессии пользователя.",
+                "description": "Revokes every active session of the user.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "auth"
                 ],
-                "summary": "Выход из всех сессий",
+                "summary": "Sign out of all sessions",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2510,7 +2510,7 @@ const docTemplate = `{
         },
         "/auth/password/forgot": {
             "post": {
-                "description": "Выдаёт одноразовый токен на 30 минут. Ответ не раскрывает существование учётной записи.",
+                "description": "Issues a one-time token valid for 30 minutes. The response does not disclose whether an account exists.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2520,10 +2520,10 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Запрос восстановления пароля",
+                "summary": "Request a password reset",
                 "parameters": [
                     {
-                        "description": "Адрес электронной почты",
+                        "description": "Email address",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2556,7 +2556,7 @@ const docTemplate = `{
         },
         "/auth/password/reset": {
             "post": {
-                "description": "После смены пароля все активные сессии пользователя отзываются.",
+                "description": "After a password change every active session of the user is revoked.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2566,10 +2566,10 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Установка нового пароля",
+                "summary": "Set a new password",
                 "parameters": [
                     {
-                        "description": "Токен и новый пароль",
+                        "description": "Token and new password",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2596,14 +2596,14 @@ const docTemplate = `{
         },
         "/auth/refresh": {
             "post": {
-                "description": "Ротация refresh token. Повторное использование отозванного токена отзывает всю цепочку сессии.",
+                "description": "Rotates the refresh token. Reusing a revoked token revokes the entire session chain.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "auth"
                 ],
-                "summary": "Обновление сессии",
+                "summary": "Refresh the session",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2622,7 +2622,7 @@ const docTemplate = `{
         },
         "/auth/register": {
             "post": {
-                "description": "Создаёт учётную запись, отправляет письмо подтверждения на 24 часа и открывает сессию.\nДо подтверждения адреса вход разрешён, продуктовые уведомления по email — нет.\nЕсли передан invite_token, приглашение принимается в той же транзакции.",
+                "description": "Creates an account, sends a confirmation email valid for 24 hours and opens a session.\nSign-in is allowed before the address is confirmed; product email notifications are not.\nIf invite_token is supplied, the invite is accepted in the same transaction.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2632,10 +2632,10 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Регистрация пользователя",
+                "summary": "Register a user",
                 "parameters": [
                     {
-                        "description": "Данные регистрации",
+                        "description": "Registration payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2658,7 +2658,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "email уже занят",
+                        "description": "email is already taken",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -2674,7 +2674,7 @@ const docTemplate = `{
         },
         "/auth/verify-email": {
             "post": {
-                "description": "Потребляет одноразовый токен подтверждения со сроком 24 часа.",
+                "description": "Consumes a one-time confirmation token valid for 24 hours.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2684,10 +2684,10 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Подтверждение email",
+                "summary": "Confirm an email address",
                 "parameters": [
                     {
-                        "description": "Токен подтверждения",
+                        "description": "Confirmation token",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2704,7 +2704,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "токен недействителен или истёк",
+                        "description": "the token is invalid or has expired",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -2714,7 +2714,7 @@ const docTemplate = `{
         },
         "/auth/verify-email/resend": {
             "post": {
-                "description": "Ограничение частоты: 5 запросов в час на пару IP и email. Ответ не раскрывает существование учётной записи.",
+                "description": "Rate limit: 5 requests per hour per IP and email pair. The response does not disclose whether an account exists.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2724,10 +2724,10 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Повторная отправка письма подтверждения",
+                "summary": "Resend the confirmation email",
                 "parameters": [
                     {
-                        "description": "Адрес электронной почты",
+                        "description": "Email address",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2758,26 +2758,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/hackathons/{id}": {
+        "/events/{id}": {
             "get": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Функция участника, вычисляемое состояние, этапы, ближайший этап, статус регистрации,\nдедлайн и ссылка. Административные заметки участнику не отдаются.",
+                "description": "Participant role, computed state, stages, the nearest stage, registration status,\ndeadline and link. Administrative notes are withheld from the participant.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "queries"
                 ],
-                "summary": "Карточка назначенного хакатона",
+                "summary": "Assigned event card",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2787,7 +2787,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonCard"
+                            "$ref": "#/definitions/models.EventCard"
                         }
                     },
                     "401": {
@@ -2811,26 +2811,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/hackathons/{id}/registration/done": {
+        "/events/{id}/registration/done": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Самоотчёт участника: перевод собственного статуса TODO в DONE. Доступен при активной\nрегистрации, назначенном участии и неархивном хакатоне. Система не проверяет внешний сайт.",
+                "description": "Participant self-report: moves their own TODO status to DONE. Available with an active\nregistration, an assigned participation and a non-archived event. The system does not verify the external site.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "registration"
                 ],
-                "summary": "Отметка о выполненной регистрации",
+                "summary": "Mark registration as completed",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2862,7 +2862,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "недопустимый переход состояния",
+                        "description": "invalid state transition",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -2870,26 +2870,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/hackathons/{id}/stages": {
+        "/events/{id}/stages": {
             "get": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Доступно назначенному участнику для опубликованного хакатона и администратору всегда.",
+                "description": "Available to an assigned participant for a published event, and to an administrator always.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "stages"
                 ],
-                "summary": "Этапы хакатона",
+                "summary": "Event stages",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Event identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2928,7 +2928,7 @@ const docTemplate = `{
                 "tags": [
                     "ops"
                 ],
-                "summary": "Проверка живости",
+                "summary": "Liveness probe",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2941,7 +2941,7 @@ const docTemplate = `{
         },
         "/invites/accept": {
             "post": {
-                "description": "Создаёт учётную запись на адрес приглашения и открывает сессию.\nОстальные неистёкшие приглашения этого адреса отзываются в той же транзакции.",
+                "description": "Creates an account for the invited address and opens a session.\nAny other unexpired invites for this address are revoked in the same transaction.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2951,10 +2951,10 @@ const docTemplate = `{
                 "tags": [
                     "invites"
                 ],
-                "summary": "Принятие приглашения",
+                "summary": "Accept an invite",
                 "parameters": [
                     {
-                        "description": "Токен и данные учётной записи",
+                        "description": "Token and account data",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2987,18 +2987,18 @@ const docTemplate = `{
         },
         "/invites/{token}": {
             "get": {
-                "description": "Возвращает адрес и срок действия приглашения без раскрытия иных данных.",
+                "description": "Returns the address and expiry of the invite without disclosing any other data.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invites"
                 ],
-                "summary": "Публичный просмотр приглашения",
+                "summary": "Public invite preview",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Токен приглашения",
+                        "description": "Invite token",
                         "name": "token",
                         "in": "path",
                         "required": true
@@ -3033,7 +3033,7 @@ const docTemplate = `{
                 "tags": [
                     "profile"
                 ],
-                "summary": "Собственный профиль",
+                "summary": "Your own profile",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3055,7 +3055,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Флаг администратора, chat_id Telegram и пароль этим endpoint не изменяются.",
+                "description": "The administrator flag, Telegram chat_id and password are not changed by this endpoint.",
                 "consumes": [
                     "application/json"
                 ],
@@ -3065,10 +3065,10 @@ const docTemplate = `{
                 "tags": [
                     "profile"
                 ],
-                "summary": "Изменение собственного профиля",
+                "summary": "Update your own profile",
                 "parameters": [
                     {
-                        "description": "Изменяемые поля",
+                        "description": "Mutable fields",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -3106,14 +3106,14 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Отзывает сессии, удаляет привязку Telegram и отменяет ожидающие уведомления.\nОбратная активация выполняется администратором.",
+                "description": "Revokes sessions, removes the Telegram link and cancels pending notifications.\nReactivation is performed by an administrator.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "profile"
                 ],
-                "summary": "Деактивация собственной учётной записи",
+                "summary": "Deactivate your own account",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3137,7 +3137,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Новый адрес сохраняется как pending_email и становится основным только после подтверждения.",
+                "description": "The new address is stored as pending_email and becomes primary only after confirmation.",
                 "consumes": [
                     "application/json"
                 ],
@@ -3147,10 +3147,10 @@ const docTemplate = `{
                 "tags": [
                     "profile"
                 ],
-                "summary": "Запрос смены email",
+                "summary": "Request an email change",
                 "parameters": [
                     {
-                        "description": "Новый адрес и текущий пароль",
+                        "description": "New address and current password",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -3179,7 +3179,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "адрес уже занят",
+                        "description": "address is already taken",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -3187,25 +3187,25 @@ const docTemplate = `{
                 }
             }
         },
-        "/me/hackathons": {
+        "/me/events": {
             "get": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Опубликованные хакатоны с назначенным участием: UPCOMING, ACTIVE и FINISHED.\nАрхивные скрыты по умолчанию и доступны фильтром.",
+                "description": "Published events with an assigned participation: UPCOMING, ACTIVE and FINISHED.\nArchived records are hidden by default and available through a filter.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "queries"
                 ],
-                "summary": "Мои хакатоны",
+                "summary": "My events",
                 "parameters": [
                     {
                         "type": "boolean",
-                        "description": "Показывать архивные",
+                        "description": "Include archived records",
                         "name": "include_archived",
                         "in": "query"
                     },
@@ -3217,21 +3217,21 @@ const docTemplate = `{
                             "ARCHIVED"
                         ],
                         "type": "string",
-                        "description": "Фильтр состояний через запятую",
+                        "description": "Comma-separated state filter",
                         "name": "state",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Номер страницы",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 50,
-                        "description": "Размер страницы",
+                        "description": "Page size",
                         "name": "page_size",
                         "in": "query"
                     }
@@ -3240,7 +3240,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MyHackathonPage"
+                            "$ref": "#/definitions/models.MyEventPage"
                         }
                     },
                     "401": {
@@ -3265,7 +3265,7 @@ const docTemplate = `{
                 "tags": [
                     "profile"
                 ],
-                "summary": "Отвязка Telegram",
+                "summary": "Unlink Telegram",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3289,14 +3289,14 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Возвращает одноразовый deep-link, связанный с текущим пользователем.\nИдентификатор чата устанавливается только этим потоком.",
+                "description": "Returns a one-time deep link bound to the current user.\nThe chat identifier is set only by this flow.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "profile"
                 ],
-                "summary": "Ссылка привязки Telegram",
+                "summary": "Telegram link URL",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3320,24 +3320,24 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Только назначенные опубликованные неархивные хакатоны. Каждый хакатон — отдельная строка,\nэтапы отдаются интервалами, дедлайн регистрации — отдельным маркером.",
+                "description": "Only assigned, published, non-archived events. Each event is a separate row,\nstages are returned as intervals and the registration deadline as a separate marker.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "queries"
                 ],
-                "summary": "Временная шкала пользователя",
+                "summary": "User timeline",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Начало периода, RFC3339",
+                        "description": "Start of the period, RFC3339",
                         "name": "from",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Конец периода, RFC3339",
+                        "description": "End of the period, RFC3339",
                         "name": "to",
                         "in": "query"
                     }
@@ -3366,17 +3366,17 @@ const docTemplate = `{
         },
         "/metrics": {
             "get": {
-                "description": "Защищённый endpoint. Требует заголовок Authorization с bearer-токеном METRICS_TOKEN,\nесли токен задан конфигурацией.",
+                "description": "Protected endpoint. Requires an Authorization header with the METRICS_TOKEN bearer token,\nwhen the token is set by configuration.",
                 "produces": [
                     "text/plain"
                 ],
                 "tags": [
                     "ops"
                 ],
-                "summary": "Метрики Prometheus",
+                "summary": "Prometheus metrics",
                 "responses": {
                     "200": {
-                        "description": "метрики в формате Prometheus",
+                        "description": "metrics in Prometheus format",
                         "schema": {
                             "type": "string"
                         }
@@ -3392,14 +3392,14 @@ const docTemplate = `{
         },
         "/ops/worker-heartbeat": {
             "get": {
-                "description": "Время последних запусков планировщика и worker, длины очереди по статусам\nи возраст самой старой ожидающей записи.",
+                "description": "Last run times of the scheduler and worker, queue lengths by status\nand the age of the oldest pending entry.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "ops"
                 ],
-                "summary": "Состояние фоновых процессов",
+                "summary": "Background process status",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3418,14 +3418,14 @@ const docTemplate = `{
         },
         "/readyz": {
             "get": {
-                "description": "Проверяет доступность базы данных.",
+                "description": "Checks that the database is reachable.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "ops"
                 ],
-                "summary": "Проверка готовности",
+                "summary": "Readiness probe",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3516,10 +3516,10 @@ const docTemplate = `{
                 "INVITE_CREATE",
                 "INVITE_REVOKE",
                 "INVITE_ACCEPT",
-                "HACKATHON_CREATE",
-                "HACKATHON_UPDATE",
-                "HACKATHON_PUBLISH",
-                "HACKATHON_ARCHIVE",
+                "EVENT_CREATE",
+                "EVENT_UPDATE",
+                "EVENT_PUBLISH",
+                "EVENT_ARCHIVE",
                 "STAGE_CREATE",
                 "STAGE_UPDATE",
                 "STAGE_DELETE",
@@ -3541,10 +3541,10 @@ const docTemplate = `{
                 "AuditInviteCreate",
                 "AuditInviteRevoke",
                 "AuditInviteAccept",
-                "AuditHackathonCreate",
-                "AuditHackathonUpdate",
-                "AuditHackathonPublish",
-                "AuditHackathonArchive",
+                "AuditEventCreate",
+                "AuditEventUpdate",
+                "AuditEventPublish",
+                "AuditEventArchive",
                 "AuditStageCreate",
                 "AuditStageUpdate",
                 "AuditStageDelete",
@@ -3646,7 +3646,7 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string",
-                    "example": "участник уже назначен"
+                    "example": "the participant is already assigned"
                 },
                 "status": {
                     "type": "string",
@@ -3766,7 +3766,7 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.CopyRoleOverride"
                     }
                 },
-                "source_hackathon_id": {
+                "source_event_id": {
                     "type": "string"
                 }
             }
@@ -3783,7 +3783,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateHackathonRequest": {
+        "models.CreateEventRequest": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3803,7 +3803,7 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийский хакатон"
+                    "example": "Всероссийскее событие"
                 },
                 "website_url": {
                     "type": "string",
@@ -3918,10 +3918,10 @@ const docTemplate = `{
                 "deadline_at": {
                     "type": "string"
                 },
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
-                "hackathon_title": {
+                "event_title": {
                     "type": "string"
                 },
                 "overdue_minutes": {
@@ -3976,9 +3976,9 @@ const docTemplate = `{
             "enum": [
                 "USER",
                 "INVITE",
-                "HACKATHON",
+                "EVENT",
                 "STAGE",
-                "HACKATHON_PARTICIPANT",
+                "EVENT_PARTICIPANT",
                 "REGISTRATION",
                 "REGISTRATION_STATUS",
                 "NOTIFICATION_RULE"
@@ -3986,7 +3986,7 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "EntityUser",
                 "EntityInvite",
-                "EntityHackathon",
+                "EntityEvent",
                 "EntityStage",
                 "EntityParticipant",
                 "EntityRegistration",
@@ -4009,7 +4009,7 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string",
-                    "example": "некорректные данные запроса"
+                    "example": "invalid request data"
                 },
                 "request_id": {
                     "type": "string",
@@ -4025,28 +4025,15 @@ const docTemplate = `{
                 }
             }
         },
-        "models.FieldError": {
-            "type": "object",
-            "properties": {
-                "field": {
-                    "type": "string",
-                    "example": "email"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "некорректный адрес"
-                }
-            }
-        },
-        "models.HackathonCard": {
+        "models.EventCard": {
             "type": "object",
             "properties": {
                 "can_mark_done": {
                     "type": "boolean",
                     "example": true
                 },
-                "hackathon": {
-                    "$ref": "#/definitions/models.HackathonResponse"
+                "event": {
+                    "$ref": "#/definitions/models.EventResponse"
                 },
                 "next_stage": {
                     "$ref": "#/definitions/models.StageShort"
@@ -4069,13 +4056,13 @@ const docTemplate = `{
                 }
             }
         },
-        "models.HackathonPage": {
+        "models.EventPage": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.HackathonResponse"
+                        "$ref": "#/definitions/models.EventResponse"
                     }
                 },
                 "meta": {
@@ -4083,7 +4070,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.HackathonResponse": {
+        "models.EventResponse": {
             "type": "object",
             "properties": {
                 "archived_at": {
@@ -4124,13 +4111,13 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.HackathonState"
+                            "$ref": "#/definitions/models.EventState"
                         }
                     ]
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийский хакатон"
+                    "example": "Всероссийскее событие"
                 },
                 "updated_at": {
                     "type": "string"
@@ -4141,7 +4128,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.HackathonState": {
+        "models.EventState": {
             "type": "string",
             "enum": [
                 "UNPUBLISHED",
@@ -4151,12 +4138,25 @@ const docTemplate = `{
                 "ARCHIVED"
             ],
             "x-enum-varnames": [
-                "HackathonUnpublished",
-                "HackathonUpcoming",
-                "HackathonActive",
-                "HackathonFinished",
-                "HackathonArchived"
+                "EventUnpublished",
+                "EventUpcoming",
+                "EventActive",
+                "EventFinished",
+                "EventArchived"
             ]
+        },
+        "models.FieldError": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string",
+                    "example": "email"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "invalid address"
+                }
+            }
         },
         "models.HealthResponse": {
             "type": "object",
@@ -4304,7 +4304,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.MyHackathonItem": {
+        "models.MyEventItem": {
             "type": "object",
             "properties": {
                 "end_at": {
@@ -4340,7 +4340,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.HackathonState"
+                            "$ref": "#/definitions/models.EventState"
                         }
                     ]
                 },
@@ -4350,17 +4350,17 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийский хакатон"
+                    "example": "Всероссийскее событие"
                 }
             }
         },
-        "models.MyHackathonPage": {
+        "models.MyEventPage": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.MyHackathonItem"
+                        "$ref": "#/definitions/models.MyEventItem"
                     }
                 },
                 "meta": {
@@ -4477,7 +4477,7 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
                 "id": {
@@ -4558,7 +4558,6 @@ const docTemplate = `{
                     "example": "ivan@example.com"
                 },
                 "invite_token": {
-                    "description": "InviteToken необязателен: при передаче приглашение принимается той же транзакцией.",
                     "type": "string"
                 },
                 "password": {
@@ -4609,7 +4608,7 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
                 "id": {
@@ -4671,7 +4670,7 @@ const docTemplate = `{
         "models.RegistrationStatusResponse": {
             "type": "object",
             "properties": {
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
                 "id": {
@@ -4807,7 +4806,7 @@ const docTemplate = `{
                 "end_at": {
                     "type": "string"
                 },
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
                 "id": {
@@ -4958,7 +4957,7 @@ const docTemplate = `{
                 "end_at": {
                     "type": "string"
                 },
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
                 "registration_deadline": {
@@ -4974,14 +4973,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "state": {
-                    "$ref": "#/definitions/models.HackathonState"
+                    "$ref": "#/definitions/models.EventState"
                 },
                 "team_role": {
                     "type": "string"
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийский хакатон"
+                    "example": "Всероссийскее событие"
                 }
             }
         },
@@ -4994,7 +4993,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UpdateHackathonRequest": {
+        "models.UpdateEventRequest": {
             "type": "object",
             "properties": {
                 "description": {
@@ -5028,7 +5027,6 @@ const docTemplate = `{
                     "example": "Иван Петров"
                 },
                 "preferred_channel": {
-                    "description": "PreferredChannel: TELEGRAM, EMAIL либо null для сброса явного выбора.",
                     "type": "string",
                     "enum": [
                         "TELEGRAM",
@@ -5194,7 +5192,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "CookieAuth": {
-            "description": "Access token в HttpOnly cookie, выдаётся при входе и обновлении сессии.",
+            "description": "Access token in an HttpOnly cookie, issued on sign-in and session refresh.",
             "type": "apiKey",
             "name": "access_token",
             "in": "cookie"
@@ -5209,7 +5207,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/v1",
 	Schemes:          []string{"http", "https"},
 	Title:            "Hackathon Tracker API",
-	Description:      "REST API системы Hackathon Tracker. Реализует техническое задание v0.8:\nучётные записи и приглашения, хакатоны и этапы, назначения участников,\nрегистрацию с самоотчётом статуса, правила напоминаний и журнал аудита.\n\nСистема не проверяет внешний сайт регистрации: статус является самоотчётом\nпользователя либо административно установленным состоянием.\n\nАутентификация — cookie-схема: access token живёт 15 минут, refresh token\nротируется и живёт 30 дней. Все изменяющие запросы обязаны передавать\nCSRF-токен заголовком X-CSRF-Token; получить его можно на GET /auth/csrf.\nВсе моменты времени передаются в UTC в формате RFC 3339.",
+	Description:      "Hackathon Tracker REST API. Implements technical specification v0.8:\naccounts and invites, events and stages, participant assignments,\nregistration with self-reported status, reminder rules and the audit log.\n\nThe system does not verify the external registration site: the status is self-reported\nby the user or set administratively.\n\nAuthentication is cookie-based: the access token lives 15 minutes, the refresh token\nrotates and lives 30 days. Every mutating request must send\na CSRF token in the X-CSRF-Token header; obtain one from GET /auth/csrf.\nAll timestamps are transferred in UTC using RFC 3339.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

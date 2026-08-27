@@ -10,74 +10,68 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// StatusService обслуживает статусы внешней регистрации участников.
-// Статус — самоотчёт пользователя либо административно установленное состояние:
-// система не проверяет внешний сайт.
 type StatusService struct {
 	db            *repositories.DB
 	statuses      *repositories.StatusRepository
 	registrations *repositories.RegistrationRepository
 	participants  *repositories.ParticipantRepository
-	hackathons    *repositories.HackathonRepository
+	events        *repositories.EventRepository
 	users         *repositories.UserRepository
 	notifier      *NotificationService
 	reconciler    Reconciler
 	audit         *AuditService
 }
 
-// NewStatusService создаёт сервис статусов.
 func NewStatusService(db *repositories.DB, statuses *repositories.StatusRepository,
 	registrations *repositories.RegistrationRepository, participants *repositories.ParticipantRepository,
-	hackathons *repositories.HackathonRepository, users *repositories.UserRepository,
+	events *repositories.EventRepository, users *repositories.UserRepository,
 	notifier *NotificationService, reconciler Reconciler, audit *AuditService) *StatusService {
 	return &StatusService{
 		db: db, statuses: statuses, registrations: registrations, participants: participants,
-		hackathons: hackathons, users: users, notifier: notifier, reconciler: reconciler, audit: audit,
+		events: events, users: users, notifier: notifier, reconciler: reconciler, audit: audit,
 	}
 }
 
-// List возвращает страницу статусов хакатона.
-func (s *StatusService) List(ctx context.Context, actor models.Actor, hackathonID uuid.UUID,
+func (s *StatusService) List(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	page models.Page) ([]models.RegistrationStatusResponse, int64, error) {
 	if !actor.IsAdmin {
-		return nil, 0, models.NewForbidden("операция доступна только администратору")
+		return nil, 0, models.NewForbidden("the operation is restricted to administrators")
 	}
-	return s.statuses.List(ctx, hackathonID, page)
+	return s.statuses.List(ctx, eventID, page)
 }
 
-// MarkDone переводит собственный статус участника из TODO в DONE.
-func (s *StatusService) MarkDone(ctx context.Context, actor models.Actor, hackathonID uuid.UUID) (*models.RegistrationStatusResponse, error) {
+func (s *StatusService) MarkDone(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*models.RegistrationStatusResponse, error) {
 	if actor.IsSystem() {
-		return nil, models.NewUnauthorized("требуется аутентификация")
+		return nil, models.NewUnauthorized("authentication is required")
 	}
 
 	var updated *models.RegistrationStatus
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
-		hackathon, err := s.hackathons.GetByID(ctx, hackathonID)
+		event, err := s.events.GetByID(ctx, eventID)
 		if err != nil {
 			return err
 		}
-		if !hackathon.Published() {
-			return models.NewNotFound("хакатон не найден")
+		if !event.Published() {
+			return models.NewNotFound("event not found")
 		}
-		if hackathon.Archived() {
-			return models.NewStateTransition("хакатон архивирован")
+		if event.Archived() {
+			return models.NewStateTransition("event is archived")
 		}
 
-		participant, err := s.participants.GetByHackathonUser(ctx, hackathonID, actor.UserID)
+		participant, err := s.participants.GetByEventUser(ctx, eventID, actor.UserID)
 		if err != nil {
-			return models.NewNotFound("вы не назначены на этот хакатон")
+			return models.NewNotFound("you are not assigned to this event")
 		}
 		if !participant.Assigned() {
-			return models.NewNotFound("вы не назначены на этот хакатон")
+			return models.NewNotFound("you are not assigned to this event")
 		}
 
-		registration, err := s.registrations.GetByHackathon(ctx, hackathonID)
+		registration, err := s.registrations.GetByEvent(ctx, eventID)
 		if err != nil {
 			return notFoundRegistration(err)
 		}
 		if !registration.Active() {
-			return models.NewStateTransition("регистрация выключена")
+			return models.NewStateTransition("registration is disabled")
 		}
 
 		status, err := s.statuses.GetByParticipant(ctx, registration.ID, participant.ID)
@@ -89,14 +83,13 @@ func (s *StatusService) MarkDone(ctx context.Context, actor models.Actor, hackat
 			return nil
 		}
 		if status.Status != models.StatusTODO {
-			return models.NewStateTransition("перевести в DONE можно только статус TODO")
+			return models.NewStateTransition("only a TODO status can be moved to DONE")
 		}
 
 		updated, err = s.statuses.SetStatus(ctx, status.ID, models.StatusDONE, models.SourceUser, actor.UserRef(), nil)
 		if err != nil {
 			return err
 		}
-		// DONE отменяет будущие уведомления этого статуса.
 		if err := s.notifier.CancelForStatus(ctx, status.ID); err != nil {
 			return err
 		}
@@ -110,15 +103,14 @@ func (s *StatusService) MarkDone(ctx context.Context, actor models.Actor, hackat
 	return s.response(ctx, updated)
 }
 
-// AdminChange выполняет административный переход статуса.
 func (s *StatusService) AdminChange(ctx context.Context, actor models.Actor, statusID uuid.UUID,
 	req models.AdminChangeStatusRequest) (*models.RegistrationStatusResponse, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	if !req.Status.Valid() {
-		return nil, models.NewValidation("некорректный статус",
-			models.FieldError{Field: "status", Message: "допустимы TODO, DONE и NOT_REQUIRED"})
+		return nil, models.NewValidation("invalid status",
+			models.FieldError{Field: "status", Message: "allowed values are TODO, DONE and NOT_REQUIRED"})
 	}
 
 	var (
@@ -139,13 +131,11 @@ func (s *StatusService) AdminChange(ctx context.Context, actor models.Actor, sta
 		if err != nil {
 			return err
 		}
-		// Любой переход отменяет будущие уведомления прежней ситуации;
-		// новый цикл TODO получит собственные записи от согласования.
 		if err := s.notifier.CancelForStatus(ctx, statusID); err != nil {
 			return err
 		}
 		if req.Status == models.StatusTODO {
-			reconcile = status.HackathonID
+			reconcile = status.EventID
 		}
 		return s.audit.Record(ctx, actor, models.AuditStatusChange, models.EntityRegistrationStatus, statusID,
 			map[string]any{"status": status.Status, "todo_cycle": status.TodoCycle},
@@ -156,17 +146,16 @@ func (s *StatusService) AdminChange(ctx context.Context, actor models.Actor, sta
 	}
 
 	if reconcile != uuid.Nil && s.reconciler != nil {
-		if err := s.reconciler.ReconcileHackathon(ctx, reconcile); err != nil {
+		if err := s.reconciler.ReconcileEvent(ctx, reconcile); err != nil {
 			logReconcileFailure(ctx, reconcile, err)
 		}
 	}
 	return s.response(ctx, updated)
 }
 
-// BatchSet массово устанавливает статус участникам.
-func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, hackathonID uuid.UUID,
+func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	req models.BatchSetStatusRequest) (*models.BatchResult, error) {
-	targets, err := s.batchTargets(ctx, actor, hackathonID, req)
+	targets, err := s.batchTargets(ctx, actor, eventID, req)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +166,7 @@ func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, hackat
 		if !ok {
 			result.Results = append(result.Results, models.BatchItemResult{
 				Index: index, Key: participantID.String(), Status: "error",
-				Code: "not_found", Message: "статус участника не найден",
+				Code: "not_found", Message: "participant status not found",
 			})
 			result.Failed++
 			continue
@@ -195,7 +184,7 @@ func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, hackat
 				item.Message = domainErr.Message
 			} else {
 				item.Code = "internal_error"
-				item.Message = "внутренняя ошибка"
+				item.Message = "internal error"
 			}
 			if errors.Is(err, models.ErrConflict) {
 				item.Status = "skipped"
@@ -209,10 +198,9 @@ func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, hackat
 	return result, nil
 }
 
-// BatchSetPreview считает, сколько записей изменится, ничего не изменяя.
-func (s *StatusService) BatchSetPreview(ctx context.Context, actor models.Actor, hackathonID uuid.UUID,
+func (s *StatusService) BatchSetPreview(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	req models.BatchSetStatusRequest) (*models.PreviewResponse, error) {
-	targets, err := s.batchTargets(ctx, actor, hackathonID, req)
+	targets, err := s.batchTargets(ctx, actor, eventID, req)
 	if err != nil {
 		return nil, err
 	}
@@ -228,23 +216,20 @@ func (s *StatusService) BatchSetPreview(ctx context.Context, actor models.Actor,
 	return preview, nil
 }
 
-// batchTargets проверяет права и собирает текущие статусы выбранных участников.
-func (s *StatusService) batchTargets(ctx context.Context, actor models.Actor, hackathonID uuid.UUID,
+func (s *StatusService) batchTargets(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	req models.BatchSetStatusRequest) (map[uuid.UUID]*models.RegistrationStatus, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	if len(req.ParticipantIDs) == 0 {
-		return nil, models.NewValidation("список участников пуст")
+		return nil, models.NewValidation("the participant list is empty")
 	}
-	// Массовая установка ограничена значениями TODO и NOT_REQUIRED:
-	// отметка о выполненной регистрации остаётся индивидуальной операцией.
 	if req.Status != models.StatusTODO && req.Status != models.StatusNotRequired {
-		return nil, models.NewValidation("массово допускаются только TODO и NOT_REQUIRED",
-			models.FieldError{Field: "status", Message: "недопустимое значение"})
+		return nil, models.NewValidation("bulk updates allow only TODO and NOT_REQUIRED",
+			models.FieldError{Field: "status", Message: "value is not allowed"})
 	}
 
-	registration, err := s.registrations.GetByHackathon(ctx, hackathonID)
+	registration, err := s.registrations.GetByEvent(ctx, eventID)
 	if err != nil {
 		return nil, notFoundRegistration(err)
 	}
@@ -263,11 +248,10 @@ func (s *StatusService) batchTargets(ctx context.Context, actor models.Actor, ha
 	return targets, nil
 }
 
-// response собирает представление статуса с данными пользователя.
 func (s *StatusService) response(ctx context.Context, status *models.RegistrationStatus) (*models.RegistrationStatusResponse, error) {
 	resp := &models.RegistrationStatusResponse{
 		ID:                  status.ID,
-		HackathonID:         status.HackathonID,
+		EventID:             status.EventID,
 		RegistrationID:      status.RegistrationID,
 		ParticipantID:       status.ParticipantID,
 		Status:              status.Status,

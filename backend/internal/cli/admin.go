@@ -18,14 +18,14 @@ func init() {
 func newAdminCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "admin",
-		Short: "Операции над учётными записями администраторов",
+		Short: "Operations on administrator accounts",
 	}
 	create := &cobra.Command{
 		Use:   "create",
-		Short: "Создать первого администратора",
-		Long: "Создаёт администратора по FIRST_ADMIN_EMAIL, FIRST_ADMIN_PASSWORD и FIRST_ADMIN_NAME " +
-			"либо по флагам команды. Адрес считается подтверждённым: письмо подтверждения не отправляется. " +
-			"Повторный запуск для существующего адреса ничего не меняет.",
+		Short: "Create the first administrator",
+		Long: "Creates an administrator from FIRST_ADMIN_EMAIL, FIRST_ADMIN_PASSWORD and FIRST_ADMIN_NAME " +
+			"or from command flags. The address is treated as confirmed: no confirmation email is sent. " +
+			"Running it again for an existing address changes nothing.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			email, _ := cmd.Flags().GetString("email")
 			password, _ := cmd.Flags().GetString("password")
@@ -33,9 +33,9 @@ func newAdminCmd() *cobra.Command {
 			return createAdmin(cmd.Context(), email, password, name)
 		},
 	}
-	create.Flags().String("email", "", "адрес администратора (по умолчанию FIRST_ADMIN_EMAIL)")
-	create.Flags().String("password", "", "пароль (по умолчанию FIRST_ADMIN_PASSWORD)")
-	create.Flags().String("name", "", "отображаемое имя (по умолчанию FIRST_ADMIN_NAME)")
+	create.Flags().String("email", "", "administrator address (defaults to FIRST_ADMIN_EMAIL)")
+	create.Flags().String("password", "", "password (defaults to FIRST_ADMIN_PASSWORD)")
+	create.Flags().String("name", "", "display name (defaults to FIRST_ADMIN_NAME)")
 	cmd.AddCommand(create)
 	return cmd
 }
@@ -59,17 +59,17 @@ func createAdmin(ctx context.Context, email, password, name string) error {
 
 	email = strings.ToLower(strings.TrimSpace(email))
 	if email == "" || password == "" {
-		return errors.New("задайте FIRST_ADMIN_EMAIL и FIRST_ADMIN_PASSWORD либо флаги --email и --password")
+		return errors.New("set FIRST_ADMIN_EMAIL and FIRST_ADMIN_PASSWORD, or the --email and --password flags")
 	}
 	if len(password) < c.cfg.Auth.MinPasswordLength {
-		return fmt.Errorf("пароль короче минимальной длины %d", c.cfg.Auth.MinPasswordLength)
+		return fmt.Errorf("password is shorter than the minimum length %d", c.cfg.Auth.MinPasswordLength)
 	}
 	if name == "" {
-		name = "Администратор"
+		name = "Administrator"
 	}
 
 	if existing, err := c.repos.users.GetByEmail(ctx, email); err == nil {
-		fmt.Printf("пользователь %s уже существует (id %s, администратор: %t)\n",
+		fmt.Printf("user %s already exists (id %s, administrator: %t)\n",
 			existing.Email, existing.ID, existing.IsAdmin)
 		return nil
 	} else if !errors.Is(err, models.ErrNotFound) {
@@ -82,10 +82,8 @@ func createAdmin(ctx context.Context, email, password, name string) error {
 	}
 	now := nowUTC()
 	created, err := c.repos.users.Create(ctx, &models.User{
-		DisplayName: name,
-		Email:       email,
-		// Первый администратор создаётся оператором развёртывания, поэтому
-		// адрес считается подтверждённым и уведомления по email доступны сразу.
+		DisplayName:     name,
+		Email:           email,
 		PasswordHash:    hash,
 		EmailVerifiedAt: &now,
 		IsAdmin:         true,
@@ -94,6 +92,6 @@ func createAdmin(ctx context.Context, email, password, name string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("администратор создан: %s (id %s)\n", created.Email, created.ID)
+	fmt.Printf("administrator created: %s (id %s)\n", created.Email, created.ID)
 	return nil
 }

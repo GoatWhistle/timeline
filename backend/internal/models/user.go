@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// User — учётная запись системы (раздел 4 ТЗ).
 type User struct {
 	ID               uuid.UUID  `json:"id"`
 	DisplayName      string     `json:"display_name"`
@@ -24,18 +23,14 @@ type User struct {
 	UpdatedAt        time.Time  `json:"updated_at"`
 }
 
-// TelegramLinked сообщает, что у пользователя есть подтверждённая привязка Telegram.
 func (u *User) TelegramLinked() bool {
 	return u.TelegramChatID != nil && *u.TelegramChatID != ""
 }
 
-// EmailVerified сообщает, что основной адрес подтверждён.
 func (u *User) EmailVerified() bool {
 	return u.EmailVerifiedAt != nil
 }
 
-// CanReceive сообщает, доступен ли пользователю канал для продуктовых уведомлений.
-// Email становится доступен только после подтверждения адреса (раздел 10.4 ТЗ).
 func (u *User) CanReceive(ch Channel) bool {
 	if !u.IsActive {
 		return false
@@ -49,7 +44,6 @@ func (u *User) CanReceive(ch Channel) bool {
 	return false
 }
 
-// Session — сессия пользователя, хранит только хеш refresh-токена (раздел 3 ТЗ).
 type Session struct {
 	ID               uuid.UUID  `json:"id"`
 	UserID           uuid.UUID  `json:"user_id"`
@@ -63,13 +57,10 @@ type Session struct {
 	CreatedAt        time.Time  `json:"created_at"`
 }
 
-// Active сообщает, что сессия не отозвана и не истекла.
 func (s *Session) Active(now time.Time) bool {
 	return s.RevokedAt == nil && s.ExpiresAt.After(now)
 }
 
-// OneTimeToken — одноразовый токен подтверждения email, сброса пароля,
-// смены адреса или привязки Telegram.
 type OneTimeToken struct {
 	ID          uuid.UUID    `json:"id"`
 	UserID      *uuid.UUID   `json:"user_id,omitempty"`
@@ -81,12 +72,10 @@ type OneTimeToken struct {
 	CreatedAt   time.Time    `json:"created_at"`
 }
 
-// Usable сообщает, что токен не использован и не истёк.
 func (t *OneTimeToken) Usable(now time.Time) bool {
 	return t.ConsumedAt == nil && t.ExpiresAt.After(now)
 }
 
-// Invite — приглашение на регистрацию по нормализованному email.
 type Invite struct {
 	ID              uuid.UUID  `json:"id"`
 	NormalizedEmail string     `json:"email"`
@@ -98,7 +87,6 @@ type Invite struct {
 	CreatedAt       time.Time  `json:"created_at"`
 }
 
-// Usable сообщает, что приглашение можно принять.
 func (i *Invite) Usable(now time.Time) bool {
 	return i.AcceptedAt == nil && i.RevokedAt == nil && i.ExpiresAt.After(now)
 }

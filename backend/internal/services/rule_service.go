@@ -10,7 +10,6 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// RuleService обслуживает правила напоминаний регистрации.
 type RuleService struct {
 	db            *repositories.DB
 	rules         *repositories.RuleRepository
@@ -21,7 +20,6 @@ type RuleService struct {
 	cfg           *config.Config
 }
 
-// NewRuleService создаёт сервис правил напоминаний.
 func NewRuleService(db *repositories.DB, rules *repositories.RuleRepository,
 	registrations *repositories.RegistrationRepository, notifier *NotificationService,
 	reconciler Reconciler, audit *AuditService, cfg *config.Config) *RuleService {
@@ -29,24 +27,21 @@ func NewRuleService(db *repositories.DB, rules *repositories.RuleRepository,
 		reconciler: reconciler, audit: audit, cfg: cfg}
 }
 
-// List возвращает правила регистрации хакатона.
-func (s *RuleService) List(ctx context.Context, actor models.Actor, hackathonID uuid.UUID) ([]models.NotificationRule, error) {
+func (s *RuleService) List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.NotificationRule, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
-	registration, err := s.registrations.GetByHackathon(ctx, hackathonID)
+	registration, err := s.registrations.GetByEvent(ctx, eventID)
 	if err != nil {
 		return nil, notFoundRegistration(err)
 	}
 	return s.rules.ListByRegistration(ctx, registration.ID)
 }
 
-// Create добавляет правило напоминания. Знак смещения задаёт тип уведомления:
-// неотрицательное значение — напоминание до дедлайна, отрицательное — просрочку.
-func (s *RuleService) Create(ctx context.Context, actor models.Actor, hackathonID uuid.UUID,
+func (s *RuleService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	req models.CreateRuleRequest) (*models.NotificationRule, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	if err := s.validateOffset(req.OffsetMinutes); err != nil {
 		return nil, err
@@ -62,7 +57,7 @@ func (s *RuleService) Create(ctx context.Context, actor models.Actor, hackathonI
 
 	var created *models.NotificationRule
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
-		registration, err := s.registrations.GetByHackathonForUpdate(ctx, hackathonID)
+		registration, err := s.registrations.GetByEventForUpdate(ctx, eventID)
 		if err != nil {
 			return notFoundRegistration(err)
 		}
@@ -71,8 +66,8 @@ func (s *RuleService) Create(ctx context.Context, actor models.Actor, hackathonI
 		if req.SlotNo != nil {
 			slot = *req.SlotNo
 			if slot < 1 || slot > s.cfg.Notify.MaxRulesPerReg {
-				return models.NewValidation("некорректный номер слота",
-					models.FieldError{Field: "slot_no", Message: "допустимы значения от 1 до " + itoa(s.cfg.Notify.MaxRulesPerReg)})
+				return models.NewValidation("invalid slot number",
+					models.FieldError{Field: "slot_no", Message: "allowed values range from 1 to " + itoa(s.cfg.Notify.MaxRulesPerReg)})
 			}
 		} else {
 			slot, err = s.rules.NextFreeSlot(ctx, registration.ID, s.cfg.Notify.MaxRulesPerReg)
@@ -92,8 +87,6 @@ func (s *RuleService) Create(ctx context.Context, actor models.Actor, hackathonI
 			return err
 		}
 
-		// Новое правило меняет набор расписания, поэтому версия увеличивается
-		// один раз на транзакцию, а устаревшие ожидающие записи отменяются.
 		if _, err := s.registrations.BumpScheduleVersion(ctx, registration.ID); err != nil {
 			return err
 		}
@@ -107,16 +100,14 @@ func (s *RuleService) Create(ctx context.Context, actor models.Actor, hackathonI
 		return nil, err
 	}
 
-	s.reconcile(ctx, hackathonID)
+	s.reconcile(ctx, eventID)
 	return created, nil
 }
 
-// Update изменяет правило. Изменение полей расписания версионирует расписание
-// регистрации и запускает согласование.
 func (s *RuleService) Update(ctx context.Context, actor models.Actor, ruleID uuid.UUID,
 	req models.UpdateRuleRequest) (*models.NotificationRule, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	if req.OffsetMinutes != nil {
 		if err := s.validateOffset(*req.OffsetMinutes); err != nil {
@@ -130,8 +121,8 @@ func (s *RuleService) Update(ctx context.Context, actor models.Actor, ruleID uui
 	clearChannel := req.ChannelOverride != nil && *req.ChannelOverride == ""
 
 	var (
-		updated     *models.NotificationRule
-		hackathonID uuid.UUID
+		updated *models.NotificationRule
+		eventID uuid.UUID
 	)
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
 		before, err := s.rules.GetByID(ctx, ruleID)
@@ -142,7 +133,7 @@ func (s *RuleService) Update(ctx context.Context, actor models.Actor, ruleID uui
 		if err != nil {
 			return err
 		}
-		hackathonID = reg.HackathonID
+		eventID = reg.EventID
 
 		updated, err = s.rules.Update(ctx, ruleID, req.OffsetMinutes, req.Enabled, channel, clearChannel)
 		if err != nil {
@@ -169,14 +160,13 @@ func (s *RuleService) Update(ctx context.Context, actor models.Actor, ruleID uui
 		return nil, err
 	}
 
-	s.reconcile(ctx, hackathonID)
+	s.reconcile(ctx, eventID)
 	return updated, nil
 }
 
-// Disable выключает правило: строка сохраняется, слот и смещение остаются занятыми.
 func (s *RuleService) Disable(ctx context.Context, actor models.Actor, ruleID uuid.UUID) error {
 	if !actor.IsAdmin {
-		return models.NewForbidden("операция доступна только администратору")
+		return models.NewForbidden("the operation is restricted to administrators")
 	}
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
 		before, err := s.rules.GetByID(ctx, ruleID)
@@ -184,7 +174,7 @@ func (s *RuleService) Disable(ctx context.Context, actor models.Actor, ruleID uu
 			return err
 		}
 		if !before.Enabled {
-			return models.NewConflict("already_disabled", "правило уже выключено")
+			return models.NewConflict("already_disabled", "the rule is already disabled")
 		}
 		if err := s.rules.Disable(ctx, ruleID); err != nil {
 			return err
@@ -203,18 +193,18 @@ func (s *RuleService) Disable(ctx context.Context, actor models.Actor, ruleID uu
 func (s *RuleService) validateOffset(offset int) error {
 	limit := s.cfg.Notify.MaxOffsetMinutes
 	if offset < -limit || offset > limit {
-		return models.NewValidation("смещение вне допустимого диапазона",
-			models.FieldError{Field: "offset_minutes", Message: "допустим диапазон ±" + itoa(limit) + " минут"})
+		return models.NewValidation("offset is out of the allowed range",
+			models.FieldError{Field: "offset_minutes", Message: "allowed range is " + itoa(limit) + " minutes"})
 	}
 	return nil
 }
 
-func (s *RuleService) reconcile(ctx context.Context, hackathonID uuid.UUID) {
-	if s.reconciler == nil || hackathonID == uuid.Nil {
+func (s *RuleService) reconcile(ctx context.Context, eventID uuid.UUID) {
+	if s.reconciler == nil || eventID == uuid.Nil {
 		return
 	}
-	if err := s.reconciler.ReconcileHackathon(ctx, hackathonID); err != nil {
-		logReconcileFailure(ctx, hackathonID, err)
+	if err := s.reconciler.ReconcileEvent(ctx, eventID); err != nil {
+		logReconcileFailure(ctx, eventID, err)
 	}
 }
 

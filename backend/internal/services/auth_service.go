@@ -13,13 +13,11 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// RateLimiter ограничивает частоту чувствительных операций.
 type RateLimiter interface {
 	Allow(key string, limit int, window time.Duration) bool
 	Reset(key string)
 }
 
-// AuthService реализует регистрацию, вход, ротацию сессий и восстановление доступа.
 type AuthService struct {
 	db       *repositories.DB
 	users    *repositories.UserRepository
@@ -36,7 +34,6 @@ type AuthService struct {
 	now      func() time.Time
 }
 
-// NewAuthService создаёт сервис аутентификации.
 func NewAuthService(db *repositories.DB, users *repositories.UserRepository,
 	sessions *repositories.SessionRepository, tokens *repositories.TokenRepository,
 	invites *repositories.InviteRepository, notifier *NotificationService, audit *AuditService,
@@ -49,7 +46,6 @@ func NewAuthService(db *repositories.DB, users *repositories.UserRepository,
 	}
 }
 
-// Register создаёт учётную запись и открывает сессию.
 func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, meta models.SessionMeta) (*models.User, *models.TokenPair, error) {
 	email, err := validateEmail("email", req.Email)
 	if err != nil {
@@ -72,19 +68,17 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, 
 		verifySecret string
 	)
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
-		// Приглашение фиксирует адрес: регистрация по нему не должна
-		// подменять получателя.
 		var invite *models.Invite
 		if req.InviteToken != "" {
 			invite, err = s.invites.GetByHash(ctx, HashSecret(req.InviteToken))
 			if err != nil {
-				return models.NewValidation("приглашение не найдено или недействительно")
+				return models.NewValidation("invite not found or invalid")
 			}
 			if !invite.Usable(s.now()) {
-				return models.NewConflict("invite_not_usable", "приглашение уже использовано, отозвано или истекло")
+				return models.NewConflict("invite_not_usable", "the invite has already been used, revoked or expired")
 			}
 			if invite.NormalizedEmail != email {
-				return models.NewValidation("адрес не совпадает с адресом приглашения")
+				return models.NewValidation("email does not match the invited address")
 			}
 		}
 
@@ -93,7 +87,7 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, 
 			return err
 		}
 		if taken {
-			return models.NewConflict("email_taken", "пользователь с таким email уже существует")
+			return models.NewConflict("email_taken", "a user with this email already exists")
 		}
 
 		user, err = s.users.Create(ctx, &models.User{
@@ -110,8 +104,6 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, 
 			if err := s.invites.MarkAccepted(ctx, invite.ID); err != nil {
 				return err
 			}
-			// Остальные действующие приглашения этого адреса отзываются
-			// в той же транзакции.
 			if err := s.invites.RevokePendingByEmail(ctx, email); err != nil {
 				return err
 			}
@@ -147,27 +139,25 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, 
 	return user, pair, nil
 }
 
-// Login проверяет учётные данные и открывает сессию.
 func (s *AuthService) Login(ctx context.Context, req models.LoginRequest, meta models.SessionMeta) (*models.User, *models.TokenPair, error) {
 	email := normalizeEmail(req.Email)
 	key := meta.IP + "|" + email
 	if !s.limiter.Allow("login|"+key, s.cfg.RateLim.LoginAttempts, s.cfg.RateLim.LoginWindow) {
-		return nil, nil, models.NewRateLimited("слишком много попыток входа, повторите позже")
+		return nil, nil, models.NewRateLimited("too many sign-in attempts, try again later")
 	}
 
 	user, err := s.users.GetByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			// Ответ не различает отсутствие записи и неверный пароль.
-			return nil, nil, models.NewUnauthorized("неверный email или пароль")
+			return nil, nil, models.NewUnauthorized("invalid email or password")
 		}
 		return nil, nil, err
 	}
 	if !s.hasher.Verify(req.Password, user.PasswordHash) {
-		return nil, nil, models.NewUnauthorized("неверный email или пароль")
+		return nil, nil, models.NewUnauthorized("invalid email or password")
 	}
 	if !user.IsActive {
-		return nil, nil, models.NewForbidden("учётная запись деактивирована")
+		return nil, nil, models.NewForbidden("the account is deactivated")
 	}
 
 	s.limiter.Reset("login|" + key)
@@ -178,8 +168,6 @@ func (s *AuthService) Login(ctx context.Context, req models.LoginRequest, meta m
 	return user, pair, nil
 }
 
-// Refresh выполняет ротацию сессии. Повторное предъявление отозванного токена
-// отзывает всю цепочку: это признак утечки refresh-токена.
 func (s *AuthService) Refresh(ctx context.Context, refreshToken string, meta models.SessionMeta) (*models.User, *models.TokenPair, error) {
 	hash := HashSecret(refreshToken)
 	now := s.now()
@@ -192,7 +180,7 @@ func (s *AuthService) Refresh(ctx context.Context, refreshToken string, meta mod
 		session, err := s.sessions.GetByHash(ctx, hash)
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
-				return models.NewUnauthorized("сессия не найдена")
+				return models.NewUnauthorized("session not found")
 			}
 			return err
 		}
@@ -200,10 +188,10 @@ func (s *AuthService) Refresh(ctx context.Context, refreshToken string, meta mod
 			if err := s.sessions.RevokeFamily(ctx, session.FamilyID); err != nil {
 				return err
 			}
-			return models.NewUnauthorized("сессия отозвана: цепочка обновления завершена")
+			return models.NewUnauthorized("session revoked: refresh chain terminated")
 		}
 		if !session.Active(now) {
-			return models.NewUnauthorized("сессия истекла")
+			return models.NewUnauthorized("session has expired")
 		}
 
 		user, err = s.users.GetByID(ctx, session.UserID)
@@ -214,7 +202,7 @@ func (s *AuthService) Refresh(ctx context.Context, refreshToken string, meta mod
 			if err := s.sessions.RevokeAllForUser(ctx, user.ID); err != nil {
 				return err
 			}
-			return models.NewForbidden("учётная запись деактивирована")
+			return models.NewForbidden("the account is deactivated")
 		}
 
 		secret, err := NewSecret()
@@ -250,7 +238,6 @@ func (s *AuthService) Refresh(ctx context.Context, refreshToken string, meta mod
 	return user, pair, nil
 }
 
-// Logout отзывает текущую сессию.
 func (s *AuthService) Logout(ctx context.Context, refreshToken string) error {
 	session, err := s.sessions.GetByHash(ctx, HashSecret(refreshToken))
 	if err != nil {
@@ -262,15 +249,13 @@ func (s *AuthService) Logout(ctx context.Context, refreshToken string) error {
 	return s.sessions.Revoke(ctx, session.ID)
 }
 
-// LogoutAll отзывает все сессии пользователя.
 func (s *AuthService) LogoutAll(ctx context.Context, actor models.Actor) error {
 	if actor.IsSystem() {
-		return models.NewUnauthorized("требуется аутентификация")
+		return models.NewUnauthorized("authentication is required")
 	}
 	return s.sessions.RevokeAllForUser(ctx, actor.UserID)
 }
 
-// Authenticate проверяет access token и возвращает активного пользователя.
 func (s *AuthService) Authenticate(ctx context.Context, accessToken string) (*models.User, error) {
 	userID, _, err := s.issuer.Parse(accessToken)
 	if err != nil {
@@ -279,39 +264,36 @@ func (s *AuthService) Authenticate(ctx context.Context, accessToken string) (*mo
 	user, err := s.users.GetByID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return nil, models.NewUnauthorized("пользователь не найден")
+			return nil, models.NewUnauthorized("user not found")
 		}
 		return nil, err
 	}
 	if !user.IsActive {
-		return nil, models.NewForbidden("учётная запись деактивирована")
+		return nil, models.NewForbidden("the account is deactivated")
 	}
 	return user, nil
 }
 
-// VerifyEmail подтверждает основной адрес по одноразовому токену.
 func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
 		record, err := s.tokens.Consume(ctx, HashSecret(token), models.TokenEmailVerification, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
-				return models.NewValidation("токен подтверждения недействителен или истёк")
+				return models.NewValidation("the confirmation token is invalid or has expired")
 			}
 			return err
 		}
 		if record.UserID == nil {
-			return models.NewValidation("токен подтверждения недействителен")
+			return models.NewValidation("the confirmation token is invalid")
 		}
 		return s.users.SetEmailVerified(ctx, *record.UserID)
 	})
 }
 
-// ResendVerification повторно отправляет письмо подтверждения.
-// Ответ не раскрывает существование учётной записи.
 func (s *AuthService) ResendVerification(ctx context.Context, email string) error {
 	normalized := normalizeEmail(email)
 	if !s.limiter.Allow("resend|"+normalized, s.cfg.RateLim.ResendAttempts, s.cfg.RateLim.ResendWindow) {
-		return models.NewRateLimited("слишком много запросов, повторите позже")
+		return models.NewRateLimited("too many requests, try again later")
 	}
 
 	user, err := s.users.GetByEmail(ctx, normalized)
@@ -348,11 +330,10 @@ func (s *AuthService) ResendVerification(ctx context.Context, email string) erro
 	return nil
 }
 
-// ForgotPassword выдаёт одноразовый токен восстановления доступа.
 func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 	normalized := normalizeEmail(email)
 	if !s.limiter.Allow("reset|"+normalized, s.cfg.RateLim.ResendAttempts, s.cfg.RateLim.ResendWindow) {
-		return models.NewRateLimited("слишком много запросов, повторите позже")
+		return models.NewRateLimited("too many requests, try again later")
 	}
 
 	user, err := s.users.GetByEmail(ctx, normalized)
@@ -389,7 +370,6 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 	return nil
 }
 
-// ResetPassword устанавливает новый пароль и отзывает все сессии пользователя.
 func (s *AuthService) ResetPassword(ctx context.Context, token, password string) error {
 	if err := validatePassword(password, s.cfg.Auth.MinPasswordLength); err != nil {
 		return err
@@ -402,12 +382,12 @@ func (s *AuthService) ResetPassword(ctx context.Context, token, password string)
 		record, err := s.tokens.Consume(ctx, HashSecret(token), models.TokenPasswordReset, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
-				return models.NewValidation("токен восстановления недействителен или истёк")
+				return models.NewValidation("the recovery token is invalid or has expired")
 			}
 			return err
 		}
 		if record.UserID == nil {
-			return models.NewValidation("токен восстановления недействителен")
+			return models.NewValidation("the recovery token is invalid")
 		}
 		if err := s.users.SetPassword(ctx, *record.UserID, hash); err != nil {
 			return err
@@ -416,31 +396,29 @@ func (s *AuthService) ResetPassword(ctx context.Context, token, password string)
 	})
 }
 
-// ConfirmEmailChange переносит ожидающий адрес в основной.
 func (s *AuthService) ConfirmEmailChange(ctx context.Context, token string) error {
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
 		record, err := s.tokens.Consume(ctx, HashSecret(token), models.TokenEmailChange, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
-				return models.NewValidation("токен подтверждения недействителен или истёк")
+				return models.NewValidation("the confirmation token is invalid or has expired")
 			}
 			return err
 		}
 		if record.UserID == nil || record.TargetEmail == nil {
-			return models.NewValidation("токен подтверждения недействителен")
+			return models.NewValidation("the confirmation token is invalid")
 		}
 
 		user, err := s.users.GetByID(ctx, *record.UserID)
 		if err != nil {
 			return err
 		}
-		// Адрес мог быть занят между запросом и подтверждением.
 		taken, err := s.users.EmailTaken(ctx, *record.TargetEmail, user.ID)
 		if err != nil {
 			return err
 		}
 		if taken {
-			return models.NewConflict("email_taken", "этот адрес уже занят другой учётной записью")
+			return models.NewConflict("email_taken", "this email is already taken by another account")
 		}
 
 		before := map[string]any{"email": user.Email}
@@ -453,7 +431,6 @@ func (s *AuthService) ConfirmEmailChange(ctx context.Context, token string) erro
 	})
 }
 
-// startSession создаёт новую сессию и пару токенов.
 func (s *AuthService) startSession(ctx context.Context, user *models.User, meta models.SessionMeta) (*models.TokenPair, error) {
 	now := s.now()
 	secret, err := NewSecret()

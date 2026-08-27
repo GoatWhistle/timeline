@@ -11,17 +11,15 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// HackathonRepository — доступ к хакатонам.
-type HackathonRepository struct{ db *DB }
+type EventRepository struct{ db *DB }
 
-// NewHackathonRepository создаёт репозиторий хакатонов.
-func NewHackathonRepository(db *DB) *HackathonRepository { return &HackathonRepository{db: db} }
+func NewEventRepository(db *DB) *EventRepository { return &EventRepository{db: db} }
 
-const hackathonColumns = `id, title, description, organizer, website_url, notes,
+const eventColumns = `id, title, description, organizer, website_url, notes,
 	start_at, end_at, published_at, archived_at, created_at, updated_at`
 
-func scanHackathon(row pgx.Row) (*models.Hackathon, error) {
-	var h models.Hackathon
+func scanEvent(row pgx.Row) (*models.Event, error) {
+	var h models.Event
 	err := row.Scan(&h.ID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL, &h.Notes,
 		&h.StartAt, &h.EndAt, &h.PublishedAt, &h.ArchivedAt, &h.CreatedAt, &h.UpdatedAt)
 	if err != nil {
@@ -30,31 +28,26 @@ func scanHackathon(row pgx.Row) (*models.Hackathon, error) {
 	return &h, nil
 }
 
-// Create сохраняет хакатон в неопубликованном состоянии.
-func (r *HackathonRepository) Create(ctx context.Context, h *models.Hackathon) (*models.Hackathon, error) {
-	return scanHackathon(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO hackathons (title, description, organizer, website_url, notes, start_at, end_at)
+func (r *EventRepository) Create(ctx context.Context, h *models.Event) (*models.Event, error) {
+	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
+		INSERT INTO events (title, description, organizer, website_url, notes, start_at, end_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		RETURNING `+hackathonColumns,
+		RETURNING `+eventColumns,
 		h.Title, h.Description, h.Organizer, h.WebsiteURL, h.Notes, h.StartAt, h.EndAt))
 }
 
-// GetByID читает хакатон по идентификатору.
-func (r *HackathonRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Hackathon, error) {
-	return scanHackathon(r.db.Q(ctx).QueryRow(ctx, `SELECT `+hackathonColumns+` FROM hackathons WHERE id = $1`, id))
+func (r *EventRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Event, error) {
+	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `SELECT `+eventColumns+` FROM events WHERE id = $1`, id))
 }
 
-// GetForUpdate читает хакатон и блокирует строку до конца транзакции.
-func (r *HackathonRepository) GetForUpdate(ctx context.Context, id uuid.UUID) (*models.Hackathon, error) {
-	return scanHackathon(r.db.Q(ctx).QueryRow(ctx,
-		`SELECT `+hackathonColumns+` FROM hackathons WHERE id = $1 FOR UPDATE`, id))
+func (r *EventRepository) GetForUpdate(ctx context.Context, id uuid.UUID) (*models.Event, error) {
+	return scanEvent(r.db.Q(ctx).QueryRow(ctx,
+		`SELECT `+eventColumns+` FROM events WHERE id = $1 FOR UPDATE`, id))
 }
 
-// Update изменяет поля хакатона. Перенос end_at каскадно обновляет копию
-// в регистрации и отклоняется базой, если нарушает действующий дедлайн.
-func (r *HackathonRepository) Update(ctx context.Context, id uuid.UUID, req models.UpdateHackathonRequest) (*models.Hackathon, error) {
-	return scanHackathon(r.db.Q(ctx).QueryRow(ctx, `
-		UPDATE hackathons SET
+func (r *EventRepository) Update(ctx context.Context, id uuid.UUID, req models.UpdateEventRequest) (*models.Event, error) {
+	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
+		UPDATE events SET
 			title = COALESCE($2, title),
 			description = COALESCE($3, description),
 			organizer = COALESCE($4, organizer),
@@ -63,38 +56,35 @@ func (r *HackathonRepository) Update(ctx context.Context, id uuid.UUID, req mode
 			start_at = COALESCE($7, start_at),
 			end_at = COALESCE($8, end_at)
 		WHERE id = $1
-		RETURNING `+hackathonColumns,
+		RETURNING `+eventColumns,
 		id, req.Title, req.Description, req.Organizer, req.WebsiteURL, req.Notes, req.StartAt, req.EndAt))
 }
 
-// Publish отмечает хакатон опубликованным.
-func (r *HackathonRepository) Publish(ctx context.Context, id uuid.UUID, at time.Time) (*models.Hackathon, error) {
-	return scanHackathon(r.db.Q(ctx).QueryRow(ctx, `
-		UPDATE hackathons SET published_at = $2
+func (r *EventRepository) Publish(ctx context.Context, id uuid.UUID, at time.Time) (*models.Event, error) {
+	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
+		UPDATE events SET published_at = $2
 		WHERE id = $1 AND published_at IS NULL AND archived_at IS NULL
-		RETURNING `+hackathonColumns, id, at))
+		RETURNING `+eventColumns, id, at))
 }
 
-// Archive отмечает хакатон архивированным.
-func (r *HackathonRepository) Archive(ctx context.Context, id uuid.UUID, at time.Time) (*models.Hackathon, error) {
-	return scanHackathon(r.db.Q(ctx).QueryRow(ctx, `
-		UPDATE hackathons SET archived_at = $2
+func (r *EventRepository) Archive(ctx context.Context, id uuid.UUID, at time.Time) (*models.Event, error) {
+	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
+		UPDATE events SET archived_at = $2
 		WHERE id = $1 AND archived_at IS NULL
-		RETURNING `+hackathonColumns, id, at))
+		RETURNING `+eventColumns, id, at))
 }
 
-// List возвращает страницу хакатонов с фильтрами административного списка.
-func (r *HackathonRepository) List(ctx context.Context, filter models.HackathonFilter, page models.Page, now time.Time) ([]models.Hackathon, int64, error) {
-	where, args := hackathonFilterSQL(filter, now)
+func (r *EventRepository) List(ctx context.Context, filter models.EventFilter, page models.Page, now time.Time) ([]models.Event, int64, error) {
+	where, args := eventFilterSQL(filter, now)
 
 	var total int64
-	if err := r.db.Q(ctx).QueryRow(ctx, `SELECT count(*) FROM hackathons `+where, args...).Scan(&total); err != nil {
+	if err := r.db.Q(ctx).QueryRow(ctx, `SELECT count(*) FROM events `+where, args...).Scan(&total); err != nil {
 		return nil, 0, mapError(err)
 	}
 
 	args = append(args, page.Limit(), page.Offset())
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT `+hackathonColumns+` FROM hackathons `+where+`
+		SELECT `+eventColumns+` FROM events `+where+`
 		ORDER BY start_at DESC, title
 		LIMIT $`+itoa(len(args)-1)+` OFFSET $`+itoa(len(args)), args...)
 	if err != nil {
@@ -102,9 +92,9 @@ func (r *HackathonRepository) List(ctx context.Context, filter models.HackathonF
 	}
 	defer rows.Close()
 
-	items := make([]models.Hackathon, 0, page.Limit())
+	items := make([]models.Event, 0, page.Limit())
 	for rows.Next() {
-		var h models.Hackathon
+		var h models.Event
 		if err := rows.Scan(&h.ID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL, &h.Notes,
 			&h.StartAt, &h.EndAt, &h.PublishedAt, &h.ArchivedAt, &h.CreatedAt, &h.UpdatedAt); err != nil {
 			return nil, 0, mapError(err)
@@ -114,9 +104,7 @@ func (r *HackathonRepository) List(ctx context.Context, filter models.HackathonF
 	return items, total, mapError(rows.Err())
 }
 
-// hackathonFilterSQL собирает условие выборки. Вычисляемое состояние выражается
-// через published_at, archived_at и границы периода.
-func hackathonFilterSQL(filter models.HackathonFilter, now time.Time) (string, []any) {
+func eventFilterSQL(filter models.EventFilter, now time.Time) (string, []any) {
 	conds := make([]string, 0, 4)
 	args := make([]any, 0, 4)
 
@@ -124,7 +112,7 @@ func hackathonFilterSQL(filter models.HackathonFilter, now time.Time) (string, [
 		args = append(args, "%"+strings.ToLower(filter.Search)+"%")
 		conds = append(conds, `(lower(title) LIKE $`+itoa(len(args))+` OR lower(coalesce(organizer, '')) LIKE $`+itoa(len(args))+`)`)
 	}
-	if !filter.IncludeArchived && !containsState(filter.States, models.HackathonArchived) {
+	if !filter.IncludeArchived && !containsState(filter.States, models.EventArchived) {
 		conds = append(conds, `archived_at IS NULL`)
 	}
 	if len(filter.States) > 0 {
@@ -133,15 +121,15 @@ func hackathonFilterSQL(filter models.HackathonFilter, now time.Time) (string, [
 		stateConds := make([]string, 0, len(filter.States))
 		for _, st := range filter.States {
 			switch st {
-			case models.HackathonArchived:
+			case models.EventArchived:
 				stateConds = append(stateConds, `archived_at IS NOT NULL`)
-			case models.HackathonUnpublished:
+			case models.EventUnpublished:
 				stateConds = append(stateConds, `(archived_at IS NULL AND published_at IS NULL)`)
-			case models.HackathonUpcoming:
+			case models.EventUpcoming:
 				stateConds = append(stateConds, `(archived_at IS NULL AND published_at IS NOT NULL AND start_at > `+nowArg+`)`)
-			case models.HackathonActive:
+			case models.EventActive:
 				stateConds = append(stateConds, `(archived_at IS NULL AND published_at IS NOT NULL AND start_at <= `+nowArg+` AND end_at >= `+nowArg+`)`)
-			case models.HackathonFinished:
+			case models.EventFinished:
 				stateConds = append(stateConds, `(archived_at IS NULL AND published_at IS NOT NULL AND end_at < `+nowArg+`)`)
 			}
 		}
@@ -155,7 +143,7 @@ func hackathonFilterSQL(filter models.HackathonFilter, now time.Time) (string, [
 	return "WHERE " + strings.Join(conds, " AND "), args
 }
 
-func containsState(states []models.HackathonState, target models.HackathonState) bool {
+func containsState(states []models.EventState, target models.EventState) bool {
 	for _, s := range states {
 		if s == target {
 			return true
@@ -164,18 +152,16 @@ func containsState(states []models.HackathonState, target models.HackathonState)
 	return false
 }
 
-// StageRepository — доступ к этапам хакатона.
 type StageRepository struct{ db *DB }
 
-// NewStageRepository создаёт репозиторий этапов.
 func NewStageRepository(db *DB) *StageRepository { return &StageRepository{db: db} }
 
-const stageColumns = `id, hackathon_id, name, type, start_at, end_at, description, url,
+const stageColumns = `id, event_id, name, type, start_at, end_at, description, url,
 	sort_order, created_at, updated_at`
 
 func scanStage(row pgx.Row) (*models.Stage, error) {
 	var s models.Stage
-	err := row.Scan(&s.ID, &s.HackathonID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
+	err := row.Scan(&s.ID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
 		&s.Description, &s.URL, &s.SortOrder, &s.CreatedAt, &s.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -183,21 +169,18 @@ func scanStage(row pgx.Row) (*models.Stage, error) {
 	return &s, nil
 }
 
-// Create сохраняет этап.
 func (r *StageRepository) Create(ctx context.Context, s *models.Stage) (*models.Stage, error) {
 	return scanStage(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO stages (hackathon_id, name, type, start_at, end_at, description, url, sort_order)
+		INSERT INTO stages (event_id, name, type, start_at, end_at, description, url, sort_order)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING `+stageColumns,
-		s.HackathonID, s.Name, s.Type, s.StartAt, s.EndAt, s.Description, s.URL, s.SortOrder))
+		s.EventID, s.Name, s.Type, s.StartAt, s.EndAt, s.Description, s.URL, s.SortOrder))
 }
 
-// GetByID читает этап по идентификатору.
 func (r *StageRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Stage, error) {
 	return scanStage(r.db.Q(ctx).QueryRow(ctx, `SELECT `+stageColumns+` FROM stages WHERE id = $1`, id))
 }
 
-// Update изменяет этап.
 func (r *StageRepository) Update(ctx context.Context, id uuid.UUID, req models.UpdateStageRequest) (*models.Stage, error) {
 	return scanStage(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE stages SET
@@ -213,7 +196,6 @@ func (r *StageRepository) Update(ctx context.Context, id uuid.UUID, req models.U
 		id, req.Name, req.Type, req.StartAt, req.EndAt, req.Description, req.URL, req.SortOrder))
 }
 
-// Delete удаляет этап.
 func (r *StageRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	tag, err := r.db.Q(ctx).Exec(ctx, `DELETE FROM stages WHERE id = $1`, id)
 	if err != nil {
@@ -225,11 +207,10 @@ func (r *StageRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-// ListByHackathon возвращает этапы хакатона в порядке отображения.
-func (r *StageRepository) ListByHackathon(ctx context.Context, hackathonID uuid.UUID) ([]models.Stage, error) {
+func (r *StageRepository) ListByEvent(ctx context.Context, eventID uuid.UUID) ([]models.Stage, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT `+stageColumns+` FROM stages WHERE hackathon_id = $1
-		ORDER BY sort_order, start_at`, hackathonID)
+		SELECT `+stageColumns+` FROM stages WHERE event_id = $1
+		ORDER BY sort_order, start_at`, eventID)
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -238,7 +219,7 @@ func (r *StageRepository) ListByHackathon(ctx context.Context, hackathonID uuid.
 	items := make([]models.Stage, 0, 8)
 	for rows.Next() {
 		var s models.Stage
-		if err := rows.Scan(&s.ID, &s.HackathonID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
+		if err := rows.Scan(&s.ID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
 			&s.Description, &s.URL, &s.SortOrder, &s.CreatedAt, &s.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}
@@ -247,14 +228,13 @@ func (r *StageRepository) ListByHackathon(ctx context.Context, hackathonID uuid.
 	return items, mapError(rows.Err())
 }
 
-// ListByHackathons возвращает этапы нескольких хакатонов для временной шкалы.
-func (r *StageRepository) ListByHackathons(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID][]models.Stage, error) {
+func (r *StageRepository) ListByEvents(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID][]models.Stage, error) {
 	result := make(map[uuid.UUID][]models.Stage, len(ids))
 	if len(ids) == 0 {
 		return result, nil
 	}
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT `+stageColumns+` FROM stages WHERE hackathon_id = ANY($1)
+		SELECT `+stageColumns+` FROM stages WHERE event_id = ANY($1)
 		ORDER BY sort_order, start_at`, ids)
 	if err != nil {
 		return nil, mapError(err)
@@ -263,11 +243,11 @@ func (r *StageRepository) ListByHackathons(ctx context.Context, ids []uuid.UUID)
 
 	for rows.Next() {
 		var s models.Stage
-		if err := rows.Scan(&s.ID, &s.HackathonID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
+		if err := rows.Scan(&s.ID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
 			&s.Description, &s.URL, &s.SortOrder, &s.CreatedAt, &s.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}
-		result[s.HackathonID] = append(result[s.HackathonID], s)
+		result[s.EventID] = append(result[s.EventID], s)
 	}
 	return result, mapError(rows.Err())
 }

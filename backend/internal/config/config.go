@@ -1,5 +1,3 @@
-// Package config загружает конфигурацию приложения из переменных окружения.
-// Набор параметров и значения по умолчанию соответствуют приложению C ТЗ.
 package config
 
 import (
@@ -10,7 +8,6 @@ import (
 	"time"
 )
 
-// Config — полная конфигурация API и worker.
 type Config struct {
 	App      App
 	HTTP     HTTP
@@ -25,16 +22,14 @@ type Config struct {
 	Ops      Ops
 }
 
-// App — общие параметры процесса.
 type App struct {
-	Env        string // dev | staging | prod
-	LogLevel   string // debug | info | warn | error
+	Env        string
+	LogLevel   string
 	SystemTZ   *time.Location
 	SystemTZID string
-	PublicURL  string // базовый URL фронтенда для ссылок в письмах
+	PublicURL  string
 }
 
-// HTTP — параметры HTTP-сервера.
 type HTTP struct {
 	Addr            string
 	ReadTimeout     time.Duration
@@ -47,16 +42,14 @@ type HTTP struct {
 	SwaggerEnabled  bool
 }
 
-// DB — параметры подключения к PostgreSQL.
 type DB struct {
 	DSN             string
 	MaxConns        int32
 	MinConns        int32
 	MaxConnLifetime time.Duration
-	AppRole         string // роль, у которой отзываются UPDATE/DELETE на audit_log
+	AppRole         string
 }
 
-// Auth — сроки жизни токенов и параметры сессий.
 type Auth struct {
 	JWTSecret          string
 	AccessTTL          time.Duration
@@ -71,7 +64,6 @@ type Auth struct {
 	FirstAdminName     string
 }
 
-// Argon — параметры Argon2id.
 type Argon struct {
 	Memory      uint32
 	Iterations  uint32
@@ -80,7 +72,6 @@ type Argon struct {
 	KeyLength   uint32
 }
 
-// RateLim — ограничения частоты запросов.
 type RateLim struct {
 	LoginAttempts  int
 	LoginWindow    time.Duration
@@ -88,7 +79,6 @@ type RateLim struct {
 	ResendWindow   time.Duration
 }
 
-// Notify — параметры планировщика и worker доставки.
 type Notify struct {
 	SchedulerInterval time.Duration
 	SchedulerBatch    int
@@ -102,25 +92,22 @@ type Notify struct {
 	MaxOffsetMinutes  int
 }
 
-// Retention — сроки хранения данных.
 type Retention struct {
 	NotificationPayload time.Duration
 	AuditLog            time.Duration
 	Interval            time.Duration
 }
 
-// Telegram — параметры адаптера Telegram.
 type Telegram struct {
-	Driver   string // bot | log
+	Driver   string
 	BotToken string
 	BotName  string
 	APIBase  string
 	Timeout  time.Duration
 }
 
-// Email — параметры адаптера Email.
 type Email struct {
-	Driver   string // smtp | log
+	Driver   string
 	Host     string
 	Port     int
 	Username string
@@ -131,7 +118,6 @@ type Email struct {
 	StartTLS bool
 }
 
-// Ops — параметры служебных endpoint.
 type Ops struct {
 	MetricsToken       string
 	PageSizeMax        int
@@ -139,12 +125,11 @@ type Ops struct {
 	UserSearchPageSize int
 }
 
-// Load читает конфигурацию из окружения и подставляет значения по умолчанию.
 func Load() (*Config, error) {
 	tzID := env("SYSTEM_TIMEZONE", "Europe/Moscow")
 	loc, err := time.LoadLocation(tzID)
 	if err != nil {
-		return nil, fmt.Errorf("системная таймзона %q: %w", tzID, err)
+		return nil, fmt.Errorf("system timezone %q: %w", tzID, err)
 	}
 
 	cfg := &Config{
@@ -167,7 +152,7 @@ func Load() (*Config, error) {
 			SwaggerEnabled:  envBool("SWAGGER_ENABLED", true),
 		},
 		DB: DB{
-			DSN:             env("DATABASE_URL", "postgres://hackathon:hackathon@localhost:5432/hackathon?sslmode=disable"),
+			DSN:             env("DATABASE_URL", "postgres://event:event@localhost:5432/event?sslmode=disable"),
 			MaxConns:        int32(envInt("DATABASE_MAX_CONNS", 10)),
 			MinConns:        int32(envInt("DATABASE_MIN_CONNS", 2)),
 			MaxConnLifetime: envDuration("DATABASE_CONN_LIFETIME", time.Hour),
@@ -184,7 +169,7 @@ func Load() (*Config, error) {
 			MinPasswordLength:  envInt("PASSWORD_MIN_LENGTH", 10),
 			FirstAdminEmail:    env("FIRST_ADMIN_EMAIL", ""),
 			FirstAdminPassword: env("FIRST_ADMIN_PASSWORD", ""),
-			FirstAdminName:     env("FIRST_ADMIN_NAME", "Администратор"),
+			FirstAdminName:     env("FIRST_ADMIN_NAME", "Administrator"),
 		},
 		Argon: Argon{
 			Memory:      uint32(envInt("ARGON2_MEMORY_KIB", 65536)),
@@ -229,7 +214,7 @@ func Load() (*Config, error) {
 			Port:     envInt("SMTP_PORT", 587),
 			Username: env("SMTP_USERNAME", ""),
 			Password: env("SMTP_PASSWORD", ""),
-			From:     env("EMAIL_FROM", "no-reply@hackathon.local"),
+			From:     env("EMAIL_FROM", "no-reply@event.local"),
 			FromName: env("EMAIL_FROM_NAME", "Hackathon Tracker"),
 			Timeout:  envDuration("SMTP_TIMEOUT", 15*time.Second),
 			StartTLS: envBool("SMTP_STARTTLS", true),
@@ -250,16 +235,16 @@ func Load() (*Config, error) {
 
 func (c *Config) validate() error {
 	if c.DB.DSN == "" {
-		return fmt.Errorf("DATABASE_URL обязателен")
+		return fmt.Errorf("DATABASE_URL is required")
 	}
 	if c.App.Env != "dev" && c.Auth.JWTSecret == "dev-insecure-secret-change-me" {
-		return fmt.Errorf("JWT_SECRET обязателен вне dev-окружения")
+		return fmt.Errorf("JWT_SECRET is required outside the dev environment")
 	}
 	if len(c.Notify.Backoff) == 0 {
-		return fmt.Errorf("NOTIFICATION_BACKOFF не может быть пустым")
+		return fmt.Errorf("NOTIFICATION_BACKOFF cannot be empty")
 	}
 	if c.Notify.MaxProviderCalls < 1 {
-		return fmt.Errorf("NOTIFICATION_MAX_PROVIDER_CALLS должен быть не меньше 1")
+		return fmt.Errorf("NOTIFICATION_MAX_PROVIDER_CALLS must be at least 1")
 	}
 	return nil
 }

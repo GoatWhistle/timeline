@@ -8,14 +8,10 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// AuditRepository — доступ к журналу административных изменений.
 type AuditRepository struct{ db *DB }
 
-// NewAuditRepository создаёт репозиторий аудита.
 func NewAuditRepository(db *DB) *AuditRepository { return &AuditRepository{db: db} }
 
-// Insert добавляет запись журнала. Значения приводятся к JSON здесь, чтобы
-// сервисы могли передавать любые структуры снимков.
 func (r *AuditRepository) Insert(ctx context.Context, entry *models.AuditLog) error {
 	before, err := marshalOrNil(entry.BeforeJSON)
 	if err != nil {
@@ -39,7 +35,6 @@ func marshalOrNil(value any) ([]byte, error) {
 	return json.Marshal(value)
 }
 
-// List возвращает страницу журнала с фильтрами.
 func (r *AuditRepository) List(ctx context.Context, filter models.AuditFilter, page models.Page) ([]models.AuditResponse, int64, error) {
 	conds := make([]string, 0, 6)
 	args := make([]any, 0, 6)
@@ -118,11 +113,9 @@ func (r *AuditRepository) List(ctx context.Context, filter models.AuditFilter, p
 	return items, total, mapError(rows.Err())
 }
 
-// DeleteOlderThan удаляет записи старше срока хранения. Триггер неизменяемости
-// пропускает удаление только при явно выставленном признаке процедуры хранения.
 func (r *AuditRepository) DeleteOlderThan(ctx context.Context, retentionDays int) (int64, error) {
 	if !InTx(ctx) {
-		return 0, models.NewValidation("очистка аудита выполняется только в транзакции")
+		return 0, models.NewValidation("audit cleanup runs only inside a transaction")
 	}
 	if _, err := r.db.Q(ctx).Exec(ctx, `SET LOCAL app.audit_retention = 'on'`); err != nil {
 		return 0, mapError(err)

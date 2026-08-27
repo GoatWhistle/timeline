@@ -11,20 +11,18 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// RegistrationRepository — доступ к регистрации хакатона.
 type RegistrationRepository struct{ db *DB }
 
-// NewRegistrationRepository создаёт репозиторий регистрации.
 func NewRegistrationRepository(db *DB) *RegistrationRepository {
 	return &RegistrationRepository{db: db}
 }
 
-const registrationColumns = `id, hackathon_id, url, deadline_at, hackathon_end_at, description,
+const registrationColumns = `id, event_id, url, deadline_at, event_end_at, description,
 	state, schedule_version, activation_version, notification_content_version, created_at, updated_at`
 
 func scanRegistration(row pgx.Row) (*models.Registration, error) {
 	var r models.Registration
-	err := row.Scan(&r.ID, &r.HackathonID, &r.URL, &r.DeadlineAt, &r.HackathonEndAt, &r.Description,
+	err := row.Scan(&r.ID, &r.EventID, &r.URL, &r.DeadlineAt, &r.EventEndAt, &r.Description,
 		&r.State, &r.ScheduleVersion, &r.ActivationVersion, &r.NotificationContentVersion,
 		&r.CreatedAt, &r.UpdatedAt)
 	if err != nil {
@@ -33,35 +31,28 @@ func scanRegistration(row pgx.Row) (*models.Registration, error) {
 	return &r, nil
 }
 
-// Create сохраняет регистрацию. Копия окончания хакатона берётся из самой таблицы
-// хакатонов, чтобы составной внешний ключ всегда был согласован.
-func (r *RegistrationRepository) Create(ctx context.Context, hackathonID uuid.UUID, url string, deadline time.Time, description *string) (*models.Registration, error) {
+func (r *RegistrationRepository) Create(ctx context.Context, eventID uuid.UUID, url string, deadline time.Time, description *string) (*models.Registration, error) {
 	return scanRegistration(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO registrations (hackathon_id, url, deadline_at, hackathon_end_at, description)
-		SELECT $1, $2, $3, h.end_at, $4 FROM hackathons h WHERE h.id = $1
-		RETURNING `+registrationColumns, hackathonID, url, deadline, description))
+		INSERT INTO registrations (event_id, url, deadline_at, event_end_at, description)
+		SELECT $1, $2, $3, h.end_at, $4 FROM events h WHERE h.id = $1
+		RETURNING `+registrationColumns, eventID, url, deadline, description))
 }
 
-// GetByHackathon читает регистрацию хакатона.
-func (r *RegistrationRepository) GetByHackathon(ctx context.Context, hackathonID uuid.UUID) (*models.Registration, error) {
+func (r *RegistrationRepository) GetByEvent(ctx context.Context, eventID uuid.UUID) (*models.Registration, error) {
 	return scanRegistration(r.db.Q(ctx).QueryRow(ctx,
-		`SELECT `+registrationColumns+` FROM registrations WHERE hackathon_id = $1`, hackathonID))
+		`SELECT `+registrationColumns+` FROM registrations WHERE event_id = $1`, eventID))
 }
 
-// GetByHackathonForUpdate читает регистрацию и блокирует строку до конца транзакции.
-func (r *RegistrationRepository) GetByHackathonForUpdate(ctx context.Context, hackathonID uuid.UUID) (*models.Registration, error) {
+func (r *RegistrationRepository) GetByEventForUpdate(ctx context.Context, eventID uuid.UUID) (*models.Registration, error) {
 	return scanRegistration(r.db.Q(ctx).QueryRow(ctx,
-		`SELECT `+registrationColumns+` FROM registrations WHERE hackathon_id = $1 FOR UPDATE`, hackathonID))
+		`SELECT `+registrationColumns+` FROM registrations WHERE event_id = $1 FOR UPDATE`, eventID))
 }
 
-// GetByID читает регистрацию по идентификатору.
 func (r *RegistrationRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Registration, error) {
 	return scanRegistration(r.db.Q(ctx).QueryRow(ctx,
 		`SELECT `+registrationColumns+` FROM registrations WHERE id = $1`, id))
 }
 
-// Update изменяет поля регистрации и версии, затронутые изменением.
-// Версии передаются явно: их пересчёт — решение сервисного слоя.
 func (r *RegistrationRepository) Update(ctx context.Context, id uuid.UUID, url *string, deadline *time.Time,
 	description *string, bumpSchedule, bumpContent bool) (*models.Registration, error) {
 	return scanRegistration(r.db.Q(ctx).QueryRow(ctx, `
@@ -75,14 +66,12 @@ func (r *RegistrationRepository) Update(ctx context.Context, id uuid.UUID, url *
 		RETURNING `+registrationColumns, id, url, deadline, description, bumpSchedule, bumpContent))
 }
 
-// BumpScheduleVersion увеличивает версию расписания один раз на транзакцию.
 func (r *RegistrationRepository) BumpScheduleVersion(ctx context.Context, id uuid.UUID) (*models.Registration, error) {
 	return scanRegistration(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE registrations SET schedule_version = schedule_version + 1 WHERE id = $1
 		RETURNING `+registrationColumns, id))
 }
 
-// Activate включает регистрацию, увеличивая версии активации и расписания.
 func (r *RegistrationRepository) Activate(ctx context.Context, id uuid.UUID) (*models.Registration, error) {
 	return scanRegistration(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE registrations SET
@@ -93,7 +82,6 @@ func (r *RegistrationRepository) Activate(ctx context.Context, id uuid.UUID) (*m
 		RETURNING `+registrationColumns, id))
 }
 
-// Disable выключает регистрацию.
 func (r *RegistrationRepository) Disable(ctx context.Context, id uuid.UUID) (*models.Registration, error) {
 	return scanRegistration(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE registrations SET state = 'DISABLED'
@@ -101,27 +89,23 @@ func (r *RegistrationRepository) Disable(ctx context.Context, id uuid.UUID) (*mo
 		RETURNING `+registrationColumns, id))
 }
 
-// SyncHackathonEnd обновляет денормализованную копию окончания хакатона.
-// Обычно она поддерживается каскадом; метод нужен процедурам починки данных.
-func (r *RegistrationRepository) SyncHackathonEnd(ctx context.Context, hackathonID uuid.UUID) error {
+func (r *RegistrationRepository) SyncEventEnd(ctx context.Context, eventID uuid.UUID) error {
 	_, err := r.db.Q(ctx).Exec(ctx, `
-		UPDATE registrations SET hackathon_end_at = h.end_at
-		FROM hackathons h WHERE h.id = registrations.hackathon_id AND registrations.hackathon_id = $1`, hackathonID)
+		UPDATE registrations SET event_end_at = h.end_at
+		FROM events h WHERE h.id = registrations.event_id AND registrations.event_id = $1`, eventID)
 	return mapError(err)
 }
 
-// StatusRepository — доступ к статусам регистрации участников.
 type StatusRepository struct{ db *DB }
 
-// NewStatusRepository создаёт репозиторий статусов.
 func NewStatusRepository(db *DB) *StatusRepository { return &StatusRepository{db: db} }
 
-const statusColumns = `id, hackathon_id, registration_id, participant_id, status, todo_cycle,
+const statusColumns = `id, event_id, registration_id, participant_id, status, todo_cycle,
 	registered_at, last_change_source, last_changed_by_user_id, note, created_at, updated_at`
 
 func scanStatus(row pgx.Row) (*models.RegistrationStatus, error) {
 	var s models.RegistrationStatus
-	err := row.Scan(&s.ID, &s.HackathonID, &s.RegistrationID, &s.ParticipantID, &s.Status, &s.TodoCycle,
+	err := row.Scan(&s.ID, &s.EventID, &s.RegistrationID, &s.ParticipantID, &s.Status, &s.TodoCycle,
 		&s.RegisteredAt, &s.LastChangeSource, &s.LastChangedByUserID, &s.Note, &s.CreatedAt, &s.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -129,13 +113,12 @@ func scanStatus(row pgx.Row) (*models.RegistrationStatus, error) {
 	return &s, nil
 }
 
-// EnsureForParticipant создаёт статус TODO, если его ещё нет, и возвращает текущий.
-func (r *StatusRepository) EnsureForParticipant(ctx context.Context, hackathonID, registrationID, participantID uuid.UUID) (*models.RegistrationStatus, bool, error) {
+func (r *StatusRepository) EnsureForParticipant(ctx context.Context, eventID, registrationID, participantID uuid.UUID) (*models.RegistrationStatus, bool, error) {
 	row := r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO registration_statuses (hackathon_id, registration_id, participant_id, status, last_change_source)
+		INSERT INTO registration_statuses (event_id, registration_id, participant_id, status, last_change_source)
 		VALUES ($1, $2, $3, 'TODO', 'SYSTEM')
 		ON CONFLICT (registration_id, participant_id) DO NOTHING
-		RETURNING `+statusColumns, hackathonID, registrationID, participantID)
+		RETURNING `+statusColumns, eventID, registrationID, participantID)
 
 	status, err := scanStatus(row)
 	if err == nil {
@@ -151,26 +134,21 @@ func (r *StatusRepository) EnsureForParticipant(ctx context.Context, hackathonID
 	return existing, false, nil
 }
 
-// GetByID читает статус по идентификатору.
 func (r *StatusRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.RegistrationStatus, error) {
 	return scanStatus(r.db.Q(ctx).QueryRow(ctx, `SELECT `+statusColumns+` FROM registration_statuses WHERE id = $1`, id))
 }
 
-// GetByIDForUpdate читает статус и блокирует строку до конца транзакции.
 func (r *StatusRepository) GetByIDForUpdate(ctx context.Context, id uuid.UUID) (*models.RegistrationStatus, error) {
 	return scanStatus(r.db.Q(ctx).QueryRow(ctx,
 		`SELECT `+statusColumns+` FROM registration_statuses WHERE id = $1 FOR UPDATE`, id))
 }
 
-// GetByParticipant читает статус участника в рамках регистрации.
 func (r *StatusRepository) GetByParticipant(ctx context.Context, registrationID, participantID uuid.UUID) (*models.RegistrationStatus, error) {
 	return scanStatus(r.db.Q(ctx).QueryRow(ctx,
 		`SELECT `+statusColumns+` FROM registration_statuses
 		 WHERE registration_id = $1 AND participant_id = $2`, registrationID, participantID))
 }
 
-// SetStatus переводит статус в новое значение. Вход в TODO увеличивает todo_cycle
-// и очищает дату регистрации, выход из DONE тоже очищает её.
 func (r *StatusRepository) SetStatus(ctx context.Context, id uuid.UUID, value models.RegistrationStatusValue,
 	source models.ChangeSource, actor *uuid.UUID, note *string) (*models.RegistrationStatus, error) {
 	return scanStatus(r.db.Q(ctx).QueryRow(ctx, `
@@ -185,24 +163,23 @@ func (r *StatusRepository) SetStatus(ctx context.Context, id uuid.UUID, value mo
 		RETURNING `+statusColumns, id, value, source, actor, note))
 }
 
-// List возвращает страницу статусов хакатона с данными пользователя.
-func (r *StatusRepository) List(ctx context.Context, hackathonID uuid.UUID, page models.Page) ([]models.RegistrationStatusResponse, int64, error) {
+func (r *StatusRepository) List(ctx context.Context, eventID uuid.UUID, page models.Page) ([]models.RegistrationStatusResponse, int64, error) {
 	var total int64
 	if err := r.db.Q(ctx).QueryRow(ctx,
-		`SELECT count(*) FROM registration_statuses WHERE hackathon_id = $1`, hackathonID).Scan(&total); err != nil {
+		`SELECT count(*) FROM registration_statuses WHERE event_id = $1`, eventID).Scan(&total); err != nil {
 		return nil, 0, mapError(err)
 	}
 
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT s.id, s.hackathon_id, s.registration_id, s.participant_id, s.status, s.todo_cycle,
+		SELECT s.id, s.event_id, s.registration_id, s.participant_id, s.status, s.todo_cycle,
 		       s.registered_at, s.last_change_source, s.last_changed_by_user_id, s.note, s.updated_at,
 		       u.id, u.display_name, u.email, u.is_active
 		FROM registration_statuses s
-		JOIN hackathon_participants p ON p.id = s.participant_id
+		JOIN event_participants p ON p.id = s.participant_id
 		JOIN users u ON u.id = p.user_id
-		WHERE s.hackathon_id = $1
+		WHERE s.event_id = $1
 		ORDER BY u.display_name
-		LIMIT $2 OFFSET $3`, hackathonID, page.Limit(), page.Offset())
+		LIMIT $2 OFFSET $3`, eventID, page.Limit(), page.Offset())
 	if err != nil {
 		return nil, 0, mapError(err)
 	}
@@ -214,7 +191,7 @@ func (r *StatusRepository) List(ctx context.Context, hackathonID uuid.UUID, page
 			item models.RegistrationStatusResponse
 			user models.UserSummary
 		)
-		if err := rows.Scan(&item.ID, &item.HackathonID, &item.RegistrationID, &item.ParticipantID,
+		if err := rows.Scan(&item.ID, &item.EventID, &item.RegistrationID, &item.ParticipantID,
 			&item.Status, &item.TodoCycle, &item.RegisteredAt, &item.LastChangeSource,
 			&item.LastChangedByUserID, &item.Note, &item.UpdatedAt,
 			&user.ID, &user.DisplayName, &user.Email, &user.IsActive); err != nil {
@@ -226,10 +203,8 @@ func (r *StatusRepository) List(ctx context.Context, hackathonID uuid.UUID, page
 	return items, total, mapError(rows.Err())
 }
 
-// RuleRepository — доступ к правилам напоминаний.
 type RuleRepository struct{ db *DB }
 
-// NewRuleRepository создаёт репозиторий правил.
 func NewRuleRepository(db *DB) *RuleRepository { return &RuleRepository{db: db} }
 
 const ruleColumns = `id, registration_id, offset_minutes, enabled, slot_no, channel_override,
@@ -245,7 +220,6 @@ func scanRule(row pgx.Row) (*models.NotificationRule, error) {
 	return &r, nil
 }
 
-// Create сохраняет правило напоминания.
 func (r *RuleRepository) Create(ctx context.Context, rule *models.NotificationRule) (*models.NotificationRule, error) {
 	return scanRule(r.db.Q(ctx).QueryRow(ctx, `
 		INSERT INTO notification_rules (registration_id, offset_minutes, enabled, slot_no, channel_override)
@@ -254,12 +228,10 @@ func (r *RuleRepository) Create(ctx context.Context, rule *models.NotificationRu
 		rule.RegistrationID, rule.OffsetMinutes, rule.Enabled, rule.SlotNo, rule.ChannelOverride))
 }
 
-// GetByID читает правило по идентификатору.
 func (r *RuleRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.NotificationRule, error) {
 	return scanRule(r.db.Q(ctx).QueryRow(ctx, `SELECT `+ruleColumns+` FROM notification_rules WHERE id = $1`, id))
 }
 
-// Update изменяет правило.
 func (r *RuleRepository) Update(ctx context.Context, id uuid.UUID, offset *int, enabled *bool,
 	channel *models.Channel, clearChannel bool) (*models.NotificationRule, error) {
 	return scanRule(r.db.Q(ctx).QueryRow(ctx, `
@@ -271,7 +243,6 @@ func (r *RuleRepository) Update(ctx context.Context, id uuid.UUID, offset *int, 
 		RETURNING `+ruleColumns, id, offset, enabled, channel, clearChannel))
 }
 
-// Disable выключает правило, сохраняя занятый слот и смещение.
 func (r *RuleRepository) Disable(ctx context.Context, id uuid.UUID) error {
 	tag, err := r.db.Q(ctx).Exec(ctx, `UPDATE notification_rules SET enabled = false WHERE id = $1`, id)
 	if err != nil {
@@ -283,7 +254,6 @@ func (r *RuleRepository) Disable(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-// ListByRegistration возвращает правила регистрации по возрастанию слота.
 func (r *RuleRepository) ListByRegistration(ctx context.Context, registrationID uuid.UUID) ([]models.NotificationRule, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		SELECT `+ruleColumns+` FROM notification_rules WHERE registration_id = $1 ORDER BY slot_no`, registrationID)
@@ -304,7 +274,6 @@ func (r *RuleRepository) ListByRegistration(ctx context.Context, registrationID 
 	return items, mapError(rows.Err())
 }
 
-// NextFreeSlot подбирает наименьший свободный слот правила.
 func (r *RuleRepository) NextFreeSlot(ctx context.Context, registrationID uuid.UUID, maxSlots int) (int, error) {
 	var slot *int
 	err := r.db.Q(ctx).QueryRow(ctx, `
@@ -316,7 +285,7 @@ func (r *RuleRepository) NextFreeSlot(ctx context.Context, registrationID uuid.U
 	}
 	if slot == nil {
 		return 0, models.NewConflict("rule_limit_reached",
-			"на регистрацию допускается не более "+itoa(maxSlots)+" правил")
+			"a registration accepts at most "+itoa(maxSlots)+" rules")
 	}
 	return *slot, nil
 }

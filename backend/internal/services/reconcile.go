@@ -9,15 +9,12 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// buildCandidate собирает вход согласования из уже прочитанных сущностей.
-// Используется, когда уведомление создаётся в транзакции доменной операции,
-// а не выборкой планировщика.
-func buildCandidate(h *models.Hackathon, r *models.Registration, p *models.HackathonParticipant,
+func buildCandidate(h *models.Event, r *models.Registration, p *models.EventParticipant,
 	statusID uuid.UUID, todoCycle int, u *models.User) models.ReconcileCandidate {
 	return models.ReconcileCandidate{
-		HackathonID:       h.ID,
-		HackathonTitle:    h.Title,
-		HackathonEndAt:    h.EndAt,
+		EventID:           h.ID,
+		EventTitle:        h.Title,
+		EventEndAt:        h.EndAt,
 		RegistrationID:    r.ID,
 		RegistrationURL:   r.URL,
 		DeadlineAt:        r.DeadlineAt,
@@ -37,9 +34,7 @@ func buildCandidate(h *models.Hackathon, r *models.Registration, p *models.Hacka
 	}
 }
 
-// logReconcileFailure фиксирует неудачу согласования: доменная операция уже
-// зафиксирована, а недостающие уведомления создаст очередной запуск планировщика.
-func logReconcileFailure(ctx context.Context, hackathonID uuid.UUID, err error) {
-	slog.ErrorContext(ctx, "согласование уведомлений не выполнено, повтор оставлен планировщику",
-		"error", err, "hackathon_id", hackathonID)
+func logReconcileFailure(ctx context.Context, eventID uuid.UUID, err error) {
+	slog.ErrorContext(ctx, "notification reconciliation failed, retry left to scheduler",
+		"error", err, "event_id", eventID)
 }

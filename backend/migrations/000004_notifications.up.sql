@@ -1,14 +1,9 @@
--- Правила напоминаний и очередь уведомлений (раздел 9 ТЗ).
 
 CREATE TABLE notification_rules (
     id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     registration_id  uuid        NOT NULL REFERENCES registrations (id) ON DELETE CASCADE,
-    -- Знак смещения задаёт тип уведомления: >= 0 — напоминание до дедлайна,
-    -- < 0 — уведомление о просрочке. Отдельного поля типа у правила нет.
     offset_minutes   integer     NOT NULL,
     enabled          boolean     NOT NULL DEFAULT true,
-    -- Слот ограничивает число правил десятью декларативно: обычный CHECK
-    -- не умеет считать соседние строки.
     slot_no          integer     NOT NULL,
     channel_override text,
     created_at       timestamptz NOT NULL DEFAULT now(),
@@ -26,8 +21,6 @@ CREATE INDEX rules_registration_enabled_idx ON notification_rules (registration_
 CREATE TRIGGER rules_set_updated_at BEFORE UPDATE ON notification_rules
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
--- Очередь доставки. Уникальный logical_key — единственная гарантия того,
--- что одна и та же бизнес-ситуация не породит два уведомления.
 CREATE TABLE notifications (
     id                           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     notification_type            text        NOT NULL,
@@ -51,7 +44,6 @@ CREATE TABLE notifications (
     next_attempt_at              timestamptz,
     attempt_count                integer     NOT NULL DEFAULT 0,
     lease_expires_at             timestamptz,
-    -- Момент начала вызова провайдера: после него гарантированная отмена невозможна.
     provider_call_started_at     timestamptz,
     payload_json                 jsonb,
     last_error                   text,
@@ -73,7 +65,6 @@ CREATE TABLE notifications (
         (assignment_version IS NULL OR assignment_version >= 1) AND
         (activation_version IS NULL OR activation_version >= 1)),
 
-    -- Набор обязательных версий определяется типом уведомления (раздел 9.2 ТЗ).
     CONSTRAINT notifications_versions_by_type CHECK (
         CASE notification_type
             WHEN 'REGISTRATION_REQUIRED' THEN
@@ -94,12 +85,9 @@ CREATE INDEX notifications_retention_idx ON notifications (created_at) WHERE pay
 CREATE TRIGGER notifications_set_updated_at BEFORE UPDATE ON notifications
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
--- Строку уведомления удалять нельзя: без logical_key согласование пересоздаст
--- уже отправленное уведомление для статуса, оставшегося в TODO. Очистка по сроку
--- хранения обнуляет только payload_json.
 CREATE OR REPLACE FUNCTION notifications_forbid_delete() RETURNS trigger AS $$
 BEGIN
-    RAISE EXCEPTION 'удаление строк notifications запрещено: logical_key обеспечивает дедупликацию'
+    RAISE EXCEPTION 'deleting notifications rows is forbidden: logical_key guarantees deduplication'
         USING ERRCODE = 'restrict_violation';
 END;
 $$ LANGUAGE plpgsql;

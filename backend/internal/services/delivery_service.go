@@ -11,9 +11,6 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// DeliveryService — worker доставки уведомлений (разделы 9.4 и 10 ТЗ).
-// Выбирает готовые записи, повторно проверяет актуальность перед вызовом
-// провайдера и ведёт запись по каналам, повторам и конечным статусам.
 type DeliveryService struct {
 	notifications *repositories.NotificationRepository
 	scheduler     *repositories.SchedulerRepository
@@ -26,7 +23,6 @@ type DeliveryService struct {
 	now           func() time.Time
 }
 
-// NewDeliveryService создаёт worker доставки.
 func NewDeliveryService(notifications *repositories.NotificationRepository,
 	scheduler *repositories.SchedulerRepository, users *repositories.UserRepository,
 	rules *repositories.RuleRepository, audit *repositories.AuditRepository,
@@ -38,8 +34,6 @@ func NewDeliveryService(notifications *repositories.NotificationRepository,
 	}
 }
 
-// Start ведёт три цикла до отмены контекста: опрос очереди, возврат записей
-// с истёкшей арендой и очистку по срокам хранения.
 func (s *DeliveryService) Start(ctx context.Context) {
 	poll := time.NewTicker(s.cfg.Notify.WorkerInterval)
 	defer poll.Stop()
@@ -63,67 +57,60 @@ func (s *DeliveryService) Start(ctx context.Context) {
 	}
 }
 
-// runOnce обрабатывает один пакет готовых записей и отмечает живость процесса.
 func (s *DeliveryService) runOnce(ctx context.Context) {
 	now := s.now()
 	if err := s.scheduler.TouchHeartbeat(ctx, "worker", now); err != nil {
-		slog.ErrorContext(ctx, "не удалось обновить отметку worker", "error", err)
+		slog.ErrorContext(ctx, "failed to update worker heartbeat", "error", err)
 	}
 
 	claimed, err := s.notifications.ClaimDue(ctx, s.cfg.Notify.WorkerBatch, s.cfg.Notify.LeaseTTL, now)
 	if err != nil {
-		slog.ErrorContext(ctx, "не удалось выбрать записи очереди", "error", err)
+		slog.ErrorContext(ctx, "failed to claim queue entries", "error", err)
 		return
 	}
 	for i := range claimed {
 		if ctx.Err() != nil {
-			// Аренда истечёт сама, и запись вернётся в очередь recovery-задачей.
 			return
 		}
 		if err := s.deliver(ctx, &claimed[i]); err != nil {
-			slog.ErrorContext(ctx, "обработка уведомления завершилась ошибкой",
+			slog.ErrorContext(ctx, "notification processing failed",
 				"error", err, "notification_id", claimed[i].ID)
 		}
 	}
 }
 
-// recoverLeases возвращает в очередь записи с истёкшей арендой (AC-NOTIF-08).
 func (s *DeliveryService) recoverLeases(ctx context.Context) {
 	count, err := s.notifications.RecoverLeases(ctx, s.now())
 	if err != nil {
-		slog.ErrorContext(ctx, "возврат истёкших аренд завершился ошибкой", "error", err)
+		slog.ErrorContext(ctx, "releasing expired leases failed", "error", err)
 		return
 	}
 	if count > 0 {
-		slog.InfoContext(ctx, "истёкшие аренды возвращены в очередь", "count", count)
+		slog.InfoContext(ctx, "expired leases returned to queue", "count", count)
 	}
 }
 
-// cleanup применяет сроки хранения снимков уведомлений и журнала аудита.
 func (s *DeliveryService) cleanup(ctx context.Context) {
 	now := s.now()
 	payloads, err := s.notifications.CleanupPayloads(ctx, now.Add(-s.cfg.Retent.NotificationPayload))
 	if err != nil {
-		slog.ErrorContext(ctx, "очистка снимков уведомлений завершилась ошибкой", "error", err)
+		slog.ErrorContext(ctx, "notification payload cleanup failed", "error", err)
 	}
 	days := int(s.cfg.Retent.AuditLog.Hours() / 24)
 	entries, err := s.audit.DeleteOlderThan(ctx, days)
 	if err != nil {
-		slog.ErrorContext(ctx, "очистка журнала аудита завершилась ошибкой", "error", err)
+		slog.ErrorContext(ctx, "audit log cleanup failed", "error", err)
 	}
 	if payloads > 0 || entries > 0 {
-		slog.InfoContext(ctx, "сроки хранения применены", "payloads", payloads, "audit_entries", entries)
+		slog.InfoContext(ctx, "retention policy applied", "payloads", payloads, "audit_entries", entries)
 	}
 }
 
-// deliver выполняет финальную проверку и попытки доставки одной записи.
-// Постоянная ошибка провайдера закрывает канал и переключает попытку на
-// следующий доступный канал без задержки; временная уводит запись в повтор.
 func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) error {
 	candidate, err := s.scheduler.CandidateByStatus(ctx, n.RegistrationStatusID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return s.notifications.MarkCancelled(ctx, n.ID, "ситуация уведомления больше не актуальна")
+			return s.notifications.MarkCancelled(ctx, n.ID, "the notification situation is no longer relevant")
 		}
 		return err
 	}
@@ -131,15 +118,13 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 		return s.notifications.MarkCancelled(ctx, n.ID, reason)
 	}
 	if n.Payload == nil {
-		// Снимок содержимого удалён по сроку хранения: отправлять нечего,
-		// а согласование создаст актуальную запись заново при необходимости.
-		return s.notifications.MarkFailed(ctx, n.ID, "снимок содержимого недоступен")
+		return s.notifications.MarkFailed(ctx, n.ID, "the content snapshot is unavailable")
 	}
 
 	user, err := s.users.GetByID(ctx, n.RecipientUserID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return s.notifications.MarkCancelled(ctx, n.ID, "получатель недоступен")
+			return s.notifications.MarkCancelled(ctx, n.ID, "the recipient is unavailable")
 		}
 		return err
 	}
@@ -154,10 +139,10 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 	for {
 		channel, ok := ChooseChannel(candidate.RecipientChannels, override, failed)
 		if !ok {
-			return s.notifications.MarkUndeliverable(ctx, n.ID, "доступных каналов доставки не осталось")
+			return s.notifications.MarkUndeliverable(ctx, n.ID, "no delivery channels remain available")
 		}
 		if attempts >= s.cfg.Notify.MaxProviderCalls {
-			return s.notifications.MarkFailed(ctx, n.ID, "исчерпан лимит вызовов провайдера")
+			return s.notifications.MarkFailed(ctx, n.ID, "the provider call limit is exhausted")
 		}
 
 		started, err := s.notifications.StartProviderCall(ctx, n.ID, channel, s.now())
@@ -165,15 +150,14 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 			return err
 		}
 		if !started {
-			// Запись успели отменить до начала вызова провайдера.
-			slog.InfoContext(ctx, "уведомление отменено до вызова провайдера", "notification_id", n.ID)
+			slog.InfoContext(ctx, "notification cancelled before provider call", "notification_id", n.ID)
 			return nil
 		}
 		attempts++
 
 		sendErr := s.send(ctx, channel, n, user)
 		if sendErr == nil {
-			slog.InfoContext(ctx, "уведомление отправлено",
+			slog.InfoContext(ctx, "notification sent",
 				"notification_id", n.ID, "channel", channel, "attempt", attempts)
 			return s.notifications.MarkSent(ctx, n.ID, channel, s.now())
 		}
@@ -181,7 +165,6 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 		var delivery *models.DeliveryError
 		permanent := errors.As(sendErr, &delivery) && delivery.Permanent
 		if permanent {
-			// Канал закрыт для этой записи: пробуем следующий в том же проходе.
 			if err := s.notifications.AddFailedChannel(ctx, n.ID, channel); err != nil {
 				return err
 			}
@@ -189,7 +172,7 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 				return err
 			}
 			failed = append(failed, channel)
-			slog.WarnContext(ctx, "канал закрыт постоянной ошибкой провайдера",
+			slog.WarnContext(ctx, "channel closed by permanent provider error",
 				"notification_id", n.ID, "channel", channel, "error", sendErr)
 			continue
 		}
@@ -198,14 +181,13 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 			return s.notifications.MarkFailed(ctx, n.ID, sendErr.Error())
 		}
 		next := s.now().Add(s.backoff(attempts))
-		slog.WarnContext(ctx, "временная ошибка доставки, запись возвращена в очередь",
+		slog.WarnContext(ctx, "temporary delivery error, entry returned to queue",
 			"notification_id", n.ID, "channel", channel, "attempt", attempts,
 			"next_attempt_at", next, "error", sendErr)
 		return s.notifications.MarkRetry(ctx, n.ID, next, sendErr.Error())
 	}
 }
 
-// send вызывает адаптер выбранного канала.
 func (s *DeliveryService) send(ctx context.Context, channel models.Channel,
 	n *models.Notification, user *models.User) error {
 	msg := models.OutboundMessage{
@@ -216,21 +198,20 @@ func (s *DeliveryService) send(ctx context.Context, channel models.Channel,
 	switch channel {
 	case models.ChannelTelegram:
 		if !user.TelegramLinked() {
-			return models.NewPermanentDeliveryError("привязка Telegram отсутствует", nil)
+			return models.NewPermanentDeliveryError("no Telegram link is present", nil)
 		}
 		msg.Recipient = *user.TelegramChatID
 		return s.telegram.Send(ctx, msg)
 	case models.ChannelEmail:
 		if !user.EmailVerified() {
-			return models.NewPermanentDeliveryError("адрес не подтверждён", nil)
+			return models.NewPermanentDeliveryError("the address is not confirmed", nil)
 		}
 		msg.Recipient = user.Email
 		return s.email.Send(ctx, msg)
 	}
-	return models.NewPermanentDeliveryError("неизвестный канал доставки", nil)
+	return models.NewPermanentDeliveryError("unknown delivery channel", nil)
 }
 
-// channelOverride читает канал, заданный правилом уведомления.
 func (s *DeliveryService) channelOverride(ctx context.Context, n *models.Notification) (*models.Channel, error) {
 	if n.RuleID == nil {
 		return nil, nil
@@ -245,8 +226,6 @@ func (s *DeliveryService) channelOverride(ctx context.Context, n *models.Notific
 	return rule.ChannelOverride, nil
 }
 
-// backoff возвращает задержку перед следующей попыткой по числу выполненных
-// вызовов провайдера. Список короче лимита попыток продлевается последним шагом.
 func (s *DeliveryService) backoff(attempts int) time.Duration {
 	steps := s.cfg.Notify.Backoff
 	if len(steps) == 0 {
@@ -262,26 +241,24 @@ func (s *DeliveryService) backoff(attempts int) time.Duration {
 	return steps[idx]
 }
 
-// staleReason сравнивает снимок уведомления с текущей ситуацией. Расхождение
-// версий означает, что запись описывает уже неактуальное состояние.
 func staleReason(n *models.Notification, c *models.ReconcileCandidate) (string, bool) {
 	if n.RecipientUserID != c.RecipientID {
-		return "получатель изменился", true
+		return "the recipient changed", true
 	}
 	if n.NotificationContentVersion != c.ContentVersion {
-		return "содержимое регистрации изменилось", true
+		return "the registration content changed", true
 	}
 	if n.ScheduleVersion != nil && *n.ScheduleVersion != c.ScheduleVersion {
-		return "расписание регистрации изменилось", true
+		return "the registration schedule changed", true
 	}
 	if n.ActivationVersion != nil && *n.ActivationVersion != c.ActivationVersion {
-		return "регистрация переключалась", true
+		return "the registration was toggled", true
 	}
 	if n.AssignmentVersion != nil && *n.AssignmentVersion != c.AssignmentVersion {
-		return "назначение участника изменилось", true
+		return "the participant assignment changed", true
 	}
 	if n.TodoCycle != nil && *n.TodoCycle != c.TodoCycle {
-		return "цикл статуса изменился", true
+		return "the status cycle changed", true
 	}
 	return "", false
 }

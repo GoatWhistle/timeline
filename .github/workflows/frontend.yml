@@ -1,0 +1,58 @@
+name: Frontend CI
+
+# Проверки фронтенда и общерепозиторные храповики. Проверка лимита строк
+# охватывает обе части монорепозитория, поэтому фильтр путей здесь шире, чем
+# у backend.yml.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'docs/swagger.json'
+      - 'docs/baselines/**'
+      - 'scripts/**'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - 'docs/swagger.json'
+      - 'docs/baselines/**'
+      - 'scripts/**'
+      - '.github/workflows/frontend.yml'
+
+jobs:
+  verify:
+    name: Проверки и храповики
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Лимит 250 строк на рукописный код
+        run: bash scripts/check-file-length.sh
+
+      - name: Установка зависимостей
+        working-directory: frontend
+        run: npm ci
+
+      - name: Контракт, типы, линтер и тесты
+        working-directory: frontend
+        run: npm run verify
+
+      - name: Покрытие против порогов
+        working-directory: frontend
+        run: npm run test:coverage
+
+      - name: Production-сборка
+        working-directory: frontend
+        run: npm run build
+
+      - name: Размер сборки против базового уровня
+        run: node scripts/bundle-size.mjs

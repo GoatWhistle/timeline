@@ -22,9 +22,9 @@ func init() {
 func newServeCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "serve",
-		Short: "Запустить HTTP API",
-		Long: "Поднимает HTTP API на HTTP_ADDR. Фоновая доставка уведомлений выполняется " +
-			"отдельной командой worker.",
+		Short: "Run the HTTP API",
+		Long: "Serves the HTTP API on HTTP_ADDR. Background notification delivery runs in " +
+			"a separate worker command.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return serve(cmd.Context())
 		},
@@ -48,7 +48,7 @@ func serve(ctx context.Context) error {
 
 	errc := make(chan error, 1)
 	go func() {
-		slog.InfoContext(ctx, "API запущен", "addr", srv.Addr, "swagger", c.cfg.HTTP.SwaggerEnabled)
+		slog.InfoContext(ctx, "api started", "addr", srv.Addr, "swagger", c.cfg.HTTP.SwaggerEnabled)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errc <- err
 		}
@@ -60,26 +60,23 @@ func serve(ctx context.Context) error {
 	case <-ctx.Done():
 	}
 
-	// Контекст остановки уже отменён сигналом, поэтому ждём завершения
-	// активных запросов на отдельном сроке.
-	slog.Info("остановка API", "timeout", c.cfg.HTTP.ShutdownTimeout)
+	slog.Info("api shutting down", "timeout", c.cfg.HTTP.ShutdownTimeout)
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), c.cfg.HTTP.ShutdownTimeout)
 	defer cancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		return err
 	}
-	slog.Info("API остановлен")
+	slog.Info("api stopped")
 	return nil
 }
 
-// newRouter собирает HTTP-роутер поверх сервисов контейнера.
 func newRouter(c *container) http.Handler {
 	deps := controllers.Deps{
 		Auth:          c.auth,
 		Invites:       c.invites,
 		Profile:       c.profile,
 		Users:         c.users,
-		Hackathons:    c.hackathons,
+		Events:        c.events,
 		Stages:        c.stages,
 		Participants:  c.participants,
 		Registrations: c.registrations,
@@ -99,9 +96,7 @@ func newRouter(c *container) http.Handler {
 		PageDefault:  c.cfg.Ops.PageSizeDef,
 		PageMax:      c.cfg.Ops.PageSizeMax,
 		UserPageSize: c.cfg.Ops.UserSearchPageSize,
-		// CSRF-токен живёт столько же, сколько сессия: иначе он истекал бы
-		// посреди работы пользователя, а изменяющие запросы начали бы отказывать.
-		CSRFTTL: c.cfg.Auth.RefreshTTL,
+		CSRFTTL:      c.cfg.Auth.RefreshTTL,
 	}
 	if c.cfg.HTTP.SwaggerEnabled {
 		deps.SwaggerUI = httpSwagger.WrapHandler
@@ -109,5 +104,4 @@ func newRouter(c *container) http.Handler {
 	return controllers.NewRouter(deps)
 }
 
-// nowUTC — единый источник времени операционных команд.
 func nowUTC() time.Time { return time.Now().UTC() }

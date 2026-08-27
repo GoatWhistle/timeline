@@ -15,9 +15,9 @@ func init() {
 func newWorkerCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "worker",
-		Short: "Запустить планировщик и worker доставки",
-		Long: "Ведёт два фоновых цикла: согласование очереди уведомлений по правилам " +
-			"и доставку готовых записей в Telegram и email.",
+		Short: "Run the scheduler and the delivery worker",
+		Long: "Runs two background loops: reconciling the notification queue against the rules " +
+			"and delivering ready entries to Telegram and email.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return worker(cmd.Context())
 		},
@@ -31,7 +31,7 @@ func worker(ctx context.Context) error {
 	}
 	defer c.Close()
 
-	slog.InfoContext(ctx, "worker запущен",
+	slog.InfoContext(ctx, "worker started",
 		"scheduler_interval", c.cfg.Notify.SchedulerInterval,
 		"worker_interval", c.cfg.Notify.WorkerInterval,
 		"telegram_driver", c.cfg.Telegram.Driver,
@@ -49,6 +49,6 @@ func worker(ctx context.Context) error {
 	}()
 	wg.Wait()
 
-	slog.Info("worker остановлен")
+	slog.Info("worker stopped")
 	return nil
 }

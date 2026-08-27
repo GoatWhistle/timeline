@@ -1,5 +1,3 @@
-// Package telegram содержит адаптер отправки сообщений в Telegram и разбор
-// ответов Bot API. Драйвер log пишет сообщение в журнал вместо отправки.
 package telegram
 
 import (
@@ -16,14 +14,11 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// Sender отправляет сообщение в чат Telegram.
 type Sender interface {
 	Send(ctx context.Context, msg models.OutboundMessage) error
-	// DeepLink собирает одноразовую ссылку привязки чата к пользователю.
 	DeepLink(token string) string
 }
 
-// New создаёт адаптер по конфигурации.
 func New(cfg config.Telegram) Sender {
 	if cfg.Driver == "bot" && cfg.BotToken != "" {
 		return &botSender{cfg: cfg, client: &http.Client{Timeout: cfg.Timeout}}
@@ -31,18 +26,16 @@ func New(cfg config.Telegram) Sender {
 	return &logSender{cfg: cfg}
 }
 
-// logSender пишет сообщение в журнал вместо отправки.
 type logSender struct{ cfg config.Telegram }
 
 func (s *logSender) Send(ctx context.Context, msg models.OutboundMessage) error {
-	slog.InfoContext(ctx, "сообщение Telegram не отправлено: активен драйвер log",
+	slog.InfoContext(ctx, "telegram message not sent: log driver active",
 		"chat_id", msg.Recipient, "idempotency_key", msg.IdempotencyKey)
 	return nil
 }
 
 func (s *logSender) DeepLink(token string) string { return deepLink(s.cfg.BotName, token) }
 
-// botSender отправляет сообщение через Bot API.
 type botSender struct {
 	cfg    config.Telegram
 	client *http.Client
@@ -61,7 +54,7 @@ type apiResponse struct {
 
 func (s *botSender) Send(ctx context.Context, msg models.OutboundMessage) error {
 	if strings.TrimSpace(msg.Recipient) == "" {
-		return models.NewPermanentDeliveryError("не задан идентификатор чата", nil)
+		return models.NewPermanentDeliveryError("chat identifier is not set", nil)
 	}
 	text := msg.Body
 	if msg.Subject != "" {
@@ -69,25 +62,25 @@ func (s *botSender) Send(ctx context.Context, msg models.OutboundMessage) error 
 	}
 	body, err := json.Marshal(sendMessageRequest{ChatID: msg.Recipient, Text: text})
 	if err != nil {
-		return models.NewPermanentDeliveryError("не удалось собрать запрос", err)
+		return models.NewPermanentDeliveryError("failed to build the request", err)
 	}
 
 	endpoint := fmt.Sprintf("%s/bot%s/sendMessage", strings.TrimRight(s.cfg.APIBase, "/"), s.cfg.BotToken)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
 	if err != nil {
-		return models.NewPermanentDeliveryError("не удалось собрать запрос", err)
+		return models.NewPermanentDeliveryError("failed to build the request", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		return models.NewTemporaryDeliveryError("Telegram недоступен", err)
+		return models.NewTemporaryDeliveryError("Telegram is unavailable", err)
 	}
 	defer resp.Body.Close()
 
 	var parsed apiResponse
 	if err := json.NewDecoder(resp.Body).Decode(&parsed); err != nil && resp.StatusCode == http.StatusOK {
-		return models.NewTemporaryDeliveryError("некорректный ответ Telegram", err)
+		return models.NewTemporaryDeliveryError("malformed Telegram response", err)
 	}
 	if parsed.OK {
 		return nil
@@ -95,23 +88,20 @@ func (s *botSender) Send(ctx context.Context, msg models.OutboundMessage) error 
 	return classify(resp.StatusCode, parsed)
 }
 
-// classify различает постоянные и временные отказы Bot API.
-// Заблокированный или несуществующий чат и отозванная привязка — постоянные:
-// повтор на этом канале бессмыслен.
 func classify(statusCode int, resp apiResponse) error {
 	reason := resp.Description
 	if reason == "" {
-		reason = fmt.Sprintf("Telegram вернул код %d", statusCode)
+		reason = fmt.Sprintf("Telegram returned status %d", statusCode)
 	}
 	switch {
 	case resp.ErrorCode == http.StatusForbidden || statusCode == http.StatusForbidden:
-		return models.NewPermanentDeliveryError("чат недоступен: "+reason, nil)
+		return models.NewPermanentDeliveryError("chat unavailable: "+reason, nil)
 	case resp.ErrorCode == http.StatusBadRequest || statusCode == http.StatusBadRequest:
-		return models.NewPermanentDeliveryError("Telegram отклонил сообщение: "+reason, nil)
+		return models.NewPermanentDeliveryError("Telegram rejected the message: "+reason, nil)
 	case resp.ErrorCode == http.StatusNotFound || statusCode == http.StatusNotFound:
-		return models.NewPermanentDeliveryError("чат не найден: "+reason, nil)
+		return models.NewPermanentDeliveryError("chat not found: "+reason, nil)
 	default:
-		return models.NewTemporaryDeliveryError("временная ошибка Telegram: "+reason, nil)
+		return models.NewTemporaryDeliveryError("temporary Telegram error: "+reason, nil)
 	}
 }
 

@@ -1,5 +1,3 @@
-// Package testsupport готовит окружение интеграционных тестов: подключение к
-// PostgreSQL, применение миграций и очистку данных между тестами.
 package testsupport
 
 import (
@@ -24,23 +22,21 @@ var (
 	sharedDSN string
 )
 
-// Таблицы очищаются в порядке, безопасном для внешних ключей.
 var tables = []string{
 	"audit_log",
 	"notifications",
 	"notification_rules",
 	"registration_statuses",
 	"registrations",
-	"hackathon_participants",
+	"event_participants",
 	"stages",
-	"hackathons",
+	"events",
 	"invites",
 	"one_time_tokens",
 	"sessions",
 	"users",
 }
 
-// DSN возвращает строку подключения тестовой базы либо пропускает тест.
 func DSN(t *testing.T) string {
 	t.Helper()
 	dsn := os.Getenv("TEST_DATABASE_URL")
@@ -48,7 +44,7 @@ func DSN(t *testing.T) string {
 		dsn = os.Getenv("DATABASE_URL")
 	}
 	if dsn == "" {
-		t.Skip("интеграционный тест пропущен: не задан TEST_DATABASE_URL")
+		t.Skip("integration test skipped: TEST_DATABASE_URL is not set")
 	}
 	once.Do(func() {
 		sharedDSN = dsn
@@ -61,15 +57,15 @@ func applyMigrations(t *testing.T, dsn string) {
 	t.Helper()
 	source, err := iofs.New(migrations.FS, ".")
 	if err != nil {
-		t.Fatalf("источник миграций: %v", err)
+		t.Fatalf("migration source: %v", err)
 	}
 	m, err := migrate.NewWithSourceInstance("iofs", source, pgxURL(dsn))
 	if err != nil {
-		t.Fatalf("инициализация миграций: %v", err)
+		t.Fatalf("initialising migrations: %v", err)
 	}
 	defer m.Close()
 	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		t.Fatalf("применение миграций: %v", err)
+		t.Fatalf("applying migrations: %v", err)
 	}
 }
 
@@ -84,7 +80,6 @@ func pgxURL(dsn string) string {
 	}
 }
 
-// Pool открывает пул к тестовой базе, применяет миграции и очищает данные.
 func Pool(t *testing.T) *pgxpool.Pool {
 	t.Helper()
 	dsn := DSN(t)
@@ -94,7 +89,7 @@ func Pool(t *testing.T) *pgxpool.Pool {
 
 	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
-		t.Fatalf("подключение к базе: %v", err)
+		t.Fatalf("connecting to the database: %v", err)
 	}
 	t.Cleanup(pool.Close)
 
@@ -102,20 +97,17 @@ func Pool(t *testing.T) *pgxpool.Pool {
 	return pool
 }
 
-// DB открывает подготовленное подключение слоя репозиториев.
 func DB(t *testing.T) *repositories.DB {
 	t.Helper()
 	return repositories.NewDB(Pool(t))
 }
 
-// Truncate очищает все таблицы схемы. TRUNCATE не вызывает построчные триггеры,
-// поэтому запреты на удаление уведомлений и записей аудита ему не мешают.
 func Truncate(t *testing.T, pool *pgxpool.Pool) {
 	t.Helper()
 	ctx := context.Background()
 	stmt := "TRUNCATE TABLE " + join(tables) + " RESTART IDENTITY CASCADE"
 	if _, err := pool.Exec(ctx, stmt); err != nil {
-		t.Fatalf("очистка таблиц: %v", err)
+		t.Fatalf("truncating tables: %v", err)
 	}
 }
 

@@ -13,22 +13,20 @@ func TestLimiterAllowsWithinWindow(t *testing.T) {
 
 	for i := 1; i <= 10; i++ {
 		if !limiter.Allow("ip|user@example.com", 10, 15*time.Minute) {
-			t.Fatalf("попытка %d должна укладываться в лимит", i)
+			t.Fatalf("attempt %d should stay within the limit", i)
 		}
 	}
 	if limiter.Allow("ip|user@example.com", 10, 15*time.Minute) {
-		t.Fatal("одиннадцатая попытка должна быть отклонена")
+		t.Fatal("the eleventh attempt should be rejected")
 	}
 
-	// Другой ключ считается отдельно.
 	if !limiter.Allow("ip|other@example.com", 10, 15*time.Minute) {
-		t.Fatal("другой ключ не должен зависеть от исчерпанного")
+		t.Fatal("a different key should not depend on an exhausted one")
 	}
 
-	// После окна счётчик обнуляется.
 	now = now.Add(16 * time.Minute)
 	if !limiter.Allow("ip|user@example.com", 10, 15*time.Minute) {
-		t.Fatal("после окна попытка должна быть разрешена")
+		t.Fatal("after the window the attempt should be allowed")
 	}
 }
 
@@ -40,10 +38,10 @@ func TestLimiterReset(t *testing.T) {
 		limiter.Allow("key", 5, time.Hour)
 	}
 	if limiter.Allow("key", 5, time.Hour) {
-		t.Fatal("лимит должен быть исчерпан")
+		t.Fatal("the limit should be exhausted")
 	}
 	limiter.Reset("key")
 	if !limiter.Allow("key", 5, time.Hour) {
-		t.Fatal("после сброса попытка должна быть разрешена")
+		t.Fatal("after a reset the attempt should be allowed")
 	}
 }

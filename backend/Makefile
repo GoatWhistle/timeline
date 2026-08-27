@@ -8,7 +8,7 @@ SPEC_REPO := ..
 # Запуск приложения живёт в корневом Makefile: и API, и worker, и база
 # поднимаются только в контейнерах (`make docker-up`, `make dev`). Здесь
 # остаются сборка, проверки и генерация спецификации.
-.PHONY: help build docs docs-publish fmt vet lint test test-integration clean
+.PHONY: help build docs docs-publish fmt vet lint test test-integration cover clean
 
 help: ## Показать список целей
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -36,11 +36,18 @@ fmt: ## Форматировать код
 vet: ## Статический анализ
 	go vet $(PKG)
 
+lint: ## golangci-lint по .golangci.yml
+	golangci-lint run $(PKG)
+
 test: ## Модульные тесты
 	go test $(PKG)
 
 test-integration: ## Тесты, требующие PostgreSQL
 	go test -tags=integration -count=1 $(PKG)
 
+cover: ## Тесты с профилем покрытия
+	go test -coverprofile=coverage.out -covermode=atomic $(PKG)
+	go tool cover -func=coverage.out | tail -1
+
 clean: ## Удалить артефакты сборки
-	rm -rf bin
+	rm -rf bin coverage.out coverage.html

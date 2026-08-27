@@ -12,7 +12,6 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// InviteService управляет приглашениями на регистрацию.
 type InviteService struct {
 	db      *repositories.DB
 	invites *repositories.InviteRepository
@@ -25,7 +24,6 @@ type InviteService struct {
 	now     func() time.Time
 }
 
-// NewInviteService создаёт сервис приглашений.
 func NewInviteService(db *repositories.DB, invites *repositories.InviteRepository,
 	users *repositories.UserRepository, auth *AuthService, audit *AuditService, mailer *Mailer,
 	limiter RateLimiter, cfg *config.Config) *InviteService {
@@ -35,18 +33,16 @@ func NewInviteService(db *repositories.DB, invites *repositories.InviteRepositor
 	}
 }
 
-// Create выпускает приглашение. Операция сериализуется по адресу: предыдущее
-// действующее приглашение отзывается, затем создаётся новое (раздел 3 ТЗ).
 func (s *InviteService) Create(ctx context.Context, actor models.Actor, email string) (*models.Invite, string, error) {
 	if !actor.IsAdmin {
-		return nil, "", models.NewForbidden("приглашения создаёт только администратор")
+		return nil, "", models.NewForbidden("only an administrator can create invites")
 	}
 	normalized, err := validateEmail("email", email)
 	if err != nil {
 		return nil, "", err
 	}
 	if !s.limiter.Allow("invite|"+normalized, s.cfg.RateLim.ResendAttempts, s.cfg.RateLim.ResendWindow) {
-		return nil, "", models.NewRateLimited("слишком много приглашений на этот адрес, повторите позже")
+		return nil, "", models.NewRateLimited("too many invites for this address, try again later")
 	}
 
 	secret, err := NewSecret()
@@ -63,11 +59,8 @@ func (s *InviteService) Create(ctx context.Context, actor models.Actor, email st
 			return err
 		}
 
-		// Приглашение на адрес существующего пользователя отклоняется независимо
-		// от его активности: активного администратор добавляет напрямую,
-		// деактивированного сначала активирует.
 		if _, err := s.users.GetByEmail(ctx, normalized); err == nil {
-			return models.NewConflict("user_exists", "пользователь с таким email уже существует")
+			return models.NewConflict("user_exists", "a user with this email already exists")
 		} else if !errors.Is(err, models.ErrNotFound) {
 			return err
 		}
@@ -99,18 +92,16 @@ func (s *InviteService) Create(ctx context.Context, actor models.Actor, email st
 	return invite, secret, nil
 }
 
-// List возвращает страницу приглашений.
 func (s *InviteService) List(ctx context.Context, actor models.Actor, page models.Page) ([]models.Invite, int64, error) {
 	if !actor.IsAdmin {
-		return nil, 0, models.NewForbidden("список приглашений доступен только администратору")
+		return nil, 0, models.NewForbidden("the invite list is restricted to administrators")
 	}
 	return s.invites.List(ctx, page)
 }
 
-// Revoke отзывает приглашение.
 func (s *InviteService) Revoke(ctx context.Context, actor models.Actor, id uuid.UUID) error {
 	if !actor.IsAdmin {
-		return models.NewForbidden("отзыв приглашения доступен только администратору")
+		return models.NewForbidden("revoking an invite is restricted to administrators")
 	}
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
 		invite, err := s.invites.GetByID(ctx, id)
@@ -125,12 +116,11 @@ func (s *InviteService) Revoke(ctx context.Context, actor models.Actor, id uuid.
 	})
 }
 
-// Preview показывает адрес и срок действия приглашения по токену.
 func (s *InviteService) Preview(ctx context.Context, token string) (*models.InvitePreview, error) {
 	invite, err := s.invites.GetByHash(ctx, HashSecret(token))
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return nil, models.NewNotFound("приглашение не найдено")
+			return nil, models.NewNotFound("invite not found")
 		}
 		return nil, err
 	}
@@ -141,19 +131,17 @@ func (s *InviteService) Preview(ctx context.Context, token string) (*models.Invi
 	}, nil
 }
 
-// Accept создаёт учётную запись по приглашению и открывает сессию.
 func (s *InviteService) Accept(ctx context.Context, req models.AcceptInviteRequest, meta models.SessionMeta) (*models.User, *models.TokenPair, error) {
 	invite, err := s.invites.GetByHash(ctx, HashSecret(req.Token))
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return nil, nil, models.NewNotFound("приглашение не найдено")
+			return nil, nil, models.NewNotFound("invite not found")
 		}
 		return nil, nil, err
 	}
 	if !invite.Usable(s.now()) {
-		return nil, nil, models.NewConflict("invite_not_usable", "приглашение уже использовано, отозвано или истекло")
+		return nil, nil, models.NewConflict("invite_not_usable", "the invite has already been used, revoked or expired")
 	}
-	// Адрес берётся из приглашения: подменить получателя нельзя.
 	return s.auth.Register(ctx, models.RegisterRequest{
 		DisplayName: req.DisplayName,
 		Email:       invite.NormalizedEmail,

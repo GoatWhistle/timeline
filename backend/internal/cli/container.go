@@ -11,9 +11,6 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/services"
 )
 
-// container — единая сборка зависимостей приложения. API, worker и
-// операционные команды поднимают один и тот же граф: разница только в том,
-// какие его части запускаются.
 type container struct {
 	cfg *config.Config
 	db  *repositories.DB
@@ -23,7 +20,7 @@ type container struct {
 		sessions      *repositories.SessionRepository
 		tokens        *repositories.TokenRepository
 		invites       *repositories.InviteRepository
-		hackathons    *repositories.HackathonRepository
+		events        *repositories.EventRepository
 		stages        *repositories.StageRepository
 		participants  *repositories.ParticipantRepository
 		registrations *repositories.RegistrationRepository
@@ -43,7 +40,7 @@ type container struct {
 	invites       *services.InviteService
 	profile       *services.ProfileService
 	users         *services.UserService
-	hackathons    *services.HackathonService
+	events        *services.EventService
 	stages        *services.StageService
 	participants  *services.ParticipantService
 	registrations *services.RegistrationService
@@ -57,8 +54,6 @@ type container struct {
 	ops           *services.OpsService
 }
 
-// newContainer читает конфигурацию, открывает пул соединений и собирает сервисы.
-// Вызывающий обязан закрыть контейнер.
 func newContainer(ctx context.Context) (*container, error) {
 	cfg, err := loadConfig()
 	if err != nil {
@@ -74,7 +69,7 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.repos.sessions = repositories.NewSessionRepository(db)
 	c.repos.tokens = repositories.NewTokenRepository(db)
 	c.repos.invites = repositories.NewInviteRepository(db)
-	c.repos.hackathons = repositories.NewHackathonRepository(db)
+	c.repos.events = repositories.NewEventRepository(db)
 	c.repos.stages = repositories.NewStageRepository(db)
 	c.repos.participants = repositories.NewParticipantRepository(db)
 	c.repos.registrations = repositories.NewRegistrationRepository(db)
@@ -94,8 +89,6 @@ func newContainer(ctx context.Context) (*container, error) {
 
 	c.audit = services.NewAuditService(c.repos.audit)
 	c.notifier = services.NewNotificationService(c.repos.notifications, cfg)
-	// Планировщик реализует Reconciler: доменные операции просят его дополнить
-	// очередь сразу после изменения, не дожидаясь очередного цикла.
 	c.scheduler = services.NewSchedulerService(db, c.repos.scheduler, c.notifier, cfg)
 
 	c.auth = services.NewAuthService(db, c.repos.users, c.repos.sessions, c.repos.tokens, c.repos.invites,
@@ -104,17 +97,17 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.profile = services.NewProfileService(db, c.repos.users, c.repos.tokens, c.repos.sessions,
 		c.notifier, c.audit, c.hasher, mailer, c.telegram, cfg)
 	c.users = services.NewUserService(db, c.repos.users, c.repos.sessions, c.notifier, c.audit)
-	c.hackathons = services.NewHackathonService(db, c.repos.hackathons, c.repos.registrations,
+	c.events = services.NewEventService(db, c.repos.events, c.repos.registrations,
 		c.notifier, c.scheduler, c.audit)
-	c.stages = services.NewStageService(db, c.repos.stages, c.repos.hackathons, c.repos.participants, c.audit)
-	c.participants = services.NewParticipantService(db, c.repos.participants, c.repos.hackathons,
+	c.stages = services.NewStageService(db, c.repos.stages, c.repos.events, c.repos.participants, c.audit)
+	c.participants = services.NewParticipantService(db, c.repos.participants, c.repos.events,
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
-	c.registrations = services.NewRegistrationService(db, c.repos.registrations, c.repos.hackathons,
+	c.registrations = services.NewRegistrationService(db, c.repos.registrations, c.repos.events,
 		c.repos.participants, c.repos.statuses, c.repos.users, c.notifier, c.scheduler, c.audit)
 	c.statuses = services.NewStatusService(db, c.repos.statuses, c.repos.registrations, c.repos.participants,
-		c.repos.hackathons, c.repos.users, c.notifier, c.scheduler, c.audit)
+		c.repos.events, c.repos.users, c.notifier, c.scheduler, c.audit)
 	c.rules = services.NewRuleService(db, c.repos.rules, c.repos.registrations, c.notifier, c.scheduler, c.audit, cfg)
-	c.queries = services.NewQueryService(c.repos.queries, c.repos.hackathons, c.repos.stages,
+	c.queries = services.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
 		c.repos.participants, c.repos.registrations, c.repos.statuses)
 	c.delivery = services.NewDeliveryService(c.repos.notifications, c.repos.scheduler, c.repos.users,
 		c.repos.rules, c.repos.audit, c.telegram, c.email, cfg)
@@ -122,5 +115,4 @@ func newContainer(ctx context.Context) (*container, error) {
 	return c, nil
 }
 
-// Close закрывает пул соединений.
 func (c *container) Close() { c.db.Close() }

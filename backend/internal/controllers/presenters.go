@@ -6,9 +6,6 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// Презентеры переводят модели в DTO ответов. Здесь же отсекаются поля,
-// недоступные обычному пользователю (например, административные заметки).
-
 func meResponse(u *models.User) models.MeResponse {
 	return models.MeResponse{
 		ID:               u.ID,
@@ -26,8 +23,8 @@ func meResponse(u *models.User) models.MeResponse {
 	}
 }
 
-func hackathonResponse(h *models.Hackathon, now time.Time, admin bool) models.HackathonResponse {
-	resp := models.HackathonResponse{
+func eventResponse(h *models.Event, now time.Time, admin bool) models.EventResponse {
+	resp := models.EventResponse{
 		ID:          h.ID,
 		Title:       h.Title,
 		Description: h.Description,
@@ -50,7 +47,7 @@ func hackathonResponse(h *models.Hackathon, now time.Time, admin bool) models.Ha
 func stageResponse(s *models.Stage) models.StageResponse {
 	return models.StageResponse{
 		ID:          s.ID,
-		HackathonID: s.HackathonID,
+		EventID:     s.EventID,
 		Name:        s.Name,
 		Type:        s.Type,
 		StartAt:     s.StartAt,
@@ -66,7 +63,7 @@ func stageResponse(s *models.Stage) models.StageResponse {
 func registrationResponse(r *models.Registration) models.RegistrationResponse {
 	return models.RegistrationResponse{
 		ID:                         r.ID,
-		HackathonID:                r.HackathonID,
+		EventID:                    r.EventID,
 		URL:                        r.URL,
 		DeadlineAt:                 r.DeadlineAt,
 		Description:                r.Description,

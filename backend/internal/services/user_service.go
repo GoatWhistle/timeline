@@ -9,7 +9,6 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// UserService реализует административные операции над учётными записями.
 type UserService struct {
 	db       *repositories.DB
 	users    *repositories.UserRepository
@@ -18,25 +17,21 @@ type UserService struct {
 	audit    *AuditService
 }
 
-// NewUserService создаёт сервис управления учётными записями.
 func NewUserService(db *repositories.DB, users *repositories.UserRepository,
 	sessions *repositories.SessionRepository, notifier *NotificationService, audit *AuditService) *UserService {
 	return &UserService{db: db, users: users, sessions: sessions, notifier: notifier, audit: audit}
 }
 
-// Search ищет пользователей для выбора участников хакатона.
 func (s *UserService) Search(ctx context.Context, actor models.Actor, query string, page models.Page) ([]models.UserSummary, int64, error) {
 	if !actor.IsAdmin {
-		return nil, 0, models.NewForbidden("поиск пользователей доступен только администратору")
+		return nil, 0, models.NewForbidden("user search is restricted to administrators")
 	}
 	return s.users.Search(ctx, query, page)
 }
 
-// SetActive деактивирует или активирует учётную запись.
-// Обратная активация не воскрешает ранее отменённые уведомления.
 func (s *UserService) SetActive(ctx context.Context, actor models.Actor, userID uuid.UUID, active bool) error {
 	if !actor.IsAdmin {
-		return models.NewForbidden("операция доступна только администратору")
+		return models.NewForbidden("the operation is restricted to administrators")
 	}
 	if !active {
 		return deactivateUser(ctx, s.db, s.users, s.sessions, s.notifier, s.audit, actor, userID)
@@ -47,10 +42,10 @@ func (s *UserService) SetActive(ctx context.Context, actor models.Actor, userID 
 			return err
 		}
 		if user.DeletedAt != nil {
-			return models.NewConflict("user_deleted", "удалённую учётную запись восстановить нельзя")
+			return models.NewConflict("user_deleted", "a deleted account cannot be restored")
 		}
 		if user.IsActive {
-			return models.NewConflict("already_active", "учётная запись уже активна")
+			return models.NewConflict("already_active", "the account is already active")
 		}
 		if err := s.users.SetActive(ctx, userID, true); err != nil {
 			return err
@@ -60,14 +55,12 @@ func (s *UserService) SetActive(ctx context.Context, actor models.Actor, userID 
 	})
 }
 
-// Delete необратимо обезличивает учётную запись. Ссылки участия и записи
-// аудита сохраняются, credentials и каналы доставки удаляются.
 func (s *UserService) Delete(ctx context.Context, actor models.Actor, userID uuid.UUID) error {
 	if !actor.IsAdmin {
-		return models.NewForbidden("удаление доступно только администратору")
+		return models.NewForbidden("deletion is restricted to administrators")
 	}
 	if actor.UserID == userID {
-		return models.NewConflict("self_delete", "нельзя удалить собственную учётную запись")
+		return models.NewConflict("self_delete", "you cannot delete your own account")
 	}
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
 		user, err := s.users.GetByID(ctx, userID)
@@ -75,7 +68,7 @@ func (s *UserService) Delete(ctx context.Context, actor models.Actor, userID uui
 			return err
 		}
 		if user.DeletedAt != nil {
-			return models.NewConflict("already_deleted", "учётная запись уже удалена")
+			return models.NewConflict("already_deleted", "the account is already deleted")
 		}
 		if err := s.sessions.RevokeAllForUser(ctx, userID); err != nil {
 			return err

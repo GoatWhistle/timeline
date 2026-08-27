@@ -1,6 +1,3 @@
-// Package ratelimit содержит ограничитель частоты запросов на скользящем окне.
-// Счётчики хранятся в памяти процесса: для развёртывания MVP с одним экземпляром
-// API этого достаточно, а внешнее хранилище усложнило бы состав системы.
 package ratelimit
 
 import (
@@ -8,7 +5,6 @@ import (
 	"time"
 )
 
-// Limiter ограничивает число попыток по ключу за окно времени.
 type Limiter struct {
 	mu       sync.Mutex
 	attempts map[string][]time.Time
@@ -16,17 +12,14 @@ type Limiter struct {
 	lastGC   time.Time
 }
 
-// New создаёт ограничитель.
 func New() *Limiter {
 	return &Limiter{attempts: make(map[string][]time.Time), now: time.Now}
 }
 
-// NewWithClock создаёт ограничитель с подменяемыми часами; используется в тестах.
 func NewWithClock(now func() time.Time) *Limiter {
 	return &Limiter{attempts: make(map[string][]time.Time), now: now}
 }
 
-// Allow регистрирует попытку и сообщает, укладывается ли она в лимит.
 func (l *Limiter) Allow(key string, limit int, window time.Duration) bool {
 	if limit <= 0 {
 		return true
@@ -52,14 +45,12 @@ func (l *Limiter) Allow(key string, limit int, window time.Duration) bool {
 	return true
 }
 
-// Reset очищает счётчик ключа: применяется после успешного входа.
 func (l *Limiter) Reset(key string) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	delete(l.attempts, key)
 }
 
-// gc периодически удаляет ключи, у которых не осталось актуальных попыток.
 func (l *Limiter) gc(now time.Time, window time.Duration) {
 	if now.Sub(l.lastGC) < window {
 		return

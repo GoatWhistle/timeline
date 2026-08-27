@@ -11,12 +11,9 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// QueryService обслуживает read-модели пользовательских и административных
-// экранов (раздел 11 ТЗ). Изменений данных здесь нет: сервис собирает
-// представление из репозиториев и отсекает поля, недоступные роли.
 type QueryService struct {
 	queries       *repositories.QueryRepository
-	hackathons    *repositories.HackathonRepository
+	events        *repositories.EventRepository
 	stages        *repositories.StageRepository
 	participants  *repositories.ParticipantRepository
 	registrations *repositories.RegistrationRepository
@@ -24,66 +21,61 @@ type QueryService struct {
 	now           func() time.Time
 }
 
-// NewQueryService создаёт сервис read-моделей.
-func NewQueryService(queries *repositories.QueryRepository, hackathons *repositories.HackathonRepository,
+func NewQueryService(queries *repositories.QueryRepository, events *repositories.EventRepository,
 	stages *repositories.StageRepository, participants *repositories.ParticipantRepository,
 	registrations *repositories.RegistrationRepository, statuses *repositories.StatusRepository) *QueryService {
 	return &QueryService{
-		queries: queries, hackathons: hackathons, stages: stages, participants: participants,
+		queries: queries, events: events, stages: stages, participants: participants,
 		registrations: registrations, statuses: statuses,
 		now: func() time.Time { return time.Now().UTC() },
 	}
 }
 
-// MyHackathons возвращает страницу списка «Мои хакатоны»: опубликованные
-// неархивные хакатоны с назначенным участием. Архивные доступны фильтром.
-func (s *QueryService) MyHackathons(ctx context.Context, actor models.Actor, filter models.MyHackathonFilter,
-	page models.Page) ([]models.MyHackathonItem, int64, error) {
+func (s *QueryService) MyEvents(ctx context.Context, actor models.Actor, filter models.MyEventFilter,
+	page models.Page) ([]models.MyEventItem, int64, error) {
 	if actor.IsSystem() {
-		return nil, 0, models.NewUnauthorized("требуется аутентификация")
+		return nil, 0, models.NewUnauthorized("authentication is required")
 	}
-	return s.queries.MyHackathons(ctx, actor.UserID, filter, page, s.now())
+	return s.queries.MyEvents(ctx, actor.UserID, filter, page, s.now())
 }
 
-// HackathonCard собирает карточку назначенного хакатона. Административные
-// заметки участнику не отдаются, поэтому хакатон презентуется как непривилегированный.
-func (s *QueryService) HackathonCard(ctx context.Context, actor models.Actor,
-	hackathonID uuid.UUID) (*models.HackathonCard, error) {
+func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
+	eventID uuid.UUID) (*models.EventCard, error) {
 	if actor.IsSystem() {
-		return nil, models.NewUnauthorized("требуется аутентификация")
+		return nil, models.NewUnauthorized("authentication is required")
 	}
 	now := s.now()
 
-	hackathon, err := s.hackathons.GetByID(ctx, hackathonID)
+	event, err := s.events.GetByID(ctx, eventID)
 	if err != nil {
 		return nil, err
 	}
-	if !hackathon.Published() {
-		return nil, models.NewNotFound("хакатон не найден")
+	if !event.Published() {
+		return nil, models.NewNotFound("event not found")
 	}
 
-	participant, err := s.participants.GetByHackathonUser(ctx, hackathonID, actor.UserID)
+	participant, err := s.participants.GetByEventUser(ctx, eventID, actor.UserID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return nil, models.NewNotFound("вы не назначены на этот хакатон")
+			return nil, models.NewNotFound("you are not assigned to this event")
 		}
 		return nil, err
 	}
 	if !participant.Assigned() {
-		return nil, models.NewNotFound("вы не назначены на этот хакатон")
+		return nil, models.NewNotFound("you are not assigned to this event")
 	}
 
-	stages, err := s.stages.ListByHackathon(ctx, hackathonID)
+	stages, err := s.stages.ListByEvent(ctx, eventID)
 	if err != nil {
 		return nil, err
 	}
-	nextStage, err := s.queries.NextStage(ctx, hackathonID, now)
+	nextStage, err := s.queries.NextStage(ctx, eventID, now)
 	if err != nil {
 		return nil, err
 	}
 
-	card := &models.HackathonCard{
-		Hackathon: hackathonView(hackathon, now),
+	card := &models.EventCard{
+		Event:     eventView(event, now),
 		TeamRole:  participant.TeamRole,
 		Stages:    make([]models.StageResponse, 0, len(stages)),
 		NextStage: nextStage,
@@ -92,7 +84,7 @@ func (s *QueryService) HackathonCard(ctx context.Context, actor models.Actor,
 		card.Stages = append(card.Stages, stageView(&stages[i]))
 	}
 
-	registration, err := s.registrations.GetByHackathon(ctx, hackathonID)
+	registration, err := s.registrations.GetByEvent(ctx, eventID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
 			return card, nil
@@ -120,18 +112,14 @@ func (s *QueryService) HackathonCard(ctx context.Context, actor models.Actor,
 		RegisteredAt: status.RegisteredAt,
 		Note:         status.Note,
 	}
-	// Самоотчёт доступен, пока хакатон не архивирован, регистрация включена,
-	// а собственный статус остаётся TODO (раздел 8 ТЗ).
-	card.CanMarkDone = !hackathon.Archived() && registration.Active() && status.Status == models.StatusTODO
+	card.CanMarkDone = !event.Archived() && registration.Active() && status.Status == models.StatusTODO
 	return card, nil
 }
 
-// MyTimeline возвращает временную шкалу пользователя: только назначенные
-// опубликованные неархивные хакатоны.
 func (s *QueryService) MyTimeline(ctx context.Context, actor models.Actor,
 	filter models.TimelineFilter) (*models.TimelineResponse, error) {
 	if actor.IsSystem() {
-		return nil, models.NewUnauthorized("требуется аутентификация")
+		return nil, models.NewUnauthorized("authentication is required")
 	}
 	userID := actor.UserID
 	rows, err := s.queries.TimelineRows(ctx, filter, &userID, s.now())
@@ -144,11 +132,10 @@ func (s *QueryService) MyTimeline(ctx context.Context, actor models.Actor,
 	}, nil
 }
 
-// AdminTimeline возвращает административную временную шкалу по всем хакатонам.
 func (s *QueryService) AdminTimeline(ctx context.Context, actor models.Actor,
 	filter models.TimelineFilter) (*models.TimelineResponse, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	rows, err := s.queries.TimelineRows(ctx, filter, nil, s.now())
 	if err != nil {
@@ -160,28 +147,24 @@ func (s *QueryService) AdminTimeline(ctx context.Context, actor models.Actor,
 	}, nil
 }
 
-// Upcoming возвращает ближайшие дедлайны регистрации в пределах окна.
 func (s *QueryService) Upcoming(ctx context.Context, actor models.Actor, within time.Duration,
 	page models.Page) ([]models.DeadlineItem, int64, error) {
 	if !actor.IsAdmin {
-		return nil, 0, models.NewForbidden("операция доступна только администратору")
+		return nil, 0, models.NewForbidden("the operation is restricted to administrators")
 	}
 	return s.queries.Deadlines(ctx, false, within, page, s.now())
 }
 
-// Overdue возвращает просроченные регистрации незавершённых хакатонов.
 func (s *QueryService) Overdue(ctx context.Context, actor models.Actor,
 	page models.Page) ([]models.DeadlineItem, int64, error) {
 	if !actor.IsAdmin {
-		return nil, 0, models.NewForbidden("операция доступна только администратору")
+		return nil, 0, models.NewForbidden("the operation is restricted to administrators")
 	}
 	return s.queries.Deadlines(ctx, true, 0, page, s.now())
 }
 
-// hackathonView переводит хакатон в ответ участника: административные
-// заметки в карточку не попадают.
-func hackathonView(h *models.Hackathon, now time.Time) models.HackathonResponse {
-	return models.HackathonResponse{
+func eventView(h *models.Event, now time.Time) models.EventResponse {
+	return models.EventResponse{
 		ID:          h.ID,
 		Title:       h.Title,
 		Description: h.Description,
@@ -197,11 +180,10 @@ func hackathonView(h *models.Hackathon, now time.Time) models.HackathonResponse 
 	}
 }
 
-// stageView переводит этап в ответ API.
 func stageView(s *models.Stage) models.StageResponse {
 	return models.StageResponse{
 		ID:          s.ID,
-		HackathonID: s.HackathonID,
+		EventID:     s.EventID,
 		Name:        s.Name,
 		Type:        s.Type,
 		StartAt:     s.StartAt,

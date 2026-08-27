@@ -1,6 +1,5 @@
--- Хакатоны и этапы (раздел 5 ТЗ).
 
-CREATE TABLE hackathons (
+CREATE TABLE events (
     id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     title        text        NOT NULL,
     description  text,
@@ -14,27 +13,24 @@ CREATE TABLE hackathons (
     created_at   timestamptz NOT NULL DEFAULT now(),
     updated_at   timestamptz NOT NULL DEFAULT now(),
 
-    CONSTRAINT hackathons_title_len CHECK (length(btrim(title)) BETWEEN 1 AND 200),
-    CONSTRAINT hackathons_organizer_len CHECK (organizer IS NULL OR length(organizer) <= 200),
-    CONSTRAINT hackathons_website_https CHECK (website_url IS NULL OR website_url ~ '^https://'),
-    CONSTRAINT hackathons_period CHECK (end_at > start_at),
+    CONSTRAINT events_title_len CHECK (length(btrim(title)) BETWEEN 1 AND 200),
+    CONSTRAINT events_organizer_len CHECK (organizer IS NULL OR length(organizer) <= 200),
+    CONSTRAINT events_website_https CHECK (website_url IS NULL OR website_url ~ '^https://'),
+    CONSTRAINT events_period CHECK (end_at > start_at),
 
-    -- Ключ нужен составному внешнему ключу регистрации: он переносит изменение
-    -- end_at каскадом и не даёт сдвинуть окончание раньше действующего дедлайна.
-    CONSTRAINT hackathons_id_end_at_key UNIQUE (id, end_at)
+    CONSTRAINT events_id_end_at_key UNIQUE (id, end_at)
 );
 
-CREATE INDEX hackathons_published_idx ON hackathons (published_at) WHERE archived_at IS NULL;
-CREATE INDEX hackathons_period_idx ON hackathons (start_at, end_at);
-CREATE INDEX hackathons_title_search_idx ON hackathons (lower(title));
+CREATE INDEX events_published_idx ON events (published_at) WHERE archived_at IS NULL;
+CREATE INDEX events_period_idx ON events (start_at, end_at);
+CREATE INDEX events_title_search_idx ON events (lower(title));
 
-CREATE TRIGGER hackathons_set_updated_at BEFORE UPDATE ON hackathons
+CREATE TRIGGER events_set_updated_at BEFORE UPDATE ON events
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
--- Этап служит только временной шкале и карточке: уведомлений он не порождает.
 CREATE TABLE stages (
     id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    hackathon_id uuid        NOT NULL REFERENCES hackathons (id) ON DELETE CASCADE,
+    event_id     uuid        NOT NULL REFERENCES events (id) ON DELETE CASCADE,
     name         text        NOT NULL,
     type         text        NOT NULL,
     start_at     timestamptz NOT NULL,
@@ -53,7 +49,7 @@ CREATE TABLE stages (
     CONSTRAINT stages_url_https CHECK (url IS NULL OR url ~ '^https://')
 );
 
-CREATE INDEX stages_hackathon_idx ON stages (hackathon_id, sort_order, start_at);
+CREATE INDEX stages_event_idx ON stages (event_id, sort_order, start_at);
 
 CREATE TRIGGER stages_set_updated_at BEFORE UPDATE ON stages
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();

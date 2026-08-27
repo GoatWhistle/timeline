@@ -1,4 +1,3 @@
-// Команда hackathon — единая точка входа backend системы Hackathon Tracker.
 package main
 
 import (

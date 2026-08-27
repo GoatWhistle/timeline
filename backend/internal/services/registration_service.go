@@ -11,11 +11,10 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// RegistrationService обслуживает регистрацию хакатона и её версии.
 type RegistrationService struct {
 	db            *repositories.DB
 	registrations *repositories.RegistrationRepository
-	hackathons    *repositories.HackathonRepository
+	events        *repositories.EventRepository
 	participants  *repositories.ParticipantRepository
 	statuses      *repositories.StatusRepository
 	users         *repositories.UserRepository
@@ -24,61 +23,56 @@ type RegistrationService struct {
 	audit         *AuditService
 }
 
-// NewRegistrationService создаёт сервис регистрации.
 func NewRegistrationService(db *repositories.DB, registrations *repositories.RegistrationRepository,
-	hackathons *repositories.HackathonRepository, participants *repositories.ParticipantRepository,
+	events *repositories.EventRepository, participants *repositories.ParticipantRepository,
 	statuses *repositories.StatusRepository, users *repositories.UserRepository,
 	notifier *NotificationService, reconciler Reconciler, audit *AuditService) *RegistrationService {
 	return &RegistrationService{
-		db: db, registrations: registrations, hackathons: hackathons, participants: participants,
+		db: db, registrations: registrations, events: events, participants: participants,
 		statuses: statuses, users: users, notifier: notifier, reconciler: reconciler, audit: audit,
 	}
 }
 
-// Get возвращает регистрацию хакатона.
-func (s *RegistrationService) Get(ctx context.Context, actor models.Actor, hackathonID uuid.UUID) (*models.Registration, error) {
+func (s *RegistrationService) Get(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*models.Registration, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
-	return s.registrations.GetByHackathon(ctx, hackathonID)
+	return s.registrations.GetByEvent(ctx, eventID)
 }
 
-// Create создаёт регистрацию и статусы TODO всем назначенным участникам.
-func (s *RegistrationService) Create(ctx context.Context, actor models.Actor, hackathonID uuid.UUID,
+func (s *RegistrationService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	req models.CreateRegistrationRequest) (*models.Registration, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	url, err := validateHTTPS("url", req.URL)
 	if err != nil {
 		return nil, err
 	}
 	if req.DeadlineAt.IsZero() {
-		return nil, models.NewValidation("укажите дедлайн регистрации",
-			models.FieldError{Field: "deadline_at", Message: "обязательное поле"})
+		return nil, models.NewValidation("provide a registration deadline",
+			models.FieldError{Field: "deadline_at", Message: "required field"})
 	}
 
 	var created *models.Registration
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
-		hackathon, err := s.hackathons.GetForUpdate(ctx, hackathonID)
+		event, err := s.events.GetForUpdate(ctx, eventID)
 		if err != nil {
 			return err
 		}
-		if hackathon.Archived() {
-			return models.NewStateTransition("нельзя создать регистрацию архивного хакатона")
+		if event.Archived() {
+			return models.NewStateTransition("registration cannot be created for an archived event")
 		}
-		// Дедлайн раньше старта допустим: внешняя регистрация обычно закрывается
-		// до начала хакатона. Верхняя граница проверяется базой.
-		if req.DeadlineAt.After(hackathon.EndAt) {
+		if req.DeadlineAt.After(event.EndAt) {
 			return models.NewConflict("deadline_after_end",
-				"дедлайн регистрации должен быть не позже окончания хакатона")
+				"the registration deadline must not be later than the event end")
 		}
 
-		created, err = s.registrations.Create(ctx, hackathonID, url, req.DeadlineAt.UTC(), req.Description)
+		created, err = s.registrations.Create(ctx, eventID, url, req.DeadlineAt.UTC(), req.Description)
 		if err != nil {
 			return err
 		}
-		if err := s.seedStatuses(ctx, hackathon, created); err != nil {
+		if err := s.seedStatuses(ctx, event, created); err != nil {
 			return err
 		}
 		return s.audit.Record(ctx, actor, models.AuditRegistrationChange, models.EntityRegistration, created.ID, nil,
@@ -90,20 +84,18 @@ func (s *RegistrationService) Create(ctx context.Context, actor models.Actor, ha
 	return created, nil
 }
 
-// seedStatuses создаёт недостающие статусы TODO и первичные уведомления
-// всем назначенным участникам хакатона.
-func (s *RegistrationService) seedStatuses(ctx context.Context, hackathon *models.Hackathon, registration *models.Registration) error {
-	participants, err := s.participants.ListAssigned(ctx, hackathon.ID)
+func (s *RegistrationService) seedStatuses(ctx context.Context, event *models.Event, registration *models.Registration) error {
+	participants, err := s.participants.ListAssigned(ctx, event.ID)
 	if err != nil {
 		return err
 	}
 	for i := range participants {
 		participant := participants[i]
-		status, _, err := s.statuses.EnsureForParticipant(ctx, hackathon.ID, registration.ID, participant.ID)
+		status, _, err := s.statuses.EnsureForParticipant(ctx, event.ID, registration.ID, participant.ID)
 		if err != nil {
 			return err
 		}
-		if status.Status != models.StatusTODO || !hackathon.Schedulable() || !registration.Active() {
+		if status.Status != models.StatusTODO || !event.Schedulable() || !registration.Active() {
 			continue
 		}
 		user, err := s.users.GetByID(ctx, participant.UserID)
@@ -113,7 +105,7 @@ func (s *RegistrationService) seedStatuses(ctx context.Context, hackathon *model
 		if !user.IsActive {
 			continue
 		}
-		candidate := buildCandidate(hackathon, registration, &participant, status.ID, status.TodoCycle, user)
+		candidate := buildCandidate(event, registration, &participant, status.ID, status.TodoCycle, user)
 		if _, _, err := s.notifier.CreatePrimary(ctx, candidate); err != nil {
 			return err
 		}
@@ -121,13 +113,10 @@ func (s *RegistrationService) seedStatuses(ctx context.Context, hackathon *model
 	return nil
 }
 
-// Update изменяет регистрацию. Изменение ссылки версионирует содержимое,
-// изменение дедлайна — расписание; в обоих случаях ожидающие уведомления
-// отменяются, а актуальные создаёт согласование.
-func (s *RegistrationService) Update(ctx context.Context, actor models.Actor, hackathonID uuid.UUID,
+func (s *RegistrationService) Update(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	req models.UpdateRegistrationRequest) (*models.Registration, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	var url *string
 	if req.URL != nil {
@@ -143,25 +132,25 @@ func (s *RegistrationService) Update(ctx context.Context, actor models.Actor, ha
 		reconcile bool
 	)
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
-		before, err := s.registrations.GetByHackathonForUpdate(ctx, hackathonID)
+		before, err := s.registrations.GetByEventForUpdate(ctx, eventID)
 		if err != nil {
 			return err
 		}
-		hackathon, err := s.hackathons.GetByID(ctx, hackathonID)
+		event, err := s.events.GetByID(ctx, eventID)
 		if err != nil {
 			return err
 		}
-		if hackathon.Archived() {
-			return models.NewStateTransition("нельзя изменить регистрацию архивного хакатона")
+		if event.Archived() {
+			return models.NewStateTransition("registration of an archived event cannot be modified")
 		}
 
 		var deadline *time.Time
 		bumpSchedule := false
 		if req.DeadlineAt != nil && !req.DeadlineAt.UTC().Equal(before.DeadlineAt) {
 			value := req.DeadlineAt.UTC()
-			if value.After(hackathon.EndAt) {
+			if value.After(event.EndAt) {
 				return models.NewConflict("deadline_after_end",
-					"дедлайн регистрации должен быть не позже окончания хакатона")
+					"the registration deadline must not be later than the event end")
 			}
 			deadline = &value
 			bumpSchedule = true
@@ -194,16 +183,15 @@ func (s *RegistrationService) Update(ctx context.Context, actor models.Actor, ha
 	}
 
 	if reconcile {
-		s.reconcile(ctx, hackathonID)
+		s.reconcile(ctx, eventID)
 	}
 	return updated, nil
 }
 
-// SetState включает или выключает регистрацию.
-func (s *RegistrationService) SetState(ctx context.Context, actor models.Actor, hackathonID uuid.UUID,
+func (s *RegistrationService) SetState(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	state models.RegistrationState) (*models.Registration, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 
 	var (
@@ -211,19 +199,19 @@ func (s *RegistrationService) SetState(ctx context.Context, actor models.Actor, 
 		reconcile bool
 	)
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
-		before, err := s.registrations.GetByHackathonForUpdate(ctx, hackathonID)
+		before, err := s.registrations.GetByEventForUpdate(ctx, eventID)
 		if err != nil {
 			return err
 		}
 		if before.State == state {
-			return models.NewStateTransition("регистрация уже находится в этом состоянии")
+			return models.NewStateTransition("registration is already in this state")
 		}
-		hackathon, err := s.hackathons.GetByID(ctx, hackathonID)
+		event, err := s.events.GetByID(ctx, eventID)
 		if err != nil {
 			return err
 		}
-		if hackathon.Archived() {
-			return models.NewStateTransition("нельзя изменить регистрацию архивного хакатона")
+		if event.Archived() {
+			return models.NewStateTransition("registration of an archived event cannot be modified")
 		}
 
 		if state == models.RegistrationDisabled {
@@ -231,7 +219,6 @@ func (s *RegistrationService) SetState(ctx context.Context, actor models.Actor, 
 			if err != nil {
 				return err
 			}
-			// Статусы сохраняются, но перестают быть actionable.
 			if err := s.notifier.CancelForRegistration(ctx, before.ID); err != nil {
 				return err
 			}
@@ -240,7 +227,7 @@ func (s *RegistrationService) SetState(ctx context.Context, actor models.Actor, 
 			if err != nil {
 				return err
 			}
-			if err := s.seedStatuses(ctx, hackathon, updated); err != nil {
+			if err := s.seedStatuses(ctx, event, updated); err != nil {
 				return err
 			}
 			reconcile = true
@@ -255,24 +242,23 @@ func (s *RegistrationService) SetState(ctx context.Context, actor models.Actor, 
 	}
 
 	if reconcile {
-		s.reconcile(ctx, hackathonID)
+		s.reconcile(ctx, eventID)
 	}
 	return updated, nil
 }
 
-func (s *RegistrationService) reconcile(ctx context.Context, hackathonID uuid.UUID) {
+func (s *RegistrationService) reconcile(ctx context.Context, eventID uuid.UUID) {
 	if s.reconciler == nil {
 		return
 	}
-	if err := s.reconciler.ReconcileHackathon(ctx, hackathonID); err != nil {
-		logReconcileFailure(ctx, hackathonID, err)
+	if err := s.reconciler.ReconcileEvent(ctx, eventID); err != nil {
+		logReconcileFailure(ctx, eventID, err)
 	}
 }
 
-// notFound приводит отсутствие регистрации к понятной доменной ошибке.
 func notFoundRegistration(err error) error {
 	if errors.Is(err, models.ErrNotFound) {
-		return models.NewNotFound("регистрация хакатона не настроена")
+		return models.NewNotFound("event registration is not configured")
 	}
 	return err
 }

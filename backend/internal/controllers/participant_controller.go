@@ -8,35 +8,31 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// ParticipantController обслуживает состав участников хакатона.
 type ParticipantController struct {
 	svc     ParticipantService
 	pageDef int
 	pageMax int
 }
 
-// NewParticipantController создаёт контроллер участников.
 func NewParticipantController(svc ParticipantService, pageDef, pageMax int) *ParticipantController {
 	return &ParticipantController{svc: svc, pageDef: pageDef, pageMax: pageMax}
 }
 
-// List godoc
-//
-//	@Summary	Состав участников хакатона
-//	@Tags		participants
-//	@Produce	json
-//	@Security	CookieAuth
-//	@Param		id					path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Param		team_role			query		string	false	"Фильтр по функции участника"
-//	@Param		registration_status	query		string	false	"Фильтр по статусу регистрации"	Enums(TODO,DONE,NOT_REQUIRED)
-//	@Param		include_removed		query		bool	false	"Включая удалённых из состава"
-//	@Param		search				query		string	false	"Поиск по имени и email"
-//	@Param		page				query		int		false	"Номер страницы"	default(1)
-//	@Param		page_size			query		int		false	"Размер страницы"	default(50)
-//	@Success	200					{object}	models.ParticipantPage
-//	@Failure	403					{object}	models.ErrorResponse
-//	@Failure	404					{object}	models.ErrorResponse
-//	@Router		/admin/hackathons/{id}/participants [get]
+// @Summary	Event participant roster
+// @Tags		participants
+// @Produce	json
+// @Security	CookieAuth
+// @Param		id					path		string	true	"Event identifier"	format(uuid)
+// @Param		team_role			query		string	false	"Filter by participant role"
+// @Param		registration_status	query		string	false	"Filter by registration status"	Enums(TODO,DONE,NOT_REQUIRED)
+// @Param		include_removed		query		bool	false	"Include participants removed from the roster"
+// @Param		search				query		string	false	"Search by name and email"
+// @Param		page				query		int		false	"Page number"	default(1)
+// @Param		page_size			query		int		false	"Page size"	default(50)
+// @Success	200					{object}	models.ParticipantPage
+// @Failure	403					{object}	models.ErrorResponse
+// @Failure	404					{object}	models.ErrorResponse
+// @Router		/admin/events/{id}/participants [get]
 func (c *ParticipantController) List(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -67,23 +63,21 @@ func (c *ParticipantController) List(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, models.ParticipantPage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
-// AddMany godoc
-//
-//	@Summary		Массовое добавление участников
-//	@Description	Повторное добавление ранее удалённого участника реактивирует запись и увеличивает
-//	@Description	assignment_version. Назначение, статус регистрации, первичное уведомление и запись
-//	@Description	аудита выполняются одной транзакцией на участника; результат возвращается по каждому элементу.
-//	@Tags			participants
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string							true	"Идентификатор хакатона"	format(uuid)
-//	@Param			request	body		models.AddParticipantsRequest	true	"Список пользователей и их функций"
-//	@Success		200		{object}	models.BatchResult
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Router			/admin/hackathons/{id}/participants/batch-add [post]
+// @Summary		Bulk participant assignment
+// @Description	Re-adding a previously removed participant reactivates the record and increments
+// @Description	assignment_version. The assignment, registration status, primary notification and audit
+// @Description	entry run in a single transaction per participant; the result is returned per entry.
+// @Tags			participants
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string							true	"Event identifier"	format(uuid)
+// @Param			request	body		models.AddParticipantsRequest	true	"List of users and their roles"
+// @Success		200		{object}	models.BatchResult
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Router			/admin/events/{id}/participants/batch-add [post]
 func (c *ParticipantController) AddMany(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -103,21 +97,19 @@ func (c *ParticipantController) AddMany(w http.ResponseWriter, r *http.Request) 
 	httpx.JSON(w, http.StatusOK, res)
 }
 
-// RemoveMany godoc
-//
-//	@Summary		Массовое удаление участников
-//	@Description	Переводит участие в REMOVED и отменяет ожидающие уведомления. Отправленные сохраняются.
-//	@Tags			participants
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string								true	"Идентификатор хакатона"	format(uuid)
-//	@Param			request	body		models.RemoveParticipantsRequest	true	"Идентификаторы участников"
-//	@Success		200		{object}	models.BatchResult
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Router			/admin/hackathons/{id}/participants/batch-remove [post]
+// @Summary		Bulk participant removal
+// @Description	Moves participation to REMOVED and cancels pending notifications. Sent ones are preserved.
+// @Tags			participants
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string								true	"Event identifier"	format(uuid)
+// @Param			request	body		models.RemoveParticipantsRequest	true	"Participant identifiers"
+// @Success		200		{object}	models.BatchResult
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Router			/admin/events/{id}/participants/batch-remove [post]
 func (c *ParticipantController) RemoveMany(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -137,23 +129,21 @@ func (c *ParticipantController) RemoveMany(w http.ResponseWriter, r *http.Reques
 	httpx.JSON(w, http.StatusOK, res)
 }
 
-// CopyFrom godoc
-//
-//	@Summary		Копирование состава из другого хакатона
-//	@Description	Переносятся только назначенные участники. Функция участника переносится как значение
-//	@Description	по умолчанию и может быть переопределена. Существующие участники пропускаются
-//	@Description	и возвращаются отдельными элементами результата.
-//	@Tags			participants
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string							true	"Идентификатор целевого хакатона"	format(uuid)
-//	@Param			request	body		models.CopyParticipantsRequest	true	"Источник и переопределения функций"
-//	@Success		200		{object}	models.BatchResult
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Router			/admin/hackathons/{id}/participants/copy-from [post]
+// @Summary		Copy the roster from another event
+// @Description	Only assigned participants are copied. The participant role is copied as a value
+// @Description	by default and can be overridden. Existing participants are skipped
+// @Description	and returned as separate result entries.
+// @Tags			participants
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string							true	"Target event identifier"	format(uuid)
+// @Param			request	body		models.CopyParticipantsRequest	true	"Source and role overrides"
+// @Success		200		{object}	models.BatchResult
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Router			/admin/events/{id}/participants/copy-from [post]
 func (c *ParticipantController) CopyFrom(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -173,21 +163,19 @@ func (c *ParticipantController) CopyFrom(w http.ResponseWriter, r *http.Request)
 	httpx.JSON(w, http.StatusOK, res)
 }
 
-// UpdateTeamRole godoc
-//
-//	@Summary		Изменение функции участника
-//	@Description	team_role — свободнотекстовая функция на хакатоне, а не право доступа.
-//	@Tags			participants
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string							true	"Идентификатор участника"	format(uuid)
-//	@Param			request	body		models.UpdateTeamRoleRequest	true	"Новая функция"
-//	@Success		200		{object}	models.ParticipantResponse
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Router			/admin/participants/{id}/team-role [patch]
+// @Summary		Update a participant role
+// @Description	team_role is a free-text role on the event, not an access permission.
+// @Tags			participants
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string							true	"Participant identifier"	format(uuid)
+// @Param			request	body		models.UpdateTeamRoleRequest	true	"New role"
+// @Success		200		{object}	models.ParticipantResponse
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Router			/admin/participants/{id}/team-role [patch]
 func (c *ParticipantController) UpdateTeamRole(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -207,23 +195,21 @@ func (c *ParticipantController) UpdateTeamRole(w http.ResponseWriter, r *http.Re
 	httpx.JSON(w, http.StatusOK, p)
 }
 
-// Reactivate godoc
-//
-//	@Summary		Реактивация участника
-//	@Description	Возвращает участие в ASSIGNED, увеличивает assignment_version, очищает removed_at
-//	@Description	и заново задаёт функцию. Существующий статус регистрации сохраняется.
-//	@Tags			participants
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string							true	"Идентификатор участника"	format(uuid)
-//	@Param			request	body		models.UpdateTeamRoleRequest	true	"Функция участника"
-//	@Success		200		{object}	models.ParticipantResponse
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Failure		409		{object}	models.ErrorResponse	"участник уже назначен"
-//	@Router			/admin/participants/{id}/reactivate [post]
+// @Summary		Reactivate a participant
+// @Description	Returns participation to ASSIGNED, increments assignment_version, clears removed_at
+// @Description	and sets the role again. An existing registration status is preserved.
+// @Tags			participants
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string							true	"Participant identifier"	format(uuid)
+// @Param			request	body		models.UpdateTeamRoleRequest	true	"Participant role"
+// @Success		200		{object}	models.ParticipantResponse
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Failure		409		{object}	models.ErrorResponse	"the participant is already assigned"
+// @Router			/admin/participants/{id}/reactivate [post]
 func (c *ParticipantController) Reactivate(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {

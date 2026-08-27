@@ -1,5 +1,31 @@
-# Локальная конфигурация контейнеров (make docker-up создаёт из .env.example)
-.env
+# Единый игнор-файл монорепозитория (часть VII.1 плана рефакторинга).
+# Вложенных .gitignore в backend/ и frontend/ нет; .dockerignore остаётся
+# отдельным — Docker читает только его.
 
-# Служебный чекпоинт Claude Code (в любом подкаталоге)
+# --- Локальная конфигурация ---------------------------------------------
+# make docker-up создаёт backend/.env из .env.example, в репозиторий он не идёт.
+.env
+.env.local
+.env.*.local
+
+# --- Backend -------------------------------------------------------------
+backend/bin/
+backend/tmp/
+*.test
+coverage.out
+coverage.html
+
+# --- Frontend ------------------------------------------------------------
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+.playwright-mcp/
+
+# --- Служебное -----------------------------------------------------------
+.DS_Store
+Thumbs.db
+
+# Чекпоинт Claude Code (в любом подкаталоге)
 **/.claude/RESUME.md

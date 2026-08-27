@@ -1,0 +1,264 @@
+# Конфигурация golangci-lint для backend (часть V.1 плана рефакторинга).
+# Формат версии 2: linters.enable, linters.settings, linters.exclusions.rules.
+#
+# Запуск: make back-lint (из корня) или golangci-lint run ./... (из backend/).
+
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: none
+
+  enable:
+    # Ошибки и корректность.
+    - errcheck
+    - govet
+    - staticcheck
+    - ineffassign
+    - unused
+
+    # gosimple не включается: влит в staticcheck и объявлен устаревшим,
+    # golangci-lint падает на попытке его включить.
+
+    # Стиль и именование.
+    - revive
+
+    # Безопасность: критично для auth, CSRF и работы с токенами.
+    - gosec
+
+    # Утечки курсоров и незакрытые тела ответов.
+    - sqlclosecheck
+    - rowserrcheck
+    - bodyclose
+
+    # Дубли.
+    - dupl
+
+    # Размер и сложность. Вводятся храповиком: на момент подключения лимит
+    # превышают 25 файлов, а функции заметно длиннее 60 строк. Жёсткий порог
+    # уронил бы CI в первый же день, и проверку выключили бы целиком — ровно
+    # тот способ похоронить требование, о котором предупреждает раздел VI.2.
+    # Поэтому целевые значения зафиксированы в settings ниже, а существующий
+    # код выведен из-под них правилами в exclusions.rules. По мере разделения
+    # файлов (задача 42) пути удаляются из исключений, и правило начинает
+    # действовать на них в полную силу.
+    - funlen
+    - gocyclo
+    - lll
+
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: false
+
+    govet:
+      enable-all: true
+      disable:
+        # fieldalignment переставляет поля структур ради экономии байт —
+        # порядок полей здесь важнее.
+        - fieldalignment
+        # shadow даёт 53 срабатывания на идиоматичном `if err := ...`
+        # и ни одной настоящей ошибки: перекрытие err — норма в Go.
+        - shadow
+
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+        - name: package-comments
+          disabled: true
+        - name: var-naming
+        - name: indent-error-flow
+        - name: errorf
+        - name: error-return
+        - name: error-strings
+        - name: error-naming
+        - name: increment-decrement
+        - name: range
+        - name: receiver-naming
+        - name: unreachable-code
+        - name: redefines-builtin-id
+
+    gosec:
+      excludes:
+        - G115
+
+    dupl:
+      threshold: 200
+
+    # Целевые значения из раздела V.1. Действуют на новый код; существующие
+    # файлы перечислены в exclusions.rules и подтягиваются к ним постепенно.
+    funlen:
+      lines: 60
+      statements: 45
+      ignore-comments: true
+
+    gocyclo:
+      min-complexity: 15
+
+    lll:
+      line-length: 120
+      tab-width: 4
+
+  exclusions:
+    generated: lax
+
+    presets:
+      - comments
+      - std-error-handling
+
+    paths:
+      # Сгенерировано swag, руками не правится.
+      - backend/docs
+      - internal/docs
+      - docs
+
+    rules:
+      # В тестах длина и дубли — норма: таблица сценариев читается лучше
+      # цельным куском, чем разнесённая по вспомогательным функциям.
+      - path: _test\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - gosec
+          - lll
+          - errcheck
+
+      # Точка входа: сборка зависимостей — длинная линейная функция по природе.
+      - path: ^cmd/
+        linters:
+          - funlen
+          - gocyclo
+
+      # Храповик по размеру и сложности. Список равен текущему уровню
+      # (docs/baselines/file-length.txt) и обновляется только вниз: строка
+      # удаляется отсюда, когда файл разделён и проходит проверку сам.
+      - path: internal/adapters/repositories/event_repo\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/adapters/repositories/notification_repo\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/adapters/repositories/query_repo\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/adapters/repositories/registration_repo\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/config/config\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/controllers/auth_controller\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/controllers/event_controller\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/controllers/registration_controller\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/services/auth_service\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/services/delivery_service\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/services/event_service\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/services/participant_service\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/services/profile_service\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/services/registration_service\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      - path: internal/services/status_service\.go
+        linters:
+          - dupl
+          - funlen
+          - gocyclo
+          - lll
+
+      # SQL-запросы в репозиториях длиннее 120 символов не переносятся:
+      # разрыв строки внутри запроса делает его нечитаемым.
+      - path: internal/adapters/repositories/
+        source: '^\s*(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN|LEFT|VALUES|ON CONFLICT|RETURNING|ORDER BY|GROUP BY)'
+        linters:
+          - lll
+
+issues:
+  # Показывать все найденные замечания, а не первые три на линтер.
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+  # Храповик. На момент подключения линтера существующий код даёт 88
+  # замечаний: 75 lll, 4 funlen, 3 gocyclo, 2 unused, 2 gosec, 1 errcheck,
+  # 1 revive. Включить их разом — уронить CI в первый же день, после чего
+  # линтер отключат целиком (раздел VI.2 плана). Поэтому в CI линтер
+  # запускается с --new-from-merge-base: замечание блокирует сборку только
+  # если внесено самим изменением. Существующий долг виден при обычном
+  # `make back-lint` и разбирается задачами этапа 6.
+  new: false

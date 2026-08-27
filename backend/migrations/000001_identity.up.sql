@@ -1,6 +1,4 @@
--- Учётные записи, сессии, одноразовые токены и приглашения (разделы 3, 4 ТЗ).
 
--- Общая функция поддержки updated_at.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS trigger AS $$
 BEGIN
     NEW.updated_at = now();
@@ -42,8 +40,6 @@ CREATE INDEX users_display_name_search_idx ON users (lower(display_name));
 CREATE TRIGGER users_set_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
--- Сессия хранит только хеш refresh-токена. family_id связывает цепочку ротации:
--- повторное использование отозванного токена отзывает всю цепочку.
 CREATE TABLE sessions (
     id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id            uuid        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
@@ -95,6 +91,5 @@ CREATE TABLE invites (
 
 CREATE UNIQUE INDEX invites_token_hash_key ON invites (token_hash);
 
--- На один адрес допускается не более одного непринятого и неотозванного приглашения.
 CREATE UNIQUE INDEX invites_one_pending_per_email_key ON invites (normalized_email)
     WHERE accepted_at IS NULL AND revoked_at IS NULL;

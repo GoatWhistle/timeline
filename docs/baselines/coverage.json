@@ -1,0 +1,46 @@
+{
+  "measuredAt": "2026-08-27",
+  "frontend": {
+    "tool": "vitest --coverage (provider v8)",
+    "config": "frontend/vitest.config.ts",
+    "exclude": [
+      "**/*.gen.*",
+      "src/mocks/**",
+      "src/test/**",
+      "**/index.ts"
+    ],
+    "testFiles": 5,
+    "tests": 70,
+    "thresholds": {
+      "lines": 16.74,
+      "statements": 16.31,
+      "functions": 10.5,
+      "branches": 11.39
+    },
+    "absolute": {
+      "lines": {
+        "covered": 204,
+        "total": 1218
+      },
+      "statements": {
+        "covered": 216,
+        "total": 1324
+      },
+      "functions": {
+        "covered": 60,
+        "total": 571
+      },
+      "branches": {
+        "covered": 94,
+        "total": 825
+      }
+    },
+    "note": "Порог равен достигнутому уровню и никогда не опускается. При росте покрытия порог поднимается тем же изменением."
+  },
+  "backend": {
+    "tool": "go test -coverprofile",
+    "target": "make back-cover",
+    "threshold": 0.7,
+    "note": "Замерено в контейнере golang:1.25-alpine (Go на машине нет, см. GO_RUN в Makefile). Тесты есть только в adapters/ratelimit — один пакет из четырнадцати. Порог равен достигнутому и не опускается."
+  }
+}

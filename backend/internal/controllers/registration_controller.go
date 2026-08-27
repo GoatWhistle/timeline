@@ -10,8 +10,6 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// RegistrationController обслуживает регистрацию хакатона, статусы участников
-// и правила напоминаний.
 type RegistrationController struct {
 	registrations RegistrationService
 	statuses      StatusService
@@ -20,22 +18,19 @@ type RegistrationController struct {
 	pageMax       int
 }
 
-// NewRegistrationController создаёт контроллер регистрации.
 func NewRegistrationController(reg RegistrationService, st StatusService, rules RuleService, pageDef, pageMax int) *RegistrationController {
 	return &RegistrationController{registrations: reg, statuses: st, rules: rules, pageDef: pageDef, pageMax: pageMax}
 }
 
-// Get godoc
-//
-//	@Summary	Регистрация хакатона
-//	@Tags		registration
-//	@Produce	json
-//	@Security	CookieAuth
-//	@Param		id	path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Success	200	{object}	models.RegistrationResponse
-//	@Failure	403	{object}	models.ErrorResponse
-//	@Failure	404	{object}	models.ErrorResponse
-//	@Router		/admin/hackathons/{id}/registration [get]
+// @Summary	Event registration
+// @Tags		registration
+// @Produce	json
+// @Security	CookieAuth
+// @Param		id	path		string	true	"Event identifier"	format(uuid)
+// @Success	200	{object}	models.RegistrationResponse
+// @Failure	403	{object}	models.ErrorResponse
+// @Failure	404	{object}	models.ErrorResponse
+// @Router		/admin/events/{id}/registration [get]
 func (c *RegistrationController) Get(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -50,25 +45,23 @@ func (c *RegistrationController) Get(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, registrationResponse(reg))
 }
 
-// Create godoc
-//
-//	@Summary		Создание регистрации
-//	@Description	Создание активной регистрации создаёт недостающие статусы TODO всем назначенным
-//	@Description	участникам. Первичные уведомления создаются только для опубликованного неархивного
-//	@Description	хакатона; иначе они откладываются до публикации. Дедлайн обязан удовлетворять
-//	@Description	условию deadline_at <= hackathon.end_at.
-//	@Tags			registration
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string								true	"Идентификатор хакатона"	format(uuid)
-//	@Param			request	body		models.CreateRegistrationRequest	true	"Ссылка и дедлайн"
-//	@Success		201		{object}	models.RegistrationResponse
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Failure		409		{object}	models.ErrorResponse	"регистрация уже существует или дедлайн выходит за end_at"
-//	@Router			/admin/hackathons/{id}/registration [post]
+// @Summary		Create a registration
+// @Description	Creating an active registration creates missing TODO statuses for every assigned
+// @Description	participant. Primary notifications are created only for a published, non-archived
+// @Description	event; otherwise they are deferred until publication. The deadline must satisfy
+// @Description	the condition deadline_at <= event.end_at.
+// @Tags			registration
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string								true	"Event identifier"	format(uuid)
+// @Param			request	body		models.CreateRegistrationRequest	true	"Link and deadline"
+// @Success		201		{object}	models.RegistrationResponse
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Failure		409		{object}	models.ErrorResponse	"registration already exists or the deadline falls outside end_at"
+// @Router			/admin/events/{id}/registration [post]
 func (c *RegistrationController) Create(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -88,24 +81,22 @@ func (c *RegistrationController) Create(w http.ResponseWriter, r *http.Request) 
 	httpx.JSON(w, http.StatusCreated, registrationResponse(reg))
 }
 
-// Update godoc
-//
-//	@Summary		Изменение регистрации
-//	@Description	Изменение ссылки увеличивает notification_content_version, изменение дедлайна —
-//	@Description	schedule_version. В обоих случаях ожидающие уведомления отменяются, а актуальные
-//	@Description	создаются согласованием с новым логическим ключом.
-//	@Tags			registration
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string								true	"Идентификатор хакатона"	format(uuid)
-//	@Param			request	body		models.UpdateRegistrationRequest	true	"Изменяемые поля"
-//	@Success		200		{object}	models.RegistrationResponse
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Failure		409		{object}	models.ErrorResponse
-//	@Router			/admin/hackathons/{id}/registration [patch]
+// @Summary		Update a registration
+// @Description	Changing the link increments notification_content_version; changing the deadline increments
+// @Description	schedule_version. In both cases pending notifications are cancelled and current ones
+// @Description	are created by reconciliation with a new logical key.
+// @Tags			registration
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string								true	"Event identifier"	format(uuid)
+// @Param			request	body		models.UpdateRegistrationRequest	true	"Mutable fields"
+// @Success		200		{object}	models.RegistrationResponse
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Failure		409		{object}	models.ErrorResponse
+// @Router			/admin/events/{id}/registration [patch]
 func (c *RegistrationController) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -125,37 +116,33 @@ func (c *RegistrationController) Update(w http.ResponseWriter, r *http.Request) 
 	httpx.JSON(w, http.StatusOK, registrationResponse(reg))
 }
 
-// Enable godoc
-//
-//	@Summary		Включение регистрации
-//	@Description	Увеличивает activation_version и schedule_version, создаёт недостающие статусы;
-//	@Description	участники в TODO снова получают первичное уведомление.
-//	@Tags			registration
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Success		200	{object}	models.RegistrationResponse
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Failure		409	{object}	models.ErrorResponse	"регистрация уже активна"
-//	@Router			/admin/hackathons/{id}/registration/enable [post]
+// @Summary		Enable registration
+// @Description	Increments activation_version and schedule_version and creates missing statuses;
+// @Description	participants in TODO receive the primary notification again.
+// @Tags			registration
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Success		200	{object}	models.RegistrationResponse
+// @Failure		403	{object}	models.ErrorResponse
+// @Failure		404	{object}	models.ErrorResponse
+// @Failure		409	{object}	models.ErrorResponse	"registration is already active"
+// @Router			/admin/events/{id}/registration/enable [post]
 func (c *RegistrationController) Enable(w http.ResponseWriter, r *http.Request) {
 	c.setState(w, r, models.RegistrationActive)
 }
 
-// Disable godoc
-//
-//	@Summary		Выключение регистрации
-//	@Description	Ожидающие уведомления отменяются, статусы сохраняются, но перестают быть actionable.
-//	@Tags			registration
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Success		200	{object}	models.RegistrationResponse
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Failure		409	{object}	models.ErrorResponse	"регистрация уже выключена"
-//	@Router			/admin/hackathons/{id}/registration/disable [post]
+// @Summary		Disable registration
+// @Description	Pending notifications are cancelled; statuses are preserved but stop being actionable.
+// @Tags			registration
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Success		200	{object}	models.RegistrationResponse
+// @Failure		403	{object}	models.ErrorResponse
+// @Failure		404	{object}	models.ErrorResponse
+// @Failure		409	{object}	models.ErrorResponse	"registration is already disabled"
+// @Router			/admin/events/{id}/registration/disable [post]
 func (c *RegistrationController) Disable(w http.ResponseWriter, r *http.Request) {
 	c.setState(w, r, models.RegistrationDisabled)
 }
@@ -174,19 +161,17 @@ func (c *RegistrationController) setState(w http.ResponseWriter, r *http.Request
 	httpx.JSON(w, http.StatusOK, registrationResponse(reg))
 }
 
-// ListStatuses godoc
-//
-//	@Summary	Статусы регистрации участников
-//	@Tags		registration
-//	@Produce	json
-//	@Security	CookieAuth
-//	@Param		id			path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Param		page		query		int		false	"Номер страницы"			default(1)
-//	@Param		page_size	query		int		false	"Размер страницы"			default(50)
-//	@Success	200			{object}	models.RegistrationStatusPage
-//	@Failure	403			{object}	models.ErrorResponse
-//	@Failure	404			{object}	models.ErrorResponse
-//	@Router		/admin/hackathons/{id}/registration-statuses [get]
+// @Summary	Participant registration statuses
+// @Tags		registration
+// @Produce	json
+// @Security	CookieAuth
+// @Param		id			path		string	true	"Event identifier"	format(uuid)
+// @Param		page		query		int		false	"Page number"		default(1)
+// @Param		page_size	query		int		false	"Page size"		default(50)
+// @Success	200			{object}	models.RegistrationStatusPage
+// @Failure	403			{object}	models.ErrorResponse
+// @Failure	404			{object}	models.ErrorResponse
+// @Router		/admin/events/{id}/registration-statuses [get]
 func (c *RegistrationController) ListStatuses(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -206,21 +191,19 @@ func (c *RegistrationController) ListStatuses(w http.ResponseWriter, r *http.Req
 	httpx.JSON(w, http.StatusOK, models.RegistrationStatusPage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
-// MarkDone godoc
-//
-//	@Summary		Отметка о выполненной регистрации
-//	@Description	Самоотчёт участника: перевод собственного статуса TODO в DONE. Доступен при активной
-//	@Description	регистрации, назначенном участии и неархивном хакатоне. Система не проверяет внешний сайт.
-//	@Tags			registration
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Success		200	{object}	models.RegistrationStatusResponse
-//	@Failure		401	{object}	models.ErrorResponse
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Failure		409	{object}	models.ErrorResponse	"недопустимый переход состояния"
-//	@Router			/hackathons/{id}/registration/done [post]
+// @Summary		Mark registration as completed
+// @Description	Participant self-report: moves their own TODO status to DONE. Available with an active
+// @Description	registration, an assigned participation and a non-archived event. The system does not verify the external site.
+// @Tags			registration
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Success		200	{object}	models.RegistrationStatusResponse
+// @Failure		401	{object}	models.ErrorResponse
+// @Failure		403	{object}	models.ErrorResponse
+// @Failure		404	{object}	models.ErrorResponse
+// @Failure		409	{object}	models.ErrorResponse	"invalid state transition"
+// @Router			/events/{id}/registration/done [post]
 func (c *RegistrationController) MarkDone(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -235,23 +218,21 @@ func (c *RegistrationController) MarkDone(w http.ResponseWriter, r *http.Request
 	httpx.JSON(w, http.StatusOK, st)
 }
 
-// AdminChangeStatus godoc
-//
-//	@Summary		Административный переход статуса
-//	@Description	Допустимые переходы: TODO → DONE, DONE → TODO, TODO/DONE → NOT_REQUIRED,
-//	@Description	NOT_REQUIRED → TODO. Вход в TODO увеличивает todo_cycle и очищает registered_at.
-//	@Tags			registration
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string							true	"Идентификатор статуса"	format(uuid)
-//	@Param			request	body		models.AdminChangeStatusRequest	true	"Новый статус"
-//	@Success		200		{object}	models.RegistrationStatusResponse
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Failure		409		{object}	models.ErrorResponse
-//	@Router			/admin/registration-statuses/{id} [patch]
+// @Summary		Administrative status transition
+// @Description	Allowed transitions: TODO to DONE, DONE to TODO, TODO/DONE to NOT_REQUIRED,
+// @Description	NOT_REQUIRED to TODO. Entering TODO increments todo_cycle and clears registered_at.
+// @Tags			registration
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string							true	"Status identifier"	format(uuid)
+// @Param			request	body		models.AdminChangeStatusRequest	true	"New status"
+// @Success		200		{object}	models.RegistrationStatusResponse
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Failure		409		{object}	models.ErrorResponse
+// @Router			/admin/registration-statuses/{id} [patch]
 func (c *RegistrationController) AdminChangeStatus(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -271,21 +252,19 @@ func (c *RegistrationController) AdminChangeStatus(w http.ResponseWriter, r *htt
 	httpx.JSON(w, http.StatusOK, st)
 }
 
-// BatchSetStatus godoc
-//
-//	@Summary		Массовая установка статуса
-//	@Description	Допускаются значения TODO и NOT_REQUIRED. Результат возвращается по каждому участнику.
-//	@Tags			registration
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string							true	"Идентификатор хакатона"	format(uuid)
-//	@Param			request	body		models.BatchSetStatusRequest	true	"Участники и целевой статус"
-//	@Success		200		{object}	models.BatchResult
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Router			/admin/hackathons/{id}/registration-statuses/batch-set [post]
+// @Summary		Bulk status assignment
+// @Description	Only TODO and NOT_REQUIRED are accepted. The result is returned per participant.
+// @Tags			registration
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string							true	"Event identifier"	format(uuid)
+// @Param			request	body		models.BatchSetStatusRequest	true	"Participants and target status"
+// @Success		200		{object}	models.BatchResult
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Router			/admin/events/{id}/registration-statuses/batch-set [post]
 func (c *RegistrationController) BatchSetStatus(w http.ResponseWriter, r *http.Request) {
 	id, req, ok := c.batchInput(w, r)
 	if !ok {
@@ -299,21 +278,19 @@ func (c *RegistrationController) BatchSetStatus(w http.ResponseWriter, r *http.R
 	httpx.JSON(w, http.StatusOK, res)
 }
 
-// BatchSetStatusPreview godoc
-//
-//	@Summary		Предпросмотр массовой установки статуса
-//	@Description	Возвращает количество изменяемых и пропускаемых записей без изменения данных.
-//	@Tags			registration
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string							true	"Идентификатор хакатона"	format(uuid)
-//	@Param			request	body		models.BatchSetStatusRequest	true	"Участники и целевой статус"
-//	@Success		200		{object}	models.PreviewResponse
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Router			/admin/hackathons/{id}/registration-statuses/batch-set/preview [post]
+// @Summary		Preview a bulk status assignment
+// @Description	Returns the number of records to be changed and skipped without modifying data.
+// @Tags			registration
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string							true	"Event identifier"	format(uuid)
+// @Param			request	body		models.BatchSetStatusRequest	true	"Participants and target status"
+// @Success		200		{object}	models.PreviewResponse
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Router			/admin/events/{id}/registration-statuses/batch-set/preview [post]
 func (c *RegistrationController) BatchSetStatusPreview(w http.ResponseWriter, r *http.Request) {
 	id, req, ok := c.batchInput(w, r)
 	if !ok {
@@ -340,17 +317,15 @@ func (c *RegistrationController) batchInput(w http.ResponseWriter, r *http.Reque
 	return parsed, req, true
 }
 
-// ListRules godoc
-//
-//	@Summary	Правила напоминаний
-//	@Tags		rules
-//	@Produce	json
-//	@Security	CookieAuth
-//	@Param		id	path		string	true	"Идентификатор хакатона"	format(uuid)
-//	@Success	200	{array}		models.NotificationRuleResponse
-//	@Failure	403	{object}	models.ErrorResponse
-//	@Failure	404	{object}	models.ErrorResponse
-//	@Router		/admin/hackathons/{id}/registration/rules [get]
+// @Summary	Reminder rules
+// @Tags		rules
+// @Produce	json
+// @Security	CookieAuth
+// @Param		id	path		string	true	"Event identifier"	format(uuid)
+// @Success	200	{array}		models.NotificationRuleResponse
+// @Failure	403	{object}	models.ErrorResponse
+// @Failure	404	{object}	models.ErrorResponse
+// @Router		/admin/events/{id}/registration/rules [get]
 func (c *RegistrationController) ListRules(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -369,24 +344,22 @@ func (c *RegistrationController) ListRules(w http.ResponseWriter, r *http.Reques
 	httpx.JSON(w, http.StatusOK, out)
 }
 
-// CreateRule godoc
-//
-//	@Summary		Создание правила напоминания
-//	@Description	Знак offset_minutes задаёт тип: положительное значение — напоминание до дедлайна,
-//	@Description	ноль — в момент дедлайна, отрицательное — уведомление о просрочке.
-//	@Description	На регистрацию допускается не более 10 правил.
-//	@Tags			rules
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string						true	"Идентификатор хакатона"	format(uuid)
-//	@Param			request	body		models.CreateRuleRequest	true	"Параметры правила"
-//	@Success		201		{object}	models.NotificationRuleResponse
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Failure		409		{object}	models.ErrorResponse	"правило с таким смещением уже есть или исчерпан лимит слотов"
-//	@Router			/admin/hackathons/{id}/registration/rules [post]
+// @Summary		Create a reminder rule
+// @Description	The sign of offset_minutes selects the type: a positive value is a reminder before the deadline,
+// @Description	zero fires at the deadline, and a negative value is an overdue notification.
+// @Description	A registration accepts at most 10 rules.
+// @Tags			rules
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string						true	"Event identifier"	format(uuid)
+// @Param			request	body		models.CreateRuleRequest	true	"Rule parameters"
+// @Success		201		{object}	models.NotificationRuleResponse
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Failure		409		{object}	models.ErrorResponse	"a rule with this offset already exists or the slot limit is reached"
+// @Router			/admin/events/{id}/registration/rules [post]
 func (c *RegistrationController) CreateRule(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -406,23 +379,21 @@ func (c *RegistrationController) CreateRule(w http.ResponseWriter, r *http.Reque
 	httpx.JSON(w, http.StatusCreated, ruleResponse(rule))
 }
 
-// UpdateRule godoc
-//
-//	@Summary		Изменение правила напоминания
-//	@Description	Изменение полей расписания увеличивает schedule_version один раз на транзакцию
-//	@Description	и запускает согласование уведомлений.
-//	@Tags			rules
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		string						true	"Идентификатор правила"	format(uuid)
-//	@Param			request	body		models.UpdateRuleRequest	true	"Изменяемые поля"
-//	@Success		200		{object}	models.NotificationRuleResponse
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		403		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Failure		409		{object}	models.ErrorResponse
-//	@Router			/admin/registration-rules/{id} [patch]
+// @Summary		Update a reminder rule
+// @Description	Changing schedule fields increments schedule_version once per transaction
+// @Description	and triggers notification reconciliation.
+// @Tags			rules
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string						true	"Rule identifier"	format(uuid)
+// @Param			request	body		models.UpdateRuleRequest	true	"Mutable fields"
+// @Success		200		{object}	models.NotificationRuleResponse
+// @Failure		400		{object}	models.ErrorResponse
+// @Failure		403		{object}	models.ErrorResponse
+// @Failure		404		{object}	models.ErrorResponse
+// @Failure		409		{object}	models.ErrorResponse
+// @Router			/admin/registration-rules/{id} [patch]
 func (c *RegistrationController) UpdateRule(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -442,19 +413,17 @@ func (c *RegistrationController) UpdateRule(w http.ResponseWriter, r *http.Reque
 	httpx.JSON(w, http.StatusOK, ruleResponse(rule))
 }
 
-// DisableRule godoc
-//
-//	@Summary		Выключение правила напоминания
-//	@Description	Правило переводится в enabled=false; строка сохраняется, чтобы занятый слот
-//	@Description	и смещение оставались зафиксированными.
-//	@Tags			rules
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path	string	true	"Идентификатор правила"	format(uuid)
-//	@Success		204	"правило выключено"
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Router			/admin/registration-rules/{id} [delete]
+// @Summary		Disable a reminder rule
+// @Description	The rule is set to enabled=false; the row is preserved so that the occupied slot
+// @Description	and offset stay reserved.
+// @Tags			rules
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id	path	string	true	"Rule identifier"	format(uuid)
+// @Success		204	"the rule is disabled"
+// @Failure		403	{object}	models.ErrorResponse
+// @Failure		404	{object}	models.ErrorResponse
+// @Router			/admin/registration-rules/{id} [delete]
 func (c *RegistrationController) DisableRule(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {

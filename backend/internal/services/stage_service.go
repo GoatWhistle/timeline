@@ -10,58 +10,52 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// StageService обслуживает этапы хакатона. Этап служит временной шкале
-// и карточке и уведомлений не порождает.
 type StageService struct {
 	db           *repositories.DB
 	stages       *repositories.StageRepository
-	hackathons   *repositories.HackathonRepository
+	events       *repositories.EventRepository
 	participants *repositories.ParticipantRepository
 	audit        *AuditService
 }
 
-// NewStageService создаёт сервис этапов.
 func NewStageService(db *repositories.DB, stages *repositories.StageRepository,
-	hackathons *repositories.HackathonRepository, participants *repositories.ParticipantRepository,
+	events *repositories.EventRepository, participants *repositories.ParticipantRepository,
 	audit *AuditService) *StageService {
-	return &StageService{db: db, stages: stages, hackathons: hackathons, participants: participants, audit: audit}
+	return &StageService{db: db, stages: stages, events: events, participants: participants, audit: audit}
 }
 
-// List возвращает этапы хакатона. Обычный пользователь видит их только для
-// опубликованного хакатона, на который назначен.
-func (s *StageService) List(ctx context.Context, actor models.Actor, hackathonID uuid.UUID) ([]models.Stage, error) {
+func (s *StageService) List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.Stage, error) {
 	if !actor.IsAdmin {
-		hackathon, err := s.hackathons.GetByID(ctx, hackathonID)
+		event, err := s.events.GetByID(ctx, eventID)
 		if err != nil {
 			return nil, err
 		}
-		if !hackathon.Published() {
-			return nil, models.NewNotFound("хакатон не найден")
+		if !event.Published() {
+			return nil, models.NewNotFound("event not found")
 		}
-		participant, err := s.participants.GetByHackathonUser(ctx, hackathonID, actor.UserID)
+		participant, err := s.participants.GetByEventUser(ctx, eventID, actor.UserID)
 		if err != nil || !participant.Assigned() {
-			return nil, models.NewNotFound("хакатон не найден")
+			return nil, models.NewNotFound("event not found")
 		}
 	}
-	return s.stages.ListByHackathon(ctx, hackathonID)
+	return s.stages.ListByEvent(ctx, eventID)
 }
 
-// Create добавляет этап хакатона.
-func (s *StageService) Create(ctx context.Context, actor models.Actor, hackathonID uuid.UUID, req models.CreateStageRequest) (*models.Stage, error) {
+func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateStageRequest) (*models.Stage, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	name, err := validateText("name", req.Name, 1, 120)
 	if err != nil {
 		return nil, err
 	}
 	if !req.Type.Valid() {
-		return nil, models.NewValidation("некорректный тип этапа",
-			models.FieldError{Field: "type", Message: "недопустимое значение"})
+		return nil, models.NewValidation("invalid stage type",
+			models.FieldError{Field: "type", Message: "value is not allowed"})
 	}
 	if !req.EndAt.After(req.StartAt) {
-		return nil, models.NewValidation("окончание этапа должно быть позже начала",
-			models.FieldError{Field: "end_at", Message: "должно быть позже start_at"})
+		return nil, models.NewValidation("stage end must be later than its start",
+			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
 	}
 	url, err := optionalHTTPS("url", req.URL)
 	if err != nil {
@@ -72,21 +66,19 @@ func (s *StageService) Create(ctx context.Context, actor models.Actor, hackathon
 		sortOrder = *req.SortOrder
 	}
 
-	// Пересечения этапов и выход за период хакатона допускаются: интерфейс
-	// показывает предупреждение, скрытого бизнес-состояния нет.
-	hackathon, err := s.hackathons.GetByID(ctx, hackathonID)
+	event, err := s.events.GetByID(ctx, eventID)
 	if err != nil {
 		return nil, err
 	}
-	if req.StartAt.Before(hackathon.StartAt) || req.EndAt.After(hackathon.EndAt) {
-		slog.InfoContext(ctx, "этап выходит за период хакатона",
-			"hackathon_id", hackathonID, "stage_name", name)
+	if req.StartAt.Before(event.StartAt) || req.EndAt.After(event.EndAt) {
+		slog.InfoContext(ctx, "stage extends beyond event period",
+			"event_id", eventID, "stage_name", name)
 	}
 
 	var created *models.Stage
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
 		created, err = s.stages.Create(ctx, &models.Stage{
-			HackathonID: hackathonID,
+			EventID:     eventID,
 			Name:        name,
 			Type:        req.Type,
 			StartAt:     req.StartAt.UTC(),
@@ -107,10 +99,9 @@ func (s *StageService) Create(ctx context.Context, actor models.Actor, hackathon
 	return created, nil
 }
 
-// Update изменяет этап.
 func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.UUID, req models.UpdateStageRequest) (*models.Stage, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("операция доступна только администратору")
+		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	if req.Name != nil {
 		name, err := validateText("name", *req.Name, 1, 120)
@@ -120,8 +111,8 @@ func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.U
 		req.Name = &name
 	}
 	if req.Type != nil && !req.Type.Valid() {
-		return nil, models.NewValidation("некорректный тип этапа",
-			models.FieldError{Field: "type", Message: "недопустимое значение"})
+		return nil, models.NewValidation("invalid stage type",
+			models.FieldError{Field: "type", Message: "value is not allowed"})
 	}
 	if req.URL != nil && *req.URL != "" {
 		url, err := validateHTTPS("url", *req.URL)
@@ -146,8 +137,8 @@ func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.U
 			end = req.EndAt.UTC()
 		}
 		if !end.After(start) {
-			return models.NewValidation("окончание этапа должно быть позже начала",
-				models.FieldError{Field: "end_at", Message: "должно быть позже start_at"})
+			return models.NewValidation("stage end must be later than its start",
+				models.FieldError{Field: "end_at", Message: "must be later than start_at"})
 		}
 
 		updated, err = s.stages.Update(ctx, id, req)
@@ -164,10 +155,9 @@ func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.U
 	return updated, nil
 }
 
-// Delete удаляет этап.
 func (s *StageService) Delete(ctx context.Context, actor models.Actor, id uuid.UUID) error {
 	if !actor.IsAdmin {
-		return models.NewForbidden("операция доступна только администратору")
+		return models.NewForbidden("the operation is restricted to administrators")
 	}
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
 		before, err := s.stages.GetByID(ctx, id)
@@ -178,6 +168,6 @@ func (s *StageService) Delete(ctx context.Context, actor models.Actor, id uuid.U
 			return err
 		}
 		return s.audit.Record(ctx, actor, models.AuditStageDelete, models.EntityStage, id,
-			map[string]any{"name": before.Name, "hackathon_id": before.HackathonID}, nil)
+			map[string]any{"name": before.Name, "event_id": before.EventID}, nil)
 	})
 }

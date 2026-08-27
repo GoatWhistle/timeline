@@ -8,37 +8,33 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// AuditController обслуживает чтение журнала административных изменений.
 type AuditController struct {
 	svc     AuditService
 	pageDef int
 	pageMax int
 }
 
-// NewAuditController создаёт контроллер аудита.
 func NewAuditController(svc AuditService, pageDef, pageMax int) *AuditController {
 	return &AuditController{svc: svc, pageDef: pageDef, pageMax: pageMax}
 }
 
-// List godoc
-//
-//	@Summary		Журнал аудита
-//	@Description	Доступен только администратору. Записи неизменяемы; выгрузка файлом в MVP не поддерживается.
-//	@Tags			audit
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			actor_user_id	query		string	false	"Фильтр по актору"	format(uuid)
-//	@Param			action			query		string	false	"Фильтр по действию"
-//	@Param			entity_type		query		string	false	"Фильтр по типу объекта"
-//	@Param			entity_id		query		string	false	"Фильтр по идентификатору объекта"	format(uuid)
-//	@Param			from			query		string	false	"Начало периода, RFC3339"
-//	@Param			to				query		string	false	"Конец периода, RFC3339"
-//	@Param			page			query		int		false	"Номер страницы"	default(1)
-//	@Param			page_size		query		int		false	"Размер страницы"	default(50)
-//	@Success		200				{object}	models.AuditPage
-//	@Failure		400				{object}	models.ErrorResponse
-//	@Failure		403				{object}	models.ErrorResponse
-//	@Router			/admin/audit [get]
+// @Summary		Audit log
+// @Description	Restricted to administrators. Entries are immutable; file export is not supported in the MVP.
+// @Tags			audit
+// @Produce		json
+// @Security		CookieAuth
+// @Param			actor_user_id	query		string	false	"Filter by actor"	format(uuid)
+// @Param			action			query		string	false	"Filter by action"
+// @Param			entity_type		query		string	false	"Filter by entity type"
+// @Param			entity_id		query		string	false	"Filter by entity identifier"	format(uuid)
+// @Param			from			query		string	false	"Start of the period, RFC3339"
+// @Param			to				query		string	false	"End of the period, RFC3339"
+// @Param			page			query		int		false	"Page number"	default(1)
+// @Param			page_size		query		int		false	"Page size"	default(50)
+// @Success		200				{object}	models.AuditPage
+// @Failure		400				{object}	models.ErrorResponse
+// @Failure		403				{object}	models.ErrorResponse
+// @Router			/admin/audit [get]
 func (c *AuditController) List(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
 	if err != nil {

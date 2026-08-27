@@ -12,7 +12,6 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// ProfileService обслуживает собственный профиль пользователя и каналы доставки.
 type ProfileService struct {
 	db       *repositories.DB
 	users    *repositories.UserRepository
@@ -27,7 +26,6 @@ type ProfileService struct {
 	now      func() time.Time
 }
 
-// NewProfileService создаёт сервис профиля.
 func NewProfileService(db *repositories.DB, users *repositories.UserRepository,
 	tokens *repositories.TokenRepository, sessions *repositories.SessionRepository,
 	notifier *NotificationService, audit *AuditService, hasher *PasswordHasher, mailer *Mailer,
@@ -39,12 +37,10 @@ func NewProfileService(db *repositories.DB, users *repositories.UserRepository,
 	}
 }
 
-// Get возвращает профиль пользователя.
 func (s *ProfileService) Get(ctx context.Context, userID uuid.UUID) (*models.User, error) {
 	return s.users.GetByID(ctx, userID)
 }
 
-// Update изменяет поля профиля, доступные самому пользователю.
 func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req models.UpdateProfileRequest) (*models.User, error) {
 	var (
 		displayName *string
@@ -103,8 +99,6 @@ func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req mod
 	return updated, nil
 }
 
-// StartTelegramLink выдаёт одноразовую ссылку привязки чата.
-// Идентификатор чата задаётся только этим потоком.
 func (s *ProfileService) StartTelegramLink(ctx context.Context, actor models.Actor) (string, time.Time, error) {
 	secret, err := NewSecret()
 	if err != nil {
@@ -129,20 +123,18 @@ func (s *ProfileService) StartTelegramLink(ctx context.Context, actor models.Act
 	return s.telegram.DeepLink(secret), expires, nil
 }
 
-// CompleteTelegramLink завершает привязку чата по одноразовому токену.
-// Вызывается обработчиком deep-link бота, а не обычным изменением профиля.
 func (s *ProfileService) CompleteTelegramLink(ctx context.Context, token, chatID string, username *string) (*models.User, error) {
 	var user *models.User
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		record, err := s.tokens.Consume(ctx, HashSecret(token), models.TokenTelegramLink, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
-				return models.NewValidation("ссылка привязки недействительна или истекла")
+				return models.NewValidation("the link is invalid or has expired")
 			}
 			return err
 		}
 		if record.UserID == nil {
-			return models.NewValidation("ссылка привязки недействительна")
+			return models.NewValidation("the link is invalid")
 		}
 		if err := s.users.SetTelegram(ctx, *record.UserID, chatID, username); err != nil {
 			return err
@@ -156,7 +148,6 @@ func (s *ProfileService) CompleteTelegramLink(ctx context.Context, token, chatID
 	return user, nil
 }
 
-// UnlinkTelegram удаляет привязку Telegram.
 func (s *ProfileService) UnlinkTelegram(ctx context.Context, actor models.Actor) error {
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
 		if err := s.users.ClearTelegram(ctx, actor.UserID); err != nil {
@@ -167,7 +158,6 @@ func (s *ProfileService) UnlinkTelegram(ctx context.Context, actor models.Actor)
 	})
 }
 
-// RequestEmailChange сохраняет новый адрес как ожидающий подтверждения.
 func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Actor, req models.ChangeEmailRequest) error {
 	newEmail, err := validateEmail("new_email", req.NewEmail)
 	if err != nil {
@@ -179,10 +169,10 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 		return err
 	}
 	if !s.hasher.Verify(req.Password, user.PasswordHash) {
-		return models.NewUnauthorized("неверный пароль")
+		return models.NewUnauthorized("invalid password")
 	}
 	if newEmail == user.Email {
-		return models.NewValidation("новый адрес совпадает с текущим")
+		return models.NewValidation("the new email matches the current one")
 	}
 
 	secret, err := NewSecret()
@@ -195,7 +185,7 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 			return err
 		}
 		if taken {
-			return models.NewConflict("email_taken", "этот адрес уже занят")
+			return models.NewConflict("email_taken", "this email is already taken")
 		}
 		if err := s.users.SetPendingEmail(ctx, user.ID, newEmail); err != nil {
 			return err
@@ -220,13 +210,10 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 	return nil
 }
 
-// Deactivate деактивирует собственную учётную запись.
 func (s *ProfileService) Deactivate(ctx context.Context, actor models.Actor) error {
 	return deactivateUser(ctx, s.db, s.users, s.sessions, s.notifier, s.audit, actor, actor.UserID)
 }
 
-// deactivateUser выполняет общую часть деактивации: отзыв сессий, удаление
-// привязки Telegram и отмену ожидающих уведомлений получателя (AC-NOTIF-18).
 func deactivateUser(ctx context.Context, db *repositories.DB, users *repositories.UserRepository,
 	sessions *repositories.SessionRepository, notifier *NotificationService, audit *AuditService,
 	actor models.Actor, userID uuid.UUID) error {
@@ -236,7 +223,7 @@ func deactivateUser(ctx context.Context, db *repositories.DB, users *repositorie
 			return err
 		}
 		if !user.IsActive {
-			return models.NewConflict("already_inactive", "учётная запись уже деактивирована")
+			return models.NewConflict("already_inactive", "the account is already deactivated")
 		}
 		if err := users.SetActive(ctx, userID, false); err != nil {
 			return err

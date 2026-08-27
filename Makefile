@@ -7,11 +7,40 @@
 #   make dev         режим разработки: HMR у фронтенда, `go run` у backend
 #   make dev MOCKS=1 то же, но экраны работают на моках MSW
 #
-# Команды проверок (lint, test, types, verify) запускаются на машине и требуют
-# установленных Go и Node; в CI выполняются те же самые.
+# Команды проверок (lint, test, types, verify) требуют Node на машине. Go нужен
+# не обязательно: если его нет, проверки backend выполняются в контейнере.
+# В CI выполняются те же самые команды.
 
 FRONTEND := frontend
 BACKEND  := backend
+
+# Проверки backend идут через локальный Go, а при его отсутствии — в контейнере
+# с тем же образом, что и сборка (deploy/backend.Dockerfile). Том сохраняет
+# кэш модулей между запусками, иначе каждый прогон качает зависимости заново.
+GO_IMAGE  := golang:1.25-alpine
+GO_CACHE  := timeline-go-mod
+HAVE_GO   := $(shell command -v go 2>/dev/null)
+
+ifeq ($(HAVE_GO),)
+GO_RUN := MSYS_NO_PATHCONV=1 docker run --rm \
+	-v "$(CURDIR)/$(BACKEND):/src" -v "$(GO_CACHE):/go/pkg/mod" \
+	-w /src $(GO_IMAGE) sh -c
+else
+GO_RUN := cd $(BACKEND) && sh -c
+endif
+
+# golangci-lint ставится не всегда: при отсутствии бинаря берётся официальный
+# образ той же версии. Кэш модулей общий с GO_RUN. В контейнер монтируется
+# корень репозитория, а не backend/: храповику --new-from-merge-base нужен .git,
+# без него линтер молча сваливается на выдачу всех замечаний разом.
+GOLANGCI_IMAGE := golangci/golangci-lint:v2.6-alpine
+HAVE_GOLANGCI  := $(shell command -v golangci-lint 2>/dev/null)
+
+ifeq ($(HAVE_GOLANGCI),)
+GOLANGCI_RUN := MSYS_NO_PATHCONV=1 docker run --rm -v "$(CURDIR):/repo" -v "$(GO_CACHE):/go/pkg/mod" -w /repo/$(BACKEND) $(GOLANGCI_IMAGE) sh -c 'git config --global --add safe.directory /repo; exec golangci-lint run "$$@"' --
+else
+GOLANGCI_RUN := cd $(BACKEND) && golangci-lint run
+endif
 
 COMPOSE     := docker compose -f deploy/docker-compose.yml
 COMPOSE_DEV := $(COMPOSE) -f deploy/docker-compose.dev.yml
@@ -38,7 +67,7 @@ export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME MOC
 	docker-up docker-down docker-build docker-restart docker-status docker-logs \
 	docker-psql dev dev-down dev-restart dev-logs \
 	install types types-check typecheck lint format test verify build \
-	back-fmt back-vet back-test back-docs clean
+	back-fmt back-vet back-test back-test-integration back-build back-cover back-docs clean
 
 .DEFAULT_GOAL := help
 
@@ -125,14 +154,18 @@ types-check: $(FRONTEND)/node_modules ## Проверить, что типы н�
 typecheck: $(FRONTEND)/node_modules ## Проверка типов
 	@cd $(FRONTEND) && npm run typecheck
 
-lint: $(FRONTEND)/node_modules ## Линтер и форматирование (только проверка)
+lint: $(FRONTEND)/node_modules ## Линтеры обеих частей: Biome и golangci-lint
 	@cd $(FRONTEND) && npm run lint
+	@$(MAKE) --no-print-directory back-lint-new
 
 format: $(FRONTEND)/node_modules ## Исправить форматирование и автофиксы линтера
 	@cd $(FRONTEND) && npm run lint:fix
 
 test: $(FRONTEND)/node_modules ## Прогнать тесты frontend
 	@cd $(FRONTEND) && npm run test
+
+test-cover: $(FRONTEND)/node_modules ## Тесты frontend с покрытием и проверкой порогов
+	@cd $(FRONTEND) && npm run test:coverage
 
 build: $(FRONTEND)/node_modules ## Собрать production-сборку frontend на машине
 	@cd $(FRONTEND) && npm run build
@@ -143,22 +176,67 @@ back-fmt: ## Форматировать код backend
 	@cd $(BACKEND) && $(MAKE) --no-print-directory fmt
 
 back-vet: ## Статический анализ backend
-	@cd $(BACKEND) && go vet ./...
+	@$(GO_RUN) "go vet ./..."
+
+back-lint: ## golangci-lint: весь долг, включая существующий (справочно)
+	@$(GOLANGCI_RUN) ./...
+
+back-lint-new: ## golangci-lint храповиком: только замечания этого изменения
+	@$(GOLANGCI_RUN) --new-from-merge-base=origin/main --whole-files ./...
 
 back-test: ## Модульные тесты backend
-	@cd $(BACKEND) && go test ./...
+	@$(GO_RUN) "go test ./..."
+
+back-build: ## Сборка backend
+	@$(GO_RUN) "go build ./..."
+
+back-test-integration: ## Тесты ограничений БД на временном PostgreSQL
+	@docker rm -f timeline-test-pg >/dev/null 2>&1 || true
+	@docker run -d --rm --name timeline-test-pg \
+		-e POSTGRES_PASSWORD=test -e POSTGRES_USER=test -e POSTGRES_DB=test \
+		-p 55433:5432 postgres:16-alpine >/dev/null
+	@sleep 8
+	@MSYS_NO_PATHCONV=1 docker run --rm --network host \
+		-v "$(CURDIR)/$(BACKEND):/src" -v "$(GO_CACHE):/go/pkg/mod" -w /src \
+		-e DATABASE_URL="postgres://test:test@127.0.0.1:55433/test?sslmode=disable" \
+		$(GO_IMAGE) go test -tags=integration ./... ; \
+		status=$$? ; docker stop timeline-test-pg >/dev/null 2>&1 ; exit $$status
+
+back-cover: ## Покрытие backend с выводом итога
+	@$(GO_RUN) "go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out | tail -1"
 
 back-docs: ## Пересобрать спецификацию OpenAPI и опубликовать в docs/
 	@cd $(BACKEND) && $(MAKE) --no-print-directory docs
 
+# --- Базовые уровни ---------------------------------------------------------
+#
+# Три проверки работают храповиком от зафиксированного уровня, а не от жёсткого
+# порога: при 25 файлах сверх лимита и покрытии около 11% жёсткий порог уронил
+# бы CI в первый же день и его бы отключили. Базовые уровни лежат в
+# docs/baselines/ и обновляются только в сторону улучшения.
+
+file-length: ## Лимит 250 строк на рукописный код (храповик)
+	@bash scripts/check-file-length.sh
+
+bundle-size: ## Размер production-сборки против базового уровня
+	@node scripts/bundle-size.mjs
+
+baseline-file-length: ## Перезаписать базовый уровень лимита строк
+	@bash scripts/check-file-length.sh --update
+
+baseline-bundle-size: build ## Перезаписать базовый уровень размера сборки
+	@node scripts/bundle-size.mjs --update
+
 # --- Проверки и очистка -----------------------------------------------------
 
 verify: ## Полная проверка обеих частей: контракт, типы, линтер, тесты, сборка
+	@$(MAKE) --no-print-directory file-length
 	@cd $(FRONTEND) && npm run verify
-	@cd $(BACKEND) && go build ./... && go vet ./... && go test ./...
+	@$(GO_RUN) "go build ./... && go vet ./... && go test ./..."
+	@$(MAKE) --no-print-directory back-lint-new
 	@echo "проверки пройдены"
 
 clean: ## Остановить контейнеры, удалить тома и артефакты сборки
 	@$(COMPOSE_DEV) down -v --remove-orphans 2>/dev/null || true
-	@rm -rf $(FRONTEND)/dist $(FRONTEND)/coverage $(BACKEND)/bin
+	@rm -rf $(FRONTEND)/dist $(FRONTEND)/coverage $(BACKEND)/bin $(BACKEND)/coverage.out
 	@echo "очищено"

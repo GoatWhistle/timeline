@@ -21,13 +21,13 @@ func init() {
 func newMigrateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "migrate",
-		Short: "Управление схемой базы данных",
-		Long:  "Применение и откат миграций схемы. Источник миграций встроен в бинарь.",
+		Short: "Manage the database schema",
+		Long:  "Apply and roll back schema migrations. The migration source is embedded in the binary.",
 	}
 	cmd.AddCommand(
 		&cobra.Command{
 			Use:   "up",
-			Short: "Применить все неприменённые миграции",
+			Short: "Apply all pending migrations",
 			RunE: func(cmd *cobra.Command, args []string) error {
 				return withMigrator(func(m *migrate.Migrate) error {
 					return report(m.Up())
@@ -36,7 +36,7 @@ func newMigrateCmd() *cobra.Command {
 		},
 		&cobra.Command{
 			Use:   "down",
-			Short: "Откатить одну миграцию",
+			Short: "Roll back a single migration",
 			RunE: func(cmd *cobra.Command, args []string) error {
 				return withMigrator(func(m *migrate.Migrate) error {
 					return report(m.Steps(-1))
@@ -45,7 +45,7 @@ func newMigrateCmd() *cobra.Command {
 		},
 		&cobra.Command{
 			Use:   "drop",
-			Short: "Откатить все миграции",
+			Short: "Roll back all migrations",
 			RunE: func(cmd *cobra.Command, args []string) error {
 				return withMigrator(func(m *migrate.Migrate) error {
 					return report(m.Down())
@@ -54,30 +54,30 @@ func newMigrateCmd() *cobra.Command {
 		},
 		&cobra.Command{
 			Use:   "version",
-			Short: "Показать текущую версию схемы",
+			Short: "Show the current schema version",
 			RunE: func(cmd *cobra.Command, args []string) error {
 				return withMigrator(func(m *migrate.Migrate) error {
 					version, dirty, err := m.Version()
 					if errors.Is(err, migrate.ErrNilVersion) {
-						cmd.Println("схема пуста")
+						cmd.Println("schema is empty")
 						return nil
 					}
 					if err != nil {
 						return err
 					}
-					cmd.Printf("версия %d, dirty=%t\n", version, dirty)
+					cmd.Printf("version %d, dirty=%t\n", version, dirty)
 					return nil
 				})
 			},
 		},
 		&cobra.Command{
 			Use:   "force <version>",
-			Short: "Принудительно выставить версию схемы после ручного вмешательства",
+			Short: "Force the schema version after manual intervention",
 			Args:  cobra.ExactArgs(1),
 			RunE: func(cmd *cobra.Command, args []string) error {
 				version, err := strconv.Atoi(args[0])
 				if err != nil {
-					return fmt.Errorf("версия должна быть числом: %w", err)
+					return fmt.Errorf("version must be a number: %w", err)
 				}
 				return withMigrator(func(m *migrate.Migrate) error {
 					return m.Force(version)
@@ -95,21 +95,20 @@ func withMigrator(fn func(*migrate.Migrate) error) error {
 	}
 	source, err := iofs.New(migrations.FS, ".")
 	if err != nil {
-		return fmt.Errorf("источник миграций: %w", err)
+		return fmt.Errorf("migration source: %w", err)
 	}
 	m, err := migrate.NewWithSourceInstance("iofs", source, pgxURL(cfg.DB.DSN))
 	if err != nil {
-		return fmt.Errorf("инициализация миграций: %w", err)
+		return fmt.Errorf("initialising migrations: %w", err)
 	}
 	defer func() {
 		if srcErr, dbErr := m.Close(); srcErr != nil || dbErr != nil {
-			slog.Warn("закрытие миграций", "source_error", srcErr, "database_error", dbErr)
+			slog.Warn("closing migrations", "source_error", srcErr, "database_error", dbErr)
 		}
 	}()
 	return fn(m)
 }
 
-// pgxURL приводит DSN к схеме, которую ожидает драйвер golang-migrate.
 func pgxURL(dsn string) string {
 	switch {
 	case len(dsn) > 13 && dsn[:13] == "postgresql://":
@@ -123,12 +122,12 @@ func pgxURL(dsn string) string {
 
 func report(err error) error {
 	if errors.Is(err, migrate.ErrNoChange) {
-		slog.Info("схема уже актуальна")
+		slog.Info("schema already up to date")
 		return nil
 	}
 	if err != nil {
 		return err
 	}
-	slog.Info("миграции применены")
+	slog.Info("migrations applied")
 	return nil
 }

@@ -1,0 +1,196 @@
+{
+  "measuredAt": "2026-08-27",
+  "growthLimit": 1.1,
+  "total": {
+    "bytes": 798750,
+    "gzip": 250396
+  },
+  "files": [
+    {
+      "file": "assets/index-[hash].js",
+      "bytes": 278255,
+      "gzip": 85156
+    },
+    {
+      "file": "assets/schemas-[hash].js",
+      "bytes": 100274,
+      "gzip": 29234
+    },
+    {
+      "file": "assets/spinner-[hash].js",
+      "bytes": 78916,
+      "gzip": 27204
+    },
+    {
+      "file": "assets/admin-routes-[hash].js",
+      "bytes": 78902,
+      "gzip": 19668
+    },
+    {
+      "file": "assets/confirm-dialog-[hash].js",
+      "bytes": 49802,
+      "gzip": 16502
+    },
+    {
+      "file": "assets/timeline-[hash].js",
+      "bytes": 41880,
+      "gzip": 15062
+    },
+    {
+      "file": "assets/dist-[hash].js",
+      "bytes": 32968,
+      "gzip": 12112
+    },
+    {
+      "file": "assets/datetime-[hash].js",
+      "bytes": 40826,
+      "gzip": 11128
+    },
+    {
+      "file": "assets/index-[hash].css",
+      "bytes": 32894,
+      "gzip": 6799
+    },
+    {
+      "file": "assets/profile-page-[hash].js",
+      "bytes": 8594,
+      "gzip": 3099
+    },
+    {
+      "file": "assets/dist-[hash].js",
+      "bytes": 7501,
+      "gzip": 2892
+    },
+    {
+      "file": "assets/states-[hash].js",
+      "bytes": 6901,
+      "gzip": 2794
+    },
+    {
+      "file": "assets/checkbox-[hash].js",
+      "bytes": 5320,
+      "gzip": 2318
+    },
+    {
+      "file": "assets/hackathon-card-page-[hash].js",
+      "bytes": 4920,
+      "gzip": 1786
+    },
+    {
+      "file": "assets/password-pages-[hash].js",
+      "bytes": 4312,
+      "gzip": 1654
+    },
+    {
+      "file": "assets/invite-page-[hash].js",
+      "bytes": 3152,
+      "gzip": 1382
+    },
+    {
+      "file": "assets/my-hackathons-page-[hash].js",
+      "bytes": 3044,
+      "gzip": 1382
+    },
+    {
+      "file": "assets/register-page-[hash].js",
+      "bytes": 2868,
+      "gzip": 1299
+    },
+    {
+      "file": "assets/verify-email-page-[hash].js",
+      "bytes": 3131,
+      "gzip": 1259
+    },
+    {
+      "file": "assets/login-page-[hash].js",
+      "bytes": 2226,
+      "gzip": 1126
+    },
+    {
+      "file": "assets/email-change-confirm-page-[hash].js",
+      "bytes": 1872,
+      "gzip": 898
+    },
+    {
+      "file": "assets/password-input-[hash].js",
+      "bytes": 1352,
+      "gzip": 766
+    },
+    {
+      "file": "assets/state-badge-[hash].js",
+      "bytes": 2188,
+      "gzip": 640
+    },
+    {
+      "file": "assets/my-timeline-page-[hash].js",
+      "bytes": 966,
+      "gzip": 585
+    },
+    {
+      "file": "assets/field-[hash].js",
+      "bytes": 942,
+      "gzip": 499
+    },
+    {
+      "file": "assets/dist-[hash].js",
+      "bytes": 670,
+      "gzip": 463
+    },
+    {
+      "file": "assets/use-url-filters-[hash].js",
+      "bytes": 737,
+      "gzip": 456
+    },
+    {
+      "file": "assets/label-[hash].js",
+      "bytes": 598,
+      "gzip": 409
+    },
+    {
+      "file": "assets/badge-[hash].js",
+      "bytes": 658,
+      "gzip": 371
+    },
+    {
+      "file": "index.html",
+      "bytes": 453,
+      "gzip": 282
+    },
+    {
+      "file": "assets/card-[hash].js",
+      "bytes": 637,
+      "gzip": 279
+    },
+    {
+      "file": "assets/form-[hash].js",
+      "bytes": 267,
+      "gzip": 236
+    },
+    {
+      "file": "assets/external-link-[hash].js",
+      "bytes": 242,
+      "gzip": 191
+    },
+    {
+      "file": "assets/circle-x-[hash].js",
+      "bytes": 198,
+      "gzip": 171
+    },
+    {
+      "file": "assets/circle-check-[hash].js",
+      "bytes": 169,
+      "gzip": 162
+    },
+    {
+      "file": "assets/check-[hash].js",
+      "bytes": 115,
+      "gzip": 132
+    }
+  ],
+  "note": "Итог — сумма всех чанков. После разделения по маршрутам сумма выросла, а начальная загрузка упала: значение имеет и то и другое, поэтому entry вынесен отдельно. Правило роста применяется к total.gzip.",
+  "entry": {
+    "file": "assets/index-[hash].js",
+    "bytes": 278255,
+    "gzip": 85156
+  }
+}

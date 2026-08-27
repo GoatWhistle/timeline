@@ -1,5 +1,3 @@
-// Package cli собирает команды приложения. Единая точка входа запускает API,
-// фоновый worker, миграции и операционные процедуры.
 package cli
 
 import (
@@ -15,13 +13,11 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/config"
 )
 
-// Version — версия сборки, подставляется линкером.
 var Version = "0.8.0-dev"
 
-// Execute запускает корневую команду и возвращает код завершения процесса.
 func Execute() int {
 	if err := newRootCmd().ExecuteContext(signalContext()); err != nil {
-		fmt.Fprintln(os.Stderr, "ошибка:", err)
+		fmt.Fprintln(os.Stderr, "error:", err)
 		return 1
 	}
 	return 0
@@ -29,9 +25,9 @@ func Execute() int {
 
 func newRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:           "hackathon",
-		Short:         "Backend системы Hackathon Tracker",
-		Long:          "Backend системы Hackathon Tracker: API, фоновый worker, миграции и операционные процедуры.",
+		Use:           "event",
+		Short:         "Hackathon Tracker backend",
+		Long:          "Hackathon Tracker backend: API, background worker, migrations and operational procedures.",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Version:       Version,
@@ -40,17 +36,14 @@ func newRootCmd() *cobra.Command {
 	return cmd
 }
 
-// registerCommands подключает команды приложения к корневой команде.
 func registerCommands(root *cobra.Command) {
 	for _, add := range commandBuilders {
 		root.AddCommand(add())
 	}
 }
 
-// commandBuilders наполняется файлами команд через init.
 var commandBuilders []func() *cobra.Command
 
-// signalContext возвращает контекст, отменяемый по SIGINT и SIGTERM.
 func signalContext() context.Context {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -60,7 +53,6 @@ func signalContext() context.Context {
 	return ctx
 }
 
-// loadConfig читает конфигурацию и настраивает журналирование.
 func loadConfig() (*config.Config, error) {
 	cfg, err := config.Load()
 	if err != nil {
@@ -81,5 +73,5 @@ func setupLogger(cfg *config.Config) {
 		level = slog.LevelError
 	}
 	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: level})
-	slog.SetDefault(slog.New(handler).With("service", "hackathon-tracker", "env", cfg.App.Env))
+	slog.SetDefault(slog.New(handler).With("service", "event-tracker", "env", cfg.App.Env))
 }

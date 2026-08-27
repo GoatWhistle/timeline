@@ -49,15 +49,15 @@
 
 # 1. Назначение и границы MVP
 
-Hackathon Tracker — внутренняя веб-система, заменяющая Excel-таблицы и ручной контроль в мессенджерах. Система хранит хакатоны, этапы, назначенных участников, их функции, заявленные статусы внешней регистрации, правила напоминаний и историю административных изменений.
+Hackathon Tracker — внутренняя веб-система, заменяющая Excel-таблицы и ручной контроль в мессенджерах. Система хранит события, этапы, назначенных участников, их функции, заявленные статусы внешней регистрации, правила напоминаний и историю административных изменений.
 
 | **Входит в MVP** | **Не входит в MVP** |
 |----|----|
 | Email/password регистрация, вход, подтверждение email, восстановление доступа и Invite | SSO, социальный вход и автоматическое создание корпоративных учётных записей |
 | Профиль, привязка Telegram, выбор канала | Конструктор анкет и хранение документов/чувствительных регистрационных данных |
-| Хакатоны, этапы, публикация, архивирование и Timeline | Автоматический поиск/парсинг хакатонов и мобильное приложение |
-| Назначение участников, одна свободнотекстовая роль, массовые операции | Несколько команд внутри хакатона и несколько ролей участника |
-| Одна персональная Registration на Hackathon, TODO/DONE/NOT_REQUIRED | Командная регистрация и внешняя автоматическая проверка |
+| События, этапы, публикация, архивирование и Timeline | Автоматический поиск/парсинг событий и мобильное приложение |
+| Назначение участников, одна свободнотекстовая роль, массовые операции | Несколько команд внутри события и несколько ролей участника |
+| Одна персональная Registration на Event, TODO/DONE/NOT_REQUIRED | Командная регистрация и внешняя автоматическая проверка |
 | Telegram, Email fallback, правила напоминаний, retry и аудит | Дополнительные каналы, локализация шаблонов, универсальный Action Tracking |
 
 # 2. Роли и права доступа
@@ -67,8 +67,8 @@ Hackathon Tracker — внутренняя веб-система, заменяю
 | Регистрация, вход, logout, восстановление | Собственная учётная запись | Собственная учётная запись |
 | Просмотр и изменение профиля | Свой профиль | Свой профиль; просмотр минимальных данных участников |
 | Изменение email/Telegram | Только свои данные с повторной проверкой | Не изменяет чужие credentials через UI |
-| Мои хакатоны / Timeline | Только свои назначения | Все хакатоны и назначения |
-| Hackathon и Stage | Только чтение опубликованных назначенных | Создание, изменение, публикация, архивирование |
+| Мои события / Timeline | Только свои назначения | Все события и назначения |
+| Event и Stage | Только чтение опубликованных назначенных | Создание, изменение, публикация, архивирование |
 | Участники и team_role | Нет | Добавление, массовое добавление, изменение, удаление, реактивация |
 | Собственный RegistrationStatus | TODO → DONE | Просмотр всех; допустимые административные переходы |
 | NotificationRule | Нет | Создание, изменение, выключение |
@@ -134,9 +134,9 @@ Hackathon Tracker — внутренняя веб-система, заменяю
 | **Retention:** Через 90 дней очищается только Notification.payload_json; сама строка Notification вместе с logical_key сохраняется. Удаление строк Notification запрещено, поскольку logical_key является единственной гарантией недедупликации: без него reconciliation пересоздаст уже отправленное уведомление для статуса, оставшегося в TODO. AuditLog хранится 365 дней по умолчанию. Сроки конфигурируемы политикой эксплуатации. |
 |----|
 
-# 5. Hackathon и Stage
+# 5. Event и Stage
 
-## 5.1 Hackathon
+## 5.1 Event
 
 | **Поле**                | **Тип / правило**                           |
 |-------------------------|---------------------------------------------|
@@ -151,13 +151,13 @@ Hackathon Tracker — внутренняя веб-система, заменяю
 | archived_at             | datetime UTC, nullable; non-NULL = ARCHIVED |
 | created_at / updated_at | datetime UTC                                |
 
-Для опубликованного неархивного Hackathon вычисляется состояние: UPCOMING при now \< start_at; ACTIVE при start_at ≤ now ≤ end_at; FINISHED при now \> end_at. ARCHIVED имеет приоритет над вычисляемым состоянием. Изменение start_at или end_at разрешено Admin и фиксируется в AuditLog. Поскольку end_at ограничивает окно правил просрочки раздела 9.4, изменение end_at увеличивает Registration.schedule_version на 1 и запускает reconciliation: устаревшие PENDING отменяются, актуальные создаются заново. Новое значение end_at обязано удовлетворять CHECK deadline_at ≤ end_at, иначе операция отклоняется. Unpublish и восстановление из ARCHIVED не входят в MVP. Hard delete Hackathon через UI не поддерживается.
+Для опубликованного неархивного Event вычисляется состояние: UPCOMING при now \< start_at; ACTIVE при start_at ≤ now ≤ end_at; FINISHED при now \> end_at. ARCHIVED имеет приоритет над вычисляемым состоянием. Изменение start_at или end_at разрешено Admin и фиксируется в AuditLog. Поскольку end_at ограничивает окно правил просрочки раздела 9.4, изменение end_at увеличивает Registration.schedule_version на 1 и запускает reconciliation: устаревшие PENDING отменяются, актуальные создаются заново. Новое значение end_at обязано удовлетворять CHECK deadline_at ≤ end_at, иначе операция отклоняется. Unpublish и восстановление из ARCHIVED не входят в MVP. Hard delete Event через UI не поддерживается.
 
 ## 5.2 Stage
 
 | **Поле** | **Тип / правило** |
 |----|----|
-| id / hackathon_id | UUID PK / FK Hackathon, required |
+| id / event_id | UUID PK / FK Event, required |
 | name | string(120), required, trim |
 | type | REGISTRATION, SELECTION, PARTICIPATION, CHECKPOINT, SUBMISSION, DEMO, RESULTS, OTHER |
 | start_at / end_at | datetime UTC, required; end_at \> start_at |
@@ -165,20 +165,20 @@ Hackathon Tracker — внутренняя веб-система, заменяю
 | sort_order | integer, required, default 0 |
 | created_at / updated_at | datetime UTC |
 
-Stage может пересекаться с другими Stage и выходить за общий период Hackathon; UI показывает предупреждение, но отдельного подтверждающего флага и скрытого бизнес-состояния нет. Stage типа REGISTRATION служит только Timeline и не владеет Registration. Stage не порождает уведомлений: единственный источник напоминаний в MVP — Registration.deadline_at и её NotificationRule. Даты Stage отображаются в Timeline и карточке, но не планируются worker-ом.
+Stage может пересекаться с другими Stage и выходить за общий период Event; UI показывает предупреждение, но отдельного подтверждающего флага и скрытого бизнес-состояния нет. Stage типа REGISTRATION служит только Timeline и не владеет Registration. Stage не порождает уведомлений: единственный источник напоминаний в MVP — Registration.deadline_at и её NotificationRule. Даты Stage отображаются в Timeline и карточке, но не планируются worker-ом.
 
-# 6. HackathonParticipant
+# 6. EventParticipant
 
 | **Поле** | **Тип / правило** |
 |----|----|
 | id | UUID, PK |
-| hackathon_id / user_id | FK, required; одна логическая запись на пару |
-| team_role | string(80), required, trim; функция участника на Hackathon, не permission |
+| event_id / user_id | FK, required; одна логическая запись на пару |
+| team_role | string(80), required, trim; функция участника на Event, не permission |
 | participation_status | ASSIGNED \| REMOVED |
 | assignment_version | integer ≥ 1; увеличивается при REMOVED → ASSIGNED |
 | assigned_at / removed_at | datetime UTC / nullable datetime UTC |
 | created_at / updated_at | datetime UTC |
-| Уникальность | UNIQUE(hackathon_id, user_id); повторное добавление реактивирует запись |
+| Уникальность | UNIQUE(event_id, user_id); повторное добавление реактивирует запись |
 
 - При реактивации participation_status становится ASSIGNED, assignment_version увеличивается, assigned_at обновляется, removed_at очищается, team_role задаётся заново и создаётся AuditLog.
 
@@ -188,14 +188,14 @@ Stage может пересекаться с другими Stage и выход�
 
 # 7. Registration и её жизненный цикл
 
-Hackathon имеет 0..1 логическую Registration. Существование ACTIVE Registration означает, что внешняя регистрация требуется всем ASSIGNED участникам по умолчанию; индивидуальное исключение задаётся RegistrationStatus=NOT_REQUIRED. Командная регистрация не поддерживается.
+Event имеет 0..1 логическую Registration. Существование ACTIVE Registration означает, что внешняя регистрация требуется всем ASSIGNED участникам по умолчанию; индивидуальное исключение задаётся RegistrationStatus=NOT_REQUIRED. Командная регистрация не поддерживается.
 
 | **Поле** | **Тип / правило** |
 |----|----|
-| id / hackathon_id | UUID PK / FK Hackathon UNIQUE, required |
+| id / event_id | UUID PK / FK Event UNIQUE, required |
 | url | HTTPS URL, required для ACTIVE |
-| deadline_at | datetime UTC, required для ACTIVE; обязано выполняться deadline_at ≤ Hackathon.end_at, чтобы правила просрочки успевали сработать. Значение раньше Hackathon.start_at допустимо: внешняя регистрация обычно закрывается до старта |
-| hackathon_end_at | datetime UTC, денормализованная копия Hackathon.end_at; поддерживается составным внешним ключом с ON UPDATE CASCADE и не изменяется приложением напрямую |
+| deadline_at | datetime UTC, required для ACTIVE; обязано выполняться deadline_at ≤ Event.end_at, чтобы правила просрочки успевали сработать. Значение раньше Event.start_at допустимо: внешняя регистрация обычно закрывается до старта |
+| event_end_at | datetime UTC, денормализованная копия Event.end_at; поддерживается составным внешним ключом с ON UPDATE CASCADE и не изменяется приложением напрямую |
 | description | text, nullable |
 | state | ACTIVE \| DISABLED |
 | schedule_version | integer ≥ 1; версия дедлайна и набора правил |
@@ -205,25 +205,25 @@ Hackathon имеет 0..1 логическую Registration. Существов�
 
 | **Событие** | **Обязательное поведение** |
 |----|----|
-| Создание ACTIVE Registration | Для всех ASSIGNED создаётся отсутствующий RegistrationStatus=TODO. Первичное уведомление создаётся только если Hackathon опубликован и неархивен; для неопубликованного Hackathon статусы создаются, а уведомления откладываются до публикации |
+| Создание ACTIVE Registration | Для всех ASSIGNED создаётся отсутствующий RegistrationStatus=TODO. Первичное уведомление создаётся только если Event опубликован и неархивен; для неопубликованного Event статусы создаются, а уведомления откладываются до публикации |
 | ACTIVE → DISABLED | PENDING отменяются; PROCESSING проверяет актуальность до provider call; статусы сохраняются, но не считаются actionable |
-| DISABLED → ACTIVE | activation_version и schedule_version +1; отсутствующие статусы создаются; TODO снова получает первичное уведомление при условии опубликованного неархивного Hackathon |
+| DISABLED → ACTIVE | activation_version и schedule_version +1; отсутствующие статусы создаются; TODO снова получает первичное уведомление при условии опубликованного неархивного Event |
 | Изменение deadline_at | schedule_version +1; старые PENDING отменяются; новые reminders получают новый logical_key; SENT сохраняются |
 | Изменение scheduling-полей Rule | schedule_version +1 один раз на транзакцию; выполняется reconciliation уведомлений |
 | Изменение Registration.url | notification_content_version +1; все связанные PENDING отменяются; reconciliation создаёт актуальные required/reminder с новым payload и logical_key; SENT сохраняются |
 | Создание после назначения | Обрабатываются все текущие ASSIGNED в той же транзакции/фоновой пакетной операции с идемпотентным продолжением |
 | Удаление | После появления RegistrationStatus hard delete запрещён; используется DISABLED |
 
-Каноническая ссылка хранится только в Registration.url. Stage.url относится к конкретному этапу. Hackathon.registration_url отсутствует. URL является actionable-контентом: его изменение обязательно версионируется через notification_content_version, чтобы PENDING не отправляли устаревшую ссылку.
+Каноническая ссылка хранится только в Registration.url. Stage.url относится к конкретному этапу. Event.registration_url отсутствует. URL является actionable-контентом: его изменение обязательно версионируется через notification_content_version, чтобы PENDING не отправляли устаревшую ссылку.
 
 # 8. RegistrationStatus
 
 | **Поле** | **Тип / правило** |
 |----|----|
 | id | UUID, PK |
-| hackathon_id | FK Hackathon; намеренно денормализован для составных ограничений целостности и не должен удаляться как вычисляемый |
+| event_id | FK Event; намеренно денормализован для составных ограничений целостности и не должен удаляться как вычисляемый |
 | registration_id | FK Registration, required |
-| participant_id | FK HackathonParticipant, required |
+| participant_id | FK EventParticipant, required |
 | status | TODO \| DONE \| NOT_REQUIRED |
 | todo_cycle | integer ≥ 1; увеличивается при каждом переходе в TODO |
 | registered_at | datetime UTC только при DONE; очищается при выходе из DONE |
@@ -233,15 +233,15 @@ Hackathon имеет 0..1 логическую Registration. Существов�
 | created_at / updated_at | datetime UTC |
 | Уникальность | UNIQUE(registration_id, participant_id) |
 
-| **Ограничение deadline_at ≤ end_at:** Обычный CHECK в PostgreSQL не может ссылаться на другую таблицу, поэтому правило выражается денормализацией. Hackathon получает UNIQUE(id, end_at). Registration хранит hackathon_end_at и составной внешний ключ (hackathon_id, hackathon_end_at) → hackathons(id, end_at) с ON UPDATE CASCADE, плюс собственный CHECK deadline_at ≤ hackathon_end_at. Изменение Hackathon.end_at каскадно обновляет копию, и попытка сдвинуть окончание хакатона раньше действующего дедлайна отклоняется базой, а не приложением. Допустима эквивалентная реализация через constraint trigger; проверка только в application layer недостаточна. |
+| **Ограничение deadline_at ≤ end_at:** Обычный CHECK в PostgreSQL не может ссылаться на другую таблицу, поэтому правило выражается денормализацией. Event получает UNIQUE(id, end_at). Registration хранит event_end_at и составной внешний ключ (event_id, event_end_at) → events(id, end_at) с ON UPDATE CASCADE, плюс собственный CHECK deadline_at ≤ event_end_at. Изменение Event.end_at каскадно обновляет копию, и попытка сдвинуть окончание события раньше действующего дедлайна отклоняется базой, а не приложением. Допустима эквивалентная реализация через constraint trigger; проверка только в application layer недостаточна. |
 |----|
 
-| **Целостность БД:** RegistrationStatus обязан связывать Registration и HackathonParticipant одного Hackathon. hackathon_id хранится намеренно, хотя выводится по обеим связям: поле обеспечивает межхакатонную ссылочную целостность составными UNIQUE/FK либо constraint trigger и не удаляется как избыточное. Проверка только в application layer недостаточна. |
+| **Целостность БД:** RegistrationStatus обязан связывать Registration и EventParticipant одного Event. event_id хранится намеренно, хотя выводится по обеим связям: поле обеспечивает межсобытиеную ссылочную целостность составными UNIQUE/FK либо constraint trigger и не удаляется как избыточное. Проверка только в application layer недостаточна. |
 |----|
 
 - Создание статуса: TODO, todo_cycle=1, last_change_source=SYSTEM.
 
-- Пользователь может выполнить только свой TODO → DONE при ASSIGNED, ACTIVE Registration и неархивном Hackathon.
+- Пользователь может выполнить только свой TODO → DONE при ASSIGNED, ACTIVE Registration и неархивном Event.
 
 - Admin может TODO → DONE, DONE → TODO, TODO/DONE → NOT_REQUIRED и NOT_REQUIRED → TODO. Любой переход фиксируется в AuditLog.
 
@@ -301,19 +301,19 @@ schedule_version изменяется при deadline/rule scheduling change, no
 
 ## 9.4 Scheduler и worker
 
-1.  Scheduler запускается не реже одного раза в 5 минут и выполняет reconciliation только для опубликованных неархивных Hackathon, ACTIVE Registration, ASSIGNED Participant, TODO RegistrationStatus и активных User. Reconciliation отвечает как за reminder и overdue по правилам, так и за отсутствующие первичные уведомления: если первичное уведомление не было создано в транзакции назначения из-за неопубликованного Hackathon, оно создаётся здесь по тому же logical_key.
+1.  Scheduler запускается не реже одного раза в 5 минут и выполняет reconciliation только для опубликованных неархивных Event, ACTIVE Registration, ASSIGNED Participant, TODO RegistrationStatus и активных User. Reconciliation отвечает как за reminder и overdue по правилам, так и за отсутствующие первичные уведомления: если первичное уведомление не было создано в транзакции назначения из-за неопубликованного Event, оно создаётся здесь по тому же logical_key.
 
 2.  Правило считается наступившим при now ≥ deadline_at − offset_minutes. Формула едина для обоих знаков: положительный offset срабатывает до дедлайна, отрицательный — после него.
 
 3.  Для правила с offset_minutes ≥ 0: если правило создано после момента срабатывания, но до deadline_at, уведомление создаётся немедленно; после deadline_at преддедлайновое reminder не создаётся.
 
-4.  Для правила с offset_minutes \< 0: уведомление создаётся не ранее момента срабатывания и не создаётся после Hackathon.end_at. Просрочка адресуется только тем, у кого RegistrationStatus всё ещё TODO на момент reconciliation; DONE, NOT_REQUIRED, REMOVED, DISABLED и ARCHIVED исключают создание по общим правилам раздела 9.4.1.
+4.  Для правила с offset_minutes \< 0: уведомление создаётся не ранее момента срабатывания и не создаётся после Event.end_at. Просрочка адресуется только тем, у кого RegistrationStatus всё ещё TODO на момент reconciliation; DONE, NOT_REQUIRED, REMOVED, DISABLED и ARCHIVED исключают создание по общим правилам раздела 9.4.1.
 
 5.  Конкурентные scheduler создают запись через INSERT с UNIQUE logical_key; конфликт считается успешной идемпотентной обработкой.
 
 6.  Worker выбирает due PENDING по next_attempt_at с FOR UPDATE SKIP LOCKED или эквивалентом, переводит в PROCESSING и выдаёт lease на 2 минуты.
 
-7.  Перед вызовом provider worker повторно проверяет status, версии, Participant, Registration, Hackathon и is_active получателя. Неактуальная запись становится CANCELLED. После успешной проверки worker атомарно заполняет provider_call_started_at; с этого момента вызов считается начатым и гарантированная отмена невозможна.
+7.  Перед вызовом provider worker повторно проверяет status, версии, Participant, Registration, Event и is_active получателя. Неактуальная запись становится CANCELLED. После успешной проверки worker атомарно заполняет provider_call_started_at; с этого момента вызов считается начатым и гарантированная отмена невозможна.
 
 8.  Временная ошибка: PROCESSING → PENDING; lease и provider_call_started_at текущей попытки очищаются, следующая попытка выполняет новую финальную проверку через 1, 5 и 30 минут. Всего одна первичная + три повторные попытки. После четвёртой неудачи — FAILED.
 
@@ -335,7 +335,7 @@ schedule_version изменяется при deadline/rule scheduling change, no
 
 ## 9.6 Шаблоны
 
-Язык продуктовых сообщений MVP — русский. Immutable payload snapshot содержит название Hackathon, registration URL, deadline в UTC и в системной таймзоне, тип уведомления и безопасный текст без административных notes. Шаблоны REGISTRATION_REQUIRED, REGISTRATION_REMINDER и REGISTRATION_OVERDUE различаются формулировкой; REGISTRATION_OVERDUE сообщает, что дедлайн уже прошёл, а отметка о регистрации не проставлена. Notification является снимком на момент создания: изменение несcheduling-контента Hackathon, включая title, не меняет существующий payload_json; новые Notification используют актуальные данные. Исключение — Registration.url как actionable-ссылка: для неё действует обязательное версионирование из раздела 9.5. Системная таймзона развёртывания по умолчанию Europe/Moscow; все данные хранятся в UTC.
+Язык продуктовых сообщений MVP — русский. Immutable payload snapshot содержит название Event, registration URL, deadline в UTC и в системной таймзоне, тип уведомления и безопасный текст без административных notes. Шаблоны REGISTRATION_REQUIRED, REGISTRATION_REMINDER и REGISTRATION_OVERDUE различаются формулировкой; REGISTRATION_OVERDUE сообщает, что дедлайн уже прошёл, а отметка о регистрации не проставлена. Notification является снимком на момент создания: изменение несcheduling-контента Event, включая title, не меняет существующий payload_json; новые Notification используют актуальные данные. Исключение — Registration.url как actionable-ссылка: для неё действует обязательное версионирование из раздела 9.5. Системная таймзона развёртывания по умолчанию Europe/Moscow; все данные хранятся в UTC.
 
 # 10. Выбор канала
 
@@ -365,16 +365,16 @@ UNDELIVERABLE является terminal status конкретной Notification
 
 | **Экран** | **Обязательное поведение** |
 |----|----|
-| Мои хакатоны | Все опубликованные Hackathon с ASSIGNED участием: UPCOMING, ACTIVE и FINISHED; архивные скрыты default и доступны фильтром |
-| Карточка Hackathon | team_role, вычисляемое состояние, ближайший Stage, RegistrationStatus, deadline, ссылка и действие TODO → DONE |
+| Мои события | Все опубликованные Event с ASSIGNED участием: UPCOMING, ACTIVE и FINISHED; архивные скрыты default и доступны фильтром |
+| Карточка Event | team_role, вычисляемое состояние, ближайший Stage, RegistrationStatus, deadline, ссылка и действие TODO → DONE |
 | Timeline пользователя | Только назначенные опубликованные неархивные; Gantt с масштабом месяц/неделя |
-| Admin: все хакатоны | UNPUBLISHED/PUBLISHED/ARCHIVED, поиск и фильтры |
-| Admin Timeline | Все Hackathon; фильтры по состоянию, участнику и диапазону |
-| Строка Timeline | Один Hackathon; Stage — интервалы; Registration.deadline_at — отдельный маркер |
-| Пересечения | Допускаются; каждый Hackathon остаётся отдельной строкой |
-| Пустое состояние | «У вас пока нет назначенных хакатонов» |
+| Admin: все события | UNPUBLISHED/PUBLISHED/ARCHIVED, поиск и фильтры |
+| Admin Timeline | Все Event; фильтры по состоянию, участнику и диапазону |
+| Строка Timeline | Один Event; Stage — интервалы; Registration.deadline_at — отдельный маркер |
+| Пересечения | Допускаются; каждый Event остаётся отдельной строкой |
+| Пустое состояние | «У вас пока нет назначенных событий» |
 
-Клик по Hackathon/Stage открывает соответствующую карточку. Типы Stage визуально различаются. Конкретная палитра — решение UI, но контраст должен соответствовать WCAG 2.1 AA. Desktop MVP функционален при ширине viewport ≥1024 px.
+Клик по Event/Stage открывает соответствующую карточку. Типы Stage визуально различаются. Конкретная палитра — решение UI, но контраст должен соответствовать WCAG 2.1 AA. Desktop MVP функционален при ширине viewport ≥1024 px.
 
 # 12. Административный UX и массовые операции
 
@@ -384,7 +384,7 @@ UNDELIVERABLE является terminal status конкретной Notification
 
 - Массовое удаление ASSIGNED, массовая установка TODO/NOT_REQUIRED с предварительным просмотром количества изменений.
 
-- Копирование только ASSIGNED состава из другого Hackathon. team_role переносится из исходного Hackathon как значение по умолчанию; до сохранения Admin может изменить его любому участнику в предпросмотре. Конфликты существующих участников пропускаются и возвращаются в результате операции.
+- Копирование только ASSIGNED состава из другого Event. team_role переносится из исходного Event как значение по умолчанию; до сохранения Admin может изменить его любому участнику в предпросмотре. Конфликты существующих участников пропускаются и возвращаются в результате операции.
 
 - Фильтры по team_role и RegistrationStatus; copy/remove/status операции атомарны на одного участника, общий batch возвращает частичные ошибки по элементам.
 
@@ -396,7 +396,7 @@ UNDELIVERABLE является terminal status конкретной Notification
 |----|----|
 | id | UUID, PK |
 | actor_user_id | nullable FK User; NULL допустим для SYSTEM |
-| action | Именованный enum/event: PARTICIPANT_ADD/REMOVE/REACTIVATE, TEAM_ROLE_CHANGE, REGISTRATION_CHANGE, STATUS_CHANGE, RULE_CHANGE, HACKATHON_PUBLISH/ARCHIVE, USER_DEACTIVATE и др. |
+| action | Именованный enum/event: PARTICIPANT_ADD/REMOVE/REACTIVATE, TEAM_ROLE_CHANGE, REGISTRATION_CHANGE, STATUS_CHANGE, RULE_CHANGE, EVENT_PUBLISH/ARCHIVE, USER_DEACTIVATE и др. |
 | entity_type / entity_id | Тип и идентификатор изменённого объекта |
 | before_json / after_json | Только изменённые бизнес-поля; password/token/chat secrets исключаются |
 | request_id | Корреляция с backend/worker logs |
@@ -406,14 +406,14 @@ AuditLog доступен только Admin, не редактируется п
 
 # 14. Архитектура и транзакционные границы
 
-Архитектура — модульный монолит: Identity/Auth & Profile; Hackathon; Participation; Registration; Notifications; Query/Timeline; Audit. Backend и worker используют одну кодовую базу и PostgreSQL; отдельный message broker для MVP не обязателен.
+Архитектура — модульный монолит: Identity/Auth & Profile; Event; Participation; Registration; Notifications; Query/Timeline; Audit. Backend и worker используют одну кодовую базу и PostgreSQL; отдельный message broker для MVP не обязателен.
 
 | **Операция** | **Транзакционная гарантия** |
 |----|----|
-| Назначение | Participant + RegistrationStatus при ACTIVE Registration + первичный Notification + AuditLog — одна DB-транзакция. Первичный Notification включается в транзакцию только для опубликованного неархивного Hackathon; иначе его создаёт reconciliation после публикации |
+| Назначение | Participant + RegistrationStatus при ACTIVE Registration + первичный Notification + AuditLog — одна DB-транзакция. Первичный Notification включается в транзакцию только для опубликованного неархивного Event; иначе его создаёт reconciliation после публикации |
 | Изменение статуса | RegistrationStatus + отмена PENDING + AuditLog — одна DB-транзакция |
 | Deadline/rule change | schedule_version + отмена старых PENDING + AuditLog — одна DB-транзакция; новые создаёт reconciliation |
-| Hackathon end_at change | Hackathon.end_at + Registration.schedule_version + отмена старых PENDING + AuditLog — одна DB-транзакция; новые создаёт reconciliation |
+| Event end_at change | Event.end_at + Registration.schedule_version + отмена старых PENDING + AuditLog — одна DB-транзакция; новые создаёт reconciliation |
 | Registration.url change | notification_content_version + отмена старых PENDING + AuditLog — одна DB-транзакция; новые создаёт reconciliation |
 | Удаление/reactivation | Participant state/version + cancel/create notification + AuditLog — одна DB-транзакция |
 | Provider delivery | Только после commit; внешний вызов не входит в доменную транзакцию |
@@ -464,7 +464,7 @@ SPA без SSR: раздел 14 требует только статически
 | Обработка 401 | Единичный прозрачный refresh с дедупликацией параллельных запросов, при повторной неудаче — редирект на вход | Access token живёт 15 минут |
 | Формы и валидация | React Hook Form + Zod | Клиентская валидация не заменяет серверную; серверные ошибки поля отображаются рядом с полем |
 | Таблицы | TanStack Table (headless) | Списки участников и AuditLog: сортировка, пагинация, мультивыбор строк для массовых операций раздела 12 |
-| Timeline / Gantt | Собственный компонент: CSS Grid плюс d3-scale только для отображения времени в пиксели | Готовые Gantt-библиотеки тяжёлые, плохо стилизуются под Tailwind и слабы по accessibility. Требования специфичны: пересекающиеся Stage, отдельный маркер deadline, масштабы месяц и неделя. Объём данных мал — 100 неархивных Hackathon по разделу 18 |
+| Timeline / Gantt | Собственный компонент: CSS Grid плюс d3-scale только для отображения времени в пиксели | Готовые Gantt-библиотеки тяжёлые, плохо стилизуются под Tailwind и слабы по accessibility. Требования специфичны: пересекающиеся Stage, отдельный маркер deadline, масштабы месяц и неделя. Объём данных мал — 100 неархивных Event по разделу 18 |
 | Даты и таймзоны | date-fns v4 с поддержкой таймзон | Хранение и обмен в UTC, отображение в системной таймзоне Europe/Moscow согласно разделу 9.6 |
 | Уведомления интерфейса | sonner | Результаты операций, включая частичные ошибки batch |
 | Иконки | lucide-react | Поставляется вместе с shadcn/ui |
@@ -475,7 +475,7 @@ SPA без SSR: раздел 14 требует только статически
 | **Явно не используется в MVP:** Next.js и любой SSR; Redux, MobX и прочие глобальные store; CSS-in-JS; готовые Gantt-библиотеки; MUI, Ant Design и другие UI-kit, конкурирующие с Tailwind; библиотеки i18n — язык интерфейса и сообщений один, русский, согласно разделу 9.6. |
 |----|
 
-Структура кода — по доменным модулям раздела 14, зеркально backend: auth, hackathons, participants, registration, notifications, timeline, audit. Общие примитивы выносятся в shared. Кросс-импорты между доменными модулями запрещены, обмен идёт через shared и маршруты.
+Структура кода — по доменным модулям раздела 14, зеркально backend: auth, events, participants, registration, notifications, timeline, audit. Общие примитивы выносятся в shared. Кросс-импорты между доменными модулями запрещены, обмен идёт через shared и маршруты.
 
 # 15. Минимальная ER-модель
 
@@ -485,24 +485,24 @@ SPA без SSR: раздел 14 требует только статически
 | Session | N:1 User; unique refresh_token_hash; revoke/expiry |
 | OneTimeToken | N:1 optional User; unique token_hash; purpose/expiry/consumed |
 | Invite | normalized email, creator User, unique token_hash; один unaccepted/unrevoked на email; expiry/accept/revoke |
-| Hackathon | 1:N Stage, 1:N Participant, 0..1 Registration |
-| HackathonParticipant | N:1 Hackathon, N:1 User; UNIQUE(hackathon_id,user_id) |
-| Registration | 1:1 Hackathon; 1:N RegistrationStatus, NotificationRule; schedule/activation/content versions |
-| RegistrationStatus | N:1 Registration and Participant того же Hackathon; намеренный hackathon_id; UNIQUE(registration_id,participant_id) |
+| Event | 1:N Stage, 1:N Participant, 0..1 Registration |
+| EventParticipant | N:1 Event, N:1 User; UNIQUE(event_id,user_id) |
+| Registration | 1:1 Event; 1:N RegistrationStatus, NotificationRule; schedule/activation/content versions |
+| RegistrationStatus | N:1 Registration and Participant того же Event; намеренный event_id; UNIQUE(registration_id,participant_id) |
 | NotificationRule | N:1 Registration; unique registration+offset |
 | Notification | N:1 RegistrationStatus, optional Rule, immutable recipient; UNIQUE logical_key |
 | AuditLog | N:1 nullable actor User; polymorphic entity reference |
 
-| **Обязательные ограничения:** Помимо обычных FK используются CHECK для enum/version/count, UNIQUE logical keys, составная проверка общего hackathon_id для RegistrationStatus и запрет изменения immutable полей Notification/AuditLog через runtime API. |
+| **Обязательные ограничения:** Помимо обычных FK используются CHECK для enum/version/count, UNIQUE logical keys, составная проверка общего event_id для RegistrationStatus и запрет изменения immutable полей Notification/AuditLog через runtime API. |
 |----|
 
 # 16. Состояния и переходы
 
 | **Объект** | **Переход** | **Кто / эффект** |
 |----|----|----|
-| Hackathon | UNPUBLISHED → PUBLISHED | Admin; становится видим пользователям и scheduler; reconciliation создаёт отложенные первичные уведомления для TODO при ACTIVE Registration |
-| Hackathon | UNPUBLISHED/PUBLISHED → ARCHIVED | Admin; terminal MVP, отмена PENDING |
-| Hackathon | end_at changed | Admin; schedule_version +1, cancel PENDING, reconciliation |
+| Event | UNPUBLISHED → PUBLISHED | Admin; становится видим пользователям и scheduler; reconciliation создаёт отложенные первичные уведомления для TODO при ACTIVE Registration |
+| Event | UNPUBLISHED/PUBLISHED → ARCHIVED | Admin; terminal MVP, отмена PENDING |
+| Event | end_at changed | Admin; schedule_version +1, cancel PENDING, reconciliation |
 | Participant | ASSIGNED → REMOVED | Admin; cancel, removed_at |
 | Participant | REMOVED → ASSIGNED | Admin; assignment_version +1 |
 | Registration | ACTIVE → DISABLED | Admin; cancel PENDING, статусные данные сохраняются |
@@ -529,12 +529,12 @@ SPA без SSR: раздел 14 требует только статически
 | Invite | admin create/revoke/list; public inspect/accept |
 | Profile | GET/PATCH /me, bind/unbind Telegram, preferences, deactivate request |
 | Users | Admin-only поиск зарегистрированных User по display_name и email с пагинацией; только минимальные поля для выбора участника |
-| Hackathons | admin list/detail/create/update/publish/archive; user assigned detail |
-| Stages | create/update/delete/list by hackathon |
+| Events | admin list/detail/create/update/publish/archive; user assigned detail |
+| Stages | create/update/delete/list by event |
 | Participants | list/add-many/update-team-role/remove-many/reactivate/copy-from |
 | Registration | create/update/enable/disable/get; own DONE; admin status transitions |
 | Notification Rules | list/create/update/disable per registration |
-| Queries | my-hackathons, my/admin timeline, upcoming/overdue |
+| Queries | my-events, my/admin timeline, upcoming/overdue |
 | Audit | admin list/filter с пагинацией; выгрузка файлом в MVP не поддерживается согласно разделу 12 |
 | Ops | health, readiness, worker heartbeat, metrics protected endpoint |
 
@@ -544,7 +544,7 @@ OpenAPI ведётся инкрементально: спецификация en
 
 | **Категория** | **Требование MVP** |
 |----|----|
-| Масштаб | 200 User, 500 Hackathon в БД, 100 неархивных одновременно; 20 конкурентных интерактивных пользователей |
+| Масштаб | 200 User, 500 Event в БД, 100 неархивных одновременно; 20 конкурентных интерактивных пользователей |
 | Производительность | На целевом наборе и 20 concurrent: backend p95 чтения ≤500 мс, записи ≤1 с; provider latency исключается |
 | Scheduler | Reconciliation каждые ≤5 мин; due notification создаётся не позднее 7 мин после scheduled_at при здоровой системе |
 | Доступность | Цель 99%/месяц, без договорного SLA |
@@ -590,19 +590,19 @@ OpenAPI ведётся инкрементально: спецификация en
 
 Дано: обычный User. Когда: он прямым API-запросом меняет чужой профиль, Participant или Rule. Тогда: 403/404 по принятой API-политике, данные не меняются, security event логируется.
 
-## 19.2 Hackathon, участие и Registration
+## 19.2 Event, участие и Registration
 
 ### AC-HACK-01 Публикация
 
-Дано: UNPUBLISHED Hackathon. Когда: Admin публикует его. Тогда: published_at заполнен; назначенные User видят его, неназначенные — нет; scheduler начинает учитывать его.
+Дано: UNPUBLISHED Event. Когда: Admin публикует его. Тогда: published_at заполнен; назначенные User видят его, неназначенные — нет; scheduler начинает учитывать его.
 
 ### AC-HACK-02 Изменение end_at
 
-Дано: published Hackathon с ACTIVE Registration, правилом просрочки и PENDING уведомлениями schedule_version N. Когда: Admin меняет end_at. Тогда: schedule_version=N+1, старые PENDING отменены, reconciliation создаёт актуальные с новым ключом, SENT сохранены. Попытка задать end_at раньше Registration.deadline_at отклоняется CHECK.
+Дано: published Event с ACTIVE Registration, правилом просрочки и PENDING уведомлениями schedule_version N. Когда: Admin меняет end_at. Тогда: schedule_version=N+1, старые PENDING отменены, reconciliation создаёт актуальные с новым ключом, SENT сохранены. Попытка задать end_at раньше Registration.deadline_at отклоняется CHECK.
 
 ### AC-PART-01 Назначение
 
-Дано: published Hackathon с ACTIVE Registration и новый User. Когда: Admin задаёт team_role. Тогда: создаются ровно один ASSIGNED Participant, TODO status, AuditLog и REGISTRATION_REQUIRED Notification в одной транзакции.
+Дано: published Event с ACTIVE Registration и новый User. Когда: Admin задаёт team_role. Тогда: создаются ровно один ASSIGNED Participant, TODO status, AuditLog и REGISTRATION_REQUIRED Notification в одной транзакции.
 
 ### AC-PART-02 Дубликат
 
@@ -618,11 +618,11 @@ OpenAPI ведётся инкрементально: спецификация en
 
 ### AC-REG-01 Registration после участников
 
-Дано: Hackathon с ASSIGNED без Registration. Когда: Admin создаёт ACTIVE Registration. Тогда: для каждого участника создаётся отсутствующий TODO и одно первичное Notification; повтор reconciliation не создаёт дублей.
+Дано: Event с ASSIGNED без Registration. Когда: Admin создаёт ACTIVE Registration. Тогда: для каждого участника создаётся отсутствующий TODO и одно первичное Notification; повтор reconciliation не создаёт дублей.
 
-### AC-REG-06 Registration на неопубликованном Hackathon
+### AC-REG-06 Registration на неопубликованном Event
 
-Дано: UNPUBLISHED Hackathon с ASSIGNED участниками. Когда: Admin создаёт ACTIVE Registration. Тогда: RegistrationStatus=TODO создаются, но ни одной Notification не создано. Когда: Admin публикует Hackathon. Тогда: reconciliation создаёт ровно одно первичное уведомление на участника; повторный запуск дублей не создаёт.
+Дано: UNPUBLISHED Event с ASSIGNED участниками. Когда: Admin создаёт ACTIVE Registration. Тогда: RegistrationStatus=TODO создаются, но ни одной Notification не создано. Когда: Admin публикует Event. Тогда: reconciliation создаёт ровно одно первичное уведомление на участника; повторный запуск дублей не создаёт.
 
 ### AC-REG-02 Самоотчёт
 
@@ -636,7 +636,7 @@ OpenAPI ведётся инкрементально: спецификация en
 
 Дано: ACTIVE с TODO/PENDING. Когда: Admin disables и затем enables Registration. Тогда: PENDING отменены при disable; statuses сохранены; при enable версии увеличены и для TODO создаётся новый required notification.
 
-### AC-REG-05 Межхакатонная целостность
+### AC-REG-05 Межсобытиеная целостность
 
 Дано: Registration A и Participant B. Когда: API или прямой DB test пытается создать общий RegistrationStatus. Тогда: операция отклоняется DB constraint.
 
@@ -680,7 +680,7 @@ OpenAPI ведётся инкрементально: спецификация en
 
 ### AC-NOTIF-10 Архивирование
 
-Дано: published Hackathon с TODO/PENDING. Когда: Admin архивирует. Тогда: PENDING отменены, worker/scheduler не создают новые.
+Дано: published Event с TODO/PENDING. Когда: Admin архивирует. Тогда: PENDING отменены, worker/scheduler не создают новые.
 
 ### AC-NOTIF-11 Изменение ссылки
 
@@ -688,7 +688,7 @@ OpenAPI ведётся инкрементально: спецификация en
 
 ### AC-NOTIF-12 Snapshot названия
 
-Дано: Notification уже создана. Когда: Admin меняет Hackathon.title. Тогда: существующий payload_json не меняется, а новые Notification используют новое название.
+Дано: Notification уже создана. Когда: Admin меняет Event.title. Тогда: существующий payload_json не меняется, а новые Notification используют новое название.
 
 ### AC-NOTIF-13 Новый канал
 
@@ -700,7 +700,7 @@ OpenAPI ведётся инкрементально: спецификация en
 
 ### AC-NOTIF-15 Напоминание после дедлайна
 
-Дано: ACTIVE Registration с Rule offset_minutes = −60, участник в TODO, deadline_at прошёл 61 минуту назад, Hackathon.end_at ещё не наступил. Когда: отрабатывает reconciliation. Тогда: создаётся ровно одна Notification типа REGISTRATION_OVERDUE с key overdue:…; повторный запуск дублей не создаёт. Если тот же участник уже DONE — Notification не создаётся; если Hackathon.end_at уже прошёл — Notification не создаётся.
+Дано: ACTIVE Registration с Rule offset_minutes = −60, участник в TODO, deadline_at прошёл 61 минуту назад, Event.end_at ещё не наступил. Когда: отрабатывает reconciliation. Тогда: создаётся ровно одна Notification типа REGISTRATION_OVERDUE с key overdue:…; повторный запуск дублей не создаёт. Если тот же участник уже DONE — Notification не создаётся; если Event.end_at уже прошёл — Notification не создаётся.
 
 ### AC-NOTIF-16 Permanent-ошибка и переключение канала
 
@@ -716,17 +716,17 @@ OpenAPI ведётся инкрементально: спецификация en
 
 ### AC-NOTIF-19 Retention не ломает дедупликацию
 
-Дано: SENT Notification старше 90 дней, статус участника всё ещё TODO, Hackathon неархивен. Когда: отрабатывает процедура retention. Тогда: payload_json очищен, строка и logical_key сохранены; последующий reconciliation не создаёт уведомление с тем же logical_key повторно.
+Дано: SENT Notification старше 90 дней, статус участника всё ещё TODO, Event неархивен. Когда: отрабатывает процедура retention. Тогда: payload_json очищен, строка и logical_key сохранены; последующий reconciliation не создаёт уведомление с тем же logical_key повторно.
 
 ## 19.4 Read-модели, массовые операции и аудит
 
-### AC-UI-01 Мои хакатоны
+### AC-UI-01 Мои события
 
 Дано: User ASSIGNED в upcoming A, finished C и archived D, не назначен в B. Тогда: default показывает A и C; D только с фильтром архивных; B отсутствует.
 
 ### AC-UI-02 Timeline
 
-Дано: два назначенных Hackathon с пересекающимися Stage. Тогда: каждый — отдельная строка, интервалы и deadline marker видимы в масштабах месяц/неделя.
+Дано: два назначенных Event с пересекающимися Stage. Тогда: каждый — отдельная строка, интервалы и deadline marker видимы в масштабах месяц/неделя.
 
 ### AC-BATCH-01 Массовое назначение
 
@@ -744,12 +744,12 @@ OpenAPI ведётся инкрементально: спецификация en
 | Деактивация и удаление User | User.is_active | Profile/Admin | AC-NOTIF-18 |
 | Invite | Invite | Admin Invite/Auth | AC-AUTH-02,05,06 |
 | Права | User.is_admin + policies | Все API | AC-AUTHZ-01 |
-| Hackathon/Stage | Hackathon, Stage | Admin Hackathons/Timeline | AC-HACK-01,02, AC-UI-02 |
+| Event/Stage | Event, Stage | Admin Events/Timeline | AC-HACK-01,02, AC-UI-02 |
 | Назначение | Participant | Admin Participants | AC-PART-01…04, AC-BATCH-01 |
 | Registration lifecycle | Registration versions/state | Admin Registration | AC-REG-01,04,06 |
-| Статус | RegistrationStatus | Hackathon card | AC-REG-02,03,05 |
+| Статус | RegistrationStatus | Event card | AC-REG-02,03,05 |
 | Напоминания | Rule, Notification | Admin rules + worker | AC-NOTIF-01…19 |
-| Мои хакатоны/Timeline | Query read models | My Hackathons/Timeline | AC-UI-01,02 |
+| Мои события/Timeline | Query read models | My Events/Timeline | AC-UI-01,02 |
 | Массовые операции | Participant/status services | Admin Participants | AC-BATCH-01 |
 | Поиск пользователей | User | Admin Participants / Users API | Проверяется API/AuthZ-тестами |
 | Аудит | AuditLog | Admin Audit | AC-AUDIT-01 |
@@ -764,7 +764,7 @@ OpenAPI ведётся инкрементально: спецификация en
 
 - CSV import/export и расширенный bulk workflow.
 
-- Автоматический импорт Hackathon и универсальный Action Tracking.
+- Автоматический импорт Event и универсальный Action Tracking.
 
 - Напоминания по датам Stage и произвольным дедлайнам вне Registration.
 
@@ -804,9 +804,9 @@ OpenAPI ведётся инкрементально: спецификация en
 |----|----|
 | User | Зарегистрированный пользователь Hackathon Tracker |
 | Admin | User с глобальными административными правами MVP |
-| HackathonParticipant | Логическая связь User с Hackathon; хранит team_role, состояние и assignment_version |
-| Registration | Регистрационное требование конкретного Hackathon, применяемое к его ASSIGNED участникам |
-| RegistrationStatus | Персональное состояние выполнения Registration конкретным HackathonParticipant |
+| EventParticipant | Логическая связь User с Event; хранит team_role, состояние и assignment_version |
+| Registration | Регистрационное требование конкретного Event, применяемое к его ASSIGNED участникам |
+| RegistrationStatus | Персональное состояние выполнения Registration конкретным EventParticipant |
 | todo_cycle | Версия очередного периода, в котором RegistrationStatus находится в TODO |
 | schedule_version | Версия дедлайна и scheduling-настроек Registration |
 | activation_version | Версия очередной активации Registration |
@@ -825,7 +825,7 @@ OpenAPI ведётся инкрементально: спецификация en
 
 - Добавлен notification_type REGISTRATION_OVERDUE и отдельный префикс logical_key overdue:. Тип выводится из знака offset_minutes, отдельного поля у Rule нет.
 
-- Правила scheduler разделены по знаку offset: преддедлайновое правило не срабатывает после deadline_at, просроченное — не создаётся после Hackathon.end_at.
+- Правила scheduler разделены по знаку offset: преддедлайновое правило не срабатывает после deadline_at, просроченное — не создаётся после Event.end_at.
 
 - Запрос overdue из раздела 17 получил соответствующий механизм уведомлений; расхождение устранено.
 
@@ -841,7 +841,7 @@ OpenAPI ведётся инкрементально: спецификация en
 
 - OpenAPI переведён с модели «утверждается до реализации» на инкрементальную с фиксацией общих соглашений заранее.
 
-- Первичное уведомление больше не создаётся для неопубликованного Hackathon: статусы создаются сразу, уведомления откладываются до публикации и создаются reconciliation.
+- Первичное уведомление больше не создаётся для неопубликованного Event: статусы создаются сразу, уведомления откладываются до публикации и создаются reconciliation.
 
 - Retention уточнён: очищается только payload_json, строка Notification и logical_key сохраняются, иначе ломается дедупликация.
 
@@ -849,7 +849,7 @@ OpenAPI ведётся инкрементально: спецификация en
 
 - Деактивация и удаление аккаунта разделены как разные операции с разной обратимостью.
 
-- Добавлен CHECK deadline_at ≤ Hackathon.end_at и описано влияние изменения end_at на schedule_version.
+- Добавлен CHECK deadline_at ≤ Event.end_at и описано влияние изменения end_at на schedule_version.
 
 - Уточнены перенос team_role при копировании состава, отказ на Invite существующему User, лимит 10 NotificationRule на Registration и отсутствие файловой выгрузки AuditLog.
 
@@ -867,9 +867,9 @@ OpenAPI ведётся инкрементально: спецификация en
 
 - Добавлен notification_content_version: изменение Registration.url отменяет старые PENDING и создаёт новые payload/key.
 
-- Зафиксирована snapshot-семантика Hackathon.title и terminal lifecycle UNDELIVERABLE.
+- Зафиксирована snapshot-семантика Event.title и terminal lifecycle UNDELIVERABLE.
 
-- hackathon_id в RegistrationStatus явно отмечен как намеренная денормализация для DB-целостности.
+- event_id в RegistrationStatus явно отмечен как намеренная денормализация для DB-целостности.
 
 - Для Invite задан ровно один unaccepted/unrevoked Invite на normalized_email и транзакционное отзыв-переиздание.
 

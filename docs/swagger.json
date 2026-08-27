@@ -5,7 +5,7 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "REST API системы Hackathon Tracker. Реализует техническое задание v0.8:\nучётные записи и приглашения, хакатоны и этапы, назначения участников,\nрегистрацию с самоотчётом статуса, правила напоминаний и журнал аудита.\n\nСистема не проверяет внешний сайт регистрации: статус является самоотчётом\nпользователя либо административно установленным состоянием.\n\nАутентификация — cookie-схема: access token живёт 15 минут, refresh token\nротируется и живёт 30 дней. Все изменяющие запросы обязаны передавать\nCSRF-токен заголовком X-CSRF-Token; получить его можно на GET /auth/csrf.\nВсе моменты времени передаются в UTC в формате RFC 3339.",
+        "description": "REST API системы Hackathon Tracker. Реализует техническое задание v0.8:\nучётные записи и приглашения, события и этапы, назначения участников,\nрегистрацию с самоотчётом статуса, правила напоминаний и журнал аудита.\n\nСистема не проверяет внешний сайт регистрации: статус является самоотчётом\nпользователя либо административно установленным состоянием.\n\nАутентификация — cookie-схема: access token живёт 15 минут, refresh token\nротируется и живёт 30 дней. Все изменяющие запросы обязаны передавать\nCSRF-токен заголовком X-CSRF-Token; получить его можно на GET /auth/csrf.\nВсе моменты времени передаются в UTC в формате RFC 3339.",
         "title": "Hackathon Tracker API",
         "termsOfService": "https://github.com/kaifarikman/hackathon-os",
         "contact": {
@@ -110,7 +110,7 @@
                 }
             }
         },
-        "/admin/hackathons": {
+        "/admin/events": {
             "get": {
                 "security": [
                     {
@@ -122,9 +122,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Список хакатонов",
+                "summary": "Список событий",
                 "parameters": [
                     {
                         "type": "string",
@@ -170,7 +170,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonPage"
+                            "$ref": "#/definitions/models.EventPage"
                         }
                     },
                     "403": {
@@ -187,7 +187,7 @@
                         "CookieAuth": []
                     }
                 ],
-                "description": "Хакатон создаётся неопубликованным; end_at обязан быть позже start_at.",
+                "description": "Событие создаётся неопубликованным; end_at обязан быть позже start_at.",
                 "consumes": [
                     "application/json"
                 ],
@@ -195,17 +195,17 @@
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Создание хакатона",
+                "summary": "Создание события",
                 "parameters": [
                     {
-                        "description": "Данные хакатона",
+                        "description": "Данные события",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateHackathonRequest"
+                            "$ref": "#/definitions/models.CreateEventRequest"
                         }
                     }
                 ],
@@ -213,7 +213,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonResponse"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "400": {
@@ -231,7 +231,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}": {
+        "/admin/events/{id}": {
             "get": {
                 "security": [
                     {
@@ -243,14 +243,14 @@
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Хакатон целиком",
+                "summary": "Событие целиком",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -260,7 +260,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonResponse"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "403": {
@@ -291,14 +291,14 @@
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Изменение хакатона",
+                "summary": "Изменение события",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -309,7 +309,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateHackathonRequest"
+                            "$ref": "#/definitions/models.UpdateEventRequest"
                         }
                     }
                 ],
@@ -317,7 +317,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonResponse"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "400": {
@@ -347,7 +347,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/archive": {
+        "/admin/events/{id}/archive": {
             "post": {
                 "security": [
                     {
@@ -359,14 +359,14 @@
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Архивирование хакатона",
+                "summary": "Архивирование события",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -376,7 +376,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonResponse"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "403": {
@@ -392,7 +392,7 @@
                         }
                     },
                     "409": {
-                        "description": "хакатон уже архивирован",
+                        "description": "событие уже архивировано",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -400,7 +400,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/participants": {
+        "/admin/events/{id}/participants": {
             "get": {
                 "security": [
                     {
@@ -413,12 +413,12 @@
                 "tags": [
                     "participants"
                 ],
-                "summary": "Состав участников хакатона",
+                "summary": "Состав участников события",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -489,7 +489,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/participants/batch-add": {
+        "/admin/events/{id}/participants/batch-add": {
             "post": {
                 "security": [
                     {
@@ -511,7 +511,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -554,7 +554,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/participants/batch-remove": {
+        "/admin/events/{id}/participants/batch-remove": {
             "post": {
                 "security": [
                     {
@@ -576,7 +576,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -619,7 +619,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/participants/copy-from": {
+        "/admin/events/{id}/participants/copy-from": {
             "post": {
                 "security": [
                     {
@@ -636,12 +636,12 @@
                 "tags": [
                     "participants"
                 ],
-                "summary": "Копирование состава из другого хакатона",
+                "summary": "Копирование состава из другого события",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор целевого хакатона",
+                        "description": "Идентификатор целевого события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -684,26 +684,26 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/publish": {
+        "/admin/events/{id}/publish": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Хакатон становится видимым участникам и планировщику; отложенные первичные\nуведомления создаются согласованием.",
+                "description": "Событие становится видимым участникам и планировщику; отложенные первичные\nуведомления создаются согласованием.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "hackathons"
+                    "events"
                 ],
-                "summary": "Публикация хакатона",
+                "summary": "Публикация события",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -713,7 +713,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonResponse"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "403": {
@@ -729,7 +729,7 @@
                         }
                     },
                     "409": {
-                        "description": "хакатон уже опубликован или архивирован",
+                        "description": "событие уже опубликовано или архивировано",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -737,7 +737,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/registration": {
+        "/admin/events/{id}/registration": {
             "get": {
                 "security": [
                     {
@@ -750,12 +750,12 @@
                 "tags": [
                     "registration"
                 ],
-                "summary": "Регистрация хакатона",
+                "summary": "Регистрация события",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -788,7 +788,7 @@
                         "CookieAuth": []
                     }
                 ],
-                "description": "Создание активной регистрации создаёт недостающие статусы TODO всем назначенным\nучастникам. Первичные уведомления создаются только для опубликованного неархивного\nхакатона; иначе они откладываются до публикации. Дедлайн обязан удовлетворять\nусловию deadline_at \u003c= hackathon.end_at.",
+                "description": "Создание активной регистрации создаёт недостающие статусы TODO всем назначенным\nучастникам. Первичные уведомления создаются только для опубликованного неархивного\nсобытия; иначе они откладываются до публикации. Дедлайн обязан удовлетворять\nусловию deadline_at \u003c= event.end_at.",
                 "consumes": [
                     "application/json"
                 ],
@@ -803,7 +803,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -872,7 +872,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -921,7 +921,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/registration-statuses": {
+        "/admin/events/{id}/registration-statuses": {
             "get": {
                 "security": [
                     {
@@ -939,7 +939,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -981,7 +981,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/registration-statuses/batch-set": {
+        "/admin/events/{id}/registration-statuses/batch-set": {
             "post": {
                 "security": [
                     {
@@ -1003,7 +1003,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1046,7 +1046,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/registration-statuses/batch-set/preview": {
+        "/admin/events/{id}/registration-statuses/batch-set/preview": {
             "post": {
                 "security": [
                     {
@@ -1068,7 +1068,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1111,7 +1111,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/registration/disable": {
+        "/admin/events/{id}/registration/disable": {
             "post": {
                 "security": [
                     {
@@ -1130,7 +1130,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1164,7 +1164,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/registration/enable": {
+        "/admin/events/{id}/registration/enable": {
             "post": {
                 "security": [
                     {
@@ -1183,7 +1183,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1217,7 +1217,7 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/registration/rules": {
+        "/admin/events/{id}/registration/rules": {
             "get": {
                 "security": [
                     {
@@ -1235,7 +1235,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1286,7 +1286,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1335,14 +1335,14 @@
                 }
             }
         },
-        "/admin/hackathons/{id}/stages": {
+        "/admin/events/{id}/stages": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Пересечения этапов и выход за период хакатона допускаются. Этап не порождает уведомлений.",
+                "description": "Пересечения этапов и выход за период события допускаются. Этап не порождает уведомлений.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1357,7 +1357,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1625,7 +1625,7 @@
                         "CookieAuth": []
                     }
                 ],
-                "description": "team_role — свободнотекстовая функция на хакатоне, а не право доступа.",
+                "description": "team_role — свободнотекстовая функция на событии, а не право доступа.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1690,7 +1690,7 @@
                         "CookieAuth": []
                     }
                 ],
-                "description": "Участники со статусом TODO, у которых дедлайн уже прошёл, а хакатон ещё не завершён.",
+                "description": "Участники со статусом TODO, у которых дедлайн уже прошёл, а событие ещё не завершилось.",
                 "produces": [
                     "application/json"
                 ],
@@ -2080,7 +2080,7 @@
                         "CookieAuth": []
                     }
                 ],
-                "description": "Все хакатоны с фильтрами по состоянию, участнику и диапазону дат.",
+                "description": "Все события с фильтрами по состоянию, участнику и диапазону дат.",
                 "produces": [
                     "application/json"
                 ],
@@ -2756,7 +2756,7 @@
                 }
             }
         },
-        "/hackathons/{id}": {
+        "/events/{id}": {
             "get": {
                 "security": [
                     {
@@ -2770,12 +2770,12 @@
                 "tags": [
                     "queries"
                 ],
-                "summary": "Карточка назначенного хакатона",
+                "summary": "Карточка назначенного события",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2785,7 +2785,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HackathonCard"
+                            "$ref": "#/definitions/models.EventCard"
                         }
                     },
                     "401": {
@@ -2809,14 +2809,14 @@
                 }
             }
         },
-        "/hackathons/{id}/registration/done": {
+        "/events/{id}/registration/done": {
             "post": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Самоотчёт участника: перевод собственного статуса TODO в DONE. Доступен при активной\nрегистрации, назначенном участии и неархивном хакатоне. Система не проверяет внешний сайт.",
+                "description": "Самоотчёт участника: перевод собственного статуса TODO в DONE. Доступен при активной\nрегистрации, назначенном участии и неархивном событии. Система не проверяет внешний сайт.",
                 "produces": [
                     "application/json"
                 ],
@@ -2828,7 +2828,7 @@
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2868,26 +2868,26 @@
                 }
             }
         },
-        "/hackathons/{id}/stages": {
+        "/events/{id}/stages": {
             "get": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Доступно назначенному участнику для опубликованного хакатона и администратору всегда.",
+                "description": "Доступно назначенному участнику для опубликованного события и администратору всегда.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "stages"
                 ],
-                "summary": "Этапы хакатона",
+                "summary": "Этапы события",
                 "parameters": [
                     {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Идентификатор хакатона",
+                        "description": "Идентификатор события",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -3185,21 +3185,21 @@
                 }
             }
         },
-        "/me/hackathons": {
+        "/me/events": {
             "get": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "Опубликованные хакатоны с назначенным участием: UPCOMING, ACTIVE и FINISHED.\nАрхивные скрыты по умолчанию и доступны фильтром.",
+                "description": "Опубликованные события с назначенным участием: UPCOMING, ACTIVE и FINISHED.\nАрхивные скрыты по умолчанию и доступны фильтром.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "queries"
                 ],
-                "summary": "Мои хакатоны",
+                "summary": "Мои события",
                 "parameters": [
                     {
                         "type": "boolean",
@@ -3238,7 +3238,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MyHackathonPage"
+                            "$ref": "#/definitions/models.MyEventPage"
                         }
                     },
                     "401": {
@@ -3318,7 +3318,7 @@
                         "CookieAuth": []
                     }
                 ],
-                "description": "Только назначенные опубликованные неархивные хакатоны. Каждый хакатон — отдельная строка,\nэтапы отдаются интервалами, дедлайн регистрации — отдельным маркером.",
+                "description": "Только назначенные опубликованные неархивные события. Каждое событие — отдельная строка,\nэтапы отдаются интервалами, дедлайн регистрации — отдельным маркером.",
                 "produces": [
                     "application/json"
                 ],
@@ -3514,10 +3514,10 @@
                 "INVITE_CREATE",
                 "INVITE_REVOKE",
                 "INVITE_ACCEPT",
-                "HACKATHON_CREATE",
-                "HACKATHON_UPDATE",
-                "HACKATHON_PUBLISH",
-                "HACKATHON_ARCHIVE",
+                "EVENT_CREATE",
+                "EVENT_UPDATE",
+                "EVENT_PUBLISH",
+                "EVENT_ARCHIVE",
                 "STAGE_CREATE",
                 "STAGE_UPDATE",
                 "STAGE_DELETE",
@@ -3539,10 +3539,10 @@
                 "AuditInviteCreate",
                 "AuditInviteRevoke",
                 "AuditInviteAccept",
-                "AuditHackathonCreate",
-                "AuditHackathonUpdate",
-                "AuditHackathonPublish",
-                "AuditHackathonArchive",
+                "AuditEventCreate",
+                "AuditEventUpdate",
+                "AuditEventPublish",
+                "AuditEventArchive",
                 "AuditStageCreate",
                 "AuditStageUpdate",
                 "AuditStageDelete",
@@ -3764,7 +3764,7 @@
                         "$ref": "#/definitions/models.CopyRoleOverride"
                     }
                 },
-                "source_hackathon_id": {
+                "source_event_id": {
                     "type": "string"
                 }
             }
@@ -3781,7 +3781,7 @@
                 }
             }
         },
-        "models.CreateHackathonRequest": {
+        "models.CreateEventRequest": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3801,7 +3801,7 @@
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийский хакатон"
+                    "example": "Всероссийскее событие"
                 },
                 "website_url": {
                     "type": "string",
@@ -3916,10 +3916,10 @@
                 "deadline_at": {
                     "type": "string"
                 },
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
-                "hackathon_title": {
+                "event_title": {
                     "type": "string"
                 },
                 "overdue_minutes": {
@@ -3974,9 +3974,9 @@
             "enum": [
                 "USER",
                 "INVITE",
-                "HACKATHON",
+                "EVENT",
                 "STAGE",
-                "HACKATHON_PARTICIPANT",
+                "EVENT_PARTICIPANT",
                 "REGISTRATION",
                 "REGISTRATION_STATUS",
                 "NOTIFICATION_RULE"
@@ -3984,7 +3984,7 @@
             "x-enum-varnames": [
                 "EntityUser",
                 "EntityInvite",
-                "EntityHackathon",
+                "EntityEvent",
                 "EntityStage",
                 "EntityParticipant",
                 "EntityRegistration",
@@ -4023,28 +4023,15 @@
                 }
             }
         },
-        "models.FieldError": {
-            "type": "object",
-            "properties": {
-                "field": {
-                    "type": "string",
-                    "example": "email"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "некорректный адрес"
-                }
-            }
-        },
-        "models.HackathonCard": {
+        "models.EventCard": {
             "type": "object",
             "properties": {
                 "can_mark_done": {
                     "type": "boolean",
                     "example": true
                 },
-                "hackathon": {
-                    "$ref": "#/definitions/models.HackathonResponse"
+                "event": {
+                    "$ref": "#/definitions/models.EventResponse"
                 },
                 "next_stage": {
                     "$ref": "#/definitions/models.StageShort"
@@ -4067,13 +4054,13 @@
                 }
             }
         },
-        "models.HackathonPage": {
+        "models.EventPage": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.HackathonResponse"
+                        "$ref": "#/definitions/models.EventResponse"
                     }
                 },
                 "meta": {
@@ -4081,7 +4068,7 @@
                 }
             }
         },
-        "models.HackathonResponse": {
+        "models.EventResponse": {
             "type": "object",
             "properties": {
                 "archived_at": {
@@ -4122,13 +4109,13 @@
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.HackathonState"
+                            "$ref": "#/definitions/models.EventState"
                         }
                     ]
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийский хакатон"
+                    "example": "Всероссийскее событие"
                 },
                 "updated_at": {
                     "type": "string"
@@ -4139,7 +4126,7 @@
                 }
             }
         },
-        "models.HackathonState": {
+        "models.EventState": {
             "type": "string",
             "enum": [
                 "UNPUBLISHED",
@@ -4149,12 +4136,25 @@
                 "ARCHIVED"
             ],
             "x-enum-varnames": [
-                "HackathonUnpublished",
-                "HackathonUpcoming",
-                "HackathonActive",
-                "HackathonFinished",
-                "HackathonArchived"
+                "EventUnpublished",
+                "EventUpcoming",
+                "EventActive",
+                "EventFinished",
+                "EventArchived"
             ]
+        },
+        "models.FieldError": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string",
+                    "example": "email"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "некорректный адрес"
+                }
+            }
         },
         "models.HealthResponse": {
             "type": "object",
@@ -4302,7 +4302,7 @@
                 }
             }
         },
-        "models.MyHackathonItem": {
+        "models.MyEventItem": {
             "type": "object",
             "properties": {
                 "end_at": {
@@ -4338,7 +4338,7 @@
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.HackathonState"
+                            "$ref": "#/definitions/models.EventState"
                         }
                     ]
                 },
@@ -4348,17 +4348,17 @@
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийский хакатон"
+                    "example": "Всероссийскее событие"
                 }
             }
         },
-        "models.MyHackathonPage": {
+        "models.MyEventPage": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.MyHackathonItem"
+                        "$ref": "#/definitions/models.MyEventItem"
                     }
                 },
                 "meta": {
@@ -4475,7 +4475,7 @@
                     "type": "integer",
                     "example": 1
                 },
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
                 "id": {
@@ -4556,7 +4556,6 @@
                     "example": "ivan@example.com"
                 },
                 "invite_token": {
-                    "description": "InviteToken необязателен: при передаче приглашение принимается той же транзакцией.",
                     "type": "string"
                 },
                 "password": {
@@ -4607,7 +4606,7 @@
                 "description": {
                     "type": "string"
                 },
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
                 "id": {
@@ -4669,7 +4668,7 @@
         "models.RegistrationStatusResponse": {
             "type": "object",
             "properties": {
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
                 "id": {
@@ -4805,7 +4804,7 @@
                 "end_at": {
                     "type": "string"
                 },
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
                 "id": {
@@ -4956,7 +4955,7 @@
                 "end_at": {
                     "type": "string"
                 },
-                "hackathon_id": {
+                "event_id": {
                     "type": "string"
                 },
                 "registration_deadline": {
@@ -4972,14 +4971,14 @@
                     "type": "string"
                 },
                 "state": {
-                    "$ref": "#/definitions/models.HackathonState"
+                    "$ref": "#/definitions/models.EventState"
                 },
                 "team_role": {
                     "type": "string"
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийский хакатон"
+                    "example": "Всероссийскее событие"
                 }
             }
         },
@@ -4992,7 +4991,7 @@
                 }
             }
         },
-        "models.UpdateHackathonRequest": {
+        "models.UpdateEventRequest": {
             "type": "object",
             "properties": {
                 "description": {
@@ -5026,7 +5025,6 @@
                     "example": "Иван Петров"
                 },
                 "preferred_channel": {
-                    "description": "PreferredChannel: TELEGRAM, EMAIL либо null для сброса явного выбора.",
                     "type": "string",
                     "enum": [
                         "TELEGRAM",

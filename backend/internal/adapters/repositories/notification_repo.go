@@ -13,10 +13,8 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// NotificationRepository — доступ к очереди уведомлений.
 type NotificationRepository struct{ db *DB }
 
-// NewNotificationRepository создаёт репозиторий уведомлений.
 func NewNotificationRepository(db *DB) *NotificationRepository {
 	return &NotificationRepository{db: db}
 }
@@ -71,9 +69,6 @@ func fromChannels(values []models.Channel) []string {
 	return out
 }
 
-// Insert создаёт уведомление идемпотентно: конфликт по logical_key считается
-// успешной обработкой конкурентного планировщика (AC-NOTIF-01).
-// Второе значение сообщает, была ли строка действительно создана.
 func (r *NotificationRepository) Insert(ctx context.Context, n *models.Notification) (*models.Notification, bool, error) {
 	payload, err := json.Marshal(n.Payload)
 	if err != nil {
@@ -107,20 +102,16 @@ func (r *NotificationRepository) Insert(ctx context.Context, n *models.Notificat
 	return existing, false, nil
 }
 
-// GetByID читает уведомление по идентификатору.
 func (r *NotificationRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Notification, error) {
 	return scanNotification(r.db.Q(ctx).QueryRow(ctx,
 		`SELECT `+notificationColumns+` FROM notifications WHERE id = $1`, id))
 }
 
-// GetByLogicalKey читает уведомление по логическому ключу.
 func (r *NotificationRepository) GetByLogicalKey(ctx context.Context, key string) (*models.Notification, error) {
 	return scanNotification(r.db.Q(ctx).QueryRow(ctx,
 		`SELECT `+notificationColumns+` FROM notifications WHERE logical_key = $1`, key))
 }
 
-// ExistsLogicalKey сообщает, создавалось ли уведомление для этой бизнес-ситуации.
-// Строка сохраняется даже после очистки payload, поэтому проверка надёжна (AC-NOTIF-19).
 func (r *NotificationRepository) ExistsLogicalKey(ctx context.Context, key string) (bool, error) {
 	var exists bool
 	err := r.db.Q(ctx).QueryRow(ctx,
@@ -131,20 +122,15 @@ func (r *NotificationRepository) ExistsLogicalKey(ctx context.Context, key strin
 	return exists, nil
 }
 
-// CancelScope задаёт, какие ожидающие уведомления отменяются.
 type CancelScope struct {
 	StatusID       *uuid.UUID
 	ParticipantID  *uuid.UUID
 	RegistrationID *uuid.UUID
-	HackathonID    *uuid.UUID
+	EventID        *uuid.UUID
 	RecipientID    *uuid.UUID
-	// Types ограничивает отмену конкретными типами уведомлений.
-	Types []models.NotificationType
+	Types          []models.NotificationType
 }
 
-// CancelPending отменяет ожидающие уведомления выбранной области.
-// PROCESSING отменяется только до фактического начала вызова провайдера:
-// после provider_call_started_at гарантированная отмена невозможна (раздел 9.5 ТЗ).
 func (r *NotificationRepository) CancelPending(ctx context.Context, scope CancelScope) (int64, error) {
 	conds := []string{
 		`(n.status = 'PENDING' OR (n.status = 'PROCESSING' AND n.provider_call_started_at IS NULL))`,
@@ -166,10 +152,10 @@ func (r *NotificationRepository) CancelPending(ctx context.Context, scope Cancel
 		join = ` JOIN registration_statuses s ON s.id = n.registration_status_id`
 		conds = append(conds, `s.registration_id = $`+itoa(len(args)))
 	}
-	if scope.HackathonID != nil {
-		args = append(args, *scope.HackathonID)
+	if scope.EventID != nil {
+		args = append(args, *scope.EventID)
 		join = ` JOIN registration_statuses s ON s.id = n.registration_status_id`
-		conds = append(conds, `s.hackathon_id = $`+itoa(len(args)))
+		conds = append(conds, `s.event_id = $`+itoa(len(args)))
 	}
 	if scope.RecipientID != nil {
 		args = append(args, *scope.RecipientID)
@@ -196,8 +182,6 @@ func (r *NotificationRepository) CancelPending(ctx context.Context, scope Cancel
 	return tag.RowsAffected(), nil
 }
 
-// ClaimDue переводит готовые записи в PROCESSING и выдаёт аренду.
-// Конкурентные worker не блокируют друг друга благодаря SKIP LOCKED.
 func (r *NotificationRepository) ClaimDue(ctx context.Context, limit int, lease time.Duration, now time.Time) ([]models.Notification, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		WITH due AS (
@@ -221,8 +205,6 @@ func (r *NotificationRepository) ClaimDue(ctx context.Context, limit int, lease 
 	return collectNotifications(rows)
 }
 
-// StartProviderCall фиксирует начало вызова провайдера. Возврат false означает,
-// что запись успели отменить: вызов выполнять нельзя.
 func (r *NotificationRepository) StartProviderCall(ctx context.Context, id uuid.UUID, channel models.Channel, now time.Time) (bool, error) {
 	tag, err := r.db.Q(ctx).Exec(ctx, `
 		UPDATE notifications SET
@@ -236,15 +218,12 @@ func (r *NotificationRepository) StartProviderCall(ctx context.Context, id uuid.
 	return tag.RowsAffected() == 1, nil
 }
 
-// ResetProviderCall снимает отметку о начале вызова перед следующей попыткой
-// в том же проходе worker (переключение канала после постоянной ошибки).
 func (r *NotificationRepository) ResetProviderCall(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.Q(ctx).Exec(ctx,
 		`UPDATE notifications SET provider_call_started_at = NULL WHERE id = $1 AND status = 'PROCESSING'`, id)
 	return mapError(err)
 }
 
-// MarkSent фиксирует успешную доставку.
 func (r *NotificationRepository) MarkSent(ctx context.Context, id uuid.UUID, channel models.Channel, now time.Time) error {
 	_, err := r.db.Q(ctx).Exec(ctx, `
 		UPDATE notifications SET
@@ -254,7 +233,6 @@ func (r *NotificationRepository) MarkSent(ctx context.Context, id uuid.UUID, cha
 	return mapError(err)
 }
 
-// MarkRetry возвращает запись в очередь после временной ошибки провайдера.
 func (r *NotificationRepository) MarkRetry(ctx context.Context, id uuid.UUID, nextAttempt time.Time, reason string) error {
 	_, err := r.db.Q(ctx).Exec(ctx, `
 		UPDATE notifications SET
@@ -264,7 +242,6 @@ func (r *NotificationRepository) MarkRetry(ctx context.Context, id uuid.UUID, ne
 	return mapError(err)
 }
 
-// MarkFailed фиксирует исчерпание попыток доставки.
 func (r *NotificationRepository) MarkFailed(ctx context.Context, id uuid.UUID, reason string) error {
 	_, err := r.db.Q(ctx).Exec(ctx, `
 		UPDATE notifications SET
@@ -273,7 +250,6 @@ func (r *NotificationRepository) MarkFailed(ctx context.Context, id uuid.UUID, r
 	return mapError(err)
 }
 
-// MarkUndeliverable фиксирует отсутствие доступных каналов доставки.
 func (r *NotificationRepository) MarkUndeliverable(ctx context.Context, id uuid.UUID, reason string) error {
 	_, err := r.db.Q(ctx).Exec(ctx, `
 		UPDATE notifications SET
@@ -282,7 +258,6 @@ func (r *NotificationRepository) MarkUndeliverable(ctx context.Context, id uuid.
 	return mapError(err)
 }
 
-// MarkCancelled отменяет запись, взятую worker, если она стала неактуальной.
 func (r *NotificationRepository) MarkCancelled(ctx context.Context, id uuid.UUID, reason string) error {
 	_, err := r.db.Q(ctx).Exec(ctx, `
 		UPDATE notifications SET
@@ -291,7 +266,6 @@ func (r *NotificationRepository) MarkCancelled(ctx context.Context, id uuid.UUID
 	return mapError(err)
 }
 
-// AddFailedChannel помечает канал закрытым постоянной ошибкой провайдера.
 func (r *NotificationRepository) AddFailedChannel(ctx context.Context, id uuid.UUID, channel models.Channel) error {
 	_, err := r.db.Q(ctx).Exec(ctx, `
 		UPDATE notifications SET failed_channels = array_append(failed_channels, $2)
@@ -299,7 +273,6 @@ func (r *NotificationRepository) AddFailedChannel(ctx context.Context, id uuid.U
 	return mapError(err)
 }
 
-// RecoverLeases возвращает записи с истёкшей арендой в очередь (AC-NOTIF-08).
 func (r *NotificationRepository) RecoverLeases(ctx context.Context, now time.Time) (int64, error) {
 	tag, err := r.db.Q(ctx).Exec(ctx, `
 		UPDATE notifications SET
@@ -307,7 +280,7 @@ func (r *NotificationRepository) RecoverLeases(ctx context.Context, now time.Tim
 			next_attempt_at = $1,
 			lease_expires_at = NULL,
 			provider_call_started_at = NULL,
-			last_error = 'аренда worker истекла, запись возвращена в очередь'
+			last_error = 'worker lease expired, entry returned to the queue'
 		WHERE status = 'PROCESSING' AND lease_expires_at IS NOT NULL AND lease_expires_at < $1`, now)
 	if err != nil {
 		return 0, mapError(err)
@@ -315,8 +288,6 @@ func (r *NotificationRepository) RecoverLeases(ctx context.Context, now time.Tim
 	return tag.RowsAffected(), nil
 }
 
-// CleanupPayloads очищает снимок содержимого по сроку хранения.
-// Строка и logical_key сохраняются: без них согласование пересоздаст уведомление.
 func (r *NotificationRepository) CleanupPayloads(ctx context.Context, before time.Time) (int64, error) {
 	tag, err := r.db.Q(ctx).Exec(ctx, `
 		UPDATE notifications SET payload_json = NULL
@@ -327,7 +298,6 @@ func (r *NotificationRepository) CleanupPayloads(ctx context.Context, before tim
 	return tag.RowsAffected(), nil
 }
 
-// QueueStats — сводка очереди для служебных проверок и метрик.
 type QueueStats struct {
 	Pending           int64
 	Processing        int64
@@ -338,7 +308,6 @@ type QueueStats struct {
 	StuckLeases       int64
 }
 
-// Stats собирает сводку очереди уведомлений.
 func (r *NotificationRepository) Stats(ctx context.Context, now time.Time) (*QueueStats, error) {
 	var s QueueStats
 	err := r.db.Q(ctx).QueryRow(ctx, `
@@ -359,8 +328,6 @@ func (r *NotificationRepository) Stats(ctx context.Context, now time.Time) (*Que
 	return &s, nil
 }
 
-// ListByStatus возвращает уведомления статуса регистрации; используется тестами
-// и административной диагностикой.
 func (r *NotificationRepository) ListByStatus(ctx context.Context, statusID uuid.UUID) ([]models.Notification, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		SELECT `+notificationColumns+` FROM notifications
@@ -384,7 +351,6 @@ func collectNotifications(rows pgx.Rows) ([]models.Notification, error) {
 	return items, mapError(rows.Err())
 }
 
-// prefixColumns добавляет префикс таблицы к списку колонок уведомления.
 func prefixColumns(prefix string) string {
 	parts := strings.Split(notificationColumns, ",")
 	for i, p := range parts {

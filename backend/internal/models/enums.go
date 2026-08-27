@@ -1,8 +1,5 @@
-// Package models содержит все структуры данных приложения: сущности, перечисления
-// и DTO запросов/ответов HTTP API. Слой намеренно плоский — DDD не применяется.
 package models
 
-// Channel — канал доставки уведомления.
 type Channel string
 
 const (
@@ -10,12 +7,10 @@ const (
 	ChannelEmail    Channel = "EMAIL"
 )
 
-// Valid сообщает, что значение канала допустимо.
 func (c Channel) Valid() bool {
 	return c == ChannelTelegram || c == ChannelEmail
 }
 
-// TokenPurpose — назначение одноразового токена.
 type TokenPurpose string
 
 const (
@@ -25,18 +20,16 @@ const (
 	TokenTelegramLink      TokenPurpose = "TELEGRAM_LINK"
 )
 
-// HackathonState — вычисляемое состояние хакатона.
-type HackathonState string
+type EventState string
 
 const (
-	HackathonUnpublished HackathonState = "UNPUBLISHED"
-	HackathonUpcoming    HackathonState = "UPCOMING"
-	HackathonActive      HackathonState = "ACTIVE"
-	HackathonFinished    HackathonState = "FINISHED"
-	HackathonArchived    HackathonState = "ARCHIVED"
+	EventUnpublished EventState = "UNPUBLISHED"
+	EventUpcoming    EventState = "UPCOMING"
+	EventActive      EventState = "ACTIVE"
+	EventFinished    EventState = "FINISHED"
+	EventArchived    EventState = "ARCHIVED"
 )
 
-// StageType — тип этапа хакатона.
 type StageType string
 
 const (
@@ -50,7 +43,6 @@ const (
 	StageOther         StageType = "OTHER"
 )
 
-// Valid сообщает, что тип этапа допустим.
 func (s StageType) Valid() bool {
 	switch s {
 	case StageRegistration, StageSelection, StageParticipation, StageCheckpoint,
@@ -60,7 +52,6 @@ func (s StageType) Valid() bool {
 	return false
 }
 
-// ParticipationStatus — состояние участия в хакатоне.
 type ParticipationStatus string
 
 const (
@@ -68,7 +59,6 @@ const (
 	ParticipationRemoved  ParticipationStatus = "REMOVED"
 )
 
-// RegistrationState — состояние регистрации хакатона.
 type RegistrationState string
 
 const (
@@ -76,7 +66,6 @@ const (
 	RegistrationDisabled RegistrationState = "DISABLED"
 )
 
-// RegistrationStatusValue — заявленный статус внешней регистрации участника.
 type RegistrationStatusValue string
 
 const (
@@ -85,12 +74,10 @@ const (
 	StatusNotRequired RegistrationStatusValue = "NOT_REQUIRED"
 )
 
-// Valid сообщает, что значение статуса допустимо.
 func (s RegistrationStatusValue) Valid() bool {
 	return s == StatusTODO || s == StatusDONE || s == StatusNotRequired
 }
 
-// ChangeSource — источник последнего изменения статуса.
 type ChangeSource string
 
 const (
@@ -99,7 +86,6 @@ const (
 	SourceAdmin  ChangeSource = "ADMIN"
 )
 
-// NotificationType — тип уведомления.
 type NotificationType string
 
 const (
@@ -108,7 +94,6 @@ const (
 	NotificationOverdue  NotificationType = "REGISTRATION_OVERDUE"
 )
 
-// NotificationStatus — состояние записи очереди уведомлений.
 type NotificationStatus string
 
 const (
@@ -120,7 +105,6 @@ const (
 	NotificationUndeliverable NotificationStatus = "UNDELIVERABLE"
 )
 
-// AuditAction — именованное событие журнала аудита.
 type AuditAction string
 
 const (
@@ -133,10 +117,10 @@ const (
 	AuditInviteCreate        AuditAction = "INVITE_CREATE"
 	AuditInviteRevoke        AuditAction = "INVITE_REVOKE"
 	AuditInviteAccept        AuditAction = "INVITE_ACCEPT"
-	AuditHackathonCreate     AuditAction = "HACKATHON_CREATE"
-	AuditHackathonUpdate     AuditAction = "HACKATHON_UPDATE"
-	AuditHackathonPublish    AuditAction = "HACKATHON_PUBLISH"
-	AuditHackathonArchive    AuditAction = "HACKATHON_ARCHIVE"
+	AuditEventCreate         AuditAction = "EVENT_CREATE"
+	AuditEventUpdate         AuditAction = "EVENT_UPDATE"
+	AuditEventPublish        AuditAction = "EVENT_PUBLISH"
+	AuditEventArchive        AuditAction = "EVENT_ARCHIVE"
 	AuditStageCreate         AuditAction = "STAGE_CREATE"
 	AuditStageUpdate         AuditAction = "STAGE_UPDATE"
 	AuditStageDelete         AuditAction = "STAGE_DELETE"
@@ -149,15 +133,14 @@ const (
 	AuditRuleChange          AuditAction = "RULE_CHANGE"
 )
 
-// EntityType — тип объекта, к которому относится запись аудита.
 type EntityType string
 
 const (
 	EntityUser               EntityType = "USER"
 	EntityInvite             EntityType = "INVITE"
-	EntityHackathon          EntityType = "HACKATHON"
+	EntityEvent              EntityType = "EVENT"
 	EntityStage              EntityType = "STAGE"
-	EntityParticipant        EntityType = "HACKATHON_PARTICIPANT"
+	EntityParticipant        EntityType = "EVENT_PARTICIPANT"
 	EntityRegistration       EntityType = "REGISTRATION"
 	EntityRegistrationStatus EntityType = "REGISTRATION_STATUS"
 	EntityNotificationRule   EntityType = "NOTIFICATION_RULE"

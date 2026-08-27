@@ -9,8 +9,6 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// OpsService обслуживает служебные проверки: готовность базы и состояние
-// фоновых процессов доставки.
 type OpsService struct {
 	db            *repositories.DB
 	scheduler     *repositories.SchedulerRepository
@@ -19,7 +17,6 @@ type OpsService struct {
 	now           func() time.Time
 }
 
-// NewOpsService создаёт служебный сервис.
 func NewOpsService(db *repositories.DB, scheduler *repositories.SchedulerRepository,
 	notifications *repositories.NotificationRepository, cfg *config.Config) *OpsService {
 	return &OpsService{
@@ -28,17 +25,12 @@ func NewOpsService(db *repositories.DB, scheduler *repositories.SchedulerReposit
 	}
 }
 
-// Ready проверяет доступность базы данных.
 func (s *OpsService) Ready(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 	return s.db.Ping(ctx)
 }
 
-// Heartbeat возвращает время последних запусков планировщика и worker,
-// длины очереди по статусам и возраст самой старой ожидающей записи.
-// Процесс считается живым, пока отметка запуска моложе трёх интервалов:
-// одиночный пропуск цикла не поднимает тревогу.
 func (s *OpsService) Heartbeat(ctx context.Context) (*models.WorkerHeartbeatResponse, error) {
 	now := s.now()
 
@@ -66,7 +58,6 @@ func (s *OpsService) Heartbeat(ctx context.Context) (*models.WorkerHeartbeatResp
 	return resp, nil
 }
 
-// fresh сообщает, что отметка существует и не старше допустимого возраста.
 func fresh(at *time.Time, now time.Time, maxAge time.Duration) bool {
 	if at == nil {
 		return false

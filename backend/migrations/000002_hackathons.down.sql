@@ -1,2 +1,0 @@
-DROP TABLE IF EXISTS stages;
-DROP TABLE IF EXISTS hackathons;

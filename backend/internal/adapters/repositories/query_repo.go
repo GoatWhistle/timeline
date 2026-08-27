@@ -10,16 +10,12 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// QueryRepository — read-модели пользовательских и административных экранов.
 type QueryRepository struct{ db *DB }
 
-// NewQueryRepository создаёт репозиторий read-моделей.
 func NewQueryRepository(db *DB) *QueryRepository { return &QueryRepository{db: db} }
 
-// MyHackathons возвращает опубликованные хакатоны с назначенным участием.
-// Архивные скрыты по умолчанию и доступны фильтром (AC-UI-01).
-func (r *QueryRepository) MyHackathons(ctx context.Context, userID uuid.UUID, filter models.MyHackathonFilter,
-	page models.Page, now time.Time) ([]models.MyHackathonItem, int64, error) {
+func (r *QueryRepository) MyEvents(ctx context.Context, userID uuid.UUID, filter models.MyEventFilter,
+	page models.Page, now time.Time) ([]models.MyEventItem, int64, error) {
 	conds := []string{
 		"p.user_id = $1",
 		"p.participation_status = 'ASSIGNED'",
@@ -35,13 +31,13 @@ func (r *QueryRepository) MyHackathons(ctx context.Context, userID uuid.UUID, fi
 		stateConds := make([]string, 0, len(filter.States))
 		for _, st := range filter.States {
 			switch st {
-			case models.HackathonArchived:
+			case models.EventArchived:
 				stateConds = append(stateConds, `h.archived_at IS NOT NULL`)
-			case models.HackathonUpcoming:
+			case models.EventUpcoming:
 				stateConds = append(stateConds, `(h.archived_at IS NULL AND h.start_at > `+nowArg+`)`)
-			case models.HackathonActive:
+			case models.EventActive:
 				stateConds = append(stateConds, `(h.archived_at IS NULL AND h.start_at <= `+nowArg+` AND h.end_at >= `+nowArg+`)`)
-			case models.HackathonFinished:
+			case models.EventFinished:
 				stateConds = append(stateConds, `(h.archived_at IS NULL AND h.end_at < `+nowArg+`)`)
 			}
 		}
@@ -52,9 +48,9 @@ func (r *QueryRepository) MyHackathons(ctx context.Context, userID uuid.UUID, fi
 	where := "WHERE " + strings.Join(conds, " AND ")
 
 	from := `
-		FROM hackathon_participants p
-		JOIN hackathons h ON h.id = p.hackathon_id
-		LEFT JOIN registrations r ON r.hackathon_id = h.id
+		FROM event_participants p
+		JOIN events h ON h.id = p.event_id
+		LEFT JOIN registrations r ON r.event_id = h.id
 		LEFT JOIN registration_statuses s ON s.participant_id = p.id `
 
 	var total int64
@@ -75,11 +71,11 @@ func (r *QueryRepository) MyHackathons(ctx context.Context, userID uuid.UUID, fi
 	}
 	defer rows.Close()
 
-	items := make([]models.MyHackathonItem, 0, page.Limit())
+	items := make([]models.MyEventItem, 0, page.Limit())
 	ids := make([]uuid.UUID, 0, page.Limit())
 	for rows.Next() {
 		var (
-			item        models.MyHackathonItem
+			item        models.MyEventItem
 			archivedAt  *time.Time
 			regURL      *string
 			regDeadline *time.Time
@@ -124,32 +120,29 @@ func (r *QueryRepository) MyHackathons(ctx context.Context, userID uuid.UUID, fi
 	return items, total, nil
 }
 
-// computeState повторяет вычисление состояния хакатона в SQL-выборках,
-// где полная модель не читается.
-func computeState(archivedAt *time.Time, start, end, now time.Time) models.HackathonState {
+func computeState(archivedAt *time.Time, start, end, now time.Time) models.EventState {
 	switch {
 	case archivedAt != nil:
-		return models.HackathonArchived
+		return models.EventArchived
 	case now.Before(start):
-		return models.HackathonUpcoming
+		return models.EventUpcoming
 	case now.After(end):
-		return models.HackathonFinished
+		return models.EventFinished
 	default:
-		return models.HackathonActive
+		return models.EventActive
 	}
 }
 
-// nextStages подбирает ближайший предстоящий или идущий этап каждого хакатона.
-func (r *QueryRepository) nextStages(ctx context.Context, hackathonIDs []uuid.UUID, now time.Time) (map[uuid.UUID]models.StageShort, error) {
-	result := make(map[uuid.UUID]models.StageShort, len(hackathonIDs))
-	if len(hackathonIDs) == 0 {
+func (r *QueryRepository) nextStages(ctx context.Context, eventIDs []uuid.UUID, now time.Time) (map[uuid.UUID]models.StageShort, error) {
+	result := make(map[uuid.UUID]models.StageShort, len(eventIDs))
+	if len(eventIDs) == 0 {
 		return result, nil
 	}
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT DISTINCT ON (hackathon_id) hackathon_id, id, name, type, start_at, end_at
+		SELECT DISTINCT ON (event_id) event_id, id, name, type, start_at, end_at
 		FROM stages
-		WHERE hackathon_id = ANY($1) AND end_at >= $2
-		ORDER BY hackathon_id, start_at`, hackathonIDs, now)
+		WHERE event_id = ANY($1) AND end_at >= $2
+		ORDER BY event_id, start_at`, eventIDs, now)
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -157,30 +150,28 @@ func (r *QueryRepository) nextStages(ctx context.Context, hackathonIDs []uuid.UU
 
 	for rows.Next() {
 		var (
-			hackathonID uuid.UUID
-			stage       models.StageShort
+			eventID uuid.UUID
+			stage   models.StageShort
 		)
-		if err := rows.Scan(&hackathonID, &stage.ID, &stage.Name, &stage.Type, &stage.StartAt, &stage.EndAt); err != nil {
+		if err := rows.Scan(&eventID, &stage.ID, &stage.Name, &stage.Type, &stage.StartAt, &stage.EndAt); err != nil {
 			return nil, mapError(err)
 		}
-		result[hackathonID] = stage
+		result[eventID] = stage
 	}
 	return result, mapError(rows.Err())
 }
 
-// NextStage возвращает ближайший этап одного хакатона.
-func (r *QueryRepository) NextStage(ctx context.Context, hackathonID uuid.UUID, now time.Time) (*models.StageShort, error) {
-	stages, err := r.nextStages(ctx, []uuid.UUID{hackathonID}, now)
+func (r *QueryRepository) NextStage(ctx context.Context, eventID uuid.UUID, now time.Time) (*models.StageShort, error) {
+	stages, err := r.nextStages(ctx, []uuid.UUID{eventID}, now)
 	if err != nil {
 		return nil, err
 	}
-	if stage, ok := stages[hackathonID]; ok {
+	if stage, ok := stages[eventID]; ok {
 		return &stage, nil
 	}
 	return nil, nil
 }
 
-// TimelineRows собирает строки временной шкалы за период.
 func (r *QueryRepository) TimelineRows(ctx context.Context, filter models.TimelineFilter, forUserID *uuid.UUID,
 	now time.Time) ([]models.TimelineRow, error) {
 	conds := []string{
@@ -194,13 +185,13 @@ func (r *QueryRepository) TimelineRows(ctx context.Context, filter models.Timeli
 		conds = append(conds,
 			"h.published_at IS NOT NULL",
 			"h.archived_at IS NULL",
-			"EXISTS (SELECT 1 FROM hackathon_participants p WHERE p.hackathon_id = h.id AND p.user_id = $"+
+			"EXISTS (SELECT 1 FROM event_participants p WHERE p.event_id = h.id AND p.user_id = $"+
 				itoa(len(args))+" AND p.participation_status = 'ASSIGNED')")
 	} else {
 		if filter.ParticipantUser != nil {
 			args = append(args, *filter.ParticipantUser)
 			conds = append(conds,
-				"EXISTS (SELECT 1 FROM hackathon_participants p WHERE p.hackathon_id = h.id AND p.user_id = $"+
+				"EXISTS (SELECT 1 FROM event_participants p WHERE p.event_id = h.id AND p.user_id = $"+
 					itoa(len(args))+" AND p.participation_status = 'ASSIGNED')")
 		}
 		if !filter.IncludeArchived {
@@ -210,15 +201,15 @@ func (r *QueryRepository) TimelineRows(ctx context.Context, filter models.Timeli
 
 	roleSelect := "NULL::text"
 	if forUserID != nil {
-		roleSelect = `(SELECT p.team_role FROM hackathon_participants p
-			WHERE p.hackathon_id = h.id AND p.user_id = $` + itoa(len(args)) + ` LIMIT 1)`
+		roleSelect = `(SELECT p.team_role FROM event_participants p
+			WHERE p.event_id = h.id AND p.user_id = $` + itoa(len(args)) + ` LIMIT 1)`
 	}
 
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		SELECT h.id, h.title, h.start_at, h.end_at, h.published_at, h.archived_at,
 		       `+roleSelect+`,
-		       (SELECT r.deadline_at FROM registrations r WHERE r.hackathon_id = h.id AND r.state = 'ACTIVE')
-		FROM hackathons h
+		       (SELECT r.deadline_at FROM registrations r WHERE r.event_id = h.id AND r.state = 'ACTIVE')
+		FROM events h
 		WHERE `+strings.Join(conds, " AND ")+`
 		ORDER BY h.start_at`, args...)
 	if err != nil {
@@ -234,18 +225,18 @@ func (r *QueryRepository) TimelineRows(ctx context.Context, filter models.Timeli
 			publishedAt *time.Time
 			archivedAt  *time.Time
 		)
-		if err := rows.Scan(&row.HackathonID, &row.Title, &row.StartAt, &row.EndAt, &publishedAt, &archivedAt,
+		if err := rows.Scan(&row.EventID, &row.Title, &row.StartAt, &row.EndAt, &publishedAt, &archivedAt,
 			&row.TeamRole, &row.RegistrationDeadline); err != nil {
 			return nil, mapError(err)
 		}
 		if publishedAt == nil && archivedAt == nil {
-			row.State = models.HackathonUnpublished
+			row.State = models.EventUnpublished
 		} else {
 			row.State = computeState(archivedAt, row.StartAt, row.EndAt, now)
 		}
 		row.Stages = []models.TimelineItem{}
 		result = append(result, row)
-		ids = append(ids, row.HackathonID)
+		ids = append(ids, row.EventID)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, mapError(err)
@@ -256,7 +247,7 @@ func (r *QueryRepository) TimelineRows(ctx context.Context, filter models.Timeli
 		return nil, err
 	}
 	for i := range result {
-		if items, ok := stages[result[i].HackathonID]; ok {
+		if items, ok := stages[result[i].EventID]; ok {
 			result[i].Stages = items
 		}
 	}
@@ -269,8 +260,8 @@ func (r *QueryRepository) timelineStages(ctx context.Context, ids []uuid.UUID) (
 		return result, nil
 	}
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT hackathon_id, id, name, type, start_at, end_at FROM stages
-		WHERE hackathon_id = ANY($1)
+		SELECT event_id, id, name, type, start_at, end_at FROM stages
+		WHERE event_id = ANY($1)
 		ORDER BY sort_order, start_at`, ids)
 	if err != nil {
 		return nil, mapError(err)
@@ -279,20 +270,17 @@ func (r *QueryRepository) timelineStages(ctx context.Context, ids []uuid.UUID) (
 
 	for rows.Next() {
 		var (
-			hackathonID uuid.UUID
-			item        models.TimelineItem
+			eventID uuid.UUID
+			item    models.TimelineItem
 		)
-		if err := rows.Scan(&hackathonID, &item.ID, &item.Name, &item.Type, &item.StartAt, &item.EndAt); err != nil {
+		if err := rows.Scan(&eventID, &item.ID, &item.Name, &item.Type, &item.StartAt, &item.EndAt); err != nil {
 			return nil, mapError(err)
 		}
-		result[hackathonID] = append(result[hackathonID], item)
+		result[eventID] = append(result[eventID], item)
 	}
 	return result, mapError(rows.Err())
 }
 
-// Deadlines возвращает выборку ближайших либо просроченных дедлайнов.
-// Просроченными считаются статусы TODO, у которых дедлайн прошёл,
-// а хакатон ещё не завершён.
 func (r *QueryRepository) Deadlines(ctx context.Context, overdue bool, within time.Duration,
 	page models.Page, now time.Time) ([]models.DeadlineItem, int64, error) {
 	condition := "r.deadline_at > $1 AND r.deadline_at <= $2"
@@ -305,8 +293,8 @@ func (r *QueryRepository) Deadlines(ctx context.Context, overdue bool, within ti
 	from := `
 		FROM registration_statuses s
 		JOIN registrations r ON r.id = s.registration_id
-		JOIN hackathons h ON h.id = s.hackathon_id
-		JOIN hackathon_participants p ON p.id = s.participant_id
+		JOIN events h ON h.id = s.event_id
+		JOIN event_participants p ON p.id = s.participant_id
 		JOIN users u ON u.id = p.user_id
 		WHERE s.status = 'TODO'
 		  AND r.state = 'ACTIVE'
@@ -334,7 +322,7 @@ func (r *QueryRepository) Deadlines(ctx context.Context, overdue bool, within ti
 	items := make([]models.DeadlineItem, 0, page.Limit())
 	for rows.Next() {
 		var item models.DeadlineItem
-		if err := rows.Scan(&item.HackathonID, &item.HackathonTitle, &item.ParticipantID,
+		if err := rows.Scan(&item.EventID, &item.EventTitle, &item.ParticipantID,
 			&item.User.ID, &item.User.DisplayName, &item.User.Email, &item.User.IsActive,
 			&item.DeadlineAt, &item.Status); err != nil {
 			return nil, 0, mapError(err)

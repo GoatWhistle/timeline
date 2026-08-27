@@ -50,10 +50,10 @@ definitions:
     - INVITE_CREATE
     - INVITE_REVOKE
     - INVITE_ACCEPT
-    - HACKATHON_CREATE
-    - HACKATHON_UPDATE
-    - HACKATHON_PUBLISH
-    - HACKATHON_ARCHIVE
+    - EVENT_CREATE
+    - EVENT_UPDATE
+    - EVENT_PUBLISH
+    - EVENT_ARCHIVE
     - STAGE_CREATE
     - STAGE_UPDATE
     - STAGE_DELETE
@@ -75,10 +75,10 @@ definitions:
     - AuditInviteCreate
     - AuditInviteRevoke
     - AuditInviteAccept
-    - AuditHackathonCreate
-    - AuditHackathonUpdate
-    - AuditHackathonPublish
-    - AuditHackathonArchive
+    - AuditEventCreate
+    - AuditEventUpdate
+    - AuditEventPublish
+    - AuditEventArchive
     - AuditStageCreate
     - AuditStageUpdate
     - AuditStageDelete
@@ -229,7 +229,7 @@ definitions:
         items:
           $ref: '#/definitions/models.CopyRoleOverride'
         type: array
-      source_hackathon_id:
+      source_event_id:
         type: string
     type: object
   models.CopyRoleOverride:
@@ -240,7 +240,7 @@ definitions:
       user_id:
         type: string
     type: object
-  models.CreateHackathonRequest:
+  models.CreateEventRequest:
     properties:
       description:
         type: string
@@ -253,7 +253,7 @@ definitions:
       start_at:
         type: string
       title:
-        example: Всероссийский хакатон
+        example: Всероссийскее событие
         type: string
       website_url:
         example: https://example.com
@@ -332,9 +332,9 @@ definitions:
     properties:
       deadline_at:
         type: string
-      hackathon_id:
+      event_id:
         type: string
-      hackathon_title:
+      event_title:
         type: string
       overdue_minutes:
         example: 120
@@ -370,9 +370,9 @@ definitions:
     enum:
     - USER
     - INVITE
-    - HACKATHON
+    - EVENT
     - STAGE
-    - HACKATHON_PARTICIPANT
+    - EVENT_PARTICIPANT
     - REGISTRATION
     - REGISTRATION_STATUS
     - NOTIFICATION_RULE
@@ -380,7 +380,7 @@ definitions:
     x-enum-varnames:
     - EntityUser
     - EntityInvite
-    - EntityHackathon
+    - EntityEvent
     - EntityStage
     - EntityParticipant
     - EntityRegistration
@@ -407,22 +407,13 @@ definitions:
       error:
         $ref: '#/definitions/models.ErrorBody'
     type: object
-  models.FieldError:
-    properties:
-      field:
-        example: email
-        type: string
-      message:
-        example: некорректный адрес
-        type: string
-    type: object
-  models.HackathonCard:
+  models.EventCard:
     properties:
       can_mark_done:
         example: true
         type: boolean
-      hackathon:
-        $ref: '#/definitions/models.HackathonResponse'
+      event:
+        $ref: '#/definitions/models.EventResponse'
       next_stage:
         $ref: '#/definitions/models.StageShort'
       registration:
@@ -437,16 +428,16 @@ definitions:
         example: Разработчик
         type: string
     type: object
-  models.HackathonPage:
+  models.EventPage:
     properties:
       items:
         items:
-          $ref: '#/definitions/models.HackathonResponse'
+          $ref: '#/definitions/models.EventResponse'
         type: array
       meta:
         $ref: '#/definitions/models.PageMeta'
     type: object
-  models.HackathonResponse:
+  models.EventResponse:
     properties:
       archived_at:
         type: string
@@ -469,7 +460,7 @@ definitions:
         type: string
       state:
         allOf:
-        - $ref: '#/definitions/models.HackathonState'
+        - $ref: '#/definitions/models.EventState'
         enum:
         - UNPUBLISHED
         - UPCOMING
@@ -477,7 +468,7 @@ definitions:
         - FINISHED
         - ARCHIVED
       title:
-        example: Всероссийский хакатон
+        example: Всероссийскее событие
         type: string
       updated_at:
         type: string
@@ -485,7 +476,7 @@ definitions:
         example: https://example.com
         type: string
     type: object
-  models.HackathonState:
+  models.EventState:
     enum:
     - UNPUBLISHED
     - UPCOMING
@@ -494,11 +485,20 @@ definitions:
     - ARCHIVED
     type: string
     x-enum-varnames:
-    - HackathonUnpublished
-    - HackathonUpcoming
-    - HackathonActive
-    - HackathonFinished
-    - HackathonArchived
+    - EventUnpublished
+    - EventUpcoming
+    - EventActive
+    - EventFinished
+    - EventArchived
+  models.FieldError:
+    properties:
+      field:
+        example: email
+        type: string
+      message:
+        example: некорректный адрес
+        type: string
+    type: object
   models.HealthResponse:
     properties:
       status:
@@ -597,7 +597,7 @@ definitions:
         example: операция выполнена
         type: string
     type: object
-  models.MyHackathonItem:
+  models.MyEventItem:
     properties:
       end_at:
         type: string
@@ -617,7 +617,7 @@ definitions:
         type: string
       state:
         allOf:
-        - $ref: '#/definitions/models.HackathonState'
+        - $ref: '#/definitions/models.EventState'
         enum:
         - UPCOMING
         - ACTIVE
@@ -627,14 +627,14 @@ definitions:
         example: Разработчик
         type: string
       title:
-        example: Всероссийский хакатон
+        example: Всероссийскее событие
         type: string
     type: object
-  models.MyHackathonPage:
+  models.MyEventPage:
     properties:
       items:
         items:
-          $ref: '#/definitions/models.MyHackathonItem'
+          $ref: '#/definitions/models.MyEventItem'
         type: array
       meta:
         $ref: '#/definitions/models.PageMeta'
@@ -712,7 +712,7 @@ definitions:
       assignment_version:
         example: 1
         type: integer
-      hackathon_id:
+      event_id:
         type: string
       id:
         type: string
@@ -767,8 +767,6 @@ definitions:
         example: ivan@example.com
         type: string
       invite_token:
-        description: 'InviteToken необязателен: при передаче приглашение принимается
-          той же транзакцией.'
         type: string
       password:
         example: correct-horse-battery
@@ -801,7 +799,7 @@ definitions:
         type: string
       description:
         type: string
-      hackathon_id:
+      event_id:
         type: string
       id:
         type: string
@@ -842,7 +840,7 @@ definitions:
     type: object
   models.RegistrationStatusResponse:
     properties:
-      hackathon_id:
+      event_id:
         type: string
       id:
         type: string
@@ -931,7 +929,7 @@ definitions:
         type: string
       end_at:
         type: string
-      hackathon_id:
+      event_id:
         type: string
       id:
         type: string
@@ -1037,7 +1035,7 @@ definitions:
     properties:
       end_at:
         type: string
-      hackathon_id:
+      event_id:
         type: string
       registration_deadline:
         type: string
@@ -1048,11 +1046,11 @@ definitions:
       start_at:
         type: string
       state:
-        $ref: '#/definitions/models.HackathonState'
+        $ref: '#/definitions/models.EventState'
       team_role:
         type: string
       title:
-        example: Всероссийский хакатон
+        example: Всероссийскее событие
         type: string
     type: object
   models.TokenRequest:
@@ -1061,7 +1059,7 @@ definitions:
         example: 7f9c0f0e2f4b4a1d
         type: string
     type: object
-  models.UpdateHackathonRequest:
+  models.UpdateEventRequest:
     properties:
       description:
         type: string
@@ -1084,8 +1082,6 @@ definitions:
         example: Иван Петров
         type: string
       preferred_channel:
-        description: 'PreferredChannel: TELEGRAM, EMAIL либо null для сброса явного
-          выбора.'
         enum:
         - TELEGRAM
         - EMAIL
@@ -1202,7 +1198,7 @@ info:
     name: Команда Hackathon Tracker
   description: |-
     REST API системы Hackathon Tracker. Реализует техническое задание v0.8:
-    учётные записи и приглашения, хакатоны и этапы, назначения участников,
+    учётные записи и приглашения, события и этапы, назначения участников,
     регистрацию с самоотчётом статуса, правила напоминаний и журнал аудита.
 
     Система не проверяет внешний сайт регистрации: статус является самоотчётом
@@ -1279,7 +1275,7 @@ paths:
       summary: Журнал аудита
       tags:
       - audit
-  /admin/hackathons:
+  /admin/events:
     get:
       description: Административный список со всеми состояниями, поиском и фильтрами.
       parameters:
@@ -1317,34 +1313,34 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.HackathonPage'
+            $ref: '#/definitions/models.EventPage'
         "403":
           description: Forbidden
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Список хакатонов
+      summary: Список событий
       tags:
-      - hackathons
+      - events
     post:
       consumes:
       - application/json
-      description: Хакатон создаётся неопубликованным; end_at обязан быть позже start_at.
+      description: Событие создаётся неопубликованным; end_at обязан быть позже start_at.
       parameters:
-      - description: Данные хакатона
+      - description: Данные события
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.CreateHackathonRequest'
+          $ref: '#/definitions/models.CreateEventRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.HackathonResponse'
+            $ref: '#/definitions/models.EventResponse'
         "400":
           description: Bad Request
           schema:
@@ -1355,14 +1351,14 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Создание хакатона
+      summary: Создание события
       tags:
-      - hackathons
-  /admin/hackathons/{id}:
+      - events
+  /admin/events/{id}:
     get:
       description: Административное чтение, включая заметки.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1374,7 +1370,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.HackathonResponse'
+            $ref: '#/definitions/models.EventResponse'
         "403":
           description: Forbidden
           schema:
@@ -1385,9 +1381,9 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Хакатон целиком
+      summary: Событие целиком
       tags:
-      - hackathons
+      - events
     patch:
       consumes:
       - application/json
@@ -1396,7 +1392,7 @@ paths:
         ожидающие уведомления и запускает согласование. Нарушение условия
         deadline_at <= end_at отклоняется.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1407,14 +1403,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.UpdateHackathonRequest'
+          $ref: '#/definitions/models.UpdateEventRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.HackathonResponse'
+            $ref: '#/definitions/models.EventResponse'
         "400":
           description: Bad Request
           schema:
@@ -1433,15 +1429,15 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Изменение хакатона
+      summary: Изменение события
       tags:
-      - hackathons
-  /admin/hackathons/{id}/archive:
+      - events
+  /admin/events/{id}/archive:
     post:
       description: 'Конечное состояние MVP: ожидающие уведомления отменяются, новые
         не создаются.'
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1453,7 +1449,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.HackathonResponse'
+            $ref: '#/definitions/models.EventResponse'
         "403":
           description: Forbidden
           schema:
@@ -1463,18 +1459,18 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
         "409":
-          description: хакатон уже архивирован
+          description: событие уже архивировано
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Архивирование хакатона
+      summary: Архивирование события
       tags:
-      - hackathons
-  /admin/hackathons/{id}/participants:
+      - events
+  /admin/events/{id}/participants:
     get:
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1527,10 +1523,10 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Состав участников хакатона
+      summary: Состав участников события
       tags:
       - participants
-  /admin/hackathons/{id}/participants/batch-add:
+  /admin/events/{id}/participants/batch-add:
     post:
       consumes:
       - application/json
@@ -1539,7 +1535,7 @@ paths:
         assignment_version. Назначение, статус регистрации, первичное уведомление и запись
         аудита выполняются одной транзакцией на участника; результат возвращается по каждому элементу.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1575,14 +1571,14 @@ paths:
       summary: Массовое добавление участников
       tags:
       - participants
-  /admin/hackathons/{id}/participants/batch-remove:
+  /admin/events/{id}/participants/batch-remove:
     post:
       consumes:
       - application/json
       description: Переводит участие в REMOVED и отменяет ожидающие уведомления. Отправленные
         сохраняются.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1618,7 +1614,7 @@ paths:
       summary: Массовое удаление участников
       tags:
       - participants
-  /admin/hackathons/{id}/participants/copy-from:
+  /admin/events/{id}/participants/copy-from:
     post:
       consumes:
       - application/json
@@ -1627,7 +1623,7 @@ paths:
         по умолчанию и может быть переопределена. Существующие участники пропускаются
         и возвращаются отдельными элементами результата.
       parameters:
-      - description: Идентификатор целевого хакатона
+      - description: Идентификатор целевого события
         format: uuid
         in: path
         name: id
@@ -1660,16 +1656,16 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Копирование состава из другого хакатона
+      summary: Копирование состава из другого события
       tags:
       - participants
-  /admin/hackathons/{id}/publish:
+  /admin/events/{id}/publish:
     post:
       description: |-
-        Хакатон становится видимым участникам и планировщику; отложенные первичные
+        Событие становится видимым участникам и планировщику; отложенные первичные
         уведомления создаются согласованием.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1681,7 +1677,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.HackathonResponse'
+            $ref: '#/definitions/models.EventResponse'
         "403":
           description: Forbidden
           schema:
@@ -1691,18 +1687,18 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
         "409":
-          description: хакатон уже опубликован или архивирован
+          description: событие уже опубликовано или архивировано
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Публикация хакатона
+      summary: Публикация события
       tags:
-      - hackathons
-  /admin/hackathons/{id}/registration:
+      - events
+  /admin/events/{id}/registration:
     get:
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1725,7 +1721,7 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Регистрация хакатона
+      summary: Регистрация события
       tags:
       - registration
     patch:
@@ -1736,7 +1732,7 @@ paths:
         schedule_version. В обоих случаях ожидающие уведомления отменяются, а актуальные
         создаются согласованием с новым логическим ключом.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1782,10 +1778,10 @@ paths:
       description: |-
         Создание активной регистрации создаёт недостающие статусы TODO всем назначенным
         участникам. Первичные уведомления создаются только для опубликованного неархивного
-        хакатона; иначе они откладываются до публикации. Дедлайн обязан удовлетворять
-        условию deadline_at <= hackathon.end_at.
+        события; иначе они откладываются до публикации. Дедлайн обязан удовлетворять
+        условию deadline_at <= event.end_at.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1825,10 +1821,10 @@ paths:
       summary: Создание регистрации
       tags:
       - registration
-  /admin/hackathons/{id}/registration-statuses:
+  /admin/events/{id}/registration-statuses:
     get:
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1864,14 +1860,14 @@ paths:
       summary: Статусы регистрации участников
       tags:
       - registration
-  /admin/hackathons/{id}/registration-statuses/batch-set:
+  /admin/events/{id}/registration-statuses/batch-set:
     post:
       consumes:
       - application/json
       description: Допускаются значения TODO и NOT_REQUIRED. Результат возвращается
         по каждому участнику.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1907,14 +1903,14 @@ paths:
       summary: Массовая установка статуса
       tags:
       - registration
-  /admin/hackathons/{id}/registration-statuses/batch-set/preview:
+  /admin/events/{id}/registration-statuses/batch-set/preview:
     post:
       consumes:
       - application/json
       description: Возвращает количество изменяемых и пропускаемых записей без изменения
         данных.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1950,12 +1946,12 @@ paths:
       summary: Предпросмотр массовой установки статуса
       tags:
       - registration
-  /admin/hackathons/{id}/registration/disable:
+  /admin/events/{id}/registration/disable:
     post:
       description: Ожидающие уведомления отменяются, статусы сохраняются, но перестают
         быть actionable.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -1985,13 +1981,13 @@ paths:
       summary: Выключение регистрации
       tags:
       - registration
-  /admin/hackathons/{id}/registration/enable:
+  /admin/events/{id}/registration/enable:
     post:
       description: |-
         Увеличивает activation_version и schedule_version, создаёт недостающие статусы;
         участники в TODO снова получают первичное уведомление.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -2021,10 +2017,10 @@ paths:
       summary: Включение регистрации
       tags:
       - registration
-  /admin/hackathons/{id}/registration/rules:
+  /admin/events/{id}/registration/rules:
     get:
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -2060,7 +2056,7 @@ paths:
         ноль — в момент дедлайна, отрицательное — уведомление о просрочке.
         На регистрацию допускается не более 10 правил.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -2100,14 +2096,14 @@ paths:
       summary: Создание правила напоминания
       tags:
       - rules
-  /admin/hackathons/{id}/stages:
+  /admin/events/{id}/stages:
     post:
       consumes:
       - application/json
-      description: Пересечения этапов и выход за период хакатона допускаются. Этап
+      description: Пересечения этапов и выход за период события допускаются. Этап
         не порождает уведомлений.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -2291,7 +2287,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: team_role — свободнотекстовая функция на хакатоне, а не право доступа.
+      description: team_role — свободнотекстовая функция на событии, а не право доступа.
       parameters:
       - description: Идентификатор участника
         format: uuid
@@ -2331,8 +2327,8 @@ paths:
       - participants
   /admin/queries/overdue:
     get:
-      description: Участники со статусом TODO, у которых дедлайн уже прошёл, а хакатон
-        ещё не завершён.
+      description: Участники со статусом TODO, у которых дедлайн уже прошёл, а событие
+        ещё не завершилось.
       parameters:
       - default: 1
         description: Номер страницы
@@ -2590,7 +2586,7 @@ paths:
       - stages
   /admin/timeline:
     get:
-      description: Все хакатоны с фильтрами по состоянию, участнику и диапазону дат.
+      description: Все события с фильтрами по состоянию, участнику и диапазону дат.
       parameters:
       - description: Начало периода, RFC3339
         in: query
@@ -3044,13 +3040,13 @@ paths:
       summary: Повторная отправка письма подтверждения
       tags:
       - auth
-  /hackathons/{id}:
+  /events/{id}:
     get:
       description: |-
         Функция участника, вычисляемое состояние, этапы, ближайший этап, статус регистрации,
         дедлайн и ссылка. Административные заметки участнику не отдаются.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -3062,7 +3058,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.HackathonCard'
+            $ref: '#/definitions/models.EventCard'
         "401":
           description: Unauthorized
           schema:
@@ -3077,16 +3073,16 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Карточка назначенного хакатона
+      summary: Карточка назначенного события
       tags:
       - queries
-  /hackathons/{id}/registration/done:
+  /events/{id}/registration/done:
     post:
       description: |-
         Самоотчёт участника: перевод собственного статуса TODO в DONE. Доступен при активной
-        регистрации, назначенном участии и неархивном хакатоне. Система не проверяет внешний сайт.
+        регистрации, назначенном участии и неархивном событии. Система не проверяет внешний сайт.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -3120,12 +3116,12 @@ paths:
       summary: Отметка о выполненной регистрации
       tags:
       - registration
-  /hackathons/{id}/stages:
+  /events/{id}/stages:
     get:
-      description: Доступно назначенному участнику для опубликованного хакатона и
-        администратору всегда.
+      description: Доступно назначенному участнику для опубликованного события и администратору
+        всегда.
       parameters:
-      - description: Идентификатор хакатона
+      - description: Идентификатор события
         format: uuid
         in: path
         name: id
@@ -3150,7 +3146,7 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Этапы хакатона
+      summary: Этапы события
       tags:
       - stages
   /healthz:
@@ -3329,10 +3325,10 @@ paths:
       summary: Запрос смены email
       tags:
       - profile
-  /me/hackathons:
+  /me/events:
     get:
       description: |-
-        Опубликованные хакатоны с назначенным участием: UPCOMING, ACTIVE и FINISHED.
+        Опубликованные события с назначенным участием: UPCOMING, ACTIVE и FINISHED.
         Архивные скрыты по умолчанию и доступны фильтром.
       parameters:
       - description: Показывать архивные
@@ -3364,14 +3360,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.MyHackathonPage'
+            $ref: '#/definitions/models.MyEventPage'
         "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - CookieAuth: []
-      summary: Мои хакатоны
+      summary: Мои события
       tags:
       - queries
   /me/telegram:
@@ -3416,7 +3412,7 @@ paths:
   /me/timeline:
     get:
       description: |-
-        Только назначенные опубликованные неархивные хакатоны. Каждый хакатон — отдельная строка,
+        Только назначенные опубликованные неархивные события. Каждое событие — отдельная строка,
         этапы отдаются интервалами, дедлайн регистрации — отдельным маркером.
       parameters:
       - description: Начало периода, RFC3339

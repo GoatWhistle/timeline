@@ -8,32 +8,28 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/internal/models"
 )
 
-// UserController обслуживает административные операции над учётными записями.
 type UserController struct {
 	svc      UserService
 	pageSize int
 	pageMax  int
 }
 
-// NewUserController создаёт контроллер пользователей.
 func NewUserController(svc UserService, pageSize, pageMax int) *UserController {
 	return &UserController{svc: svc, pageSize: pageSize, pageMax: pageMax}
 }
 
-// Search godoc
-//
-//	@Summary		Поиск пользователей
-//	@Description	Поиск по display_name и нормализованному email для выбора участников.
-//	@Description	Возвращаются только минимальные поля; credentials и данные каналов не отдаются.
-//	@Tags			users
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			query		query		string	false	"Строка поиска"
-//	@Param			page		query		int		false	"Номер страницы"	default(1)
-//	@Param			page_size	query		int		false	"Размер страницы"	default(50)
-//	@Success		200			{object}	models.UserPage
-//	@Failure		403			{object}	models.ErrorResponse
-//	@Router			/admin/users [get]
+// @Summary		Search users
+// @Description	Search by display_name and normalised email to pick participants.
+// @Description	Only minimal fields are returned; credentials and channel data are withheld.
+// @Tags			users
+// @Produce		json
+// @Security		CookieAuth
+// @Param			query		query		string	false	"Search string"
+// @Param			page		query		int		false	"Page number"	default(1)
+// @Param			page_size	query		int		false	"Page size"	default(50)
+// @Success		200			{object}	models.UserPage
+// @Failure		403			{object}	models.ErrorResponse
+// @Router			/admin/users [get]
 func (c *UserController) Search(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageSize, c.pageMax)
 	if err != nil {
@@ -48,34 +44,30 @@ func (c *UserController) Search(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, models.UserPage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
-// Deactivate godoc
-//
-//	@Summary		Деактивация пользователя
-//	@Description	Отзывает сессии, удаляет привязку Telegram и переводит ожидающие уведомления в CANCELLED.
-//	@Tags			users
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path		string	true	"Идентификатор пользователя"	format(uuid)
-//	@Success		200	{object}	models.MessageResponse
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Router			/admin/users/{id}/deactivate [post]
+// @Summary		Deactivate a user
+// @Description	Revokes sessions, removes the Telegram link and moves pending notifications to CANCELLED.
+// @Tags			users
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id	path		string	true	"User identifier"	format(uuid)
+// @Success		200	{object}	models.MessageResponse
+// @Failure		403	{object}	models.ErrorResponse
+// @Failure		404	{object}	models.ErrorResponse
+// @Router			/admin/users/{id}/deactivate [post]
 func (c *UserController) Deactivate(w http.ResponseWriter, r *http.Request) {
 	c.setActive(w, r, false)
 }
 
-// Activate godoc
-//
-//	@Summary		Обратная активация пользователя
-//	@Description	Восстанавливает доступ. Ранее отменённые уведомления не воскрешаются.
-//	@Tags			users
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path		string	true	"Идентификатор пользователя"	format(uuid)
-//	@Success		200	{object}	models.MessageResponse
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Router			/admin/users/{id}/activate [post]
+// @Summary		Reactivate a user
+// @Description	Restores access. Previously cancelled notifications are not revived.
+// @Tags			users
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id	path		string	true	"User identifier"	format(uuid)
+// @Success		200	{object}	models.MessageResponse
+// @Failure		403	{object}	models.ErrorResponse
+// @Failure		404	{object}	models.ErrorResponse
+// @Router			/admin/users/{id}/activate [post]
 func (c *UserController) Activate(w http.ResponseWriter, r *http.Request) {
 	c.setActive(w, r, true)
 }
@@ -90,26 +82,24 @@ func (c *UserController) setActive(w http.ResponseWriter, r *http.Request, activ
 		httpx.Error(w, r, err)
 		return
 	}
-	msg := "учётная запись деактивирована"
+	msg := "the account is deactivated"
 	if active {
-		msg = "учётная запись активирована"
+		msg = "the account has been activated"
 	}
 	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: msg})
 }
 
-// Delete godoc
-//
-//	@Summary		Необратимое удаление пользователя
-//	@Description	Удаляет credentials и каналы доставки, обезличивает имя и email.
-//	@Description	Ссылки участия и записи аудита сохраняются.
-//	@Tags			users
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id	path		string	true	"Идентификатор пользователя"	format(uuid)
-//	@Success		200	{object}	models.MessageResponse
-//	@Failure		403	{object}	models.ErrorResponse
-//	@Failure		404	{object}	models.ErrorResponse
-//	@Router			/admin/users/{id} [delete]
+// @Summary		Irreversible user deletion
+// @Description	Removes credentials and delivery channels, anonymises the name and email.
+// @Description	Participation references and audit entries are preserved.
+// @Tags			users
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id	path		string	true	"User identifier"	format(uuid)
+// @Success		200	{object}	models.MessageResponse
+// @Failure		403	{object}	models.ErrorResponse
+// @Failure		404	{object}	models.ErrorResponse
+// @Router			/admin/users/{id} [delete]
 func (c *UserController) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := httpx.PathUUID(r, "id")
 	if err != nil {
@@ -120,5 +110,5 @@ func (c *UserController) Delete(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "учётная запись удалена и обезличена"})
+	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "the account has been deleted and anonymised"})
 }
