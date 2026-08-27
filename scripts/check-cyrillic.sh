@@ -32,6 +32,7 @@ current() {
     | grep -v 'swagger\.' \
     | grep -v '^backend/docs/' \
     | while read -r file; do
+        [ -f "$file" ] || continue
         hits=$(grep -c '[а-яА-ЯёЁ]' "$file" 2>/dev/null || true)
         if [ -n "$hits" ] && [ "$hits" -gt 0 ]; then
           printf '%s %s\n' "$hits" "$file"

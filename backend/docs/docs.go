@@ -285,7 +285,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Changing end_at increments the registration schedule_version, cancels stale\npending notifications and triggers reconciliation. Violating the condition\ndeadline_at \u003c= end_at отклоняется.",
+                "description": "Changing end_at increments the registration schedule_version, cancels stale\npending notifications and triggers reconciliation. Violating the condition\ndeadline_at \u003c= end_at is rejected.",
                 "consumes": [
                     "application/json"
                 ],
@@ -790,7 +790,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Creating an active registration creates missing TODO statuses for every assigned\nparticipant. Primary notifications are created only for a published, non-archived\nevent; otherwise they are deferred until publication. The deadline must satisfy\nусловию deadline_at \u003c= event.end_at.",
+                "description": "Creating an active registration creates missing TODO statuses for every assigned\nparticipant. Primary notifications are created only for a published, non-archived\nevent; otherwise they are deferred until publication. The deadline must satisfy\nthe condition deadline_at \u003c= event.end_at.",
                 "consumes": [
                     "application/json"
                 ],
@@ -3449,7 +3449,7 @@ const docTemplate = `{
             "properties": {
                 "display_name": {
                     "type": "string",
-                    "example": "Иван Петров"
+                    "example": "John Smith"
                 },
                 "password": {
                     "type": "string",
@@ -3466,7 +3466,7 @@ const docTemplate = `{
             "properties": {
                 "team_role": {
                     "type": "string",
-                    "example": "Разработчик"
+                    "example": "Developer"
                 },
                 "user_id": {
                     "type": "string"
@@ -3776,7 +3776,7 @@ const docTemplate = `{
             "properties": {
                 "team_role": {
                     "type": "string",
-                    "example": "Ментор"
+                    "example": "Mentor"
                 },
                 "user_id": {
                     "type": "string"
@@ -3803,7 +3803,7 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийскее событие"
+                    "example": "National event"
                 },
                 "website_url": {
                     "type": "string",
@@ -3882,7 +3882,7 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "example": "Приём заявок"
+                    "example": "Call for applications"
                 },
                 "sort_order": {
                     "type": "integer"
@@ -4052,7 +4052,7 @@ const docTemplate = `{
                 },
                 "team_role": {
                     "type": "string",
-                    "example": "Разработчик"
+                    "example": "Developer"
                 }
             }
         },
@@ -4093,7 +4093,7 @@ const docTemplate = `{
                 },
                 "organizer": {
                     "type": "string",
-                    "example": "Оргкомитет"
+                    "example": "Organising committee"
                 },
                 "published_at": {
                     "type": "string"
@@ -4117,7 +4117,7 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийскее событие"
+                    "example": "National event"
                 },
                 "updated_at": {
                     "type": "string"
@@ -4248,7 +4248,7 @@ const docTemplate = `{
                 },
                 "display_name": {
                     "type": "string",
-                    "example": "Иван Петров"
+                    "example": "John Smith"
                 },
                 "email": {
                     "type": "string",
@@ -4300,7 +4300,7 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string",
-                    "example": "операция выполнена"
+                    "example": "operation completed"
                 }
             }
         },
@@ -4346,11 +4346,11 @@ const docTemplate = `{
                 },
                 "team_role": {
                     "type": "string",
-                    "example": "Разработчик"
+                    "example": "Developer"
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийскее событие"
+                    "example": "National event"
                 }
             }
         },
@@ -4502,7 +4502,7 @@ const docTemplate = `{
                 },
                 "team_role": {
                     "type": "string",
-                    "example": "Разработчик"
+                    "example": "Developer"
                 },
                 "user": {
                     "$ref": "#/definitions/models.UserSummary"
@@ -4551,7 +4551,7 @@ const docTemplate = `{
             "properties": {
                 "display_name": {
                     "type": "string",
-                    "example": "Иван Петров"
+                    "example": "John Smith"
                 },
                 "email": {
                     "type": "string",
@@ -4814,7 +4814,7 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "example": "Приём заявок"
+                    "example": "Call for applications"
                 },
                 "sort_order": {
                     "type": "integer",
@@ -4860,7 +4860,7 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "example": "Приём заявок"
+                    "example": "Call for applications"
                 },
                 "start_at": {
                     "type": "string"
@@ -4927,7 +4927,7 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "example": "Приём заявок"
+                    "example": "Call for applications"
                 },
                 "start_at": {
                     "type": "string"
@@ -4980,7 +4980,7 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string",
-                    "example": "Всероссийскее событие"
+                    "example": "National event"
                 }
             }
         },
@@ -5024,7 +5024,7 @@ const docTemplate = `{
             "properties": {
                 "display_name": {
                     "type": "string",
-                    "example": "Иван Петров"
+                    "example": "John Smith"
                 },
                 "preferred_channel": {
                     "type": "string",
@@ -5116,7 +5116,7 @@ const docTemplate = `{
             "properties": {
                 "team_role": {
                     "type": "string",
-                    "example": "Капитан"
+                    "example": "Captain"
                 }
             }
         },
@@ -5139,7 +5139,7 @@ const docTemplate = `{
             "properties": {
                 "display_name": {
                     "type": "string",
-                    "example": "Иван Петров"
+                    "example": "John Smith"
                 },
                 "email": {
                     "type": "string",
