@@ -5,19 +5,16 @@ SWAG := swag
 # из неё типы.
 SPEC_REPO := ..
 
-.PHONY: help build run worker docs docs-publish fmt vet lint test test-integration migrate-up migrate-down compose-up compose-down clean
+# Запуск приложения живёт в корневом Makefile: и API, и worker, и база
+# поднимаются только в контейнерах (`make docker-up`, `make dev`). Здесь
+# остаются сборка, проверки и генерация спецификации.
+.PHONY: help build docs docs-publish fmt vet lint test test-integration clean
 
 help: ## Показать список целей
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
 build: ## Собрать бинарь
 	go build -o $(BINARY) ./cmd/hackathon
-
-run: ## Запустить API
-	go run ./cmd/hackathon serve
-
-worker: ## Запустить планировщик и worker доставки
-	go run ./cmd/hackathon worker
 
 docs: docs-publish ## Пересобрать спецификацию OpenAPI из аннотаций
 
@@ -44,18 +41,6 @@ test: ## Модульные тесты
 
 test-integration: ## Тесты, требующие PostgreSQL
 	go test -tags=integration -count=1 $(PKG)
-
-migrate-up: ## Применить миграции
-	go run ./cmd/hackathon migrate up
-
-migrate-down: ## Откатить одну миграцию
-	go run ./cmd/hackathon migrate down
-
-compose-up: ## Поднять окружение разработки
-	docker compose -f deploy/docker-compose.yml up -d --build
-
-compose-down: ## Остановить окружение разработки
-	docker compose -f deploy/docker-compose.yml down
 
 clean: ## Удалить артефакты сборки
 	rm -rf bin

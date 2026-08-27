@@ -1,0 +1,22 @@
+# Контекст сборки образов — корень монорепозитория (deploy/*.Dockerfile).
+# Исключено всё, что не нужно сборке или не должно попасть в образ.
+
+.git
+.github
+.run
+
+# Локальные секреты и переопределения: конфигурация передаётся окружением.
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Артефакты сборки и кэши — образы собирают их сами.
+**/node_modules
+**/dist
+**/coverage
+backend/bin
+backend/tmp
+frontend/playwright-report
+frontend/test-results
+
+**/.DS_Store
