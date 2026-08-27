@@ -3,16 +3,10 @@ import { api, unwrap } from './client'
 import { isApiError } from './errors'
 import type { MeResponse } from './types.gen'
 
-/**
- * Текущая сессия. Живёт в shared, а не в модуле auth: её читают оболочка,
- * охранники маршрутов и профиль, а кросс-импорты между доменными модулями
- * запрещены (раздел 14.2 ТЗ).
- */
 export const sessionQueryKey = ['session'] as const
 
 export const sessionQueryOptions = queryOptions<MeResponse>({
   queryKey: sessionQueryKey,
-  // 401 — законный ответ для гостя, поэтому повторов нет.
   queryFn: () => unwrap(api.GET('/me')),
   retry: false,
   staleTime: 60_000,

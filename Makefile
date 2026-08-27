@@ -67,6 +67,7 @@ export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME MOC
 	docker-up docker-down docker-build docker-restart docker-status docker-logs \
 	docker-psql dev dev-down dev-restart dev-logs \
 	install types types-check typecheck lint format test verify build \
+	cyrillic baseline-cyrillic \
 	back-fmt back-vet back-test back-test-integration back-build back-cover back-docs clean
 
 .DEFAULT_GOAL := help
@@ -218,11 +219,17 @@ back-docs: ## Пересобрать спецификацию OpenAPI и опу�
 file-length: ## Лимит 250 строк на рукописный код (храповик)
 	@bash scripts/check-file-length.sh
 
+cyrillic: ## Язык кода — английский, кириллица только в словарях (храповик)
+	@bash scripts/check-cyrillic.sh
+
 bundle-size: ## Размер production-сборки против базового уровня
 	@node scripts/bundle-size.mjs
 
 baseline-file-length: ## Перезаписать базовый уровень лимита строк
 	@bash scripts/check-file-length.sh --update
+
+baseline-cyrillic: ## Перезаписать базовый уровень проверки кириллицы
+	@bash scripts/check-cyrillic.sh --update
 
 baseline-bundle-size: build ## Перезаписать базовый уровень размера сборки
 	@node scripts/bundle-size.mjs --update
@@ -231,6 +238,7 @@ baseline-bundle-size: build ## Перезаписать базовый уров�
 
 verify: ## Полная проверка обеих частей: контракт, типы, линтер, тесты, сборка
 	@$(MAKE) --no-print-directory file-length
+	@$(MAKE) --no-print-directory cyrillic
 	@cd $(FRONTEND) && npm run verify
 	@$(GO_RUN) "go build ./... && go vet ./... && go test ./..."
 	@$(MAKE) --no-print-directory back-lint-new

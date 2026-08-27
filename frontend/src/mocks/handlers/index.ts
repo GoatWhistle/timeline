@@ -1,17 +1,22 @@
 import { http } from 'msw'
 import { API, errorResponse } from '../http'
-import { authHandlers } from './auth'
-import { directoryHandlers } from './directory'
-import { hackathonHandlers } from './hackathons'
-import { participantHandlers } from './participants'
-import { profileHandlers } from './profile'
-import { registrationHandlers } from './registration'
-import { stageHandlers } from './stages'
+import { adminEventHandlers } from './admin-event.handlers'
+import { auditHandlers } from './audit.handlers'
+import { authHandlers } from './auth.handlers'
+import { deadlineHandlers } from './deadline.handlers'
+import { eventHandlers } from './event.handlers'
+import { inviteHandlers } from './invite.handlers'
+import { opsHandlers } from './ops.handlers'
+import { participantHandlers } from './participant.handlers'
+import { participantBatchHandlers } from './participant-batch.handlers'
+import { profileHandlers } from './profile.handlers'
+import { registrationHandlers } from './registration.handlers'
+import { registrationRuleHandlers } from './registration-rule.handlers'
+import { registrationStatusHandlers } from './registration-status.handlers'
+import { scheduleHandlers } from './schedule.handlers'
+import { stageHandlers } from './stage.handlers'
+import { userHandlers } from './user.handlers'
 
-/**
- * Заглушка для ещё не смоканных endpoint. Возвращает явную ошибку вместо
- * пустого ответа, чтобы недостающий мок был заметен сразу.
- */
 const notImplemented = http.all(`${API}/*`, ({ request }) =>
   errorResponse(
     501,
@@ -23,10 +28,19 @@ const notImplemented = http.all(`${API}/*`, ({ request }) =>
 export const handlers = [
   ...authHandlers,
   ...profileHandlers,
-  ...hackathonHandlers,
+  ...eventHandlers,
+  ...adminEventHandlers,
   ...stageHandlers,
   ...participantHandlers,
+  ...participantBatchHandlers,
   ...registrationHandlers,
-  ...directoryHandlers,
+  ...registrationRuleHandlers,
+  ...registrationStatusHandlers,
+  ...scheduleHandlers,
+  ...userHandlers,
+  ...inviteHandlers,
+  ...auditHandlers,
+  ...deadlineHandlers,
+  ...opsHandlers,
   notImplemented,
 ]

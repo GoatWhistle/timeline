@@ -1,0 +1,28 @@
+:root {
+  --stage-registration: var(--hue-blue-500);
+  --stage-selection: var(--hue-violet-500);
+  --stage-participation: var(--hue-green-500);
+  --stage-checkpoint: var(--hue-amber-500);
+  --stage-submission: var(--hue-red-500);
+  --stage-demo: var(--hue-teal-500);
+  --stage-results: var(--hue-magenta-500);
+  --stage-other: var(--hue-slate-500);
+  --stage-foreground: var(--neutral-000);
+
+  --state-unpublished: var(--hue-slate-500);
+  --state-upcoming: var(--hue-blue-500);
+  --state-active: var(--hue-green-500);
+  --state-finished: var(--hue-slate-450);
+  --state-archived: var(--hue-slate-400);
+
+  --status-todo: var(--hue-amber-500);
+  --status-done: var(--hue-green-500);
+  --status-not-required: var(--hue-slate-500);
+
+  --urgency-calm: var(--neutral-550);
+  --urgency-soon: var(--hue-amber-500);
+  --urgency-today: var(--hue-orange-500);
+  --urgency-overdue: var(--hue-crimson-500);
+  --urgency-done: var(--hue-green-500);
+  --urgency-foreground: var(--neutral-000);
+}

@@ -3,6 +3,7 @@
   "vcs": {
     "enabled": true,
     "clientKind": "git",
+    "root": "..",
     "useIgnoreFile": true
   },
   "files": {
@@ -53,7 +54,17 @@
   },
   "overrides": [
     {
-      "includes": ["src/mocks/db.ts"],
+      "includes": ["src/styles/reset.css"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noImportantStyles": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/mocks/fixtures/**"],
       "linter": {
         "rules": {
           "style": {

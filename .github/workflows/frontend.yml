@@ -38,6 +38,9 @@ jobs:
       - name: Лимит 250 строк на рукописный код
         run: bash scripts/check-file-length.sh
 
+      - name: Язык кода — английский
+        run: bash scripts/check-cyrillic.sh
+
       - name: Установка зависимостей
         working-directory: frontend
         run: npm ci

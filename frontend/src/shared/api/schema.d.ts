@@ -11,27 +11,27 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Журнал аудита
-         * @description Доступен только администратору. Записи неизменяемы; выгрузка файлом в MVP не поддерживается.
+         * Audit log
+         * @description Restricted to administrators. Entries are immutable; file export is not supported in the MVP.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Фильтр по действию */
+                    /** @description Filter by action */
                     action?: string;
-                    /** @description Фильтр по актору */
+                    /** @description Filter by actor */
                     actor_user_id?: string;
-                    /** @description Фильтр по идентификатору объекта */
+                    /** @description Filter by entity identifier */
                     entity_id?: string;
-                    /** @description Фильтр по типу объекта */
+                    /** @description Filter by entity type */
                     entity_type?: string;
-                    /** @description Начало периода, RFC3339 */
+                    /** @description Start of the period, RFC3339 */
                     from?: string;
-                    /** @description Номер страницы */
+                    /** @description Page number */
                     page?: number;
-                    /** @description Размер страницы */
+                    /** @description Page size */
                     page_size?: number;
-                    /** @description Конец периода, RFC3339 */
+                    /** @description End of the period, RFC3339 */
                     to?: string;
                 };
                 header?: never;
@@ -77,7 +77,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons": {
+    "/admin/events": {
         parameters: {
             query?: never;
             header?: never;
@@ -85,21 +85,21 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Список хакатонов
-         * @description Административный список со всеми состояниями, поиском и фильтрами.
+         * Event list
+         * @description Administrative list with every state, search and filters.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Показывать архивные */
+                    /** @description Include archived records */
                     include_archived?: boolean;
-                    /** @description Номер страницы */
+                    /** @description Page number */
                     page?: number;
-                    /** @description Размер страницы */
+                    /** @description Page size */
                     page_size?: number;
-                    /** @description Поиск по названию и организатору */
+                    /** @description Search by title and organiser */
                     search?: string;
-                    /** @description Фильтр состояний через запятую */
+                    /** @description Comma-separated state filter */
                     state?: "UNPUBLISHED" | "UPCOMING" | "ACTIVE" | "FINISHED" | "ARCHIVED";
                 };
                 header?: never;
@@ -114,7 +114,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["models.HackathonPage"];
+                        "application/json": components["schemas"]["models.EventPage"];
                     };
                 };
                 /** @description Forbidden */
@@ -130,8 +130,8 @@ export interface paths {
         };
         put?: never;
         /**
-         * Создание хакатона
-         * @description Хакатон создаётся неопубликованным; end_at обязан быть позже start_at.
+         * Create an event
+         * @description The event is created unpublished; end_at must be later than start_at.
          */
         post: {
             parameters: {
@@ -140,10 +140,10 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            /** @description Данные хакатона */
+            /** @description Event payload */
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["models.CreateHackathonRequest"];
+                    "application/json": components["schemas"]["models.CreateEventRequest"];
                 };
             };
             responses: {
@@ -153,7 +153,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["models.HackathonResponse"];
+                        "application/json": components["schemas"]["models.EventResponse"];
                     };
                 };
                 /** @description Bad Request */
@@ -182,7 +182,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}": {
+    "/admin/events/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -190,15 +190,15 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Хакатон целиком
-         * @description Административное чтение, включая заметки.
+         * The whole event
+         * @description Administrative read, including notes.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -211,7 +211,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["models.HackathonResponse"];
+                        "application/json": components["schemas"]["models.EventResponse"];
                     };
                 };
                 /** @description Forbidden */
@@ -240,25 +240,25 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Изменение хакатона
-         * @description Изменение end_at увеличивает schedule_version регистрации, отменяет устаревшие
-         *     ожидающие уведомления и запускает согласование. Нарушение условия
-         *     deadline_at <= end_at отклоняется.
+         * Update an event
+         * @description Changing end_at increments the registration schedule_version, cancels stale
+         *     pending notifications and triggers reconciliation. Violating the condition
+         *     deadline_at <= end_at is rejected.
          */
         patch: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Изменяемые поля */
+            /** @description Mutable fields */
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["models.UpdateHackathonRequest"];
+                    "application/json": components["schemas"]["models.UpdateEventRequest"];
                 };
             };
             responses: {
@@ -268,7 +268,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["models.HackathonResponse"];
+                        "application/json": components["schemas"]["models.EventResponse"];
                     };
                 };
                 /** @description Bad Request */
@@ -298,7 +298,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description дедлайн регистрации выходит за end_at */
+                /** @description the registration deadline falls outside end_at */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -311,7 +311,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/hackathons/{id}/archive": {
+    "/admin/events/{id}/archive": {
         parameters: {
             query?: never;
             header?: never;
@@ -321,15 +321,15 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Архивирование хакатона
-         * @description Конечное состояние MVP: ожидающие уведомления отменяются, новые не создаются.
+         * Archive an event
+         * @description Terminal state in the MVP: pending notifications are cancelled and no new ones are created.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -342,7 +342,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["models.HackathonResponse"];
+                        "application/json": components["schemas"]["models.EventResponse"];
                     };
                 };
                 /** @description Forbidden */
@@ -363,7 +363,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description хакатон уже архивирован */
+                /** @description event is already archived */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -380,33 +380,33 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/participants": {
+    "/admin/events/{id}/participants": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Состав участников хакатона */
+        /** Event participant roster */
         get: {
             parameters: {
                 query?: {
-                    /** @description Включая удалённых из состава */
+                    /** @description Include participants removed from the roster */
                     include_removed?: boolean;
-                    /** @description Номер страницы */
+                    /** @description Page number */
                     page?: number;
-                    /** @description Размер страницы */
+                    /** @description Page size */
                     page_size?: number;
-                    /** @description Фильтр по статусу регистрации */
+                    /** @description Filter by registration status */
                     registration_status?: "TODO" | "DONE" | "NOT_REQUIRED";
-                    /** @description Поиск по имени и email */
+                    /** @description Search by name and email */
                     search?: string;
-                    /** @description Фильтр по функции участника */
+                    /** @description Filter by participant role */
                     team_role?: string;
                 };
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -450,7 +450,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/participants/batch-add": {
+    "/admin/events/{id}/participants/batch-add": {
         parameters: {
             query?: never;
             header?: never;
@@ -460,22 +460,22 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Массовое добавление участников
-         * @description Повторное добавление ранее удалённого участника реактивирует запись и увеличивает
-         *     assignment_version. Назначение, статус регистрации, первичное уведомление и запись
-         *     аудита выполняются одной транзакцией на участника; результат возвращается по каждому элементу.
+         * Bulk participant assignment
+         * @description Re-adding a previously removed participant reactivates the record and increments
+         *     assignment_version. The assignment, registration status, primary notification and audit
+         *     entry run in a single transaction per participant; the result is returned per entry.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Список пользователей и их функций */
+            /** @description List of users and their roles */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.AddParticipantsRequest"];
@@ -526,7 +526,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/participants/batch-remove": {
+    "/admin/events/{id}/participants/batch-remove": {
         parameters: {
             query?: never;
             header?: never;
@@ -536,20 +536,20 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Массовое удаление участников
-         * @description Переводит участие в REMOVED и отменяет ожидающие уведомления. Отправленные сохраняются.
+         * Bulk participant removal
+         * @description Moves participation to REMOVED and cancels pending notifications. Sent ones are preserved.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Идентификаторы участников */
+            /** @description Participant identifiers */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.RemoveParticipantsRequest"];
@@ -600,7 +600,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/participants/copy-from": {
+    "/admin/events/{id}/participants/copy-from": {
         parameters: {
             query?: never;
             header?: never;
@@ -610,22 +610,22 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Копирование состава из другого хакатона
-         * @description Переносятся только назначенные участники. Функция участника переносится как значение
-         *     по умолчанию и может быть переопределена. Существующие участники пропускаются
-         *     и возвращаются отдельными элементами результата.
+         * Copy the roster from another event
+         * @description Only assigned participants are copied. The participant role is copied as a value
+         *     by default and can be overridden. Existing participants are skipped
+         *     and returned as separate result entries.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор целевого хакатона */
+                    /** @description Target event identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Источник и переопределения функций */
+            /** @description Source and role overrides */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.CopyParticipantsRequest"];
@@ -676,7 +676,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/publish": {
+    "/admin/events/{id}/publish": {
         parameters: {
             query?: never;
             header?: never;
@@ -686,16 +686,16 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Публикация хакатона
-         * @description Хакатон становится видимым участникам и планировщику; отложенные первичные
-         *     уведомления создаются согласованием.
+         * Publish an event
+         * @description The event becomes visible to participants and the scheduler; deferred primary
+         *     notifications are created by reconciliation.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -708,7 +708,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["models.HackathonResponse"];
+                        "application/json": components["schemas"]["models.EventResponse"];
                     };
                 };
                 /** @description Forbidden */
@@ -729,7 +729,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description хакатон уже опубликован или архивирован */
+                /** @description the event is already published or archived */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -746,20 +746,20 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/registration": {
+    "/admin/events/{id}/registration": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Регистрация хакатона */
+        /** Event registration */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -797,23 +797,23 @@ export interface paths {
         };
         put?: never;
         /**
-         * Создание регистрации
-         * @description Создание активной регистрации создаёт недостающие статусы TODO всем назначенным
-         *     участникам. Первичные уведомления создаются только для опубликованного неархивного
-         *     хакатона; иначе они откладываются до публикации. Дедлайн обязан удовлетворять
-         *     условию deadline_at <= hackathon.end_at.
+         * Create a registration
+         * @description Creating an active registration creates missing TODO statuses for every assigned
+         *     participant. Primary notifications are created only for a published, non-archived
+         *     event; otherwise they are deferred until publication. The deadline must satisfy
+         *     the condition deadline_at <= event.end_at.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Ссылка и дедлайн */
+            /** @description Link and deadline */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.CreateRegistrationRequest"];
@@ -856,7 +856,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description регистрация уже существует или дедлайн выходит за end_at */
+                /** @description registration already exists or the deadline falls outside end_at */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -871,22 +871,22 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Изменение регистрации
-         * @description Изменение ссылки увеличивает notification_content_version, изменение дедлайна —
-         *     schedule_version. В обоих случаях ожидающие уведомления отменяются, а актуальные
-         *     создаются согласованием с новым логическим ключом.
+         * Update a registration
+         * @description Changing the link increments notification_content_version; changing the deadline increments
+         *     schedule_version. In both cases pending notifications are cancelled and current ones
+         *     are created by reconciliation with a new logical key.
          */
         patch: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Изменяемые поля */
+            /** @description Mutable fields */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.UpdateRegistrationRequest"];
@@ -942,25 +942,25 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/hackathons/{id}/registration-statuses": {
+    "/admin/events/{id}/registration-statuses": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Статусы регистрации участников */
+        /** Participant registration statuses */
         get: {
             parameters: {
                 query?: {
-                    /** @description Номер страницы */
+                    /** @description Page number */
                     page?: number;
-                    /** @description Размер страницы */
+                    /** @description Page size */
                     page_size?: number;
                 };
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -1004,7 +1004,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/registration-statuses/batch-set": {
+    "/admin/events/{id}/registration-statuses/batch-set": {
         parameters: {
             query?: never;
             header?: never;
@@ -1014,15 +1014,15 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Массовая установка статуса
-         * @description Допускаются значения TODO и NOT_REQUIRED. Результат возвращается по каждому участнику.
+         * Bulk status assignment
+         * @description Only TODO and NOT_REQUIRED are accepted. The result is returned per participant.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -1073,7 +1073,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/registration-statuses/batch-set/preview": {
+    "/admin/events/{id}/registration-statuses/batch-set/preview": {
         parameters: {
             query?: never;
             header?: never;
@@ -1083,15 +1083,15 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Предпросмотр массовой установки статуса
-         * @description Возвращает количество изменяемых и пропускаемых записей без изменения данных.
+         * Preview a bulk status assignment
+         * @description Returns the number of records to be changed and skipped without modifying data.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -1142,7 +1142,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/registration/disable": {
+    "/admin/events/{id}/registration/disable": {
         parameters: {
             query?: never;
             header?: never;
@@ -1152,15 +1152,15 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Выключение регистрации
-         * @description Ожидающие уведомления отменяются, статусы сохраняются, но перестают быть actionable.
+         * Disable registration
+         * @description Pending notifications are cancelled; statuses are preserved but stop being actionable.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -1194,7 +1194,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description регистрация уже выключена */
+                /** @description registration is already disabled */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -1211,7 +1211,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/registration/enable": {
+    "/admin/events/{id}/registration/enable": {
         parameters: {
             query?: never;
             header?: never;
@@ -1221,16 +1221,16 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Включение регистрации
-         * @description Увеличивает activation_version и schedule_version, создаёт недостающие статусы;
-         *     участники в TODO снова получают первичное уведомление.
+         * Enable registration
+         * @description Increments activation_version and schedule_version and creates missing statuses;
+         *     participants in TODO receive the primary notification again.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -1264,7 +1264,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description регистрация уже активна */
+                /** @description registration is already active */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -1281,20 +1281,20 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/registration/rules": {
+    "/admin/events/{id}/registration/rules": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Правила напоминаний */
+        /** Reminder rules */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -1332,22 +1332,22 @@ export interface paths {
         };
         put?: never;
         /**
-         * Создание правила напоминания
-         * @description Знак offset_minutes задаёт тип: положительное значение — напоминание до дедлайна,
-         *     ноль — в момент дедлайна, отрицательное — уведомление о просрочке.
-         *     На регистрацию допускается не более 10 правил.
+         * Create a reminder rule
+         * @description The sign of offset_minutes selects the type: a positive value is a reminder before the deadline,
+         *     zero fires at the deadline, and a negative value is an overdue notification.
+         *     A registration accepts at most 10 rules.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Параметры правила */
+            /** @description Rule parameters */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.CreateRuleRequest"];
@@ -1390,7 +1390,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description правило с таким смещением уже есть или исчерпан лимит слотов */
+                /** @description a rule with this offset already exists or the slot limit is reached */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -1407,7 +1407,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/hackathons/{id}/stages": {
+    "/admin/events/{id}/stages": {
         parameters: {
             query?: never;
             header?: never;
@@ -1417,20 +1417,20 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Создание этапа
-         * @description Пересечения этапов и выход за период хакатона допускаются. Этап не порождает уведомлений.
+         * Create a stage
+         * @description Overlapping stages and stages outside the event period are allowed. A stage produces no notifications.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Данные этапа */
+            /** @description Stage payload */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.CreateStageRequest"];
@@ -1488,13 +1488,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Список приглашений */
+        /** Invite list */
         get: {
             parameters: {
                 query?: {
-                    /** @description Номер страницы */
+                    /** @description Page number */
                     page?: number;
-                    /** @description Размер страницы */
+                    /** @description Page size */
                     page_size?: number;
                 };
                 header?: never;
@@ -1525,10 +1525,10 @@ export interface paths {
         };
         put?: never;
         /**
-         * Создание приглашения
-         * @description Создание сериализуется по нормализованному email: предыдущее непринятое приглашение отзывается,
-         *     затем создаётся новое. Приглашение на адрес существующего пользователя отклоняется конфликтом
-         *     независимо от его активности.
+         * Create an invite
+         * @description Creation is serialised by normalised email: a previous unaccepted invite is revoked,
+         *     then a new one is created. An invite for an existing user address is rejected with a conflict
+         *     regardless of that user's activity.
          */
         post: {
             parameters: {
@@ -1537,7 +1537,7 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            /** @description Адрес приглашаемого */
+            /** @description Address of the invited person */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.CreateInviteRequest"];
@@ -1571,7 +1571,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description пользователь с таким email уже существует */
+                /** @description a user with this email already exists */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -1597,13 +1597,13 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Отзыв приглашения */
+        /** Revoke an invite */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор приглашения */
+                    /** @description Invite identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -1655,21 +1655,21 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Реактивация участника
-         * @description Возвращает участие в ASSIGNED, увеличивает assignment_version, очищает removed_at
-         *     и заново задаёт функцию. Существующий статус регистрации сохраняется.
+         * Reactivate a participant
+         * @description Returns participation to ASSIGNED, increments assignment_version, clears removed_at
+         *     and sets the role again. An existing registration status is preserved.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор участника */
+                    /** @description Participant identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Функция участника */
+            /** @description Participant role */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.UpdateTeamRoleRequest"];
@@ -1712,7 +1712,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description участник уже назначен */
+                /** @description the participant is already assigned */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -1743,20 +1743,20 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Изменение функции участника
-         * @description team_role — свободнотекстовая функция на хакатоне, а не право доступа.
+         * Update a participant role
+         * @description team_role is a free-text role on the event, not an access permission.
          */
         patch: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор участника */
+                    /** @description Participant identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Новая функция */
+            /** @description New role */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.UpdateTeamRoleRequest"];
@@ -1811,15 +1811,15 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Просроченные регистрации
-         * @description Участники со статусом TODO, у которых дедлайн уже прошёл, а хакатон ещё не завершён.
+         * Overdue registrations
+         * @description Participants in TODO whose deadline has passed while the event has not finished.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Номер страницы */
+                    /** @description Page number */
                     page?: number;
-                    /** @description Размер страницы */
+                    /** @description Page size */
                     page_size?: number;
                 };
                 header?: never;
@@ -1864,17 +1864,17 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Ближайшие дедлайны регистрации
-         * @description Участники со статусом TODO, у которых дедлайн наступает в пределах указанного окна.
+         * Upcoming registration deadlines
+         * @description Participants in TODO whose deadline falls within the given window.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Номер страницы */
+                    /** @description Page number */
                     page?: number;
-                    /** @description Размер страницы */
+                    /** @description Page size */
                     page_size?: number;
-                    /** @description Окно в часах */
+                    /** @description Window in hours */
                     within_hours?: number;
                 };
                 header?: never;
@@ -1922,23 +1922,23 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Выключение правила напоминания
-         * @description Правило переводится в enabled=false; строка сохраняется, чтобы занятый слот
-         *     и смещение оставались зафиксированными.
+         * Disable a reminder rule
+         * @description The rule is set to enabled=false; the row is preserved so that the occupied slot
+         *     and offset stay reserved.
          */
         delete: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор правила */
+                    /** @description Rule identifier */
                     id: string;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description правило выключено */
+                /** @description the rule is disabled */
                 204: {
                     headers: {
                         [name: string]: unknown;
@@ -1968,21 +1968,21 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Изменение правила напоминания
-         * @description Изменение полей расписания увеличивает schedule_version один раз на транзакцию
-         *     и запускает согласование уведомлений.
+         * Update a reminder rule
+         * @description Changing schedule fields increments schedule_version once per transaction
+         *     and triggers notification reconciliation.
          */
         patch: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор правила */
+                    /** @description Rule identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Изменяемые поля */
+            /** @description Mutable fields */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.UpdateRuleRequest"];
@@ -2052,21 +2052,21 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Административный переход статуса
-         * @description Допустимые переходы: TODO → DONE, DONE → TODO, TODO/DONE → NOT_REQUIRED,
-         *     NOT_REQUIRED → TODO. Вход в TODO увеличивает todo_cycle и очищает registered_at.
+         * Administrative status transition
+         * @description Allowed transitions: TODO to DONE, DONE to TODO, TODO/DONE to NOT_REQUIRED,
+         *     NOT_REQUIRED to TODO. Entering TODO increments todo_cycle and clears registered_at.
          */
         patch: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор статуса */
+                    /** @description Status identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Новый статус */
+            /** @description New status */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.AdminChangeStatusRequest"];
@@ -2132,20 +2132,20 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Удаление этапа */
+        /** Delete a stage */
         delete: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор этапа */
+                    /** @description Stage identifier */
                     id: string;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description этап удалён */
+                /** @description the stage is deleted */
                 204: {
                     headers: {
                         [name: string]: unknown;
@@ -2174,18 +2174,18 @@ export interface paths {
         };
         options?: never;
         head?: never;
-        /** Изменение этапа */
+        /** Update a stage */
         patch: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор этапа */
+                    /** @description Stage identifier */
                     id: string;
                 };
                 cookie?: never;
             };
-            /** @description Изменяемые поля */
+            /** @description Mutable fields */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.UpdateStageRequest"];
@@ -2240,21 +2240,21 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Административная временная шкала
-         * @description Все хакатоны с фильтрами по состоянию, участнику и диапазону дат.
+         * Administrative timeline
+         * @description All events with filters by state, participant and date range.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Начало периода, RFC3339 */
+                    /** @description Start of the period, RFC3339 */
                     from?: string;
-                    /** @description Показывать архивные */
+                    /** @description Include archived records */
                     include_archived?: boolean;
-                    /** @description Фильтр по участнику */
+                    /** @description Filter by participant */
                     participant_user_id?: string;
-                    /** @description Фильтр состояний через запятую */
+                    /** @description Comma-separated state filter */
                     state?: string;
-                    /** @description Конец периода, RFC3339 */
+                    /** @description End of the period, RFC3339 */
                     to?: string;
                 };
                 header?: never;
@@ -2308,18 +2308,18 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Поиск пользователей
-         * @description Поиск по display_name и нормализованному email для выбора участников.
-         *     Возвращаются только минимальные поля; credentials и данные каналов не отдаются.
+         * Search users
+         * @description Search by display_name and normalised email to pick participants.
+         *     Only minimal fields are returned; credentials and channel data are withheld.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Номер страницы */
+                    /** @description Page number */
                     page?: number;
-                    /** @description Размер страницы */
+                    /** @description Page size */
                     page_size?: number;
-                    /** @description Строка поиска */
+                    /** @description Search string */
                     query?: string;
                 };
                 header?: never;
@@ -2367,16 +2367,16 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Необратимое удаление пользователя
-         * @description Удаляет credentials и каналы доставки, обезличивает имя и email.
-         *     Ссылки участия и записи аудита сохраняются.
+         * Irreversible user deletion
+         * @description Removes credentials and delivery channels, anonymises the name and email.
+         *     Participation references and audit entries are preserved.
          */
         delete: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор пользователя */
+                    /** @description User identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -2427,15 +2427,15 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Обратная активация пользователя
-         * @description Восстанавливает доступ. Ранее отменённые уведомления не воскрешаются.
+         * Reactivate a user
+         * @description Restores access. Previously cancelled notifications are not revived.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор пользователя */
+                    /** @description User identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -2487,15 +2487,15 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Деактивация пользователя
-         * @description Отзывает сессии, удаляет привязку Telegram и переводит ожидающие уведомления в CANCELLED.
+         * Deactivate a user
+         * @description Revokes sessions, removes the Telegram link and moves pending notifications to CANCELLED.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор пользователя */
+                    /** @description User identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -2545,8 +2545,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Получение CSRF-токена
-         * @description Выдаёт токен в cookie и в теле ответа. Все изменяющие запросы обязаны передавать его заголовком X-CSRF-Token.
+         * Obtain a CSRF token
+         * @description Issues the token in a cookie and in the response body. Every mutating request must send it in the X-CSRF-Token header.
          */
         get: {
             parameters: {
@@ -2586,8 +2586,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Подтверждение смены email
-         * @description Переносит pending_email в основной адрес. До подтверждения вход работает по прежнему адресу.
+         * Confirm an email change
+         * @description Promotes pending_email to the primary address. Until confirmation, sign-in uses the previous address.
          */
         post: {
             parameters: {
@@ -2616,7 +2616,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description адрес уже занят */
+                /** @description address is already taken */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -2643,9 +2643,9 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Вход по email и паролю
-         * @description Выдаёт access token на 15 минут и rotating refresh token на 30 дней в HttpOnly cookie.
-         *     Ограничение частоты: 10 попыток за 15 минут на пару IP и email.
+         * Sign in with email and password
+         * @description Issues a 15-minute access token and a rotating 30-day refresh token in HttpOnly cookies.
+         *     Rate limit: 10 attempts per 15 minutes per IP and email pair.
          */
         post: {
             parameters: {
@@ -2654,7 +2654,7 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            /** @description Учётные данные */
+            /** @description Credentials */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.LoginRequest"];
@@ -2679,7 +2679,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description неверные учётные данные или деактивированная запись */
+                /** @description invalid credentials or a deactivated account */
                 401: {
                     headers: {
                         [name: string]: unknown;
@@ -2715,8 +2715,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Выход из текущей сессии
-         * @description Отзывает refresh token текущей сессии и очищает cookie.
+         * Sign out of the current session
+         * @description Revokes the refresh token of the current session and clears the cookies.
          */
         post: {
             parameters: {
@@ -2754,8 +2754,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Выход из всех сессий
-         * @description Отзывает все активные сессии пользователя.
+         * Sign out of all sessions
+         * @description Revokes every active session of the user.
          */
         post: {
             parameters: {
@@ -2802,8 +2802,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Запрос восстановления пароля
-         * @description Выдаёт одноразовый токен на 30 минут. Ответ не раскрывает существование учётной записи.
+         * Request a password reset
+         * @description Issues a one-time token valid for 30 minutes. The response does not disclose whether an account exists.
          */
         post: {
             parameters: {
@@ -2859,8 +2859,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Установка нового пароля
-         * @description После смены пароля все активные сессии пользователя отзываются.
+         * Set a new password
+         * @description After a password change every active session of the user is revoked.
          */
         post: {
             parameters: {
@@ -2869,7 +2869,7 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            /** @description Токен и новый пароль */
+            /** @description Token and new password */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.ResetPasswordRequest"];
@@ -2912,8 +2912,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Обновление сессии
-         * @description Ротация refresh token. Повторное использование отозванного токена отзывает всю цепочку сессии.
+         * Refresh the session
+         * @description Rotates the refresh token. Reusing a revoked token revokes the entire session chain.
          */
         post: {
             parameters: {
@@ -2960,10 +2960,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Регистрация пользователя
-         * @description Создаёт учётную запись, отправляет письмо подтверждения на 24 часа и открывает сессию.
-         *     До подтверждения адреса вход разрешён, продуктовые уведомления по email — нет.
-         *     Если передан invite_token, приглашение принимается в той же транзакции.
+         * Register a user
+         * @description Creates an account, sends a confirmation email valid for 24 hours and opens a session.
+         *     Sign-in is allowed before the address is confirmed; product email notifications are not.
+         *     If invite_token is supplied, the invite is accepted in the same transaction.
          */
         post: {
             parameters: {
@@ -2972,7 +2972,7 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            /** @description Данные регистрации */
+            /** @description Registration payload */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.RegisterRequest"];
@@ -2997,7 +2997,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description email уже занят */
+                /** @description email is already taken */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -3033,8 +3033,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Подтверждение email
-         * @description Потребляет одноразовый токен подтверждения со сроком 24 часа.
+         * Confirm an email address
+         * @description Consumes a one-time confirmation token valid for 24 hours.
          */
         post: {
             parameters: {
@@ -3054,7 +3054,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.MessageResponse"];
                     };
                 };
-                /** @description токен недействителен или истёк */
+                /** @description the token is invalid or has expired */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -3081,8 +3081,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Повторная отправка письма подтверждения
-         * @description Ограничение частоты: 5 запросов в час на пару IP и email. Ответ не раскрывает существование учётной записи.
+         * Resend the confirmation email
+         * @description Rate limit: 5 requests per hour per IP and email pair. The response does not disclose whether an account exists.
          */
         post: {
             parameters: {
@@ -3128,7 +3128,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/hackathons/{id}": {
+    "/events/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -3136,16 +3136,16 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Карточка назначенного хакатона
-         * @description Функция участника, вычисляемое состояние, этапы, ближайший этап, статус регистрации,
-         *     дедлайн и ссылка. Административные заметки участнику не отдаются.
+         * Assigned event card
+         * @description Participant role, computed state, stages, the nearest stage, registration status,
+         *     deadline and link. Administrative notes are withheld from the participant.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -3158,7 +3158,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["models.HackathonCard"];
+                        "application/json": components["schemas"]["models.EventCard"];
                     };
                 };
                 /** @description Unauthorized */
@@ -3198,7 +3198,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/hackathons/{id}/registration/done": {
+    "/events/{id}/registration/done": {
         parameters: {
             query?: never;
             header?: never;
@@ -3208,16 +3208,16 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Отметка о выполненной регистрации
-         * @description Самоотчёт участника: перевод собственного статуса TODO в DONE. Доступен при активной
-         *     регистрации, назначенном участии и неархивном хакатоне. Система не проверяет внешний сайт.
+         * Mark registration as completed
+         * @description Participant self-report: moves their own TODO status to DONE. Available with an active
+         *     registration, an assigned participation and a non-archived event. The system does not verify the external site.
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -3260,7 +3260,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description недопустимый переход состояния */
+                /** @description invalid state transition */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -3277,7 +3277,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/hackathons/{id}/stages": {
+    "/events/{id}/stages": {
         parameters: {
             query?: never;
             header?: never;
@@ -3285,15 +3285,15 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Этапы хакатона
-         * @description Доступно назначенному участнику для опубликованного хакатона и администратору всегда.
+         * Event stages
+         * @description Available to an assigned participant for a published event, and to an administrator always.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Идентификатор хакатона */
+                    /** @description Event identifier */
                     id: string;
                 };
                 cookie?: never;
@@ -3344,7 +3344,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Проверка живости */
+        /** Liveness probe */
         get: {
             parameters: {
                 query?: never;
@@ -3381,15 +3381,15 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Публичный просмотр приглашения
-         * @description Возвращает адрес и срок действия приглашения без раскрытия иных данных.
+         * Public invite preview
+         * @description Returns the address and expiry of the invite without disclosing any other data.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Токен приглашения */
+                    /** @description Invite token */
                     token: string;
                 };
                 cookie?: never;
@@ -3434,9 +3434,9 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Принятие приглашения
-         * @description Создаёт учётную запись на адрес приглашения и открывает сессию.
-         *     Остальные неистёкшие приглашения этого адреса отзываются в той же транзакции.
+         * Accept an invite
+         * @description Creates an account for the invited address and opens a session.
+         *     Any other unexpired invites for this address are revoked in the same transaction.
          */
         post: {
             parameters: {
@@ -3445,7 +3445,7 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            /** @description Токен и данные учётной записи */
+            /** @description Token and account data */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.AcceptInviteRequest"];
@@ -3494,7 +3494,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Собственный профиль */
+        /** Your own profile */
         get: {
             parameters: {
                 query?: never;
@@ -3530,8 +3530,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Изменение собственного профиля
-         * @description Флаг администратора, chat_id Telegram и пароль этим endpoint не изменяются.
+         * Update your own profile
+         * @description The administrator flag, Telegram chat_id and password are not changed by this endpoint.
          */
         patch: {
             parameters: {
@@ -3540,7 +3540,7 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            /** @description Изменяемые поля */
+            /** @description Mutable fields */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.UpdateProfileRequest"];
@@ -3588,9 +3588,9 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Деактивация собственной учётной записи
-         * @description Отзывает сессии, удаляет привязку Telegram и отменяет ожидающие уведомления.
-         *     Обратная активация выполняется администратором.
+         * Deactivate your own account
+         * @description Revokes sessions, removes the Telegram link and cancels pending notifications.
+         *     Reactivation is performed by an administrator.
          */
         post: {
             parameters: {
@@ -3637,8 +3637,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Запрос смены email
-         * @description Новый адрес сохраняется как pending_email и становится основным только после подтверждения.
+         * Request an email change
+         * @description The new address is stored as pending_email and becomes primary only after confirmation.
          */
         post: {
             parameters: {
@@ -3647,7 +3647,7 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            /** @description Новый адрес и текущий пароль */
+            /** @description New address and current password */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["models.ChangeEmailRequest"];
@@ -3681,7 +3681,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description адрес уже занят */
+                /** @description address is already taken */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -3698,7 +3698,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/me/hackathons": {
+    "/me/events": {
         parameters: {
             query?: never;
             header?: never;
@@ -3706,20 +3706,20 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Мои хакатоны
-         * @description Опубликованные хакатоны с назначенным участием: UPCOMING, ACTIVE и FINISHED.
-         *     Архивные скрыты по умолчанию и доступны фильтром.
+         * My events
+         * @description Published events with an assigned participation: UPCOMING, ACTIVE and FINISHED.
+         *     Archived records are hidden by default and available through a filter.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Показывать архивные */
+                    /** @description Include archived records */
                     include_archived?: boolean;
-                    /** @description Номер страницы */
+                    /** @description Page number */
                     page?: number;
-                    /** @description Размер страницы */
+                    /** @description Page size */
                     page_size?: number;
-                    /** @description Фильтр состояний через запятую */
+                    /** @description Comma-separated state filter */
                     state?: "UPCOMING" | "ACTIVE" | "FINISHED" | "ARCHIVED";
                 };
                 header?: never;
@@ -3734,7 +3734,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["models.MyHackathonPage"];
+                        "application/json": components["schemas"]["models.MyEventPage"];
                     };
                 };
                 /** @description Unauthorized */
@@ -3766,7 +3766,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Отвязка Telegram */
+        /** Unlink Telegram */
         delete: {
             parameters: {
                 query?: never;
@@ -3811,9 +3811,9 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Ссылка привязки Telegram
-         * @description Возвращает одноразовый deep-link, связанный с текущим пользователем.
-         *     Идентификатор чата устанавливается только этим потоком.
+         * Telegram link URL
+         * @description Returns a one-time deep link bound to the current user.
+         *     The chat identifier is set only by this flow.
          */
         post: {
             parameters: {
@@ -3858,16 +3858,16 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Временная шкала пользователя
-         * @description Только назначенные опубликованные неархивные хакатоны. Каждый хакатон — отдельная строка,
-         *     этапы отдаются интервалами, дедлайн регистрации — отдельным маркером.
+         * User timeline
+         * @description Only assigned, published, non-archived events. Each event is a separate row,
+         *     stages are returned as intervals and the registration deadline as a separate marker.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Начало периода, RFC3339 */
+                    /** @description Start of the period, RFC3339 */
                     from?: string;
-                    /** @description Конец периода, RFC3339 */
+                    /** @description End of the period, RFC3339 */
                     to?: string;
                 };
                 header?: never;
@@ -3921,9 +3921,9 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Метрики Prometheus
-         * @description Защищённый endpoint. Требует заголовок Authorization с bearer-токеном METRICS_TOKEN,
-         *     если токен задан конфигурацией.
+         * Prometheus metrics
+         * @description Protected endpoint. Requires an Authorization header with the METRICS_TOKEN bearer token,
+         *     when the token is set by configuration.
          */
         get: {
             parameters: {
@@ -3934,7 +3934,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description метрики в формате Prometheus */
+                /** @description metrics in Prometheus format */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -3970,9 +3970,9 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Состояние фоновых процессов
-         * @description Время последних запусков планировщика и worker, длины очереди по статусам
-         *     и возраст самой старой ожидающей записи.
+         * Background process status
+         * @description Last run times of the scheduler and worker, queue lengths by status
+         *     and the age of the oldest pending entry.
          */
         get: {
             parameters: {
@@ -4019,8 +4019,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Проверка готовности
-         * @description Проверяет доступность базы данных.
+         * Readiness probe
+         * @description Checks that the database is reachable.
          */
         get: {
             parameters: {
@@ -4064,7 +4064,7 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         "models.AcceptInviteRequest": {
-            /** @example Иван Петров */
+            /** @example John Smith */
             display_name?: string;
             /** @example correct-horse-battery */
             password?: string;
@@ -4072,7 +4072,7 @@ export interface components {
             token?: string;
         };
         "models.AddParticipantItem": {
-            /** @example Разработчик */
+            /** @example Developer */
             team_role: string;
             user_id: string;
         };
@@ -4084,7 +4084,7 @@ export interface components {
             status?: components["schemas"]["models.RegistrationStatusValue"];
         };
         /** @enum {string} */
-        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "HACKATHON_CREATE" | "HACKATHON_UPDATE" | "HACKATHON_PUBLISH" | "HACKATHON_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE";
+        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE";
         "models.AuditPage": {
             items: components["schemas"]["models.AuditResponse"][];
             meta: components["schemas"]["models.PageMeta"];
@@ -4117,7 +4117,7 @@ export interface components {
             index: number;
             /** @example 3f1c1e6e-0b0e-4a2b-9c1a-7d1f1f5a1c11 */
             key?: string;
-            /** @example участник уже назначен */
+            /** @example the participant is already assigned */
             message?: string;
             /**
              * @example ok
@@ -4151,14 +4151,14 @@ export interface components {
         "models.Channel": "TELEGRAM" | "EMAIL";
         "models.CopyParticipantsRequest": {
             overrides?: components["schemas"]["models.CopyRoleOverride"][];
-            source_hackathon_id?: string;
+            source_event_id?: string;
         };
         "models.CopyRoleOverride": {
-            /** @example Ментор */
+            /** @example Mentor */
             team_role: string;
             user_id: string;
         };
-        "models.CreateHackathonRequest": {
+        "models.CreateEventRequest": {
             description?: string;
             /** Format: date-time */
             end_at?: string;
@@ -4166,7 +4166,7 @@ export interface components {
             organizer?: string;
             /** Format: date-time */
             start_at?: string;
-            /** @example Всероссийский хакатон */
+            /** @example National event */
             title?: string;
             /** @example https://example.com */
             website_url?: string;
@@ -4201,7 +4201,7 @@ export interface components {
             description?: string;
             /** Format: date-time */
             end_at?: string;
-            /** @example Приём заявок */
+            /** @example Call for applications */
             name?: string;
             sort_order?: number;
             /** Format: date-time */
@@ -4218,8 +4218,8 @@ export interface components {
         "models.DeadlineItem": {
             /** Format: date-time */
             deadline_at: string;
-            hackathon_id: string;
-            hackathon_title: string;
+            event_id: string;
+            event_title: string;
             /** @example 120 */
             overdue_minutes?: number;
             participant_id: string;
@@ -4235,12 +4235,12 @@ export interface components {
             email?: string;
         };
         /** @enum {string} */
-        "models.EntityType": "USER" | "INVITE" | "HACKATHON" | "STAGE" | "HACKATHON_PARTICIPANT" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE";
+        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE";
         "models.ErrorBody": {
             /** @example validation_failed */
             code: string;
             fields?: components["schemas"]["models.FieldError"][];
-            /** @example некорректные данные запроса */
+            /** @example invalid request data */
             message: string;
             /** @example 01HZY0Q2K7 */
             request_id: string;
@@ -4248,28 +4248,22 @@ export interface components {
         "models.ErrorResponse": {
             error: components["schemas"]["models.ErrorBody"];
         };
-        "models.FieldError": {
-            /** @example email */
-            field: string;
-            /** @example некорректный адрес */
-            message: string;
-        };
-        "models.HackathonCard": {
+        "models.EventCard": {
             /** @example true */
             can_mark_done: boolean;
-            hackathon: components["schemas"]["models.HackathonResponse"];
+            event: components["schemas"]["models.EventResponse"];
             next_stage?: components["schemas"]["models.StageShort"];
             registration?: components["schemas"]["models.RegistrationPublic"];
             registration_status?: components["schemas"]["models.RegistrationStatusShort"];
             stages: components["schemas"]["models.StageResponse"][];
-            /** @example Разработчик */
+            /** @example Developer */
             team_role?: string;
         };
-        "models.HackathonPage": {
-            items: components["schemas"]["models.HackathonResponse"][];
+        "models.EventPage": {
+            items: components["schemas"]["models.EventResponse"][];
             meta: components["schemas"]["models.PageMeta"];
         };
-        "models.HackathonResponse": {
+        "models.EventResponse": {
             /** Format: date-time */
             archived_at?: string;
             /** Format: date-time */
@@ -4279,14 +4273,14 @@ export interface components {
             end_at: string;
             id: string;
             notes?: string;
-            /** @example Оргкомитет */
+            /** @example Organising committee */
             organizer?: string;
             /** Format: date-time */
             published_at?: string;
             /** Format: date-time */
             start_at: string;
-            state: components["schemas"]["models.HackathonState"];
-            /** @example Всероссийский хакатон */
+            state: components["schemas"]["models.EventState"];
+            /** @example National event */
             title: string;
             /** Format: date-time */
             updated_at: string;
@@ -4294,7 +4288,13 @@ export interface components {
             website_url?: string;
         };
         /** @enum {string} */
-        "models.HackathonState": "UNPUBLISHED" | "UPCOMING" | "ACTIVE" | "FINISHED" | "ARCHIVED";
+        "models.EventState": "UNPUBLISHED" | "UPCOMING" | "ACTIVE" | "FINISHED" | "ARCHIVED";
+        "models.FieldError": {
+            /** @example email */
+            field: string;
+            /** @example invalid address */
+            message: string;
+        };
         "models.HealthResponse": {
             /** @example ok */
             status: string;
@@ -4336,7 +4336,7 @@ export interface components {
         "models.MeResponse": {
             /** Format: date-time */
             created_at: string;
-            /** @example Иван Петров */
+            /** @example John Smith */
             display_name: string;
             /** @example ivan@example.com */
             email: string;
@@ -4356,10 +4356,10 @@ export interface components {
             updated_at: string;
         };
         "models.MessageResponse": {
-            /** @example операция выполнена */
+            /** @example operation completed */
             message: string;
         };
-        "models.MyHackathonItem": {
+        "models.MyEventItem": {
             /** Format: date-time */
             end_at: string;
             id: string;
@@ -4371,14 +4371,14 @@ export interface components {
             registration_url?: string;
             /** Format: date-time */
             start_at: string;
-            state: components["schemas"]["models.HackathonState"];
-            /** @example Разработчик */
+            state: components["schemas"]["models.EventState"];
+            /** @example Developer */
             team_role: string;
-            /** @example Всероссийский хакатон */
+            /** @example National event */
             title: string;
         };
-        "models.MyHackathonPage": {
-            items: components["schemas"]["models.MyHackathonItem"][];
+        "models.MyEventPage": {
+            items: components["schemas"]["models.MyEventItem"][];
             meta: components["schemas"]["models.PageMeta"];
         };
         "models.NotificationRuleResponse": {
@@ -4418,13 +4418,13 @@ export interface components {
             assigned_at: string;
             /** @example 1 */
             assignment_version: number;
-            hackathon_id: string;
+            event_id: string;
             id: string;
             participation_status: components["schemas"]["models.ParticipationStatus"];
             registration_status?: components["schemas"]["models.RegistrationStatusShort"];
             /** Format: date-time */
             removed_at?: string;
-            /** @example Разработчик */
+            /** @example Developer */
             team_role: string;
             user: components["schemas"]["models.UserSummary"];
         };
@@ -4443,11 +4443,10 @@ export interface components {
             status: string;
         };
         "models.RegisterRequest": {
-            /** @example Иван Петров */
+            /** @example John Smith */
             display_name?: string;
             /** @example ivan@example.com */
             email?: string;
-            /** @description InviteToken необязателен: при передаче приглашение принимается той же транзакцией. */
             invite_token?: string;
             /** @example correct-horse-battery */
             password?: string;
@@ -4468,7 +4467,7 @@ export interface components {
             /** Format: date-time */
             deadline_at?: string;
             description?: string;
-            hackathon_id: string;
+            event_id: string;
             id: string;
             /** @example 1 */
             notification_content_version: number;
@@ -4487,7 +4486,7 @@ export interface components {
             meta: components["schemas"]["models.PageMeta"];
         };
         "models.RegistrationStatusResponse": {
-            hackathon_id: string;
+            event_id: string;
             id: string;
             last_change_source: components["schemas"]["models.ChangeSource"];
             last_changed_by_user_id?: string;
@@ -4529,9 +4528,9 @@ export interface components {
             description?: string;
             /** Format: date-time */
             end_at: string;
-            hackathon_id: string;
+            event_id: string;
             id: string;
-            /** @example Приём заявок */
+            /** @example Call for applications */
             name: string;
             /** @example 0 */
             sort_order: number;
@@ -4547,7 +4546,7 @@ export interface components {
             /** Format: date-time */
             end_at: string;
             id: string;
-            /** @example Приём заявок */
+            /** @example Call for applications */
             name: string;
             /** Format: date-time */
             start_at: string;
@@ -4565,7 +4564,7 @@ export interface components {
             /** Format: date-time */
             end_at: string;
             id: string;
-            /** @example Приём заявок */
+            /** @example Call for applications */
             name: string;
             /** Format: date-time */
             start_at: string;
@@ -4578,15 +4577,15 @@ export interface components {
         "models.TimelineRow": {
             /** Format: date-time */
             end_at: string;
-            hackathon_id: string;
+            event_id: string;
             /** Format: date-time */
             registration_deadline?: string;
             stages: components["schemas"]["models.TimelineItem"][];
             /** Format: date-time */
             start_at: string;
-            state: components["schemas"]["models.HackathonState"];
+            state: components["schemas"]["models.EventState"];
             team_role?: string;
-            /** @example Всероссийский хакатон */
+            /** @example National event */
             title: string;
         };
         "models.TimeRange": {
@@ -4599,7 +4598,7 @@ export interface components {
             /** @example 7f9c0f0e2f4b4a1d */
             token?: string;
         };
-        "models.UpdateHackathonRequest": {
+        "models.UpdateEventRequest": {
             description?: string;
             /** Format: date-time */
             end_at?: string;
@@ -4611,12 +4610,9 @@ export interface components {
             website_url?: string;
         };
         "models.UpdateProfileRequest": {
-            /** @example Иван Петров */
+            /** @example John Smith */
             display_name?: string;
-            /**
-             * @description PreferredChannel: TELEGRAM, EMAIL либо null для сброса явного выбора.
-             * @enum {string}
-             */
+            /** @enum {string} */
             preferred_channel?: "TELEGRAM" | "EMAIL";
             /** @example @ivan */
             telegram_username?: string;
@@ -4645,7 +4641,7 @@ export interface components {
             url?: string;
         };
         "models.UpdateTeamRoleRequest": {
-            /** @example Капитан */
+            /** @example Captain */
             team_role?: string;
         };
         "models.UserPage": {
@@ -4653,7 +4649,7 @@ export interface components {
             meta: components["schemas"]["models.PageMeta"];
         };
         "models.UserSummary": {
-            /** @example Иван Петров */
+            /** @example John Smith */
             display_name: string;
             /** @example ivan@example.com */
             email: string;
@@ -4683,19 +4679,19 @@ export interface components {
     responses: never;
     parameters: never;
     requestBodies: {
-        /** @description Участники и целевой статус */
+        /** @description Participants and target status */
         "models.BatchSetStatusRequest": {
             content: {
                 "application/json": components["schemas"]["models.BatchSetStatusRequest"];
             };
         };
-        /** @description Адрес электронной почты */
+        /** @description Email address */
         "models.EmailRequest": {
             content: {
                 "application/json": components["schemas"]["models.EmailRequest"];
             };
         };
-        /** @description Токен подтверждения */
+        /** @description Confirmation token */
         "models.TokenRequest": {
             content: {
                 "application/json": components["schemas"]["models.TokenRequest"];

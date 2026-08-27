@@ -1,10 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 import { isApiError } from './errors'
 
-/**
- * Общая политика кэша. Повторы отключены для ошибок клиента: 401 обрабатывает
- * middleware, а 403/404/409 повторять бессмысленно.
- */
 export function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {

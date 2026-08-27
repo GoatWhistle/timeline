@@ -16,6 +16,7 @@
     "api:types": "node scripts/generate-api-types.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "e2e": "playwright test",
     "api:check": "node scripts/generate-api-types.mjs --check",
     "verify": "npm run api:check && npm run typecheck && npm run lint && npm run test"
@@ -62,6 +63,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "ajv": "^8.20.0",
     "ajv-formats": "^2.1.1",
     "jsdom": "^29.0.0",

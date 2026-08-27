@@ -1,6 +1,6 @@
 import { ShieldAlert } from 'lucide-react'
 import { Link } from 'react-router'
-import { Button } from '@/shared/ui/button'
+import { Button } from '@/shared/ui/primitives/button'
 
 export function ForbiddenPage() {
   return (

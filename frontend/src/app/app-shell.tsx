@@ -10,23 +10,26 @@ import {
   Users,
 } from 'lucide-react'
 import type * as React from 'react'
+import { Suspense } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router'
-import { useLogout } from '@/modules/auth/api'
-import { VerificationBanner } from '@/modules/auth/verification-banner'
+import { useLogout } from '@/entities/session/session.queries'
+import { VerificationBanner } from '@/features/auth/verification-banner/verification-banner'
 import { useSession } from '@/shared/api/session'
-import { cn } from '@/shared/lib/cn'
-import { Button } from '@/shared/ui/button'
+import { cn } from '@/shared/styling/class-names/class-names'
+import { Button } from '@/shared/ui/primitives/button'
+import { ThemeToggle } from '@/shared/ui/primitives/theme-toggle'
+import { RouteFallback } from './route-fallback'
 
 type NavItem = { to: string; label: string; icon: React.ComponentType<{ className?: string }> }
 
 const USER_NAV: NavItem[] = [
-  { to: '/', label: 'Мои хакатоны', icon: LayoutList },
+  { to: '/', label: 'Мои события', icon: LayoutList },
   { to: '/timeline', label: 'Временная шкала', icon: CalendarRange },
   { to: '/profile', label: 'Профиль', icon: UserCog },
 ]
 
 const ADMIN_NAV: NavItem[] = [
-  { to: '/admin/hackathons', label: 'Хакатоны', icon: ClipboardList },
+  { to: '/admin/events', label: 'События', icon: ClipboardList },
   { to: '/admin/timeline', label: 'Шкала', icon: CalendarRange },
   { to: '/admin/deadlines', label: 'Дедлайны', icon: AlarmClock },
   { to: '/admin/users', label: 'Пользователи', icon: Users },
@@ -49,8 +52,8 @@ function NavSection({ title, items }: { title: string; items: NavItem[] }) {
             cn(
               'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
               isActive
-                ? 'bg-accent font-medium text-accent-foreground'
-                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                ? 'bg-accent-surface font-medium text-accent-surface-foreground'
+                : 'text-muted-foreground hover:bg-accent-surface hover:text-accent-surface-foreground',
             )
           }
         >
@@ -95,16 +98,27 @@ export function AppShell() {
             <p className="truncate font-medium text-sm">{user?.display_name}</p>
             <p className="truncate text-muted-foreground text-xs">{user?.email}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={onLogout} disabled={logout.isPending}>
-            <LogOut className="size-4" />
-            Выйти
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={onLogout}
+              disabled={logout.isPending}
+            >
+              <LogOut className="size-4" />
+              Выйти
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
 
       <main id="main" className="min-w-0 flex-1 p-8">
         <VerificationBanner />
-        <Outlet />
+        <Suspense fallback={<RouteFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   )

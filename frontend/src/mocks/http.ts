@@ -1,11 +1,8 @@
 import { HttpResponse } from 'msw'
 import type { FieldError } from '@/shared/api/types.gen'
 
-// Префикс '*' позволяет одним набором обработчиков покрыть и браузер (относительные
-// пути), и Node в тестах (абсолютный base URL).
 export const API = '*/api/v1'
 
-/** Ответ об ошибке в формате docs/api-conventions.md. */
 export function errorResponse(
   status: number,
   code: string,
@@ -32,7 +29,6 @@ export const forbidden = () => errorResponse(403, 'forbidden', 'Недостат
 
 export const notFound = () => errorResponse(404, 'not_found', 'Объект не найден')
 
-/** Конверт пагинации из соглашений API. */
 export function paginate<T>(items: T[], url: URL) {
   const page = Math.max(1, Number.parseInt(url.searchParams.get('page') ?? '1', 10) || 1)
   const pageSize = Math.min(

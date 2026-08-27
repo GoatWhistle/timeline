@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1024" />
     <title>Hackathon Tracker</title>
+    <script>
+      (() => {
+        try {
+          const stored = localStorage.getItem('timeline-theme')
+          const preference =
+            stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system'
+          const dark =
+            preference === 'dark' ||
+            (preference === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.classList.toggle('dark', dark)
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+        } catch {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

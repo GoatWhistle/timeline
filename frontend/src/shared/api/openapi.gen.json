@@ -1,11 +1,11 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "description": "REST API системы Hackathon Tracker. Реализует техническое задание v0.8:\nучётные записи и приглашения, хакатоны и этапы, назначения участников,\nрегистрацию с самоотчётом статуса, правила напоминаний и журнал аудита.\n\nСистема не проверяет внешний сайт регистрации: статус является самоотчётом\nпользователя либо административно установленным состоянием.\n\nАутентификация — cookie-схема: access token живёт 15 минут, refresh token\nротируется и живёт 30 дней. Все изменяющие запросы обязаны передавать\nCSRF-токен заголовком X-CSRF-Token; получить его можно на GET /auth/csrf.\nВсе моменты времени передаются в UTC в формате RFC 3339.",
+    "description": "Hackathon Tracker REST API. Implements technical specification v0.8:\naccounts and invites, events and stages, participant assignments,\nregistration with self-reported status, reminder rules and the audit log.\n\nThe system does not verify the external registration site: the status is self-reported\nby the user or set administratively.\n\nAuthentication is cookie-based: the access token lives 15 minutes, the refresh token\nrotates and lives 30 days. Every mutating request must send\na CSRF token in the X-CSRF-Token header; obtain one from GET /auth/csrf.\nAll timestamps are transferred in UTC using RFC 3339.",
     "title": "Hackathon Tracker API",
     "termsOfService": "https://github.com/kaifarikman/hackathon-os",
     "contact": {
-      "name": "Команда Hackathon Tracker"
+      "name": "Hackathon Tracker team"
     },
     "license": {
       "name": "MIT"
@@ -20,14 +20,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Доступен только администратору. Записи неизменяемы; выгрузка файлом в MVP не поддерживается.",
+        "description": "Restricted to administrators. Entries are immutable; file export is not supported in the MVP.",
         "tags": [
           "audit"
         ],
-        "summary": "Журнал аудита",
+        "summary": "Audit log",
         "parameters": [
           {
-            "description": "Фильтр по актору",
+            "description": "Filter by actor",
             "name": "actor_user_id",
             "in": "query",
             "schema": {
@@ -36,7 +36,7 @@
             }
           },
           {
-            "description": "Фильтр по действию",
+            "description": "Filter by action",
             "name": "action",
             "in": "query",
             "schema": {
@@ -44,7 +44,7 @@
             }
           },
           {
-            "description": "Фильтр по типу объекта",
+            "description": "Filter by entity type",
             "name": "entity_type",
             "in": "query",
             "schema": {
@@ -52,7 +52,7 @@
             }
           },
           {
-            "description": "Фильтр по идентификатору объекта",
+            "description": "Filter by entity identifier",
             "name": "entity_id",
             "in": "query",
             "schema": {
@@ -61,7 +61,7 @@
             }
           },
           {
-            "description": "Начало периода, RFC3339",
+            "description": "Start of the period, RFC3339",
             "name": "from",
             "in": "query",
             "schema": {
@@ -69,7 +69,7 @@
             }
           },
           {
-            "description": "Конец периода, RFC3339",
+            "description": "End of the period, RFC3339",
             "name": "to",
             "in": "query",
             "schema": {
@@ -77,7 +77,7 @@
             }
           },
           {
-            "description": "Номер страницы",
+            "description": "Page number",
             "name": "page",
             "in": "query",
             "schema": {
@@ -86,7 +86,7 @@
             }
           },
           {
-            "description": "Размер страницы",
+            "description": "Page size",
             "name": "page_size",
             "in": "query",
             "schema": {
@@ -129,21 +129,21 @@
         }
       }
     },
-    "/admin/hackathons": {
+    "/admin/events": {
       "get": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Административный список со всеми состояниями, поиском и фильтрами.",
+        "description": "Administrative list with every state, search and filters.",
         "tags": [
-          "hackathons"
+          "events"
         ],
-        "summary": "Список хакатонов",
+        "summary": "Event list",
         "parameters": [
           {
-            "description": "Поиск по названию и организатору",
+            "description": "Search by title and organiser",
             "name": "search",
             "in": "query",
             "schema": {
@@ -151,7 +151,7 @@
             }
           },
           {
-            "description": "Фильтр состояний через запятую",
+            "description": "Comma-separated state filter",
             "name": "state",
             "in": "query",
             "schema": {
@@ -166,7 +166,7 @@
             }
           },
           {
-            "description": "Показывать архивные",
+            "description": "Include archived records",
             "name": "include_archived",
             "in": "query",
             "schema": {
@@ -174,7 +174,7 @@
             }
           },
           {
-            "description": "Номер страницы",
+            "description": "Page number",
             "name": "page",
             "in": "query",
             "schema": {
@@ -183,7 +183,7 @@
             }
           },
           {
-            "description": "Размер страницы",
+            "description": "Page size",
             "name": "page_size",
             "in": "query",
             "schema": {
@@ -198,7 +198,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/models.HackathonPage"
+                  "$ref": "#/components/schemas/models.EventPage"
                 }
               }
             }
@@ -221,20 +221,20 @@
             "CookieAuth": []
           }
         ],
-        "description": "Хакатон создаётся неопубликованным; end_at обязан быть позже start_at.",
+        "description": "The event is created unpublished; end_at must be later than start_at.",
         "tags": [
-          "hackathons"
+          "events"
         ],
-        "summary": "Создание хакатона",
+        "summary": "Create an event",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/models.CreateHackathonRequest"
+                "$ref": "#/components/schemas/models.CreateEventRequest"
               }
             }
           },
-          "description": "Данные хакатона",
+          "description": "Event payload",
           "required": true
         },
         "responses": {
@@ -243,7 +243,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/models.HackathonResponse"
+                  "$ref": "#/components/schemas/models.EventResponse"
                 }
               }
             }
@@ -271,21 +271,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}": {
+    "/admin/events/{id}": {
       "get": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Административное чтение, включая заметки.",
+        "description": "Administrative read, including notes.",
         "tags": [
-          "hackathons"
+          "events"
         ],
-        "summary": "Хакатон целиком",
+        "summary": "The whole event",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -301,7 +301,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/models.HackathonResponse"
+                  "$ref": "#/components/schemas/models.EventResponse"
                 }
               }
             }
@@ -334,14 +334,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Изменение end_at увеличивает schedule_version регистрации, отменяет устаревшие\nожидающие уведомления и запускает согласование. Нарушение условия\ndeadline_at <= end_at отклоняется.",
+        "description": "Changing end_at increments the registration schedule_version, cancels stale\npending notifications and triggers reconciliation. Violating the condition\ndeadline_at <= end_at is rejected.",
         "tags": [
-          "hackathons"
+          "events"
         ],
-        "summary": "Изменение хакатона",
+        "summary": "Update an event",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -355,11 +355,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/models.UpdateHackathonRequest"
+                "$ref": "#/components/schemas/models.UpdateEventRequest"
               }
             }
           },
-          "description": "Изменяемые поля",
+          "description": "Mutable fields",
           "required": true
         },
         "responses": {
@@ -368,7 +368,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/models.HackathonResponse"
+                  "$ref": "#/components/schemas/models.EventResponse"
                 }
               }
             }
@@ -404,7 +404,7 @@
             }
           },
           "409": {
-            "description": "дедлайн регистрации выходит за end_at",
+            "description": "the registration deadline falls outside end_at",
             "content": {
               "application/json": {
                 "schema": {
@@ -416,21 +416,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}/archive": {
+    "/admin/events/{id}/archive": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Конечное состояние MVP: ожидающие уведомления отменяются, новые не создаются.",
+        "description": "Terminal state in the MVP: pending notifications are cancelled and no new ones are created.",
         "tags": [
-          "hackathons"
+          "events"
         ],
-        "summary": "Архивирование хакатона",
+        "summary": "Archive an event",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -446,7 +446,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/models.HackathonResponse"
+                  "$ref": "#/components/schemas/models.EventResponse"
                 }
               }
             }
@@ -472,7 +472,7 @@
             }
           },
           "409": {
-            "description": "хакатон уже архивирован",
+            "description": "event is already archived",
             "content": {
               "application/json": {
                 "schema": {
@@ -484,7 +484,7 @@
         }
       }
     },
-    "/admin/hackathons/{id}/participants": {
+    "/admin/events/{id}/participants": {
       "get": {
         "security": [
           {
@@ -494,10 +494,10 @@
         "tags": [
           "participants"
         ],
-        "summary": "Состав участников хакатона",
+        "summary": "Event participant roster",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -507,7 +507,7 @@
             }
           },
           {
-            "description": "Фильтр по функции участника",
+            "description": "Filter by participant role",
             "name": "team_role",
             "in": "query",
             "schema": {
@@ -515,7 +515,7 @@
             }
           },
           {
-            "description": "Фильтр по статусу регистрации",
+            "description": "Filter by registration status",
             "name": "registration_status",
             "in": "query",
             "schema": {
@@ -528,7 +528,7 @@
             }
           },
           {
-            "description": "Включая удалённых из состава",
+            "description": "Include participants removed from the roster",
             "name": "include_removed",
             "in": "query",
             "schema": {
@@ -536,7 +536,7 @@
             }
           },
           {
-            "description": "Поиск по имени и email",
+            "description": "Search by name and email",
             "name": "search",
             "in": "query",
             "schema": {
@@ -544,7 +544,7 @@
             }
           },
           {
-            "description": "Номер страницы",
+            "description": "Page number",
             "name": "page",
             "in": "query",
             "schema": {
@@ -553,7 +553,7 @@
             }
           },
           {
-            "description": "Размер страницы",
+            "description": "Page size",
             "name": "page_size",
             "in": "query",
             "schema": {
@@ -596,21 +596,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}/participants/batch-add": {
+    "/admin/events/{id}/participants/batch-add": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Повторное добавление ранее удалённого участника реактивирует запись и увеличивает\nassignment_version. Назначение, статус регистрации, первичное уведомление и запись\nаудита выполняются одной транзакцией на участника; результат возвращается по каждому элементу.",
+        "description": "Re-adding a previously removed participant reactivates the record and increments\nassignment_version. The assignment, registration status, primary notification and audit\nentry run in a single transaction per participant; the result is returned per entry.",
         "tags": [
           "participants"
         ],
-        "summary": "Массовое добавление участников",
+        "summary": "Bulk participant assignment",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -628,7 +628,7 @@
               }
             }
           },
-          "description": "Список пользователей и их функций",
+          "description": "List of users and their roles",
           "required": true
         },
         "responses": {
@@ -675,21 +675,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}/participants/batch-remove": {
+    "/admin/events/{id}/participants/batch-remove": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Переводит участие в REMOVED и отменяет ожидающие уведомления. Отправленные сохраняются.",
+        "description": "Moves participation to REMOVED and cancels pending notifications. Sent ones are preserved.",
         "tags": [
           "participants"
         ],
-        "summary": "Массовое удаление участников",
+        "summary": "Bulk participant removal",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -707,7 +707,7 @@
               }
             }
           },
-          "description": "Идентификаторы участников",
+          "description": "Participant identifiers",
           "required": true
         },
         "responses": {
@@ -754,21 +754,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}/participants/copy-from": {
+    "/admin/events/{id}/participants/copy-from": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Переносятся только назначенные участники. Функция участника переносится как значение\nпо умолчанию и может быть переопределена. Существующие участники пропускаются\nи возвращаются отдельными элементами результата.",
+        "description": "Only assigned participants are copied. The participant role is copied as a value\nby default and can be overridden. Existing participants are skipped\nand returned as separate result entries.",
         "tags": [
           "participants"
         ],
-        "summary": "Копирование состава из другого хакатона",
+        "summary": "Copy the roster from another event",
         "parameters": [
           {
-            "description": "Идентификатор целевого хакатона",
+            "description": "Target event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -786,7 +786,7 @@
               }
             }
           },
-          "description": "Источник и переопределения функций",
+          "description": "Source and role overrides",
           "required": true
         },
         "responses": {
@@ -833,21 +833,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}/publish": {
+    "/admin/events/{id}/publish": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Хакатон становится видимым участникам и планировщику; отложенные первичные\nуведомления создаются согласованием.",
+        "description": "The event becomes visible to participants and the scheduler; deferred primary\nnotifications are created by reconciliation.",
         "tags": [
-          "hackathons"
+          "events"
         ],
-        "summary": "Публикация хакатона",
+        "summary": "Publish an event",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -863,7 +863,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/models.HackathonResponse"
+                  "$ref": "#/components/schemas/models.EventResponse"
                 }
               }
             }
@@ -889,7 +889,7 @@
             }
           },
           "409": {
-            "description": "хакатон уже опубликован или архивирован",
+            "description": "the event is already published or archived",
             "content": {
               "application/json": {
                 "schema": {
@@ -901,7 +901,7 @@
         }
       }
     },
-    "/admin/hackathons/{id}/registration": {
+    "/admin/events/{id}/registration": {
       "get": {
         "security": [
           {
@@ -911,10 +911,10 @@
         "tags": [
           "registration"
         ],
-        "summary": "Регистрация хакатона",
+        "summary": "Event registration",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -963,14 +963,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Создание активной регистрации создаёт недостающие статусы TODO всем назначенным\nучастникам. Первичные уведомления создаются только для опубликованного неархивного\nхакатона; иначе они откладываются до публикации. Дедлайн обязан удовлетворять\nусловию deadline_at <= hackathon.end_at.",
+        "description": "Creating an active registration creates missing TODO statuses for every assigned\nparticipant. Primary notifications are created only for a published, non-archived\nevent; otherwise they are deferred until publication. The deadline must satisfy\nthe condition deadline_at <= event.end_at.",
         "tags": [
           "registration"
         ],
-        "summary": "Создание регистрации",
+        "summary": "Create a registration",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -988,7 +988,7 @@
               }
             }
           },
-          "description": "Ссылка и дедлайн",
+          "description": "Link and deadline",
           "required": true
         },
         "responses": {
@@ -1033,7 +1033,7 @@
             }
           },
           "409": {
-            "description": "регистрация уже существует или дедлайн выходит за end_at",
+            "description": "registration already exists or the deadline falls outside end_at",
             "content": {
               "application/json": {
                 "schema": {
@@ -1050,14 +1050,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Изменение ссылки увеличивает notification_content_version, изменение дедлайна —\nschedule_version. В обоих случаях ожидающие уведомления отменяются, а актуальные\nсоздаются согласованием с новым логическим ключом.",
+        "description": "Changing the link increments notification_content_version; changing the deadline increments\nschedule_version. In both cases pending notifications are cancelled and current ones\nare created by reconciliation with a new logical key.",
         "tags": [
           "registration"
         ],
-        "summary": "Изменение регистрации",
+        "summary": "Update a registration",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1075,7 +1075,7 @@
               }
             }
           },
-          "description": "Изменяемые поля",
+          "description": "Mutable fields",
           "required": true
         },
         "responses": {
@@ -1132,7 +1132,7 @@
         }
       }
     },
-    "/admin/hackathons/{id}/registration-statuses": {
+    "/admin/events/{id}/registration-statuses": {
       "get": {
         "security": [
           {
@@ -1142,10 +1142,10 @@
         "tags": [
           "registration"
         ],
-        "summary": "Статусы регистрации участников",
+        "summary": "Participant registration statuses",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1155,7 +1155,7 @@
             }
           },
           {
-            "description": "Номер страницы",
+            "description": "Page number",
             "name": "page",
             "in": "query",
             "schema": {
@@ -1164,7 +1164,7 @@
             }
           },
           {
-            "description": "Размер страницы",
+            "description": "Page size",
             "name": "page_size",
             "in": "query",
             "schema": {
@@ -1207,21 +1207,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}/registration-statuses/batch-set": {
+    "/admin/events/{id}/registration-statuses/batch-set": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Допускаются значения TODO и NOT_REQUIRED. Результат возвращается по каждому участнику.",
+        "description": "Only TODO and NOT_REQUIRED are accepted. The result is returned per participant.",
         "tags": [
           "registration"
         ],
-        "summary": "Массовая установка статуса",
+        "summary": "Bulk status assignment",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1278,21 +1278,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}/registration-statuses/batch-set/preview": {
+    "/admin/events/{id}/registration-statuses/batch-set/preview": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Возвращает количество изменяемых и пропускаемых записей без изменения данных.",
+        "description": "Returns the number of records to be changed and skipped without modifying data.",
         "tags": [
           "registration"
         ],
-        "summary": "Предпросмотр массовой установки статуса",
+        "summary": "Preview a bulk status assignment",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1349,21 +1349,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}/registration/disable": {
+    "/admin/events/{id}/registration/disable": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Ожидающие уведомления отменяются, статусы сохраняются, но перестают быть actionable.",
+        "description": "Pending notifications are cancelled; statuses are preserved but stop being actionable.",
         "tags": [
           "registration"
         ],
-        "summary": "Выключение регистрации",
+        "summary": "Disable registration",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1405,7 +1405,7 @@
             }
           },
           "409": {
-            "description": "регистрация уже выключена",
+            "description": "registration is already disabled",
             "content": {
               "application/json": {
                 "schema": {
@@ -1417,21 +1417,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}/registration/enable": {
+    "/admin/events/{id}/registration/enable": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Увеличивает activation_version и schedule_version, создаёт недостающие статусы;\nучастники в TODO снова получают первичное уведомление.",
+        "description": "Increments activation_version and schedule_version and creates missing statuses;\nparticipants in TODO receive the primary notification again.",
         "tags": [
           "registration"
         ],
-        "summary": "Включение регистрации",
+        "summary": "Enable registration",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1473,7 +1473,7 @@
             }
           },
           "409": {
-            "description": "регистрация уже активна",
+            "description": "registration is already active",
             "content": {
               "application/json": {
                 "schema": {
@@ -1485,7 +1485,7 @@
         }
       }
     },
-    "/admin/hackathons/{id}/registration/rules": {
+    "/admin/events/{id}/registration/rules": {
       "get": {
         "security": [
           {
@@ -1495,10 +1495,10 @@
         "tags": [
           "rules"
         ],
-        "summary": "Правила напоминаний",
+        "summary": "Reminder rules",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1550,14 +1550,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Знак offset_minutes задаёт тип: положительное значение — напоминание до дедлайна,\nноль — в момент дедлайна, отрицательное — уведомление о просрочке.\nНа регистрацию допускается не более 10 правил.",
+        "description": "The sign of offset_minutes selects the type: a positive value is a reminder before the deadline,\nzero fires at the deadline, and a negative value is an overdue notification.\nA registration accepts at most 10 rules.",
         "tags": [
           "rules"
         ],
-        "summary": "Создание правила напоминания",
+        "summary": "Create a reminder rule",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1575,7 +1575,7 @@
               }
             }
           },
-          "description": "Параметры правила",
+          "description": "Rule parameters",
           "required": true
         },
         "responses": {
@@ -1620,7 +1620,7 @@
             }
           },
           "409": {
-            "description": "правило с таким смещением уже есть или исчерпан лимит слотов",
+            "description": "a rule with this offset already exists or the slot limit is reached",
             "content": {
               "application/json": {
                 "schema": {
@@ -1632,21 +1632,21 @@
         }
       }
     },
-    "/admin/hackathons/{id}/stages": {
+    "/admin/events/{id}/stages": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Пересечения этапов и выход за период хакатона допускаются. Этап не порождает уведомлений.",
+        "description": "Overlapping stages and stages outside the event period are allowed. A stage produces no notifications.",
         "tags": [
           "stages"
         ],
-        "summary": "Создание этапа",
+        "summary": "Create a stage",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1664,7 +1664,7 @@
               }
             }
           },
-          "description": "Данные этапа",
+          "description": "Stage payload",
           "required": true
         },
         "responses": {
@@ -1721,10 +1721,10 @@
         "tags": [
           "invites"
         ],
-        "summary": "Список приглашений",
+        "summary": "Invite list",
         "parameters": [
           {
-            "description": "Номер страницы",
+            "description": "Page number",
             "name": "page",
             "in": "query",
             "schema": {
@@ -1733,7 +1733,7 @@
             }
           },
           {
-            "description": "Размер страницы",
+            "description": "Page size",
             "name": "page_size",
             "in": "query",
             "schema": {
@@ -1771,11 +1771,11 @@
             "CookieAuth": []
           }
         ],
-        "description": "Создание сериализуется по нормализованному email: предыдущее непринятое приглашение отзывается,\nзатем создаётся новое. Приглашение на адрес существующего пользователя отклоняется конфликтом\nнезависимо от его активности.",
+        "description": "Creation is serialised by normalised email: a previous unaccepted invite is revoked,\nthen a new one is created. An invite for an existing user address is rejected with a conflict\nregardless of that user's activity.",
         "tags": [
           "invites"
         ],
-        "summary": "Создание приглашения",
+        "summary": "Create an invite",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1784,7 +1784,7 @@
               }
             }
           },
-          "description": "Адрес приглашаемого",
+          "description": "Address of the invited person",
           "required": true
         },
         "responses": {
@@ -1819,7 +1819,7 @@
             }
           },
           "409": {
-            "description": "пользователь с таким email уже существует",
+            "description": "a user with this email already exists",
             "content": {
               "application/json": {
                 "schema": {
@@ -1841,10 +1841,10 @@
         "tags": [
           "invites"
         ],
-        "summary": "Отзыв приглашения",
+        "summary": "Revoke an invite",
         "parameters": [
           {
-            "description": "Идентификатор приглашения",
+            "description": "Invite identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1895,14 +1895,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Возвращает участие в ASSIGNED, увеличивает assignment_version, очищает removed_at\nи заново задаёт функцию. Существующий статус регистрации сохраняется.",
+        "description": "Returns participation to ASSIGNED, increments assignment_version, clears removed_at\nand sets the role again. An existing registration status is preserved.",
         "tags": [
           "participants"
         ],
-        "summary": "Реактивация участника",
+        "summary": "Reactivate a participant",
         "parameters": [
           {
-            "description": "Идентификатор участника",
+            "description": "Participant identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -1920,7 +1920,7 @@
               }
             }
           },
-          "description": "Функция участника",
+          "description": "Participant role",
           "required": true
         },
         "responses": {
@@ -1965,7 +1965,7 @@
             }
           },
           "409": {
-            "description": "участник уже назначен",
+            "description": "the participant is already assigned",
             "content": {
               "application/json": {
                 "schema": {
@@ -1984,14 +1984,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "team_role — свободнотекстовая функция на хакатоне, а не право доступа.",
+        "description": "team_role is a free-text role on the event, not an access permission.",
         "tags": [
           "participants"
         ],
-        "summary": "Изменение функции участника",
+        "summary": "Update a participant role",
         "parameters": [
           {
-            "description": "Идентификатор участника",
+            "description": "Participant identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -2009,7 +2009,7 @@
               }
             }
           },
-          "description": "Новая функция",
+          "description": "New role",
           "required": true
         },
         "responses": {
@@ -2063,14 +2063,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Участники со статусом TODO, у которых дедлайн уже прошёл, а хакатон ещё не завершён.",
+        "description": "Participants in TODO whose deadline has passed while the event has not finished.",
         "tags": [
           "queries"
         ],
-        "summary": "Просроченные регистрации",
+        "summary": "Overdue registrations",
         "parameters": [
           {
-            "description": "Номер страницы",
+            "description": "Page number",
             "name": "page",
             "in": "query",
             "schema": {
@@ -2079,7 +2079,7 @@
             }
           },
           {
-            "description": "Размер страницы",
+            "description": "Page size",
             "name": "page_size",
             "in": "query",
             "schema": {
@@ -2119,14 +2119,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Участники со статусом TODO, у которых дедлайн наступает в пределах указанного окна.",
+        "description": "Participants in TODO whose deadline falls within the given window.",
         "tags": [
           "queries"
         ],
-        "summary": "Ближайшие дедлайны регистрации",
+        "summary": "Upcoming registration deadlines",
         "parameters": [
           {
-            "description": "Окно в часах",
+            "description": "Window in hours",
             "name": "within_hours",
             "in": "query",
             "schema": {
@@ -2135,7 +2135,7 @@
             }
           },
           {
-            "description": "Номер страницы",
+            "description": "Page number",
             "name": "page",
             "in": "query",
             "schema": {
@@ -2144,7 +2144,7 @@
             }
           },
           {
-            "description": "Размер страницы",
+            "description": "Page size",
             "name": "page_size",
             "in": "query",
             "schema": {
@@ -2184,14 +2184,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Правило переводится в enabled=false; строка сохраняется, чтобы занятый слот\nи смещение оставались зафиксированными.",
+        "description": "The rule is set to enabled=false; the row is preserved so that the occupied slot\nand offset stay reserved.",
         "tags": [
           "rules"
         ],
-        "summary": "Выключение правила напоминания",
+        "summary": "Disable a reminder rule",
         "parameters": [
           {
-            "description": "Идентификатор правила",
+            "description": "Rule identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -2203,7 +2203,7 @@
         ],
         "responses": {
           "204": {
-            "description": "правило выключено"
+            "description": "the rule is disabled"
           },
           "403": {
             "description": "Forbidden",
@@ -2233,14 +2233,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Изменение полей расписания увеличивает schedule_version один раз на транзакцию\nи запускает согласование уведомлений.",
+        "description": "Changing schedule fields increments schedule_version once per transaction\nand triggers notification reconciliation.",
         "tags": [
           "rules"
         ],
-        "summary": "Изменение правила напоминания",
+        "summary": "Update a reminder rule",
         "parameters": [
           {
-            "description": "Идентификатор правила",
+            "description": "Rule identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -2258,7 +2258,7 @@
               }
             }
           },
-          "description": "Изменяемые поля",
+          "description": "Mutable fields",
           "required": true
         },
         "responses": {
@@ -2322,14 +2322,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Допустимые переходы: TODO → DONE, DONE → TODO, TODO/DONE → NOT_REQUIRED,\nNOT_REQUIRED → TODO. Вход в TODO увеличивает todo_cycle и очищает registered_at.",
+        "description": "Allowed transitions: TODO to DONE, DONE to TODO, TODO/DONE to NOT_REQUIRED,\nNOT_REQUIRED to TODO. Entering TODO increments todo_cycle and clears registered_at.",
         "tags": [
           "registration"
         ],
-        "summary": "Административный переход статуса",
+        "summary": "Administrative status transition",
         "parameters": [
           {
-            "description": "Идентификатор статуса",
+            "description": "Status identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -2347,7 +2347,7 @@
               }
             }
           },
-          "description": "Новый статус",
+          "description": "New status",
           "required": true
         },
         "responses": {
@@ -2414,10 +2414,10 @@
         "tags": [
           "stages"
         ],
-        "summary": "Удаление этапа",
+        "summary": "Delete a stage",
         "parameters": [
           {
-            "description": "Идентификатор этапа",
+            "description": "Stage identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -2429,7 +2429,7 @@
         ],
         "responses": {
           "204": {
-            "description": "этап удалён"
+            "description": "the stage is deleted"
           },
           "403": {
             "description": "Forbidden",
@@ -2462,10 +2462,10 @@
         "tags": [
           "stages"
         ],
-        "summary": "Изменение этапа",
+        "summary": "Update a stage",
         "parameters": [
           {
-            "description": "Идентификатор этапа",
+            "description": "Stage identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -2483,7 +2483,7 @@
               }
             }
           },
-          "description": "Изменяемые поля",
+          "description": "Mutable fields",
           "required": true
         },
         "responses": {
@@ -2537,14 +2537,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Все хакатоны с фильтрами по состоянию, участнику и диапазону дат.",
+        "description": "All events with filters by state, participant and date range.",
         "tags": [
           "queries"
         ],
-        "summary": "Административная временная шкала",
+        "summary": "Administrative timeline",
         "parameters": [
           {
-            "description": "Начало периода, RFC3339",
+            "description": "Start of the period, RFC3339",
             "name": "from",
             "in": "query",
             "schema": {
@@ -2552,7 +2552,7 @@
             }
           },
           {
-            "description": "Конец периода, RFC3339",
+            "description": "End of the period, RFC3339",
             "name": "to",
             "in": "query",
             "schema": {
@@ -2560,7 +2560,7 @@
             }
           },
           {
-            "description": "Фильтр состояний через запятую",
+            "description": "Comma-separated state filter",
             "name": "state",
             "in": "query",
             "schema": {
@@ -2568,7 +2568,7 @@
             }
           },
           {
-            "description": "Фильтр по участнику",
+            "description": "Filter by participant",
             "name": "participant_user_id",
             "in": "query",
             "schema": {
@@ -2577,7 +2577,7 @@
             }
           },
           {
-            "description": "Показывать архивные",
+            "description": "Include archived records",
             "name": "include_archived",
             "in": "query",
             "schema": {
@@ -2626,14 +2626,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Поиск по display_name и нормализованному email для выбора участников.\nВозвращаются только минимальные поля; credentials и данные каналов не отдаются.",
+        "description": "Search by display_name and normalised email to pick participants.\nOnly minimal fields are returned; credentials and channel data are withheld.",
         "tags": [
           "users"
         ],
-        "summary": "Поиск пользователей",
+        "summary": "Search users",
         "parameters": [
           {
-            "description": "Строка поиска",
+            "description": "Search string",
             "name": "query",
             "in": "query",
             "schema": {
@@ -2641,7 +2641,7 @@
             }
           },
           {
-            "description": "Номер страницы",
+            "description": "Page number",
             "name": "page",
             "in": "query",
             "schema": {
@@ -2650,7 +2650,7 @@
             }
           },
           {
-            "description": "Размер страницы",
+            "description": "Page size",
             "name": "page_size",
             "in": "query",
             "schema": {
@@ -2690,14 +2690,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Удаляет credentials и каналы доставки, обезличивает имя и email.\nСсылки участия и записи аудита сохраняются.",
+        "description": "Removes credentials and delivery channels, anonymises the name and email.\nParticipation references and audit entries are preserved.",
         "tags": [
           "users"
         ],
-        "summary": "Необратимое удаление пользователя",
+        "summary": "Irreversible user deletion",
         "parameters": [
           {
-            "description": "Идентификатор пользователя",
+            "description": "User identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -2748,14 +2748,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Восстанавливает доступ. Ранее отменённые уведомления не воскрешаются.",
+        "description": "Restores access. Previously cancelled notifications are not revived.",
         "tags": [
           "users"
         ],
-        "summary": "Обратная активация пользователя",
+        "summary": "Reactivate a user",
         "parameters": [
           {
-            "description": "Идентификатор пользователя",
+            "description": "User identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -2806,14 +2806,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Отзывает сессии, удаляет привязку Telegram и переводит ожидающие уведомления в CANCELLED.",
+        "description": "Revokes sessions, removes the Telegram link and moves pending notifications to CANCELLED.",
         "tags": [
           "users"
         ],
-        "summary": "Деактивация пользователя",
+        "summary": "Deactivate a user",
         "parameters": [
           {
-            "description": "Идентификатор пользователя",
+            "description": "User identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -2859,11 +2859,11 @@
     },
     "/auth/csrf": {
       "get": {
-        "description": "Выдаёт токен в cookie и в теле ответа. Все изменяющие запросы обязаны передавать его заголовком X-CSRF-Token.",
+        "description": "Issues the token in a cookie and in the response body. Every mutating request must send it in the X-CSRF-Token header.",
         "tags": [
           "auth"
         ],
-        "summary": "Получение CSRF-токена",
+        "summary": "Obtain a CSRF token",
         "responses": {
           "200": {
             "description": "OK",
@@ -2880,11 +2880,11 @@
     },
     "/auth/email-change/confirm": {
       "post": {
-        "description": "Переносит pending_email в основной адрес. До подтверждения вход работает по прежнему адресу.",
+        "description": "Promotes pending_email to the primary address. Until confirmation, sign-in uses the previous address.",
         "tags": [
           "auth"
         ],
-        "summary": "Подтверждение смены email",
+        "summary": "Confirm an email change",
         "requestBody": {
           "$ref": "#/components/requestBodies/models.TokenRequest"
         },
@@ -2910,7 +2910,7 @@
             }
           },
           "409": {
-            "description": "адрес уже занят",
+            "description": "address is already taken",
             "content": {
               "application/json": {
                 "schema": {
@@ -2924,11 +2924,11 @@
     },
     "/auth/login": {
       "post": {
-        "description": "Выдаёт access token на 15 минут и rotating refresh token на 30 дней в HttpOnly cookie.\nОграничение частоты: 10 попыток за 15 минут на пару IP и email.",
+        "description": "Issues a 15-minute access token and a rotating 30-day refresh token in HttpOnly cookies.\nRate limit: 10 attempts per 15 minutes per IP and email pair.",
         "tags": [
           "auth"
         ],
-        "summary": "Вход по email и паролю",
+        "summary": "Sign in with email and password",
         "requestBody": {
           "content": {
             "application/json": {
@@ -2937,7 +2937,7 @@
               }
             }
           },
-          "description": "Учётные данные",
+          "description": "Credentials",
           "required": true
         },
         "responses": {
@@ -2962,7 +2962,7 @@
             }
           },
           "401": {
-            "description": "неверные учётные данные или деактивированная запись",
+            "description": "invalid credentials or a deactivated account",
             "content": {
               "application/json": {
                 "schema": {
@@ -2986,11 +2986,11 @@
     },
     "/auth/logout": {
       "post": {
-        "description": "Отзывает refresh token текущей сессии и очищает cookie.",
+        "description": "Revokes the refresh token of the current session and clears the cookies.",
         "tags": [
           "auth"
         ],
-        "summary": "Выход из текущей сессии",
+        "summary": "Sign out of the current session",
         "responses": {
           "200": {
             "description": "OK",
@@ -3012,11 +3012,11 @@
             "CookieAuth": []
           }
         ],
-        "description": "Отзывает все активные сессии пользователя.",
+        "description": "Revokes every active session of the user.",
         "tags": [
           "auth"
         ],
-        "summary": "Выход из всех сессий",
+        "summary": "Sign out of all sessions",
         "responses": {
           "200": {
             "description": "OK",
@@ -3043,11 +3043,11 @@
     },
     "/auth/password/forgot": {
       "post": {
-        "description": "Выдаёт одноразовый токен на 30 минут. Ответ не раскрывает существование учётной записи.",
+        "description": "Issues a one-time token valid for 30 minutes. The response does not disclose whether an account exists.",
         "tags": [
           "auth"
         ],
-        "summary": "Запрос восстановления пароля",
+        "summary": "Request a password reset",
         "requestBody": {
           "$ref": "#/components/requestBodies/models.EmailRequest"
         },
@@ -3087,11 +3087,11 @@
     },
     "/auth/password/reset": {
       "post": {
-        "description": "После смены пароля все активные сессии пользователя отзываются.",
+        "description": "After a password change every active session of the user is revoked.",
         "tags": [
           "auth"
         ],
-        "summary": "Установка нового пароля",
+        "summary": "Set a new password",
         "requestBody": {
           "content": {
             "application/json": {
@@ -3100,7 +3100,7 @@
               }
             }
           },
-          "description": "Токен и новый пароль",
+          "description": "Token and new password",
           "required": true
         },
         "responses": {
@@ -3129,11 +3129,11 @@
     },
     "/auth/refresh": {
       "post": {
-        "description": "Ротация refresh token. Повторное использование отозванного токена отзывает всю цепочку сессии.",
+        "description": "Rotates the refresh token. Reusing a revoked token revokes the entire session chain.",
         "tags": [
           "auth"
         ],
-        "summary": "Обновление сессии",
+        "summary": "Refresh the session",
         "responses": {
           "200": {
             "description": "OK",
@@ -3160,11 +3160,11 @@
     },
     "/auth/register": {
       "post": {
-        "description": "Создаёт учётную запись, отправляет письмо подтверждения на 24 часа и открывает сессию.\nДо подтверждения адреса вход разрешён, продуктовые уведомления по email — нет.\nЕсли передан invite_token, приглашение принимается в той же транзакции.",
+        "description": "Creates an account, sends a confirmation email valid for 24 hours and opens a session.\nSign-in is allowed before the address is confirmed; product email notifications are not.\nIf invite_token is supplied, the invite is accepted in the same transaction.",
         "tags": [
           "auth"
         ],
-        "summary": "Регистрация пользователя",
+        "summary": "Register a user",
         "requestBody": {
           "content": {
             "application/json": {
@@ -3173,7 +3173,7 @@
               }
             }
           },
-          "description": "Данные регистрации",
+          "description": "Registration payload",
           "required": true
         },
         "responses": {
@@ -3198,7 +3198,7 @@
             }
           },
           "409": {
-            "description": "email уже занят",
+            "description": "email is already taken",
             "content": {
               "application/json": {
                 "schema": {
@@ -3222,11 +3222,11 @@
     },
     "/auth/verify-email": {
       "post": {
-        "description": "Потребляет одноразовый токен подтверждения со сроком 24 часа.",
+        "description": "Consumes a one-time confirmation token valid for 24 hours.",
         "tags": [
           "auth"
         ],
-        "summary": "Подтверждение email",
+        "summary": "Confirm an email address",
         "requestBody": {
           "$ref": "#/components/requestBodies/models.TokenRequest"
         },
@@ -3242,7 +3242,7 @@
             }
           },
           "400": {
-            "description": "токен недействителен или истёк",
+            "description": "the token is invalid or has expired",
             "content": {
               "application/json": {
                 "schema": {
@@ -3256,11 +3256,11 @@
     },
     "/auth/verify-email/resend": {
       "post": {
-        "description": "Ограничение частоты: 5 запросов в час на пару IP и email. Ответ не раскрывает существование учётной записи.",
+        "description": "Rate limit: 5 requests per hour per IP and email pair. The response does not disclose whether an account exists.",
         "tags": [
           "auth"
         ],
-        "summary": "Повторная отправка письма подтверждения",
+        "summary": "Resend the confirmation email",
         "requestBody": {
           "$ref": "#/components/requestBodies/models.EmailRequest"
         },
@@ -3298,21 +3298,21 @@
         }
       }
     },
-    "/hackathons/{id}": {
+    "/events/{id}": {
       "get": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Функция участника, вычисляемое состояние, этапы, ближайший этап, статус регистрации,\nдедлайн и ссылка. Административные заметки участнику не отдаются.",
+        "description": "Participant role, computed state, stages, the nearest stage, registration status,\ndeadline and link. Administrative notes are withheld from the participant.",
         "tags": [
           "queries"
         ],
-        "summary": "Карточка назначенного хакатона",
+        "summary": "Assigned event card",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -3328,7 +3328,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/models.HackathonCard"
+                  "$ref": "#/components/schemas/models.EventCard"
                 }
               }
             }
@@ -3366,21 +3366,21 @@
         }
       }
     },
-    "/hackathons/{id}/registration/done": {
+    "/events/{id}/registration/done": {
       "post": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Самоотчёт участника: перевод собственного статуса TODO в DONE. Доступен при активной\nрегистрации, назначенном участии и неархивном хакатоне. Система не проверяет внешний сайт.",
+        "description": "Participant self-report: moves their own TODO status to DONE. Available with an active\nregistration, an assigned participation and a non-archived event. The system does not verify the external site.",
         "tags": [
           "registration"
         ],
-        "summary": "Отметка о выполненной регистрации",
+        "summary": "Mark registration as completed",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -3432,7 +3432,7 @@
             }
           },
           "409": {
-            "description": "недопустимый переход состояния",
+            "description": "invalid state transition",
             "content": {
               "application/json": {
                 "schema": {
@@ -3444,21 +3444,21 @@
         }
       }
     },
-    "/hackathons/{id}/stages": {
+    "/events/{id}/stages": {
       "get": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Доступно назначенному участнику для опубликованного хакатона и администратору всегда.",
+        "description": "Available to an assigned participant for a published event, and to an administrator always.",
         "tags": [
           "stages"
         ],
-        "summary": "Этапы хакатона",
+        "summary": "Event stages",
         "parameters": [
           {
-            "description": "Идентификатор хакатона",
+            "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
@@ -3510,7 +3510,7 @@
         "tags": [
           "ops"
         ],
-        "summary": "Проверка живости",
+        "summary": "Liveness probe",
         "responses": {
           "200": {
             "description": "OK",
@@ -3527,11 +3527,11 @@
     },
     "/invites/accept": {
       "post": {
-        "description": "Создаёт учётную запись на адрес приглашения и открывает сессию.\nОстальные неистёкшие приглашения этого адреса отзываются в той же транзакции.",
+        "description": "Creates an account for the invited address and opens a session.\nAny other unexpired invites for this address are revoked in the same transaction.",
         "tags": [
           "invites"
         ],
-        "summary": "Принятие приглашения",
+        "summary": "Accept an invite",
         "requestBody": {
           "content": {
             "application/json": {
@@ -3540,7 +3540,7 @@
               }
             }
           },
-          "description": "Токен и данные учётной записи",
+          "description": "Token and account data",
           "required": true
         },
         "responses": {
@@ -3579,14 +3579,14 @@
     },
     "/invites/{token}": {
       "get": {
-        "description": "Возвращает адрес и срок действия приглашения без раскрытия иных данных.",
+        "description": "Returns the address and expiry of the invite without disclosing any other data.",
         "tags": [
           "invites"
         ],
-        "summary": "Публичный просмотр приглашения",
+        "summary": "Public invite preview",
         "parameters": [
           {
-            "description": "Токен приглашения",
+            "description": "Invite token",
             "name": "token",
             "in": "path",
             "required": true,
@@ -3629,7 +3629,7 @@
         "tags": [
           "profile"
         ],
-        "summary": "Собственный профиль",
+        "summary": "Your own profile",
         "responses": {
           "200": {
             "description": "OK",
@@ -3659,11 +3659,11 @@
             "CookieAuth": []
           }
         ],
-        "description": "Флаг администратора, chat_id Telegram и пароль этим endpoint не изменяются.",
+        "description": "The administrator flag, Telegram chat_id and password are not changed by this endpoint.",
         "tags": [
           "profile"
         ],
-        "summary": "Изменение собственного профиля",
+        "summary": "Update your own profile",
         "requestBody": {
           "content": {
             "application/json": {
@@ -3672,7 +3672,7 @@
               }
             }
           },
-          "description": "Изменяемые поля",
+          "description": "Mutable fields",
           "required": true
         },
         "responses": {
@@ -3716,11 +3716,11 @@
             "CookieAuth": []
           }
         ],
-        "description": "Отзывает сессии, удаляет привязку Telegram и отменяет ожидающие уведомления.\nОбратная активация выполняется администратором.",
+        "description": "Revokes sessions, removes the Telegram link and cancels pending notifications.\nReactivation is performed by an administrator.",
         "tags": [
           "profile"
         ],
-        "summary": "Деактивация собственной учётной записи",
+        "summary": "Deactivate your own account",
         "responses": {
           "200": {
             "description": "OK",
@@ -3752,11 +3752,11 @@
             "CookieAuth": []
           }
         ],
-        "description": "Новый адрес сохраняется как pending_email и становится основным только после подтверждения.",
+        "description": "The new address is stored as pending_email and becomes primary only after confirmation.",
         "tags": [
           "profile"
         ],
-        "summary": "Запрос смены email",
+        "summary": "Request an email change",
         "requestBody": {
           "content": {
             "application/json": {
@@ -3765,7 +3765,7 @@
               }
             }
           },
-          "description": "Новый адрес и текущий пароль",
+          "description": "New address and current password",
           "required": true
         },
         "responses": {
@@ -3800,7 +3800,7 @@
             }
           },
           "409": {
-            "description": "адрес уже занят",
+            "description": "address is already taken",
             "content": {
               "application/json": {
                 "schema": {
@@ -3812,21 +3812,21 @@
         }
       }
     },
-    "/me/hackathons": {
+    "/me/events": {
       "get": {
         "security": [
           {
             "CookieAuth": []
           }
         ],
-        "description": "Опубликованные хакатоны с назначенным участием: UPCOMING, ACTIVE и FINISHED.\nАрхивные скрыты по умолчанию и доступны фильтром.",
+        "description": "Published events with an assigned participation: UPCOMING, ACTIVE and FINISHED.\nArchived records are hidden by default and available through a filter.",
         "tags": [
           "queries"
         ],
-        "summary": "Мои хакатоны",
+        "summary": "My events",
         "parameters": [
           {
-            "description": "Показывать архивные",
+            "description": "Include archived records",
             "name": "include_archived",
             "in": "query",
             "schema": {
@@ -3834,7 +3834,7 @@
             }
           },
           {
-            "description": "Фильтр состояний через запятую",
+            "description": "Comma-separated state filter",
             "name": "state",
             "in": "query",
             "schema": {
@@ -3848,7 +3848,7 @@
             }
           },
           {
-            "description": "Номер страницы",
+            "description": "Page number",
             "name": "page",
             "in": "query",
             "schema": {
@@ -3857,7 +3857,7 @@
             }
           },
           {
-            "description": "Размер страницы",
+            "description": "Page size",
             "name": "page_size",
             "in": "query",
             "schema": {
@@ -3872,7 +3872,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/models.MyHackathonPage"
+                  "$ref": "#/components/schemas/models.MyEventPage"
                 }
               }
             }
@@ -3900,7 +3900,7 @@
         "tags": [
           "profile"
         ],
-        "summary": "Отвязка Telegram",
+        "summary": "Unlink Telegram",
         "responses": {
           "200": {
             "description": "OK",
@@ -3932,11 +3932,11 @@
             "CookieAuth": []
           }
         ],
-        "description": "Возвращает одноразовый deep-link, связанный с текущим пользователем.\nИдентификатор чата устанавливается только этим потоком.",
+        "description": "Returns a one-time deep link bound to the current user.\nThe chat identifier is set only by this flow.",
         "tags": [
           "profile"
         ],
-        "summary": "Ссылка привязки Telegram",
+        "summary": "Telegram link URL",
         "responses": {
           "200": {
             "description": "OK",
@@ -3968,14 +3968,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Только назначенные опубликованные неархивные хакатоны. Каждый хакатон — отдельная строка,\nэтапы отдаются интервалами, дедлайн регистрации — отдельным маркером.",
+        "description": "Only assigned, published, non-archived events. Each event is a separate row,\nstages are returned as intervals and the registration deadline as a separate marker.",
         "tags": [
           "queries"
         ],
-        "summary": "Временная шкала пользователя",
+        "summary": "User timeline",
         "parameters": [
           {
-            "description": "Начало периода, RFC3339",
+            "description": "Start of the period, RFC3339",
             "name": "from",
             "in": "query",
             "schema": {
@@ -3983,7 +3983,7 @@
             }
           },
           {
-            "description": "Конец периода, RFC3339",
+            "description": "End of the period, RFC3339",
             "name": "to",
             "in": "query",
             "schema": {
@@ -4027,14 +4027,14 @@
     },
     "/metrics": {
       "get": {
-        "description": "Защищённый endpoint. Требует заголовок Authorization с bearer-токеном METRICS_TOKEN,\nесли токен задан конфигурацией.",
+        "description": "Protected endpoint. Requires an Authorization header with the METRICS_TOKEN bearer token,\nwhen the token is set by configuration.",
         "tags": [
           "ops"
         ],
-        "summary": "Метрики Prometheus",
+        "summary": "Prometheus metrics",
         "responses": {
           "200": {
-            "description": "метрики в формате Prometheus",
+            "description": "metrics in Prometheus format",
             "content": {
               "text/plain": {
                 "schema": {
@@ -4058,11 +4058,11 @@
     },
     "/ops/worker-heartbeat": {
       "get": {
-        "description": "Время последних запусков планировщика и worker, длины очереди по статусам\nи возраст самой старой ожидающей записи.",
+        "description": "Last run times of the scheduler and worker, queue lengths by status\nand the age of the oldest pending entry.",
         "tags": [
           "ops"
         ],
-        "summary": "Состояние фоновых процессов",
+        "summary": "Background process status",
         "responses": {
           "200": {
             "description": "OK",
@@ -4089,11 +4089,11 @@
     },
     "/readyz": {
       "get": {
-        "description": "Проверяет доступность базы данных.",
+        "description": "Checks that the database is reachable.",
         "tags": [
           "ops"
         ],
-        "summary": "Проверка готовности",
+        "summary": "Readiness probe",
         "responses": {
           "200": {
             "description": "OK",
@@ -4129,6 +4129,17 @@
   ],
   "components": {
     "requestBodies": {
+      "models.EmailRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/models.EmailRequest"
+            }
+          }
+        },
+        "description": "Email address",
+        "required": true
+      },
       "models.BatchSetStatusRequest": {
         "content": {
           "application/json": {
@@ -4137,7 +4148,7 @@
             }
           }
         },
-        "description": "Участники и целевой статус",
+        "description": "Participants and target status",
         "required": true
       },
       "models.TokenRequest": {
@@ -4148,24 +4159,13 @@
             }
           }
         },
-        "description": "Токен подтверждения",
-        "required": true
-      },
-      "models.EmailRequest": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/models.EmailRequest"
-            }
-          }
-        },
-        "description": "Адрес электронной почты",
+        "description": "Confirmation token",
         "required": true
       }
     },
     "securitySchemes": {
       "CookieAuth": {
-        "description": "Access token в HttpOnly cookie, выдаётся при входе и обновлении сессии.",
+        "description": "Access token in an HttpOnly cookie, issued on sign-in and session refresh.",
         "type": "apiKey",
         "name": "access_token",
         "in": "cookie"
@@ -4177,7 +4177,7 @@
         "properties": {
           "display_name": {
             "type": "string",
-            "example": "Иван Петров"
+            "example": "John Smith"
           },
           "password": {
             "type": "string",
@@ -4194,7 +4194,7 @@
         "properties": {
           "team_role": {
             "type": "string",
-            "example": "Разработчик"
+            "example": "Developer"
           },
           "user_id": {
             "type": "string"
@@ -4239,10 +4239,10 @@
           "INVITE_CREATE",
           "INVITE_REVOKE",
           "INVITE_ACCEPT",
-          "HACKATHON_CREATE",
-          "HACKATHON_UPDATE",
-          "HACKATHON_PUBLISH",
-          "HACKATHON_ARCHIVE",
+          "EVENT_CREATE",
+          "EVENT_UPDATE",
+          "EVENT_PUBLISH",
+          "EVENT_ARCHIVE",
           "STAGE_CREATE",
           "STAGE_UPDATE",
           "STAGE_DELETE",
@@ -4264,10 +4264,10 @@
           "AuditInviteCreate",
           "AuditInviteRevoke",
           "AuditInviteAccept",
-          "AuditHackathonCreate",
-          "AuditHackathonUpdate",
-          "AuditHackathonPublish",
-          "AuditHackathonArchive",
+          "AuditEventCreate",
+          "AuditEventUpdate",
+          "AuditEventPublish",
+          "AuditEventArchive",
           "AuditStageCreate",
           "AuditStageUpdate",
           "AuditStageDelete",
@@ -4379,7 +4379,7 @@
           },
           "message": {
             "type": "string",
-            "example": "участник уже назначен"
+            "example": "the participant is already assigned"
           },
           "status": {
             "type": "string",
@@ -4505,7 +4505,7 @@
               "$ref": "#/components/schemas/models.CopyRoleOverride"
             }
           },
-          "source_hackathon_id": {
+          "source_event_id": {
             "type": "string"
           }
         }
@@ -4515,7 +4515,7 @@
         "properties": {
           "team_role": {
             "type": "string",
-            "example": "Ментор"
+            "example": "Mentor"
           },
           "user_id": {
             "type": "string"
@@ -4526,7 +4526,7 @@
           "user_id"
         ]
       },
-      "models.CreateHackathonRequest": {
+      "models.CreateEventRequest": {
         "type": "object",
         "properties": {
           "description": {
@@ -4548,7 +4548,7 @@
           },
           "title": {
             "type": "string",
-            "example": "Всероссийский хакатон"
+            "example": "National event"
           },
           "website_url": {
             "type": "string",
@@ -4633,7 +4633,7 @@
           },
           "name": {
             "type": "string",
-            "example": "Приём заявок"
+            "example": "Call for applications"
           },
           "sort_order": {
             "type": "integer"
@@ -4657,10 +4657,10 @@
             "type": "string",
             "format": "date-time"
           },
-          "hackathon_id": {
+          "event_id": {
             "type": "string"
           },
-          "hackathon_title": {
+          "event_title": {
             "type": "string"
           },
           "overdue_minutes": {
@@ -4679,8 +4679,8 @@
         },
         "required": [
           "deadline_at",
-          "hackathon_id",
-          "hackathon_title",
+          "event_id",
+          "event_title",
           "participant_id",
           "status",
           "user"
@@ -4718,9 +4718,9 @@
         "enum": [
           "USER",
           "INVITE",
-          "HACKATHON",
+          "EVENT",
           "STAGE",
-          "HACKATHON_PARTICIPANT",
+          "EVENT_PARTICIPANT",
           "REGISTRATION",
           "REGISTRATION_STATUS",
           "NOTIFICATION_RULE"
@@ -4728,7 +4728,7 @@
         "x-enum-varnames": [
           "EntityUser",
           "EntityInvite",
-          "EntityHackathon",
+          "EntityEvent",
           "EntityStage",
           "EntityParticipant",
           "EntityRegistration",
@@ -4751,7 +4751,7 @@
           },
           "message": {
             "type": "string",
-            "example": "некорректные данные запроса"
+            "example": "invalid request data"
           },
           "request_id": {
             "type": "string",
@@ -4775,32 +4775,15 @@
           "error"
         ]
       },
-      "models.FieldError": {
-        "type": "object",
-        "properties": {
-          "field": {
-            "type": "string",
-            "example": "email"
-          },
-          "message": {
-            "type": "string",
-            "example": "некорректный адрес"
-          }
-        },
-        "required": [
-          "field",
-          "message"
-        ]
-      },
-      "models.HackathonCard": {
+      "models.EventCard": {
         "type": "object",
         "properties": {
           "can_mark_done": {
             "type": "boolean",
             "example": true
           },
-          "hackathon": {
-            "$ref": "#/components/schemas/models.HackathonResponse"
+          "event": {
+            "$ref": "#/components/schemas/models.EventResponse"
           },
           "next_stage": {
             "$ref": "#/components/schemas/models.StageShort"
@@ -4819,22 +4802,22 @@
           },
           "team_role": {
             "type": "string",
-            "example": "Разработчик"
+            "example": "Developer"
           }
         },
         "required": [
           "can_mark_done",
-          "hackathon",
+          "event",
           "stages"
         ]
       },
-      "models.HackathonPage": {
+      "models.EventPage": {
         "type": "object",
         "properties": {
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/models.HackathonResponse"
+              "$ref": "#/components/schemas/models.EventResponse"
             }
           },
           "meta": {
@@ -4846,7 +4829,7 @@
           "meta"
         ]
       },
-      "models.HackathonResponse": {
+      "models.EventResponse": {
         "type": "object",
         "properties": {
           "archived_at": {
@@ -4872,7 +4855,7 @@
           },
           "organizer": {
             "type": "string",
-            "example": "Оргкомитет"
+            "example": "Organising committee"
           },
           "published_at": {
             "type": "string",
@@ -4883,11 +4866,11 @@
             "format": "date-time"
           },
           "state": {
-            "$ref": "#/components/schemas/models.HackathonState"
+            "$ref": "#/components/schemas/models.EventState"
           },
           "title": {
             "type": "string",
-            "example": "Всероссийский хакатон"
+            "example": "National event"
           },
           "updated_at": {
             "type": "string",
@@ -4908,7 +4891,7 @@
           "updated_at"
         ]
       },
-      "models.HackathonState": {
+      "models.EventState": {
         "type": "string",
         "enum": [
           "UNPUBLISHED",
@@ -4918,11 +4901,28 @@
           "ARCHIVED"
         ],
         "x-enum-varnames": [
-          "HackathonUnpublished",
-          "HackathonUpcoming",
-          "HackathonActive",
-          "HackathonFinished",
-          "HackathonArchived"
+          "EventUnpublished",
+          "EventUpcoming",
+          "EventActive",
+          "EventFinished",
+          "EventArchived"
+        ]
+      },
+      "models.FieldError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "example": "email"
+          },
+          "message": {
+            "type": "string",
+            "example": "invalid address"
+          }
+        },
+        "required": [
+          "field",
+          "message"
         ]
       },
       "models.HealthResponse": {
@@ -5040,7 +5040,7 @@
           },
           "display_name": {
             "type": "string",
-            "example": "Иван Петров"
+            "example": "John Smith"
           },
           "email": {
             "type": "string",
@@ -5096,14 +5096,14 @@
         "properties": {
           "message": {
             "type": "string",
-            "example": "операция выполнена"
+            "example": "operation completed"
           }
         },
         "required": [
           "message"
         ]
       },
-      "models.MyHackathonItem": {
+      "models.MyEventItem": {
         "type": "object",
         "properties": {
           "end_at": {
@@ -5134,15 +5134,15 @@
             "format": "date-time"
           },
           "state": {
-            "$ref": "#/components/schemas/models.HackathonState"
+            "$ref": "#/components/schemas/models.EventState"
           },
           "team_role": {
             "type": "string",
-            "example": "Разработчик"
+            "example": "Developer"
           },
           "title": {
             "type": "string",
-            "example": "Всероссийский хакатон"
+            "example": "National event"
           }
         },
         "required": [
@@ -5154,13 +5154,13 @@
           "title"
         ]
       },
-      "models.MyHackathonPage": {
+      "models.MyEventPage": {
         "type": "object",
         "properties": {
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/models.MyHackathonItem"
+              "$ref": "#/components/schemas/models.MyEventItem"
             }
           },
           "meta": {
@@ -5288,7 +5288,7 @@
             "type": "integer",
             "example": 1
           },
-          "hackathon_id": {
+          "event_id": {
             "type": "string"
           },
           "id": {
@@ -5306,7 +5306,7 @@
           },
           "team_role": {
             "type": "string",
-            "example": "Разработчик"
+            "example": "Developer"
           },
           "user": {
             "$ref": "#/components/schemas/models.UserSummary"
@@ -5315,7 +5315,7 @@
         "required": [
           "assigned_at",
           "assignment_version",
-          "hackathon_id",
+          "event_id",
           "id",
           "participation_status",
           "team_role",
@@ -5372,14 +5372,13 @@
         "properties": {
           "display_name": {
             "type": "string",
-            "example": "Иван Петров"
+            "example": "John Smith"
           },
           "email": {
             "type": "string",
             "example": "ivan@example.com"
           },
           "invite_token": {
-            "description": "InviteToken необязателен: при передаче приглашение принимается той же транзакцией.",
             "type": "string"
           },
           "password": {
@@ -5429,7 +5428,7 @@
           "description": {
             "type": "string"
           },
-          "hackathon_id": {
+          "event_id": {
             "type": "string"
           },
           "id": {
@@ -5458,7 +5457,7 @@
         "required": [
           "activation_version",
           "created_at",
-          "hackathon_id",
+          "event_id",
           "id",
           "notification_content_version",
           "schedule_version",
@@ -5499,7 +5498,7 @@
       "models.RegistrationStatusResponse": {
         "type": "object",
         "properties": {
-          "hackathon_id": {
+          "event_id": {
             "type": "string"
           },
           "id": {
@@ -5540,7 +5539,7 @@
           }
         },
         "required": [
-          "hackathon_id",
+          "event_id",
           "id",
           "last_change_source",
           "participant_id",
@@ -5629,7 +5628,7 @@
             "type": "string",
             "format": "date-time"
           },
-          "hackathon_id": {
+          "event_id": {
             "type": "string"
           },
           "id": {
@@ -5637,7 +5636,7 @@
           },
           "name": {
             "type": "string",
-            "example": "Приём заявок"
+            "example": "Call for applications"
           },
           "sort_order": {
             "type": "integer",
@@ -5662,7 +5661,7 @@
         "required": [
           "created_at",
           "end_at",
-          "hackathon_id",
+          "event_id",
           "id",
           "name",
           "sort_order",
@@ -5683,7 +5682,7 @@
           },
           "name": {
             "type": "string",
-            "example": "Приём заявок"
+            "example": "Call for applications"
           },
           "start_at": {
             "type": "string",
@@ -5770,7 +5769,7 @@
           },
           "name": {
             "type": "string",
-            "example": "Приём заявок"
+            "example": "Call for applications"
           },
           "start_at": {
             "type": "string",
@@ -5813,7 +5812,7 @@
             "type": "string",
             "format": "date-time"
           },
-          "hackathon_id": {
+          "event_id": {
             "type": "string"
           },
           "registration_deadline": {
@@ -5831,19 +5830,19 @@
             "format": "date-time"
           },
           "state": {
-            "$ref": "#/components/schemas/models.HackathonState"
+            "$ref": "#/components/schemas/models.EventState"
           },
           "team_role": {
             "type": "string"
           },
           "title": {
             "type": "string",
-            "example": "Всероссийский хакатон"
+            "example": "National event"
           }
         },
         "required": [
           "end_at",
-          "hackathon_id",
+          "event_id",
           "stages",
           "start_at",
           "state",
@@ -5859,7 +5858,7 @@
           }
         }
       },
-      "models.UpdateHackathonRequest": {
+      "models.UpdateEventRequest": {
         "type": "object",
         "properties": {
           "description": {
@@ -5892,10 +5891,9 @@
         "properties": {
           "display_name": {
             "type": "string",
-            "example": "Иван Петров"
+            "example": "John Smith"
           },
           "preferred_channel": {
-            "description": "PreferredChannel: TELEGRAM, EMAIL либо null для сброса явного выбора.",
             "type": "string",
             "enum": [
               "TELEGRAM",
@@ -5974,7 +5972,7 @@
         "properties": {
           "team_role": {
             "type": "string",
-            "example": "Капитан"
+            "example": "Captain"
           }
         }
       },
@@ -6001,7 +5999,7 @@
         "properties": {
           "display_name": {
             "type": "string",
-            "example": "Иван Петров"
+            "example": "John Smith"
           },
           "email": {
             "type": "string",

@@ -1,0 +1,65 @@
+.dark {
+  color-scheme: dark;
+
+  --surface-0: var(--linear-void);
+  --surface-1: var(--linear-carbon);
+  --surface-2: var(--linear-obsidian);
+  --surface-3: var(--linear-graphite);
+
+  --background: var(--surface-0);
+  --foreground: var(--linear-paper);
+  --card: var(--surface-1);
+  --card-foreground: var(--linear-paper);
+  --popover: var(--surface-2);
+  --popover-foreground: var(--linear-paper);
+
+  --primary: var(--brand-blue-300);
+  --primary-foreground: var(--linear-void);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--linear-mist);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--linear-fog);
+  --faint-foreground: var(--linear-ash-lifted);
+
+  --accent: var(--linear-acid-lime);
+  --accent-foreground: var(--linear-void);
+  --accent-surface: var(--surface-3);
+  --accent-surface-foreground: var(--linear-paper);
+  --highlight-fill: var(--linear-acid-lime);
+  --highlight-fill-foreground: var(--linear-void);
+
+  --destructive: var(--hue-crimson-300);
+  --destructive-foreground: var(--linear-void);
+
+  --border: var(--linear-graphite);
+  --border-strong: var(--linear-steel);
+  --input: var(--linear-steel);
+  --ring: var(--linear-acid-lime);
+
+  --stage-registration: var(--hue-blue-300);
+  --stage-selection: var(--hue-violet-300);
+  --stage-participation: var(--hue-green-300);
+  --stage-checkpoint: var(--hue-amber-300);
+  --stage-submission: var(--hue-red-300);
+  --stage-demo: var(--hue-teal-300);
+  --stage-results: var(--hue-magenta-300);
+  --stage-other: var(--hue-slate-300);
+  --stage-foreground: var(--linear-void);
+
+  --state-unpublished: var(--hue-slate-300);
+  --state-upcoming: var(--hue-blue-300);
+  --state-active: var(--hue-green-300);
+  --state-finished: var(--hue-slate-320);
+  --state-archived: var(--hue-slate-350);
+
+  --status-todo: var(--hue-amber-300);
+  --status-done: var(--hue-green-300);
+  --status-not-required: var(--hue-slate-300);
+
+  --urgency-calm: var(--hue-slate-300);
+  --urgency-soon: var(--hue-amber-300);
+  --urgency-today: var(--hue-orange-300);
+  --urgency-overdue: var(--hue-crimson-300);
+  --urgency-done: var(--hue-green-300);
+  --urgency-foreground: var(--linear-void);
+}

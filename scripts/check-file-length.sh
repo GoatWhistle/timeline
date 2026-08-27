@@ -28,6 +28,9 @@ current() {
     | grep -v 'swagger\.' \
     | grep -v '^backend/docs/' \
     | while read -r file; do
+        # git ls-files перечисляет и то, что уже перемещено в рабочем дереве,
+        # но ещё не попало в индекс: такой файл пропускаем, а не шумим.
+        [ -f "$file" ] || continue
         lines=$(wc -l < "$file" | tr -d ' ')
         if [ "$lines" -gt "$LIMIT" ]; then
           printf '%s %s\n' "$lines" "$file"

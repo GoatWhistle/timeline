@@ -32,8 +32,8 @@ const OPTIONAL = {
   'models.BatchItemResult': ['id', 'key', 'code', 'message'],
   'models.DeadlineItem': ['overdue_minutes'],
   'models.ErrorBody': ['fields'],
-  'models.HackathonCard': ['next_stage', 'registration', 'registration_status', 'team_role'],
-  'models.HackathonResponse': [
+  'models.EventCard': ['next_stage', 'registration', 'registration_status', 'team_role'],
+  'models.EventResponse': [
     'description',
     'organizer',
     'website_url',
@@ -44,7 +44,7 @@ const OPTIONAL = {
   'models.InvitePreview': ['email', 'expires_at'],
   'models.InviteResponse': ['accepted_at', 'revoked_at'],
   'models.MeResponse': ['pending_email', 'telegram_username', 'preferred_channel'],
-  'models.MyHackathonItem': [
+  'models.MyEventItem': [
     'organizer',
     'next_stage',
     'registration_deadline',
