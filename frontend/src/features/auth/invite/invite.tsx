@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { z } from 'zod'
 import { useAcceptInvite, useInvitePreview } from '@/entities/session/session.queries'
@@ -15,18 +16,19 @@ import { Button } from '@/shared/ui/primitives/button'
 
 const schema = z
   .object({
-    display_name: z.string().min(2, 'Имя должно содержать не менее 2 символов'),
-    password: z.string().min(8, 'Пароль должен содержать не менее 8 символов'),
+    display_name: z.string().min(2, 'auth:validation.nameMin'),
+    password: z.string().min(8, 'auth:validation.passwordMin'),
     password_repeat: z.string(),
   })
   .refine((values) => values.password === values.password_repeat, {
     path: ['password_repeat'],
-    message: 'Пароли не совпадают',
+    message: 'auth:validation.passwordMismatch',
   })
 
 type FormValues = z.infer<typeof schema>
 
 export function InvitePage() {
+  const { t } = useTranslation('auth')
   const { token = '' } = useParams()
   const navigate = useNavigate()
   const preview = useQuery(useInvitePreview(token))
@@ -59,7 +61,7 @@ export function InvitePage() {
     return (
       <Card className="w-full max-w-sm">
         <CardContent className="flex justify-center p-10">
-          <Spinner label="Проверяем приглашение" />
+          <Spinner label={t('invite.checking')} />
         </CardContent>
       </Card>
     )
@@ -69,15 +71,12 @@ export function InvitePage() {
     return (
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Приглашение недействительно</CardTitle>
-          <CardDescription>
-            Ссылка истекла, была отозвана или уже использована. Запросите новое приглашение у
-            администратора.
-          </CardDescription>
+          <CardTitle>{t('invite.invalidTitle')}</CardTitle>
+          <CardDescription>{t('invite.invalidHint')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button asChild variant="outline">
-            <Link to="/login">Ко входу</Link>
+            <Link to="/login">{t('invite.toLogin')}</Link>
           </Button>
         </CardContent>
       </Card>
@@ -87,14 +86,21 @@ export function InvitePage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Приглашение</CardTitle>
+        <CardTitle>{t('invite.title')}</CardTitle>
         <CardDescription>
-          {preview.data.email} · действует до {formatDateTime(preview.data.expires_at)}
+          {t('invite.validUntil', {
+            email: preview.data.email,
+            date: formatDateTime(preview.data.expires_at),
+          })}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Field label="Имя" htmlFor="display_name" error={errors.display_name?.message}>
+          <Field
+            label={t('field.name')}
+            htmlFor="display_name"
+            error={errors.display_name?.message}
+          >
             <Input
               id="display_name"
               autoComplete="name"
@@ -102,7 +108,7 @@ export function InvitePage() {
               {...register('display_name')}
             />
           </Field>
-          <Field label="Пароль" htmlFor="password" error={errors.password?.message}>
+          <Field label={t('field.password')} htmlFor="password" error={errors.password?.message}>
             <PasswordInput
               id="password"
               autoComplete="new-password"
@@ -111,7 +117,7 @@ export function InvitePage() {
             />
           </Field>
           <Field
-            label="Повторите пароль"
+            label={t('field.repeatPassword')}
             htmlFor="password_repeat"
             error={errors.password_repeat?.message}
           >
@@ -128,7 +134,7 @@ export function InvitePage() {
             </p>
           )}
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner label="Завершаем регистрацию" /> : 'Принять приглашение'}
+            {isSubmitting ? <Spinner label={t('invite.pending')} /> : t('invite.submit')}
           </Button>
         </form>
       </CardContent>

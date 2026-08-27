@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { STAGE_TYPE_COLOR, STAGE_TYPE_LABEL } from '@/entities/stage/stage.labels'
+import { STAGE_TYPE_COLOR, STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
 import {
   stagesQuery,
   useCreateStage,
@@ -39,6 +40,7 @@ function overlaps(stage: StageResponse, all: StageResponse[]): boolean {
 }
 
 export function StagesTab({ event }: { event: EventResponse }) {
+  const { t } = useTranslation('event')
   const query = useQuery(stagesQuery(event.id))
   const create = useCreateStage(event.id)
   const update = useUpdateStage(event.id)
@@ -58,21 +60,21 @@ export function StagesTab({ event }: { event: EventResponse }) {
       <div className="flex justify-end">
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="size-4" />
-          Добавить этап
+          {t('stages.add')}
         </Button>
       </div>
 
       {stages.length === 0 ? (
-        <EmptyState title="Этапы не заданы" description="Добавьте первый этап события" />
+        <EmptyState title={t('stages.emptyTitle')} description={t('stages.emptyHint')} />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Порядок</TableHead>
-              <TableHead>Название</TableHead>
-              <TableHead>Тип</TableHead>
-              <TableHead>Период</TableHead>
-              <TableHead className="w-24">Действия</TableHead>
+              <TableHead>{t('stages.columnOrder')}</TableHead>
+              <TableHead>{t('stages.columnName')}</TableHead>
+              <TableHead>{t('stages.columnType')}</TableHead>
+              <TableHead>{t('stages.columnPeriod')}</TableHead>
+              <TableHead className="w-24">{t('stages.columnActions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -83,10 +85,10 @@ export function StagesTab({ event }: { event: EventResponse }) {
                   <div className="flex items-center gap-2">
                     <Dot className={STAGE_TYPE_COLOR[stage.type]} />
                     <span className="font-medium">{stage.name}</span>
-                    {overlaps(stage, stages) && <Badge tone="neutral">пересечение</Badge>}
+                    {overlaps(stage, stages) && <Badge tone="neutral">{t('stages.overlap')}</Badge>}
                   </div>
                 </TableCell>
-                <TableCell>{STAGE_TYPE_LABEL[stage.type]}</TableCell>
+                <TableCell>{STAGE_TYPE_KEY[stage.type]}</TableCell>
                 <TableCell className="whitespace-nowrap text-muted-foreground">
                   {formatDateTime(stage.start_at)} — {formatDateTime(stage.end_at)}
                 </TableCell>
@@ -95,7 +97,7 @@ export function StagesTab({ event }: { event: EventResponse }) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label={`Изменить этап ${stage.name}`}
+                      aria-label={t('stages.editAria', { name: stage.name })}
                       onClick={() => setEditing(stage)}
                     >
                       <Pencil className="size-4" />
@@ -103,7 +105,7 @@ export function StagesTab({ event }: { event: EventResponse }) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label={`Удалить этап ${stage.name}`}
+                      aria-label={t('stages.deleteAria', { name: stage.name })}
                       onClick={() => setDeleting(stage)}
                     >
                       <Trash2 className="size-4" />
@@ -119,15 +121,15 @@ export function StagesTab({ event }: { event: EventResponse }) {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Новый этап</DialogTitle>
+            <DialogTitle>{t('stages.newTitle')}</DialogTitle>
           </DialogHeader>
           <StageForm
-            submitLabel="Создать"
+            submitLabel={t('list.create')}
             eventRange={{ start_at: event.start_at, end_at: event.end_at }}
             onSubmit={async (payload) => {
               await create.mutateAsync(payload)
               setCreateOpen(false)
-              toast.success('Этап создан')
+              toast.success(t('stages.created'))
             }}
           />
         </DialogContent>
@@ -136,17 +138,17 @@ export function StagesTab({ event }: { event: EventResponse }) {
       <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Изменение этапа</DialogTitle>
+            <DialogTitle>{t('stages.editTitle')}</DialogTitle>
           </DialogHeader>
           {editing && (
             <StageForm
               stage={editing}
-              submitLabel="Сохранить"
+              submitLabel={t('common:action.save')}
               eventRange={{ start_at: event.start_at, end_at: event.end_at }}
               onSubmit={async (payload) => {
                 await update.mutateAsync({ id: editing.id, body: payload })
                 setEditing(null)
-                toast.success('Этап сохранён')
+                toast.success(t('stages.saved'))
               }}
             />
           )}
@@ -156,14 +158,14 @@ export function StagesTab({ event }: { event: EventResponse }) {
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(open) => !open && setDeleting(null)}
-        title="Удалить этап?"
-        description={`Этап «${deleting?.name}» будет удалён. Уведомления этапы не порождают, расписание напоминаний не изменится.`}
-        confirmLabel="Удалить"
+        title={t('stages.confirmDeleteTitle')}
+        description={t('stages.confirmDeleteHint', { name: deleting?.name })}
+        confirmLabel={t('common:action.delete')}
         destructive
         disabled={remove.isPending}
         onConfirm={async () => {
           if (!deleting) return
-          await remove.mutateAsync(deleting.id).catch(() => toast.error('Не удалось удалить этап'))
+          await remove.mutateAsync(deleting.id).catch(() => toast.error(t('stages.deleteFailed')))
           setDeleting(null)
         }}
       />

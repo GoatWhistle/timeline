@@ -1,8 +1,9 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import {
   STAGE_TYPE_COLOR,
   STAGE_TYPE_ICON,
-  STAGE_TYPE_LABEL,
+  STAGE_TYPE_KEY,
   STAGE_TYPE_PATTERNED,
 } from '@/entities/stage/stage.labels'
 import type { TimelineItem } from '@/shared/api/types.gen'
@@ -35,13 +36,18 @@ export function StageBar({
   width: number
   lane: number
 }) {
+  const { t } = useTranslation()
   const Icon = STAGE_TYPE_ICON[stage.type]
+  const typeLabel = t(STAGE_TYPE_KEY[stage.type])
+  const start = formatDate(stage.start_at)
+  const end = formatDate(stage.end_at)
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Link
           to={href}
-          aria-label={`${stage.name}. ${STAGE_TYPE_LABEL[stage.type]}. ${formatDate(stage.start_at)} — ${formatDate(stage.end_at)}`}
+          aria-label={t('schedule.stageAria', { name: stage.name, type: typeLabel, start, end })}
           className={cn(
             'absolute flex items-center gap-1 overflow-hidden rounded-sm px-1 text-[11px] text-stage-foreground',
             'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring',
@@ -66,7 +72,7 @@ export function StageBar({
       <TooltipContent>
         <p className="font-medium">{stage.name}</p>
         <p className="text-muted-foreground">
-          {STAGE_TYPE_LABEL[stage.type]} · {formatDate(stage.start_at)} — {formatDate(stage.end_at)}
+          {t('schedule.stageTooltip', { type: typeLabel, start, end })}
         </p>
       </TooltipContent>
     </Tooltip>

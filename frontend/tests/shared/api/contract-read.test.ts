@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { api } from '@/shared/api/client'
 import { EVENT_ID, loginAs } from './contract-support'
 
-describe('Соответствие ответов контракту: чтение', () => {
+describe('Contract compliance: reads', () => {
   beforeEach(async () => {
     await loginAs('admin@example.com')
   })
@@ -143,7 +143,7 @@ describe('Соответствие ответов контракту: чтени
     assertMatchesContract('/ops/worker-heartbeat', 'get', 200, data)
   })
 
-  it('GET /healthz и /readyz', async () => {
+  it('GET /healthz and /readyz', async () => {
     const health = await api.GET('/healthz')
     assertMatchesContract('/healthz', 'get', 200, health.data)
     const ready = await api.GET('/readyz')

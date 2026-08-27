@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { invitesQuery, useCreateInvite, useRevokeInvite } from '@/entities/invite/invite.queries'
@@ -35,18 +36,19 @@ import {
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 
-const schema = z.object({ email: z.email('Укажите корректный адрес') })
+const schema = z.object({ email: z.email('auth:validation.email') })
 type FormValues = z.infer<typeof schema>
 
 function inviteState(invite: InviteResponse) {
-  if (invite.accepted_at) return { label: 'принято', tone: 'primary' as const }
-  if (invite.revoked_at) return { label: 'отозвано', tone: 'danger' as const }
+  if (invite.accepted_at) return { labelKey: 'invites.accepted', tone: 'primary' as const }
+  if (invite.revoked_at) return { labelKey: 'invites.revoked', tone: 'danger' as const }
   if (Date.parse(invite.expires_at) < Date.now())
-    return { label: 'истекло', tone: 'neutral' as const }
-  return { label: 'активно', tone: 'outline' as const }
+    return { labelKey: 'invites.expired', tone: 'neutral' as const }
+  return { labelKey: 'invites.active', tone: 'outline' as const }
 }
 
 export function AdminInvitesPage() {
+  const { t } = useTranslation()
   const [page, setPage] = usePageParam()
   const [open, setOpen] = useState(false)
   const [link, setLink] = useState<string | null>(null)
@@ -68,8 +70,8 @@ export function AdminInvitesPage() {
       const result = await create.mutateAsync(values)
       setLink(result.accept_link)
       reset()
-      toast.success('Приглашение создано', {
-        description: 'Предыдущее непринятое приглашение на этот адрес отозвано',
+      toast.success(t('invites.created'), {
+        description: t('invites.createdHint'),
       })
     } catch (error) {
       applyServerErrors(error, setError, ['email'])
@@ -79,8 +81,8 @@ export function AdminInvitesPage() {
   return (
     <div>
       <PageHeader
-        title="Приглашения"
-        description="Приглашение действует 72 часа и не создаёт учётную запись до завершения регистрации"
+        title={t('invites.title')}
+        description={t('invites.description')}
         actions={
           <Button
             onClick={() => {
@@ -89,7 +91,7 @@ export function AdminInvitesPage() {
             }}
           >
             <Plus className="size-4" />
-            Пригласить
+            {t('invites.invite')}
           </Button>
         }
       />
@@ -97,7 +99,7 @@ export function AdminInvitesPage() {
       {query.isPending && <LoadingState />}
       {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
 
-      {query.data && query.data.items.length === 0 && <EmptyState title="Приглашений нет" />}
+      {query.data && query.data.items.length === 0 && <EmptyState title={t('invites.empty')} />}
 
       {query.data && query.data.items.length > 0 && (
         <div className="flex flex-col gap-4">
@@ -105,9 +107,9 @@ export function AdminInvitesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Email</TableHead>
-                <TableHead>Состояние</TableHead>
-                <TableHead>Действует до</TableHead>
-                <TableHead className="w-32">Действия</TableHead>
+                <TableHead>{t('invites.columnState')}</TableHead>
+                <TableHead>{t('invites.columnValidUntil')}</TableHead>
+                <TableHead className="w-32">{t('invites.columnActions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -117,7 +119,7 @@ export function AdminInvitesPage() {
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.email}</TableCell>
                     <TableCell>
-                      <Badge tone={state.tone}>{state.label}</Badge>
+                      <Badge tone={state.tone}>{t(state.labelKey)}</Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDateTime(item.expires_at)}
@@ -132,11 +134,11 @@ export function AdminInvitesPage() {
                         onClick={() =>
                           revoke
                             .mutateAsync(item.id)
-                            .then(() => toast.success('Приглашение отозвано'))
-                            .catch(() => toast.error('Не удалось отозвать'))
+                            .then(() => toast.success(t('invites.revokedToast')))
+                            .catch(() => toast.error(t('invites.revokeFailed')))
                         }
                       >
-                        Отозвать
+                        {t('invites.revoke')}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -152,15 +154,15 @@ export function AdminInvitesPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Новое приглашение</DialogTitle>
+            <DialogTitle>{t('invites.newTitle')}</DialogTitle>
           </DialogHeader>
 
           {link ? (
             <div className="flex flex-col gap-3">
-              <p className="text-sm">Ссылка для приглашённого:</p>
+              <p className="text-sm">{t('invites.link')}</p>
               <code className="break-all rounded-md bg-muted p-3 text-xs">{link}</code>
               <DialogFooter>
-                <Button onClick={() => setOpen(false)}>Готово</Button>
+                <Button onClick={() => setOpen(false)}>{t('invites.done')}</Button>
               </DialogFooter>
             </div>
           ) : (
@@ -169,7 +171,7 @@ export function AdminInvitesPage() {
                 label="Email"
                 htmlFor="invite-email"
                 error={errors.email?.message}
-                hint="Адрес существующего пользователя будет отклонён"
+                hint={t('invites.emailHint')}
               >
                 <Input
                   id="invite-email"
@@ -185,10 +187,10 @@ export function AdminInvitesPage() {
               )}
               <DialogFooter>
                 <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-                  Отмена
+                  {t('action.cancel')}
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  Создать
+                  {t('event:list.create')}
                 </Button>
               </DialogFooter>
             </form>

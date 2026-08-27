@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { useResendVerification } from '@/entities/session/session.queries'
@@ -13,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Button } from '@/shared/ui/primitives/button'
 
 export function VerifyEmailPage() {
+  const { t } = useTranslation('auth')
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token') ?? ''
   const [email, setEmail] = useState('')
@@ -21,9 +23,9 @@ export function VerifyEmailPage() {
   async function onResend() {
     try {
       await resend.mutateAsync({ email })
-      toast.success('Письмо отправлено', { description: 'Ссылка действует 24 часа' })
+      toast.success(t('verify.sent'), { description: t('verify.sentHint') })
     } catch {
-      toast.error('Не удалось отправить письмо')
+      toast.error(t('verify.sendFailed'))
     }
   }
 
@@ -39,27 +41,27 @@ export function VerifyEmailPage() {
     return (
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Ссылка недействительна</CardTitle>
-          <CardDescription>В адресе нет токена подтверждения.</CardDescription>
+          <CardTitle>{t('verify.noTokenTitle')}</CardTitle>
+          <CardDescription>{t('verify.noTokenHint')}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-3 border-t pt-4">
-            <Field label="Отправить письмо повторно" htmlFor="resend-email">
+            <Field label={t('verify.resendLabel')} htmlFor="resend-email">
               <Input
                 id="resend-email"
                 type="email"
                 autoComplete="email"
-                placeholder="ваш@email.ru"
+                placeholder={t('verify.emailPlaceholder')}
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
               />
             </Field>
             <Button variant="outline" disabled={!email || resend.isPending} onClick={onResend}>
-              Отправить письмо
+              {t('verify.resendSubmit')}
             </Button>
           </div>
           <Button asChild variant="outline">
-            <Link to="/login">Ко входу</Link>
+            <Link to="/login">{t('invite.toLogin')}</Link>
           </Button>
         </CardContent>
       </Card>
@@ -69,47 +71,45 @@ export function VerifyEmailPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Подтверждение email</CardTitle>
+        <CardTitle>{t('verify.title')}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {isPending && <Spinner label="Проверяем ссылку" />}
+        {isPending && <Spinner label={t('verify.checking')} />}
 
         {isError && (
           <div className="flex items-start gap-2" role="alert">
             <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden="true" />
-            <p className="text-sm">
-              {isApiError(error) ? error.message : 'Не удалось подтвердить адрес'}
-            </p>
+            <p className="text-sm">{isApiError(error) ? error.message : t('verify.failed')}</p>
           </div>
         )}
 
         {!isPending && !isError && (
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-status-done" aria-hidden="true" />
-            <p className="text-sm">Адрес подтверждён. Продуктовые уведомления теперь разрешены.</p>
+            <p className="text-sm">{t('verify.confirmed')}</p>
           </div>
         )}
 
         {isError && (
           <div className="flex flex-col gap-3 border-t pt-4">
-            <Field label="Отправить письмо повторно" htmlFor="resend-email">
+            <Field label={t('verify.resendLabel')} htmlFor="resend-email">
               <Input
                 id="resend-email"
                 type="email"
                 autoComplete="email"
-                placeholder="ваш@email.ru"
+                placeholder={t('verify.emailPlaceholder')}
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
               />
             </Field>
             <Button variant="outline" disabled={!email || resend.isPending} onClick={onResend}>
-              Отправить письмо
+              {t('verify.resendSubmit')}
             </Button>
           </div>
         )}
 
         <Button asChild variant="outline">
-          <Link to="/login">Ко входу</Link>
+          <Link to="/login">{t('invite.toLogin')}</Link>
         </Button>
       </CardContent>
     </Card>

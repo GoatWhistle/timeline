@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import {
@@ -26,13 +27,14 @@ export function TeamRoleDialog({
   onCancel: () => void
   onSave: () => void
 }) {
+  const { t } = useTranslation('registration')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Роль в команде</DialogTitle>
+          <DialogTitle>{t('participants.teamRoleTitle')}</DialogTitle>
         </DialogHeader>
-        <Field label="Роль" htmlFor="team-role">
+        <Field label={t('participants.roleLabel')} htmlFor="team-role">
           <Input
             id="team-role"
             value={value}
@@ -41,10 +43,10 @@ export function TeamRoleDialog({
         </Field>
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>
-            Отмена
+            {t('common:action.cancel')}
           </Button>
           <Button disabled={!value.trim() || disabled} onClick={onSave}>
-            Сохранить
+            {t('common:action.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

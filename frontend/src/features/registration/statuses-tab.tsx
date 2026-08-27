@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
-  REGISTRATION_STATUS_LABEL,
+  REGISTRATION_STATUS_KEY,
   REGISTRATION_STATUSES,
 } from '@/entities/registration/registration.labels'
 import {
@@ -37,6 +38,7 @@ import { Button } from '@/shared/ui/primitives/button'
 import { StatusesTable } from './statuses-table/statuses-table'
 
 export function StatusesTab({ eventId }: { eventId: string }) {
+  const { t } = useTranslation('registration')
   const [page, setPage] = usePageParam()
   const query = useQuery(statusesQuery(eventId, page))
   const preview = usePreviewBatchStatus(eventId)
@@ -74,7 +76,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
       })
       setPreviewResult({ affected: result.affected, skipped: result.skipped })
     } catch {
-      toast.error('Не удалось рассчитать предпросмотр')
+      toast.error(t('statuses.previewFailed'))
     }
   }
 
@@ -85,12 +87,12 @@ export function StatusesTab({ eventId }: { eventId: string }) {
         status: target,
         ...(note ? { note } : {}),
       })
-      reportBatchResult(result, 'Статусы обновлены')
+      reportBatchResult(result, t('statuses.updated'))
       setSelected(new Set())
       setNote('')
       setOpen(false)
     } catch {
-      toast.error('Не удалось изменить статусы')
+      toast.error(t('statuses.updateFailed'))
     }
   }
 
@@ -98,18 +100,15 @@ export function StatusesTab({ eventId }: { eventId: string }) {
     <div className="flex flex-col gap-4">
       {selected.size > 0 && (
         <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-2">
-          <p className="text-sm">Выбрано записей: {selected.size}</p>
+          <p className="text-sm">{t('statuses.selected', { count: selected.size })}</p>
           <Button size="sm" onClick={openDialog}>
-            Изменить статус
+            {t('statuses.changeStatus')}
           </Button>
         </div>
       )}
 
       {items.length === 0 ? (
-        <EmptyState
-          title="Статусов нет"
-          description="Статусы появляются после создания активной регистрации и назначения участников"
-        />
+        <EmptyState title={t('statuses.emptyTitle')} description={t('statuses.emptyHint')} />
       ) : (
         <>
           <StatusesTable
@@ -134,11 +133,11 @@ export function StatusesTab({ eventId }: { eventId: string }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Массовое изменение статуса</DialogTitle>
+            <DialogTitle>{t('statuses.batchTitle')}</DialogTitle>
           </DialogHeader>
 
           <div className="flex flex-col gap-4">
-            <Field label="Новый статус" htmlFor="batch-status">
+            <Field label={t('statuses.newStatus')} htmlFor="batch-status">
               <Select
                 value={target}
                 onValueChange={(value) => runPreview(value as RegistrationStatusValue)}
@@ -149,14 +148,14 @@ export function StatusesTab({ eventId }: { eventId: string }) {
                 <SelectContent>
                   {REGISTRATION_STATUSES.map((status) => (
                     <SelectItem key={status} value={status}>
-                      {REGISTRATION_STATUS_LABEL[status]}
+                      {REGISTRATION_STATUS_KEY[status]}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Field>
 
-            <Field label="Заметка администратора" htmlFor="batch-note">
+            <Field label={t('statuses.adminNote')} htmlFor="batch-note">
               <Textarea
                 id="batch-note"
                 value={note}
@@ -166,10 +165,15 @@ export function StatusesTab({ eventId }: { eventId: string }) {
 
             <div className="rounded-md border border-dashed p-3 text-sm">
               {previewResult ? (
-                <>
-                  Будет изменено записей: <strong>{previewResult.affected}</strong>, пропущено:{' '}
-                  <strong>{previewResult.skipped}</strong>.
-                </>
+                <Trans
+                  t={t}
+                  i18nKey="statuses.previewResult"
+                  values={{
+                    affected: previewResult.affected,
+                    skipped: previewResult.skipped,
+                  }}
+                  components={{ strong: <strong /> }}
+                />
               ) : (
                 <Button
                   variant="outline"
@@ -177,7 +181,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
                   disabled={preview.isPending}
                   onClick={() => runPreview(target)}
                 >
-                  Рассчитать предпросмотр
+                  {t('statuses.preview')}
                 </Button>
               )}
             </div>
@@ -185,10 +189,10 @@ export function StatusesTab({ eventId }: { eventId: string }) {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>
-              Отмена
+              {t('common:action.cancel')}
             </Button>
             <Button onClick={apply} disabled={!previewResult || batchSet.isPending}>
-              Применить
+              {t('common:action.apply')}
             </Button>
           </DialogFooter>
         </DialogContent>

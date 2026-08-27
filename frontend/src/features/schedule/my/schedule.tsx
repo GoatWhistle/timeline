@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { myTimelineQuery } from '@/entities/schedule/schedule.queries'
 import type { TimelineScale } from '@/features/schedule/model/schedule-scale'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid'
@@ -13,6 +14,7 @@ import { PageHeader } from '@/shared/ui/layout/page-header'
 const DEFAULTS = { scale: 'month' as string }
 
 export function MySchedulePage() {
+  const { t } = useTranslation()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const scale: TimelineScale = filters.scale === 'week' ? 'week' : 'month'
   const query = useQuery(myTimelineQuery({}))
@@ -20,17 +22,15 @@ export function MySchedulePage() {
   return (
     <div>
       <PageHeader
-        title="Временная шкала"
-        description="Назначенные опубликованные события"
+        title={t('schedule.title')}
+        description={t('schedule.myDescription')}
         actions={<ZoomSwitch value={scale} onChange={(next) => setFilters({ scale: next })} />}
       />
 
       {query.isPending && <LoadingState />}
       {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
 
-      {query.data && query.data.rows.length === 0 && (
-        <EmptyState title="У вас пока нет назначенных событий" />
-      )}
+      {query.data && query.data.rows.length === 0 && <EmptyState title={t('schedule.myEmpty')} />}
 
       {query.data && query.data.rows.length > 0 && (
         <div className="flex flex-col gap-4">

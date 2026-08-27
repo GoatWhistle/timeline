@@ -4,7 +4,7 @@ import { MOCK_PASSWORD, participants } from '@/mocks/fixtures'
 import { api } from '@/shared/api/client'
 import { EVENT_ID, loginAs, PARTICIPANT_ID } from './contract-support'
 
-describe('Соответствие ответов контракту: изменения', () => {
+describe('Contract compliance: writes', () => {
   beforeEach(async () => {
     await loginAs('admin@example.com')
   })
@@ -19,7 +19,7 @@ describe('Соответствие ответов контракту: измен
 
   it('POST /auth/login → 401', async () => {
     const { error, response } = await api.POST('/auth/login', {
-      body: { email: 'admin@example.com', password: 'неверный' },
+      body: { email: 'admin@example.com', password: 'wrong-password' },
     })
     expect(response.status).toBe(401)
     assertMatchesContract('/auth/login', 'post', 401, error)

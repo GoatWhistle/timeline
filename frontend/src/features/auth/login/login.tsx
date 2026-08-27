@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { z } from 'zod'
 import { useLogin } from '@/entities/session/session.queries'
@@ -14,18 +15,19 @@ import { Button } from '@/shared/ui/primitives/button'
 const MOCKS_ENABLED = import.meta.env.VITE_ENABLE_MSW === '1'
 const MOCK_PASSWORD = 'password123'
 const DEMO_ACCOUNTS = [
-  { label: 'Администратор', email: 'admin@example.com' },
-  { label: 'Участник', email: 'user@example.com' },
+  { labelKey: 'login.roleAdmin', email: 'admin@example.com' },
+  { labelKey: 'login.roleUser', email: 'user@example.com' },
 ]
 
 const schema = z.object({
-  email: z.email('Укажите корректный адрес'),
-  password: z.string().min(1, 'Введите пароль'),
+  email: z.email('auth:validation.email'),
+  password: z.string().min(1, 'auth:validation.passwordRequired'),
 })
 
 type FormValues = z.infer<typeof schema>
 
 export function LoginPage() {
+  const { t } = useTranslation('auth')
   const navigate = useNavigate()
   const location = useLocation()
   const login = useLogin()
@@ -63,7 +65,7 @@ export function LoginPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Вход</CardTitle>
+        <CardTitle>{t('login.title')}</CardTitle>
         <CardDescription>Hackathon Tracker</CardDescription>
       </CardHeader>
       <CardContent>
@@ -79,7 +81,7 @@ export function LoginPage() {
             />
           </Field>
 
-          <Field label="Пароль" htmlFor="password" error={errors.password?.message}>
+          <Field label={t('field.password')} htmlFor="password" error={errors.password?.message}>
             <PasswordInput
               id="password"
               autoComplete="current-password"
@@ -96,15 +98,15 @@ export function LoginPage() {
           )}
 
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner label="Выполняется вход" /> : 'Войти'}
+            {isSubmitting ? <Spinner label={t('login.pending')} /> : t('login.submit')}
           </Button>
 
           <div className="flex justify-between text-sm">
             <Link className="text-primary hover:underline" to="/forgot-password">
-              Забыли пароль?
+              {t('login.forgot')}
             </Link>
             <Link className="text-primary hover:underline" to="/register">
-              Регистрация
+              {t('login.register')}
             </Link>
           </div>
         </form>
@@ -112,8 +114,7 @@ export function LoginPage() {
         {MOCKS_ENABLED && (
           <div className="mt-6 rounded-md border border-dashed p-3">
             <p className="text-muted-foreground text-xs">
-              Backend не подключён, данные отдают моки. Готовые учётные записи, пароль{' '}
-              <code className="font-mono">{MOCK_PASSWORD}</code>:
+              {t('login.mockHint')} <code className="font-mono">{MOCK_PASSWORD}</code>:
             </p>
             <div className="mt-2 flex gap-2">
               {DEMO_ACCOUNTS.map((account) => (
@@ -127,7 +128,7 @@ export function LoginPage() {
                     setValue('password', MOCK_PASSWORD, { shouldValidate: true })
                   }}
                 >
-                  {account.label}
+                  {t(account.labelKey)}
                 </Button>
               ))}
             </div>

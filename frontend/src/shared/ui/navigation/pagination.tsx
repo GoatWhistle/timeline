@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { PageMeta } from '@/shared/api/types.gen'
 import { Button } from '@/shared/ui/primitives/button'
 
@@ -9,14 +10,16 @@ export function Pagination({
   meta: PageMeta | undefined
   onPageChange: (page: number) => void
 }) {
+  const { t } = useTranslation()
+
   if (!meta || meta.total <= meta.page_size) return null
 
   const pages = Math.max(1, Math.ceil(meta.total / meta.page_size))
 
   return (
-    <nav aria-label="Постраничная навигация" className="flex items-center justify-between gap-4">
-      <p className="text-muted-foreground text-sm">
-        Страница {meta.page} из {pages} · всего {meta.total}
+    <nav aria-label={t('pagination.label')} className="flex items-center justify-between gap-4">
+      <p className="text-muted-foreground text-sm tabular">
+        {t('pagination.summary', { page: meta.page, pages, total: meta.total })}
       </p>
       <div className="flex gap-2">
         <Button
@@ -26,7 +29,7 @@ export function Pagination({
           onClick={() => onPageChange(meta.page - 1)}
         >
           <ChevronLeft className="size-4" />
-          Назад
+          {t('action.back')}
         </Button>
         <Button
           variant="outline"
@@ -34,7 +37,7 @@ export function Pagination({
           disabled={!meta.has_next}
           onClick={() => onPageChange(meta.page + 1)}
         >
-          Вперёд
+          {t('action.forward')}
           <ChevronRight className="size-4" />
         </Button>
       </div>

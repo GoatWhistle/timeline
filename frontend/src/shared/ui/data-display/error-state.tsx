@@ -1,13 +1,16 @@
 import { AlertCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { isApiError } from '@/shared/api/errors'
 import { Button } from '@/shared/ui/primitives/button'
 
 export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+  const { t } = useTranslation()
+
   const message = isApiError(error)
     ? error.message
     : error instanceof Error
       ? error.message
-      : 'Не удалось загрузить данные'
+      : t('state.loadFailed')
   const requestId = isApiError(error) ? error.requestId : undefined
 
   return (
@@ -19,12 +22,14 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
       <div>
         <p className="font-medium">{message}</p>
         {requestId && (
-          <p className="text-muted-foreground text-xs">Идентификатор запроса: {requestId}</p>
+          <p className="font-mono text-muted-foreground text-xs">
+            {t('state.requestId', { id: requestId })}
+          </p>
         )}
       </div>
       {onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry}>
-          Повторить
+          {t('action.retry')}
         </Button>
       )}
     </div>

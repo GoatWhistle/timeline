@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { overdueQuery, upcomingQuery } from '@/entities/deadline/deadline.queries'
 import {
   REGISTRATION_STATUS_COLOR,
-  REGISTRATION_STATUS_LABEL,
+  REGISTRATION_STATUS_KEY,
 } from '@/entities/registration/registration.labels'
 import type { DeadlineItem, DeadlinePage } from '@/shared/api/types.gen'
-import { formatDateTime, formatOffsetMinutes, formatRelative } from '@/shared/datetime/datetime'
+import { formatDateTime, formatDuration, formatRelative } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { ErrorState } from '@/shared/ui/data-display/error-state'
@@ -32,9 +33,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/navigation
 import { Dot } from '@/shared/ui/primitives/dot'
 
 const WINDOWS = [
-  { value: '24', label: 'ближайшие сутки' },
-  { value: '72', label: 'ближайшие 3 дня' },
-  { value: '168', label: 'ближайшая неделя' },
+  { value: '24', labelKey: 'deadlines.window24' },
+  { value: '72', labelKey: 'deadlines.window72' },
+  { value: '168', labelKey: 'deadlines.window168' },
 ]
 
 const DEFAULTS = { tab: 'upcoming', within: '72' }
@@ -50,6 +51,8 @@ function DeadlineTable({
   showOverdue: boolean
   onPageChange: (page: number) => void
 }) {
+  const { t } = useTranslation('event')
+
   if (data.items.length === 0) return <EmptyState title={emptyTitle} />
 
   return (
@@ -57,11 +60,13 @@ function DeadlineTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Участник</TableHead>
-            <TableHead>Событие</TableHead>
-            <TableHead>Дедлайн</TableHead>
-            <TableHead>{showOverdue ? 'Просрочка' : 'Осталось'}</TableHead>
-            <TableHead>Статус</TableHead>
+            <TableHead>{t('deadlines.columnParticipant')}</TableHead>
+            <TableHead>{t('deadlines.columnEvent')}</TableHead>
+            <TableHead>{t('deadlines.columnDeadline')}</TableHead>
+            <TableHead>
+              {showOverdue ? t('deadlines.columnOverdue') : t('deadlines.columnLeft')}
+            </TableHead>
+            <TableHead>{t('deadlines.columnStatus')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -84,13 +89,13 @@ function DeadlineTable({
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 {showOverdue && item.overdue_minutes !== undefined
-                  ? formatOffsetMinutes(-item.overdue_minutes).replace(' после дедлайна', '')
+                  ? formatDuration(item.overdue_minutes)
                   : formatRelative(item.deadline_at)}
               </TableCell>
               <TableCell>
                 <span className="inline-flex items-center gap-1.5">
                   <Dot className={REGISTRATION_STATUS_COLOR[item.status]} />
-                  {REGISTRATION_STATUS_LABEL[item.status]}
+                  {REGISTRATION_STATUS_KEY[item.status]}
                 </span>
               </TableCell>
             </TableRow>
@@ -103,6 +108,7 @@ function DeadlineTable({
 }
 
 export function AdminDeadlinesPage() {
+  const { t } = useTranslation('event')
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const [page, setPage] = usePageParam()
   const tab = filters.tab === 'overdue' ? 'overdue' : 'upcoming'
@@ -118,8 +124,8 @@ export function AdminDeadlinesPage() {
   return (
     <div>
       <PageHeader
-        title="Дедлайны регистрации"
-        description="Участники, которые ещё не отметили регистрацию"
+        title={t('deadlines.title')}
+        description={t('deadlines.description')}
         actions={
           tab === 'upcoming' ? (
             <div className="w-56">
@@ -127,13 +133,13 @@ export function AdminDeadlinesPage() {
                 value={filters.within}
                 onValueChange={(value) => setFilters({ within: value })}
               >
-                <SelectTrigger aria-label="Окно">
+                <SelectTrigger aria-label={t('deadlines.windowAria')}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {WINDOWS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                      {t(option.labelKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -145,8 +151,8 @@ export function AdminDeadlinesPage() {
 
       <Tabs value={tab} onValueChange={(value) => setFilters({ tab: value })}>
         <TabsList>
-          <TabsTrigger value="upcoming">Приближаются</TabsTrigger>
-          <TabsTrigger value="overdue">Просрочены</TabsTrigger>
+          <TabsTrigger value="upcoming">{t('deadlines.tabUpcoming')}</TabsTrigger>
+          <TabsTrigger value="overdue">{t('deadlines.tabOverdue')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="upcoming">
@@ -157,7 +163,7 @@ export function AdminDeadlinesPage() {
           {upcoming.data && (
             <DeadlineTable
               data={upcoming.data}
-              emptyTitle="Ближайших дедлайнов нет"
+              emptyTitle={t('deadlines.emptyUpcoming')}
               showOverdue={false}
               onPageChange={setPage}
             />
@@ -172,7 +178,7 @@ export function AdminDeadlinesPage() {
           {overdue.data && (
             <DeadlineTable
               data={overdue.data}
-              emptyTitle="Просроченных дедлайнов нет"
+              emptyTitle={t('deadlines.emptyOverdue')}
               showOverdue
               onPageChange={setPage}
             />

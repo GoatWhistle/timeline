@@ -1,4 +1,5 @@
-import { CHANNEL_LABEL } from '@/entities/notification/notification.labels'
+import { useTranslation } from 'react-i18next'
+import { CHANNEL_KEY } from '@/entities/notification/notification.labels'
 import type { Channel } from '@/shared/api/types.gen'
 import { formatOffsetMinutes } from '@/shared/datetime/datetime'
 import { Field } from '@/shared/ui/forms/field'
@@ -54,15 +55,18 @@ export function RuleDialog({
   onCancel: () => void
   onSubmit: () => void
 }) {
+  const { t } = useTranslation('registration')
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Изменение правила' : 'Новое правило напоминания'}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? t('ruleDialog.editTitle') : t('ruleDialog.createTitle')}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          <Field label="Направление" htmlFor="rule-direction">
+          <Field label={t('ruleDialog.direction')} htmlFor="rule-direction">
             <Select
               value={direction}
               onValueChange={(value) => onDirectionChange(value as Direction)}
@@ -71,14 +75,14 @@ export function RuleDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="before">до дедлайна — напоминание</SelectItem>
-                <SelectItem value="after">после дедлайна — уведомление о просрочке</SelectItem>
+                <SelectItem value="before">{t('ruleDialog.before')}</SelectItem>
+                <SelectItem value="after">{t('ruleDialog.after')}</SelectItem>
               </SelectContent>
             </Select>
           </Field>
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Дней" htmlFor="rule-days">
+            <Field label={t('ruleDialog.days')} htmlFor="rule-days">
               <Input
                 id="rule-days"
                 type="number"
@@ -87,7 +91,7 @@ export function RuleDialog({
                 onChange={(event) => onDaysChange(event.target.value)}
               />
             </Field>
-            <Field label="Часов" htmlFor="rule-hours">
+            <Field label={t('ruleDialog.hours')} htmlFor="rule-hours">
               <Input
                 id="rule-hours"
                 type="number"
@@ -100,9 +104,9 @@ export function RuleDialog({
           </div>
 
           <Field
-            label="Канал"
+            label={t('ruleDialog.channel')}
             htmlFor="rule-channel"
-            hint="По умолчанию канал выбирается настройками пользователя"
+            hint={t('ruleDialog.channelHint')}
           >
             <Select
               value={channel}
@@ -112,10 +116,10 @@ export function RuleDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={AUTO_CHANNEL}>По умолчанию</SelectItem>
-                {(Object.keys(CHANNEL_LABEL) as Channel[]).map((item) => (
+                <SelectItem value={AUTO_CHANNEL}>{t('ruleDialog.channelDefault')}</SelectItem>
+                {(Object.keys(CHANNEL_KEY) as Channel[]).map((item) => (
                   <SelectItem key={item} value={item}>
-                    {CHANNEL_LABEL[item]}
+                    {t(CHANNEL_KEY[item])}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -123,7 +127,7 @@ export function RuleDialog({
           </Field>
 
           <p className="rounded-md border border-dashed p-3 text-sm">
-            Правило сработает:{' '}
+            {t('ruleDialog.willFire')}{' '}
             {formatOffsetMinutes(
               (direction === 'before' ? 1 : -1) * (Number(days) * 1440 + Number(hours) * 60),
             )}
@@ -133,10 +137,10 @@ export function RuleDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>
-            Отмена
+            {t('common:action.cancel')}
           </Button>
           <Button onClick={onSubmit} disabled={pending}>
-            {isEditing ? 'Сохранить' : 'Создать'}
+            {isEditing ? t('common:action.save') : t('ruleDialog.create')}
           </Button>
         </DialogFooter>
       </DialogContent>

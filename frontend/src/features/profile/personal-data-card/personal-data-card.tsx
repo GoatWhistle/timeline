@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
@@ -10,11 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/car
 import { Button } from '@/shared/ui/primitives/button'
 
 const profileSchema = z.object({
-  display_name: z.string().min(2, 'Имя должно содержать не менее 2 символов').max(120),
+  display_name: z.string().min(2, 'auth:validation.nameMin').max(120),
 })
 type ProfileValues = z.infer<typeof profileSchema>
 
 export function PersonalDataCard({ displayName }: { displayName: string }) {
+  const { t } = useTranslation()
   const updateProfile = useUpdateProfile()
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -24,7 +26,7 @@ export function PersonalDataCard({ displayName }: { displayName: string }) {
   async function onSaveProfile(values: ProfileValues) {
     try {
       await updateProfile.mutateAsync({ display_name: values.display_name })
-      toast.success('Профиль сохранён')
+      toast.success(t('profile.saved'))
     } catch (error) {
       applyServerErrors(error, profileForm.setError, ['display_name'])
     }
@@ -33,7 +35,7 @@ export function PersonalDataCard({ displayName }: { displayName: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Личные данные</CardTitle>
+        <CardTitle>{t('profile.personalTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         <form
@@ -42,7 +44,7 @@ export function PersonalDataCard({ displayName }: { displayName: string }) {
           noValidate
         >
           <Field
-            label="Имя"
+            label={t('profile.name')}
             htmlFor="display_name"
             error={profileForm.formState.errors.display_name?.message}
           >
@@ -54,7 +56,7 @@ export function PersonalDataCard({ displayName }: { displayName: string }) {
           </Field>
           <div>
             <Button type="submit" disabled={profileForm.formState.isSubmitting}>
-              Сохранить
+              {t('action.save')}
             </Button>
           </div>
         </form>

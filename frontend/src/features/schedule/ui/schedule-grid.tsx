@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { EVENT_STATE_LABEL } from '@/entities/event/event.labels'
+import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { packLanes } from '@/features/schedule/model/pack-lanes'
 import {
   ROW_LABEL_WIDTH,
@@ -19,6 +20,7 @@ type ScheduleGridProps = {
 }
 
 export function ScheduleGrid({ data, scale, hrefBuilder }: ScheduleGridProps) {
+  const { t } = useTranslation()
   const { ticks, width, x, position, tickLabel } = useScheduleGeometry(
     data.range.from,
     data.range.to,
@@ -33,7 +35,7 @@ export function ScheduleGrid({ data, scale, hrefBuilder }: ScheduleGridProps) {
         <div style={{ minWidth: ROW_LABEL_WIDTH + width }}>
           <div className="sticky top-0 z-30 grid border-b bg-card" style={{ gridTemplateColumns }}>
             <div className="sticky left-0 z-40 border-r bg-card px-3 py-2 font-medium text-muted-foreground text-xs uppercase">
-              Событие
+              {t('schedule.columnEvent')}
             </div>
             <div className="relative h-9">
               {ticks.map((tick) => (
@@ -65,7 +67,7 @@ export function ScheduleGrid({ data, scale, hrefBuilder }: ScheduleGridProps) {
                     {row.title}
                   </Link>
                   <p className="text-muted-foreground text-xs">
-                    {EVENT_STATE_LABEL[row.state]}
+                    {t(EVENT_STATE_KEY[row.state])}
                     {row.team_role ? ` · ${row.team_role}` : ''}
                   </p>
                 </div>

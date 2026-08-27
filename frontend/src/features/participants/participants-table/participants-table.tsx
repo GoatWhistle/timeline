@@ -1,8 +1,9 @@
 import { Pencil, RotateCcw } from 'lucide-react'
-import { PARTICIPATION_STATUS_LABEL } from '@/entities/participant/participant.labels'
+import { useTranslation } from 'react-i18next'
+import { PARTICIPATION_STATUS_KEY } from '@/entities/participant/participant.labels'
 import {
   REGISTRATION_STATUS_COLOR,
-  REGISTRATION_STATUS_LABEL,
+  REGISTRATION_STATUS_KEY,
 } from '@/entities/registration/registration.labels'
 import type { ParticipantResponse } from '@/shared/api/types.gen'
 import { formatDate } from '@/shared/datetime/datetime'
@@ -38,22 +39,23 @@ export function ParticipantsTable({
   onEdit: (item: ParticipantResponse) => void
   onReactivate: (item: ParticipantResponse) => void
 }) {
+  const { t } = useTranslation('registration')
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead className="w-10">
             <Checkbox
-              aria-label="Выбрать всех"
+              aria-label={t('participants.selectAll')}
               checked={allSelected}
               onCheckedChange={(checked) => onToggleAll(checked === true)}
             />
           </TableHead>
-          <TableHead>Участник</TableHead>
-          <TableHead>Роль</TableHead>
-          <TableHead>Участие</TableHead>
-          <TableHead>Регистрация</TableHead>
-          <TableHead className="w-24">Действия</TableHead>
+          <TableHead>{t('participants.columnParticipant')}</TableHead>
+          <TableHead>{t('participants.columnRole')}</TableHead>
+          <TableHead>{t('participants.columnParticipation')}</TableHead>
+          <TableHead>{t('participants.columnRegistration')}</TableHead>
+          <TableHead className="w-24">{t('participants.columnActions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -61,7 +63,7 @@ export function ParticipantsTable({
           <TableRow key={item.id} data-state={selected.has(item.id) ? 'selected' : undefined}>
             <TableCell>
               <Checkbox
-                aria-label={`Выбрать ${item.user.display_name}`}
+                aria-label={t('participants.select', { name: item.user.display_name })}
                 disabled={item.participation_status !== 'ASSIGNED'}
                 checked={selected.has(item.id)}
                 onCheckedChange={(checked) => onToggleOne(item.id, checked === true)}
@@ -74,7 +76,7 @@ export function ParticipantsTable({
             <TableCell>{item.team_role}</TableCell>
             <TableCell>
               <Badge tone={item.participation_status === 'ASSIGNED' ? 'primary' : 'danger'}>
-                {PARTICIPATION_STATUS_LABEL[item.participation_status]}
+                {PARTICIPATION_STATUS_KEY[item.participation_status]}
               </Badge>
               {item.removed_at && (
                 <span className="ml-2 text-muted-foreground text-xs">
@@ -86,7 +88,7 @@ export function ParticipantsTable({
               {item.registration_status ? (
                 <span className="inline-flex items-center gap-1.5">
                   <Dot className={REGISTRATION_STATUS_COLOR[item.registration_status.status]} />
-                  {REGISTRATION_STATUS_LABEL[item.registration_status.status]}
+                  {REGISTRATION_STATUS_KEY[item.registration_status.status]}
                 </span>
               ) : (
                 <span className="text-muted-foreground">—</span>
@@ -97,7 +99,7 @@ export function ParticipantsTable({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={`Изменить роль ${item.user.display_name}`}
+                  aria-label={t('participants.editRole', { name: item.user.display_name })}
                   onClick={() => onEdit(item)}
                 >
                   <Pencil className="size-4" />
@@ -106,7 +108,7 @@ export function ParticipantsTable({
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={`Вернуть ${item.user.display_name}`}
+                    aria-label={t('participants.restore', { name: item.user.display_name })}
                     disabled={reactivatePending}
                     onClick={() => onReactivate(item)}
                   >

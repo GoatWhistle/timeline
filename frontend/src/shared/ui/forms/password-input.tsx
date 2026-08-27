@@ -1,10 +1,12 @@
 import { Eye, EyeOff } from 'lucide-react'
 import type * as React from 'react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Input } from './input'
 
 export function PasswordInput({ className, ...props }: React.ComponentProps<'input'>) {
+  const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
   const Icon = visible ? EyeOff : Eye
 
@@ -14,7 +16,7 @@ export function PasswordInput({ className, ...props }: React.ComponentProps<'inp
       <button
         type="button"
         onClick={() => setVisible((previous) => !previous)}
-        aria-label={visible ? 'Скрыть пароль' : 'Показать пароль'}
+        aria-label={visible ? t('password.hide') : t('password.show')}
         aria-pressed={visible}
         className={cn(
           'absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-md',

@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useChangeEmail } from '@/entities/user/profile.queries'
@@ -11,12 +12,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Button } from '@/shared/ui/primitives/button'
 
 const emailSchema = z.object({
-  new_email: z.email('Укажите корректный адрес'),
-  password: z.string().min(1, 'Введите текущий пароль'),
+  new_email: z.email('auth:validation.email'),
+  password: z.string().min(1, 'common:profile.currentPasswordRequired'),
 })
 type EmailValues = z.infer<typeof emailSchema>
 
 export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
+  const { t } = useTranslation()
   const changeEmail = useChangeEmail()
   const emailForm = useForm<EmailValues>({
     resolver: zodResolver(emailSchema),
@@ -27,8 +29,8 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
     try {
       await changeEmail.mutateAsync(values)
       emailForm.reset()
-      toast.success('Письмо отправлено', {
-        description: 'Адрес изменится только после подтверждения по ссылке из письма',
+      toast.success(t('profile.emailSent'), {
+        description: t('profile.emailSentHint'),
       })
     } catch (error) {
       applyServerErrors(error, emailForm.setError, ['new_email', 'password'])
@@ -38,15 +40,13 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Смена email</CardTitle>
-        <CardDescription>
-          До подтверждения нового адреса вход продолжает работать со старым.
-        </CardDescription>
+        <CardTitle>{t('profile.emailTitle')}</CardTitle>
+        <CardDescription>{t('profile.emailHint')}</CardDescription>
       </CardHeader>
       <CardContent>
         {pendingEmail && (
           <p className="mb-4 rounded-md border border-dashed p-3 text-sm">
-            Ожидает подтверждения: <strong>{pendingEmail}</strong>
+            {t('profile.emailPending')} <strong>{pendingEmail}</strong>
           </p>
         )}
         <form
@@ -55,7 +55,7 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
           noValidate
         >
           <Field
-            label="Новый email"
+            label={t('profile.newEmail')}
             htmlFor="new_email"
             error={emailForm.formState.errors.new_email?.message}
           >
@@ -67,7 +67,7 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
             />
           </Field>
           <Field
-            label="Текущий пароль"
+            label={t('profile.currentPassword')}
             htmlFor="current_password"
             error={emailForm.formState.errors.password?.message}
           >
@@ -85,7 +85,7 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
           )}
           <div>
             <Button type="submit" disabled={emailForm.formState.isSubmitting}>
-              Отправить подтверждение
+              {t('profile.sendConfirmation')}
             </Button>
           </div>
         </form>

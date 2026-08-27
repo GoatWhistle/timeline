@@ -1,6 +1,6 @@
 /**
- * СГЕНЕРИРОВАННЫЙ ФАЙЛ — не редактировать вручную.
- * Источник: docs/swagger.json. Обновление: npm run api:types
+ * GENERATED FILE - do not edit by hand.
+ * Source: docs/swagger.json. Regenerate: npm run api:types
  */
 import type { components } from './schema'
 

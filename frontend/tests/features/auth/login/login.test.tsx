@@ -4,87 +4,88 @@ import { Route, Routes } from 'react-router'
 import { describe, expect, it } from 'vitest'
 import { LoginPage } from '@/features/auth/login/login'
 import { MOCK_PASSWORD } from '@/mocks/fixtures'
+import { i18n } from '@/shared/i18n/config'
 
 function Harness() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/" element={<h1>Мои хакатоны</h1>} />
+      <Route path="/" element={<h1>My events</h1>} />
     </Routes>
   )
 }
 
-describe('Экран входа', () => {
-  it('пускает в систему при верных учётных данных', async () => {
+describe('LoginPage', () => {
+  it('signs in with valid credentials', async () => {
     const { user } = renderWithProviders(<Harness />, { route: '/login' })
 
     await user.type(screen.getByLabelText('Email'), 'user@example.com')
-    await user.type(screen.getByLabelText('Пароль'), MOCK_PASSWORD)
-    await user.click(screen.getByRole('button', { name: 'Войти' }))
+    await user.type(screen.getByLabelText(i18n.t('auth:field.password')), MOCK_PASSWORD)
+    await user.click(screen.getByRole('button', { name: i18n.t('auth:login.submit') }))
 
-    expect(await screen.findByRole('heading', { name: 'Мои хакатоны' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'My events' })).toBeInTheDocument()
   })
 
-  it('показывает серверную ошибку при неверном пароле', async () => {
+  it('shows the server error for a wrong password', async () => {
     const { user } = renderWithProviders(<Harness />, { route: '/login' })
 
     await user.type(screen.getByLabelText('Email'), 'user@example.com')
-    await user.type(screen.getByLabelText('Пароль'), 'wrong-password')
-    await user.click(screen.getByRole('button', { name: 'Войти' }))
+    await user.type(screen.getByLabelText(i18n.t('auth:field.password')), 'wrong-password')
+    await user.click(screen.getByRole('button', { name: i18n.t('auth:login.submit') }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Неверный email или пароль')
-    expect(screen.queryByRole('heading', { name: 'Мои хакатоны' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'My events' })).not.toBeInTheDocument()
   })
 
-  it('показывает и снова скрывает пароль по кнопке', async () => {
+  it('toggles password visibility back and forth', async () => {
     const { user } = renderWithProviders(<Harness />, { route: '/login' })
 
-    const password = screen.getByLabelText('Пароль')
+    const password = screen.getByLabelText(i18n.t('auth:field.password'))
     await user.type(password, MOCK_PASSWORD)
     expect(password).toHaveAttribute('type', 'password')
 
-    const toggle = screen.getByRole('button', { name: 'Показать пароль' })
+    const toggle = screen.getByRole('button', { name: i18n.t('common:password.show') })
     expect(toggle).toHaveAttribute('aria-pressed', 'false')
 
     await user.click(toggle)
-    expect(screen.getByLabelText('Пароль')).toHaveAttribute('type', 'text')
-    expect(screen.getByRole('button', { name: 'Скрыть пароль' })).toHaveAttribute(
+    expect(screen.getByLabelText(i18n.t('auth:field.password'))).toHaveAttribute('type', 'text')
+    expect(screen.getByRole('button', { name: i18n.t('common:password.hide') })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
 
-    await user.click(screen.getByRole('button', { name: 'Скрыть пароль' }))
-    expect(screen.getByLabelText('Пароль')).toHaveAttribute('type', 'password')
+    await user.click(screen.getByRole('button', { name: i18n.t('common:password.hide') }))
+    expect(screen.getByLabelText(i18n.t('auth:field.password'))).toHaveAttribute('type', 'password')
   })
 
-  it('кнопка переключения видимости не отправляет форму', async () => {
+  it('does not submit the form from the visibility toggle', async () => {
     const { user } = renderWithProviders(<Harness />, { route: '/login' })
 
     await user.type(screen.getByLabelText('Email'), 'user@example.com')
-    await user.type(screen.getByLabelText('Пароль'), MOCK_PASSWORD)
-    await user.click(screen.getByRole('button', { name: 'Показать пароль' }))
+    await user.type(screen.getByLabelText(i18n.t('auth:field.password')), MOCK_PASSWORD)
+    await user.click(screen.getByRole('button', { name: i18n.t('common:password.show') }))
 
-    expect(screen.queryByRole('heading', { name: 'Мои хакатоны' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'My events' })).not.toBeInTheDocument()
   })
 
-  it('быстрый вход подставляет демо-учётную запись', async () => {
+  it('quick sign-in fills the demo account', async () => {
     const { user } = renderWithProviders(<Harness />, { route: '/login' })
 
-    await user.click(screen.getByRole('button', { name: 'Участник' }))
+    await user.click(screen.getByRole('button', { name: i18n.t('auth:login.roleUser') }))
     expect(screen.getByLabelText('Email')).toHaveValue('user@example.com')
 
-    await user.click(screen.getByRole('button', { name: 'Войти' }))
-    expect(await screen.findByRole('heading', { name: 'Мои хакатоны' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: i18n.t('auth:login.submit') }))
+    expect(await screen.findByRole('heading', { name: 'My events' })).toBeInTheDocument()
   })
 
-  it('не отправляет форму при некорректном email', async () => {
+  it('does not submit the form with a malformed email', async () => {
     const { user } = renderWithProviders(<Harness />, { route: '/login' })
 
     await user.type(screen.getByLabelText('Email'), 'не-email')
-    await user.type(screen.getByLabelText('Пароль'), MOCK_PASSWORD)
-    await user.click(screen.getByRole('button', { name: 'Войти' }))
+    await user.type(screen.getByLabelText(i18n.t('auth:field.password')), MOCK_PASSWORD)
+    await user.click(screen.getByRole('button', { name: i18n.t('auth:login.submit') }))
 
-    expect(await screen.findByText('Укажите корректный адрес')).toBeInTheDocument()
+    expect(await screen.findByText(i18n.t('auth:validation.email'))).toBeInTheDocument()
     await waitFor(() => {
       expect(screen.getByLabelText('Email')).toHaveAttribute('aria-invalid', 'true')
     })

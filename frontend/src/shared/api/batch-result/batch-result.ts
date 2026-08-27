@@ -1,22 +1,25 @@
 import { toast } from 'sonner'
 import type { BatchResult } from '@/shared/api/types.gen'
+import { i18n } from '@/shared/i18n/config'
 
 export function reportBatchResult(result: BatchResult, successMessage: string): void {
   const { succeeded, skipped, failed, results } = result
 
   if (failed === 0 && skipped === 0) {
-    toast.success(successMessage, { description: `Обработано записей: ${succeeded}` })
+    toast.success(successMessage, {
+      description: i18n.t('batch.processed', { count: succeeded }),
+    })
     return
   }
 
   const problems = results
     .filter((item) => item.status !== 'ok')
-    .map((item) => item.message ?? item.code ?? 'без описания')
+    .map((item) => item.message ?? item.code ?? i18n.t('batch.noDescription'))
 
   const summary = [
-    `Успешно: ${succeeded}`,
-    skipped > 0 ? `пропущено: ${skipped}` : null,
-    failed > 0 ? `с ошибкой: ${failed}` : null,
+    i18n.t('batch.succeeded', { count: succeeded }),
+    skipped > 0 ? i18n.t('batch.skipped', { count: skipped }) : null,
+    failed > 0 ? i18n.t('batch.failed', { count: failed }) : null,
   ]
     .filter(Boolean)
     .join(', ')

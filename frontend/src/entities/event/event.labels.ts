@@ -1,11 +1,11 @@
 import type { EventState } from '@/shared/api/types.gen'
 
-export const EVENT_STATE_LABEL: Record<EventState, string> = {
-  UNPUBLISHED: 'Черновик',
-  UPCOMING: 'Предстоит',
-  ACTIVE: 'Идёт',
-  FINISHED: 'Завершён',
-  ARCHIVED: 'В архиве',
+export const EVENT_STATE_KEY: Record<EventState, string> = {
+  UNPUBLISHED: 'event:state.UNPUBLISHED',
+  UPCOMING: 'event:state.UPCOMING',
+  ACTIVE: 'event:state.ACTIVE',
+  FINISHED: 'event:state.FINISHED',
+  ARCHIVED: 'event:state.ARCHIVED',
 }
 
 export const EVENT_STATE_COLOR: Record<EventState, string> = {
@@ -16,4 +16,4 @@ export const EVENT_STATE_COLOR: Record<EventState, string> = {
   ARCHIVED: 'bg-state-archived',
 }
 
-export const EVENT_STATES = Object.keys(EVENT_STATE_LABEL) as EventState[]
+export const EVENT_STATES = Object.keys(EVENT_STATE_KEY) as EventState[]

@@ -10,7 +10,7 @@ async function enableMocking(): Promise<void> {
 }
 
 const container = document.getElementById('root')
-if (!container) throw new Error('Не найден корневой элемент #root')
+if (!container) throw new Error('Root element #root not found')
 
 enableMocking().then(() => {
   createRoot(container).render(

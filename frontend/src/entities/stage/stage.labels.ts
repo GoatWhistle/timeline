@@ -11,15 +11,15 @@ import {
 import type * as React from 'react'
 import type { StageType } from '@/shared/api/types.gen'
 
-export const STAGE_TYPE_LABEL: Record<StageType, string> = {
-  REGISTRATION: 'Регистрация',
-  SELECTION: 'Отбор',
-  PARTICIPATION: 'Участие',
-  CHECKPOINT: 'Контрольная точка',
-  SUBMISSION: 'Сдача решения',
-  DEMO: 'Демонстрация',
-  RESULTS: 'Результаты',
-  OTHER: 'Другое',
+export const STAGE_TYPE_KEY: Record<StageType, string> = {
+  REGISTRATION: 'event:stageType.REGISTRATION',
+  SELECTION: 'event:stageType.SELECTION',
+  PARTICIPATION: 'event:stageType.PARTICIPATION',
+  CHECKPOINT: 'event:stageType.CHECKPOINT',
+  SUBMISSION: 'event:stageType.SUBMISSION',
+  DEMO: 'event:stageType.DEMO',
+  RESULTS: 'event:stageType.RESULTS',
+  OTHER: 'event:stageType.OTHER',
 }
 
 export const STAGE_TYPE_COLOR: Record<StageType, string> = {
@@ -55,4 +55,4 @@ export const STAGE_TYPE_PATTERNED: Record<StageType, boolean> = {
   OTHER: false,
 }
 
-export const STAGE_TYPES = Object.keys(STAGE_TYPE_LABEL) as StageType[]
+export const STAGE_TYPES = Object.keys(STAGE_TYPE_KEY) as StageType[]

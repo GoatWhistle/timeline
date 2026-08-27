@@ -4,10 +4,10 @@ import type {
   RegistrationStatusValue,
 } from '@/shared/api/types.gen'
 
-export const REGISTRATION_STATUS_LABEL: Record<RegistrationStatusValue, string> = {
-  TODO: 'Не выполнена',
-  DONE: 'Выполнена',
-  NOT_REQUIRED: 'Не требуется',
+export const REGISTRATION_STATUS_KEY: Record<RegistrationStatusValue, string> = {
+  TODO: 'registration:status.TODO',
+  DONE: 'registration:status.DONE',
+  NOT_REQUIRED: 'registration:status.NOT_REQUIRED',
 }
 
 export const REGISTRATION_STATUS_COLOR: Record<RegistrationStatusValue, string> = {
@@ -16,17 +16,17 @@ export const REGISTRATION_STATUS_COLOR: Record<RegistrationStatusValue, string> 
   NOT_REQUIRED: 'bg-status-not-required',
 }
 
-export const REGISTRATION_STATE_LABEL: Record<RegistrationState, string> = {
-  ACTIVE: 'Активна',
-  DISABLED: 'Выключена',
+export const REGISTRATION_STATE_KEY: Record<RegistrationState, string> = {
+  ACTIVE: 'registration:state.ACTIVE',
+  DISABLED: 'registration:state.DISABLED',
 }
 
-export const CHANGE_SOURCE_LABEL: Record<ChangeSource, string> = {
-  SYSTEM: 'Система',
-  USER: 'Пользователь',
-  ADMIN: 'Администратор',
+export const CHANGE_SOURCE_KEY: Record<ChangeSource, string> = {
+  SYSTEM: 'registration:changeSource.SYSTEM',
+  USER: 'registration:changeSource.USER',
+  ADMIN: 'registration:changeSource.ADMIN',
 }
 
 export const REGISTRATION_STATUSES = Object.keys(
-  REGISTRATION_STATUS_LABEL,
+  REGISTRATION_STATUS_KEY,
 ) as RegistrationStatusValue[]

@@ -5,11 +5,15 @@
 @import "./tokens/domain.css";
 @import "./tokens/motion.css";
 @import "./tokens/dark.css";
+@import "./fonts.css";
 @import "./reset.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: "Geist Variable", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", "Geist Mono Fallback", ui-monospace, monospace;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { applyServerErrors } from '@/shared/forms/server-errors'
@@ -21,22 +22,22 @@ function toIso(local: string): string {
 
 const schema = z
   .object({
-    title: z.string().min(1, 'Укажите название').max(200),
+    title: z.string().min(1, 'event:form.titleRequired').max(200),
     organizer: z.string().max(200).optional(),
     website_url: z
       .string()
       .optional()
       .refine((value) => !value || value.startsWith('https://'), {
-        message: 'Ссылка должна начинаться с https://',
+        message: 'event:form.urlHttps',
       }),
     description: z.string().optional(),
     notes: z.string().optional(),
-    start_at: z.string().min(1, 'Укажите начало'),
-    end_at: z.string().min(1, 'Укажите окончание'),
+    start_at: z.string().min(1, 'event:form.startRequired'),
+    end_at: z.string().min(1, 'event:form.endRequired'),
   })
   .refine((values) => new Date(values.end_at) > new Date(values.start_at), {
     path: ['end_at'],
-    message: 'Окончание должно быть позже начала',
+    message: 'event:form.endAfterStart',
   })
 
 export type EventFormValues = z.infer<typeof schema>
@@ -60,6 +61,7 @@ export function EventForm({
   submitLabel: string
   onSubmit: (payload: EventFormPayload) => Promise<void>
 }) {
+  const { t } = useTranslation('event')
   const {
     register,
     handleSubmit,
@@ -104,12 +106,12 @@ export function EventForm({
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)} noValidate>
-      <Field label="Название" htmlFor="title" error={errors.title?.message}>
+      <Field label={t('form.title')} htmlFor="title" error={errors.title?.message}>
         <Input id="title" aria-invalid={Boolean(errors.title)} {...register('title')} />
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Начало" htmlFor="start_at" error={errors.start_at?.message}>
+        <Field label={t('form.start')} htmlFor="start_at" error={errors.start_at?.message}>
           <Input
             id="start_at"
             type="datetime-local"
@@ -117,7 +119,7 @@ export function EventForm({
             {...register('start_at')}
           />
         </Field>
-        <Field label="Окончание" htmlFor="end_at" error={errors.end_at?.message}>
+        <Field label={t('form.end')} htmlFor="end_at" error={errors.end_at?.message}>
           <Input
             id="end_at"
             type="datetime-local"
@@ -127,28 +129,32 @@ export function EventForm({
         </Field>
       </div>
 
-      <Field label="Организатор" htmlFor="organizer" error={errors.organizer?.message}>
+      <Field label={t('form.organizer')} htmlFor="organizer" error={errors.organizer?.message}>
         <Input id="organizer" {...register('organizer')} />
       </Field>
 
       <Field
-        label="Сайт"
+        label={t('form.website')}
         htmlFor="website_url"
         error={errors.website_url?.message}
-        hint="Только https"
+        hint={t('form.httpsOnly')}
       >
         <Input id="website_url" {...register('website_url')} />
       </Field>
 
-      <Field label="Описание" htmlFor="description" error={errors.description?.message}>
+      <Field
+        label={t('form.description')}
+        htmlFor="description"
+        error={errors.description?.message}
+      >
         <Textarea id="description" {...register('description')} />
       </Field>
 
       <Field
-        label="Административные заметки"
+        label={t('form.adminNotes')}
         htmlFor="notes"
         error={errors.notes?.message}
-        hint="Видны только администраторам"
+        hint={t('form.adminNotesHint')}
       >
         <Textarea id="notes" {...register('notes')} />
       </Field>

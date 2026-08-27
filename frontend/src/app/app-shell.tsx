@@ -11,39 +11,47 @@ import {
 } from 'lucide-react'
 import type * as React from 'react'
 import { Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import { useLogout } from '@/entities/session/session.queries'
 import { VerificationBanner } from '@/features/auth/verification-banner/verification-banner'
 import { useSession } from '@/shared/api/session'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Button } from '@/shared/ui/primitives/button'
+import { LanguageToggle } from '@/shared/ui/primitives/language-toggle'
 import { ThemeToggle } from '@/shared/ui/primitives/theme-toggle'
 import { RouteFallback } from './route-fallback'
 
-type NavItem = { to: string; label: string; icon: React.ComponentType<{ className?: string }> }
+type NavItem = {
+  to: string
+  labelKey: string
+  icon: React.ComponentType<{ className?: string }>
+}
 
 const USER_NAV: NavItem[] = [
-  { to: '/', label: 'Мои события', icon: LayoutList },
-  { to: '/timeline', label: 'Временная шкала', icon: CalendarRange },
-  { to: '/profile', label: 'Профиль', icon: UserCog },
+  { to: '/', labelKey: 'nav.myEvents', icon: LayoutList },
+  { to: '/timeline', labelKey: 'nav.schedule', icon: CalendarRange },
+  { to: '/profile', labelKey: 'nav.profile', icon: UserCog },
 ]
 
 const ADMIN_NAV: NavItem[] = [
-  { to: '/admin/events', label: 'События', icon: ClipboardList },
-  { to: '/admin/timeline', label: 'Шкала', icon: CalendarRange },
-  { to: '/admin/deadlines', label: 'Дедлайны', icon: AlarmClock },
-  { to: '/admin/users', label: 'Пользователи', icon: Users },
-  { to: '/admin/invites', label: 'Приглашения', icon: Send },
-  { to: '/admin/audit', label: 'Аудит', icon: ScrollText },
+  { to: '/admin/events', labelKey: 'nav.adminEvents', icon: ClipboardList },
+  { to: '/admin/timeline', labelKey: 'nav.adminSchedule', icon: CalendarRange },
+  { to: '/admin/deadlines', labelKey: 'nav.adminDeadlines', icon: AlarmClock },
+  { to: '/admin/users', labelKey: 'nav.adminUsers', icon: Users },
+  { to: '/admin/invites', labelKey: 'nav.adminInvites', icon: Send },
+  { to: '/admin/audit', labelKey: 'nav.adminAudit', icon: ScrollText },
 ]
 
 function NavSection({ title, items }: { title: string; items: NavItem[] }) {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col gap-1">
       <p className="px-3 py-2 font-medium text-muted-foreground text-xs uppercase tracking-wide">
         {title}
       </p>
-      {items.map(({ to, label, icon: Icon }) => (
+      {items.map(({ to, labelKey, icon: Icon }) => (
         <NavLink
           key={to}
           to={to}
@@ -58,7 +66,7 @@ function NavSection({ title, items }: { title: string; items: NavItem[] }) {
           }
         >
           <Icon className="size-4 shrink-0" />
-          {label}
+          {t(labelKey)}
         </NavLink>
       ))}
     </div>
@@ -67,6 +75,7 @@ function NavSection({ title, items }: { title: string; items: NavItem[] }) {
 
 export function AppShell() {
   const { user, isAdmin } = useSession()
+  const { t } = useTranslation()
   const logout = useLogout()
   const navigate = useNavigate()
 
@@ -81,16 +90,16 @@ export function AppShell() {
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2"
       >
-        Перейти к содержимому
+        {t('app.skipToContent')}
       </a>
 
       <aside className="flex w-64 shrink-0 flex-col justify-between border-r bg-card p-3">
-        <nav aria-label="Основная навигация" className="flex flex-col gap-4">
+        <nav aria-label={t('app.mainNav')} className="flex flex-col gap-4">
           <div className="px-3 py-2">
-            <p className="font-semibold">Hackathon Tracker</p>
+            <p className="font-semibold">{t('app.name')}</p>
           </div>
-          <NavSection title="Участник" items={USER_NAV} />
-          {isAdmin && <NavSection title="Администрирование" items={ADMIN_NAV} />}
+          <NavSection title={t('app.sectionParticipant')} items={USER_NAV} />
+          {isAdmin && <NavSection title={t('app.sectionAdmin')} items={ADMIN_NAV} />}
         </nav>
 
         <div className="flex flex-col gap-2 border-t p-3">
@@ -107,8 +116,9 @@ export function AppShell() {
               disabled={logout.isPending}
             >
               <LogOut className="size-4" />
-              Выйти
+              {t('action.logout')}
             </Button>
+            <LanguageToggle />
             <ThemeToggle />
           </div>
         </div>

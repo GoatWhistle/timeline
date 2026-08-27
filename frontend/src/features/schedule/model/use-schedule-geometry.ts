@@ -1,8 +1,12 @@
 import { scaleTime } from 'd3-scale'
 import { eachMonthOfInterval, eachWeekOfInterval, format } from 'date-fns'
-import { ru } from 'date-fns/locale'
+import { enUS, ru } from 'date-fns/locale'
 import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { DEFAULT_LOCALE, isLocale } from '@/shared/i18n/locale'
 import { canvasWidth, MIN_BAR_SPAN, type TimelineScale } from './schedule-scale'
+
+const DATE_FNS_LOCALES = { ru, en: enUS }
 
 export type ScheduleGeometry = {
   ticks: Date[]
@@ -17,6 +21,10 @@ export function useScheduleGeometry(
   toIso: string,
   scale: TimelineScale,
 ): ScheduleGeometry {
+  const { i18n } = useTranslation()
+  const language = i18n.language?.split('-')[0]
+  const locale = DATE_FNS_LOCALES[isLocale(language) ? language : DEFAULT_LOCALE]
+
   const ticks = useMemo(() => {
     const from = new Date(fromIso)
     const to = new Date(toIso)
@@ -49,10 +57,8 @@ export function useScheduleGeometry(
 
   const tickLabel = useCallback(
     (date: Date) =>
-      scale === 'month'
-        ? format(date, 'LLLL yyyy', { locale: ru })
-        : format(date, 'd MMM', { locale: ru }),
-    [scale],
+      scale === 'month' ? format(date, 'LLLL yyyy', { locale }) : format(date, 'd MMM', { locale }),
+    [scale, locale],
   )
 
   return { ticks, width, x, position, tickLabel }

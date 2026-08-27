@@ -1,7 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import {
-  CHANGE_SOURCE_LABEL,
+  CHANGE_SOURCE_KEY,
   REGISTRATION_STATUS_COLOR,
-  REGISTRATION_STATUS_LABEL,
+  REGISTRATION_STATUS_KEY,
 } from '@/entities/registration/registration.labels'
 import type { RegistrationStatusResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
@@ -29,22 +30,23 @@ export function StatusesTable({
   onToggleAll: (checked: boolean) => void
   onToggleOne: (participantId: string, checked: boolean) => void
 }) {
+  const { t } = useTranslation('registration')
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead className="w-10">
             <Checkbox
-              aria-label="Выбрать все"
+              aria-label={t('statuses.selectAll')}
               checked={allSelected}
               onCheckedChange={(checked) => onToggleAll(checked === true)}
             />
           </TableHead>
-          <TableHead>Участник</TableHead>
-          <TableHead>Статус</TableHead>
-          <TableHead>Цикл</TableHead>
-          <TableHead>Источник</TableHead>
-          <TableHead>Отмечено</TableHead>
+          <TableHead>{t('statuses.participant')}</TableHead>
+          <TableHead>{t('statuses.status')}</TableHead>
+          <TableHead>{t('statuses.cycle')}</TableHead>
+          <TableHead>{t('statuses.source')}</TableHead>
+          <TableHead>{t('statuses.markedAt')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -52,7 +54,7 @@ export function StatusesTable({
           <TableRow key={item.id}>
             <TableCell>
               <Checkbox
-                aria-label={`Выбрать ${item.user.display_name}`}
+                aria-label={t('statuses.select', { name: item.user.display_name })}
                 checked={selected.has(item.participant_id)}
                 onCheckedChange={(checked) => onToggleOne(item.participant_id, checked === true)}
               />
@@ -60,17 +62,21 @@ export function StatusesTable({
             <TableCell>
               <span className="font-medium">{item.user.display_name}</span>
               <span className="ml-2 text-muted-foreground">{item.user.email}</span>
-              {item.note && <p className="text-muted-foreground text-xs">Заметка: {item.note}</p>}
+              {item.note && (
+                <p className="text-muted-foreground text-xs">
+                  {t('statuses.note', { note: item.note })}
+                </p>
+              )}
             </TableCell>
             <TableCell>
               <span className="inline-flex items-center gap-1.5">
                 <Dot className={REGISTRATION_STATUS_COLOR[item.status]} />
-                {REGISTRATION_STATUS_LABEL[item.status]}
+                {REGISTRATION_STATUS_KEY[item.status]}
               </span>
             </TableCell>
             <TableCell className="text-muted-foreground">{item.todo_cycle}</TableCell>
             <TableCell className="text-muted-foreground">
-              {CHANGE_SOURCE_LABEL[item.last_change_source]}
+              {CHANGE_SOURCE_KEY[item.last_change_source]}
             </TableCell>
             <TableCell className="text-muted-foreground">
               {item.registered_at ? formatDateTime(item.registered_at) : '—'}

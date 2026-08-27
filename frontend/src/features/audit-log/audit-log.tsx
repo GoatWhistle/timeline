@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
-  AUDIT_ACTION_LABEL,
   AUDIT_ACTIONS,
-  ENTITY_TYPE_LABEL,
+  auditActionKey,
   ENTITY_TYPES,
+  entityTypeKey,
 } from '@/entities/audit/audit.labels'
 import { auditQuery } from '@/entities/audit/audit.queries'
 import type { AuditAction, AuditResponse, EntityType } from '@/shared/api/types.gen'
@@ -50,6 +51,7 @@ function DiffBlock({ title, value }: { title: string; value: unknown }) {
 }
 
 export function AdminAuditPage() {
+  const { t } = useTranslation()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const [page, setPage] = usePageParam()
   const [detail, setDetail] = useState<AuditResponse | null>(null)
@@ -66,23 +68,20 @@ export function AdminAuditPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Аудит"
-        description="История административных изменений. Выгрузка файлом в MVP не поддерживается."
-      />
+      <PageHeader title={t('audit.title')} description={t('audit.description')} />
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
         <div className="w-64">
-          <Label htmlFor="audit-action">Действие</Label>
+          <Label htmlFor="audit-action">{t('audit.action')}</Label>
           <Select value={filters.action} onValueChange={(value) => setFilters({ action: value })}>
             <SelectTrigger id="audit-action" className="mt-2">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>Все действия</SelectItem>
+              <SelectItem value={ALL}>{t('audit.allActions')}</SelectItem>
               {AUDIT_ACTIONS.map((action) => (
                 <SelectItem key={action} value={action}>
-                  {AUDIT_ACTION_LABEL[action]}
+                  {t(auditActionKey(action))}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -90,16 +89,16 @@ export function AdminAuditPage() {
         </div>
 
         <div className="w-56">
-          <Label htmlFor="audit-entity">Тип объекта</Label>
+          <Label htmlFor="audit-entity">{t('audit.entity')}</Label>
           <Select value={filters.entity} onValueChange={(value) => setFilters({ entity: value })}>
             <SelectTrigger id="audit-entity" className="mt-2">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>Все типы</SelectItem>
+              <SelectItem value={ALL}>{t('audit.allEntities')}</SelectItem>
               {ENTITY_TYPES.map((entity) => (
                 <SelectItem key={entity} value={entity}>
-                  {ENTITY_TYPE_LABEL[entity]}
+                  {t(entityTypeKey(entity))}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -107,7 +106,7 @@ export function AdminAuditPage() {
         </div>
 
         <div className="w-48">
-          <Label htmlFor="audit-from">С даты</Label>
+          <Label htmlFor="audit-from">{t('audit.from')}</Label>
           <Input
             id="audit-from"
             type="date"
@@ -118,7 +117,7 @@ export function AdminAuditPage() {
         </div>
 
         <div className="w-48">
-          <Label htmlFor="audit-to">По дату</Label>
+          <Label htmlFor="audit-to">{t('audit.to')}</Label>
           <Input
             id="audit-to"
             type="date"
@@ -132,18 +131,18 @@ export function AdminAuditPage() {
       {query.isPending && <LoadingState />}
       {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
 
-      {query.data && query.data.items.length === 0 && <EmptyState title="Записей нет" />}
+      {query.data && query.data.items.length === 0 && <EmptyState title={t('audit.empty')} />}
 
       {query.data && query.data.items.length > 0 && (
         <div className="flex flex-col gap-4">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Время</TableHead>
-                <TableHead>Актор</TableHead>
-                <TableHead>Действие</TableHead>
-                <TableHead>Объект</TableHead>
-                <TableHead className="w-32">Изменения</TableHead>
+                <TableHead>{t('audit.columnTime')}</TableHead>
+                <TableHead>{t('audit.columnActor')}</TableHead>
+                <TableHead>{t('audit.columnAction')}</TableHead>
+                <TableHead>{t('audit.columnEntity')}</TableHead>
+                <TableHead className="w-32">{t('audit.columnChanges')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -152,14 +151,14 @@ export function AdminAuditPage() {
                   <TableCell className="whitespace-nowrap text-muted-foreground">
                     {formatDateTime(item.created_at)}
                   </TableCell>
-                  <TableCell>{item.actor_email ?? 'Система'}</TableCell>
-                  <TableCell>{AUDIT_ACTION_LABEL[item.action]}</TableCell>
+                  <TableCell>{item.actor_email ?? t('audit.system')}</TableCell>
+                  <TableCell>{t(auditActionKey(item.action))}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {ENTITY_TYPE_LABEL[item.entity_type]}
+                    {t(entityTypeKey(item.entity_type))}
                   </TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm" onClick={() => setDetail(item)}>
-                      Показать
+                      {t('audit.show')}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -175,32 +174,32 @@ export function AdminAuditPage() {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
-              {detail ? AUDIT_ACTION_LABEL[detail.action] : 'Запись аудита'}
+              {detail ? t(auditActionKey(detail.action)) : t('audit.record')}
             </DialogTitle>
           </DialogHeader>
           {detail && (
             <div className="flex flex-col gap-4">
               <dl className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <dt className="text-muted-foreground">Актор</dt>
-                  <dd>{detail.actor_email ?? 'Система'}</dd>
+                  <dt className="text-muted-foreground">{t('audit.columnActor')}</dt>
+                  <dd>{detail.actor_email ?? t('audit.system')}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Идентификатор запроса</dt>
+                  <dt className="text-muted-foreground">{t('audit.requestId')}</dt>
                   <dd className="font-mono text-xs">{detail.request_id}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Объект</dt>
-                  <dd>{ENTITY_TYPE_LABEL[detail.entity_type]}</dd>
+                  <dt className="text-muted-foreground">{t('audit.columnEntity')}</dt>
+                  <dd>{t(entityTypeKey(detail.entity_type))}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Идентификатор объекта</dt>
+                  <dt className="text-muted-foreground">{t('audit.entityId')}</dt>
                   <dd className="font-mono text-xs">{detail.entity_id}</dd>
                 </div>
               </dl>
               <div className="flex gap-4">
-                <DiffBlock title="До" value={detail.before} />
-                <DiffBlock title="После" value={detail.after} />
+                <DiffBlock title={t('audit.before')} value={detail.before} />
+                <DiffBlock title={t('audit.after')} value={detail.after} />
               </div>
             </div>
           )}

@@ -1,14 +1,3 @@
-/**
- * Генерация TypeScript-типов фронтенда из контракта API.
- *
- * Контракт (docs/swagger.json) ведёт backend в формате Swagger 2.0, а
- * openapi-typescript понимает только OpenAPI 3.x. Поэтому конвертация выполняется
- * здесь, на стороне фронтенда, и docs/ не изменяется.
- *
- * Дополнительно применяются две правки, компенсирующие особенности генератора
- * контракта. Обе описаны в docs/frontend-contract-notes.md и подлежат удалению,
- * как только те же сведения появятся в самом контракте.
- */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -122,8 +111,8 @@ for (const [name, schema] of Object.entries(schemas)) {
 const ast = await openapiTS(openapi, { alphabetize: true, emptyObjectsUnknown: true })
 const banner = [
   '/**',
-  ' * СГЕНЕРИРОВАННЫЙ ФАЙЛ — не редактировать вручную.',
-  ' * Источник: docs/swagger.json. Обновление: npm run api:types',
+  ' * GENERATED FILE - do not edit by hand.',
+  ' * Source: docs/swagger.json. Regenerate: npm run api:types',
   ' */',
   '',
 ].join('\n')

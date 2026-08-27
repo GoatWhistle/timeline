@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { EVENT_STATE_LABEL, EVENT_STATES } from '@/entities/event/event.labels'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { EVENT_STATE_KEY, EVENT_STATES } from '@/entities/event/event.labels'
 import { adminTimelineQuery } from '@/entities/schedule/schedule.queries'
 import type { TimelineScale } from '@/features/schedule/model/schedule-scale'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid'
@@ -7,7 +9,9 @@ import { ScheduleLegend } from '@/features/schedule/ui/schedule-legend'
 import { ZoomSwitch } from '@/features/schedule/zoom-switch/zoom-switch'
 import { usersQuery } from '@/shared/api/directory'
 import type { EventState } from '@/shared/api/types.gen'
+import { localeCollator } from '@/shared/datetime/datetime'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { toLocale } from '@/shared/i18n/locale'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { ErrorState } from '@/shared/ui/data-display/error-state'
 import { LoadingState } from '@/shared/ui/data-display/loading-state'
@@ -25,10 +29,20 @@ const ALL = 'ALL'
 const DEFAULTS = { scale: 'month', state: ALL, participant: ALL, archived: '' }
 
 export function AdminSchedulePage() {
+  const { t, i18n } = useTranslation()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const scale: TimelineScale = filters.scale === 'week' ? 'week' : 'month'
 
   const users = useQuery(usersQuery({ page_size: 100 }))
+
+  const language = i18n.language
+  const sortedUsers = useMemo(() => {
+    const collator = localeCollator(toLocale(language))
+    return [...(users.data?.items ?? [])].sort((a, b) =>
+      collator.compare(a.display_name, b.display_name),
+    )
+  }, [users.data, language])
+
   const query = useQuery(
     adminTimelineQuery({
       ...(filters.state !== ALL ? { state: filters.state as EventState } : {}),
@@ -40,22 +54,22 @@ export function AdminSchedulePage() {
   return (
     <div>
       <PageHeader
-        title="Временная шкала"
-        description="Все опубликованные события"
+        title={t('schedule.title')}
+        description={t('schedule.adminDescription')}
         actions={<ZoomSwitch value={scale} onChange={(next) => setFilters({ scale: next })} />}
       />
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
         <div className="w-52">
           <Select value={filters.state} onValueChange={(value) => setFilters({ state: value })}>
-            <SelectTrigger aria-label="Состояние">
+            <SelectTrigger aria-label={t('schedule.stateAria')}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>Все состояния</SelectItem>
+              <SelectItem value={ALL}>{t('schedule.allStates')}</SelectItem>
               {EVENT_STATES.map((state) => (
                 <SelectItem key={state} value={state}>
-                  {EVENT_STATE_LABEL[state]}
+                  {t(EVENT_STATE_KEY[state])}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -67,12 +81,12 @@ export function AdminSchedulePage() {
             value={filters.participant}
             onValueChange={(value) => setFilters({ participant: value })}
           >
-            <SelectTrigger aria-label="Участник">
+            <SelectTrigger aria-label={t('schedule.participantAria')}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>Все участники</SelectItem>
-              {(users.data?.items ?? []).map((item) => (
+              <SelectItem value={ALL}>{t('schedule.allParticipants')}</SelectItem>
+              {sortedUsers.map((item) => (
                 <SelectItem key={item.id} value={item.id}>
                   {item.display_name}
                 </SelectItem>
@@ -85,7 +99,7 @@ export function AdminSchedulePage() {
           variant={filters.archived === '1' ? 'default' : 'outline'}
           onClick={() => setFilters({ archived: filters.archived === '1' ? undefined : '1' })}
         >
-          Показывать архивные
+          {t('schedule.showArchived')}
         </Button>
       </div>
 
@@ -93,7 +107,7 @@ export function AdminSchedulePage() {
       {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
 
       {query.data && query.data.rows.length === 0 && (
-        <EmptyState title="События не найдены" description="Измените фильтры" />
+        <EmptyState title={t('schedule.emptyTitle')} description={t('schedule.emptyHint')} />
       )}
 
       {query.data && query.data.rows.length > 0 && (

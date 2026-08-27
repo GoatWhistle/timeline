@@ -1,7 +1,8 @@
 import { ExternalLink } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { CHANNEL_LABEL } from '@/entities/notification/notification.labels'
+import { CHANNEL_KEY } from '@/entities/notification/notification.labels'
 import {
   useLinkTelegram,
   useUnlinkTelegram,
@@ -21,6 +22,7 @@ import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 
 export function NotificationChannelCard({ user }: { user: MeResponse }) {
+  const { t } = useTranslation('notification')
   const updateProfile = useUpdateProfile()
   const linkTelegram = useLinkTelegram()
   const unlinkTelegram = useUnlinkTelegram()
@@ -34,9 +36,9 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
   async function onChangeChannel(value: string) {
     try {
       await updateProfile.mutateAsync({ preferred_channel: value as Channel })
-      toast.success('Предпочитаемый канал обновлён')
+      toast.success(t('card.channelUpdated'))
     } catch {
-      toast.error('Не удалось изменить канал')
+      toast.error(t('card.channelFailed'))
     }
   }
 
@@ -45,29 +47,27 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
       const result = await linkTelegram.mutateAsync()
       setDeepLink(result.deep_link)
     } catch {
-      toast.error('Не удалось начать привязку')
+      toast.error(t('card.linkFailed'))
     }
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Канал уведомлений</CardTitle>
-        <CardDescription>
-          Если выбранный канал недоступен, система использует запасной порядок Telegram → Email.
-        </CardDescription>
+        <CardTitle>{t('card.title')}</CardTitle>
+        <CardDescription>{t('card.hint')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <Field label="Предпочитаемый канал" htmlFor="preferred_channel">
+        <Field label={t('card.preferred')} htmlFor="preferred_channel">
           <Select value={user.preferred_channel ?? ''} onValueChange={onChangeChannel}>
             <SelectTrigger id="preferred_channel">
-              <SelectValue placeholder="Автоматический выбор" />
+              <SelectValue placeholder={t('card.autoPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              {(Object.keys(CHANNEL_LABEL) as Channel[]).map((channel) => (
+              {(Object.keys(CHANNEL_KEY) as Channel[]).map((channel) => (
                 <SelectItem key={channel} value={channel} disabled={!channelAvailability[channel]}>
-                  {CHANNEL_LABEL[channel]}
-                  {!channelAvailability[channel] && ' — недоступен'}
+                  {t(CHANNEL_KEY[channel])}
+                  {!channelAvailability[channel] && t('card.unavailable')}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -79,8 +79,10 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
             <p className="font-medium text-sm">Telegram</p>
             <p className="text-muted-foreground text-sm">
               {user.telegram_linked
-                ? `Привязан${user.telegram_username ? `: @${user.telegram_username}` : ''}`
-                : 'Не привязан'}
+                ? user.telegram_username
+                  ? t('card.linkedAs', { username: user.telegram_username })
+                  : t('card.linked')
+                : t('card.notLinked')}
             </p>
           </div>
           {user.telegram_linked ? (
@@ -89,25 +91,25 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
               onClick={() => unlinkTelegram.mutate()}
               disabled={unlinkTelegram.isPending}
             >
-              Отвязать
+              {t('card.unlink')}
             </Button>
           ) : (
             <Button onClick={onLinkTelegram} disabled={linkTelegram.isPending}>
-              Привязать
+              {t('card.link')}
             </Button>
           )}
         </div>
 
         {deepLink && (
           <p className="text-sm">
-            Откройте ссылку и отправьте боту команду запуска:{' '}
+            {t('card.deepLinkHint')}{' '}
             <a
               className="inline-flex items-center gap-1 text-primary hover:underline"
               href={deepLink}
               target="_blank"
               rel="noreferrer"
             >
-              перейти в Telegram
+              {t('card.openTelegram')}
               <ExternalLink className="size-3.5" aria-hidden="true" />
             </a>
           </p>
@@ -117,9 +119,9 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
           <span className="text-muted-foreground">Email:</span>
           <span>{user.email}</span>
           {user.email_verified ? (
-            <Badge tone="primary">подтверждён</Badge>
+            <Badge tone="primary">{t('card.verified')}</Badge>
           ) : (
-            <Badge tone="danger">не подтверждён</Badge>
+            <Badge tone="danger">{t('card.unverified')}</Badge>
           )}
         </div>
       </CardContent>

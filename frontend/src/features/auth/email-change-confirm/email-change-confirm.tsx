@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, XCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import { api, unwrap } from '@/shared/api/client'
 import { isApiError } from '@/shared/api/errors'
@@ -8,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Button } from '@/shared/ui/primitives/button'
 
 export function EmailChangeConfirmPage() {
+  const { t } = useTranslation('auth')
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token') ?? ''
 
@@ -23,12 +25,12 @@ export function EmailChangeConfirmPage() {
     return (
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Ссылка недействительна</CardTitle>
-          <CardDescription>В адресе нет токена подтверждения.</CardDescription>
+          <CardTitle>{t('emailChange.noTokenTitle')}</CardTitle>
+          <CardDescription>{t('emailChange.noTokenHint')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button asChild variant="outline">
-            <Link to="/profile">В профиль</Link>
+            <Link to="/profile">{t('emailChange.toProfile')}</Link>
           </Button>
         </CardContent>
       </Card>
@@ -38,29 +40,27 @@ export function EmailChangeConfirmPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Смена email</CardTitle>
+        <CardTitle>{t('emailChange.title')}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {isPending && <Spinner label="Подтверждаем адрес" />}
+        {isPending && <Spinner label={t('emailChange.checking')} />}
 
         {isError && (
           <div className="flex items-start gap-2" role="alert">
             <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden="true" />
-            <p className="text-sm">
-              {isApiError(error) ? error.message : 'Не удалось подтвердить адрес'}
-            </p>
+            <p className="text-sm">{isApiError(error) ? error.message : t('emailChange.failed')}</p>
           </div>
         )}
 
         {!isPending && !isError && (
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-status-done" aria-hidden="true" />
-            <p className="text-sm">Адрес изменён. Дальше входите с новым email.</p>
+            <p className="text-sm">{t('emailChange.changed')}</p>
           </div>
         )}
 
         <Button asChild variant="outline">
-          <Link to="/profile">В профиль</Link>
+          <Link to="/profile">{t('emailChange.toProfile')}</Link>
         </Button>
       </CardContent>
     </Card>

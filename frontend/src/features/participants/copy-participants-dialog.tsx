@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useCopyParticipants } from '@/entities/participant/participant.queries'
 import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
@@ -41,6 +42,7 @@ export function CopyParticipantsDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const { t } = useTranslation('registration')
   const [sourceId, setSourceId] = useState('')
   const [overrides, setOverrides] = useState<Record<string, string>>({})
   const copy = useCopyParticipants(eventId)
@@ -72,12 +74,12 @@ export function CopyParticipantsDialog({
           team_role,
         })),
       })
-      reportBatchResult(result, 'Состав скопирован')
+      reportBatchResult(result, t('participants.copied'))
       onOpenChange(false)
       setSourceId('')
       setOverrides({})
     } catch {
-      toast.error('Не удалось скопировать состав')
+      toast.error(t('participants.copyFailed'))
     }
   }
 
@@ -85,16 +87,14 @@ export function CopyParticipantsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Копирование состава</DialogTitle>
-          <DialogDescription>
-            Уже назначенные участники пропускаются и попадают в отчёт об операции.
-          </DialogDescription>
+          <DialogTitle>{t('participants.copyTitle')}</DialogTitle>
+          <DialogDescription>{t('participants.copyHint')}</DialogDescription>
         </DialogHeader>
 
-        <Field label="Исходное событие" htmlFor="copy-source">
+        <Field label={t('participants.copySource')} htmlFor="copy-source">
           <Select value={sourceId} onValueChange={setSourceId}>
             <SelectTrigger id="copy-source">
-              <SelectValue placeholder="Выберите событие" />
+              <SelectValue placeholder={t('participants.copySourcePlaceholder')} />
             </SelectTrigger>
             <SelectContent>
               {(eventsQuery.data?.items ?? [])
@@ -114,8 +114,8 @@ export function CopyParticipantsDialog({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Участник</TableHead>
-                <TableHead className="w-56">Роль в новом событии</TableHead>
+                <TableHead>{t('participants.columnParticipant')}</TableHead>
+                <TableHead className="w-56">{t('participants.columnNewRole')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -127,7 +127,7 @@ export function CopyParticipantsDialog({
                   </TableCell>
                   <TableCell>
                     <Input
-                      aria-label={`Роль для ${item.user.display_name}`}
+                      aria-label={t('participants.roleFor', { name: item.user.display_name })}
                       value={overrides[item.user.id] ?? item.team_role}
                       onChange={(event) =>
                         setOverrides((previous) => ({
@@ -145,10 +145,10 @@ export function CopyParticipantsDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Отмена
+            {t('common:action.cancel')}
           </Button>
           <Button onClick={submit} disabled={!sourceId || copy.isPending}>
-            Скопировать
+            {t('participants.copySubmit')}
           </Button>
         </DialogFooter>
       </DialogContent>

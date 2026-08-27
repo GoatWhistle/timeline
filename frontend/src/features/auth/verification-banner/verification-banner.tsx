@@ -1,10 +1,12 @@
 import { MailWarning } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useResendVerification } from '@/entities/session/session.queries'
 import { useSession } from '@/shared/api/session'
 import { Button } from '@/shared/ui/primitives/button'
 
 export function VerificationBanner() {
+  const { t } = useTranslation('auth')
   const { user } = useSession()
   const resend = useResendVerification()
 
@@ -18,8 +20,7 @@ export function VerificationBanner() {
       <div className="flex items-center gap-2">
         <MailWarning className="size-4 shrink-0" aria-hidden="true" />
         <p className="text-sm">
-          Адрес <strong>{user.email}</strong> не подтверждён. Напоминания на почту приходить не
-          будут.
+          {t('banner.addressPrefix')} <strong>{user.email}</strong> {t('banner.unverified')}
         </p>
       </div>
       <Button
@@ -29,11 +30,11 @@ export function VerificationBanner() {
         onClick={() =>
           resend
             .mutateAsync({ email: user.email })
-            .then(() => toast.success('Письмо отправлено повторно'))
-            .catch(() => toast.error('Не удалось отправить письмо'))
+            .then(() => toast.success(t('banner.resent')))
+            .catch(() => toast.error(t('verify.sendFailed')))
         }
       >
-        Отправить повторно
+        {t('banner.resend')}
       </Button>
     </div>
   )

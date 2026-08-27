@@ -7,11 +7,11 @@ import { isApiError } from '@/shared/api/errors'
 
 const unauthorized = () =>
   HttpResponse.json(
-    { error: { code: 'unauthenticated', message: 'Требуется вход в систему' } },
+    { error: { code: 'unauthenticated', message: 'Sign-in is required.' } },
     { status: 401 },
   )
 
-describe('Клиент API', () => {
+describe('API client', () => {
   beforeEach(() => {
     resetCsrfToken()
     // biome-ignore lint/suspicious/noDocumentCookie: jsdom has no Cookie Store API
@@ -19,7 +19,7 @@ describe('Клиент API', () => {
     setUnauthenticatedHandler(() => {})
   })
 
-  it('прикладывает CSRF-токен к изменяющим запросам', async () => {
+  it('attaches the CSRF token to mutating requests', async () => {
     const seen: (string | null)[] = []
     server.use(
       http.post('*/api/v1/auth/logout', ({ request }) => {
@@ -33,7 +33,7 @@ describe('Клиент API', () => {
     expect(seen).toEqual(['mock-csrf-token'])
   })
 
-  it('берёт CSRF-токен из cookie после ротации на входе', async () => {
+  it('reads the CSRF token from the cookie after rotation on sign-in', async () => {
     const seen: (string | null)[] = []
     server.use(
       http.post('*/api/v1/auth/logout', ({ request }) => {
@@ -49,7 +49,7 @@ describe('Клиент API', () => {
     expect(seen).toEqual(['rotated-token'])
   })
 
-  it('не запрашивает CSRF-токен для чтения', async () => {
+  it('does not request a CSRF token for reads', async () => {
     let csrfCalls = 0
     server.use(
       http.get('*/api/v1/auth/csrf', () => {
@@ -64,7 +64,7 @@ describe('Клиент API', () => {
     expect(csrfCalls).toBe(0)
   })
 
-  it('обновляет сессию один раз на несколько параллельных 401 и повторяет запросы', async () => {
+  it('refreshes the session once for several parallel 401s and retries the requests', async () => {
     let refreshCalls = 0
     let sessionValid = false
 
@@ -91,7 +91,7 @@ describe('Клиент API', () => {
     ])
   })
 
-  it('сообщает о потере сессии, когда обновление не удалось', async () => {
+  it('reports a lost session when the refresh fails', async () => {
     const onUnauthenticated = vi.fn()
     setUnauthenticatedHandler(onUnauthenticated)
 
@@ -106,7 +106,7 @@ describe('Клиент API', () => {
     expect(onUnauthenticated).toHaveBeenCalledTimes(1)
   })
 
-  it('не пытается обновить сессию на ответе входа', async () => {
+  it('does not try to refresh the session on the sign-in response', async () => {
     let refreshCalls = 0
     server.use(
       http.post('*/api/v1/auth/login', () => unauthorized()),
@@ -122,14 +122,14 @@ describe('Клиент API', () => {
     expect(refreshCalls).toBe(0)
   })
 
-  it('разворачивает ошибку в ApiError со схемой контракта', async () => {
+  it('unwraps an error into ApiError matching the contract schema', async () => {
     server.use(
       http.get('*/api/v1/admin/audit', () =>
         HttpResponse.json(
           {
             error: {
               code: 'forbidden',
-              message: 'Недостаточно прав',
+              message: 'You do not have enough permissions.',
               request_id: 'req-1',
             },
           },
@@ -140,14 +140,14 @@ describe('Клиент API', () => {
 
     try {
       await unwrap(api.GET('/admin/audit'))
-      expect.unreachable('запрос обязан завершиться ошибкой')
+      expect.unreachable('the request must fail')
     } catch (error) {
       expect(isApiError(error)).toBe(true)
       if (!isApiError(error)) return
       expect(error.status).toBe(403)
       expect(error.code).toBe('forbidden')
       expect(error.requestId).toBe('req-1')
-      expect(error.message).toBe('Недостаточно прав')
+      expect(error.message).toBe('You do not have enough permissions.')
     }
   })
 })

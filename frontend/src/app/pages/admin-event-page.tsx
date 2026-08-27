@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Archive, Send } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import {
@@ -29,6 +30,7 @@ const TABS = ['general', 'stages', 'participants', 'registration', 'statuses'] a
 const DEFAULTS = { tab: 'general' }
 
 export function AdminEventPage() {
+  const { t } = useTranslation('event')
   const { id = '' } = useParams()
   const navigate = useNavigate()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
@@ -58,12 +60,13 @@ export function AdminEventPage() {
             {!event.published_at && !event.archived_at && (
               <Button onClick={() => setPublishOpen(true)}>
                 <Send className="size-4" />
-                Опубликовать
+                {t('detail.publish')}
               </Button>
             )}
             {!event.archived_at && (
               <Button variant="outline" onClick={() => setArchiveOpen(true)}>
-                <Archive className="size-4" />В архив
+                <Archive className="size-4" />
+                {t('detail.archive')}
               </Button>
             )}
           </div>
@@ -72,11 +75,11 @@ export function AdminEventPage() {
 
       <Tabs value={tab} onValueChange={(value) => setFilters({ tab: value }, { resetPage: true })}>
         <TabsList>
-          <TabsTrigger value="general">Общее</TabsTrigger>
-          <TabsTrigger value="stages">Этапы</TabsTrigger>
-          <TabsTrigger value="participants">Участники</TabsTrigger>
-          <TabsTrigger value="registration">Регистрация и правила</TabsTrigger>
-          <TabsTrigger value="statuses">Статусы</TabsTrigger>
+          <TabsTrigger value="general">{t('detail.tabGeneral')}</TabsTrigger>
+          <TabsTrigger value="stages">{t('detail.tabStages')}</TabsTrigger>
+          <TabsTrigger value="participants">{t('detail.tabParticipants')}</TabsTrigger>
+          <TabsTrigger value="registration">{t('detail.tabRegistration')}</TabsTrigger>
+          <TabsTrigger value="statuses">{t('detail.tabStatuses')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
@@ -84,11 +87,11 @@ export function AdminEventPage() {
             <CardContent className="pt-6">
               <EventForm
                 event={event}
-                submitLabel="Сохранить"
+                submitLabel={t('common:action.save')}
                 onSubmit={async (payload) => {
                   await update.mutateAsync(payload)
-                  toast.success('Событие сохранён', {
-                    description: 'Изменение даты окончания пересчитывает расписание напоминаний',
+                  toast.success(t('detail.saved'), {
+                    description: t('detail.savedHint'),
                   })
                 }}
               />
@@ -116,15 +119,15 @@ export function AdminEventPage() {
       <ConfirmDialog
         open={publishOpen}
         onOpenChange={setPublishOpen}
-        title="Опубликовать событие?"
-        description="Назначенные участники увидят событие, планировщик начнёт создавать уведомления, включая отложенные первичные."
-        confirmLabel="Опубликовать"
+        title={t('detail.confirmPublishTitle')}
+        description={t('detail.confirmPublishHint')}
+        confirmLabel={t('detail.publish')}
         disabled={publish.isPending}
         onConfirm={async () => {
           await publish
             .mutateAsync()
-            .then(() => toast.success('Событие опубликован'))
-            .catch(() => toast.error('Не удалось опубликовать'))
+            .then(() => toast.success(t('detail.published')))
+            .catch(() => toast.error(t('detail.publishFailed')))
           setPublishOpen(false)
         }}
       />
@@ -132,19 +135,19 @@ export function AdminEventPage() {
       <ConfirmDialog
         open={archiveOpen}
         onOpenChange={setArchiveOpen}
-        title="Отправить событие в архив?"
-        description="Архивирование необратимо в текущей версии. Запланированные уведомления будут отменены, новые создаваться не будут."
-        confirmLabel="В архив"
+        title={t('detail.confirmArchiveTitle')}
+        description={t('detail.confirmArchiveHint')}
+        confirmLabel={t('detail.archive')}
         destructive
         disabled={archive.isPending}
         onConfirm={async () => {
           await archive
             .mutateAsync()
             .then(() => {
-              toast.success('Событие архивирован')
+              toast.success(t('detail.archived'))
               navigate('/admin/events')
             })
-            .catch(() => toast.error('Не удалось архивировать'))
+            .catch(() => toast.error(t('detail.archiveFailed')))
           setArchiveOpen(false)
         }}
       />

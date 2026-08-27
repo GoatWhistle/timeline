@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useActivateUser, useDeactivateUser, useDeleteUser } from '@/entities/user/user.queries'
 import { usersQuery } from '@/shared/api/directory'
@@ -27,6 +28,7 @@ import { Button } from '@/shared/ui/primitives/button'
 const DEFAULTS = { query: '' }
 
 export function AdminUsersPage() {
+  const { t } = useTranslation()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const [page, setPage] = usePageParam()
   const [searchInput, setSearchInput] = useState(filters.query)
@@ -41,12 +43,12 @@ export function AdminUsersPage() {
 
   return (
     <div>
-      <PageHeader title="Пользователи" description="Поиск по имени и адресу, управление доступом" />
+      <PageHeader title={t('users.title')} description={t('users.description')} />
 
       <div className="mb-4 w-80">
         <Input
-          aria-label="Поиск по имени или email"
-          placeholder="Поиск"
+          aria-label={t('users.searchAria')}
+          placeholder={t('users.searchPlaceholder')}
           value={searchInput}
           onChange={(event) => {
             setSearchInput(event.target.value)
@@ -58,19 +60,17 @@ export function AdminUsersPage() {
       {query.isPending && <LoadingState />}
       {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
 
-      {query.data && query.data.items.length === 0 && (
-        <EmptyState title="Пользователи не найдены" />
-      )}
+      {query.data && query.data.items.length === 0 && <EmptyState title={t('users.empty')} />}
 
       {query.data && query.data.items.length > 0 && (
         <div className="flex flex-col gap-4">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Имя</TableHead>
+                <TableHead>{t('users.columnName')}</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Состояние</TableHead>
-                <TableHead className="w-72">Действия</TableHead>
+                <TableHead>{t('users.columnState')}</TableHead>
+                <TableHead className="w-72">{t('users.columnActions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -80,9 +80,9 @@ export function AdminUsersPage() {
                   <TableCell className="text-muted-foreground">{item.email}</TableCell>
                   <TableCell>
                     {item.is_active ? (
-                      <Badge tone="primary">активен</Badge>
+                      <Badge tone="primary">{t('users.active')}</Badge>
                     ) : (
-                      <Badge tone="danger">деактивирован</Badge>
+                      <Badge tone="danger">{t('users.deactivated')}</Badge>
                     )}
                   </TableCell>
                   <TableCell>
@@ -95,11 +95,11 @@ export function AdminUsersPage() {
                           onClick={() =>
                             deactivate
                               .mutateAsync(item.id)
-                              .then(() => toast.success('Учётная запись деактивирована'))
-                              .catch(() => toast.error('Не удалось деактивировать'))
+                              .then(() => toast.success(t('users.deactivatedToast')))
+                              .catch(() => toast.error(t('users.deactivateFailed')))
                           }
                         >
-                          Деактивировать
+                          {t('users.deactivate')}
                         </Button>
                       ) : (
                         <Button
@@ -109,15 +109,15 @@ export function AdminUsersPage() {
                           onClick={() =>
                             activate
                               .mutateAsync(item.id)
-                              .then(() => toast.success('Учётная запись активирована'))
-                              .catch(() => toast.error('Не удалось активировать'))
+                              .then(() => toast.success(t('users.activated')))
+                              .catch(() => toast.error(t('users.activateFailed')))
                           }
                         >
-                          Активировать
+                          {t('users.activate')}
                         </Button>
                       )}
                       <Button variant="ghost" size="sm" onClick={() => setDeleting(item)}>
-                        Удалить
+                        {t('users.delete')}
                       </Button>
                     </div>
                   </TableCell>
@@ -133,24 +133,23 @@ export function AdminUsersPage() {
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(open) => !open && setDeleting(null)}
-        title="Удалить учётную запись?"
+        title={t('users.confirmDeleteTitle')}
         description={
           <>
-            Удаление необратимо. Учётные данные и каналы доставки удаляются, имя и email
-            обезличиваются. Ссылки участия и записи аудита сохраняются.
+            {t('users.confirmDeleteHint')}
             <br />
             <strong>{deleting?.display_name}</strong> · {deleting?.email}
           </>
         }
-        confirmLabel="Удалить безвозвратно"
+        confirmLabel={t('users.confirmDeleteLabel')}
         destructive
         disabled={remove.isPending}
         onConfirm={async () => {
           if (!deleting) return
           await remove
             .mutateAsync(deleting.id)
-            .then(() => toast.success('Учётная запись удалена'))
-            .catch(() => toast.error('Не удалось удалить'))
+            .then(() => toast.success(t('users.deleted')))
+            .catch(() => toast.error(t('users.deleteFailed')))
           setDeleting(null)
         }}
       />

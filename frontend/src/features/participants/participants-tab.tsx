@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
   participantsQuery,
@@ -27,6 +28,7 @@ import { TeamRoleDialog } from './team-role-dialog/team-role-dialog'
 const DEFAULTS = { role: '', status: ALL, removed: '' }
 
 export function ParticipantsTab({ eventId }: { eventId: string }) {
+  const { t } = useTranslation('registration')
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const [page, setPage] = usePageParam()
   const [roleInput, setRoleInput] = useState(filters.role)
@@ -76,11 +78,11 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
   async function onRemoveSelected() {
     try {
       const result = await removeMany.mutateAsync({ participant_ids: [...selected] })
-      reportBatchResult(result, 'Участники удалены')
+      reportBatchResult(result, t('participants.removed'))
       setSelected(new Set())
       setRemoveOpen(false)
     } catch {
-      toast.error('Не удалось удалить участников')
+      toast.error(t('participants.removeFailed'))
     }
   }
 
@@ -102,10 +104,10 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
 
       {selected.size > 0 && (
         <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-2">
-          <p className="text-sm">Выбрано участников: {selected.size}</p>
+          <p className="text-sm">{t('participants.selected', { count: selected.size })}</p>
           <Button variant="destructive" size="sm" onClick={() => setRemoveOpen(true)}>
             <Trash2 className="size-4" />
-            Удалить выбранных
+            {t('participants.removeSelected')}
           </Button>
         </div>
       )}
@@ -115,8 +117,8 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
 
       {query.data && items.length === 0 && (
         <EmptyState
-          title="Участники не найдены"
-          description="Добавьте участников или измените фильтры"
+          title={t('participants.emptyTitle')}
+          description={t('participants.emptyHint')}
         />
       )}
 
@@ -136,8 +138,8 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
             onReactivate={(item) =>
               reactivate
                 .mutateAsync({ id: item.id, team_role: item.team_role })
-                .then(() => toast.success('Участник возвращён'))
-                .catch(() => toast.error('Не удалось вернуть участника'))
+                .then(() => toast.success(t('participants.restored')))
+                .catch(() => toast.error(t('participants.restoreFailed')))
             }
           />
 
@@ -159,8 +161,8 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
           if (!editing) return
           await updateRole
             .mutateAsync({ id: editing.id, team_role: roleDraft.trim() })
-            .then(() => toast.success('Роль изменена'))
-            .catch(() => toast.error('Не удалось изменить роль'))
+            .then(() => toast.success(t('participants.roleChanged')))
+            .catch(() => toast.error(t('participants.roleChangeFailed')))
           setEditing(null)
         }}
       />
@@ -168,9 +170,9 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
       <ConfirmDialog
         open={removeOpen}
         onOpenChange={setRemoveOpen}
-        title="Удалить выбранных участников?"
-        description={`Участники (${selected.size}) перейдут в состояние «удалён», запланированные уведомления будут отменены. История статусов сохранится.`}
-        confirmLabel="Удалить"
+        title={t('participants.confirmRemoveTitle')}
+        description={t('participants.confirmRemoveHint', { count: selected.size })}
+        confirmLabel={t('common:action.delete')}
         destructive
         disabled={removeMany.isPending}
         onConfirm={onRemoveSelected}

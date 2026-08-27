@@ -1,6 +1,6 @@
 import type { ParticipationStatus } from '@/shared/api/types.gen'
 
-export const PARTICIPATION_STATUS_LABEL: Record<ParticipationStatus, string> = {
-  ASSIGNED: 'Назначен',
-  REMOVED: 'Удалён',
+export const PARTICIPATION_STATUS_KEY: Record<ParticipationStatus, string> = {
+  ASSIGNED: 'registration:participation.ASSIGNED',
+  REMOVED: 'registration:participation.REMOVED',
 }

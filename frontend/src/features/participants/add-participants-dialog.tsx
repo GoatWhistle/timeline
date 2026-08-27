@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useAddParticipants } from '@/entities/participant/participant.queries'
 import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
@@ -38,6 +39,7 @@ export function AddParticipantsDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const { t } = useTranslation('registration')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<Map<string, string>>(new Map())
@@ -52,7 +54,7 @@ export function AddParticipantsDialog({
   function toggle(userId: string, checked: boolean) {
     setSelected((previous) => {
       const next = new Map(previous)
-      if (checked) next.set(userId, next.get(userId) ?? 'Участник')
+      if (checked) next.set(userId, next.get(userId) ?? t('participants.defaultTeamRole'))
       else next.delete(userId)
       return next
     })
@@ -67,11 +69,11 @@ export function AddParticipantsDialog({
     if (items.length === 0) return
     try {
       const result = await add.mutateAsync({ items })
-      reportBatchResult(result, 'Участники добавлены')
+      reportBatchResult(result, t('participants.added'))
       setSelected(new Map())
       onOpenChange(false)
     } catch {
-      toast.error('Не удалось добавить участников')
+      toast.error(t('participants.addFailed'))
     }
   }
 
@@ -79,16 +81,13 @@ export function AddParticipantsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Добавление участников</DialogTitle>
-          <DialogDescription>
-            Выберите зарегистрированных пользователей и задайте роль каждому. Деактивированных
-            добавить нельзя.
-          </DialogDescription>
+          <DialogTitle>{t('participants.addTitle')}</DialogTitle>
+          <DialogDescription>{t('participants.addHint')}</DialogDescription>
         </DialogHeader>
 
         <Input
-          aria-label="Поиск пользователей"
-          placeholder="Поиск по имени или email"
+          aria-label={t('participants.searchAria')}
+          placeholder={t('participants.searchPlaceholder')}
           value={search}
           onChange={(event) => {
             setSearch(event.target.value)
@@ -104,9 +103,9 @@ export function AddParticipantsDialog({
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10" />
-                  <TableHead>Пользователь</TableHead>
-                  <TableHead>Состояние</TableHead>
-                  <TableHead className="w-56">Роль в команде</TableHead>
+                  <TableHead>{t('participants.columnUser')}</TableHead>
+                  <TableHead>{t('participants.columnState')}</TableHead>
+                  <TableHead className="w-56">{t('participants.columnTeamRole')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -130,14 +129,14 @@ export function AddParticipantsDialog({
                       </TableCell>
                       <TableCell>
                         {item.is_active ? (
-                          <Badge tone="primary">активен</Badge>
+                          <Badge tone="primary">{t('participants.active')}</Badge>
                         ) : (
-                          <Badge tone="danger">деактивирован</Badge>
+                          <Badge tone="danger">{t('participants.deactivated')}</Badge>
                         )}
                       </TableCell>
                       <TableCell>
                         <Input
-                          aria-label={`Роль для ${item.display_name}`}
+                          aria-label={t('participants.roleFor', { name: item.display_name })}
                           disabled={!checked}
                           value={selected.get(item.id) ?? ''}
                           onChange={(event) => setRole(item.id, event.target.value)}
@@ -155,10 +154,10 @@ export function AddParticipantsDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Отмена
+            {t('common:action.cancel')}
           </Button>
           <Button onClick={submit} disabled={selected.size === 0 || add.isPending}>
-            Добавить ({selected.size})
+            {t('participants.addSubmit', { count: selected.size })}
           </Button>
         </DialogFooter>
       </DialogContent>

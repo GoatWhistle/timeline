@@ -55,6 +55,6 @@ export function assertMatchesContract(
     .map((error) => `  ${error.instancePath || '/'} ${error.message}`)
     .join('\n')
   throw new Error(
-    `Ответ ${method.toUpperCase()} ${path} (${status}) не соответствует контракту:\n${problems}`,
+    `Response ${method.toUpperCase()} ${path} (${status}) does not match the contract:\n${problems}`,
   )
 }

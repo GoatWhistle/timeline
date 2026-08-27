@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useDeactivateAccount, useLogoutAllSessions } from '@/entities/user/profile.queries'
@@ -9,6 +10,7 @@ import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Button } from '@/shared/ui/primitives/button'
 
 export function AccountActionsCard() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const deactivate = useDeactivateAccount()
@@ -22,7 +24,7 @@ export function AccountActionsCard() {
       queryClient.clear()
       navigate('/login', { replace: true })
     } catch {
-      toast.error('Не удалось деактивировать учётную запись')
+      toast.error(t('profile.deactivateFailed'))
     }
   }
 
@@ -30,38 +32,33 @@ export function AccountActionsCard() {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Сессии</CardTitle>
-          <CardDescription>
-            Завершение всех сессий выкинет вас из системы на всех устройствах.
-          </CardDescription>
+          <CardTitle>{t('profile.sessionsTitle')}</CardTitle>
+          <CardDescription>{t('profile.sessionsHint')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button
             variant="outline"
             disabled={logoutAll.isPending}
             onClick={async () => {
-              await logoutAll.mutateAsync().catch(() => toast.error('Не удалось завершить сессии'))
+              await logoutAll.mutateAsync().catch(() => toast.error(t('profile.logoutAllFailed')))
               resetCsrfToken()
               queryClient.clear()
               navigate('/login', { replace: true })
             }}
           >
-            Завершить все сессии
+            {t('profile.logoutAll')}
           </Button>
         </CardContent>
       </Card>
 
       <Card className="border-destructive/40">
         <CardHeader>
-          <CardTitle>Деактивация учётной записи</CardTitle>
-          <CardDescription>
-            Деактивация обратима: вход блокируется, привязка Telegram удаляется, запланированные
-            уведомления отменяются. Вернуть доступ может администратор.
-          </CardDescription>
+          <CardTitle>{t('profile.deactivateTitle')}</CardTitle>
+          <CardDescription>{t('profile.deactivateHint')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button variant="destructive" onClick={() => setDeactivateOpen(true)}>
-            Деактивировать
+            {t('profile.deactivate')}
           </Button>
         </CardContent>
       </Card>
@@ -69,9 +66,9 @@ export function AccountActionsCard() {
       <ConfirmDialog
         open={deactivateOpen}
         onOpenChange={setDeactivateOpen}
-        title="Деактивировать учётную запись?"
-        description="Вы выйдете из системы, а вход будет заблокирован до восстановления администратором."
-        confirmLabel="Деактивировать"
+        title={t('profile.confirmDeactivateTitle')}
+        description={t('profile.confirmDeactivateHint')}
+        confirmLabel={t('profile.deactivate')}
         destructive
         disabled={deactivate.isPending}
         onConfirm={onDeactivate}

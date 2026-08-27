@@ -1,9 +1,10 @@
+import { useTranslation } from 'react-i18next'
 import type { TimelineScale } from '@/features/schedule/model/schedule-scale'
 import { Button } from '@/shared/ui/primitives/button'
 
-const OPTIONS: { value: TimelineScale; label: string }[] = [
-  { value: 'month', label: 'Месяц' },
-  { value: 'week', label: 'Неделя' },
+const OPTIONS: { value: TimelineScale; labelKey: string }[] = [
+  { value: 'month', labelKey: 'schedule.month' },
+  { value: 'week', labelKey: 'schedule.week' },
 ]
 
 export function ZoomSwitch({
@@ -13,9 +14,11 @@ export function ZoomSwitch({
   value: TimelineScale
   onChange: (next: TimelineScale) => void
 }) {
+  const { t } = useTranslation()
+
   return (
     <fieldset className="flex gap-1">
-      <legend className="sr-only">Масштаб шкалы</legend>
+      <legend className="sr-only">{t('schedule.zoomLegend')}</legend>
       {OPTIONS.map((option) => (
         <Button
           key={option.value}
@@ -24,7 +27,7 @@ export function ZoomSwitch({
           aria-pressed={value === option.value}
           onClick={() => onChange(option.value)}
         >
-          {option.label}
+          {t(option.labelKey)}
         </Button>
       ))}
     </fieldset>

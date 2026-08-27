@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { z } from 'zod'
 import { useRegister } from '@/entities/session/session.queries'
@@ -13,19 +14,20 @@ import { Button } from '@/shared/ui/primitives/button'
 
 const schema = z
   .object({
-    display_name: z.string().min(2, 'Имя должно содержать не менее 2 символов').max(120),
-    email: z.email('Укажите корректный адрес'),
-    password: z.string().min(8, 'Пароль должен содержать не менее 8 символов'),
+    display_name: z.string().min(2, 'auth:validation.nameMin').max(120),
+    email: z.email('auth:validation.email'),
+    password: z.string().min(8, 'auth:validation.passwordMin'),
     password_repeat: z.string(),
   })
   .refine((values) => values.password === values.password_repeat, {
     path: ['password_repeat'],
-    message: 'Пароли не совпадают',
+    message: 'auth:validation.passwordMismatch',
   })
 
 type FormValues = z.infer<typeof schema>
 
 export function RegisterPage() {
+  const { t } = useTranslation('auth')
   const navigate = useNavigate()
   const register_ = useRegister()
 
@@ -55,14 +57,16 @@ export function RegisterPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Регистрация</CardTitle>
-        <CardDescription>
-          После регистрации на указанный адрес придёт письмо для подтверждения.
-        </CardDescription>
+        <CardTitle>{t('register.title')}</CardTitle>
+        <CardDescription>{t('register.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Field label="Имя" htmlFor="display_name" error={errors.display_name?.message}>
+          <Field
+            label={t('field.name')}
+            htmlFor="display_name"
+            error={errors.display_name?.message}
+          >
             <Input
               id="display_name"
               autoComplete="name"
@@ -81,7 +85,7 @@ export function RegisterPage() {
             />
           </Field>
 
-          <Field label="Пароль" htmlFor="password" error={errors.password?.message}>
+          <Field label={t('field.password')} htmlFor="password" error={errors.password?.message}>
             <PasswordInput
               id="password"
               autoComplete="new-password"
@@ -91,7 +95,7 @@ export function RegisterPage() {
           </Field>
 
           <Field
-            label="Повторите пароль"
+            label={t('field.repeatPassword')}
             htmlFor="password_repeat"
             error={errors.password_repeat?.message}
           >
@@ -110,13 +114,13 @@ export function RegisterPage() {
           )}
 
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner label="Создаём учётную запись" /> : 'Зарегистрироваться'}
+            {isSubmitting ? <Spinner label={t('register.pending')} /> : t('register.submit')}
           </Button>
 
           <p className="text-center text-sm">
-            Уже есть аккаунт?{' '}
+            {t('register.haveAccount')}{' '}
             <Link className="text-primary hover:underline" to="/login">
-              Войти
+              {t('register.signIn')}
             </Link>
           </p>
         </form>

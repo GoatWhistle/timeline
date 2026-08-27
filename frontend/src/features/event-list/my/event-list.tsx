@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { CalendarDays } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { myEventsQuery } from '@/entities/event/event.queries'
 import { EventStateBadge, RegistrationStatusBadge } from '@/entities/event/event-state-badge'
@@ -17,6 +18,7 @@ import { Pagination } from '@/shared/ui/navigation/pagination'
 const DEFAULTS = { archived: undefined as string | undefined }
 
 export function MyEventsPage() {
+  const { t } = useTranslation('event')
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const [page, setPage] = usePageParam()
   const includeArchived = filters.archived === '1'
@@ -26,8 +28,8 @@ export function MyEventsPage() {
   return (
     <div>
       <PageHeader
-        title="Мои события"
-        description="События, на которые вы назначены"
+        title={t('list.myTitle')}
+        description={t('list.myDescription')}
         actions={
           <div className="flex items-center gap-2">
             <Checkbox
@@ -37,7 +39,7 @@ export function MyEventsPage() {
                 setFilters({ archived: checked === true ? '1' : undefined })
               }
             />
-            <Label htmlFor="include-archived">Показывать архивные</Label>
+            <Label htmlFor="include-archived">{t('list.showArchived')}</Label>
           </div>
         }
       />
@@ -45,9 +47,7 @@ export function MyEventsPage() {
       {query.isPending && <LoadingState />}
       {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
 
-      {query.data && query.data.items.length === 0 && (
-        <EmptyState title="У вас пока нет назначенных событий" />
-      )}
+      {query.data && query.data.items.length === 0 && <EmptyState title={t('list.myEmpty')} />}
 
       {query.data && query.data.items.length > 0 && (
         <div className="flex flex-col gap-4">
@@ -64,12 +64,12 @@ export function MyEventsPage() {
                       {formatDate(item.start_at)} — {formatDate(item.end_at)}
                     </p>
                     <p className="mt-1 text-sm">
-                      Роль в команде: <span className="font-medium">{item.team_role}</span>
+                      {t('list.teamRole')} <span className="font-medium">{item.team_role}</span>
                     </p>
                     {item.next_stage && (
                       <p className="mt-1 flex items-center gap-1.5 text-muted-foreground text-sm">
                         <CalendarDays className="size-3.5" aria-hidden="true" />
-                        Ближайший этап: {item.next_stage.name} ·{' '}
+                        {t('list.nextStage', { name: item.next_stage.name })}{' '}
                         {formatDate(item.next_stage.start_at)}
                       </p>
                     )}
@@ -82,7 +82,9 @@ export function MyEventsPage() {
                     )}
                     {item.registration_deadline && (
                       <p className="text-muted-foreground text-xs">
-                        Дедлайн регистрации {formatRelative(item.registration_deadline)}
+                        {t('list.registrationDeadline', {
+                          relative: formatRelative(item.registration_deadline),
+                        })}
                       </p>
                     )}
                   </div>

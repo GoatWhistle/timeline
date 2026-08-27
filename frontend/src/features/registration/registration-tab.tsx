@@ -1,9 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { REGISTRATION_STATE_LABEL } from '@/entities/registration/registration.labels'
+import { REGISTRATION_STATE_KEY } from '@/entities/registration/registration.labels'
 import {
   registrationQuery,
   useCreateRegistration,
@@ -32,15 +33,16 @@ function toLocalInput(iso: string | undefined): string {
 
 const schema = z.object({
   url: z.string().refine((value) => value.startsWith('https://'), {
-    message: 'Ссылка должна начинаться с https://',
+    message: 'event:form.urlHttps',
   }),
-  deadline_at: z.string().min(1, 'Укажите дедлайн'),
+  deadline_at: z.string().min(1, 'registration:tab.deadlineRequired'),
   description: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof schema>
 
 export function RegistrationTab({ event }: { event: EventResponse }) {
+  const { t } = useTranslation('registration')
   const query = useQuery(registrationQuery(event.id))
   const create = useCreateRegistration(event.id)
   const update = useUpdateRegistration(event.id)
@@ -77,14 +79,13 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
     try {
       if (registration) {
         await update.mutateAsync(payload)
-        toast.success('Регистрация сохранена', {
-          description:
-            'Изменение ссылки или дедлайна отменяет запланированные уведомления и создаёт новые',
+        toast.success(t('tab.saved'), {
+          description: t('tab.savedHint'),
         })
       } else {
         await create.mutateAsync(payload)
-        toast.success('Регистрация создана', {
-          description: 'Назначенным участникам созданы статусы «не выполнена»',
+        toast.success(t('tab.created'), {
+          description: t('tab.createdHint'),
         })
       }
     } catch (error) {
@@ -98,16 +99,13 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <CardTitle>Регистрация</CardTitle>
-              <CardDescription>
-                Дедлайн не может быть позже окончания события. Изменение ссылки версионирует
-                содержимое уведомлений.
-              </CardDescription>
+              <CardTitle>{t('tab.title')}</CardTitle>
+              <CardDescription>{t('tab.hint')}</CardDescription>
             </div>
             {registration && (
               <div className="flex shrink-0 items-center gap-2">
                 <Badge tone={registration.state === 'ACTIVE' ? 'primary' : 'danger'}>
-                  {REGISTRATION_STATE_LABEL[registration.state]}
+                  {REGISTRATION_STATE_KEY[registration.state]}
                 </Badge>
                 <Button
                   variant="outline"
@@ -116,11 +114,11 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
                   onClick={() =>
                     toggle
                       .mutateAsync(registration.state === 'ACTIVE' ? 'disable' : 'enable')
-                      .then(() => toast.success('Состояние регистрации изменено'))
-                      .catch(() => toast.error('Не удалось изменить состояние'))
+                      .then(() => toast.success(t('tab.stateChanged')))
+                      .catch(() => toast.error(t('tab.stateFailed')))
                   }
                 >
-                  {registration.state === 'ACTIVE' ? 'Выключить' : 'Включить'}
+                  {registration.state === 'ACTIVE' ? t('tab.disable') : t('tab.enable')}
                 </Button>
               </div>
             )}
@@ -128,15 +126,15 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
         </CardHeader>
         <CardContent>
           <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)} noValidate>
-            <Field label="Ссылка на регистрацию" htmlFor="reg-url" error={errors.url?.message}>
+            <Field label={t('tab.urlLabel')} htmlFor="reg-url" error={errors.url?.message}>
               <Input id="reg-url" aria-invalid={Boolean(errors.url)} {...register('url')} />
             </Field>
 
             <Field
-              label="Дедлайн"
+              label={t('tab.deadlineLabel')}
               htmlFor="reg-deadline"
               error={errors.deadline_at?.message}
-              hint={`Окончание события: ${formatDateTime(event.end_at)}`}
+              hint={t('tab.deadlineHint', { date: formatDateTime(event.end_at) })}
             >
               <Input
                 id="reg-deadline"
@@ -146,7 +144,11 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
               />
             </Field>
 
-            <Field label="Описание" htmlFor="reg-description" error={errors.description?.message}>
+            <Field
+              label={t('tab.descriptionLabel')}
+              htmlFor="reg-description"
+              error={errors.description?.message}
+            >
               <Textarea id="reg-description" {...register('description')} />
             </Field>
 
@@ -158,7 +160,7 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
 
             <div>
               <Button type="submit" disabled={isSubmitting}>
-                {registration ? 'Сохранить' : 'Создать регистрацию'}
+                {registration ? t('common:action.save') : t('tab.create')}
               </Button>
             </div>
           </form>
@@ -166,15 +168,15 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
           {registration && (
             <dl className="mt-6 grid grid-cols-3 gap-4 border-t pt-4 text-sm">
               <div>
-                <dt className="text-muted-foreground">Версия расписания</dt>
+                <dt className="text-muted-foreground">{t('tab.scheduleVersion')}</dt>
                 <dd className="font-medium">{registration.schedule_version}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Версия активации</dt>
+                <dt className="text-muted-foreground">{t('tab.activationVersion')}</dt>
                 <dd className="font-medium">{registration.activation_version}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Версия содержимого</dt>
+                <dt className="text-muted-foreground">{t('tab.contentVersion')}</dt>
                 <dd className="font-medium">{registration.notification_content_version}</dd>
               </div>
             </dl>
@@ -185,11 +187,8 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
       {registration && (
         <Card>
           <CardHeader>
-            <CardTitle>Правила напоминаний</CardTitle>
-            <CardDescription>
-              Не более 10 правил. Правило с отрицательным смещением уведомляет о просрочке и не
-              срабатывает после окончания события.
-            </CardDescription>
+            <CardTitle>{t('rules.title')}</CardTitle>
+            <CardDescription>{t('rules.hint')}</CardDescription>
           </CardHeader>
           <CardContent>
             <RulesEditor eventId={event.id} />

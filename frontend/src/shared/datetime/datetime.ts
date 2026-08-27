@@ -1,8 +1,37 @@
 import { TZDate } from '@date-fns/tz'
 import { format, formatDistanceStrict, isValid, parseISO } from 'date-fns'
-import { ru } from 'date-fns/locale'
+import type { Locale as DateFnsLocale } from 'date-fns/locale'
+import { enUS, ru } from 'date-fns/locale'
+import { i18n } from '@/shared/i18n/config'
+import { DEFAULT_LOCALE, isLocale, type Locale } from '@/shared/i18n/locale'
 
 export const SYSTEM_TIME_ZONE = 'Europe/Moscow'
+
+const DATE_FNS_LOCALES: Record<Locale, DateFnsLocale> = { ru, en: enUS }
+
+const DATE_TIME_PATTERN: Record<Locale, string> = {
+  ru: 'd MMMM yyyy, HH:mm',
+  en: 'd MMMM yyyy, HH:mm',
+}
+
+const DATE_PATTERN: Record<Locale, string> = {
+  ru: 'd MMMM yyyy',
+  en: 'd MMMM yyyy',
+}
+
+const SHORT_DATE_PATTERN: Record<Locale, string> = {
+  ru: 'dd.MM.yyyy',
+  en: 'dd/MM/yyyy',
+}
+
+export function currentLocale(): Locale {
+  const language = i18n.language?.split('-')[0]
+  return isLocale(language) ? language : DEFAULT_LOCALE
+}
+
+function dateFnsLocale(locale: Locale): DateFnsLocale {
+  return DATE_FNS_LOCALES[locale]
+}
 
 function toZoned(iso: string | null | undefined): TZDate | null {
   if (!iso) return null
@@ -11,38 +40,78 @@ function toZoned(iso: string | null | undefined): TZDate | null {
   return new TZDate(parsed, SYSTEM_TIME_ZONE)
 }
 
-export function formatDateTime(iso: string | null | undefined): string {
-  const date = toZoned(iso)
-  return date ? format(date, 'd MMMM yyyy, HH:mm', { locale: ru }) : '—'
-}
-
-export function formatDate(iso: string | null | undefined): string {
-  const date = toZoned(iso)
-  return date ? format(date, 'd MMMM yyyy', { locale: ru }) : '—'
-}
-
-export function formatDateShort(iso: string | null | undefined): string {
-  const date = toZoned(iso)
-  return date ? format(date, 'dd.MM.yyyy') : '—'
-}
-
-export function formatRelative(iso: string | null | undefined, base: Date = new Date()): string {
+export function formatDateTime(iso: string | null | undefined, locale = currentLocale()): string {
   const date = toZoned(iso)
   if (!date) return '—'
-  const distance = formatDistanceStrict(date, base, { locale: ru, addSuffix: true })
-  return distance
+  return format(date, DATE_TIME_PATTERN[locale], { locale: dateFnsLocale(locale) })
+}
+
+export function formatDate(iso: string | null | undefined, locale = currentLocale()): string {
+  const date = toZoned(iso)
+  if (!date) return '—'
+  return format(date, DATE_PATTERN[locale], { locale: dateFnsLocale(locale) })
+}
+
+export function formatDateShort(iso: string | null | undefined, locale = currentLocale()): string {
+  const date = toZoned(iso)
+  if (!date) return '—'
+  return format(date, SHORT_DATE_PATTERN[locale], { locale: dateFnsLocale(locale) })
+}
+
+export function formatMonth(date: Date, locale = currentLocale()): string {
+  return format(date, 'LLLL yyyy', { locale: dateFnsLocale(locale) })
+}
+
+export function formatMonthShort(date: Date, locale = currentLocale()): string {
+  return format(date, 'LLL', { locale: dateFnsLocale(locale) })
+}
+
+export function formatRelative(
+  iso: string | null | undefined,
+  base: Date = new Date(),
+  locale = currentLocale(),
+): string {
+  const date = toZoned(iso)
+  if (!date) return '—'
+  return formatDistanceStrict(date, base, { locale: dateFnsLocale(locale), addSuffix: true })
+}
+
+export function formatDuration(totalMinutes: number): string {
+  const t = i18n.getFixedT(null, 'common')
+  const total = Math.abs(totalMinutes)
+  const days = Math.floor(total / 1440)
+  const hours = Math.floor((total % 1440) / 60)
+  const minutes = total % 60
+
+  const parts: string[] = []
+  if (days) parts.push(t('duration.days', { count: days }))
+  if (hours) parts.push(t('duration.hours', { count: hours }))
+  if (minutes) parts.push(t('duration.minutes', { count: minutes }))
+  return parts.join(' ')
 }
 
 export function formatOffsetMinutes(offsetMinutes: number): string {
-  if (offsetMinutes === 0) return 'в момент дедлайна'
+  const t = i18n.getFixedT(null, 'common')
+  if (offsetMinutes === 0) return t('duration.atDeadline')
+
   const total = Math.abs(offsetMinutes)
   const days = Math.floor(total / 1440)
   const hours = Math.floor((total % 1440) / 60)
   const minutes = total % 60
+
   const parts: string[] = []
-  if (days) parts.push(`${days} дн.`)
-  if (hours) parts.push(`${hours} ч.`)
-  if (minutes) parts.push(`${minutes} мин.`)
+  if (days) parts.push(t('duration.days', { count: days }))
+  if (hours) parts.push(t('duration.hours', { count: hours }))
+  if (minutes) parts.push(t('duration.minutes', { count: minutes }))
+
   const amount = parts.join(' ')
-  return offsetMinutes > 0 ? `за ${amount} до дедлайна` : `через ${amount} после дедлайна`
+  return offsetMinutes > 0 ? t('duration.before', { amount }) : t('duration.after', { amount })
+}
+
+export function compareByLocale(a: string, b: string, locale = currentLocale()): number {
+  return new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }).compare(a, b)
+}
+
+export function localeCollator(locale = currentLocale()): Intl.Collator {
+  return new Intl.Collator(locale, { numeric: true, sensitivity: 'base' })
 }

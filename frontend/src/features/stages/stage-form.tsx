@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
-import { STAGE_TYPE_LABEL, STAGE_TYPES } from '@/entities/stage/stage.labels'
+import { STAGE_TYPE_KEY, STAGE_TYPES } from '@/entities/stage/stage.labels'
 import type { StageResponse, StageType } from '@/shared/api/types.gen'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Field } from '@/shared/ui/forms/field'
@@ -24,22 +25,22 @@ function toLocalInput(iso: string | undefined): string {
 
 const schema = z
   .object({
-    name: z.string().min(1, 'Укажите название').max(120),
+    name: z.string().min(1, 'event:form.titleRequired').max(120),
     type: z.enum(STAGE_TYPES as [StageType, ...StageType[]]),
-    start_at: z.string().min(1, 'Укажите начало'),
-    end_at: z.string().min(1, 'Укажите окончание'),
+    start_at: z.string().min(1, 'event:form.startRequired'),
+    end_at: z.string().min(1, 'event:form.endRequired'),
     sort_order: z.coerce.number().int().min(0),
     description: z.string().optional(),
     url: z
       .string()
       .optional()
       .refine((value) => !value || value.startsWith('https://'), {
-        message: 'Ссылка должна начинаться с https://',
+        message: 'event:form.urlHttps',
       }),
   })
   .refine((values) => new Date(values.end_at) > new Date(values.start_at), {
     path: ['end_at'],
-    message: 'Окончание должно быть позже начала',
+    message: 'event:form.endAfterStart',
   })
 
 type FormValues = z.input<typeof schema>
@@ -65,6 +66,7 @@ export function StageForm({
   eventRange?: { start_at: string; end_at: string }
   onSubmit: (payload: StagePayload) => Promise<void>
 }) {
+  const { t } = useTranslation('event')
   const {
     register,
     control,
@@ -119,11 +121,11 @@ export function StageForm({
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)} noValidate>
-      <Field label="Название" htmlFor="stage-name" error={errors.name?.message}>
+      <Field label={t('stages.formName')} htmlFor="stage-name" error={errors.name?.message}>
         <Input id="stage-name" aria-invalid={Boolean(errors.name)} {...register('name')} />
       </Field>
 
-      <Field label="Тип этапа" htmlFor="stage-type" error={errors.type?.message}>
+      <Field label={t('stages.formType')} htmlFor="stage-type" error={errors.type?.message}>
         <Controller
           control={control}
           name="type"
@@ -135,7 +137,7 @@ export function StageForm({
               <SelectContent>
                 {STAGE_TYPES.map((type) => (
                   <SelectItem key={type} value={type}>
-                    {STAGE_TYPE_LABEL[type]}
+                    {STAGE_TYPE_KEY[type]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -145,29 +147,40 @@ export function StageForm({
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Начало" htmlFor="stage-start" error={errors.start_at?.message}>
+        <Field label={t('stages.formStart')} htmlFor="stage-start" error={errors.start_at?.message}>
           <Input id="stage-start" type="datetime-local" {...register('start_at')} />
         </Field>
-        <Field label="Окончание" htmlFor="stage-end" error={errors.end_at?.message}>
+        <Field label={t('stages.formEnd')} htmlFor="stage-end" error={errors.end_at?.message}>
           <Input id="stage-end" type="datetime-local" {...register('end_at')} />
         </Field>
       </div>
 
       {outOfRange && (
-        <p className="rounded-md border border-dashed p-3 text-sm">
-          Этап выходит за период события. Это допустимо — сохранение не блокируется.
-        </p>
+        <p className="rounded-md border border-dashed p-3 text-sm">{t('stages.outOfRange')}</p>
       )}
 
-      <Field label="Порядок сортировки" htmlFor="stage-sort" error={errors.sort_order?.message}>
+      <Field
+        label={t('stages.formSortOrder')}
+        htmlFor="stage-sort"
+        error={errors.sort_order?.message}
+      >
         <Input id="stage-sort" type="number" min={0} {...register('sort_order')} />
       </Field>
 
-      <Field label="Ссылка" htmlFor="stage-url" error={errors.url?.message} hint="Только https">
+      <Field
+        label={t('stages.formUrl')}
+        htmlFor="stage-url"
+        error={errors.url?.message}
+        hint={t('form.httpsOnly')}
+      >
         <Input id="stage-url" {...register('url')} />
       </Field>
 
-      <Field label="Описание" htmlFor="stage-description" error={errors.description?.message}>
+      <Field
+        label={t('stages.formDescription')}
+        htmlFor="stage-description"
+        error={errors.description?.message}
+      >
         <Textarea id="stage-description" {...register('description')} />
       </Field>
 

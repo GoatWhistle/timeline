@@ -1,0 +1,30 @@
+{
+  "channel": {
+    "TELEGRAM": "Telegram",
+    "EMAIL": "Email"
+  },
+  "type": {
+    "REGISTRATION_REQUIRED": "Registration required",
+    "REGISTRATION_REMINDER": "Reminder",
+    "REGISTRATION_OVERDUE": "Overdue"
+  },
+  "card": {
+    "title": "Notification channel",
+    "hint": "If the selected channel is unavailable, the system falls back in the order Telegram → Email.",
+    "preferred": "Preferred channel",
+    "autoPlaceholder": "Automatic choice",
+    "unavailable": " — unavailable",
+    "linked": "Linked",
+    "linkedAs": "Linked: @{{username}}",
+    "notLinked": "Not linked",
+    "unlink": "Unlink",
+    "link": "Link",
+    "deepLinkHint": "Open the link and send the start command to the bot:",
+    "openTelegram": "open Telegram",
+    "verified": "verified",
+    "unverified": "not verified",
+    "channelUpdated": "Preferred channel updated",
+    "channelFailed": "Could not change the channel",
+    "linkFailed": "Could not start linking"
+  }
+}

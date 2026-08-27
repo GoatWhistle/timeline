@@ -1,0 +1,30 @@
+{
+  "channel": {
+    "TELEGRAM": "Telegram",
+    "EMAIL": "Email"
+  },
+  "type": {
+    "REGISTRATION_REQUIRED": "Требуется регистрация",
+    "REGISTRATION_REMINDER": "Напоминание",
+    "REGISTRATION_OVERDUE": "Просрочка"
+  },
+  "card": {
+    "title": "Канал уведомлений",
+    "hint": "Если выбранный канал недоступен, система использует запасной порядок Telegram → Email.",
+    "preferred": "Предпочитаемый канал",
+    "autoPlaceholder": "Автоматический выбор",
+    "unavailable": " — недоступен",
+    "linked": "Привязан",
+    "linkedAs": "Привязан: @{{username}}",
+    "notLinked": "Не привязан",
+    "unlink": "Отвязать",
+    "link": "Привязать",
+    "deepLinkHint": "Откройте ссылку и отправьте боту команду запуска:",
+    "openTelegram": "перейти в Telegram",
+    "verified": "подтверждён",
+    "unverified": "не подтверждён",
+    "channelUpdated": "Предпочитаемый канал обновлён",
+    "channelFailed": "Не удалось изменить канал",
+    "linkFailed": "Не удалось начать привязку"
+  }
+}

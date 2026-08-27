@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import { EVENT_STATE_LABEL, EVENT_STATES } from '@/entities/event/event.labels'
+import { EVENT_STATE_KEY, EVENT_STATES } from '@/entities/event/event.labels'
 import { adminEventsQuery, useCreateEvent } from '@/entities/event/event.queries'
 import { EventForm } from '@/entities/event/event-form'
 import { EventStateBadge } from '@/entities/event/event-state-badge'
@@ -39,6 +40,7 @@ const ALL = 'ALL'
 const DEFAULTS = { search: '', state: ALL, archived: '' }
 
 export function AdminEventsPage() {
+  const { t } = useTranslation('event')
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const [page, setPage] = usePageParam()
   const [createOpen, setCreateOpen] = useState(false)
@@ -60,12 +62,12 @@ export function AdminEventsPage() {
   return (
     <div>
       <PageHeader
-        title="События"
-        description="Создание, публикация и архивирование"
+        title={t('list.adminTitle')}
+        description={t('list.adminDescription')}
         actions={
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="size-4" />
-            Создать
+            {t('list.create')}
           </Button>
         }
       />
@@ -73,8 +75,8 @@ export function AdminEventsPage() {
       <div className="mb-4 flex items-end gap-3">
         <div className="w-72">
           <Input
-            aria-label="Поиск по названию или организатору"
-            placeholder="Поиск"
+            aria-label={t('list.searchAria')}
+            placeholder={t('list.searchPlaceholder')}
             value={searchInput}
             onChange={(event) => {
               setSearchInput(event.target.value)
@@ -84,14 +86,14 @@ export function AdminEventsPage() {
         </div>
         <div className="w-56">
           <Select value={filters.state} onValueChange={(value) => setFilters({ state: value })}>
-            <SelectTrigger aria-label="Состояние">
+            <SelectTrigger aria-label={t('list.stateAria')}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>Все состояния</SelectItem>
+              <SelectItem value={ALL}>{t('list.allStates')}</SelectItem>
               {EVENT_STATES.map((state) => (
                 <SelectItem key={state} value={state}>
-                  {EVENT_STATE_LABEL[state]}
+                  {t(EVENT_STATE_KEY[state])}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -101,7 +103,7 @@ export function AdminEventsPage() {
           variant={filters.archived === '1' ? 'default' : 'outline'}
           onClick={() => setFilters({ archived: filters.archived === '1' ? undefined : '1' })}
         >
-          Показывать архивные
+          {t('list.showArchived')}
         </Button>
       </div>
 
@@ -109,7 +111,7 @@ export function AdminEventsPage() {
       {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
 
       {query.data && query.data.items.length === 0 && (
-        <EmptyState title="События не найдены" description="Измените фильтры или создайте новый" />
+        <EmptyState title={t('list.emptyTitle')} description={t('list.emptyHint')} />
       )}
 
       {query.data && query.data.items.length > 0 && (
@@ -117,10 +119,10 @@ export function AdminEventsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Название</TableHead>
-                <TableHead>Организатор</TableHead>
-                <TableHead>Период</TableHead>
-                <TableHead>Состояние</TableHead>
+                <TableHead>{t('list.columnTitle')}</TableHead>
+                <TableHead>{t('list.columnOrganizer')}</TableHead>
+                <TableHead>{t('list.columnPeriod')}</TableHead>
+                <TableHead>{t('list.columnState')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -150,14 +152,14 @@ export function AdminEventsPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Новое событие</DialogTitle>
+            <DialogTitle>{t('list.newTitle')}</DialogTitle>
           </DialogHeader>
           <EventForm
-            submitLabel="Создать"
+            submitLabel={t('list.create')}
             onSubmit={async (payload) => {
               const created = await create.mutateAsync(payload)
               setCreateOpen(false)
-              toast.success('Событие создан', { description: 'Он ещё не опубликован' })
+              toast.success(t('list.created'), { description: t('list.createdHint') })
               navigate(`/admin/events/${created.id}`)
             }}
           />

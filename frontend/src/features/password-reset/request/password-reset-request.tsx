@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { z } from 'zod'
 import { useForgotPassword } from '@/entities/session/session.queries'
@@ -10,10 +11,11 @@ import { Input } from '@/shared/ui/forms/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
-const forgotSchema = z.object({ email: z.email('Укажите корректный адрес') })
+const forgotSchema = z.object({ email: z.email('auth:validation.email') })
 type ForgotValues = z.infer<typeof forgotSchema>
 
 export function PasswordResetRequest() {
+  const { t } = useTranslation('auth')
   const forgot = useForgotPassword()
   const {
     register,
@@ -33,18 +35,15 @@ export function PasswordResetRequest() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Восстановление пароля</CardTitle>
-        <CardDescription>Пришлём ссылку для установки нового пароля.</CardDescription>
+        <CardTitle>{t('reset.requestTitle')}</CardTitle>
+        <CardDescription>{t('reset.requestHint')}</CardDescription>
       </CardHeader>
       <CardContent>
         {isSubmitSuccessful && !errors.root ? (
           <div className="flex flex-col gap-4">
-            <p className="text-sm">
-              Если адрес зарегистрирован, письмо со ссылкой уже отправлено. Ссылка действует 30
-              минут.
-            </p>
+            <p className="text-sm">{t('reset.requestSent')}</p>
             <Button asChild variant="outline">
-              <Link to="/login">Вернуться ко входу</Link>
+              <Link to="/login">{t('reset.backToLogin')}</Link>
             </Button>
           </div>
         ) : (
@@ -64,11 +63,15 @@ export function PasswordResetRequest() {
               </p>
             )}
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? <Spinner label="Отправляем письмо" /> : 'Отправить ссылку'}
+              {isSubmitting ? (
+                <Spinner label={t('reset.requestPending')} />
+              ) : (
+                t('reset.requestSubmit')
+              )}
             </Button>
             <p className="text-center text-sm">
               <Link className="text-primary hover:underline" to="/login">
-                Вернуться ко входу
+                {t('reset.backToLogin')}
               </Link>
             </p>
           </form>

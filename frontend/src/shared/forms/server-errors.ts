@@ -1,5 +1,6 @@
 import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
 import { isApiError } from '@/shared/api/errors'
+import { i18n } from '@/shared/i18n/config'
 
 export function applyServerErrors<T extends FieldValues>(
   error: unknown,
@@ -12,7 +13,7 @@ export function applyServerErrors<T extends FieldValues>(
   for (const field of error.fields) {
     const name = field.field as Path<T>
     if (field.field && knownFields.includes(name)) {
-      setError(name, { message: field.message ?? 'Некорректное значение' })
+      setError(name, { message: field.message ?? i18n.t('validation.invalidValue') })
       matched = true
     }
   }

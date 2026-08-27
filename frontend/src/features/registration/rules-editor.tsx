@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { Pencil, Plus, PowerOff } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { CHANNEL_LABEL, NOTIFICATION_TYPE_LABEL } from '@/entities/notification/notification.labels'
+import { CHANNEL_KEY, NOTIFICATION_TYPE_KEY } from '@/entities/notification/notification.labels'
 import {
   rulesQuery,
   useCreateRule,
@@ -30,6 +31,7 @@ import { AUTO_CHANNEL, type Direction, RuleDialog } from './rule-dialog/rule-dia
 const MAX_RULES = 10
 
 export function RulesEditor({ eventId }: { eventId: string }) {
+  const { t } = useTranslation('registration')
   const query = useQuery(rulesQuery(eventId))
   const create = useCreateRule(eventId)
   const update = useUpdateRule(eventId)
@@ -77,8 +79,8 @@ export function RulesEditor({ eventId }: { eventId: string }) {
             channel_override: channel === AUTO_CHANNEL ? undefined : channel,
           },
         })
-        toast.success('Правило изменено', {
-          description: 'Изменение расписания пересоздаёт запланированные уведомления',
+        toast.success(t('rules.changed'), {
+          description: t('rules.changedHint'),
         })
       } else {
         await create.mutateAsync({
@@ -86,12 +88,12 @@ export function RulesEditor({ eventId }: { eventId: string }) {
           enabled: true,
           ...(channel !== AUTO_CHANNEL ? { channel_override: channel } : {}),
         })
-        toast.success('Правило создано', { description: 'Расписание уведомлений пересчитано' })
+        toast.success(t('rules.created'), { description: t('rules.createdHint') })
       }
       setOpen(false)
       setEditing(null)
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Не удалось сохранить правило')
+      toast.error(error instanceof Error ? error.message : t('rules.saveFailed'))
     }
   }
 
@@ -99,28 +101,25 @@ export function RulesEditor({ eventId }: { eventId: string }) {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground text-sm">
-          Правил: {rules.length} из {MAX_RULES}
+          {t('rules.count', { count: rules.length, max: MAX_RULES })}
         </p>
         <Button onClick={() => openDialog(null)} disabled={limitReached}>
           <Plus className="size-4" />
-          Добавить правило
+          {t('rules.add')}
         </Button>
       </div>
 
       {rules.length === 0 ? (
-        <EmptyState
-          title="Правил напоминаний нет"
-          description="Без правил участники получат только первичное уведомление"
-        />
+        <EmptyState title={t('rules.emptyTitle')} description={t('rules.emptyHint')} />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16">Слот</TableHead>
-              <TableHead>Когда</TableHead>
-              <TableHead>Тип</TableHead>
-              <TableHead>Канал</TableHead>
-              <TableHead className="w-40">Включено</TableHead>
+              <TableHead className="w-16">{t('rules.slot')}</TableHead>
+              <TableHead>{t('rules.when')}</TableHead>
+              <TableHead>{t('rules.type')}</TableHead>
+              <TableHead>{t('rules.channel')}</TableHead>
+              <TableHead className="w-40">{t('rules.enabled')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -132,41 +131,43 @@ export function RulesEditor({ eventId }: { eventId: string }) {
                 </TableCell>
                 <TableCell>
                   <Badge tone={rule.offset_minutes < 0 ? 'danger' : 'neutral'}>
-                    {NOTIFICATION_TYPE_LABEL[rule.type]}
+                    {t(NOTIFICATION_TYPE_KEY[rule.type])}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {rule.channel_override ? CHANNEL_LABEL[rule.channel_override] : 'по умолчанию'}
+                  {rule.channel_override
+                    ? t(CHANNEL_KEY[rule.channel_override])
+                    : t('rules.defaultChannel')}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label={`Изменить правило слота ${rule.slot_no}`}
+                      aria-label={t('rules.edit', { slot: rule.slot_no })}
                       onClick={() => openDialog(rule)}
                     >
                       <Pencil className="size-4" />
                     </Button>
                     <Switch
                       checked={rule.enabled}
-                      aria-label={`Правило слота ${rule.slot_no}`}
+                      aria-label={t('rules.toggle', { slot: rule.slot_no })}
                       onCheckedChange={(checked) =>
                         update
                           .mutateAsync({ id: rule.id, body: { enabled: checked } })
-                          .catch(() => toast.error('Не удалось изменить правило'))
+                          .catch(() => toast.error(t('rules.changeFailed')))
                       }
                     />
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label={`Выключить правило слота ${rule.slot_no}`}
+                      aria-label={t('rules.disableAria', { slot: rule.slot_no })}
                       disabled={!rule.enabled || disable.isPending}
                       onClick={() =>
                         disable
                           .mutateAsync(rule.id)
-                          .then(() => toast.success('Правило выключено'))
-                          .catch(() => toast.error('Не удалось выключить правило'))
+                          .then(() => toast.success(t('rules.disabled')))
+                          .catch(() => toast.error(t('rules.disableFailed')))
                       }
                     >
                       <PowerOff className="size-4" />

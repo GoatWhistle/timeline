@@ -1,5 +1,6 @@
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog'
 import type * as React from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { buttonVariants } from '@/shared/ui/primitives/button'
 
@@ -20,12 +21,14 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = 'Подтвердить',
-  cancelLabel = 'Отмена',
+  confirmLabel,
+  cancelLabel,
   destructive = false,
   onConfirm,
   disabled = false,
 }: ConfirmDialogProps) {
+  const { t } = useTranslation()
+
   return (
     <AlertDialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialogPrimitive.Portal>
@@ -39,7 +42,7 @@ export function ConfirmDialog({
           </AlertDialogPrimitive.Description>
           <div className="flex justify-end gap-2">
             <AlertDialogPrimitive.Cancel className={cn(buttonVariants({ variant: 'outline' }))}>
-              {cancelLabel}
+              {cancelLabel ?? t('action.cancel')}
             </AlertDialogPrimitive.Cancel>
             <AlertDialogPrimitive.Action
               disabled={disabled}
@@ -49,7 +52,7 @@ export function ConfirmDialog({
                 disabled && 'pointer-events-none opacity-50',
               )}
             >
-              {confirmLabel}
+              {confirmLabel ?? t('action.confirm')}
             </AlertDialogPrimitive.Action>
           </div>
         </AlertDialogPrimitive.Content>

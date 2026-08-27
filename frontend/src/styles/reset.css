@@ -4,9 +4,12 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "cv11";
+    @apply bg-background font-sans text-foreground;
     min-width: 1024px;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
 
   :focus-visible {

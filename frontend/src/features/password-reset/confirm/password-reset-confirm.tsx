@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -13,17 +14,18 @@ import { Button } from '@/shared/ui/primitives/button'
 
 const resetSchema = z
   .object({
-    password: z.string().min(8, 'Пароль должен содержать не менее 8 символов'),
+    password: z.string().min(8, 'auth:validation.passwordMin'),
     password_repeat: z.string(),
   })
   .refine((values) => values.password === values.password_repeat, {
     path: ['password_repeat'],
-    message: 'Пароли не совпадают',
+    message: 'auth:validation.passwordMismatch',
   })
 
 type ResetValues = z.infer<typeof resetSchema>
 
 export function PasswordResetConfirm() {
+  const { t } = useTranslation('auth')
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const token = searchParams.get('token') ?? ''
@@ -42,7 +44,7 @@ export function PasswordResetConfirm() {
   async function onSubmit(values: ResetValues) {
     try {
       await reset.mutateAsync({ token, password: values.password })
-      toast.success('Пароль изменён', { description: 'Войдите с новым паролем' })
+      toast.success(t('reset.changed'), { description: t('reset.changedHint') })
       navigate('/login', { replace: true })
     } catch (error) {
       applyServerErrors(error, setError, ['password'])
@@ -53,12 +55,12 @@ export function PasswordResetConfirm() {
     return (
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Ссылка недействительна</CardTitle>
-          <CardDescription>В адресе нет токена восстановления.</CardDescription>
+          <CardTitle>{t('reset.noTokenTitle')}</CardTitle>
+          <CardDescription>{t('reset.noTokenHint')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button asChild variant="outline">
-            <Link to="/forgot-password">Запросить новую ссылку</Link>
+            <Link to="/forgot-password">{t('reset.requestNew')}</Link>
           </Button>
         </CardContent>
       </Card>
@@ -68,12 +70,12 @@ export function PasswordResetConfirm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Новый пароль</CardTitle>
-        <CardDescription>После смены пароля все активные сессии будут завершены.</CardDescription>
+        <CardTitle>{t('reset.confirmTitle')}</CardTitle>
+        <CardDescription>{t('reset.confirmHint')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Field label="Новый пароль" htmlFor="password" error={errors.password?.message}>
+          <Field label={t('field.newPassword')} htmlFor="password" error={errors.password?.message}>
             <PasswordInput
               id="password"
               autoComplete="new-password"
@@ -82,7 +84,7 @@ export function PasswordResetConfirm() {
             />
           </Field>
           <Field
-            label="Повторите пароль"
+            label={t('field.repeatPassword')}
             htmlFor="password_repeat"
             error={errors.password_repeat?.message}
           >
@@ -99,7 +101,11 @@ export function PasswordResetConfirm() {
             </p>
           )}
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner label="Сохраняем пароль" /> : 'Сохранить пароль'}
+            {isSubmitting ? (
+              <Spinner label={t('reset.confirmPending')} />
+            ) : (
+              t('reset.confirmSubmit')
+            )}
           </Button>
         </form>
       </CardContent>

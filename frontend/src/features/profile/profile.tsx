@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useSession } from '@/shared/api/session'
 import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import { PageHeader } from '@/shared/ui/layout/page-header'
@@ -7,13 +8,14 @@ import { NotificationChannelCard } from './notification-channel-card/notificatio
 import { PersonalDataCard } from './personal-data-card/personal-data-card'
 
 export function ProfilePage() {
+  const { t } = useTranslation()
   const { user, isLoading } = useSession()
 
   if (isLoading || !user) return <LoadingState />
 
   return (
     <div className="max-w-3xl">
-      <PageHeader title="Профиль" description="Личные данные и настройки уведомлений" />
+      <PageHeader title={t('profile.title')} description={t('profile.description')} />
 
       <div className="flex flex-col gap-6">
         <PersonalDataCard displayName={user.display_name ?? ''} />
