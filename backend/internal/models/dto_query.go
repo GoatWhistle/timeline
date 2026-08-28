@@ -129,3 +129,24 @@ type WorkerHeartbeatResponse struct {
 	OldestPendingAgeS  float64    `json:"oldest_pending_age_seconds" example:"12.5"`
 	Healthy            bool       `json:"healthy" example:"true"`
 }
+
+type QueueEntryResponse struct {
+	ID               uuid.UUID          `json:"id"`
+	NotificationType NotificationType   `json:"notification_type"`
+	Status           NotificationStatus `json:"status"`
+	RequestedChannel Channel            `json:"requested_channel" enums:"TELEGRAM,EMAIL"`
+	ActualChannel    *Channel           `json:"actual_channel,omitempty" enums:"TELEGRAM,EMAIL"`
+	FailedChannels   []Channel          `json:"failed_channels,omitempty"`
+	AttemptCount     int                `json:"attempt_count" example:"4"`
+	ScheduledAt      time.Time          `json:"scheduled_at"`
+	LeaseExpiresAt   *time.Time         `json:"lease_expires_at,omitempty"`
+	LeaseOverdueS    *float64           `json:"lease_overdue_seconds,omitempty" example:"93.4"`
+	LastError        *string            `json:"last_error,omitempty" example:"permanent provider error"`
+	CreatedAt        time.Time          `json:"created_at"`
+	UpdatedAt        time.Time          `json:"updated_at"`
+}
+
+type QueueEntryPage struct {
+	Items []QueueEntryResponse `json:"items"`
+	Meta  PageMeta             `json:"meta"`
+}

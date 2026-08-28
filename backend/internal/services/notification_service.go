@@ -107,6 +107,10 @@ func (s *NotificationService) CreateForRule(ctx context.Context, c models.Reconc
 	return s.repo.Insert(ctx, notification)
 }
 
+func (s *NotificationService) Render(kind models.NotificationType, c models.ReconcileCandidate) *models.NotificationPayload {
+	return s.payload(kind, c)
+}
+
 func (s *NotificationService) payload(kind models.NotificationType, c models.ReconcileCandidate) *models.NotificationPayload {
 	local := c.DeadlineAt.In(s.cfg.App.SystemTZ)
 	localText := local.Format("02.01.2006 15:04")

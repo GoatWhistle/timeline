@@ -2122,6 +2122,116 @@ export interface paths {
         };
         trace?: never;
     };
+    "/admin/registration-statuses/{id}/notification-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Render a notification without sending it
+         * @description Returns the text a recipient would receive for one registration status: the subject,
+         *     the body, the channel that the rules of specification section 10 would pick and the
+         *     moment the entry would be scheduled for.
+         *
+         *     The call has no side effects at all. No notification row is created, no logical_key is
+         *     claimed and no deduplication state is touched, no provider is contacted and nothing
+         *     reaches the audit log. Calling it twice changes nothing and never suppresses a real
+         *     notification that the scheduler is about to create.
+         *
+         *     The text is rendered in the recipient's own language taken from their profile, not in
+         *     the language of the administrator asking: the point of a preview is to show what the
+         *     recipient will read.
+         *
+         *     Pass rule_id to preview a reminder or an overdue notice; the type follows the sign of
+         *     the rule offset. Omit it for the primary REGISTRATION_REQUIRED notification, which has
+         *     no rule. A status that reconciliation would skip — an unpublished or archived event, an
+         *     inactive registration, a participant who is no longer assigned, a status that is not
+         *     TODO or a deactivated recipient — has no notification to render and answers 404.
+         *
+         *     channel_ready=false means the recipient currently has no usable channel. That is not an
+         *     error of the preview: it is precisely what the administrator needs to see.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Rule to render */
+                    rule_id?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Registration status */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.NotificationPreviewResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description nothing to render, or a foreign rule */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/schedule": {
         parameters: {
             query?: never;
@@ -4006,6 +4116,158 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own active sessions
+         * @description Every active session of the calling account: the device that opened it, the address
+         *     it was opened from, when it was opened, when it was last used and when it expires.
+         *     One entry carries current=true — the session this very request authenticated with,
+         *     determined by the session identifier inside the access token.
+         *
+         *     Only the caller's own sessions are returned, and only to their owner. The user agent
+         *     and the address are personal data of the account holder: no other account reaches them
+         *     through this endpoint, an administrator included. Revoked and expired sessions are not
+         *     listed — the endpoint shows what is live now, it is not a sign-in history.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.SessionListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Terminate one own session
+         * @description Revokes the refresh token of a single session, leaving the other devices signed in.
+         *     Repeating the call on an already revoked or expired session succeeds as well.
+         *
+         *     The session must belong to the caller. An identifier of somebody else's session is
+         *     answered with 404 rather than 403: the very existence of another account's session
+         *     must not be disclosed. Terminating the current session is allowed and clears the
+         *     cookies of this response, which makes it equivalent to signing out.
+         *
+         *     The outstanding access token stays valid for the rest of its 15 minutes: revocation
+         *     ends the refresh chain, it does not reach a token already issued.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Session identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.MessageResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the session does not exist or belongs to another account */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/telegram": {
         parameters: {
             query?: never;
@@ -4137,6 +4399,102 @@ export interface paths {
                     };
                     content: {
                         "text/plain": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ops/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Queue diagnostics
+         * @description The rows an operator needs to tell a stuck queue apart from a busy one. The heartbeat
+         *     answers whether something is broken; this answers what exactly.
+         *
+         *     scope=failures lists terminal failures — FAILED after the four provider calls of
+         *     specification section 9.4.8 are spent, and UNDELIVERABLE when no channel was available
+         *     or every channel closed with a permanent error — each with the reason recorded in
+         *     last_error, the attempt count and the channels already tried.
+         *
+         *     scope=stuck-leases lists entries left in PROCESSING whose worker lease expired. That is
+         *     the same set the recovery task of section 9.4.9 returns to the queue; this endpoint only
+         *     reports it and recovers nothing. lease_overdue_seconds says how long the lease has been
+         *     overdue, which separates a worker that died from one that is merely slow.
+         *
+         *     The rows carry no payload_json, no recipient and no registration status: an operations
+         *     screen is not a way to read other people's notifications or assignments.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number, from 1 */
+                    page?: number;
+                    /** @description Page size */
+                    page_size?: number;
+                    /** @description Rows to return */
+                    scope?: "failures" | "stuck-leases";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.QueueEntryPage"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
             };
@@ -4672,6 +5030,29 @@ export interface components {
             items: components["schemas"]["models.MyEventItem"][];
             meta: components["schemas"]["models.PageMeta"];
         };
+        "models.NotificationPreviewResponse": {
+            body: string;
+            channel: components["schemas"]["models.Channel"];
+            /** @example true */
+            channel_ready: boolean;
+            /** @example 14.09.2026 18:00 */
+            deadline_local: string;
+            deadline_utc: string;
+            /** @example Autumn hackathon */
+            event_title: string;
+            /** @example ru */
+            language: string;
+            /** @example https://example.com/register */
+            registration_url: string;
+            rule_id: string;
+            /** Format: date-time */
+            scheduled_at: string;
+            /** @example Timeline: register for the event */
+            subject: string;
+            /** @example Europe/Moscow */
+            timezone_id: string;
+            type: components["schemas"]["models.NotificationType"];
+        };
         "models.NotificationRuleResponse": {
             channel_override?: components["schemas"]["models.Channel"];
             /** Format: date-time */
@@ -4688,6 +5069,8 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
         };
+        /** @enum {string} */
+        "models.NotificationStatus": "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "CANCELLED" | "UNDELIVERABLE";
         /** @enum {string} */
         "models.NotificationType": "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE";
         "models.PageMeta": {
@@ -4748,6 +5131,32 @@ export interface components {
             affected: number;
             /** @example 3 */
             skipped: number;
+        };
+        "models.QueueEntryPage": {
+            items: components["schemas"]["models.QueueEntryResponse"][];
+            meta: components["schemas"]["models.PageMeta"];
+        };
+        "models.QueueEntryResponse": {
+            actual_channel: components["schemas"]["models.Channel"];
+            /** @example 4 */
+            attempt_count: number;
+            /** Format: date-time */
+            created_at: string;
+            failed_channels: components["schemas"]["models.Channel"][];
+            id: string;
+            /** @example permanent provider error */
+            last_error: string;
+            /** Format: date-time */
+            lease_expires_at: string;
+            /** @example 93.4 */
+            lease_overdue_seconds: number;
+            notification_type: components["schemas"]["models.NotificationType"];
+            requested_channel: components["schemas"]["models.Channel"];
+            /** Format: date-time */
+            scheduled_at: string;
+            status: components["schemas"]["models.NotificationStatus"];
+            /** Format: date-time */
+            updated_at: string;
         };
         "models.ReadyResponse": {
             /** @example ok */
@@ -4864,6 +5273,24 @@ export interface components {
             team_role?: string;
             /** @example National event */
             title: string;
+        };
+        "models.SessionListResponse": {
+            items: components["schemas"]["models.SessionResponse"][];
+        };
+        "models.SessionResponse": {
+            /** Format: date-time */
+            created_at: string;
+            /** @example true */
+            current: boolean;
+            /** Format: date-time */
+            expires_at: string;
+            id: string;
+            /** @example 203.0.113.7 */
+            ip: string;
+            /** Format: date-time */
+            last_used_at: string;
+            /** @example Mozilla/5.0 (X11; Linux x86_64) */
+            user_agent: string;
         };
         "models.StageResponse": {
             /** @example Kazan */

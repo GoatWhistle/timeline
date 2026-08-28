@@ -22,6 +22,7 @@ type Deps struct {
 	Queries       QueryService
 	Audit         AuditService
 	Ops           OpsService
+	Previews      PreviewService
 
 	Authenticator middleware.Authenticator
 	Metrics       http.Handler
@@ -32,6 +33,10 @@ type Deps struct {
 	CatalogRateWindow time.Duration
 	SessionRate       int
 	SessionRateWindow time.Duration
+	PreviewRate       int
+	PreviewRateWindow time.Duration
+	QueueRate         int
+	QueueRateWindow   time.Duration
 
 	Cookies      CookieOptions
 	PublicURL    string
@@ -106,7 +111,9 @@ func NewRouter(deps Deps) http.Handler {
 	regC := NewRegistrationController(deps.Registrations, deps.Statuses, deps.Rules, deps.PageDefault, deps.PageMax)
 	queryC := NewQueryController(deps.Queries, deps.PageDefault, deps.PageMax)
 	auditC := NewAuditController(deps.Audit, deps.PageDefault, deps.PageMax)
-	opsC := NewOpsController(deps.Ops, deps.MetricsToken, deps.Metrics)
+	opsC := NewOpsController(deps.Ops, deps.MetricsToken, deps.Metrics, deps.Limiter,
+		deps.QueueRate, deps.QueueRateWindow, deps.PageDefault, deps.PageMax)
+	previewC := NewPreviewController(deps.Previews, deps.Limiter, deps.PreviewRate, deps.PreviewRateWindow)
 
 	rt := &routes{authn: deps.Authenticator}
 	mux := http.NewServeMux()
@@ -182,6 +189,8 @@ func NewRouter(deps Deps) http.Handler {
 	mux.Handle("POST "+api+"/admin/events/{id}/registration-statuses/batch-set", rt.admin(regC.BatchSetStatus))
 	mux.Handle("POST "+api+"/admin/events/{id}/registration-statuses/batch-set/preview", rt.admin(regC.BatchSetStatusPreview))
 	mux.Handle("PATCH "+api+"/admin/registration-statuses/{id}", rt.admin(regC.AdminChangeStatus))
+	mux.Handle("GET "+api+"/admin/registration-statuses/{id}/notification-preview",
+		rt.admin(previewC.Notification))
 
 	mux.Handle("GET "+api+"/admin/schedule", rt.admin(queryC.AdminSchedule))
 	mux.Handle("GET "+api+"/admin/queries/upcoming", rt.admin(queryC.Upcoming))
@@ -191,6 +200,7 @@ func NewRouter(deps Deps) http.Handler {
 	mux.Handle("GET "+api+"/healthz", http.HandlerFunc(opsC.Health))
 	mux.Handle("GET "+api+"/readyz", http.HandlerFunc(opsC.Ready))
 	mux.Handle("GET "+api+"/ops/worker-heartbeat", http.HandlerFunc(opsC.Heartbeat))
+	mux.Handle("GET "+api+"/ops/queue", rt.admin(opsC.Queue))
 	mux.Handle("GET "+api+"/metrics", http.HandlerFunc(opsC.Metrics))
 	mux.Handle("GET /healthz", http.HandlerFunc(opsC.Health))
 	mux.Handle("GET /readyz", http.HandlerFunc(opsC.Ready))

@@ -87,3 +87,19 @@ type UpdateRuleRequest struct {
 	ChannelOverride *string `json:"channel_override,omitempty" enums:"TELEGRAM,EMAIL"`
 	Enabled         *bool   `json:"enabled,omitempty"`
 }
+
+type NotificationPreviewResponse struct {
+	Type            NotificationType `json:"type"`
+	RuleID          *uuid.UUID       `json:"rule_id,omitempty"`
+	Language        string           `json:"language" example:"ru"`
+	Subject         string           `json:"subject" example:"Timeline: register for the event"`
+	Body            string           `json:"body"`
+	Channel         *Channel         `json:"channel,omitempty" enums:"TELEGRAM,EMAIL"`
+	ChannelReady    bool             `json:"channel_ready" example:"true"`
+	EventTitle      string           `json:"event_title" example:"Autumn hackathon"`
+	RegistrationURL string           `json:"registration_url" example:"https://example.com/register"`
+	DeadlineUTC     time.Time        `json:"deadline_utc"`
+	DeadlineLocal   string           `json:"deadline_local" example:"14.09.2026 18:00"`
+	TimezoneID      string           `json:"timezone_id" example:"Europe/Moscow"`
+	ScheduledAt     *time.Time       `json:"scheduled_at,omitempty"`
+}

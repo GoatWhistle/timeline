@@ -41,7 +41,7 @@ func newRig(t *testing.T, w *world, telegram, email *recordingSender) *rig {
 	notifs := notification.NewNotifications(w.db)
 	scheduler := notification.NewScheduler(w.db)
 	notifier := services.NewNotificationService(notifs, w.cfg)
-	planner := services.NewSchedulerService(w.db, scheduler, notifier, w.cfg)
+	planner := services.NewSchedulerService(w.db, scheduler, participation.NewRules(w.db), notifier, w.cfg)
 	delivery := services.NewDeliveryService(w.db, notifs, scheduler,
 		identity.NewUsers(w.db), participation.NewRules(w.db), audit.NewAudit(w.db),
 		telegram, email, w.cfg)

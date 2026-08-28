@@ -134,7 +134,8 @@ func TestStatusNotRequiredReturnsToTodoAndRestartsTheCycle(t *testing.T) {
 }
 
 func TestStatusNotRequiredCannotBeMarkedDoneDirectly(t *testing.T) {
-	t.Skip("todo item 98а: AdminChange allows NOT_REQUIRED -> DONE, which the specification never lists")
+	t.Skip("todo item 98a: StatusService.AdminChange allows NOT_REQUIRED -> DONE, " +
+		"a transition the specification lists nowhere in section 8 or the section 16 table")
 
 	s := newStack(t)
 	f := s.seed(t)
@@ -145,6 +146,21 @@ func TestStatusNotRequiredCannotBeMarkedDoneDirectly(t *testing.T) {
 		"an administrator marking an excused participant registered")
 	if row := s.statusRow(t, f.statusID); row.Status != "NOT_REQUIRED" {
 		t.Fatalf("the refused attempt moved the status to %q", row.Status)
+	}
+}
+
+func TestOwnerReportIsRefusedFromNotRequired(t *testing.T) {
+	s := newStack(t)
+	f := s.seed(t)
+
+	f.adminClient.forceStatus(t, f.statusID, "NOT_REQUIRED")
+
+	member := s.session(t, f.member)
+	requireErrorCode(t, member.post("/events/"+f.eventID.String()+"/registration/done", nil),
+		http.StatusConflict, "invalid_state_transition",
+		"an excused participant reporting a registration")
+	if row := s.statusRow(t, f.statusID); row.Status != "NOT_REQUIRED" {
+		t.Fatalf("the refused report moved the status to %q", row.Status)
 	}
 }
 

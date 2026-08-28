@@ -77,12 +77,12 @@ func (s *ProfileService) StartTelegramLink(ctx context.Context, actor models.Act
 	}
 	expires := s.now().Add(s.cfg.Auth.TelegramLinkTTL)
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
-		if err := s.tokens.InvalidateForUser(ctx, actor.UserID, models.TokenTelegramLink); err != nil {
+		if err := s.tokens.InvalidateForUser(ctx, actor.UserID, models.PurposeTelegramLink); err != nil {
 			return err
 		}
 		_, err := s.tokens.Create(ctx, &models.OneTimeToken{
 			UserID:    &actor.UserID,
-			Purpose:   models.TokenTelegramLink,
+			Purpose:   models.PurposeTelegramLink,
 			TokenHash: HashSecret(secret),
 			ExpiresAt: expires,
 		})
@@ -97,7 +97,7 @@ func (s *ProfileService) StartTelegramLink(ctx context.Context, actor models.Act
 func (s *ProfileService) CompleteTelegramLink(ctx context.Context, token, chatID string, username *string) (*models.User, error) {
 	var user *models.User
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
-		record, err := s.tokens.Consume(ctx, HashSecret(token), models.TokenTelegramLink, s.now())
+		record, err := s.tokens.Consume(ctx, HashSecret(token), models.PurposeTelegramLink, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
 				return models.NewValidation("the link is invalid or has expired")
@@ -161,12 +161,12 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 		if err := s.users.SetPendingEmail(ctx, user.ID, newEmail); err != nil {
 			return err
 		}
-		if err := s.tokens.InvalidateForUser(ctx, user.ID, models.TokenEmailChange); err != nil {
+		if err := s.tokens.InvalidateForUser(ctx, user.ID, models.PurposeEmailChange); err != nil {
 			return err
 		}
 		_, err = s.tokens.Create(ctx, &models.OneTimeToken{
 			UserID:      &user.ID,
-			Purpose:     models.TokenEmailChange,
+			Purpose:     models.PurposeEmailChange,
 			TokenHash:   HashSecret(secret),
 			TargetEmail: &newEmail,
 			ExpiresAt:   s.now().Add(s.cfg.Auth.EmailVerifyTTL),

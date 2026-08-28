@@ -78,7 +78,7 @@ func newStack(t *testing.T) *stack {
 
 	auditSvc := services.NewAuditService(auditRepo)
 	notifier := services.NewNotificationService(notifications, cfg)
-	scheduler := services.NewSchedulerService(db, scheduleRepo, notifier, cfg)
+	scheduler := services.NewSchedulerService(db, scheduleRepo, rules, notifier, cfg)
 	auth := services.NewAuthService(db, users, sessions, tokens, invites,
 		notifier, auditSvc, hasher, issuer, mailer, limiter, cfg)
 
@@ -98,10 +98,11 @@ func newStack(t *testing.T) *stack {
 			participants, statuses, users, notifier, scheduler, auditSvc),
 		Statuses: services.NewStatusService(db, statuses, registrations, participants,
 			events, users, notifier, scheduler, auditSvc),
-		Rules:   services.NewRuleService(db, rules, registrations, notifier, scheduler, auditSvc, cfg),
-		Queries: services.NewQueryService(queries, events, stages, participants, registrations, statuses),
-		Audit:   auditSvc,
-		Ops:     services.NewOpsService(db, scheduleRepo, notifications, cfg),
+		Rules:    services.NewRuleService(db, rules, registrations, notifier, scheduler, auditSvc, cfg),
+		Queries:  services.NewQueryService(queries, events, stages, participants, registrations, statuses),
+		Audit:    auditSvc,
+		Ops:      services.NewOpsService(db, scheduleRepo, notifications, cfg),
+		Previews: scheduler,
 
 		Authenticator:     auth,
 		Limiter:           limiter,
@@ -109,6 +110,10 @@ func newStack(t *testing.T) *stack {
 		CatalogRateWindow: cfg.RateLim.CatalogWindow,
 		SessionRate:       cfg.RateLim.SessionRequests,
 		SessionRateWindow: cfg.RateLim.SessionWindow,
+		PreviewRate:       cfg.RateLim.PreviewRequests,
+		PreviewRateWindow: cfg.RateLim.PreviewWindow,
+		QueueRate:         cfg.RateLim.QueueRequests,
+		QueueRateWindow:   cfg.RateLim.QueueWindow,
 
 		Cookies:      controllers.CookieOptions{},
 		PublicURL:    cfg.App.PublicURL,

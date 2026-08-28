@@ -100,7 +100,7 @@ func newContainer(ctx context.Context) (*container, error) {
 
 	c.audit = services.NewAuditService(c.repos.audit)
 	c.notifier = services.NewNotificationService(c.repos.notifications, cfg)
-	c.scheduler = services.NewSchedulerService(db, c.repos.scheduler, c.notifier, cfg)
+	c.scheduler = services.NewSchedulerService(db, c.repos.scheduler, c.repos.rules, c.notifier, cfg)
 
 	c.auth = services.NewAuthService(db, c.repos.users, c.repos.sessions, c.repos.tokens, c.repos.invites,
 		c.notifier, c.audit, c.hasher, issuer, mailer, limiter, cfg)

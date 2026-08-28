@@ -29,12 +29,12 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 		return err
 	}
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
-		if err := s.tokens.InvalidateForUser(ctx, user.ID, models.TokenPasswordReset); err != nil {
+		if err := s.tokens.InvalidateForUser(ctx, user.ID, models.PurposePasswordReset); err != nil {
 			return err
 		}
 		_, err := s.tokens.Create(ctx, &models.OneTimeToken{
 			UserID:    &user.ID,
-			Purpose:   models.TokenPasswordReset,
+			Purpose:   models.PurposePasswordReset,
 			TokenHash: HashSecret(secret),
 			ExpiresAt: s.now().Add(s.cfg.Auth.PasswordResetTTL),
 		})
@@ -56,7 +56,7 @@ func (s *AuthService) ResetPassword(ctx context.Context, token, password string)
 		return err
 	}
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
-		record, err := s.tokens.Consume(ctx, HashSecret(token), models.TokenPasswordReset, s.now())
+		record, err := s.tokens.Consume(ctx, HashSecret(token), models.PurposePasswordReset, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
 				return models.NewValidation("the recovery token is invalid or has expired")

@@ -9,6 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
@@ -16,14 +17,15 @@ import (
 type SchedulerService struct {
 	db        *postgres.DB
 	scheduler *notification.Scheduler
+	rules     *participation.Rules
 	notifier  *NotificationService
 	cfg       *config.Config
 	now       func() time.Time
 }
 
 func NewSchedulerService(db *postgres.DB, scheduler *notification.Scheduler,
-	notifier *NotificationService, cfg *config.Config) *SchedulerService {
-	return &SchedulerService{db: db, scheduler: scheduler, notifier: notifier, cfg: cfg,
+	rules *participation.Rules, notifier *NotificationService, cfg *config.Config) *SchedulerService {
+	return &SchedulerService{db: db, scheduler: scheduler, rules: rules, notifier: notifier, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() }}
 }
 

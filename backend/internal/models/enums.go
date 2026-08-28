@@ -14,10 +14,10 @@ func (c Channel) Valid() bool {
 type TokenPurpose string
 
 const (
-	TokenEmailVerification TokenPurpose = "EMAIL_VERIFICATION"
-	TokenPasswordReset     TokenPurpose = "PASSWORD_RESET"
-	TokenEmailChange       TokenPurpose = "EMAIL_CHANGE"
-	TokenTelegramLink      TokenPurpose = "TELEGRAM_LINK"
+	PurposeEmailVerification TokenPurpose = "EMAIL_VERIFICATION"
+	PurposePasswordReset     TokenPurpose = "PASSWORD_RESET"
+	PurposeEmailChange       TokenPurpose = "EMAIL_CHANGE"
+	PurposeTelegramLink      TokenPurpose = "TELEGRAM_LINK"
 )
 
 type EventState string

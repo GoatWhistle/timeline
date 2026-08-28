@@ -62,7 +62,7 @@ func (s *AuthService) issueVerification(ctx context.Context, userID uuid.UUID) (
 	}
 	if _, err := s.tokens.Create(ctx, &models.OneTimeToken{
 		UserID:    &userID,
-		Purpose:   models.TokenEmailVerification,
+		Purpose:   models.PurposeEmailVerification,
 		TokenHash: HashSecret(secret),
 		ExpiresAt: s.now().Add(s.cfg.Auth.EmailVerifyTTL),
 	}); err != nil {

@@ -112,6 +112,11 @@ type AuditService interface {
 	List(ctx context.Context, actor models.Actor, filter models.AuditFilter, page models.Page) ([]models.AuditResponse, int64, error)
 }
 
+type PreviewService interface {
+	PreviewNotification(ctx context.Context, actor models.Actor, statusID uuid.UUID,
+		ruleID *uuid.UUID) (*models.NotificationPreviewResponse, error)
+}
+
 type Limiter interface {
 	Allow(key string, limit int, window time.Duration) bool
 }
@@ -119,4 +124,6 @@ type Limiter interface {
 type OpsService interface {
 	Ready(ctx context.Context) error
 	Heartbeat(ctx context.Context) (*models.WorkerHeartbeatResponse, error)
+	Queue(ctx context.Context, actor models.Actor, scope string,
+		page models.Page) ([]models.QueueEntryResponse, int64, error)
 }

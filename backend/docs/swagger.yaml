@@ -880,6 +880,46 @@ definitions:
       meta:
         $ref: '#/definitions/models.PageMeta'
     type: object
+  models.NotificationPreviewResponse:
+    properties:
+      body:
+        type: string
+      channel:
+        allOf:
+        - $ref: '#/definitions/models.Channel'
+        enum:
+        - TELEGRAM
+        - EMAIL
+      channel_ready:
+        example: true
+        type: boolean
+      deadline_local:
+        example: 14.09.2026 18:00
+        type: string
+      deadline_utc:
+        type: string
+      event_title:
+        example: Autumn hackathon
+        type: string
+      language:
+        example: ru
+        type: string
+      registration_url:
+        example: https://example.com/register
+        type: string
+      rule_id:
+        type: string
+      scheduled_at:
+        type: string
+      subject:
+        example: 'Timeline: register for the event'
+        type: string
+      timezone_id:
+        example: Europe/Moscow
+        type: string
+      type:
+        $ref: '#/definitions/models.NotificationType'
+    type: object
   models.NotificationRuleResponse:
     properties:
       channel_override:
@@ -912,6 +952,22 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.NotificationStatus:
+    enum:
+    - PENDING
+    - PROCESSING
+    - SENT
+    - FAILED
+    - CANCELLED
+    - UNDELIVERABLE
+    type: string
+    x-enum-varnames:
+    - NotificationPending
+    - NotificationProcessing
+    - NotificationSent
+    - NotificationFailed
+    - NotificationCancelled
+    - NotificationUndeliverable
   models.NotificationType:
     enum:
     - REGISTRATION_REQUIRED
@@ -1032,6 +1088,57 @@ definitions:
       skipped:
         example: 3
         type: integer
+    type: object
+  models.QueueEntryPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.QueueEntryResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.QueueEntryResponse:
+    properties:
+      actual_channel:
+        allOf:
+        - $ref: '#/definitions/models.Channel'
+        enum:
+        - TELEGRAM
+        - EMAIL
+      attempt_count:
+        example: 4
+        type: integer
+      created_at:
+        type: string
+      failed_channels:
+        items:
+          $ref: '#/definitions/models.Channel'
+        type: array
+      id:
+        type: string
+      last_error:
+        example: permanent provider error
+        type: string
+      lease_expires_at:
+        type: string
+      lease_overdue_seconds:
+        example: 93.4
+        type: number
+      notification_type:
+        $ref: '#/definitions/models.NotificationType'
+      requested_channel:
+        allOf:
+        - $ref: '#/definitions/models.Channel'
+        enum:
+        - TELEGRAM
+        - EMAIL
+      scheduled_at:
+        type: string
+      status:
+        $ref: '#/definitions/models.NotificationStatus'
+      updated_at:
+        type: string
     type: object
   models.ReadyResponse:
     properties:
@@ -1257,6 +1364,33 @@ definitions:
         type: string
       title:
         example: National event
+        type: string
+    type: object
+  models.SessionListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.SessionResponse'
+        type: array
+    type: object
+  models.SessionResponse:
+    properties:
+      created_at:
+        type: string
+      current:
+        example: true
+        type: boolean
+      expires_at:
+        type: string
+      id:
+        type: string
+      ip:
+        example: 203.0.113.7
+        type: string
+      last_used_at:
+        type: string
+      user_agent:
+        example: Mozilla/5.0 (X11; Linux x86_64)
         type: string
     type: object
   models.StageResponse:
@@ -2896,6 +3030,74 @@ paths:
       summary: Administrative status transition
       tags:
       - registration
+  /admin/registration-statuses/{id}/notification-preview:
+    get:
+      description: |-
+        Returns the text a recipient would receive for one registration status: the subject,
+        the body, the channel that the rules of specification section 10 would pick and the
+        moment the entry would be scheduled for.
+
+        The call has no side effects at all. No notification row is created, no logical_key is
+        claimed and no deduplication state is touched, no provider is contacted and nothing
+        reaches the audit log. Calling it twice changes nothing and never suppresses a real
+        notification that the scheduler is about to create.
+
+        The text is rendered in the recipient's own language taken from their profile, not in
+        the language of the administrator asking: the point of a preview is to show what the
+        recipient will read.
+
+        Pass rule_id to preview a reminder or an overdue notice; the type follows the sign of
+        the rule offset. Omit it for the primary REGISTRATION_REQUIRED notification, which has
+        no rule. A status that reconciliation would skip — an unpublished or archived event, an
+        inactive registration, a participant who is no longer assigned, a status that is not
+        TODO or a deactivated recipient — has no notification to render and answers 404.
+
+        channel_ready=false means the recipient currently has no usable channel. That is not an
+        error of the preview: it is precisely what the administrator needs to see.
+      parameters:
+      - description: Registration status
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Rule to render
+        format: uuid
+        in: query
+        name: rule_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NotificationPreviewResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: nothing to render, or a foreign rule
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Render a notification without sending it
+      tags:
+      - rules
   /admin/schedule:
     get:
       description: All events with filters by state, participant and date range.
@@ -3931,6 +4133,86 @@ paths:
       summary: User schedule
       tags:
       - queries
+  /me/sessions:
+    get:
+      description: |-
+        Every active session of the calling account: the device that opened it, the address
+        it was opened from, when it was opened, when it was last used and when it expires.
+        One entry carries current=true — the session this very request authenticated with,
+        determined by the session identifier inside the access token.
+
+        Only the caller's own sessions are returned, and only to their owner. The user agent
+        and the address are personal data of the account holder: no other account reaches them
+        through this endpoint, an administrator included. Revoked and expired sessions are not
+        listed — the endpoint shows what is live now, it is not a sign-in history.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SessionListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own active sessions
+      tags:
+      - auth
+  /me/sessions/{id}:
+    delete:
+      description: |-
+        Revokes the refresh token of a single session, leaving the other devices signed in.
+        Repeating the call on an already revoked or expired session succeeds as well.
+
+        The session must belong to the caller. An identifier of somebody else's session is
+        answered with 404 rather than 403: the very existence of another account's session
+        must not be disclosed. Terminating the current session is allowed and clears the
+        cookies of this response, which makes it equivalent to signing out.
+
+        The outstanding access token stays valid for the rest of its 15 minutes: revocation
+        ends the refresh chain, it does not reach a token already issued.
+      parameters:
+      - description: Session identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: the session does not exist or belongs to another account
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Terminate one own session
+      tags:
+      - auth
   /me/telegram:
     delete:
       produces:
@@ -3987,6 +4269,68 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Prometheus metrics
+      tags:
+      - ops
+  /ops/queue:
+    get:
+      description: |-
+        The rows an operator needs to tell a stuck queue apart from a busy one. The heartbeat
+        answers whether something is broken; this answers what exactly.
+
+        scope=failures lists terminal failures — FAILED after the four provider calls of
+        specification section 9.4.8 are spent, and UNDELIVERABLE when no channel was available
+        or every channel closed with a permanent error — each with the reason recorded in
+        last_error, the attempt count and the channels already tried.
+
+        scope=stuck-leases lists entries left in PROCESSING whose worker lease expired. That is
+        the same set the recovery task of section 9.4.9 returns to the queue; this endpoint only
+        reports it and recovers nothing. lease_overdue_seconds says how long the lease has been
+        overdue, which separates a worker that died from one that is merely slow.
+
+        The rows carry no payload_json, no recipient and no registration status: an operations
+        screen is not a way to read other people's notifications or assignments.
+      parameters:
+      - description: Rows to return
+        enum:
+        - failures
+        - stuck-leases
+        in: query
+        name: scope
+        type: string
+      - description: Page number, from 1
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QueueEntryPage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Queue diagnostics
       tags:
       - ops
   /ops/worker-heartbeat:

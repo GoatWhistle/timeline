@@ -9,7 +9,7 @@ import (
 
 func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
-		record, err := s.tokens.Consume(ctx, HashSecret(token), models.TokenEmailVerification, s.now())
+		record, err := s.tokens.Consume(ctx, HashSecret(token), models.PurposeEmailVerification, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
 				return models.NewValidation("the confirmation token is invalid or has expired")
@@ -45,12 +45,12 @@ func (s *AuthService) ResendVerification(ctx context.Context, email string) erro
 		return err
 	}
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
-		if err := s.tokens.InvalidateForUser(ctx, user.ID, models.TokenEmailVerification); err != nil {
+		if err := s.tokens.InvalidateForUser(ctx, user.ID, models.PurposeEmailVerification); err != nil {
 			return err
 		}
 		_, err := s.tokens.Create(ctx, &models.OneTimeToken{
 			UserID:    &user.ID,
-			Purpose:   models.TokenEmailVerification,
+			Purpose:   models.PurposeEmailVerification,
 			TokenHash: HashSecret(secret),
 			ExpiresAt: s.now().Add(s.cfg.Auth.EmailVerifyTTL),
 		})
@@ -65,7 +65,7 @@ func (s *AuthService) ResendVerification(ctx context.Context, email string) erro
 
 func (s *AuthService) ConfirmEmailChange(ctx context.Context, token string) error {
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
-		record, err := s.tokens.Consume(ctx, HashSecret(token), models.TokenEmailChange, s.now())
+		record, err := s.tokens.Consume(ctx, HashSecret(token), models.PurposeEmailChange, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
 				return models.NewValidation("the confirmation token is invalid or has expired")

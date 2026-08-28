@@ -86,6 +86,7 @@ func newRouter(c *container) http.Handler {
 		Queries:       c.queries,
 		Audit:         c.audit,
 		Ops:           c.ops,
+		Previews:      c.scheduler,
 
 		Authenticator: c.auth,
 		Metrics:       promhttp.Handler(),
@@ -95,6 +96,10 @@ func newRouter(c *container) http.Handler {
 		CatalogRateWindow: c.cfg.RateLim.CatalogWindow,
 		SessionRate:       c.cfg.RateLim.SessionRequests,
 		SessionRateWindow: c.cfg.RateLim.SessionWindow,
+		PreviewRate:       c.cfg.RateLim.PreviewRequests,
+		PreviewRateWindow: c.cfg.RateLim.PreviewWindow,
+		QueueRate:         c.cfg.RateLim.QueueRequests,
+		QueueRateWindow:   c.cfg.RateLim.QueueWindow,
 
 		Cookies:      controllers.CookieOptions{Domain: c.cfg.HTTP.CookieDomain, Secure: c.cfg.HTTP.CookieSecure},
 		PublicURL:    c.cfg.App.PublicURL,
