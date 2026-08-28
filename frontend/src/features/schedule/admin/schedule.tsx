@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import { EVENT_STATE_KEY, EVENT_STATES } from '@/entities/event/event.labels'
 import { adminScheduleQuery } from '@/entities/schedule/schedule.queries'
-import type { ScheduleScale } from '@/features/schedule/model/schedule-scale'
-import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid'
+import { useScheduleView } from '@/features/schedule/model/use-schedule-view'
+import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
 import { ScheduleLegend } from '@/features/schedule/ui/schedule-legend'
 import { ZoomSwitch } from '@/features/schedule/zoom-switch/zoom-switch'
 import { usersQuery } from '@/shared/api/directory'
@@ -25,12 +26,12 @@ import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary } from '@/shared/ui/states'
 
 const ALL = 'ALL'
-const DEFAULTS = { scale: 'month', state: ALL, participant: ALL, archived: '' }
+const DEFAULTS = { state: ALL, participant: ALL, archived: '' }
 
 export function AdminSchedulePage() {
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
-  const scale: ScheduleScale = filters.scale === 'week' ? 'week' : 'month'
 
   const users = useQuery(usersQuery({ page_size: 100 }))
 
@@ -50,12 +51,14 @@ export function AdminSchedulePage() {
     }),
   )
 
+  const view = useScheduleView(query.data?.range)
+
   return (
     <div>
       <PageHeader
         title={t('schedule.title')}
         description={t('schedule.adminDescription')}
-        actions={<ZoomSwitch value={scale} onChange={(next) => setFilters({ scale: next })} />}
+        actions={<ZoomSwitch value={view.scale} onChange={view.setScale} onToday={view.goToday} />}
       />
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
@@ -118,7 +121,12 @@ export function AdminSchedulePage() {
             <div className="flex flex-col gap-4">
               <ScheduleGrid
                 data={query.data}
-                scale={scale}
+                range={view.range}
+                scale={view.scale}
+                viewportWidth={view.viewportWidth}
+                onToday={view.goToday}
+                onZoom={view.zoom}
+                onNavigate={(href) => navigate(href)}
                 hrefBuilder={(row) => `/admin/events/${row.event_id}`}
               />
               <ScheduleLegend />

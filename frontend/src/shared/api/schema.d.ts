@@ -3139,6 +3139,12 @@ export interface paths {
          * Event catalog
          * @description Every published, non-archived event regardless of participation. The response
          *     carries a dedicated payload that cannot include administrative notes.
+         *
+         *     The catalog requires a session: an anonymous request is answered with 401. An
+         *     unauthenticated listing would enumerate every event of the organisation together
+         *     with its organisers and prize pools, and the system is internal. It also carries
+         *     its own rate limit, counted per account, because a catalog page is heavier than
+         *     other reads: substring search, filters and the stages of the page.
          */
         get: {
             parameters: {
@@ -3149,7 +3155,7 @@ export interface paths {
                     from?: string;
                     /** @description Comma-separated kind filter */
                     kind?: "HACKATHON" | "MEETUP";
-                    /** @description Comma-separated origin filter */
+                    /** @description Comma-separated origin filter. Omit it for the All view: RU and WORLD cover every event. */
                     origin?: "RU" | "WORLD";
                     /** @description Page number */
                     page?: number;
@@ -3296,7 +3302,9 @@ export interface paths {
         /**
          * Join an event
          * @description Self-signup: the user joins a published event and supplies their own team role.
-         *     A meetup has no team role, so the field may be omitted.
+         *     A meetup has no team role, so the field may be omitted; for a hackathon it is
+         *     required. A finished event cannot be joined: only an administrator may assign a
+         *     participant after the fact.
          */
         post: {
             parameters: {
@@ -3324,8 +3332,17 @@ export interface paths {
                         "application/json": components["schemas"]["models.ParticipantSelfResponse"];
                     };
                 };
-                /** @description Bad Request */
+                /** @description a hackathon requires a team role */
                 400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -3342,7 +3359,7 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
-                /** @description the user already takes part in the event */
+                /** @description already a participant, or the event has finished */
                 409: {
                     headers: {
                         [name: string]: unknown;

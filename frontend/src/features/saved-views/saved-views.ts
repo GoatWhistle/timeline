@@ -18,9 +18,14 @@ export function viewSearch(view: SavedView): string {
   return search ? `?${search}` : ''
 }
 
-export function isViewActive(view: SavedView, search: string): boolean {
+const DEFAULT_VIEW_KEYS = ['state', 'sort', 'archived'] as const
+
+export function isViewActive(
+  view: SavedView,
+  search: string,
+  keys: readonly string[] = DEFAULT_VIEW_KEYS,
+): boolean {
   const current = new URLSearchParams(search)
-  const keys = ['state', 'sort', 'archived']
 
   for (const key of keys) {
     const expected = view.params[key] ?? null
@@ -30,6 +35,10 @@ export function isViewActive(view: SavedView, search: string): boolean {
   return true
 }
 
-export function activeView(views: SavedView[], search: string): SavedView | null {
-  return views.find((view) => isViewActive(view, search)) ?? null
+export function activeView(
+  views: SavedView[],
+  search: string,
+  keys?: readonly string[],
+): SavedView | null {
+  return views.find((view) => isViewActive(view, search, keys)) ?? null
 }

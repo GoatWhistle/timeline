@@ -2,6 +2,7 @@ import {
   AlarmClock,
   CalendarRange,
   ClipboardList,
+  Compass,
   LayoutList,
   ScrollText,
   Send,
@@ -12,11 +13,13 @@ import type * as React from 'react'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useLocation } from 'react-router'
+import { CATALOG_VIEW_KEYS, CATALOG_VIEWS } from '@/entities/catalog/catalog.views'
 import { AppShortcuts, type GotoTarget } from '@/features/app-shortcuts/app-shortcuts'
 import { VerificationBanner } from '@/features/auth/verification-banner/verification-banner'
 import { ProfileMenu } from '@/features/profile-menu/profile-menu'
 import { EVENT_VIEWS } from '@/features/saved-views/saved-views'
 import { SavedViewsNav } from '@/features/saved-views/saved-views-nav'
+import { SettingsOverlay } from '@/features/settings-overlay/settings-overlay'
 import { useSession } from '@/shared/api/session'
 import { useProfileLocale } from '@/shared/i18n/use-profile-locale'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -30,6 +33,7 @@ type NavItem = {
 
 const USER_NAV: NavItem[] = [
   { to: '/', labelKey: 'nav.myEvents', icon: LayoutList },
+  { to: '/catalog', labelKey: 'nav.catalog', icon: Compass },
   { to: '/schedule', labelKey: 'nav.schedule', icon: CalendarRange },
   { to: '/profile', labelKey: 'nav.profile', icon: UserCog },
 ]
@@ -45,6 +49,7 @@ const ADMIN_NAV: NavItem[] = [
 
 const USER_TARGETS: GotoTarget[] = [
   { id: 'events', path: '/', key: 'e', titleKey: 'nav.myEvents' },
+  { id: 'catalog', path: '/catalog', key: 'c', titleKey: 'nav.catalog' },
   { id: 'schedule', path: '/schedule', key: 's', titleKey: 'nav.schedule' },
   { id: 'profile', path: '/profile', key: 'p', titleKey: 'nav.profile' },
 ]
@@ -92,6 +97,7 @@ export function AppShell() {
   const location = useLocation()
   useProfileLocale()
 
+  const onCatalog = location.pathname === '/catalog'
   const listPath = location.pathname.startsWith('/admin/events') ? '/admin/events' : '/'
   const showViews = location.pathname === '/' || location.pathname === '/admin/events'
 
@@ -113,6 +119,9 @@ export function AppShell() {
           </div>
           <NavSection title={t('app.sectionParticipant')} items={USER_NAV} />
           {showViews && <SavedViewsNav views={EVENT_VIEWS} basePath={listPath} />}
+          {onCatalog && (
+            <SavedViewsNav views={CATALOG_VIEWS} basePath="/catalog" keys={CATALOG_VIEW_KEYS} />
+          )}
           {isAdmin && <NavSection title={t('app.sectionAdmin')} items={ADMIN_NAV} />}
         </nav>
 
@@ -129,6 +138,8 @@ export function AppShell() {
           <Outlet />
         </Suspense>
       </main>
+
+      <SettingsOverlay />
     </div>
   )
 }

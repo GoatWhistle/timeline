@@ -13,6 +13,7 @@ import {
   AdminInvitesPage,
   AdminSchedulePage,
   AdminUsersPage,
+  CatalogPage,
   EmailChangeConfirmPage,
   EventCardPage,
   ForgotPasswordPage,
@@ -61,6 +62,7 @@ export function AppRouter() {
         <Route element={<RequireAuth />}>
           <Route element={<AppShell />}>
             <Route index element={<MyEventsPage />} />
+            <Route path="/catalog" element={<CatalogPage />} />
 
             <Route element={<RequireAdmin />}>
               <Route path="/admin/events" element={<AdminEventsPage />} />

@@ -1,0 +1,77 @@
+.bar {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--bar-height);
+  border-radius: var(--bar-radius);
+  padding-inline: 0;
+  box-sizing: border-box;
+  color: var(--stage-foreground);
+  font-size: var(--text-label);
+  line-height: 1;
+  overflow: visible;
+  text-align: start;
+}
+
+.bar[data-roomy="true"] {
+  padding-inline: 6px;
+}
+
+.bar[data-clipped-start="true"] {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+.bar[data-clipped-end="true"] {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+.bar[data-unconfirmed="true"] {
+  background-color: transparent;
+  border: 1px dashed currentColor;
+  color: var(--foreground);
+}
+
+.bar[data-patterned="true"] {
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in oklch, var(--neutral-900) 10%, transparent) 0 3px,
+    transparent 3px 7px
+  );
+}
+
+.bar:focus-visible,
+.bar[data-focused="true"] {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 4px var(--background);
+}
+
+.label {
+  position: absolute;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.label[data-placement="inside"] {
+  color: var(--stage-foreground);
+}
+
+.label[data-placement="outside"] {
+  color: var(--foreground);
+}
+
+.bar[data-unconfirmed="true"] .label[data-placement="inside"] {
+  color: var(--foreground);
+}
+
+.above {
+  position: absolute;
+  white-space: nowrap;
+  color: var(--foreground);
+  font-size: var(--text-label);
+  line-height: 14px;
+  pointer-events: none;
+}

@@ -30,7 +30,14 @@
     "startRequired": "Enter a start date",
     "endRequired": "Enter an end date",
     "endAfterStart": "The end must be later than the start",
-    "urlHttps": "The link must start with https://"
+    "urlHttps": "The link must start with https://",
+    "kind": "Kind",
+    "origin": "Scope",
+    "originHint": "Where the event comes from, not where it is held",
+    "originValue": {
+      "RU": "Russia",
+      "WORLD": "World"
+    }
   },
   "list": {
     "adminTitle": "Events",
@@ -164,5 +171,72 @@
     "today": "due today",
     "overdue": "overdue",
     "done": "registered"
+  },
+  "clone": {
+    "title": "Clone the event",
+    "copySuffix": "(copy)",
+    "newTitle": "Title of the copy",
+    "newStart": "New start date",
+    "startHint": "Stage dates move by the same number of days.",
+    "withStages": "Copy the stages",
+    "noShift": "Dates stay unchanged.",
+    "shiftSummary": "Shift by {{days}} days. New end date: {{end}}.",
+    "submit": "Clone",
+    "done": "Event cloned",
+    "doneHint_one": "{{count}} stage moved by {{days}} days",
+    "doneHint_other": "{{count}} stages moved by {{days}} days",
+    "failed": "Could not clone the event",
+    "action": "Clone"
+  },
+  "stats": {
+    "title": "Event statistics",
+    "overdue": "Overdue"
+  },
+  "catalog": {
+    "title": "Catalog",
+    "joined": "You take part",
+    "empty": "No events found",
+    "emptyHint": "Change the filters or the scope",
+    "scopeAria": "Scope",
+    "kindAria": "Event kind",
+    "layoutAria": "Layout",
+    "scope": {
+      "all": "All",
+      "russia": "Russia",
+      "world": "World"
+    },
+    "kind": {
+      "all": "All",
+      "hackathons": "Hackathons",
+      "meetups": "Meetups"
+    },
+    "kindLabel": {
+      "HACKATHON": "Hackathon",
+      "MEETUP": "Meetup"
+    },
+    "layout": {
+      "list": "List",
+      "grid": "Tiles"
+    },
+    "views": {
+      "all": "All events",
+      "upcoming": "Upcoming",
+      "active": "Active",
+      "offline": "In person",
+      "meetups": "Meetups"
+    },
+    "join": {
+      "action": "Take part",
+      "title": "Take part in the event",
+      "hint": "State the function you take in the team. The organiser sees it in the roster.",
+      "meetupHint": "A meetup has no team roles, so the field may be left empty.",
+      "roleOptional": "Optional for a meetup",
+      "roleRequired": "State your team role",
+      "submit": "Take part",
+      "cancel": "Cancel",
+      "done": "You are signed up",
+      "failed": "Could not sign up",
+      "finished": "The event has finished: only an administrator can add a participant now."
+    }
   }
 }

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useLogout } from '@/entities/session/session.queries'
 import { UserAvatar } from '@/entities/user/user-avatar'
+import { useSettingsOverlay } from '@/features/settings-overlay/use-settings-overlay'
 import { cn } from '@/shared/styling/class-names/class-names'
 
 const ITEM = cn(
@@ -23,6 +24,7 @@ export function ProfileMenu({
   const { t } = useTranslation()
   const navigate = useNavigate()
   const logout = useLogout()
+  const { openSettings } = useSettingsOverlay()
 
   async function onLogout() {
     await logout.mutateAsync().catch(() => undefined)
@@ -57,7 +59,7 @@ export function ProfileMenu({
             'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
           )}
         >
-          <DropdownMenu.Item className={ITEM} onSelect={() => navigate('/settings')}>
+          <DropdownMenu.Item className={ITEM} onSelect={() => openSettings('profile')}>
             <Settings className="size-4" aria-hidden="true" />
             {t('nav.settings')}
           </DropdownMenu.Item>

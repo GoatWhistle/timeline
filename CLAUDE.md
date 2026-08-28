@@ -16,7 +16,7 @@
 
 Порядок приоритета при расхождениях:
 
-1. [docs/technical-specification.md](docs/technical-specification.md) — ТЗ v0.8.
+1. [docs/technical-specification.md](docs/technical-specification.md) — ТЗ v0.9.
    Доменные правила, состояния и переходы, приёмочные сценарии (раздел 19),
    параметры конфигурации (приложение C). OpenAPI не может менять доменные правила.
 2. [docs/api-conventions.md](docs/api-conventions.md) — общие правила транспорта:

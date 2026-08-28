@@ -2765,7 +2765,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Every published, non-archived event regardless of participation. The response\ncarries a dedicated payload that cannot include administrative notes.",
+                "description": "Every published, non-archived event regardless of participation. The response\ncarries a dedicated payload that cannot include administrative notes.\n\nThe catalog requires a session: an anonymous request is answered with 401. An\nunauthenticated listing would enumerate every event of the organisation together\nwith its organisers and prize pools, and the system is internal. It also carries\nits own rate limit, counted per account, because a catalog page is heavier than\nother reads: substring search, filters and the stages of the page.",
                 "produces": [
                     "application/json"
                 ],
@@ -2786,7 +2786,7 @@ const docTemplate = `{
                             "WORLD"
                         ],
                         "type": "string",
-                        "description": "Comma-separated origin filter",
+                        "description": "Comma-separated origin filter. Omit it for the All view: RU and WORLD cover every event.",
                         "name": "origin",
                         "in": "query"
                     },
@@ -2939,7 +2939,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Self-signup: the user joins a published event and supplies their own team role.\nA meetup has no team role, so the field may be omitted.",
+                "description": "Self-signup: the user joins a published event and supplies their own team role.\nA meetup has no team role, so the field may be omitted; for a hackathon it is\nrequired. A finished event cannot be joined: only an administrator may assign a\nparticipant after the fact.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2977,7 +2977,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "a hackathon requires a team role",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -2989,7 +2995,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "the user already takes part in the event",
+                        "description": "already a participant, or the event has finished",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }

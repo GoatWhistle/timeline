@@ -8,6 +8,7 @@
   },
   "nav": {
     "myEvents": "Мои события",
+    "catalog": "Каталог",
     "schedule": "Шкала",
     "profile": "Профиль",
     "adminEvents": "События",
@@ -33,7 +34,8 @@
     "home": "На главную",
     "reset": "Сбросить",
     "apply": "Применить",
-    "copy": "Копировать"
+    "copy": "Копировать",
+    "undo": "Отменить"
   },
   "state": {
     "loading": "Загрузка",
@@ -80,7 +82,17 @@
     "noDescription": "без описания",
     "processed_one": "Обработана {{count}} запись",
     "processed_few": "Обработано {{count}} записи",
-    "processed_many": "Обработано {{count}} записей"
+    "processed_many": "Обработано {{count}} записей",
+    "resultTitle": "Результат операции",
+    "unknownRow": "Неизвестная запись",
+    "retryFailed_one": "Повторить {{count}} неудавшуюся",
+    "retryFailed_few": "Повторить {{count}} неудавшиеся",
+    "retryFailed_many": "Повторить {{count}} неудавшихся",
+    "status": {
+      "ok": "успешно",
+      "skipped": "пропущено",
+      "error": "ошибка"
+    }
   },
   "duration": {
     "atDeadline": "в момент дедлайна",
@@ -240,7 +252,21 @@
     "registrationDeadlineAt": "Дедлайн регистрации: {{date}}",
     "registrationDeadlineAria": "Дедлайн регистрации {{date}}",
     "stageAria": "{{name}}. {{type}}. {{start}} — {{end}}",
-    "stageTooltip": "{{type}} · {{start}} — {{end}}"
+    "stageTooltip": "{{type}} · {{start}} — {{end}}",
+    "quarter": "Квартал",
+    "today": "Сегодня",
+    "tableAria": "Шкала событий",
+    "checkpointAria": "Контрольная точка {{name}}, {{date}}",
+    "stepOf": "Этап {{current}} из {{total}}",
+    "remaining": "осталось {{remaining}}",
+    "sentenceStage": "{{name}} с {{start}} по {{end}}",
+    "sentenceStages": "Этапов: {{count}}. {{list}}.",
+    "sentenceCheckpoint": "Контрольная точка {{name}}, {{date}}.",
+    "sentenceDeadline": "Дедлайн регистрации {{date}}, {{remaining}}.",
+    "sentenceBar": "{{name}}. {{type}}. С {{start}} по {{end}}.",
+    "unconfirmedDates": "Даты не подтверждены",
+    "checkpoint": "Контрольная точка",
+    "nearestCheckpoint": "Ближайшая контрольная точка"
   },
   "pane": {
     "details": "Детали",
@@ -287,6 +313,10 @@
     "profile": "Профиль",
     "profileHint": "Имя, адрес почты, каналы уведомлений и сессии.",
     "openProfile": "Открыть профиль",
-    "theme": "Тема оформления"
+    "theme": "Тема оформления",
+    "sectionProfile": "Профиль",
+    "sectionAppearance": "Внешний вид",
+    "sectionNotifications": "Уведомления",
+    "sectionDanger": "Аккаунт"
   }
 }

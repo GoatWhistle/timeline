@@ -8,6 +8,7 @@ import { EVENT_STATE_KEY, EVENT_STATES } from '@/entities/event/event.labels'
 import { adminEventsQuery, useCreateEvent } from '@/entities/event/event.queries'
 import { EventForm } from '@/entities/event/event-form'
 import { EventRow } from '@/entities/event/event-row/event-row'
+import { AdminStats } from '@/features/admin-stats/admin-stats'
 import { AdminDetailPane } from '@/features/event-detail-pane/admin-detail-pane'
 import type { EventState } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
@@ -101,6 +102,11 @@ export function AdminEventsPage() {
             </Button>
           </div>
         </header>
+
+        <AdminStats
+          activeState={filters.state}
+          onSelectState={(state) => setFilters({ state: filters.state === state ? ALL : state })}
+        />
 
         <QueryBoundary
           isPending={query.isPending}

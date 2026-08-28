@@ -156,6 +156,9 @@
     "selected_one": "{{count}} participant selected",
     "selected_other": "{{count}} participants selected",
     "confirmRemoveHint_one": "{{count}} participant will move to the \"removed\" state and scheduled notifications will be cancelled. Status history is kept.",
-    "confirmRemoveHint_other": "{{count}} participants will move to the \"removed\" state and scheduled notifications will be cancelled. Status history is kept."
+    "confirmRemoveHint_other": "{{count}} participants will move to the \"removed\" state and scheduled notifications will be cancelled. Status history is kept.",
+    "removeScheduled_one": "Removing {{count}} participant",
+    "removeScheduled_other": "Removing {{count}} participants",
+    "removeUndoHint": "The change applies in a few seconds."
   }
 }

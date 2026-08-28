@@ -12,10 +12,10 @@ import {
 import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
 import type { ParticipantResponse, RegistrationStatusValue } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
+import { useUndoableAction } from '@/shared/hooks/use-undoable-action/use-undoable-action'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Pagination } from '@/shared/ui/navigation/pagination'
-import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { AddParticipantsDialog } from './add-participants-dialog'
@@ -36,7 +36,7 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [addOpen, setAddOpen] = useState(false)
   const [copyOpen, setCopyOpen] = useState(false)
-  const [removeOpen, setRemoveOpen] = useState(false)
+  const undoable = useUndoableAction()
   const [editing, setEditing] = useState<ParticipantResponse | null>(null)
   const [roleDraft, setRoleDraft] = useState('')
 
@@ -74,15 +74,25 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
     })
   }
 
-  async function onRemoveSelected() {
-    try {
-      const result = await removeMany.mutateAsync({ participant_ids: [...selected] })
-      reportBatchResult(result, t('participants.removed'))
-      setSelected(new Set())
-      setRemoveOpen(false)
-    } catch {
-      toast.error(t('participants.removeFailed'))
-    }
+  function onRemoveSelected() {
+    const ids = [...selected]
+    if (ids.length === 0) return
+    setSelected(new Set())
+    undoable({
+      key: `remove-participants-${eventId}`,
+      message: t('participants.removeScheduled', { count: ids.length }),
+      description: t('participants.removeUndoHint'),
+      onUndo: () => setSelected(new Set(ids)),
+      run: async () => {
+        try {
+          const result = await removeMany.mutateAsync({ participant_ids: ids })
+          reportBatchResult(result, t('participants.removed'))
+        } catch {
+          toast.error(t('participants.removeFailed'))
+          setSelected(new Set(ids))
+        }
+      },
+    })
   }
 
   return (
@@ -104,7 +114,7 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
       {selected.size > 0 && (
         <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-2">
           <p className="text-sm">{t('participants.selected', { count: selected.size })}</p>
-          <Button variant="destructive" size="sm" onClick={() => setRemoveOpen(true)}>
+          <Button variant="destructive" size="sm" onClick={onRemoveSelected}>
             <Trash2 className="size-4" />
             {t('participants.removeSelected')}
           </Button>
@@ -169,17 +179,6 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
             .catch(() => toast.error(t('participants.roleChangeFailed')))
           setEditing(null)
         }}
-      />
-
-      <ConfirmDialog
-        open={removeOpen}
-        onOpenChange={setRemoveOpen}
-        title={t('participants.confirmRemoveTitle')}
-        description={t('participants.confirmRemoveHint', { count: selected.size })}
-        confirmLabel={t('common:action.delete')}
-        destructive
-        disabled={removeMany.isPending}
-        onConfirm={onRemoveSelected}
       />
     </div>
   )

@@ -42,11 +42,17 @@ func (c *CatalogController) allow(r *http.Request, scope string) bool {
 // @Summary		Event catalog
 // @Description	Every published, non-archived event regardless of participation. The response
 // @Description	carries a dedicated payload that cannot include administrative notes.
+// @Description
+// @Description	The catalog requires a session: an anonymous request is answered with 401. An
+// @Description	unauthenticated listing would enumerate every event of the organisation together
+// @Description	with its organisers and prize pools, and the system is internal. It also carries
+// @Description	its own rate limit, counted per account, because a catalog page is heavier than
+// @Description	other reads: substring search, filters and the stages of the page.
 // @Tags			catalog
 // @Produce		json
 // @Security		CookieAuth
 // @Param			search		query		string	false	"Search by title and organiser"
-// @Param			origin		query		string	false	"Comma-separated origin filter"																															Enums(RU,WORLD)
+// @Param			origin		query		string	false	"Comma-separated origin filter. Omit it for the All view: RU and WORLD cover every event."																Enums(RU,WORLD)
 // @Param			format		query		string	false	"Comma-separated format filter. OFFLINE and HYBRID also match an event whose own format is ONLINE when at least one of its stages is held in person."	Enums(ONLINE,OFFLINE,HYBRID)
 // @Param			kind		query		string	false	"Comma-separated kind filter"																															Enums(HACKATHON,MEETUP)
 // @Param			state		query		string	false	"Comma-separated state filter"																															Enums(UPCOMING,ACTIVE,FINISHED)
@@ -99,7 +105,9 @@ func (c *CatalogController) List(w http.ResponseWriter, r *http.Request) {
 
 // @Summary		Join an event
 // @Description	Self-signup: the user joins a published event and supplies their own team role.
-// @Description	A meetup has no team role, so the field may be omitted.
+// @Description	A meetup has no team role, so the field may be omitted; for a hackathon it is
+// @Description	required. A finished event cannot be joined: only an administrator may assign a
+// @Description	participant after the fact.
 // @Tags			catalog
 // @Accept			json
 // @Produce		json
@@ -107,9 +115,10 @@ func (c *CatalogController) List(w http.ResponseWriter, r *http.Request) {
 // @Param			id		path		string					true	"Event identifier"	format(uuid)
 // @Param			request	body		models.JoinEventRequest	true	"Own team role"
 // @Success		201		{object}	models.ParticipantSelfResponse
-// @Failure		400		{object}	models.ErrorResponse
+// @Failure		400		{object}	models.ErrorResponse	"a hackathon requires a team role"
+// @Failure		401		{object}	models.ErrorResponse
 // @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"the user already takes part in the event"
+// @Failure		409		{object}	models.ErrorResponse	"already a participant, or the event has finished"
 // @Failure		429		{object}	models.ErrorResponse	"too many join attempts"
 // @Router			/events/{id}/join [post]
 func (c *CatalogController) Join(w http.ResponseWriter, r *http.Request) {

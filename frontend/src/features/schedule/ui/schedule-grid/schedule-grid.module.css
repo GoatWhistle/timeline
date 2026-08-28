@@ -1,0 +1,56 @@
+.canvas {
+  position: relative;
+}
+
+.todayLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 25;
+  width: 1px;
+  background-color: var(--urgency-today);
+  transform: translateX(var(--schedule-today-x, -9999px));
+  pointer-events: none;
+}
+
+.todayDot {
+  position: absolute;
+  top: -3px;
+  left: -2.5px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background-color: var(--urgency-today);
+}
+
+.todayChip {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  z-index: 26;
+  transform: translate(calc(var(--schedule-today-x, -9999px) - 50%), -50%);
+  border-radius: var(--radius-badge);
+  background-color: var(--urgency-today);
+  color: var(--urgency-foreground);
+  padding-inline: 6px;
+  font-size: var(--text-label);
+  line-height: 18px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.canvas[data-today-visible="false"] .todayLine,
+.canvas[data-today-visible="false"] .todayChip {
+  display: none;
+}
+
+.rowFocus:focus-visible {
+  outline: none;
+}
+
+.hitArea::before {
+  content: "";
+  position: absolute;
+  inset-block: -10px;
+  inset-inline: -10px;
+}

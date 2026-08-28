@@ -3,7 +3,15 @@ import { NavLink, useLocation } from 'react-router'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { isViewActive, type SavedView, viewSearch } from './saved-views'
 
-export function SavedViewsNav({ views, basePath }: { views: SavedView[]; basePath: string }) {
+export function SavedViewsNav({
+  views,
+  basePath,
+  keys,
+}: {
+  views: SavedView[]
+  basePath: string
+  keys?: readonly string[]
+}) {
   const { t } = useTranslation()
   const location = useLocation()
   const onList = location.pathname === basePath
@@ -14,7 +22,7 @@ export function SavedViewsNav({ views, basePath }: { views: SavedView[]; basePat
         {t('views.legend')}
       </p>
       {views.map((view) => {
-        const active = onList && isViewActive(view, location.search)
+        const active = onList && isViewActive(view, location.search, keys)
         return (
           <NavLink
             key={view.id}

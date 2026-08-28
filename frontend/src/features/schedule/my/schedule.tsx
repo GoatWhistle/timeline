@@ -1,29 +1,27 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import { myScheduleQuery } from '@/entities/schedule/schedule.queries'
-import type { ScheduleScale } from '@/features/schedule/model/schedule-scale'
-import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid'
+import { useScheduleView } from '@/features/schedule/model/use-schedule-view'
+import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
 import { ScheduleLegend } from '@/features/schedule/ui/schedule-legend'
 import { ZoomSwitch } from '@/features/schedule/zoom-switch/zoom-switch'
-import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { PageHeader } from '@/shared/ui/layout/page-header'
 import { QueryBoundary } from '@/shared/ui/states'
 
-const DEFAULTS = { scale: 'month' as string }
-
 export function MySchedulePage() {
   const { t } = useTranslation()
-  const [filters, setFilters] = useUrlFilters(DEFAULTS)
-  const scale: ScheduleScale = filters.scale === 'week' ? 'week' : 'month'
+  const navigate = useNavigate()
   const query = useQuery(myScheduleQuery({}))
+  const view = useScheduleView(query.data?.range)
 
   return (
     <div>
       <PageHeader
         title={t('schedule.title')}
         description={t('schedule.myDescription')}
-        actions={<ZoomSwitch value={scale} onChange={(next) => setFilters({ scale: next })} />}
+        actions={<ZoomSwitch value={view.scale} onChange={view.setScale} onToday={view.goToday} />}
       />
 
       <QueryBoundary
@@ -40,7 +38,15 @@ export function MySchedulePage() {
         ) : (
           query.data && (
             <div className="flex flex-col gap-4">
-              <ScheduleGrid data={query.data} scale={scale} />
+              <ScheduleGrid
+                data={query.data}
+                range={view.range}
+                scale={view.scale}
+                viewportWidth={view.viewportWidth}
+                onToday={view.goToday}
+                onZoom={view.zoom}
+                onNavigate={(href) => navigate(href)}
+              />
               <ScheduleLegend />
             </div>
           )

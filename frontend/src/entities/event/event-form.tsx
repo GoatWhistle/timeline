@@ -1,13 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
-import type { EventResponse } from '@/shared/api/types.gen'
+import type { EventKind, EventOrigin, EventResponse } from '@/shared/api/types.gen'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { Textarea } from '@/shared/ui/forms/textarea'
 import { Button } from '@/shared/ui/primitives/button'
+import { EventTaxonomyFields } from './event-taxonomy-fields'
 
 function toLocalInput(iso: string | undefined): string {
   if (!iso) return ''
@@ -46,6 +48,8 @@ export type EventFormPayload = {
   title: string
   start_at: string
   end_at: string
+  kind: EventKind
+  origin: EventOrigin
   organizer?: string
   website_url?: string
   description?: string
@@ -62,6 +66,8 @@ export function EventForm({
   onSubmit: (payload: EventFormPayload) => Promise<void>
 }) {
   const { t } = useTranslation('event')
+  const [kind, setKind] = useState<EventKind>(event?.kind ?? 'HACKATHON')
+  const [origin, setOrigin] = useState<EventOrigin>(event?.origin ?? 'RU')
   const {
     register,
     handleSubmit,
@@ -86,6 +92,8 @@ export function EventForm({
         title: values.title,
         start_at: toIso(values.start_at),
         end_at: toIso(values.end_at),
+        kind,
+        origin,
         ...(values.organizer ? { organizer: values.organizer } : {}),
         ...(values.website_url ? { website_url: values.website_url } : {}),
         ...(values.description ? { description: values.description } : {}),
@@ -109,6 +117,8 @@ export function EventForm({
       <Field label={t('form.title')} htmlFor="title" error={errors.title?.message}>
         <Input id="title" aria-invalid={Boolean(errors.title)} {...register('title')} />
       </Field>
+
+      <EventTaxonomyFields kind={kind} origin={origin} onKind={setKind} onOrigin={setOrigin} />
 
       <div className="grid grid-cols-2 gap-4">
         <Field label={t('form.start')} htmlFor="start_at" error={errors.start_at?.message}>

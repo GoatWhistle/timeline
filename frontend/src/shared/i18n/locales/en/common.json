@@ -8,6 +8,7 @@
   },
   "nav": {
     "myEvents": "My events",
+    "catalog": "Catalog",
     "schedule": "Schedule",
     "profile": "Profile",
     "adminEvents": "Events",
@@ -33,7 +34,8 @@
     "home": "Go home",
     "reset": "Reset",
     "apply": "Apply",
-    "copy": "Copy"
+    "copy": "Copy",
+    "undo": "Undo"
   },
   "state": {
     "loading": "Loading",
@@ -79,7 +81,16 @@
     "failed": "failed: {{count}}",
     "noDescription": "no description",
     "processed_one": "{{count}} record processed",
-    "processed_other": "{{count}} records processed"
+    "processed_other": "{{count}} records processed",
+    "resultTitle": "Operation result",
+    "unknownRow": "Unknown record",
+    "retryFailed_one": "Retry {{count}} failed",
+    "retryFailed_other": "Retry {{count}} failed",
+    "status": {
+      "ok": "succeeded",
+      "skipped": "skipped",
+      "error": "failed"
+    }
   },
   "duration": {
     "atDeadline": "at the deadline",
@@ -239,7 +250,21 @@
     "registrationDeadlineAt": "Registration deadline: {{date}}",
     "registrationDeadlineAria": "Registration deadline {{date}}",
     "stageAria": "{{name}}. {{type}}. {{start}} — {{end}}",
-    "stageTooltip": "{{type}} · {{start}} — {{end}}"
+    "stageTooltip": "{{type}} · {{start}} — {{end}}",
+    "quarter": "Quarter",
+    "today": "Today",
+    "tableAria": "Event schedule",
+    "checkpointAria": "Checkpoint {{name}}, {{date}}",
+    "stepOf": "Stage {{current}} of {{total}}",
+    "remaining": "{{remaining}} left",
+    "sentenceStage": "{{name}} {{start}} to {{end}}",
+    "sentenceStages": "{{count}} stages: {{list}}.",
+    "sentenceCheckpoint": "Checkpoint {{name}}, {{date}}.",
+    "sentenceDeadline": "Registration deadline {{date}}, {{remaining}}.",
+    "sentenceBar": "{{name}}. {{type}}. {{start}} to {{end}}.",
+    "unconfirmedDates": "Dates not confirmed",
+    "checkpoint": "Checkpoint",
+    "nearestCheckpoint": "Nearest checkpoint"
   },
   "pane": {
     "details": "Details",
@@ -286,6 +311,10 @@
     "profile": "Profile",
     "profileHint": "Name, email address, notification channels and sessions.",
     "openProfile": "Open profile",
-    "theme": "Theme"
+    "theme": "Theme",
+    "sectionProfile": "Profile",
+    "sectionAppearance": "Appearance",
+    "sectionNotifications": "Notifications",
+    "sectionDanger": "Account"
   }
 }

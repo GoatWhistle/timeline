@@ -11,8 +11,9 @@ import {
   useBatchSetStatus,
   usePreviewBatchStatus,
 } from '@/entities/registration/registration.queries'
+import { BatchResultPanel } from '@/features/batch-result-panel/batch-result-panel'
 import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
-import type { RegistrationStatusValue } from '@/shared/api/types.gen'
+import type { BatchResult, RegistrationStatusValue } from '@/shared/api/types.gen'
 import { usePageParam } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Field } from '@/shared/ui/forms/field'
@@ -50,6 +51,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
   const [previewResult, setPreviewResult] = useState<{ affected: number; skipped: number } | null>(
     null,
   )
+  const [outcome, setOutcome] = useState<BatchResult | null>(null)
 
   const items = query.data?.items ?? []
   const allSelected = items.length > 0 && items.every((item) => selected.has(item.participant_id))
@@ -60,6 +62,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
 
   async function openDialog() {
     setPreviewResult(null)
+    setOutcome(null)
     setOpen(true)
   }
 
@@ -76,17 +79,20 @@ export function StatusesTab({ eventId }: { eventId: string }) {
     }
   }
 
-  async function apply() {
+  async function apply(ids: string[] = [...selected]) {
     try {
       const result = await batchSet.mutateAsync({
-        participant_ids: [...selected],
+        participant_ids: ids,
         status: target,
         ...(note ? { note } : {}),
       })
       reportBatchResult(result, t('statuses.updated'))
-      setSelected(new Set())
-      setNote('')
-      setOpen(false)
+      setOutcome(result)
+      if ((result.failed ?? 0) === 0) {
+        setSelected(new Set())
+        setNote('')
+        setOpen(false)
+      }
     } catch {
       toast.error(t('statuses.updateFailed'))
     }
@@ -169,6 +175,14 @@ export function StatusesTab({ eventId }: { eventId: string }) {
               />
             </Field>
 
+            {outcome && (
+              <BatchResultPanel
+                result={outcome}
+                onRetryFailed={(keys) => void apply(keys)}
+                isRetrying={batchSet.isPending}
+              />
+            )}
+
             <div className="rounded-md border border-dashed p-3 text-sm">
               {previewResult ? (
                 <Trans
@@ -197,7 +211,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
             <Button variant="outline" onClick={() => setOpen(false)}>
               {t('common:action.cancel')}
             </Button>
-            <Button onClick={apply} disabled={!previewResult || batchSet.isPending}>
+            <Button onClick={() => void apply()} disabled={!previewResult || batchSet.isPending}>
               {t('common:action.apply')}
             </Button>
           </DialogFooter>
