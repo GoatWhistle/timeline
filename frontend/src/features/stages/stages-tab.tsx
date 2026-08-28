@@ -13,8 +13,6 @@ import {
 import type { EventResponse, StageResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import {
   Table,
   TableBody,
@@ -28,6 +26,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/ov
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { Dot } from '@/shared/ui/primitives/dot'
+import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { StageForm } from './stage-form'
 
 function overlaps(stage: StageResponse, all: StageResponse[]): boolean {
@@ -50,10 +49,7 @@ export function StagesTab({ event }: { event: EventResponse }) {
   const [editing, setEditing] = useState<StageResponse | null>(null)
   const [deleting, setDeleting] = useState<StageResponse | null>(null)
 
-  if (query.isPending) return <LoadingState />
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />
-
-  const stages = query.data
+  const stages = query.data ?? []
 
   return (
     <div className="flex flex-col gap-4">
@@ -64,59 +60,71 @@ export function StagesTab({ event }: { event: EventResponse }) {
         </Button>
       </div>
 
-      {stages.length === 0 ? (
-        <EmptyState title={t('stages.emptyTitle')} description={t('stages.emptyHint')} />
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t('stages.columnOrder')}</TableHead>
-              <TableHead>{t('stages.columnName')}</TableHead>
-              <TableHead>{t('stages.columnType')}</TableHead>
-              <TableHead>{t('stages.columnPeriod')}</TableHead>
-              <TableHead className="w-24">{t('stages.columnActions')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {stages.map((stage) => (
-              <TableRow key={stage.id}>
-                <TableCell className="text-muted-foreground">{stage.sort_order}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Dot className={STAGE_TYPE_COLOR[stage.type]} />
-                    <span className="font-medium">{stage.name}</span>
-                    {overlaps(stage, stages) && <Badge tone="neutral">{t('stages.overlap')}</Badge>}
-                  </div>
-                </TableCell>
-                <TableCell>{STAGE_TYPE_KEY[stage.type]}</TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">
-                  {formatDateTime(stage.start_at)} — {formatDateTime(stage.end_at)}
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={t('stages.editAria', { name: stage.name })}
-                      onClick={() => setEditing(stage)}
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={t('stages.deleteAria', { name: stage.name })}
-                      onClick={() => setDeleting(stage)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+      <QueryBoundary
+        isPending={query.isPending}
+        isFetching={query.isFetching}
+        isError={query.isError}
+        error={query.error}
+        onRetry={() => query.refetch()}
+        hasData={query.data !== undefined}
+        skeleton={<SkeletonTable rows={5} columns={5} density="action" />}
+      >
+        {stages.length === 0 ? (
+          <EmptyState title={t('stages.emptyTitle')} description={t('stages.emptyHint')} />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('stages.columnOrder')}</TableHead>
+                <TableHead>{t('stages.columnName')}</TableHead>
+                <TableHead>{t('stages.columnType')}</TableHead>
+                <TableHead>{t('stages.columnPeriod')}</TableHead>
+                <TableHead className="w-24">{t('stages.columnActions')}</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+            </TableHeader>
+            <TableBody>
+              {stages.map((stage) => (
+                <TableRow key={stage.id}>
+                  <TableCell className="text-muted-foreground">{stage.sort_order}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Dot className={STAGE_TYPE_COLOR[stage.type]} />
+                      <span className="font-medium">{stage.name}</span>
+                      {overlaps(stage, stages) && (
+                        <Badge tone="neutral">{t('stages.overlap')}</Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{STAGE_TYPE_KEY[stage.type]}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">
+                    {formatDateTime(stage.start_at)} — {formatDateTime(stage.end_at)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t('stages.editAria', { name: stage.name })}
+                        onClick={() => setEditing(stage)}
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t('stages.deleteAria', { name: stage.name })}
+                        onClick={() => setDeleting(stage)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </QueryBoundary>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>

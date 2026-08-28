@@ -13,8 +13,6 @@ import {
 import type { Channel, NotificationRuleResponse } from '@/shared/api/types.gen'
 import { formatOffsetMinutes } from '@/shared/datetime/datetime'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import {
   Table,
   TableBody,
@@ -26,6 +24,7 @@ import {
 import { Switch } from '@/shared/ui/forms/switch'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { AUTO_CHANNEL, type Direction, RuleDialog } from './rule-dialog/rule-dialog'
 
 const MAX_RULES = 10
@@ -61,10 +60,7 @@ export function RulesEditor({ eventId }: { eventId: string }) {
     setOpen(true)
   }
 
-  if (query.isPending) return <LoadingState />
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />
-
-  const rules = query.data
+  const rules = query.data ?? []
   const limitReached = rules.length >= MAX_RULES
 
   async function submit() {
@@ -109,76 +105,86 @@ export function RulesEditor({ eventId }: { eventId: string }) {
         </Button>
       </div>
 
-      {rules.length === 0 ? (
-        <EmptyState title={t('rules.emptyTitle')} description={t('rules.emptyHint')} />
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16">{t('rules.slot')}</TableHead>
-              <TableHead>{t('rules.when')}</TableHead>
-              <TableHead>{t('rules.type')}</TableHead>
-              <TableHead>{t('rules.channel')}</TableHead>
-              <TableHead className="w-40">{t('rules.enabled')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rules.map((rule) => (
-              <TableRow key={rule.id}>
-                <TableCell className="text-muted-foreground">{rule.slot_no}</TableCell>
-                <TableCell className="font-medium">
-                  {formatOffsetMinutes(rule.offset_minutes)}
-                </TableCell>
-                <TableCell>
-                  <Badge tone={rule.offset_minutes < 0 ? 'danger' : 'neutral'}>
-                    {t(NOTIFICATION_TYPE_KEY[rule.type])}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {rule.channel_override
-                    ? t(CHANNEL_KEY[rule.channel_override])
-                    : t('rules.defaultChannel')}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={t('rules.edit', { slot: rule.slot_no })}
-                      onClick={() => openDialog(rule)}
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Switch
-                      checked={rule.enabled}
-                      aria-label={t('rules.toggle', { slot: rule.slot_no })}
-                      onCheckedChange={(checked) =>
-                        update
-                          .mutateAsync({ id: rule.id, body: { enabled: checked } })
-                          .catch(() => toast.error(t('rules.changeFailed')))
-                      }
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={t('rules.disableAria', { slot: rule.slot_no })}
-                      disabled={!rule.enabled || disable.isPending}
-                      onClick={() =>
-                        disable
-                          .mutateAsync(rule.id)
-                          .then(() => toast.success(t('rules.disabled')))
-                          .catch(() => toast.error(t('rules.disableFailed')))
-                      }
-                    >
-                      <PowerOff className="size-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+      <QueryBoundary
+        isPending={query.isPending}
+        isFetching={query.isFetching}
+        isError={query.isError}
+        error={query.error}
+        onRetry={() => query.refetch()}
+        hasData={query.data !== undefined}
+        skeleton={<SkeletonTable rows={3} columns={5} density="action" />}
+      >
+        {rules.length === 0 ? (
+          <EmptyState title={t('rules.emptyTitle')} description={t('rules.emptyHint')} />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-16">{t('rules.slot')}</TableHead>
+                <TableHead>{t('rules.when')}</TableHead>
+                <TableHead>{t('rules.type')}</TableHead>
+                <TableHead>{t('rules.channel')}</TableHead>
+                <TableHead className="w-40">{t('rules.enabled')}</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+            </TableHeader>
+            <TableBody>
+              {rules.map((rule) => (
+                <TableRow key={rule.id}>
+                  <TableCell className="text-muted-foreground">{rule.slot_no}</TableCell>
+                  <TableCell className="font-medium">
+                    {formatOffsetMinutes(rule.offset_minutes)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge tone={rule.offset_minutes < 0 ? 'danger' : 'neutral'}>
+                      {t(NOTIFICATION_TYPE_KEY[rule.type])}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {rule.channel_override
+                      ? t(CHANNEL_KEY[rule.channel_override])
+                      : t('rules.defaultChannel')}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t('rules.edit', { slot: rule.slot_no })}
+                        onClick={() => openDialog(rule)}
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Switch
+                        checked={rule.enabled}
+                        aria-label={t('rules.toggle', { slot: rule.slot_no })}
+                        onCheckedChange={(checked) =>
+                          update
+                            .mutateAsync({ id: rule.id, body: { enabled: checked } })
+                            .catch(() => toast.error(t('rules.changeFailed')))
+                        }
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t('rules.disableAria', { slot: rule.slot_no })}
+                        disabled={!rule.enabled || disable.isPending}
+                        onClick={() =>
+                          disable
+                            .mutateAsync(rule.id)
+                            .then(() => toast.success(t('rules.disabled')))
+                            .catch(() => toast.error(t('rules.disableFailed')))
+                        }
+                      >
+                        <PowerOff className="size-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </QueryBoundary>
 
       <RuleDialog
         open={open}

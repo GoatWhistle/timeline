@@ -6,7 +6,6 @@ import { useAddParticipants } from '@/entities/participant/participant.queries'
 import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
 import { usersQuery } from '@/shared/api/directory'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import {
   Table,
   TableBody,
@@ -29,6 +28,7 @@ import {
 } from '@/shared/ui/overlays/dialog'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { QueryBoundary } from '@/shared/ui/states'
 
 export function AddParticipantsDialog({
   eventId,
@@ -95,9 +95,15 @@ export function AddParticipantsDialog({
           }}
         />
 
-        {query.isPending && <LoadingState />}
-
-        {query.data && (
+        <QueryBoundary
+          isPending={query.isPending}
+          isFetching={query.isFetching}
+          isError={query.isError}
+          error={query.error}
+          onRetry={() => query.refetch()}
+          hasData={query.data !== undefined}
+          shape="unknown"
+        >
           <div className="flex flex-col gap-3">
             <Table>
               <TableHeader>
@@ -109,7 +115,7 @@ export function AddParticipantsDialog({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {query.data.items.map((item) => {
+                {(query.data?.items ?? []).map((item) => {
                   const checked = selected.has(item.id)
                   return (
                     <TableRow key={item.id}>
@@ -148,9 +154,9 @@ export function AddParticipantsDialog({
               </TableBody>
             </Table>
 
-            <Pagination meta={query.data.meta} onPageChange={setPage} />
+            {query.data && <Pagination meta={query.data.meta} onPageChange={setPage} />}
           </div>
-        )}
+        </QueryBoundary>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

@@ -13,8 +13,6 @@ import { localeCollator } from '@/shared/datetime/datetime'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { toLocale } from '@/shared/i18n/locale'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import {
   Select,
   SelectContent,
@@ -24,6 +22,7 @@ import {
 } from '@/shared/ui/forms/select'
 import { PageHeader } from '@/shared/ui/layout/page-header'
 import { Button } from '@/shared/ui/primitives/button'
+import { QueryBoundary } from '@/shared/ui/states'
 
 const ALL = 'ALL'
 const DEFAULTS = { scale: 'month', state: ALL, participant: ALL, archived: '' }
@@ -103,23 +102,30 @@ export function AdminSchedulePage() {
         </Button>
       </div>
 
-      {query.isPending && <LoadingState />}
-      {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
-
-      {query.data && query.data.rows.length === 0 && (
-        <EmptyState title={t('schedule.emptyTitle')} description={t('schedule.emptyHint')} />
-      )}
-
-      {query.data && query.data.rows.length > 0 && (
-        <div className="flex flex-col gap-4">
-          <ScheduleGrid
-            data={query.data}
-            scale={scale}
-            hrefBuilder={(row) => `/admin/events/${row.event_id}`}
-          />
-          <ScheduleLegend />
-        </div>
-      )}
+      <QueryBoundary
+        isPending={query.isPending}
+        isFetching={query.isFetching}
+        isError={query.isError}
+        error={query.error}
+        onRetry={() => query.refetch()}
+        hasData={query.data !== undefined}
+        shape="unknown"
+      >
+        {query.data && query.data.rows.length === 0 ? (
+          <EmptyState title={t('schedule.emptyTitle')} description={t('schedule.emptyHint')} />
+        ) : (
+          query.data && (
+            <div className="flex flex-col gap-4">
+              <ScheduleGrid
+                data={query.data}
+                scale={scale}
+                hrefBuilder={(row) => `/admin/events/${row.event_id}`}
+              />
+              <ScheduleLegend />
+            </div>
+          )
+        )}
+      </QueryBoundary>
     </div>
   )
 }

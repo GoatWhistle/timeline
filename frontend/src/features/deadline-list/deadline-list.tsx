@@ -10,8 +10,6 @@ import type { DeadlineItem, DeadlinePage } from '@/shared/api/types.gen'
 import { formatDateTime, formatDuration, formatRelative } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import {
   Table,
   TableBody,
@@ -31,6 +29,7 @@ import { PageHeader } from '@/shared/ui/layout/page-header'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/navigation/tabs'
 import { Dot } from '@/shared/ui/primitives/dot'
+import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 
 const WINDOWS = [
   { value: '24', labelKey: 'deadlines.window24' },
@@ -46,14 +45,15 @@ function DeadlineTable({
   showOverdue,
   onPageChange,
 }: {
-  data: DeadlinePage
+  data: DeadlinePage | undefined
   emptyTitle: string
   showOverdue: boolean
   onPageChange: (page: number) => void
 }) {
   const { t } = useTranslation('event')
+  const items = data?.items ?? []
 
-  if (data.items.length === 0) return <EmptyState title={emptyTitle} />
+  if (items.length === 0) return <EmptyState title={emptyTitle} />
 
   return (
     <div className="flex flex-col gap-4">
@@ -70,7 +70,7 @@ function DeadlineTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.items.map((item: DeadlineItem) => (
+          {items.map((item: DeadlineItem) => (
             <TableRow key={`${item.participant_id}-${item.event_id}`}>
               <TableCell>
                 <span className="font-medium">{item.user.display_name}</span>
@@ -102,7 +102,7 @@ function DeadlineTable({
           ))}
         </TableBody>
       </Table>
-      <Pagination meta={data.meta} onPageChange={onPageChange} />
+      {data && <Pagination meta={data.meta} onPageChange={onPageChange} />}
     </div>
   )
 }
@@ -118,8 +118,6 @@ export function AdminDeadlinesPage() {
     enabled: tab === 'upcoming',
   })
   const overdue = useQuery({ ...overdueQuery(page), enabled: tab === 'overdue' })
-
-  const active = tab === 'upcoming' ? upcoming : overdue
 
   return (
     <div>
@@ -156,37 +154,43 @@ export function AdminDeadlinesPage() {
         </TabsList>
 
         <TabsContent value="upcoming">
-          {upcoming.isPending && <LoadingState />}
-          {upcoming.isError && (
-            <ErrorState error={upcoming.error} onRetry={() => upcoming.refetch()} />
-          )}
-          {upcoming.data && (
+          <QueryBoundary
+            isPending={upcoming.isPending}
+            isFetching={upcoming.isFetching}
+            isError={upcoming.isError}
+            error={upcoming.error}
+            onRetry={() => upcoming.refetch()}
+            hasData={upcoming.data !== undefined}
+            skeleton={<SkeletonTable rows={8} columns={5} />}
+          >
             <DeadlineTable
               data={upcoming.data}
               emptyTitle={t('deadlines.emptyUpcoming')}
               showOverdue={false}
               onPageChange={setPage}
             />
-          )}
+          </QueryBoundary>
         </TabsContent>
 
         <TabsContent value="overdue">
-          {overdue.isPending && <LoadingState />}
-          {overdue.isError && (
-            <ErrorState error={overdue.error} onRetry={() => overdue.refetch()} />
-          )}
-          {overdue.data && (
+          <QueryBoundary
+            isPending={overdue.isPending}
+            isFetching={overdue.isFetching}
+            isError={overdue.isError}
+            error={overdue.error}
+            onRetry={() => overdue.refetch()}
+            hasData={overdue.data !== undefined}
+            skeleton={<SkeletonTable rows={8} columns={5} />}
+          >
             <DeadlineTable
               data={overdue.data}
               emptyTitle={t('deadlines.emptyOverdue')}
               showOverdue
               onPageChange={setPage}
             />
-          )}
+          </QueryBoundary>
         </TabsContent>
       </Tabs>
-
-      {active.isError && null}
     </div>
   )
 }

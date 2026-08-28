@@ -12,8 +12,6 @@ import type { AuditAction, AuditResponse, EntityType } from '@/shared/api/types.
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import {
   Table,
   TableBody,
@@ -35,6 +33,7 @@ import { PageHeader } from '@/shared/ui/layout/page-header'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
+import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 
 const ALL = 'ALL'
 const DEFAULTS = { action: ALL, entity: ALL, from: '', to: '' }
@@ -128,47 +127,54 @@ export function AdminAuditPage() {
         </div>
       </div>
 
-      {query.isPending && <LoadingState />}
-      {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
-
-      {query.data && query.data.items.length === 0 && <EmptyState title={t('audit.empty')} />}
-
-      {query.data && query.data.items.length > 0 && (
-        <div className="flex flex-col gap-4">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('audit.columnTime')}</TableHead>
-                <TableHead>{t('audit.columnActor')}</TableHead>
-                <TableHead>{t('audit.columnAction')}</TableHead>
-                <TableHead>{t('audit.columnEntity')}</TableHead>
-                <TableHead className="w-32">{t('audit.columnChanges')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {query.data.items.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="whitespace-nowrap text-muted-foreground">
-                    {formatDateTime(item.created_at)}
-                  </TableCell>
-                  <TableCell>{item.actor_email ?? t('audit.system')}</TableCell>
-                  <TableCell>{t(auditActionKey(item.action))}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {t(entityTypeKey(item.entity_type))}
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm" onClick={() => setDetail(item)}>
-                      {t('audit.show')}
-                    </Button>
-                  </TableCell>
+      <QueryBoundary
+        isPending={query.isPending}
+        isFetching={query.isFetching}
+        isError={query.isError}
+        error={query.error}
+        onRetry={() => query.refetch()}
+        hasData={query.data !== undefined}
+        skeleton={<SkeletonTable rows={10} columns={5} density="action" />}
+      >
+        {query.data?.items.length === 0 ? (
+          <EmptyState title={t('audit.empty')} />
+        ) : (
+          <div className="flex flex-col gap-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('audit.columnTime')}</TableHead>
+                  <TableHead>{t('audit.columnActor')}</TableHead>
+                  <TableHead>{t('audit.columnAction')}</TableHead>
+                  <TableHead>{t('audit.columnEntity')}</TableHead>
+                  <TableHead className="w-32">{t('audit.columnChanges')}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {(query.data?.items ?? []).map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                      {formatDateTime(item.created_at)}
+                    </TableCell>
+                    <TableCell>{item.actor_email ?? t('audit.system')}</TableCell>
+                    <TableCell>{t(auditActionKey(item.action))}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {t(entityTypeKey(item.entity_type))}
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="sm" onClick={() => setDetail(item)}>
+                        {t('audit.show')}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
 
-          <Pagination meta={query.data.meta} onPageChange={setPage} />
-        </div>
-      )}
+            {query.data && <Pagination meta={query.data.meta} onPageChange={setPage} />}
+          </div>
+        )}
+      </QueryBoundary>
 
       <Dialog open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>
         <DialogContent className="max-w-3xl">

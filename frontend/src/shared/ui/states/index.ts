@@ -10,3 +10,4 @@ export {
 export { useLoadingIndicator } from './loading-policy/use-loading-indicator'
 export { QueryBoundary } from './query-boundary/query-boundary'
 export { Skeleton, SkeletonDetail, SkeletonRows } from './skeleton/skeleton'
+export { type SkeletonRowDensity, SkeletonTable } from './skeleton-table/skeleton-table'

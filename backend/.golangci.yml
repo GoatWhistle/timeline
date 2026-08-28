@@ -210,20 +210,6 @@ linters:
           - gocyclo
           - lll
 
-      - path: internal/services/auth_service\.go
-        linters:
-          - dupl
-          - funlen
-          - gocyclo
-          - lll
-
-      - path: internal/services/delivery_service\.go
-        linters:
-          - dupl
-          - funlen
-          - gocyclo
-          - lll
-
       - path: internal/services/event_service\.go
         linters:
           - dupl

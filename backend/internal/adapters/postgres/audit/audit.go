@@ -122,7 +122,7 @@ func (r *Audit) DeleteOlderThan(ctx context.Context, retentionDays int) (int64, 
 		return 0, mapError(err)
 	}
 	tag, err := r.db.Q(ctx).Exec(ctx,
-		`DELETE FROM audit_log WHERE created_at < now() - ($1 || ' days')::interval`, retentionDays)
+		`DELETE FROM audit_log WHERE created_at < now() - make_interval(days => $1)`, retentionDays)
 	if err != nil {
 		return 0, mapError(err)
 	}

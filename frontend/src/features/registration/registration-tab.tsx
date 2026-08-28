@@ -15,14 +15,13 @@ import { isApiError } from '@/shared/api/errors'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { applyServerErrors } from '@/shared/forms/server-errors'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { Textarea } from '@/shared/ui/forms/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
 import { RulesEditor } from './rules-editor'
 
 function toLocalInput(iso: string | undefined): string {
@@ -65,11 +64,6 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
     },
   })
 
-  if (query.isPending) return <LoadingState />
-  if (query.isError && !missing) {
-    return <ErrorState error={query.error} onRetry={() => query.refetch()} />
-  }
-
   async function submit(values: FormValues) {
     const payload = {
       url: values.url,
@@ -94,107 +88,117 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
   }
 
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle>{t('tab.title')}</CardTitle>
-              <CardDescription>{t('tab.hint')}</CardDescription>
-            </div>
-            {registration && (
-              <div className="flex shrink-0 items-center gap-2">
-                <Badge tone={registration.state === 'ACTIVE' ? 'primary' : 'danger'}>
-                  {REGISTRATION_STATE_KEY[registration.state]}
-                </Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={toggle.isPending}
-                  onClick={() =>
-                    toggle
-                      .mutateAsync(registration.state === 'ACTIVE' ? 'disable' : 'enable')
-                      .then(() => toast.success(t('tab.stateChanged')))
-                      .catch(() => toast.error(t('tab.stateFailed')))
-                  }
-                >
-                  {registration.state === 'ACTIVE' ? t('tab.disable') : t('tab.enable')}
-                </Button>
-              </div>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)} noValidate>
-            <Field label={t('tab.urlLabel')} htmlFor="reg-url" error={errors.url?.message}>
-              <Input id="reg-url" aria-invalid={Boolean(errors.url)} {...register('url')} />
-            </Field>
-
-            <Field
-              label={t('tab.deadlineLabel')}
-              htmlFor="reg-deadline"
-              error={errors.deadline_at?.message}
-              hint={t('tab.deadlineHint', { date: formatDateTime(event.end_at) })}
-            >
-              <Input
-                id="reg-deadline"
-                type="datetime-local"
-                aria-invalid={Boolean(errors.deadline_at)}
-                {...register('deadline_at')}
-              />
-            </Field>
-
-            <Field
-              label={t('tab.descriptionLabel')}
-              htmlFor="reg-description"
-              error={errors.description?.message}
-            >
-              <Textarea id="reg-description" {...register('description')} />
-            </Field>
-
-            {errors.root && (
-              <p role="alert" className="text-destructive text-sm">
-                {errors.root.message}
-              </p>
-            )}
-
-            <div>
-              <Button type="submit" disabled={isSubmitting}>
-                {registration ? t('common:action.save') : t('tab.create')}
-              </Button>
-            </div>
-          </form>
-
-          {registration && (
-            <dl className="mt-6 grid grid-cols-3 gap-4 border-t pt-4 text-sm">
-              <div>
-                <dt className="text-muted-foreground">{t('tab.scheduleVersion')}</dt>
-                <dd className="font-medium">{registration.schedule_version}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">{t('tab.activationVersion')}</dt>
-                <dd className="font-medium">{registration.activation_version}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">{t('tab.contentVersion')}</dt>
-                <dd className="font-medium">{registration.notification_content_version}</dd>
-              </div>
-            </dl>
-          )}
-        </CardContent>
-      </Card>
-
-      {registration && (
+    <QueryBoundary
+      isPending={query.isPending}
+      isFetching={query.isFetching}
+      isError={query.isError && !missing}
+      error={query.error}
+      onRetry={() => query.refetch()}
+      hasData={registration !== undefined || missing}
+      skeleton={<SkeletonDetail />}
+    >
+      <div className="flex max-w-3xl flex-col gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>{t('rules.title')}</CardTitle>
-            <CardDescription>{t('rules.hint')}</CardDescription>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <CardTitle>{t('tab.title')}</CardTitle>
+                <CardDescription>{t('tab.hint')}</CardDescription>
+              </div>
+              {registration && (
+                <div className="flex shrink-0 items-center gap-2">
+                  <Badge tone={registration.state === 'ACTIVE' ? 'primary' : 'danger'}>
+                    {REGISTRATION_STATE_KEY[registration.state]}
+                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={toggle.isPending}
+                    onClick={() =>
+                      toggle
+                        .mutateAsync(registration.state === 'ACTIVE' ? 'disable' : 'enable')
+                        .then(() => toast.success(t('tab.stateChanged')))
+                        .catch(() => toast.error(t('tab.stateFailed')))
+                    }
+                  >
+                    {registration.state === 'ACTIVE' ? t('tab.disable') : t('tab.enable')}
+                  </Button>
+                </div>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
-            <RulesEditor eventId={event.id} />
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)} noValidate>
+              <Field label={t('tab.urlLabel')} htmlFor="reg-url" error={errors.url?.message}>
+                <Input id="reg-url" aria-invalid={Boolean(errors.url)} {...register('url')} />
+              </Field>
+
+              <Field
+                label={t('tab.deadlineLabel')}
+                htmlFor="reg-deadline"
+                error={errors.deadline_at?.message}
+                hint={t('tab.deadlineHint', { date: formatDateTime(event.end_at) })}
+              >
+                <Input
+                  id="reg-deadline"
+                  type="datetime-local"
+                  aria-invalid={Boolean(errors.deadline_at)}
+                  {...register('deadline_at')}
+                />
+              </Field>
+
+              <Field
+                label={t('tab.descriptionLabel')}
+                htmlFor="reg-description"
+                error={errors.description?.message}
+              >
+                <Textarea id="reg-description" {...register('description')} />
+              </Field>
+
+              {errors.root && (
+                <p role="alert" className="text-destructive text-sm">
+                  {errors.root.message}
+                </p>
+              )}
+
+              <div>
+                <Button type="submit" disabled={isSubmitting}>
+                  {registration ? t('common:action.save') : t('tab.create')}
+                </Button>
+              </div>
+            </form>
+
+            {registration && (
+              <dl className="mt-6 grid grid-cols-3 gap-4 border-t pt-4 text-sm">
+                <div>
+                  <dt className="text-muted-foreground">{t('tab.scheduleVersion')}</dt>
+                  <dd className="font-medium">{registration.schedule_version}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">{t('tab.activationVersion')}</dt>
+                  <dd className="font-medium">{registration.activation_version}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">{t('tab.contentVersion')}</dt>
+                  <dd className="font-medium">{registration.notification_content_version}</dd>
+                </div>
+              </dl>
+            )}
           </CardContent>
         </Card>
-      )}
-    </div>
+
+        {registration && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('rules.title')}</CardTitle>
+              <CardDescription>{t('rules.hint')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RulesEditor eventId={event.id} />
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </QueryBoundary>
   )
 }

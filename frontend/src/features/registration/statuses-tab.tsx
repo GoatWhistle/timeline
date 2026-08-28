@@ -15,8 +15,6 @@ import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
 import type { RegistrationStatusValue } from '@/shared/api/types.gen'
 import { usePageParam } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import { Field } from '@/shared/ui/forms/field'
 import {
   Select,
@@ -35,6 +33,7 @@ import {
   DialogTitle,
 } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
+import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { StatusesTable } from './statuses-table/statuses-table'
 
 export function StatusesTab({ eventId }: { eventId: string }) {
@@ -52,10 +51,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
     null,
   )
 
-  if (query.isPending) return <LoadingState />
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />
-
-  const items = query.data.items
+  const items = query.data?.items ?? []
   const allSelected = items.length > 0 && items.every((item) => selected.has(item.participant_id))
 
   function toggleAll(checked: boolean) {
@@ -107,28 +103,38 @@ export function StatusesTab({ eventId }: { eventId: string }) {
         </div>
       )}
 
-      {items.length === 0 ? (
-        <EmptyState title={t('statuses.emptyTitle')} description={t('statuses.emptyHint')} />
-      ) : (
-        <>
-          <StatusesTable
-            items={items}
-            selected={selected}
-            allSelected={allSelected}
-            onToggleAll={toggleAll}
-            onToggleOne={(participantId, checked) =>
-              setSelected((previous) => {
-                const next = new Set(previous)
-                if (checked) next.add(participantId)
-                else next.delete(participantId)
-                return next
-              })
-            }
-          />
+      <QueryBoundary
+        isPending={query.isPending}
+        isFetching={query.isFetching}
+        isError={query.isError}
+        error={query.error}
+        onRetry={() => query.refetch()}
+        hasData={query.data !== undefined}
+        skeleton={<SkeletonTable rows={10} columns={6} />}
+      >
+        {items.length === 0 ? (
+          <EmptyState title={t('statuses.emptyTitle')} description={t('statuses.emptyHint')} />
+        ) : (
+          <div className="flex flex-col gap-4">
+            <StatusesTable
+              items={items}
+              selected={selected}
+              allSelected={allSelected}
+              onToggleAll={toggleAll}
+              onToggleOne={(participantId, checked) =>
+                setSelected((previous) => {
+                  const next = new Set(previous)
+                  if (checked) next.add(participantId)
+                  else next.delete(participantId)
+                  return next
+                })
+              }
+            />
 
-          <Pagination meta={query.data.meta} onPageChange={setPage} />
-        </>
-      )}
+            {query.data && <Pagination meta={query.data.meta} onPageChange={setPage} />}
+          </div>
+        )}
+      </QueryBoundary>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

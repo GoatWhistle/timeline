@@ -15,9 +15,19 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BASELINE="$ROOT/docs/baselines/lint.json"
 
+GOLANGCI_IMAGE="golangci/golangci-lint:v2.6-alpine"
+GO_CACHE="timeline-go-mod"
+
 count() {
-  cd "$ROOT/backend"
-  golangci-lint run --output.text.path=stdout ./... 2>/dev/null     | grep -cE '^[^[:space:]].*:[0-9]+:[0-9]+:' || true
+  if command -v golangci-lint >/dev/null 2>&1; then
+    (cd "$ROOT/backend" && golangci-lint run --output.text.path=stdout ./... 2>/dev/null)       | grep -cE '^[^[:space:]].*:[0-9]+:[0-9]+:' || true
+    return
+  fi
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "neither golangci-lint nor docker is available: cannot count issues" >&2
+    exit 1
+  fi
+  MSYS_NO_PATHCONV=1 docker run --rm     -v "$ROOT/backend:/src" -v "$GO_CACHE:/go/pkg/mod" -w /src "$GOLANGCI_IMAGE"     sh -c 'golangci-lint run --output.text.path=stdout ./... 2>/dev/null'     | grep -cE '^[^[:space:]].*:[0-9]+:[0-9]+:' || true
 }
 
 if [ "${1:-}" = "--update" ]; then

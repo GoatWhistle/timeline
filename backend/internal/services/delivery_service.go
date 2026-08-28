@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
@@ -15,6 +16,7 @@ import (
 )
 
 type DeliveryService struct {
+	db            *postgres.DB
 	notifications *notification.Notifications
 	scheduler     *notification.Scheduler
 	users         *identity.Users
@@ -26,109 +28,82 @@ type DeliveryService struct {
 	now           func() time.Time
 }
 
-func NewDeliveryService(notifications *notification.Notifications,
+func NewDeliveryService(db *postgres.DB, notifications *notification.Notifications,
 	scheduler *notification.Scheduler, users *identity.Users,
 	rules *participation.Rules, audit *audit.Audit,
 	telegram TelegramSender, email EmailSender, cfg *config.Config) *DeliveryService {
 	return &DeliveryService{
+		db:            db,
 		notifications: notifications, scheduler: scheduler, users: users, rules: rules, audit: audit,
 		telegram: telegram, email: email, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() },
 	}
 }
 
-func (s *DeliveryService) Start(ctx context.Context) {
-	poll := time.NewTicker(s.cfg.Notify.WorkerInterval)
-	defer poll.Stop()
-	recovery := time.NewTicker(s.cfg.Notify.RecoveryInterval)
-	defer recovery.Stop()
-	retention := time.NewTicker(s.cfg.Retent.Interval)
-	defer retention.Stop()
-
-	s.runOnce(ctx)
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-poll.C:
-			s.runOnce(ctx)
-		case <-recovery.C:
-			s.recoverLeases(ctx)
-		case <-retention.C:
-			s.cleanup(ctx)
-		}
-	}
-}
-
-func (s *DeliveryService) runOnce(ctx context.Context) {
-	now := s.now()
-	if err := s.scheduler.TouchHeartbeat(ctx, "worker", now); err != nil {
-		slog.ErrorContext(ctx, "failed to update worker heartbeat", "error", err)
-	}
-
-	claimed, err := s.notifications.ClaimDue(ctx, s.cfg.Notify.WorkerBatch, s.cfg.Notify.LeaseTTL, now)
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to claim queue entries", "error", err)
-		return
-	}
-	for i := range claimed {
-		if ctx.Err() != nil {
-			return
-		}
-		if err := s.deliver(ctx, &claimed[i]); err != nil {
-			slog.ErrorContext(ctx, "notification processing failed",
-				"error", err, "notification_id", claimed[i].ID)
-		}
-	}
-}
-
-func (s *DeliveryService) recoverLeases(ctx context.Context) {
-	count, err := s.notifications.RecoverLeases(ctx, s.now())
-	if err != nil {
-		slog.ErrorContext(ctx, "releasing expired leases failed", "error", err)
-		return
-	}
-	if count > 0 {
-		slog.InfoContext(ctx, "expired leases returned to queue", "count", count)
-	}
-}
-
-func (s *DeliveryService) cleanup(ctx context.Context) {
-	now := s.now()
-	payloads, err := s.notifications.CleanupPayloads(ctx, now.Add(-s.cfg.Retent.NotificationPayload))
-	if err != nil {
-		slog.ErrorContext(ctx, "notification payload cleanup failed", "error", err)
-	}
-	days := int(s.cfg.Retent.AuditLog.Hours() / 24)
-	entries, err := s.audit.DeleteOlderThan(ctx, days)
-	if err != nil {
-		slog.ErrorContext(ctx, "audit log cleanup failed", "error", err)
-	}
-	if payloads > 0 || entries > 0 {
-		slog.InfoContext(ctx, "retention policy applied", "payloads", payloads, "audit_entries", entries)
-	}
-}
-
-func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) error {
+func (s *DeliveryService) resolveCandidate(ctx context.Context,
+	n *models.Notification) (*models.ReconcileCandidate, bool, error) {
 	candidate, err := s.scheduler.CandidateByStatus(ctx, n.RegistrationStatusID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return s.notifications.MarkCancelled(ctx, n.ID, "the notification situation is no longer relevant")
+			return nil, true,
+				s.notifications.MarkCancelled(ctx, n.ID, "the notification situation is no longer relevant")
 		}
-		return err
+		return nil, true, err
 	}
 	if reason, ok := staleReason(n, candidate); ok {
-		return s.notifications.MarkCancelled(ctx, n.ID, reason)
+		return nil, true, s.notifications.MarkCancelled(ctx, n.ID, reason)
 	}
 	if n.Payload == nil {
-		return s.notifications.MarkFailed(ctx, n.ID, "the content snapshot is unavailable")
+		return nil, true, s.notifications.MarkFailed(ctx, n.ID, "the content snapshot is unavailable")
 	}
+	return candidate, false, nil
+}
 
+func (s *DeliveryService) resolveRecipient(ctx context.Context,
+	n *models.Notification) (*models.User, bool, error) {
 	user, err := s.users.GetByID(ctx, n.RecipientUserID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return s.notifications.MarkCancelled(ctx, n.ID, "the recipient is unavailable")
+			return nil, true, s.notifications.MarkCancelled(ctx, n.ID, "the recipient is unavailable")
 		}
+		return nil, true, err
+	}
+	return user, false, nil
+}
+
+func (s *DeliveryService) handleSendError(ctx context.Context, n *models.Notification,
+	channel models.Channel, attempts int, sendErr error) (bool, error) {
+	var delivery *models.DeliveryError
+	if errors.As(sendErr, &delivery) && delivery.Permanent {
+		if err := s.notifications.AddFailedChannel(ctx, n.ID, channel); err != nil {
+			return false, err
+		}
+		if err := s.notifications.ResetProviderCall(ctx, n.ID); err != nil {
+			return false, err
+		}
+		slog.WarnContext(ctx, "channel closed by permanent provider error",
+			"notification_id", n.ID, "channel", channel, "error", sendErr)
+		return true, nil
+	}
+
+	if attempts >= s.cfg.Notify.MaxProviderCalls {
+		return false, s.notifications.MarkFailed(ctx, n.ID, sendErr.Error())
+	}
+	next := s.now().Add(s.backoff(attempts))
+	slog.WarnContext(ctx, "temporary delivery error, entry returned to queue",
+		"notification_id", n.ID, "channel", channel, "attempt", attempts,
+		"next_attempt_at", next, "error", sendErr)
+	return false, s.notifications.MarkRetry(ctx, n.ID, next, sendErr.Error())
+}
+
+func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) error {
+	candidate, settled, err := s.resolveCandidate(ctx, n)
+	if err != nil || settled {
+		return err
+	}
+
+	user, settled, err := s.resolveRecipient(ctx, n)
+	if err != nil || settled {
 		return err
 	}
 
@@ -165,29 +140,11 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 			return s.notifications.MarkSent(ctx, n.ID, channel, s.now())
 		}
 
-		var delivery *models.DeliveryError
-		permanent := errors.As(sendErr, &delivery) && delivery.Permanent
-		if permanent {
-			if err := s.notifications.AddFailedChannel(ctx, n.ID, channel); err != nil {
-				return err
-			}
-			if err := s.notifications.ResetProviderCall(ctx, n.ID); err != nil {
-				return err
-			}
-			failed = append(failed, channel)
-			slog.WarnContext(ctx, "channel closed by permanent provider error",
-				"notification_id", n.ID, "channel", channel, "error", sendErr)
-			continue
+		retryChannel, err := s.handleSendError(ctx, n, channel, attempts, sendErr)
+		if err != nil || !retryChannel {
+			return err
 		}
-
-		if attempts >= s.cfg.Notify.MaxProviderCalls {
-			return s.notifications.MarkFailed(ctx, n.ID, sendErr.Error())
-		}
-		next := s.now().Add(s.backoff(attempts))
-		slog.WarnContext(ctx, "temporary delivery error, entry returned to queue",
-			"notification_id", n.ID, "channel", channel, "attempt", attempts,
-			"next_attempt_at", next, "error", sendErr)
-		return s.notifications.MarkRetry(ctx, n.ID, next, sendErr.Error())
+		failed = append(failed, channel)
 	}
 }
 

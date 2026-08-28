@@ -8,8 +8,6 @@ import type { UserSummary } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import {
   Table,
   TableBody,
@@ -24,6 +22,7 @@ import { Pagination } from '@/shared/ui/navigation/pagination'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 
 const DEFAULTS = { query: '' }
 
@@ -57,78 +56,85 @@ export function AdminUsersPage() {
         />
       </div>
 
-      {query.isPending && <LoadingState />}
-      {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
-
-      {query.data && query.data.items.length === 0 && <EmptyState title={t('users.empty')} />}
-
-      {query.data && query.data.items.length > 0 && (
-        <div className="flex flex-col gap-4">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('users.columnName')}</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>{t('users.columnState')}</TableHead>
-                <TableHead className="w-72">{t('users.columnActions')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {query.data.items.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.display_name}</TableCell>
-                  <TableCell className="text-muted-foreground">{item.email}</TableCell>
-                  <TableCell>
-                    {item.is_active ? (
-                      <Badge tone="primary">{t('users.active')}</Badge>
-                    ) : (
-                      <Badge tone="danger">{t('users.deactivated')}</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      {item.is_active ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={deactivate.isPending}
-                          onClick={() =>
-                            deactivate
-                              .mutateAsync(item.id)
-                              .then(() => toast.success(t('users.deactivatedToast')))
-                              .catch(() => toast.error(t('users.deactivateFailed')))
-                          }
-                        >
-                          {t('users.deactivate')}
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={activate.isPending}
-                          onClick={() =>
-                            activate
-                              .mutateAsync(item.id)
-                              .then(() => toast.success(t('users.activated')))
-                              .catch(() => toast.error(t('users.activateFailed')))
-                          }
-                        >
-                          {t('users.activate')}
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="sm" onClick={() => setDeleting(item)}>
-                        {t('users.delete')}
-                      </Button>
-                    </div>
-                  </TableCell>
+      <QueryBoundary
+        isPending={query.isPending}
+        isFetching={query.isFetching}
+        isError={query.isError}
+        error={query.error}
+        onRetry={() => query.refetch()}
+        hasData={query.data !== undefined}
+        skeleton={<SkeletonTable rows={10} columns={4} density="action" />}
+      >
+        {query.data?.items.length === 0 ? (
+          <EmptyState title={t('users.empty')} />
+        ) : (
+          <div className="flex flex-col gap-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('users.columnName')}</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>{t('users.columnState')}</TableHead>
+                  <TableHead className="w-72">{t('users.columnActions')}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {(query.data?.items ?? []).map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">{item.display_name}</TableCell>
+                    <TableCell className="text-muted-foreground">{item.email}</TableCell>
+                    <TableCell>
+                      {item.is_active ? (
+                        <Badge tone="primary">{t('users.active')}</Badge>
+                      ) : (
+                        <Badge tone="danger">{t('users.deactivated')}</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {item.is_active ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={deactivate.isPending}
+                            onClick={() =>
+                              deactivate
+                                .mutateAsync(item.id)
+                                .then(() => toast.success(t('users.deactivatedToast')))
+                                .catch(() => toast.error(t('users.deactivateFailed')))
+                            }
+                          >
+                            {t('users.deactivate')}
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={activate.isPending}
+                            onClick={() =>
+                              activate
+                                .mutateAsync(item.id)
+                                .then(() => toast.success(t('users.activated')))
+                                .catch(() => toast.error(t('users.activateFailed')))
+                            }
+                          >
+                            {t('users.activate')}
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={() => setDeleting(item)}>
+                          {t('users.delete')}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
 
-          <Pagination meta={query.data.meta} onPageChange={setPage} />
-        </div>
-      )}
+            {query.data && <Pagination meta={query.data.meta} onPageChange={setPage} />}
+          </div>
+        )}
+      </QueryBoundary>
 
       <ConfirmDialog
         open={deleting !== null}

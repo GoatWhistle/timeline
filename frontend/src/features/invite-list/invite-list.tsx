@@ -12,8 +12,6 @@ import { formatDateTime } from '@/shared/datetime/datetime'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { usePageParam } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import {
   Table,
   TableBody,
@@ -35,6 +33,7 @@ import {
 } from '@/shared/ui/overlays/dialog'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 
 const schema = z.object({ email: z.email('auth:validation.email') })
 type FormValues = z.infer<typeof schema>
@@ -96,60 +95,69 @@ export function AdminInvitesPage() {
         }
       />
 
-      {query.isPending && <LoadingState />}
-      {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
+      <QueryBoundary
+        isPending={query.isPending}
+        isFetching={query.isFetching}
+        isError={query.isError}
+        error={query.error}
+        onRetry={() => query.refetch()}
+        hasData={query.data !== undefined}
+        skeleton={<SkeletonTable rows={8} columns={4} density="action" />}
+      >
+        {query.data?.items.length === 0 ? (
+          <EmptyState title={t('invites.empty')} />
+        ) : (
+          <div className="flex flex-col gap-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>{t('invites.columnState')}</TableHead>
+                  <TableHead>{t('invites.columnValidUntil')}</TableHead>
+                  <TableHead className="w-32">{t('invites.columnActions')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(query.data?.items ?? []).map((item) => {
+                  const state = inviteState(item)
+                  return (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">{item.email}</TableCell>
+                      <TableCell>
+                        <Badge tone={state.tone}>{t(state.labelKey)}</Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDateTime(item.expires_at)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={
+                            Boolean(item.accepted_at) ||
+                            Boolean(item.revoked_at) ||
+                            revoke.isPending
+                          }
+                          onClick={() =>
+                            revoke
+                              .mutateAsync(item.id)
+                              .then(() => toast.success(t('invites.revokedToast')))
+                              .catch(() => toast.error(t('invites.revokeFailed')))
+                          }
+                        >
+                          {t('invites.revoke')}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
 
-      {query.data && query.data.items.length === 0 && <EmptyState title={t('invites.empty')} />}
-
-      {query.data && query.data.items.length > 0 && (
-        <div className="flex flex-col gap-4">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Email</TableHead>
-                <TableHead>{t('invites.columnState')}</TableHead>
-                <TableHead>{t('invites.columnValidUntil')}</TableHead>
-                <TableHead className="w-32">{t('invites.columnActions')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {query.data.items.map((item) => {
-                const state = inviteState(item)
-                return (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.email}</TableCell>
-                    <TableCell>
-                      <Badge tone={state.tone}>{t(state.labelKey)}</Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatDateTime(item.expires_at)}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={
-                          Boolean(item.accepted_at) || Boolean(item.revoked_at) || revoke.isPending
-                        }
-                        onClick={() =>
-                          revoke
-                            .mutateAsync(item.id)
-                            .then(() => toast.success(t('invites.revokedToast')))
-                            .catch(() => toast.error(t('invites.revokeFailed')))
-                        }
-                      >
-                        {t('invites.revoke')}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-
-          <Pagination meta={query.data.meta} onPageChange={setPage} />
-        </div>
-      )}
+            {query.data && <Pagination meta={query.data.meta} onPageChange={setPage} />}
+          </div>
+        )}
+      </QueryBoundary>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

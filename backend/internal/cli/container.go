@@ -122,7 +122,7 @@ func newContainer(ctx context.Context) (*container, error) {
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
 	c.queries = services.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
 		c.repos.participants, c.repos.registrations, c.repos.statuses)
-	c.delivery = services.NewDeliveryService(c.repos.notifications, c.repos.scheduler, c.repos.users,
+	c.delivery = services.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
 		c.repos.rules, c.repos.audit, c.telegram, c.email, cfg)
 	c.ops = services.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
 	return c, nil

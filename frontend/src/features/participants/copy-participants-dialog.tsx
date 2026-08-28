@@ -5,7 +5,6 @@ import { toast } from 'sonner'
 import { useCopyParticipants } from '@/entities/participant/participant.queries'
 import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
 import { api, unwrap } from '@/shared/api/client'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import {
   Table,
   TableBody,
@@ -32,6 +31,7 @@ import {
   DialogTitle,
 } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
+import { QueryBoundary } from '@/shared/ui/states'
 
 export function CopyParticipantsDialog({
   eventId,
@@ -108,39 +108,47 @@ export function CopyParticipantsDialog({
           </Select>
         </Field>
 
-        {sourceParticipants.isPending && sourceId && <LoadingState />}
-
-        {sourceParticipants.data && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('participants.columnParticipant')}</TableHead>
-                <TableHead className="w-56">{t('participants.columnNewRole')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sourceParticipants.data.items.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <span className="font-medium">{item.user.display_name}</span>
-                    <span className="ml-2 text-muted-foreground">{item.user.email}</span>
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      aria-label={t('participants.roleFor', { name: item.user.display_name })}
-                      value={overrides[item.user.id] ?? item.team_role}
-                      onChange={(event) =>
-                        setOverrides((previous) => ({
-                          ...previous,
-                          [item.user.id]: event.target.value,
-                        }))
-                      }
-                    />
-                  </TableCell>
+        {sourceId.length > 0 && (
+          <QueryBoundary
+            isPending={sourceParticipants.isPending}
+            isFetching={sourceParticipants.isFetching}
+            isError={sourceParticipants.isError}
+            error={sourceParticipants.error}
+            onRetry={() => sourceParticipants.refetch()}
+            hasData={sourceParticipants.data !== undefined}
+            shape="unknown"
+          >
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('participants.columnParticipant')}</TableHead>
+                  <TableHead className="w-56">{t('participants.columnNewRole')}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {(sourceParticipants.data?.items ?? []).map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <span className="font-medium">{item.user.display_name}</span>
+                      <span className="ml-2 text-muted-foreground">{item.user.email}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        aria-label={t('participants.roleFor', { name: item.user.display_name })}
+                        value={overrides[item.user.id] ?? item.team_role}
+                        onChange={(event) =>
+                          setOverrides((previous) => ({
+                            ...previous,
+                            [item.user.id]: event.target.value,
+                          }))
+                        }
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </QueryBoundary>
         )}
 
         <DialogFooter>

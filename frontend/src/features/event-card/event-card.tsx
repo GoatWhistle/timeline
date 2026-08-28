@@ -6,14 +6,14 @@ import { toast } from 'sonner'
 import { eventCardQuery, useMarkRegistrationDone } from '@/entities/event/event.queries'
 import { EventStateBadge, RegistrationStatusBadge } from '@/entities/event/event-state-badge'
 import { STAGE_TYPE_COLOR, STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
+import type { EventCard } from '@/shared/api/types.gen'
 import { formatDate, formatDateTime, formatRelative } from '@/shared/datetime/datetime'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { PageHeader } from '@/shared/ui/layout/page-header'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { Dot } from '@/shared/ui/primitives/dot'
+import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
 import { EventPlaceSummary } from './event-place-summary'
 
 export function EventCardPage() {
@@ -22,11 +22,7 @@ export function EventCardPage() {
   const query = useQuery(eventCardQuery(id))
   const markDone = useMarkRegistrationDone(id)
 
-  if (query.isPending) return <LoadingState />
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />
-
   const card = query.data
-  const { event, registration, registration_status: status } = card
 
   async function onMarkDone() {
     try {
@@ -38,6 +34,33 @@ export function EventCardPage() {
       toast.error(t('card.markFailed'))
     }
   }
+
+  return (
+    <QueryBoundary
+      isPending={query.isPending}
+      isFetching={query.isFetching}
+      isError={query.isError}
+      error={query.error}
+      onRetry={() => query.refetch()}
+      hasData={card !== undefined}
+      skeleton={<SkeletonDetail />}
+    >
+      {card && <EventCardBody card={card} onMarkDone={onMarkDone} pending={markDone.isPending} />}
+    </QueryBoundary>
+  )
+}
+
+function EventCardBody({
+  card,
+  onMarkDone,
+  pending,
+}: {
+  card: EventCard
+  onMarkDone: () => void
+  pending: boolean
+}) {
+  const { t } = useTranslation('event')
+  const { event, registration, registration_status: status } = card
 
   return (
     <div className="max-w-4xl">
@@ -126,7 +149,7 @@ export function EventCardPage() {
                 </Button>
 
                 {card.can_mark_done && (
-                  <Button onClick={onMarkDone} disabled={markDone.isPending}>
+                  <Button onClick={onMarkDone} disabled={pending}>
                     <CheckCircle2 className="size-4" aria-hidden="true" />
                     {t('card.markRegistered')}
                   </Button>

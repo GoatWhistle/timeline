@@ -4,8 +4,5 @@
 279 backend/internal/controllers/auth_controller.go
 326 backend/internal/controllers/event_controller.go
 438 backend/internal/controllers/registration_controller.go
-473 backend/internal/services/auth_service.go
-267 backend/internal/services/delivery_service.go
 267 backend/internal/services/registration_service.go
 278 backend/internal/services/status_service.go
-278 frontend/tests/shared/keyboard/shortcut-registry.test.ts

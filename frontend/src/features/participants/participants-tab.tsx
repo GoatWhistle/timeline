@@ -14,11 +14,10 @@ import type { ParticipantResponse, RegistrationStatusValue } from '@/shared/api/
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { ErrorState } from '@/shared/ui/data-display/error-state'
-import { LoadingState } from '@/shared/ui/data-display/loading-state'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Button } from '@/shared/ui/primitives/button'
+import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { AddParticipantsDialog } from './add-participants-dialog'
 import { CopyParticipantsDialog } from './copy-participants-dialog'
 import { ALL, ParticipantsFilters } from './participants-filters/participants-filters'
@@ -112,40 +111,45 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
         </div>
       )}
 
-      {query.isPending && <LoadingState />}
-      {query.isError && <ErrorState error={query.error} onRetry={() => query.refetch()} />}
-
-      {query.data && items.length === 0 && (
-        <EmptyState
-          title={t('participants.emptyTitle')}
-          description={t('participants.emptyHint')}
-        />
-      )}
-
-      {query.data && items.length > 0 && (
-        <>
-          <ParticipantsTable
-            items={items}
-            selected={selected}
-            allSelected={allSelected}
-            reactivatePending={reactivate.isPending}
-            onToggleAll={toggleAll}
-            onToggleOne={toggleOne}
-            onEdit={(item) => {
-              setEditing(item)
-              setRoleDraft(item.team_role)
-            }}
-            onReactivate={(item) =>
-              reactivate
-                .mutateAsync({ id: item.id, team_role: item.team_role })
-                .then(() => toast.success(t('participants.restored')))
-                .catch(() => toast.error(t('participants.restoreFailed')))
-            }
+      <QueryBoundary
+        isPending={query.isPending}
+        isFetching={query.isFetching}
+        isError={query.isError}
+        error={query.error}
+        onRetry={() => query.refetch()}
+        hasData={query.data !== undefined}
+        skeleton={<SkeletonTable rows={10} columns={6} density="action" />}
+      >
+        {items.length === 0 ? (
+          <EmptyState
+            title={t('participants.emptyTitle')}
+            description={t('participants.emptyHint')}
           />
+        ) : (
+          <div className="flex flex-col gap-4">
+            <ParticipantsTable
+              items={items}
+              selected={selected}
+              allSelected={allSelected}
+              reactivatePending={reactivate.isPending}
+              onToggleAll={toggleAll}
+              onToggleOne={toggleOne}
+              onEdit={(item) => {
+                setEditing(item)
+                setRoleDraft(item.team_role)
+              }}
+              onReactivate={(item) =>
+                reactivate
+                  .mutateAsync({ id: item.id, team_role: item.team_role })
+                  .then(() => toast.success(t('participants.restored')))
+                  .catch(() => toast.error(t('participants.restoreFailed')))
+              }
+            />
 
-          <Pagination meta={query.data.meta} onPageChange={setPage} />
-        </>
-      )}
+            {query.data && <Pagination meta={query.data.meta} onPageChange={setPage} />}
+          </div>
+        )}
+      </QueryBoundary>
 
       <AddParticipantsDialog eventId={eventId} open={addOpen} onOpenChange={setAddOpen} />
       <CopyParticipantsDialog eventId={eventId} open={copyOpen} onOpenChange={setCopyOpen} />

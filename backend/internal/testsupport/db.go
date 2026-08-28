@@ -11,6 +11,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
@@ -89,8 +90,31 @@ func Pool(t *testing.T) *pgxpool.Pool {
 	}
 	t.Cleanup(pool.Close)
 
+	lock(t, dsn)
 	Truncate(t, pool)
 	return pool
+}
+
+const exclusiveLockID = 8721340951
+
+func lock(t *testing.T, dsn string) {
+	t.Helper()
+	ctx := context.Background()
+	conn, err := pgx.Connect(ctx, dsn)
+	if err != nil {
+		t.Fatalf("opening a lock connection: %v", err)
+	}
+	if _, err := conn.Exec(ctx, `SELECT pg_advisory_lock($1)`, int64(exclusiveLockID)); err != nil {
+		t.Fatalf("acquiring the exclusive test lock: %v", err)
+	}
+	t.Cleanup(func() {
+		if _, err := conn.Exec(ctx, `SELECT pg_advisory_unlock($1)`, int64(exclusiveLockID)); err != nil {
+			t.Logf("releasing the exclusive test lock: %v", err)
+		}
+		if err := conn.Close(ctx); err != nil {
+			t.Logf("closing the lock connection: %v", err)
+		}
+	})
 }
 
 func DB(t *testing.T) *postgres.DB {
