@@ -34,12 +34,12 @@
         "total": 825
       }
     },
-    "note": "Порог равен достигнутому уровню и никогда не опускается. При росте покрытия порог поднимается тем же изменением."
+    "note": "The threshold equals the level reached and never drops. When coverage grows, the threshold is raised by the same change."
   },
   "backend": {
     "tool": "go test -coverprofile",
     "target": "make back-cover",
     "threshold": 0.7,
-    "note": "Замерено в контейнере golang:1.25-alpine (Go на машине нет, см. GO_RUN в Makefile). Тесты есть только в adapters/ratelimit — один пакет из четырнадцати. Порог равен достигнутому и не опускается."
+    "note": "Measured in the golang:1.25-alpine container (no Go on the machine, see GO_RUN in the Makefile). Tests exist only in adapters/ratelimit, one package out of fourteen. The threshold equals the level reached and never drops."
   }
 }

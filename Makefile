@@ -69,7 +69,7 @@ export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME CON
 	docker-up docker-down docker-build docker-restart docker-status docker-logs \
 	docker-psql dev dev-down dev-restart dev-logs \
 	install types types-check typecheck lint format test test-contract e2e verify build \
-	cyrillic baseline-cyrillic \
+	cyrillic baseline-cyrillic lint-baseline baseline-lint \
 	back-fmt back-vet back-test back-test-integration back-build back-cover back-docs clean
 
 .DEFAULT_GOAL := help
@@ -237,6 +237,9 @@ cyrillic: ## Code language is English, Cyrillic only in dictionaries (ratchet)
 bundle-size: ## Production bundle size against the baseline
 	@node scripts/bundle-size.mjs
 
+lint-baseline: ## Total golangci-lint issues against the baseline (ratchet)
+	@bash scripts/check-lint-baseline.sh
+
 baseline-file-length: ## Rewrite the line-limit baseline
 	@bash scripts/check-file-length.sh --update
 
@@ -245,6 +248,9 @@ baseline-cyrillic: ## Rewrite the Cyrillic check baseline
 
 baseline-bundle-size: build ## Rewrite the bundle size baseline
 	@node scripts/bundle-size.mjs --update
+
+baseline-lint: ## Rewrite the golangci-lint issue baseline
+	@bash scripts/check-lint-baseline.sh --update
 
 # --- Checks and cleanup -----------------------------------------------------
 

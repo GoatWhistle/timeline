@@ -1,5 +1,5 @@
-# Базовый уровень проверки лимита 250 строк (scripts/check-file-length.sh).
-# Формат: <строк> <путь>. Обновляется только вниз.
+# Baseline for the 250-line limit check (scripts/check-file-length.sh).
+# Format: <lines> <path>. Only updated downwards.
 351 backend/internal/adapters/postgres/constraints_integration_test.go
 279 backend/internal/controllers/auth_controller.go
 326 backend/internal/controllers/event_controller.go

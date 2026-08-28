@@ -15,15 +15,35 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BASELINE="$ROOT/docs/baselines/lint.json"
 
+count() {
+  cd "$ROOT/backend"
+  golangci-lint run --output.text.path=stdout ./... 2>/dev/null     | grep -cE '^[^[:space:]].*:[0-9]+:[0-9]+:' || true
+}
+
+if [ "${1:-}" = "--update" ]; then
+  total="$(count)"
+  cat > "$BASELINE" <<JSON
+{
+  "measuredAt": "$(date -u +%Y-%m-%d)",
+  "tool": "golangci-lint v2.6",
+  "config": "backend/.golangci.yml",
+  "target": "make back-lint",
+  "total": $total,
+  "note": "Second layer of the ratchet: on a push to main the merge-base is empty, so --new-from-merge-base checks nothing and only this counter holds the line. Baseline is only lowered."
+}
+JSON
+  echo "baseline updated: $BASELINE ($total issues)"
+  exit 0
+fi
+
 if [ ! -f "$BASELINE" ]; then
-  echo "no baseline: $BASELINE" >&2
+  echo "no baseline $BASELINE, run: make baseline-lint" >&2
   exit 1
 fi
 
 expected="$(grep -oE '"total"[[:space:]]*:[[:space:]]*[0-9]+' "$BASELINE" | grep -oE '[0-9]+')"
 
-cd "$ROOT/backend"
-actual="$(golangci-lint run --output.text.path=stdout ./... 2>/dev/null | grep -cE '^[^[:space:]].*:[0-9]+:[0-9]+:' || true)"
+actual="$(count)"
 
 if [ "$actual" -gt "$expected" ]; then
   echo "golangci-lint issues: $actual, baseline $expected" >&2
@@ -33,7 +53,7 @@ fi
 
 if [ "$actual" -lt "$expected" ]; then
   echo "fewer issues than before: $actual against $expected"
-  echo "update \"total\" in docs/baselines/lint.json"
+  echo "run: make baseline-lint"
   exit 0
 fi
 
