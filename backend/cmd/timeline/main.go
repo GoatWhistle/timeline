@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/cli"
+	"github.com/GoatWhistle/timeline/internal/cli"
 )
 
 func main() {

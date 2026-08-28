@@ -50,28 +50,30 @@ type RegistrationPublic struct {
 	State       RegistrationState `json:"state" enums:"ACTIVE,DISABLED"`
 }
 
-type TimelineItem struct {
+type ScheduleItem struct {
 	ID      uuid.UUID `json:"id"`
 	Name    string    `json:"name" example:"Call for applications"`
 	Type    StageType `json:"type"`
 	StartAt time.Time `json:"start_at"`
 	EndAt   time.Time `json:"end_at"`
+	Place   Place     `json:"place"`
 }
 
-type TimelineRow struct {
+type ScheduleRow struct {
 	EventID              uuid.UUID      `json:"event_id"`
 	Title                string         `json:"title" example:"National event"`
 	State                EventState     `json:"state"`
 	StartAt              time.Time      `json:"start_at"`
 	EndAt                time.Time      `json:"end_at"`
 	TeamRole             *string        `json:"team_role,omitempty"`
-	Stages               []TimelineItem `json:"stages"`
+	EffectiveFormat      EventFormat    `json:"effective_format" enums:"ONLINE,OFFLINE,HYBRID"`
+	Stages               []ScheduleItem `json:"stages"`
 	RegistrationDeadline *time.Time     `json:"registration_deadline,omitempty"`
 }
 
-type TimelineResponse struct {
+type ScheduleResponse struct {
 	Range TimeRange     `json:"range"`
-	Rows  []TimelineRow `json:"rows"`
+	Rows  []ScheduleRow `json:"rows"`
 }
 
 type DeadlineItem struct {

@@ -15,8 +15,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/argon2"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/config"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/config"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type PasswordHasher struct{ cfg config.Argon }

@@ -1,39 +1,39 @@
-# Образ backend: API, worker и операционные команды в одном бинаре.
-# Контекст сборки — корень монорепозитория, поэтому пути начинаются с backend/.
+# Backend image: API, worker and operational commands in a single binary.
+# The build context is the monorepo root, so paths start with backend/.
 #
-#   runtime (по умолчанию) — статический бинарь в минимальном образе.
-#   dev                    — `go run` поверх исходников, смонтированных томом
-#                            (deploy/docker-compose.dev.yml). Перекомпиляция
-#                            происходит при перезапуске контейнера.
+#   runtime (default) - static binary in a minimal image.
+#   dev               - `go run` over sources mounted as a volume
+#                       (deploy/docker-compose.dev.yml). Recompilation
+#                       happens when the container restarts.
 
-# Зависимости выносятся в отдельный слой: он не пересобирается, пока не
-# менялись go.mod и go.sum.
+# Dependencies live in a separate layer: it is not rebuilt until
+# go.mod and go.sum change.
 FROM golang:1.25-alpine AS deps
 WORKDIR /src
 RUN apk add --no-cache git ca-certificates tzdata
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 
-# Разработка: код монтируется томом, кэши сборки живут в томах compose.
+# Development: code is mounted as a volume, build caches live in compose volumes.
 FROM deps AS dev
 COPY backend/ ./
 EXPOSE 8080
-CMD ["go", "run", "./cmd/hackathon", "serve"]
+CMD ["go", "run", "./cmd/timeline", "serve"]
 
-# Сборка статического бинаря.
+# Static binary build.
 FROM deps AS build
 COPY backend/ ./
 ARG VERSION=0.8.0
 RUN CGO_ENABLED=0 go build -trimpath \
-    -ldflags "-s -w -X github.com/kaifarikman/hackathon-os-backend/internal/cli.Version=${VERSION}" \
-    -o /out/hackathon ./cmd/hackathon
+    -ldflags "-s -w -X github.com/GoatWhistle/timeline/internal/cli.Version=${VERSION}" \
+    -o /out/timeline ./cmd/timeline
 
-# Рабочий образ.
+# Runtime image.
 FROM alpine:3.20 AS runtime
 RUN apk add --no-cache ca-certificates tzdata && adduser -D -u 10001 app
-COPY --from=build /out/hackathon /usr/local/bin/hackathon
+COPY --from=build /out/timeline /usr/local/bin/timeline
 USER app
 ENV HTTP_ADDR=:8080
 EXPOSE 8080
-ENTRYPOINT ["hackathon"]
+ENTRYPOINT ["timeline"]
 CMD ["serve"]

@@ -79,7 +79,7 @@ type ParticipantFilter struct {
 	Search             string
 }
 
-type TimelineFilter struct {
+type ScheduleFilter struct {
 	From            time.Time
 	To              time.Time
 	States          []EventState

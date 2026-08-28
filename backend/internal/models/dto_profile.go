@@ -33,7 +33,7 @@ type ChangeEmailRequest struct {
 }
 
 type TelegramLinkResponse struct {
-	DeepLink  string    `json:"deep_link" example:"https://t.me/hackathon_tracker_bot?start=abc123"`
+	DeepLink  string    `json:"deep_link" example:"https://t.me/timeline_bot?start=abc123"`
 	ExpiresAt time.Time `json:"expires_at"`
 }
 

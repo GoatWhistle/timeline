@@ -5,18 +5,18 @@ import { packLanes } from '@/features/schedule/model/pack-lanes'
 import {
   ROW_LABEL_WIDTH,
   rowHeight,
-  type TimelineScale,
+  type ScheduleScale,
 } from '@/features/schedule/model/schedule-scale'
 import { useScheduleGeometry } from '@/features/schedule/model/use-schedule-geometry'
-import type { TimelineResponse, TimelineRow } from '@/shared/api/types.gen'
+import type { ScheduleResponse, ScheduleRow } from '@/shared/api/types.gen'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
 import { DeadlineMark } from './deadline-mark'
 import { StageBar } from './stage-bar'
 
 type ScheduleGridProps = {
-  data: TimelineResponse
-  scale: TimelineScale
-  hrefBuilder?: (row: TimelineRow) => string
+  data: ScheduleResponse
+  scale: ScheduleScale
+  hrefBuilder?: (row: ScheduleRow) => string
 }
 
 export function ScheduleGrid({ data, scale, hrefBuilder }: ScheduleGridProps) {
@@ -62,7 +62,7 @@ export function ScheduleGrid({ data, scale, hrefBuilder }: ScheduleGridProps) {
                 className="grid border-b last:border-b-0"
                 style={{ gridTemplateColumns }}
               >
-                <div data-timeline-label className="sticky left-0 z-20 border-r bg-card px-3 py-3">
+                <div data-schedule-label className="sticky left-0 z-20 border-r bg-card px-3 py-3">
                   <Link to={href} className="font-medium text-sm hover:underline">
                     {row.title}
                   </Link>
@@ -73,7 +73,7 @@ export function ScheduleGrid({ data, scale, hrefBuilder }: ScheduleGridProps) {
                 </div>
 
                 <div
-                  data-timeline-track
+                  data-schedule-track
                   className="relative"
                   style={{ height: rowHeight(packed.laneCount) }}
                 >

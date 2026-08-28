@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/middleware"
+	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 )
 
 type Deps struct {
@@ -41,9 +41,9 @@ type Deps struct {
 	CSRFTTL      time.Duration
 }
 
-// @title			Hackathon Tracker API
+// @title			Timeline API
 // @version		0.8.0
-// @description	Hackathon Tracker REST API. Implements technical specification v0.8:
+// @description	Timeline REST API. Implements technical specification v0.8:
 // @description	accounts and invites, events and stages, participant assignments,
 // @description	registration with self-reported status, reminder rules and the audit log.
 // @description
@@ -54,8 +54,8 @@ type Deps struct {
 // @description				rotates and lives 30 days. Every mutating request must send
 // @description				a CSRF token in the X-CSRF-Token header; obtain one from GET /auth/csrf.
 // @description				All timestamps are transferred in UTC using RFC 3339.
-// @termsOfService				https://github.com/kaifarikman/hackathon-os
-// @contact.name				Hackathon Tracker team
+// @termsOfService				https://github.com/GoatWhistle/timeline
+// @contact.name				Timeline team
 // @license.name				MIT
 // @host						localhost:8080
 // @BasePath					/api/v1
@@ -85,7 +85,7 @@ type Deps struct {
 // @tag.name					rules
 // @tag.description			Reminder rules
 // @tag.name					queries
-// @tag.description			Read models: my events, the card, the timeline and deadlines
+// @tag.description			Read models: my events, the card, the schedule and deadlines
 // @tag.name					audit
 // @tag.description			Log of administrative changes
 // @tag.name					ops
@@ -131,7 +131,7 @@ func NewRouter(deps Deps) http.Handler {
 	mux.Handle("POST "+api+"/me/deactivate", rt.authd(profileC.Deactivate))
 
 	mux.Handle("GET "+api+"/me/events", rt.authd(queryC.MyEvents))
-	mux.Handle("GET "+api+"/me/timeline", rt.authd(queryC.MyTimeline))
+	mux.Handle("GET "+api+"/me/schedule", rt.authd(queryC.MySchedule))
 	mux.Handle("GET "+api+"/catalog", rt.authd(catalogC.List))
 	mux.Handle("POST "+api+"/events/{id}/join", rt.authd(catalogC.Join))
 	mux.Handle("GET "+api+"/events/{id}", rt.authd(queryC.EventCard))
@@ -177,7 +177,7 @@ func NewRouter(deps Deps) http.Handler {
 	mux.Handle("POST "+api+"/admin/events/{id}/registration-statuses/batch-set/preview", rt.admin(regC.BatchSetStatusPreview))
 	mux.Handle("PATCH "+api+"/admin/registration-statuses/{id}", rt.admin(regC.AdminChangeStatus))
 
-	mux.Handle("GET "+api+"/admin/timeline", rt.admin(queryC.AdminTimeline))
+	mux.Handle("GET "+api+"/admin/schedule", rt.admin(queryC.AdminSchedule))
 	mux.Handle("GET "+api+"/admin/queries/upcoming", rt.admin(queryC.Upcoming))
 	mux.Handle("GET "+api+"/admin/queries/overdue", rt.admin(queryC.Overdue))
 	mux.Handle("GET "+api+"/admin/audit", rt.admin(auditC.List))

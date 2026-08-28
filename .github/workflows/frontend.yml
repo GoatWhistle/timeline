@@ -1,8 +1,7 @@
 name: Frontend CI
 
-# Проверки фронтенда и общерепозиторные храповики. Проверка лимита строк
-# охватывает обе части монорепозитория, поэтому фильтр путей здесь шире, чем
-# у backend.yml.
+# Frontend checks and repository-wide ratchets. The line-limit check covers both
+# parts of the monorepo, so the path filter here is wider than in backend.yml.
 on:
   push:
     branches: [main]
@@ -23,7 +22,7 @@ on:
 
 jobs:
   verify:
-    name: Проверки и храповики
+    name: Checks and ratchets
     runs-on: ubuntu-latest
 
     steps:
@@ -35,27 +34,27 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Лимит 250 строк на рукописный код
+      - name: 250-line limit for hand-written code
         run: bash scripts/check-file-length.sh
 
-      - name: Язык кода — английский
+      - name: Code language is English
         run: bash scripts/check-cyrillic.sh
 
-      - name: Установка зависимостей
+      - name: Install dependencies
         working-directory: frontend
         run: npm ci
 
-      - name: Контракт, типы, линтер и тесты
+      - name: Contract, types, linter and tests
         working-directory: frontend
         run: npm run verify
 
-      - name: Покрытие против порогов
+      - name: Coverage against thresholds
         working-directory: frontend
         run: npm run test:coverage
 
-      - name: Production-сборка
+      - name: Production build
         working-directory: frontend
         run: npm run build
 
-      - name: Размер сборки против базового уровня
+      - name: Bundle size against the baseline
         run: node scripts/bundle-size.mjs

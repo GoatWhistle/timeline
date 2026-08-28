@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 func normalizeEmail(email string) string {

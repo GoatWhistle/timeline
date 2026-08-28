@@ -39,7 +39,7 @@ export const registrationStatuses: RegistrationStatusResponse[] = [
     todo_cycle: 2,
     last_change_source: 'ADMIN',
     last_changed_by_user_id: users[0]!.id,
-    note: 'Возвращено администратором: регистрация не подтвердилась.',
+    note: 'Returned by the administrator: the registration was not confirmed.',
     updated_at: at(-2),
     user: participants[3]!.user,
   },

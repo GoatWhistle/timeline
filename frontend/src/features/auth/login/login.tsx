@@ -66,7 +66,7 @@ export function LoginPage() {
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>{t('login.title')}</CardTitle>
-        <CardDescription>Hackathon Tracker</CardDescription>
+        <CardDescription>{t('common:app.name')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>

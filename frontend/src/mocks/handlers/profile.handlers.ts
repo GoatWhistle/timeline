@@ -62,7 +62,7 @@ export const profileHandlers = [
     const { deny } = requireUser()
     if (deny) return deny
     return HttpResponse.json({
-      deep_link: 'https://t.me/hackathon_tracker_bot?start=mock-link-token',
+      deep_link: 'https://t.me/timeline_bot?start=mock-link-token',
       expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
     })
   }),

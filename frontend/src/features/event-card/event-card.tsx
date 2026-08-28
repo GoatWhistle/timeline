@@ -14,6 +14,7 @@ import { PageHeader } from '@/shared/ui/layout/page-header'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { Dot } from '@/shared/ui/primitives/dot'
+import { EventPlaceSummary } from './event-place-summary'
 
 export function EventCardPage() {
   const { t } = useTranslation('event')
@@ -67,6 +68,9 @@ export function EventCardPage() {
                   ? `${card.next_stage.name} · ${formatDate(card.next_stage.start_at)}`
                   : '—'}
               </p>
+            </div>
+            <div className="col-span-2">
+              <EventPlaceSummary event={event} stages={card.stages} />
             </div>
             {event.description && (
               <div className="col-span-2">

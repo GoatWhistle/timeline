@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type EventRepository struct{ db *DB }
@@ -16,12 +16,13 @@ type EventRepository struct{ db *DB }
 func NewEventRepository(db *DB) *EventRepository { return &EventRepository{db: db} }
 
 const eventColumns = `id, title, description, organizer, website_url, notes,
-	kind, format, origin, country_code, city,
+	kind, format, origin, country_code, city, track, prize_pool, prize_currency, team_size_max,
 	start_at, end_at, published_at, archived_at, created_at, updated_at`
 
 func scanEventInto(row pgx.Row, h *models.Event) error {
 	return row.Scan(&h.ID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL, &h.Notes,
 		&h.Kind, &h.Format, &h.Origin, &h.CountryCode, &h.City,
+		&h.Track, &h.PrizePool, &h.PrizeCurrency, &h.TeamSizeMax,
 		&h.StartAt, &h.EndAt, &h.PublishedAt, &h.ArchivedAt, &h.CreatedAt, &h.UpdatedAt)
 }
 
@@ -36,11 +37,13 @@ func scanEvent(row pgx.Row) (*models.Event, error) {
 func (r *EventRepository) Create(ctx context.Context, h *models.Event) (*models.Event, error) {
 	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
 		INSERT INTO events (title, description, organizer, website_url, notes,
-			kind, format, origin, country_code, city, start_at, end_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+			kind, format, origin, country_code, city, track, prize_pool, prize_currency,
+			team_size_max, start_at, end_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 		RETURNING `+eventColumns,
 		h.Title, h.Description, h.Organizer, h.WebsiteURL, h.Notes,
-		h.Kind, h.Format, h.Origin, h.CountryCode, h.City, h.StartAt, h.EndAt))
+		h.Kind, h.Format, h.Origin, h.CountryCode, h.City, h.Track, h.PrizePool,
+		h.PrizeCurrency, h.TeamSizeMax, h.StartAt, h.EndAt))
 }
 
 func (r *EventRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Event, error) {
@@ -66,13 +69,18 @@ func (r *EventRepository) Update(ctx context.Context, id uuid.UUID, req models.U
 			origin = COALESCE($9, origin),
 			country_code = CASE WHEN $10::boolean THEN $11 ELSE country_code END,
 			city = CASE WHEN $12::boolean THEN $13 ELSE city END,
-			start_at = COALESCE($14, start_at),
-			end_at = COALESCE($15, end_at)
+			track = COALESCE($14, track),
+			prize_pool = COALESCE($15, prize_pool),
+			prize_currency = COALESCE($16, prize_currency),
+			team_size_max = COALESCE($17, team_size_max),
+			start_at = COALESCE($18, start_at),
+			end_at = COALESCE($19, end_at)
 		WHERE id = $1
 		RETURNING `+eventColumns,
 		id, req.Title, req.Description, req.Organizer, req.WebsiteURL, req.Notes,
 		req.Kind, req.Format, req.Origin,
 		place.CountrySet, place.CountryCode, place.CitySet, place.City,
+		req.Track, req.PrizePool, req.PrizeCurrency, req.TeamSizeMax,
 		req.StartAt, req.EndAt))
 }
 

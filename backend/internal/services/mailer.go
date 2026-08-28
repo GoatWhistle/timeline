@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/locale"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/locale"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type EmailSender interface {

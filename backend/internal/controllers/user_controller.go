@@ -3,9 +3,9 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/httpx"
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/middleware"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
+	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type UserController struct {
@@ -26,7 +26,7 @@ func NewUserController(svc UserService, pageSize, pageMax int) *UserController {
 // @Security		CookieAuth
 // @Param			query		query		string	false	"Search string"
 // @Param			page		query		int		false	"Page number"	default(1)
-// @Param			page_size	query		int		false	"Page size"	default(50)
+// @Param			page_size	query		int		false	"Page size"		default(50)
 // @Success		200			{object}	models.UserPage
 // @Failure		403			{object}	models.ErrorResponse
 // @Router			/admin/users [get]

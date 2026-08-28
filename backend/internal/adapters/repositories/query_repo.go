@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type QueryRepository struct{ db *DB }
@@ -170,115 +170,6 @@ func (r *QueryRepository) NextStage(ctx context.Context, eventID uuid.UUID, now 
 		return &stage, nil
 	}
 	return nil, nil
-}
-
-func (r *QueryRepository) TimelineRows(ctx context.Context, filter models.TimelineFilter, forUserID *uuid.UUID,
-	now time.Time) ([]models.TimelineRow, error) {
-	conds := []string{
-		"h.start_at <= $2",
-		"h.end_at >= $1",
-	}
-	args := []any{filter.From, filter.To}
-
-	if forUserID != nil {
-		args = append(args, *forUserID)
-		conds = append(conds,
-			"h.published_at IS NOT NULL",
-			"h.archived_at IS NULL",
-			"EXISTS (SELECT 1 FROM event_participants p WHERE p.event_id = h.id AND p.user_id = $"+
-				itoa(len(args))+" AND p.participation_status = 'ASSIGNED')")
-	} else {
-		if filter.ParticipantUser != nil {
-			args = append(args, *filter.ParticipantUser)
-			conds = append(conds,
-				"EXISTS (SELECT 1 FROM event_participants p WHERE p.event_id = h.id AND p.user_id = $"+
-					itoa(len(args))+" AND p.participation_status = 'ASSIGNED')")
-		}
-		if !filter.IncludeArchived {
-			conds = append(conds, "h.archived_at IS NULL")
-		}
-	}
-
-	roleSelect := "NULL::text"
-	if forUserID != nil {
-		roleSelect = `(SELECT p.team_role FROM event_participants p
-			WHERE p.event_id = h.id AND p.user_id = $` + itoa(len(args)) + ` LIMIT 1)`
-	}
-
-	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT h.id, h.title, h.start_at, h.end_at, h.published_at, h.archived_at,
-		       `+roleSelect+`,
-		       (SELECT r.deadline_at FROM registrations r WHERE r.event_id = h.id AND r.state = 'ACTIVE')
-		FROM events h
-		WHERE `+strings.Join(conds, " AND ")+`
-		ORDER BY h.start_at`, args...)
-	if err != nil {
-		return nil, mapError(err)
-	}
-	defer rows.Close()
-
-	result := make([]models.TimelineRow, 0, 32)
-	ids := make([]uuid.UUID, 0, 32)
-	for rows.Next() {
-		var (
-			row         models.TimelineRow
-			publishedAt *time.Time
-			archivedAt  *time.Time
-		)
-		if err := rows.Scan(&row.EventID, &row.Title, &row.StartAt, &row.EndAt, &publishedAt, &archivedAt,
-			&row.TeamRole, &row.RegistrationDeadline); err != nil {
-			return nil, mapError(err)
-		}
-		if publishedAt == nil && archivedAt == nil {
-			row.State = models.EventUnpublished
-		} else {
-			row.State = computeState(archivedAt, row.StartAt, row.EndAt, now)
-		}
-		row.Stages = []models.TimelineItem{}
-		result = append(result, row)
-		ids = append(ids, row.EventID)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, mapError(err)
-	}
-
-	stages, err := r.timelineStages(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-	for i := range result {
-		if items, ok := stages[result[i].EventID]; ok {
-			result[i].Stages = items
-		}
-	}
-	return result, nil
-}
-
-func (r *QueryRepository) timelineStages(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID][]models.TimelineItem, error) {
-	result := make(map[uuid.UUID][]models.TimelineItem, len(ids))
-	if len(ids) == 0 {
-		return result, nil
-	}
-	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT event_id, id, name, type, start_at, end_at FROM stages
-		WHERE event_id = ANY($1)
-		ORDER BY sort_order, start_at`, ids)
-	if err != nil {
-		return nil, mapError(err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var (
-			eventID uuid.UUID
-			item    models.TimelineItem
-		)
-		if err := rows.Scan(&eventID, &item.ID, &item.Name, &item.Type, &item.StartAt, &item.EndAt); err != nil {
-			return nil, mapError(err)
-		}
-		result[eventID] = append(result[eventID], item)
-	}
-	return result, mapError(rows.Err())
 }
 
 func (r *QueryRepository) Deadlines(ctx context.Context, overdue bool, within time.Duration,

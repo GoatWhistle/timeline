@@ -1,16 +1,17 @@
-# Контекст сборки образов — корень монорепозитория (deploy/*.Dockerfile).
-# Исключено всё, что не нужно сборке или не должно попасть в образ.
+# The image build context is the monorepo root (deploy/*.Dockerfile).
+# Everything that the build does not need or must not reach the image is
+# excluded.
 
 .git
 .github
 .run
 
-# Локальные секреты и переопределения: конфигурация передаётся окружением.
+# Local secrets and overrides: the configuration is passed through the environment.
 **/.env
 **/.env.local
 **/.env.*.local
 
-# Артефакты сборки и кэши — образы собирают их сами.
+# Build artifacts and caches - the images build them themselves.
 **/node_modules
 **/dist
 **/coverage

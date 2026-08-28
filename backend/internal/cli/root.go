@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/config"
+	"github.com/GoatWhistle/timeline/internal/config"
 )
 
 var Version = "0.8.0-dev"
@@ -25,9 +25,9 @@ func Execute() int {
 
 func newRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:           "event",
-		Short:         "Hackathon Tracker backend",
-		Long:          "Hackathon Tracker backend: API, background worker, migrations and operational procedures.",
+		Use:           "timeline",
+		Short:         "Timeline backend",
+		Long:          "Timeline backend: API, background worker, migrations and operational procedures.",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Version:       Version,

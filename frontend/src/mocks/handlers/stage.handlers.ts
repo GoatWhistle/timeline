@@ -1,6 +1,6 @@
 import { HttpResponse, http } from 'msw'
 import type { CreateStageRequest, StageResponse, UpdateStageRequest } from '@/shared/api/types.gen'
-import { events, nextId, nowIso, stages } from '../fixtures'
+import { events, nextId, nowIso, resolvePlace, stages } from '../fixtures'
 import { requireAdmin } from '../guards'
 import { API, errorResponse, notFound } from '../http'
 
@@ -24,6 +24,9 @@ export const stageHandlers = [
       ])
     }
 
+    const event = events.find((item) => item.id === eventId)
+    if (!event) return notFound()
+
     const created: StageResponse = {
       id: nextId(),
       event_id: eventId,
@@ -36,6 +39,12 @@ export const stageHandlers = [
       updated_at: nowIso(),
       ...(body.description ? { description: body.description } : {}),
       ...(body.url ? { url: body.url } : {}),
+      ...(body.format ? { format: body.format } : {}),
+      ...(body.country_code ? { country_code: body.country_code } : {}),
+      ...(body.city ? { city: body.city } : {}),
+      ...(body.venue ? { venue: body.venue } : {}),
+      ...(body.online_url ? { online_url: body.online_url } : {}),
+      place: resolvePlace(event, body),
     }
     stages.push(created)
     return HttpResponse.json(created, { status: 201 })

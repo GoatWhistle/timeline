@@ -8,7 +8,7 @@ export const registrations: RegistrationResponse[] = [
     event_id: events[0]!.id,
     url: 'https://example.com/ai-hack/register',
     deadline_at: at(9),
-    description: 'Регистрация на сайте организатора, нужен корпоративный email.',
+    description: 'Registration on the organiser site, a corporate email is required.',
     state: 'ACTIVE',
     schedule_version: 1,
     activation_version: 1,

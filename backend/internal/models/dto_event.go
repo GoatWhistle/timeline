@@ -7,17 +7,24 @@ import (
 )
 
 type EventResponse struct {
-	ID          uuid.UUID  `json:"id"`
-	Title       string     `json:"title" example:"National event"`
-	Description *string    `json:"description,omitempty"`
-	Organizer   *string    `json:"organizer,omitempty" example:"Organising committee"`
-	WebsiteURL  *string    `json:"website_url,omitempty" example:"https://example.com"`
-	Notes       *string    `json:"notes,omitempty"`
+	ID          uuid.UUID   `json:"id"`
+	Title       string      `json:"title" example:"National event"`
+	Description *string     `json:"description,omitempty"`
+	Organizer   *string     `json:"organizer,omitempty" example:"Organising committee"`
+	WebsiteURL  *string     `json:"website_url,omitempty" example:"https://example.com"`
+	Notes       *string     `json:"notes,omitempty"`
 	Kind        EventKind   `json:"kind" enums:"HACKATHON,MEETUP"`
 	Format      EventFormat `json:"format" enums:"ONLINE,OFFLINE,HYBRID"`
 	Origin      EventOrigin `json:"origin" enums:"RU,WORLD"`
-	CountryCode *string    `json:"country_code,omitempty" example:"RU"`
-	City        *string    `json:"city,omitempty" example:"Moscow"`
+	CountryCode *string     `json:"country_code,omitempty" example:"RU"`
+	City        *string     `json:"city,omitempty" example:"Moscow"`
+
+	EffectiveFormat EventFormat `json:"effective_format" enums:"ONLINE,OFFLINE,HYBRID"`
+	Track           *string     `json:"track,omitempty" example:"Smart city"`
+	PrizePool       *string     `json:"prize_pool,omitempty" example:"500000.00"`
+	PrizeCurrency   *string     `json:"prize_currency,omitempty" example:"RUB"`
+	TeamSizeMax     *int        `json:"team_size_max,omitempty" example:"5"`
+
 	StartAt     time.Time  `json:"start_at"`
 	EndAt       time.Time  `json:"end_at"`
 	State       EventState `json:"state" enums:"UNPUBLISHED,UPCOMING,ACTIVE,FINISHED,ARCHIVED"`
@@ -33,65 +40,94 @@ type EventPage struct {
 }
 
 type CreateEventRequest struct {
-	Title       string    `json:"title" example:"National event"`
-	Description *string   `json:"description,omitempty"`
-	Organizer   *string   `json:"organizer,omitempty"`
-	WebsiteURL  *string   `json:"website_url,omitempty" example:"https://example.com"`
-	Notes       *string   `json:"notes,omitempty"`
+	Title       string       `json:"title" example:"National event"`
+	Description *string      `json:"description,omitempty"`
+	Organizer   *string      `json:"organizer,omitempty"`
+	WebsiteURL  *string      `json:"website_url,omitempty" example:"https://example.com"`
+	Notes       *string      `json:"notes,omitempty"`
 	Kind        *EventKind   `json:"kind,omitempty" enums:"HACKATHON,MEETUP"`
 	Format      *EventFormat `json:"format,omitempty" enums:"ONLINE,OFFLINE,HYBRID"`
 	Origin      *EventOrigin `json:"origin,omitempty" enums:"RU,WORLD"`
-	CountryCode *string   `json:"country_code,omitempty" example:"RU"`
-	City        *string   `json:"city,omitempty" example:"Moscow"`
-	StartAt     time.Time `json:"start_at"`
-	EndAt       time.Time `json:"end_at"`
+	CountryCode *string      `json:"country_code,omitempty" example:"RU"`
+	City        *string      `json:"city,omitempty" example:"Moscow"`
+
+	Track         *string `json:"track,omitempty" example:"Smart city"`
+	PrizePool     *string `json:"prize_pool,omitempty" example:"500000.00"`
+	PrizeCurrency *string `json:"prize_currency,omitempty" example:"RUB"`
+	TeamSizeMax   *int    `json:"team_size_max,omitempty" example:"5"`
+
+	StartAt time.Time `json:"start_at"`
+	EndAt   time.Time `json:"end_at"`
 }
 
 type UpdateEventRequest struct {
-	Title       *string    `json:"title,omitempty"`
-	Description *string    `json:"description,omitempty"`
-	Organizer   *string    `json:"organizer,omitempty"`
-	WebsiteURL  *string    `json:"website_url,omitempty"`
-	Notes       *string    `json:"notes,omitempty"`
+	Title       *string      `json:"title,omitempty"`
+	Description *string      `json:"description,omitempty"`
+	Organizer   *string      `json:"organizer,omitempty"`
+	WebsiteURL  *string      `json:"website_url,omitempty"`
+	Notes       *string      `json:"notes,omitempty"`
 	Kind        *EventKind   `json:"kind,omitempty" enums:"HACKATHON,MEETUP"`
 	Format      *EventFormat `json:"format,omitempty" enums:"ONLINE,OFFLINE,HYBRID"`
 	Origin      *EventOrigin `json:"origin,omitempty" enums:"RU,WORLD"`
-	CountryCode *string    `json:"country_code,omitempty" example:"RU"`
-	City        *string    `json:"city,omitempty" example:"Moscow"`
-	StartAt     *time.Time `json:"start_at,omitempty"`
-	EndAt       *time.Time `json:"end_at,omitempty"`
+	CountryCode *string      `json:"country_code,omitempty" example:"RU"`
+	City        *string      `json:"city,omitempty" example:"Moscow"`
+
+	Track         *string `json:"track,omitempty" example:"Smart city"`
+	PrizePool     *string `json:"prize_pool,omitempty" example:"500000.00"`
+	PrizeCurrency *string `json:"prize_currency,omitempty" example:"RUB"`
+	TeamSizeMax   *int    `json:"team_size_max,omitempty" example:"5"`
+
+	StartAt *time.Time `json:"start_at,omitempty"`
+	EndAt   *time.Time `json:"end_at,omitempty"`
 }
 
 type StageResponse struct {
-	ID          uuid.UUID `json:"id"`
-	EventID     uuid.UUID `json:"event_id"`
-	Name        string    `json:"name" example:"Call for applications"`
-	Type        StageType `json:"type" enums:"REGISTRATION,SELECTION,PARTICIPATION,CHECKPOINT,SUBMISSION,DEMO,RESULTS,OTHER"`
-	StartAt     time.Time `json:"start_at"`
-	EndAt       time.Time `json:"end_at"`
-	Description *string   `json:"description,omitempty"`
-	URL         *string   `json:"url,omitempty" example:"https://example.com/stage"`
-	SortOrder   int       `json:"sort_order" example:"0"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          uuid.UUID    `json:"id"`
+	EventID     uuid.UUID    `json:"event_id"`
+	Name        string       `json:"name" example:"Call for applications"`
+	Type        StageType    `json:"type" enums:"REGISTRATION,SELECTION,PARTICIPATION,CHECKPOINT,SUBMISSION,DEMO,RESULTS,OTHER"`
+	StartAt     time.Time    `json:"start_at"`
+	EndAt       time.Time    `json:"end_at"`
+	Description *string      `json:"description,omitempty"`
+	URL         *string      `json:"url,omitempty" example:"https://example.com/stage"`
+	Format      *EventFormat `json:"format,omitempty" enums:"ONLINE,OFFLINE,HYBRID"`
+	CountryCode *string      `json:"country_code,omitempty" example:"RU"`
+	City        *string      `json:"city,omitempty" example:"Kazan"`
+	Venue       *string      `json:"venue,omitempty" example:"IT Park"`
+	OnlineURL   *string      `json:"online_url,omitempty" example:"https://example.com/stream"`
+	Place       Place        `json:"place"`
+	SortOrder   int          `json:"sort_order" example:"0"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
 type CreateStageRequest struct {
-	Name        string    `json:"name" example:"Call for applications"`
-	Type        StageType `json:"type" enums:"REGISTRATION,SELECTION,PARTICIPATION,CHECKPOINT,SUBMISSION,DEMO,RESULTS,OTHER"`
-	StartAt     time.Time `json:"start_at"`
-	EndAt       time.Time `json:"end_at"`
-	Description *string   `json:"description,omitempty"`
-	URL         *string   `json:"url,omitempty"`
-	SortOrder   *int      `json:"sort_order,omitempty"`
+	Name        string       `json:"name" example:"Call for applications"`
+	Type        StageType    `json:"type" enums:"REGISTRATION,SELECTION,PARTICIPATION,CHECKPOINT,SUBMISSION,DEMO,RESULTS,OTHER"`
+	StartAt     time.Time    `json:"start_at"`
+	EndAt       time.Time    `json:"end_at"`
+	Description *string      `json:"description,omitempty"`
+	URL         *string      `json:"url,omitempty"`
+	Format      *EventFormat `json:"format,omitempty" enums:"ONLINE,OFFLINE,HYBRID"`
+	CountryCode *string      `json:"country_code,omitempty" example:"RU"`
+	City        *string      `json:"city,omitempty" example:"Kazan"`
+	Venue       *string      `json:"venue,omitempty" example:"IT Park"`
+	OnlineURL   *string      `json:"online_url,omitempty" example:"https://example.com/stream"`
+	SortOrder   *int         `json:"sort_order,omitempty"`
 }
 
 type UpdateStageRequest struct {
-	Name        *string    `json:"name,omitempty"`
-	Type        *StageType `json:"type,omitempty" enums:"REGISTRATION,SELECTION,PARTICIPATION,CHECKPOINT,SUBMISSION,DEMO,RESULTS,OTHER"`
-	StartAt     *time.Time `json:"start_at,omitempty"`
-	EndAt       *time.Time `json:"end_at,omitempty"`
-	Description *string    `json:"description,omitempty"`
-	URL         *string    `json:"url,omitempty"`
-	SortOrder   *int       `json:"sort_order,omitempty"`
+	Name        *string      `json:"name,omitempty"`
+	Type        *StageType   `json:"type,omitempty" enums:"REGISTRATION,SELECTION,PARTICIPATION,CHECKPOINT,SUBMISSION,DEMO,RESULTS,OTHER"`
+	StartAt     *time.Time   `json:"start_at,omitempty"`
+	EndAt       *time.Time   `json:"end_at,omitempty"`
+	Description *string      `json:"description,omitempty"`
+	URL         *string      `json:"url,omitempty"`
+	Format      *EventFormat `json:"format,omitempty" enums:"ONLINE,OFFLINE,HYBRID"`
+	CountryCode *string      `json:"country_code,omitempty" example:"RU"`
+	City        *string      `json:"city,omitempty" example:"Kazan"`
+	Venue       *string      `json:"venue,omitempty" example:"IT Park"`
+	OnlineURL   *string      `json:"online_url,omitempty" example:"https://example.com/stream"`
+	ClearFormat bool         `json:"clear_format,omitempty" example:"false"`
+	SortOrder   *int         `json:"sort_order,omitempty"`
 }

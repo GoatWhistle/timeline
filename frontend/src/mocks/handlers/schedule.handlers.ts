@@ -1,10 +1,27 @@
 import { HttpResponse, http } from 'msw'
-import type { TimelineResponse, TimelineRow } from '@/shared/api/types.gen'
+import type {
+  EventResponse,
+  ScheduleResponse,
+  ScheduleRow,
+  StageResponse,
+} from '@/shared/api/types.gen'
 import { eventState, events, participants, registrations, stages } from '../fixtures'
 import { requireAdmin, requireUser } from '../guards'
 import { API } from '../http'
 
-function timelineRows(userId: string | null): TimelineRow[] {
+function deriveFormat(event: EventResponse, items: StageResponse[]): EventResponse['format'] {
+  let offline = event.format !== 'ONLINE'
+  let online = event.format !== 'OFFLINE'
+  for (const item of items) {
+    if (!item.format) continue
+    if (item.place.format === 'ONLINE') online = true
+    else offline = true
+  }
+  if (offline && online) return 'HYBRID'
+  return offline ? 'OFFLINE' : 'ONLINE'
+}
+
+function scheduleRows(userId: string | null): ScheduleRow[] {
   return events
     .filter((event) => Boolean(event.published_at))
     .filter((event) => {
@@ -22,22 +39,25 @@ function timelineRows(userId: string | null): TimelineRow[] {
         ? participants.find((item) => item.event_id === event.id && item.user.id === userId)
         : undefined
 
-      const row: TimelineRow = {
+      const eventStages = stages
+        .filter((item) => item.event_id === event.id)
+        .sort((a, b) => a.sort_order - b.sort_order)
+
+      const row: ScheduleRow = {
         event_id: event.id,
         title: event.title,
         start_at: event.start_at,
         end_at: event.end_at,
         state: eventState(event),
-        stages: stages
-          .filter((item) => item.event_id === event.id)
-          .sort((a, b) => a.sort_order - b.sort_order)
-          .map((item) => ({
-            id: item.id,
-            name: item.name,
-            type: item.type,
-            start_at: item.start_at,
-            end_at: item.end_at,
-          })),
+        effective_format: deriveFormat(event, eventStages),
+        stages: eventStages.map((item) => ({
+          id: item.id,
+          name: item.name,
+          type: item.type,
+          start_at: item.start_at,
+          end_at: item.end_at,
+          place: item.place,
+        })),
         ...(registration?.deadline_at ? { registration_deadline: registration.deadline_at } : {}),
         ...(participant?.team_role ? { team_role: participant.team_role } : {}),
       }
@@ -45,7 +65,7 @@ function timelineRows(userId: string | null): TimelineRow[] {
     })
 }
 
-function timelineRange(rows: TimelineRow[], request: Request) {
+function scheduleRange(rows: ScheduleRow[], request: Request) {
   const url = new URL(request.url)
   const fromParam = url.searchParams.get('from')
   const toParam = url.searchParams.get('to')
@@ -60,15 +80,15 @@ function timelineRange(rows: TimelineRow[], request: Request) {
 }
 
 export const scheduleHandlers = [
-  http.get(`${API}/me/timeline`, ({ request }) => {
+  http.get(`${API}/me/schedule`, ({ request }) => {
     const { user, deny } = requireUser()
     if (deny) return deny
-    const rows = timelineRows(user.id).filter((row) => row.state !== 'ARCHIVED')
-    const response: TimelineResponse = { range: timelineRange(rows, request), rows }
+    const rows = scheduleRows(user.id).filter((row) => row.state !== 'ARCHIVED')
+    const response: ScheduleResponse = { range: scheduleRange(rows, request), rows }
     return HttpResponse.json(response)
   }),
 
-  http.get(`${API}/admin/timeline`, ({ request }) => {
+  http.get(`${API}/admin/schedule`, ({ request }) => {
     const { deny } = requireAdmin()
     if (deny) return deny
 
@@ -77,11 +97,11 @@ export const scheduleHandlers = [
     const stateFilter = url.searchParams.get('state')
     const participantId = url.searchParams.get('participant_user_id')
 
-    const rows = timelineRows(participantId)
+    const rows = scheduleRows(participantId)
       .filter((row) => (includeArchived ? true : row.state !== 'ARCHIVED'))
       .filter((row) => (stateFilter ? row.state === stateFilter : true))
 
-    const response: TimelineResponse = { range: timelineRange(rows, request), rows }
+    const response: ScheduleResponse = { range: scheduleRange(rows, request), rows }
     return HttpResponse.json(response)
   }),
 ]

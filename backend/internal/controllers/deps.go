@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type AuthService interface {
@@ -55,9 +55,9 @@ type EventService interface {
 }
 
 type StageService interface {
-	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.Stage, error)
-	Create(ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateStageRequest) (*models.Stage, error)
-	Update(ctx context.Context, actor models.Actor, id uuid.UUID, req models.UpdateStageRequest) (*models.Stage, error)
+	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.Stage, *models.Event, error)
+	Create(ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateStageRequest) (*models.Stage, *models.Event, error)
+	Update(ctx context.Context, actor models.Actor, id uuid.UUID, req models.UpdateStageRequest) (*models.Stage, *models.Event, error)
 	Delete(ctx context.Context, actor models.Actor, id uuid.UUID) error
 }
 
@@ -100,8 +100,8 @@ type RuleService interface {
 type QueryService interface {
 	MyEvents(ctx context.Context, actor models.Actor, filter models.MyEventFilter, page models.Page) ([]models.MyEventItem, int64, error)
 	EventCard(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*models.EventCard, error)
-	MyTimeline(ctx context.Context, actor models.Actor, filter models.TimelineFilter) (*models.TimelineResponse, error)
-	AdminTimeline(ctx context.Context, actor models.Actor, filter models.TimelineFilter) (*models.TimelineResponse, error)
+	MySchedule(ctx context.Context, actor models.Actor, filter models.ScheduleFilter) (*models.ScheduleResponse, error)
+	AdminSchedule(ctx context.Context, actor models.Actor, filter models.ScheduleFilter) (*models.ScheduleResponse, error)
 	Upcoming(ctx context.Context, actor models.Actor, within time.Duration, page models.Page) ([]models.DeadlineItem, int64, error)
 	Overdue(ctx context.Context, actor models.Actor, page models.Page) ([]models.DeadlineItem, int64, error)
 }

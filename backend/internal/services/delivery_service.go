@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/adapters/repositories"
-	"github.com/kaifarikman/hackathon-os-backend/internal/config"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/config"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type DeliveryService struct {

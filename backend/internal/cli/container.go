@@ -3,12 +3,12 @@ package cli
 import (
 	"context"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/adapters/email"
-	"github.com/kaifarikman/hackathon-os-backend/internal/adapters/ratelimit"
-	"github.com/kaifarikman/hackathon-os-backend/internal/adapters/repositories"
-	"github.com/kaifarikman/hackathon-os-backend/internal/adapters/telegram"
-	"github.com/kaifarikman/hackathon-os-backend/internal/config"
-	"github.com/kaifarikman/hackathon-os-backend/internal/services"
+	"github.com/GoatWhistle/timeline/internal/adapters/email"
+	"github.com/GoatWhistle/timeline/internal/adapters/ratelimit"
+	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
+	"github.com/GoatWhistle/timeline/internal/config"
+	"github.com/GoatWhistle/timeline/internal/services"
 )
 
 type container struct {

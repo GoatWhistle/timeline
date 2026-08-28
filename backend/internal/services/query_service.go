@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/adapters/repositories"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type QueryService struct {
@@ -75,13 +75,13 @@ func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
 	}
 
 	card := &models.EventCard{
-		Event:     eventView(event, now),
+		Event:     eventView(event, stages, now),
 		TeamRole:  participant.TeamRole,
 		Stages:    make([]models.StageResponse, 0, len(stages)),
 		NextStage: nextStage,
 	}
 	for i := range stages {
-		card.Stages = append(card.Stages, stageView(&stages[i]))
+		card.Stages = append(card.Stages, stageView(&stages[i], event))
 	}
 
 	registration, err := s.registrations.GetByEvent(ctx, eventID)
@@ -116,32 +116,32 @@ func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
 	return card, nil
 }
 
-func (s *QueryService) MyTimeline(ctx context.Context, actor models.Actor,
-	filter models.TimelineFilter) (*models.TimelineResponse, error) {
+func (s *QueryService) MySchedule(ctx context.Context, actor models.Actor,
+	filter models.ScheduleFilter) (*models.ScheduleResponse, error) {
 	if actor.IsSystem() {
 		return nil, models.NewUnauthorized("authentication is required")
 	}
 	userID := actor.UserID
-	rows, err := s.queries.TimelineRows(ctx, filter, &userID, s.now())
+	rows, err := s.queries.ScheduleRows(ctx, filter, &userID, s.now())
 	if err != nil {
 		return nil, err
 	}
-	return &models.TimelineResponse{
+	return &models.ScheduleResponse{
 		Range: models.TimeRange{From: filter.From, To: filter.To},
 		Rows:  rows,
 	}, nil
 }
 
-func (s *QueryService) AdminTimeline(ctx context.Context, actor models.Actor,
-	filter models.TimelineFilter) (*models.TimelineResponse, error) {
+func (s *QueryService) AdminSchedule(ctx context.Context, actor models.Actor,
+	filter models.ScheduleFilter) (*models.ScheduleResponse, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
-	rows, err := s.queries.TimelineRows(ctx, filter, nil, s.now())
+	rows, err := s.queries.ScheduleRows(ctx, filter, nil, s.now())
 	if err != nil {
 		return nil, err
 	}
-	return &models.TimelineResponse{
+	return &models.ScheduleResponse{
 		Range: models.TimeRange{From: filter.From, To: filter.To},
 		Rows:  rows,
 	}, nil
@@ -163,24 +163,34 @@ func (s *QueryService) Overdue(ctx context.Context, actor models.Actor,
 	return s.queries.Deadlines(ctx, true, 0, page, s.now())
 }
 
-func eventView(h *models.Event, now time.Time) models.EventResponse {
+func eventView(h *models.Event, stages []models.Stage, now time.Time) models.EventResponse {
 	return models.EventResponse{
-		ID:          h.ID,
-		Title:       h.Title,
-		Description: h.Description,
-		Organizer:   h.Organizer,
-		WebsiteURL:  h.WebsiteURL,
-		StartAt:     h.StartAt,
-		EndAt:       h.EndAt,
-		State:       h.State(now),
-		PublishedAt: h.PublishedAt,
-		ArchivedAt:  h.ArchivedAt,
-		CreatedAt:   h.CreatedAt,
-		UpdatedAt:   h.UpdatedAt,
+		ID:              h.ID,
+		Title:           h.Title,
+		Description:     h.Description,
+		Organizer:       h.Organizer,
+		WebsiteURL:      h.WebsiteURL,
+		Kind:            h.Kind,
+		Format:          h.Format,
+		Origin:          h.Origin,
+		CountryCode:     h.CountryCode,
+		City:            h.City,
+		EffectiveFormat: models.DeriveEventFormat(h, stages),
+		Track:           h.Track,
+		PrizePool:       h.PrizePool,
+		PrizeCurrency:   h.PrizeCurrency,
+		TeamSizeMax:     h.TeamSizeMax,
+		StartAt:         h.StartAt,
+		EndAt:           h.EndAt,
+		State:           h.State(now),
+		PublishedAt:     h.PublishedAt,
+		ArchivedAt:      h.ArchivedAt,
+		CreatedAt:       h.CreatedAt,
+		UpdatedAt:       h.UpdatedAt,
 	}
 }
 
-func stageView(s *models.Stage) models.StageResponse {
+func stageView(s *models.Stage, event *models.Event) models.StageResponse {
 	return models.StageResponse{
 		ID:          s.ID,
 		EventID:     s.EventID,
@@ -190,6 +200,12 @@ func stageView(s *models.Stage) models.StageResponse {
 		EndAt:       s.EndAt,
 		Description: s.Description,
 		URL:         s.URL,
+		Format:      s.Format,
+		CountryCode: s.CountryCode,
+		City:        s.City,
+		Venue:       s.Venue,
+		OnlineURL:   s.OnlineURL,
+		Place:       s.ResolvePlace(event),
 		SortOrder:   s.SortOrder,
 		CreatedAt:   s.CreatedAt,
 		UpdatedAt:   s.UpdatedAt,

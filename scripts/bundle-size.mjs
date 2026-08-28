@@ -1,9 +1,10 @@
-// Замер размера production-сборки фронтенда (задача 16 плана рефакторинга).
-// Базовый уровень нужен правилу «рост не больше десятой»: без него сравнивать
-// не с чем. Результат пишется в docs/baselines/bundle-size.json.
+// Measurement of the frontend production bundle size (task 16 of the
+// refactoring plan). The baseline is needed by the "growth no more than a tenth"
+// rule: without it there is nothing to compare against. The result is written to
+// docs/baselines/bundle-size.json.
 //
-//   node scripts/bundle-size.mjs           сравнить с базовым уровнем
-//   node scripts/bundle-size.mjs --update  перезаписать базовый уровень
+//   node scripts/bundle-size.mjs           compare against the baseline
+//   node scripts/bundle-size.mjs --update  rewrite the baseline
 
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative, sep } from 'node:path'
@@ -16,7 +17,7 @@ const baselinePath = join(root, 'docs', 'baselines', 'bundle-size.json')
 const growthLimit = 1.1
 
 if (!existsSync(dist)) {
-  console.error('нет frontend/dist, выполните: make build')
+  console.error('no frontend/dist, run: make build')
   process.exit(1)
 }
 
@@ -45,8 +46,8 @@ const report = { measuredAt: new Date().toISOString().slice(0, 10), growthLimit,
 
 if (process.argv.includes('--update') || !existsSync(baselinePath)) {
   writeFileSync(baselinePath, `${JSON.stringify(report, null, 2)}\n`)
-  console.log(`базовый уровень записан: ${relative(root, baselinePath)}`)
-  console.log(`итого gzip ${total.gzip} Б, без сжатия ${total.bytes} Б`)
+  console.log(`baseline written: ${relative(root, baselinePath)}`)
+  console.log(`total gzip ${total.gzip} B, uncompressed ${total.bytes} B`)
   process.exit(0)
 }
 
@@ -54,10 +55,10 @@ const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'))
 const allowed = Math.round(baseline.total.gzip * (baseline.growthLimit ?? growthLimit))
 
 console.log(
-  `сборка: gzip ${total.gzip} Б, базовый уровень ${baseline.total.gzip} Б, предел ${allowed} Б`,
+  `bundle: gzip ${total.gzip} B, baseline ${baseline.total.gzip} B, limit ${allowed} B`,
 )
 
 if (total.gzip > allowed) {
-  console.error('размер сборки вырос больше чем на десятую от базового уровня')
+  console.error('bundle size grew by more than a tenth over the baseline')
   process.exit(1)
 }

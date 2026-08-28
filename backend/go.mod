@@ -1,4 +1,4 @@
-module github.com/kaifarikman/hackathon-os-backend
+module github.com/GoatWhistle/timeline
 
 go 1.25.0
 

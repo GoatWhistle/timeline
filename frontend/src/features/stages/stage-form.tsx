@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { STAGE_TYPE_KEY, STAGE_TYPES } from '@/entities/stage/stage.labels'
-import type { StageResponse, StageType } from '@/shared/api/types.gen'
+import type { EventFormat, StageResponse, StageType } from '@/shared/api/types.gen'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
@@ -16,6 +16,7 @@ import {
 } from '@/shared/ui/forms/select'
 import { Textarea } from '@/shared/ui/forms/textarea'
 import { Button } from '@/shared/ui/primitives/button'
+import { INHERIT, STAGE_FORMATS, StagePlaceFields } from './stage-place-fields'
 
 function toLocalInput(iso: string | undefined): string {
   if (!iso) return ''
@@ -30,6 +31,16 @@ const schema = z
     start_at: z.string().min(1, 'event:form.startRequired'),
     end_at: z.string().min(1, 'event:form.endRequired'),
     sort_order: z.coerce.number().int().min(0),
+    format: z.enum([INHERIT, ...STAGE_FORMATS] as [string, ...string[]]),
+    country_code: z.string().optional(),
+    city: z.string().optional(),
+    venue: z.string().optional(),
+    online_url: z
+      .string()
+      .optional()
+      .refine((value) => !value || value.startsWith('https://'), {
+        message: 'event:form.urlHttps',
+      }),
     description: z.string().optional(),
     url: z
       .string()
@@ -53,6 +64,12 @@ export type StagePayload = {
   sort_order: number
   description?: string
   url?: string
+  format?: EventFormat
+  clear_format?: boolean
+  country_code?: string
+  city?: string
+  venue?: string
+  online_url?: string
 }
 
 export function StageForm({
@@ -82,6 +99,11 @@ export function StageForm({
       start_at: toLocalInput(stage?.start_at),
       end_at: toLocalInput(stage?.end_at),
       sort_order: stage?.sort_order ?? 0,
+      format: stage?.format ?? INHERIT,
+      country_code: stage?.country_code ?? '',
+      city: stage?.city ?? '',
+      venue: stage?.venue ?? '',
+      online_url: stage?.online_url ?? '',
       description: stage?.description ?? '',
       url: stage?.url ?? '',
     },
@@ -89,6 +111,7 @@ export function StageForm({
 
   const start = watch('start_at')
   const end = watch('end_at')
+  const format = watch('format')
 
   const outOfRange =
     eventRange &&
@@ -106,6 +129,13 @@ export function StageForm({
         sort_order: Number(values.sort_order),
         ...(values.description ? { description: values.description } : {}),
         ...(values.url ? { url: values.url } : {}),
+        ...(values.format === INHERIT
+          ? { clear_format: true }
+          : { format: values.format as EventFormat }),
+        ...(values.country_code ? { country_code: values.country_code } : {}),
+        ...(values.city ? { city: values.city } : {}),
+        ...(values.venue ? { venue: values.venue } : {}),
+        ...(values.online_url ? { online_url: values.online_url } : {}),
       })
     } catch (error) {
       applyServerErrors(error, setError, [
@@ -115,6 +145,11 @@ export function StageForm({
         'end_at',
         'description',
         'url',
+        'format',
+        'country_code',
+        'city',
+        'venue',
+        'online_url',
       ])
     }
   }
@@ -175,6 +210,8 @@ export function StageForm({
       >
         <Input id="stage-url" {...register('url')} />
       </Field>
+
+      <StagePlaceFields control={control} register={register} errors={errors} format={format} />
 
       <Field
         label={t('stages.formDescription')}

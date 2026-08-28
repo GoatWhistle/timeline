@@ -8,10 +8,10 @@
   },
   "nav": {
     "myEvents": "My events",
-    "schedule": "Timeline",
+    "schedule": "Schedule",
     "profile": "Profile",
     "adminEvents": "Events",
-    "adminSchedule": "Timeline",
+    "adminSchedule": "Schedule",
     "adminDeadlines": "Deadlines",
     "adminUsers": "Users",
     "adminInvites": "Invites",
@@ -219,7 +219,7 @@
     "emailSentHint": "The address changes only after confirming via the link in the email"
   },
   "schedule": {
-    "title": "Timeline",
+    "title": "Schedule",
     "adminDescription": "All published events",
     "myDescription": "Assigned published events",
     "stateAria": "State",
@@ -230,7 +230,7 @@
     "emptyTitle": "No events found",
     "emptyHint": "Change the filters",
     "myEmpty": "You have no assigned events yet",
-    "zoomLegend": "Timeline zoom",
+    "zoomLegend": "Schedule zoom",
     "month": "Month",
     "week": "Week",
     "columnEvent": "Event",

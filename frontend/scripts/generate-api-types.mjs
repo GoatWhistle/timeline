@@ -12,9 +12,9 @@ const OUT_ALIASES = resolve(root, 'src/shared/api/types.gen.ts')
 const OUT_SPEC = resolve(root, 'src/shared/api/openapi.gen.json')
 
 /**
- * Поля, которые по ТЗ действительно могут отсутствовать в ответе.
- * Всё остальное считается обязательным: контракт не проставляет `required`,
- * из-за чего без этой правки каждое поле стало бы optional.
+ * Fields that per the specification really may be absent from the response.
+ * Everything else is treated as required: the contract does not set `required`,
+ * which without this patch would make every field optional.
  */
 const OPTIONAL = {
   'models.AuditResponse': ['actor_user_id', 'actor_email', 'before', 'after'],
@@ -29,7 +29,26 @@ const OPTIONAL = {
     'notes',
     'published_at',
     'archived_at',
+    'country_code',
+    'city',
+    'track',
+    'prize_pool',
+    'prize_currency',
+    'team_size_max',
   ],
+  'models.CatalogEvent': [
+    'description',
+    'organizer',
+    'website_url',
+    'country_code',
+    'city',
+    'track',
+    'prize_pool',
+    'prize_currency',
+    'team_size_max',
+  ],
+  'models.CatalogPlace': [],
+  'models.Place': ['country_code', 'city', 'venue', 'online_url'],
   'models.InvitePreview': ['email', 'expires_at'],
   'models.InviteResponse': ['accepted_at', 'revoked_at'],
   'models.MeResponse': ['pending_email', 'telegram_username', 'preferred_channel'],
@@ -46,12 +65,20 @@ const OPTIONAL = {
   'models.RegistrationResponse': ['description', 'deadline_at'],
   'models.RegistrationStatusResponse': ['last_changed_by_user_id', 'note', 'registered_at'],
   'models.RegistrationStatusShort': ['note', 'registered_at'],
-  'models.StageResponse': ['description', 'url'],
-  'models.TimelineRow': ['registration_deadline', 'team_role'],
+  'models.StageResponse': [
+    'description',
+    'url',
+    'format',
+    'country_code',
+    'city',
+    'venue',
+    'online_url',
+  ],
+  'models.ScheduleRow': ['registration_deadline', 'team_role'],
   'models.WorkerHeartbeatResponse': ['scheduler_last_run_at', 'worker_last_run_at'],
 }
 
-/** Имена полей, которые по соглашениям API являются моментом времени RFC 3339. */
+/** Field names that per the API conventions are an RFC 3339 instant. */
 const DATE_TIME_FIELDS = new Set(['time', 'from', 'to', 'registration_deadline'])
 const isDateTime = (name) => name.endsWith('_at') || DATE_TIME_FIELDS.has(name)
 
@@ -63,13 +90,14 @@ function patchSchema(name, schema) {
   let enums = 0
 
   for (const [prop, value] of Object.entries(props)) {
-    // Контракт не размечает время: без format клиент получает голую строку.
+    // The contract does not mark up time: without format the client gets a bare string.
     if (isDateTime(prop) && value.type === 'string' && !value.format) {
       value.format = 'date-time'
       dates += 1
     }
-    // swaggo дублирует enum рядом с $ref; сворачиваем в чистую ссылку,
-    // иначе openapi-typescript выдаёт пересечение типов вместо объединения.
+    // swaggo duplicates the enum next to $ref; collapse it into a plain
+    // reference, otherwise openapi-typescript emits an intersection of types
+    // instead of a union.
     if (Array.isArray(value.allOf) && value.allOf.length === 1 && value.allOf[0].$ref) {
       const ref = value.allOf[0].$ref
       const description = value.description
@@ -80,7 +108,7 @@ function patchSchema(name, schema) {
     }
   }
 
-  // Тела запросов остаются частичными: PATCH по смыслу присылает подмножество полей.
+  // Request bodies stay partial: a PATCH by its meaning sends a subset of fields.
   if (name.endsWith('Request') || schema.required) return { required: 0, dates, enums }
 
   const optional = new Set(OPTIONAL[name] ?? [])
@@ -123,7 +151,7 @@ const outputs = []
 const schemaContent = banner + astToString(ast)
 outputs.push([OUT_SCHEMA, schemaContent])
 
-// Псевдонимы без префикса `models.`: components['schemas']['models.MeResponse'] → MeResponse.
+// Aliases without the `models.` prefix: components['schemas']['models.MeResponse'] -> MeResponse.
 const aliases = Object.keys(schemas)
   .filter((name) => name.startsWith('models.'))
   .map((name) => [name.slice('models.'.length), name])
@@ -143,11 +171,11 @@ outputs.push([
   ].join('\n'),
 ])
 
-openapi['x-generated-by'] = 'frontend/scripts/generate-api-types.mjs — не редактировать вручную'
+openapi['x-generated-by'] = 'frontend/scripts/generate-api-types.mjs - do not edit by hand'
 outputs.push([OUT_SPEC, `${JSON.stringify(openapi, null, 2)}\n`])
 
-// --check не пишет файлы, а сравнивает: так CI ловит контракт, изменённый
-// backend-ом без перегенерации типов фронтенда.
+// --check does not write files but compares: this is how CI catches a contract
+// changed by the backend without regenerating the frontend types.
 if (CHECK_ONLY) {
   const stale = outputs
     .filter(([file, content]) => !existsSync(file) || readFileSync(file, 'utf8') !== content)
@@ -156,14 +184,14 @@ if (CHECK_ONLY) {
   if (stale.length > 0) {
     console.error(
       [
-        'Сгенерированные типы устарели относительно docs/swagger.json:',
+        'Generated types are out of date relative to docs/swagger.json:',
         ...stale.map((file) => `  ${file}`),
-        'Выполните: npm run api:types',
+        'Run: npm run api:types',
       ].join('\n'),
     )
     process.exit(1)
   }
-  console.log('Типы соответствуют контракту docs/swagger.json')
+  console.log('Types match the docs/swagger.json contract')
   process.exit(0)
 }
 
@@ -174,13 +202,13 @@ for (const [file, content] of outputs) {
 
 console.log(
   [
-    `схем в контракте: ${Object.keys(schemas).length}`,
-    `изменено схем: ${totals.patched}`,
-    `проставлено required: ${totals.required}`,
-    `проставлено format: date-time: ${totals.dates}`,
-    `свёрнуто enum+$ref: ${totals.enums}`,
-    `типы: ${OUT_SCHEMA.replace(`${root}/`, '')}`,
-    `псевдонимы: ${OUT_ALIASES.replace(`${root}/`, '')}`,
-    `контракт: ${OUT_SPEC.replace(`${root}/`, '')}`,
+    `schemas in the contract: ${Object.keys(schemas).length}`,
+    `schemas changed: ${totals.patched}`,
+    `required set: ${totals.required}`,
+    `format: date-time set: ${totals.dates}`,
+    `enum+$ref collapsed: ${totals.enums}`,
+    `types: ${OUT_SCHEMA.replace(`${root}/`, '')}`,
+    `aliases: ${OUT_ALIASES.replace(`${root}/`, '')}`,
+    `contract: ${OUT_SPEC.replace(`${root}/`, '')}`,
   ].join('\n'),
 )

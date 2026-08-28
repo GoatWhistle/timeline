@@ -3,9 +3,9 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/httpx"
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/middleware"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
+	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type AuditController struct {
@@ -30,7 +30,7 @@ func NewAuditController(svc AuditService, pageDef, pageMax int) *AuditController
 // @Param			from			query		string	false	"Start of the period, RFC3339"
 // @Param			to				query		string	false	"End of the period, RFC3339"
 // @Param			page			query		int		false	"Page number"	default(1)
-// @Param			page_size		query		int		false	"Page size"	default(50)
+// @Param			page_size		query		int		false	"Page size"		default(50)
 // @Success		200				{object}	models.AuditPage
 // @Failure		400				{object}	models.ErrorResponse
 // @Failure		403				{object}	models.ErrorResponse

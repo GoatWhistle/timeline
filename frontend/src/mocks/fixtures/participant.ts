@@ -16,44 +16,44 @@ const participantSeeds: ParticipantSeed[] = [
     id: 'c1000000-0000-4000-8000-000000000001',
     eventId: events[0]!.id,
     userId: users[1]!.id,
-    teamRole: 'Разработчик',
+    teamRole: 'Developer',
   },
   {
     id: 'c1000000-0000-4000-8000-000000000002',
     eventId: events[0]!.id,
     userId: users[2]!.id,
-    teamRole: 'Аналитик',
+    teamRole: 'Analyst',
   },
   {
     id: 'c1000000-0000-4000-8000-000000000003',
     eventId: events[0]!.id,
     userId: users[3]!.id,
-    teamRole: 'Дизайнер',
+    teamRole: 'Designer',
     status: 'REMOVED',
   },
   {
     id: 'c2000000-0000-4000-8000-000000000001',
     eventId: events[1]!.id,
     userId: users[1]!.id,
-    teamRole: 'Капитан команды',
+    teamRole: 'Team Captain',
   },
   {
     id: 'c2000000-0000-4000-8000-000000000002',
     eventId: events[1]!.id,
     userId: users[2]!.id,
-    teamRole: 'Разработчик',
+    teamRole: 'Developer',
   },
   {
     id: 'c3000000-0000-4000-8000-000000000001',
     eventId: events[2]!.id,
     userId: users[1]!.id,
-    teamRole: 'Разработчик',
+    teamRole: 'Developer',
   },
 ]
 
 export const participants: ParticipantResponse[] = participantSeeds.map((seed) => {
   const owner = users.find((item) => item.id === seed.userId)
-  if (!owner) throw new Error('Мок: неизвестный пользователь участника')
+  if (!owner) throw new Error('Mock: unknown participant user')
   const removed = seed.status === 'REMOVED'
   return {
     id: seed.id,

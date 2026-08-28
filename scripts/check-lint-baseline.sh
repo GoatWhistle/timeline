@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Второй слой храповика golangci-lint (часть V.1 плана рефакторинга).
+# Second layer of the golangci-lint ratchet (part V.1 of the refactoring plan).
 #
-# Основной храповик — `--new-from-merge-base=origin/main` — проверяет только то,
-# что внесено самим изменением. У него есть дыра: при push в main база сравнения
-# пуста, и не проверяется ничего. Этот скрипт закрывает её счётчиком: общее
-# число замечаний не должно превышать базовый уровень.
+# The main ratchet - `--new-from-merge-base=origin/main` - checks only what the
+# change itself introduced. It has a hole: on a push to main the comparison base
+# is empty and nothing gets checked. This script closes it with a counter: the
+# total number of issues must not exceed the baseline.
 #
-# Падает, если замечаний стало больше. Если стало меньше — печатает новый
-# уровень: базовый уровень опускается вручную, чтобы уменьшение было осознанным
-# и попадало в обзор изменений.
+# Fails if the number of issues has grown. If it has dropped - prints the new
+# level: the baseline is lowered by hand, so that the decrease is deliberate and
+# shows up in the change review.
 
 set -euo pipefail
 
@@ -16,7 +16,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BASELINE="$ROOT/docs/baselines/lint.json"
 
 if [ ! -f "$BASELINE" ]; then
-  echo "нет базового уровня: $BASELINE" >&2
+  echo "no baseline: $BASELINE" >&2
   exit 1
 fi
 
@@ -26,15 +26,15 @@ cd "$ROOT/backend"
 actual="$(golangci-lint run --output.text.path=stdout ./... 2>/dev/null | grep -cE '^[^[:space:]].*:[0-9]+:[0-9]+:' || true)"
 
 if [ "$actual" -gt "$expected" ]; then
-  echo "замечаний golangci-lint: $actual, базовый уровень $expected" >&2
-  echo "долг вырос на $((actual - expected)); исправьте новые замечания" >&2
+  echo "golangci-lint issues: $actual, baseline $expected" >&2
+  echo "debt grew by $((actual - expected)); fix the new issues" >&2
   exit 1
 fi
 
 if [ "$actual" -lt "$expected" ]; then
-  echo "замечаний стало меньше: $actual против $expected"
-  echo "обновите \"total\" в docs/baselines/lint.json"
+  echo "fewer issues than before: $actual against $expected"
+  echo "update \"total\" in docs/baselines/lint.json"
   exit 0
 fi
 
-echo "golangci-lint: $actual замечаний, базовый уровень не превышен"
+echo "golangci-lint: $actual issues, baseline not exceeded"

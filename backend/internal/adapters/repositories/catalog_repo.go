@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type CatalogRepository struct{ db *DB }
@@ -15,7 +15,8 @@ type CatalogRepository struct{ db *DB }
 func NewCatalogRepository(db *DB) *CatalogRepository { return &CatalogRepository{db: db} }
 
 const catalogColumns = `e.id, e.title, e.description, e.organizer, e.website_url,
-	e.kind, e.format, e.origin, e.country_code, e.city, e.start_at, e.end_at,
+	e.kind, e.format, e.origin, e.country_code, e.city,
+	e.track, e.prize_pool, e.prize_currency, e.team_size_max, e.start_at, e.end_at,
 	(p.id IS NOT NULL) AS joined`
 
 const catalogFrom = `FROM events e
@@ -41,17 +42,72 @@ func (r *CatalogRepository) List(ctx context.Context, viewer uuid.UUID, filter m
 	defer rows.Close()
 
 	items := make([]models.CatalogEvent, 0, page.Limit())
+	events := make([]models.Event, 0, page.Limit())
+	ids := make([]uuid.UUID, 0, page.Limit())
 	for rows.Next() {
 		var c models.CatalogEvent
 		if err := rows.Scan(&c.ID, &c.Title, &c.Description, &c.Organizer, &c.WebsiteURL,
 			&c.Kind, &c.Format, &c.Origin, &c.CountryCode, &c.City,
+			&c.Track, &c.PrizePool, &c.PrizeCurrency, &c.TeamSizeMax,
 			&c.StartAt, &c.EndAt, &c.Joined); err != nil {
 			return nil, 0, mapError(err)
 		}
 		c.State = catalogState(c.StartAt, c.EndAt, now)
+		c.OfflineStages = []models.CatalogPlace{}
 		items = append(items, c)
+		events = append(events, models.Event{Format: c.Format, CountryCode: c.CountryCode, City: c.City})
+		ids = append(ids, c.ID)
 	}
-	return items, total, mapError(rows.Err())
+	if err := rows.Err(); err != nil {
+		return nil, 0, mapError(err)
+	}
+	if err := r.attachPlaces(ctx, items, events, ids); err != nil {
+		return nil, 0, err
+	}
+	return items, total, nil
+}
+
+func (r *CatalogRepository) attachPlaces(ctx context.Context, items []models.CatalogEvent,
+	events []models.Event, ids []uuid.UUID) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	rows, err := r.db.Q(ctx).Query(ctx, `
+		SELECT event_id, id, name, type, start_at, end_at,
+		       format, country_code, city, venue, online_url
+		FROM stages WHERE event_id = ANY($1)
+		ORDER BY sort_order, start_at`, ids)
+	if err != nil {
+		return mapError(err)
+	}
+	defer rows.Close()
+
+	byEvent := make(map[uuid.UUID][]models.Stage, len(ids))
+	for rows.Next() {
+		var stage models.Stage
+		if err := rows.Scan(&stage.EventID, &stage.ID, &stage.Name, &stage.Type,
+			&stage.StartAt, &stage.EndAt, &stage.Format, &stage.CountryCode,
+			&stage.City, &stage.Venue, &stage.OnlineURL); err != nil {
+			return mapError(err)
+		}
+		byEvent[stage.EventID] = append(byEvent[stage.EventID], stage)
+	}
+	if err := rows.Err(); err != nil {
+		return mapError(err)
+	}
+
+	for i := range items {
+		stages := byEvent[items[i].ID]
+		items[i].EffectiveFormat = models.DeriveEventFormat(&events[i], stages)
+		for _, stage := range models.OfflineStages(&events[i], stages) {
+			items[i].OfflineStages = append(items[i].OfflineStages, models.CatalogPlace{
+				ID: stage.ID, Name: stage.Name, Type: stage.Type,
+				StartAt: stage.StartAt, EndAt: stage.EndAt,
+				Place: stage.ResolvePlace(&events[i]),
+			})
+		}
+	}
+	return nil
 }
 
 func catalogState(start, end, now time.Time) models.EventState {
@@ -98,11 +154,20 @@ func appendCatalogTaxonomy(conds []string, args []any, filter models.CatalogFilt
 	}
 	if len(filter.Formats) > 0 {
 		values := make([]string, 0, len(filter.Formats))
+		offline := false
 		for _, f := range filter.Formats {
 			values = append(values, string(f))
+			if f.RequiresPlace() {
+				offline = true
+			}
 		}
 		args = append(args, values)
-		conds = append(conds, `e.format = ANY($`+itoa(len(args))+`)`)
+		cond := `e.format = ANY($` + itoa(len(args)) + `)`
+		if offline {
+			cond = `(` + cond + ` OR EXISTS (SELECT 1 FROM stages s
+				WHERE s.event_id = e.id AND s.format IN ('OFFLINE', 'HYBRID')))`
+		}
+		conds = append(conds, cond)
 	}
 	if len(filter.Kinds) > 0 {
 		values := make([]string, 0, len(filter.Kinds))

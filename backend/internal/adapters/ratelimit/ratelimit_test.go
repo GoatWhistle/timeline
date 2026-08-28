@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/adapters/ratelimit"
+	"github.com/GoatWhistle/timeline/internal/adapters/ratelimit"
 )
 
 func TestLimiterAllowsWithinWindow(t *testing.T) {

@@ -9,9 +9,9 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "https://github.com/kaifarikman/hackathon-os",
+        "termsOfService": "https://github.com/GoatWhistle/timeline",
         "contact": {
-            "name": "Hackathon Tracker team"
+            "name": "Timeline team"
         },
         "license": {
             "name": "MIT"
@@ -1970,6 +1970,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/schedule": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "All events with filters by state, participant and date range.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "queries"
+                ],
+                "summary": "Administrative schedule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start of the period, RFC3339",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End of the period, RFC3339",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma-separated state filter",
+                        "name": "state",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Filter by participant",
+                        "name": "participant_user_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include archived records",
+                        "name": "include_archived",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ScheduleResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/stages/{id}": {
             "delete": {
                 "security": [
@@ -2068,76 +2138,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/timeline": {
-            "get": {
-                "security": [
-                    {
-                        "CookieAuth": []
-                    }
-                ],
-                "description": "All events with filters by state, participant and date range.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "queries"
-                ],
-                "summary": "Administrative timeline",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Start of the period, RFC3339",
-                        "name": "from",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "End of the period, RFC3339",
-                        "name": "to",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Comma-separated state filter",
-                        "name": "state",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "Filter by participant",
-                        "name": "participant_user_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Include archived records",
-                        "name": "include_archived",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.TimelineResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -2758,6 +2758,127 @@ const docTemplate = `{
                 }
             }
         },
+        "/catalog": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Every published, non-archived event regardless of participation. The response\ncarries a dedicated payload that cannot include administrative notes.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "Event catalog",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search by title and organiser",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "RU",
+                            "WORLD"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated origin filter",
+                        "name": "origin",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "ONLINE",
+                            "OFFLINE",
+                            "HYBRID"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated format filter",
+                        "name": "format",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "HACKATHON",
+                            "MEETUP"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated kind filter",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "UPCOMING",
+                            "ACTIVE",
+                            "FINISHED"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated state filter",
+                        "name": "state",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Lower bound of the period",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Upper bound of the period",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CatalogPage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "too many catalog requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/events/{id}": {
             "get": {
                 "security": [
@@ -2804,6 +2925,77 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/join": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Self-signup: the user joins a published event and supplies their own team role.\nA meetup has no team role, so the field may be omitted.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "Join an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Own team role",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.JoinEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ParticipantSelfResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "the user already takes part in the event",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "too many join attempts",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -3252,6 +3444,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/schedule": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Only assigned, published, non-archived events. Each event is a separate row,\nstages are returned as intervals and the registration deadline as a separate marker.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "queries"
+                ],
+                "summary": "User schedule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start of the period, RFC3339",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End of the period, RFC3339",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ScheduleResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me/telegram": {
             "delete": {
                 "security": [
@@ -3302,57 +3545,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.TelegramLinkResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/me/timeline": {
-            "get": {
-                "security": [
-                    {
-                        "CookieAuth": []
-                    }
-                ],
-                "description": "Only assigned, published, non-archived events. Each event is a separate row,\nstages are returned as intervals and the registration deadline as a separate marker.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "queries"
-                ],
-                "summary": "User timeline",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Start of the period, RFC3339",
-                        "name": "from",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "End of the period, RFC3339",
-                        "name": "to",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.TimelineResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
@@ -3720,6 +3912,165 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CatalogEvent": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Moscow"
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "effective_format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
+                "id": {
+                    "type": "string"
+                },
+                "joined": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "kind": {
+                    "enum": [
+                        "HACKATHON",
+                        "MEETUP"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventKind"
+                        }
+                    ]
+                },
+                "offline_stages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CatalogPlace"
+                    }
+                },
+                "organizer": {
+                    "type": "string",
+                    "example": "Organising committee"
+                },
+                "origin": {
+                    "enum": [
+                        "RU",
+                        "WORLD"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventOrigin"
+                        }
+                    ]
+                },
+                "prize_currency": {
+                    "type": "string",
+                    "example": "RUB"
+                },
+                "prize_pool": {
+                    "type": "string",
+                    "example": "500000.00"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "state": {
+                    "enum": [
+                        "UPCOMING",
+                        "ACTIVE",
+                        "FINISHED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventState"
+                        }
+                    ]
+                },
+                "team_size_max": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "title": {
+                    "type": "string",
+                    "example": "National event"
+                },
+                "track": {
+                    "type": "string",
+                    "example": "Smart city"
+                },
+                "website_url": {
+                    "type": "string",
+                    "example": "https://example.com"
+                }
+            }
+        },
+        "models.CatalogPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CatalogEvent"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/models.PageMeta"
+                }
+            }
+        },
+        "models.CatalogPlace": {
+            "type": "object",
+            "properties": {
+                "end_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Final"
+                },
+                "place": {
+                    "$ref": "#/definitions/models.Place"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.StageType"
+                }
+            }
+        },
         "models.ChangeEmailRequest": {
             "type": "object",
             "properties": {
@@ -3786,11 +4137,42 @@ const docTemplate = `{
         "models.CreateEventRequest": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Moscow"
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
                 "description": {
                     "type": "string"
                 },
                 "end_at": {
                     "type": "string"
+                },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
+                "kind": {
+                    "enum": [
+                        "HACKATHON",
+                        "MEETUP"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventKind"
+                        }
+                    ]
                 },
                 "notes": {
                     "type": "string"
@@ -3798,12 +4180,39 @@ const docTemplate = `{
                 "organizer": {
                     "type": "string"
                 },
+                "origin": {
+                    "enum": [
+                        "RU",
+                        "WORLD"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventOrigin"
+                        }
+                    ]
+                },
+                "prize_currency": {
+                    "type": "string",
+                    "example": "RUB"
+                },
+                "prize_pool": {
+                    "type": "string",
+                    "example": "500000.00"
+                },
                 "start_at": {
                     "type": "string"
+                },
+                "team_size_max": {
+                    "type": "integer",
+                    "example": 5
                 },
                 "title": {
                     "type": "string",
                     "example": "National event"
+                },
+                "track": {
+                    "type": "string",
+                    "example": "Smart city"
                 },
                 "website_url": {
                     "type": "string",
@@ -3874,15 +4283,39 @@ const docTemplate = `{
         "models.CreateStageRequest": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Kazan"
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
                 "description": {
                     "type": "string"
                 },
                 "end_at": {
                     "type": "string"
                 },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
                 "name": {
                     "type": "string",
                     "example": "Call for applications"
+                },
+                "online_url": {
+                    "type": "string",
+                    "example": "https://example.com/stream"
                 },
                 "sort_order": {
                     "type": "integer"
@@ -3909,6 +4342,10 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string"
+                },
+                "venue": {
+                    "type": "string",
+                    "example": "IT Park"
                 }
             }
         },
@@ -4056,6 +4493,41 @@ const docTemplate = `{
                 }
             }
         },
+        "models.EventFormat": {
+            "type": "string",
+            "enum": [
+                "ONLINE",
+                "OFFLINE",
+                "HYBRID"
+            ],
+            "x-enum-varnames": [
+                "FormatOnline",
+                "FormatOffline",
+                "FormatHybrid"
+            ]
+        },
+        "models.EventKind": {
+            "type": "string",
+            "enum": [
+                "HACKATHON",
+                "MEETUP"
+            ],
+            "x-enum-varnames": [
+                "EventKindHackathon",
+                "EventKindMeetup"
+            ]
+        },
+        "models.EventOrigin": {
+            "type": "string",
+            "enum": [
+                "RU",
+                "WORLD"
+            ],
+            "x-enum-varnames": [
+                "OriginRU",
+                "OriginWorld"
+            ]
+        },
         "models.EventPage": {
             "type": "object",
             "properties": {
@@ -4076,17 +4548,60 @@ const docTemplate = `{
                 "archived_at": {
                     "type": "string"
                 },
+                "city": {
+                    "type": "string",
+                    "example": "Moscow"
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
                 "created_at": {
                     "type": "string"
                 },
                 "description": {
                     "type": "string"
                 },
+                "effective_format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
                 "end_at": {
                     "type": "string"
                 },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
                 "id": {
                     "type": "string"
+                },
+                "kind": {
+                    "enum": [
+                        "HACKATHON",
+                        "MEETUP"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventKind"
+                        }
+                    ]
                 },
                 "notes": {
                     "type": "string"
@@ -4094,6 +4609,25 @@ const docTemplate = `{
                 "organizer": {
                     "type": "string",
                     "example": "Organising committee"
+                },
+                "origin": {
+                    "enum": [
+                        "RU",
+                        "WORLD"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventOrigin"
+                        }
+                    ]
+                },
+                "prize_currency": {
+                    "type": "string",
+                    "example": "RUB"
+                },
+                "prize_pool": {
+                    "type": "string",
+                    "example": "500000.00"
                 },
                 "published_at": {
                     "type": "string"
@@ -4115,9 +4649,17 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "team_size_max": {
+                    "type": "integer",
+                    "example": 5
+                },
                 "title": {
                     "type": "string",
                     "example": "National event"
+                },
+                "track": {
+                    "type": "string",
+                    "example": "Smart city"
                 },
                 "updated_at": {
                     "type": "string"
@@ -4224,6 +4766,15 @@ const docTemplate = `{
                 },
                 "revoked_at": {
                     "type": "string"
+                }
+            }
+        },
+        "models.JoinEventRequest": {
+            "type": "object",
+            "properties": {
+                "team_role": {
+                    "type": "string",
+                    "example": "Backend developer"
                 }
             }
         },
@@ -4509,6 +5060,35 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ParticipantSelfResponse": {
+            "type": "object",
+            "properties": {
+                "assigned_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "participation_status": {
+                    "enum": [
+                        "ASSIGNED",
+                        "REMOVED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ParticipationStatus"
+                        }
+                    ]
+                },
+                "team_role": {
+                    "type": "string",
+                    "example": "Backend developer"
+                }
+            }
+        },
         "models.ParticipationStatus": {
             "type": "string",
             "enum": [
@@ -4519,6 +5099,43 @@ const docTemplate = `{
                 "ParticipationAssigned",
                 "ParticipationRemoved"
             ]
+        },
+        "models.Place": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Kazan"
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
+                "inherited": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "online_url": {
+                    "type": "string",
+                    "example": "https://example.com/stream"
+                },
+                "venue": {
+                    "type": "string",
+                    "example": "IT Park"
+                }
+            }
         },
         "models.PreviewResponse": {
             "type": "object",
@@ -4794,9 +5411,100 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ScheduleItem": {
+            "type": "object",
+            "properties": {
+                "end_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Call for applications"
+                },
+                "place": {
+                    "$ref": "#/definitions/models.Place"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.StageType"
+                }
+            }
+        },
+        "models.ScheduleResponse": {
+            "type": "object",
+            "properties": {
+                "range": {
+                    "$ref": "#/definitions/models.TimeRange"
+                },
+                "rows": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ScheduleRow"
+                    }
+                }
+            }
+        },
+        "models.ScheduleRow": {
+            "type": "object",
+            "properties": {
+                "effective_format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "registration_deadline": {
+                    "type": "string"
+                },
+                "stages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ScheduleItem"
+                    }
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "state": {
+                    "$ref": "#/definitions/models.EventState"
+                },
+                "team_role": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "National event"
+                }
+            }
+        },
         "models.StageResponse": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Kazan"
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -4809,12 +5517,31 @@ const docTemplate = `{
                 "event_id": {
                     "type": "string"
                 },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
                 "id": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string",
                     "example": "Call for applications"
+                },
+                "online_url": {
+                    "type": "string",
+                    "example": "https://example.com/stream"
+                },
+                "place": {
+                    "$ref": "#/definitions/models.Place"
                 },
                 "sort_order": {
                     "type": "integer",
@@ -4846,6 +5573,10 @@ const docTemplate = `{
                 "url": {
                     "type": "string",
                     "example": "https://example.com/stage"
+                },
+                "venue": {
+                    "type": "string",
+                    "example": "IT Park"
                 }
             }
         },
@@ -4898,7 +5629,7 @@ const docTemplate = `{
             "properties": {
                 "deep_link": {
                     "type": "string",
-                    "example": "https://t.me/hackathon_tracker_bot?start=abc123"
+                    "example": "https://t.me/timeline_bot?start=abc123"
                 },
                 "expires_at": {
                     "type": "string"
@@ -4916,74 +5647,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.TimelineItem": {
-            "type": "object",
-            "properties": {
-                "end_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Call for applications"
-                },
-                "start_at": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/models.StageType"
-                }
-            }
-        },
-        "models.TimelineResponse": {
-            "type": "object",
-            "properties": {
-                "range": {
-                    "$ref": "#/definitions/models.TimeRange"
-                },
-                "rows": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.TimelineRow"
-                    }
-                }
-            }
-        },
-        "models.TimelineRow": {
-            "type": "object",
-            "properties": {
-                "end_at": {
-                    "type": "string"
-                },
-                "event_id": {
-                    "type": "string"
-                },
-                "registration_deadline": {
-                    "type": "string"
-                },
-                "stages": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.TimelineItem"
-                    }
-                },
-                "start_at": {
-                    "type": "string"
-                },
-                "state": {
-                    "$ref": "#/definitions/models.EventState"
-                },
-                "team_role": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "National event"
-                }
-            }
-        },
         "models.TokenRequest": {
             "type": "object",
             "properties": {
@@ -4996,11 +5659,42 @@ const docTemplate = `{
         "models.UpdateEventRequest": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Moscow"
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
                 "description": {
                     "type": "string"
                 },
                 "end_at": {
                     "type": "string"
+                },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
+                "kind": {
+                    "enum": [
+                        "HACKATHON",
+                        "MEETUP"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventKind"
+                        }
+                    ]
                 },
                 "notes": {
                     "type": "string"
@@ -5008,11 +5702,38 @@ const docTemplate = `{
                 "organizer": {
                     "type": "string"
                 },
+                "origin": {
+                    "enum": [
+                        "RU",
+                        "WORLD"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventOrigin"
+                        }
+                    ]
+                },
+                "prize_currency": {
+                    "type": "string",
+                    "example": "RUB"
+                },
+                "prize_pool": {
+                    "type": "string",
+                    "example": "500000.00"
+                },
                 "start_at": {
                     "type": "string"
                 },
+                "team_size_max": {
+                    "type": "integer",
+                    "example": 5
+                },
                 "title": {
                     "type": "string"
+                },
+                "track": {
+                    "type": "string",
+                    "example": "Smart city"
                 },
                 "website_url": {
                     "type": "string"
@@ -5074,14 +5795,42 @@ const docTemplate = `{
         "models.UpdateStageRequest": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Kazan"
+                },
+                "clear_format": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
                 "description": {
                     "type": "string"
                 },
                 "end_at": {
                     "type": "string"
                 },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
                 "name": {
                     "type": "string"
+                },
+                "online_url": {
+                    "type": "string",
+                    "example": "https://example.com/stream"
                 },
                 "sort_order": {
                     "type": "integer"
@@ -5108,6 +5857,10 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string"
+                },
+                "venue": {
+                    "type": "string",
+                    "example": "IT Park"
                 }
             }
         },
@@ -5206,8 +5959,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"http", "https"},
-	Title:            "Hackathon Tracker API",
-	Description:      "Hackathon Tracker REST API. Implements technical specification v0.8:\naccounts and invites, events and stages, participant assignments,\nregistration with self-reported status, reminder rules and the audit log.\n\nThe system does not verify the external registration site: the status is self-reported\nby the user or set administratively.\n\nAuthentication is cookie-based: the access token lives 15 minutes, the refresh token\nrotates and lives 30 days. Every mutating request must send\na CSRF token in the X-CSRF-Token header; obtain one from GET /auth/csrf.\nAll timestamps are transferred in UTC using RFC 3339.",
+	Title:            "Timeline API",
+	Description:      "Timeline REST API. Implements technical specification v0.8:\naccounts and invites, events and stages, participant assignments,\nregistration with self-reported status, reminder rules and the audit log.\n\nThe system does not verify the external registration site: the status is self-reported\nby the user or set administratively.\n\nAuthentication is cookie-based: the access token lives 15 minutes, the refresh token\nrotates and lives 30 days. Every mutating request must send\na CSRF token in the X-CSRF-Token header; obtain one from GET /auth/csrf.\nAll timestamps are transferred in UTC using RFC 3339.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

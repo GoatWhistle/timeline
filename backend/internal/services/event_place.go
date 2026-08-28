@@ -3,7 +3,7 @@ package services
 import (
 	"strings"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type resolvedPlace struct {

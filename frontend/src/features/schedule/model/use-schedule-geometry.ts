@@ -4,7 +4,7 @@ import { enUS, ru } from 'date-fns/locale'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DEFAULT_LOCALE, isLocale } from '@/shared/i18n/locale'
-import { canvasWidth, MIN_BAR_SPAN, type TimelineScale } from './schedule-scale'
+import { canvasWidth, MIN_BAR_SPAN, type ScheduleScale } from './schedule-scale'
 
 const DATE_FNS_LOCALES = { ru, en: enUS }
 
@@ -19,7 +19,7 @@ export type ScheduleGeometry = {
 export function useScheduleGeometry(
   fromIso: string,
   toIso: string,
-  scale: TimelineScale,
+  scale: ScheduleScale,
 ): ScheduleGeometry {
   const { i18n } = useTranslation()
   const language = i18n.language?.split('-')[0]

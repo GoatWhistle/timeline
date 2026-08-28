@@ -27,10 +27,10 @@ describe('Contract compliance: reads', () => {
     assertMatchesContract('/me/events', 'get', 200, data)
   })
 
-  it('GET /me/timeline', async () => {
-    const { data, response } = await api.GET('/me/timeline', { params: { query: {} } })
+  it('GET /me/schedule', async () => {
+    const { data, response } = await api.GET('/me/schedule', { params: { query: {} } })
     expect(response.status).toBe(200)
-    assertMatchesContract('/me/timeline', 'get', 200, data)
+    assertMatchesContract('/me/schedule', 'get', 200, data)
   })
 
   it('GET /events/{id}', async () => {
@@ -97,12 +97,12 @@ describe('Contract compliance: reads', () => {
     assertMatchesContract('/admin/events/{id}/registration-statuses', 'get', 200, data)
   })
 
-  it('GET /admin/timeline', async () => {
-    const { data, response } = await api.GET('/admin/timeline', {
+  it('GET /admin/schedule', async () => {
+    const { data, response } = await api.GET('/admin/schedule', {
       params: { query: { include_archived: true } },
     })
     expect(response.status).toBe(200)
-    assertMatchesContract('/admin/timeline', 'get', 200, data)
+    assertMatchesContract('/admin/schedule', 'get', 200, data)
   })
 
   it('GET /admin/users', async () => {

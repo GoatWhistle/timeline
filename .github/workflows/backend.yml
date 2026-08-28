@@ -1,7 +1,7 @@
 name: Backend CI
 
-# Бэкенд живёт в подкаталоге монорепозитория, поэтому все шаги выполняются
-# из backend/, а запуск ограничен изменениями в нём и в самом workflow.
+# The backend lives in a monorepo subdirectory, so all steps run from backend/
+# and the trigger is limited to changes in it and in the workflow itself.
 on:
   push:
     branches: [main]
@@ -19,31 +19,31 @@ defaults:
 
 jobs:
   build:
-    name: Сборка и тесты
+    name: Build and tests
     runs-on: ubuntu-latest
 
     services:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: hackathon
-          POSTGRES_PASSWORD: hackathon
-          POSTGRES_DB: hackathon_test
+          POSTGRES_USER: timeline
+          POSTGRES_PASSWORD: timeline
+          POSTGRES_DB: timeline_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U hackathon"
+          --health-cmd "pg_isready -U timeline"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
 
     env:
-      DATABASE_URL: postgres://hackathon:hackathon@localhost:5432/hackathon_test?sslmode=disable
+      DATABASE_URL: postgres://timeline:timeline@localhost:5432/timeline_test?sslmode=disable
 
     steps:
       - uses: actions/checkout@v4
         with:
-          # --new-from-merge-base сравнивает с origin/main: нужна история.
+          # --new-from-merge-base compares against origin/main: history is needed.
           fetch-depth: 0
 
       - uses: actions/setup-go@v5
@@ -52,22 +52,22 @@ jobs:
           cache: true
           cache-dependency-path: backend/go.sum
 
-      - name: Проверка форматирования
+      - name: Formatting check
         run: |
           unformatted=$(gofmt -l $(find . -name '*.go' -not -path './docs/*'))
           if [ -n "$unformatted" ]; then
-            echo "Не отформатированы:"; echo "$unformatted"; exit 1
+            echo "Not formatted:"; echo "$unformatted"; exit 1
           fi
 
-      - name: Сборка
+      - name: Build
         run: go build ./...
 
-      - name: Статический анализ
+      - name: Static analysis
         run: go vet ./...
 
-      # Храповик на PR: замечание блокирует сборку, только если внесено самим
-      # изменением. Существующий долг не роняет CI, но и не растёт.
-      - name: golangci-lint (изменения PR)
+      # Ratchet on a PR: an issue blocks the build only if introduced by the
+      # change itself. The existing debt does not break CI, but does not grow.
+      - name: golangci-lint (PR changes)
         if: github.event_name == 'pull_request'
         uses: golangci/golangci-lint-action@v9
         with:
@@ -75,40 +75,41 @@ jobs:
           working-directory: backend
           args: --new-from-merge-base=origin/main --whole-files
 
-      # На push в main merge-base пуст и предыдущий шаг не проверил бы ничего.
-      # Второй слой: общее число замечаний против базового уровня из
-      # docs/baselines/lint.json. Долг не растёт даже при прямом push.
-      - name: Установка golangci-lint
+      # On a push to main the merge-base is empty and the previous step would
+      # check nothing. Second layer: the total number of issues against the
+      # baseline from docs/baselines/lint.json. The debt does not grow even on a
+      # direct push.
+      - name: Install golangci-lint
         if: github.event_name != 'pull_request'
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
             | sh -s -- -b "$(go env GOPATH)/bin" v2.6.0
 
-      - name: golangci-lint против базового уровня
+      - name: golangci-lint against the baseline
         if: github.event_name != 'pull_request'
         run: bash scripts/check-lint-baseline.sh
 
-      - name: Модульные тесты с покрытием
+      - name: Unit tests with coverage
         run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
 
-      - name: Итог покрытия
+      - name: Coverage summary
         run: |
           go tool cover -func=coverage.out | tail -1
           rm -f coverage.out
 
-      - name: Интеграционные тесты
+      - name: Integration tests
         run: go test -tags=integration -race -count=1 ./...
 
-      - name: Актуальность спецификации OpenAPI
+      - name: OpenAPI specification is up to date
         run: |
           go install github.com/swaggo/swag/cmd/swag@latest
           swag init -g internal/controllers/router.go -o docs --parseInternal --outputTypes go,json,yaml
           if ! git diff --quiet -- .; then
-            echo "Спецификация OpenAPI устарела: выполните make docs"; git diff --stat -- .; exit 1
+            echo "OpenAPI specification is out of date: run make docs"; git diff --stat -- .; exit 1
           fi
 
   image:
-    name: Публикация образа
+    name: Publish image
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest

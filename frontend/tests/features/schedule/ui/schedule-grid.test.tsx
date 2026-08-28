@@ -4,27 +4,27 @@ import { describe, expect, it } from 'vitest'
 import { STAGE_TYPE_COLOR } from '@/entities/stage/stage.labels'
 import { LANE_STEP, LANE_TOP, rowHeight } from '@/features/schedule/model/schedule-scale'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid'
-import type { TimelineResponse } from '@/shared/api/types.gen'
+import type { ScheduleResponse } from '@/shared/api/types.gen'
 import {
   deadlineName,
   eventStateText,
   overlappingStages,
   rowWith,
+  schedule,
   stageTypeText,
-  timeline,
   track,
 } from './schedule-fixtures'
 
 describe('ScheduleGrid', () => {
   it('renders one row per event', () => {
-    renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
-    expect(screen.getByRole('link', { name: 'Зимний хакатон' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Весенний митап' })).toBeInTheDocument()
+    renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
+    expect(screen.getByRole('link', { name: 'Winter Hackathon' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Spring Meetup' })).toBeInTheDocument()
   })
 
   it('links to the event page by default', () => {
-    renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
-    expect(screen.getByRole('link', { name: 'Зимний хакатон' })).toHaveAttribute(
+    renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
+    expect(screen.getByRole('link', { name: 'Winter Hackathon' })).toHaveAttribute(
       'href',
       '/events/e1',
     )
@@ -33,31 +33,31 @@ describe('ScheduleGrid', () => {
   it('respects the supplied href builder', () => {
     renderWithProviders(
       <ScheduleGrid
-        data={timeline}
+        data={schedule}
         scale="month"
         hrefBuilder={(row) => `/admin/events/${row.event_id}`}
       />,
     )
-    expect(screen.getByRole('link', { name: 'Весенний митап' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Spring Meetup' })).toHaveAttribute(
       'href',
       '/admin/events/e2',
     )
   })
 
   it('labels the state and the team role', () => {
-    renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
-    expect(screen.getByText(`${eventStateText('ACTIVE')} · Капитан`)).toBeInTheDocument()
+    renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
+    expect(screen.getByText(`${eventStateText('ACTIVE')} · Captain`)).toBeInTheDocument()
     expect(screen.getByText(eventStateText('UPCOMING'))).toBeInTheDocument()
   })
 
   it('draws a bar per stage with an accessible label', () => {
-    renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
-    expect(screen.getByRole('link', { name: /^Регистрация участников\./ })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /^Отбор заявок\./ })).toBeInTheDocument()
+    renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
+    expect(screen.getByRole('link', { name: /^Participant registration\./ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /^Application Review\./ })).toBeInTheDocument()
   })
 
   it('draws a stage as a range and a deadline as a point', () => {
-    const { container } = renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
+    const { container } = renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
     const bars = within(track(container)).getAllByRole('link')
     const deadline = screen.getByRole('button', { name: deadlineName })
 
@@ -69,19 +69,19 @@ describe('ScheduleGrid', () => {
   })
 
   it('draws the deadline mark only where one is set', () => {
-    renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
+    renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
     expect(screen.getAllByRole('button', { name: deadlineName })).toHaveLength(1)
   })
 
   it('gives the deadline mark an enlarged hit area', () => {
-    renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
+    renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
     const deadline = screen.getByRole('button', { name: deadlineName })
     expect(deadline.className).toContain('before:-left-[9px]')
     expect(deadline.className).toContain('before:-right-[9px]')
   })
 
   it('spreads overlapping stages across separate lanes', () => {
-    const { container } = renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
+    const { container } = renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
     const tops = within(track(container))
       .getAllByRole('link')
       .map((bar) => bar.style.top)
@@ -127,12 +127,12 @@ describe('ScheduleGrid', () => {
   })
 
   it('encodes the stage type with more than colour', () => {
-    const { container } = renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
-    const bar = within(track(container)).getByRole('link', { name: /Регистрация участников/ })
+    const { container } = renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
+    const bar = within(track(container)).getByRole('link', { name: /Participant registration/ })
 
     expect(bar.className).toContain(STAGE_TYPE_COLOR.REGISTRATION)
     expect(bar.querySelector('svg')).toBeInTheDocument()
-    expect(bar).toHaveTextContent('Регистрация участников')
+    expect(bar).toHaveTextContent('Participant registration')
     expect(bar).toHaveAccessibleName(expect.stringContaining(stageTypeText('REGISTRATION')))
   })
 
@@ -151,7 +151,7 @@ describe('ScheduleGrid', () => {
   })
 
   it('describes stages and deadlines with Radix tooltips, not the title attribute', () => {
-    const { container } = renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
+    const { container } = renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
     expect(container.querySelector('[title]')).toBeNull()
 
     const bar = within(track(container)).getAllByRole('link')[0]
@@ -163,27 +163,27 @@ describe('ScheduleGrid', () => {
   })
 
   it('builds month and week grids of different width', () => {
-    const month = renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
+    const month = renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
     const monthTicks = month.container.querySelectorAll('.leading-9').length
     month.unmount()
 
-    const week = renderWithProviders(<ScheduleGrid data={timeline} scale="week" />)
+    const week = renderWithProviders(<ScheduleGrid data={schedule} scale="week" />)
     const weekTicks = week.container.querySelectorAll('.leading-9').length
 
     expect(weekTicks).toBeGreaterThan(monthTicks)
   })
 
   it('pins the label column', () => {
-    const { container } = renderWithProviders(<ScheduleGrid data={timeline} scale="month" />)
-    const label = container.querySelector('[data-timeline-label]')
+    const { container } = renderWithProviders(<ScheduleGrid data={schedule} scale="month" />)
+    const label = container.querySelector('[data-schedule-label]')
     expect(label?.className).toContain('sticky')
     expect(label?.className).toContain('left-0')
   })
 
   it('survives an event without stages', () => {
-    const empty: TimelineResponse = { range: timeline.range, rows: [] }
+    const empty: ScheduleResponse = { range: schedule.range, rows: [] }
     const { container } = renderWithProviders(<ScheduleGrid data={empty} scale="month" />)
-    expect(container.querySelectorAll('[data-timeline-track]')).toHaveLength(0)
+    expect(container.querySelectorAll('[data-schedule-track]')).toHaveLength(0)
   })
 
   it('keeps a row without stages at the single-lane height', () => {

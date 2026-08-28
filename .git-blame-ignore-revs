@@ -1,0 +1,18 @@
+# Commits ignored by `git blame`.
+#
+# Repository-wide mechanical changes go here: module path renames, symbol
+# renames, formatting sweeps and language sweeps. They touch hundreds of files
+# without changing behaviour, so leaving them in `git blame` hides the commit
+# that actually introduced a line.
+#
+# Enable locally (GitHub applies this file automatically):
+#
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# One full 40-character hash per line, with a comment naming the change. The
+# hash is only known after the rename is committed, so entries are added in a
+# follow-up commit.
+#
+# Stage 0 "System name": the Go module path moved to
+# github.com/GoatWhistle/timeline, the Timeline screen was renamed to Schedule,
+# and the product was renamed to Timeline.

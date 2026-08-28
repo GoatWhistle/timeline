@@ -3,9 +3,9 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/httpx"
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/middleware"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
+	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type ProfileController struct {

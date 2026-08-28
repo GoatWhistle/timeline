@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/testsupport"
+	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
 func TestDeadlineNotAfterEventEnd(t *testing.T) {

@@ -1,14 +1,14 @@
 import { renderHook } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { MIN_BAR_SPAN, type TimelineScale } from '@/features/schedule/model/schedule-scale'
+import { MIN_BAR_SPAN, type ScheduleScale } from '@/features/schedule/model/schedule-scale'
 import { useScheduleGeometry } from '@/features/schedule/model/use-schedule-geometry'
 
 const FROM = '2026-01-01T00:00:00Z'
 const TO = '2026-04-01T00:00:00Z'
 
-function renderGeometry(from = FROM, to = TO, scale: TimelineScale = 'month') {
+function renderGeometry(from = FROM, to = TO, scale: ScheduleScale = 'month') {
   return renderHook(
-    ({ fromIso, toIso, tick }: { fromIso: string; toIso: string; tick: TimelineScale }) =>
+    ({ fromIso, toIso, tick }: { fromIso: string; toIso: string; tick: ScheduleScale }) =>
       useScheduleGeometry(fromIso, toIso, tick),
     { initialProps: { fromIso: from, toIso: to, tick: scale } },
   )

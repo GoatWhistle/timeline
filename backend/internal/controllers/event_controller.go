@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/httpx"
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/middleware"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
+	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type EventController struct {
@@ -30,7 +30,7 @@ func NewEventController(h EventService, s StageService, pageDef, pageMax int) *E
 // @Param			state				query		string	false	"Comma-separated state filter"	Enums(UNPUBLISHED,UPCOMING,ACTIVE,FINISHED,ARCHIVED)
 // @Param			include_archived	query		bool	false	"Include archived records"
 // @Param			page				query		int		false	"Page number"	default(1)
-// @Param			page_size			query		int		false	"Page size"	default(50)
+// @Param			page_size			query		int		false	"Page size"		default(50)
 // @Success		200					{object}	models.EventPage
 // @Failure		403					{object}	models.ErrorResponse
 // @Router			/admin/events [get]
@@ -228,14 +228,14 @@ func (c *EventController) ListStages(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	items, err := c.stages.List(r.Context(), middleware.ActorFrom(r), id)
+	items, event, err := c.stages.List(r.Context(), middleware.ActorFrom(r), id)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
 	out := make([]models.StageResponse, 0, len(items))
 	for i := range items {
-		out = append(out, stageResponse(&items[i]))
+		out = append(out, stageResponse(&items[i], event))
 	}
 	httpx.JSON(w, http.StatusOK, out)
 }
@@ -264,12 +264,12 @@ func (c *EventController) CreateStage(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	s, err := c.stages.Create(r.Context(), middleware.ActorFrom(r), id, req)
+	s, event, err := c.stages.Create(r.Context(), middleware.ActorFrom(r), id, req)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusCreated, stageResponse(s))
+	httpx.JSON(w, http.StatusCreated, stageResponse(s, event))
 }
 
 // @Summary	Update a stage
@@ -295,12 +295,12 @@ func (c *EventController) UpdateStage(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	s, err := c.stages.Update(r.Context(), middleware.ActorFrom(r), id, req)
+	s, event, err := c.stages.Update(r.Context(), middleware.ActorFrom(r), id, req)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, stageResponse(s))
+	httpx.JSON(w, http.StatusOK, stageResponse(s, event))
 }
 
 // @Summary	Delete a stage

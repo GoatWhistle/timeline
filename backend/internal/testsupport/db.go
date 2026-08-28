@@ -13,8 +13,8 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/adapters/repositories"
-	"github.com/kaifarikman/hackathon-os-backend/migrations"
+	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/migrations"
 )
 
 var once sync.Once

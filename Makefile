@@ -1,22 +1,22 @@
-# Hackathon Tracker — команды монорепозитория.
+# Timeline - monorepo commands.
 #
-# Приложение работает только в контейнерах: Go, Node и PostgreSQL на машине не
-# нужны, достаточно Docker.
+# The application runs in containers only: Go, Node and PostgreSQL are not
+# needed on the machine, Docker is enough.
 #
-#   make docker-up   боевой режим: nginx с production-сборкой фронтенда
-#   make dev         режим разработки: HMR у фронтенда, `go run` у backend
-#   make dev MOCKS=1 то же, но экраны работают на моках MSW
+#   make docker-up   production mode: nginx with the frontend production build
+#   make dev         development mode: HMR for the frontend, `go run` for backend
+#   make dev MOCKS=1 the same, but screens run on MSW mocks
 #
-# Команды проверок (lint, test, types, verify) требуют Node на машине. Go нужен
-# не обязательно: если его нет, проверки backend выполняются в контейнере.
-# В CI выполняются те же самые команды.
+# The check commands (lint, test, types, verify) require Node on the machine. Go
+# is optional: if it is missing, the backend checks run in a container.
+# CI runs these very same commands.
 
 FRONTEND := frontend
 BACKEND  := backend
 
-# Проверки backend идут через локальный Go, а при его отсутствии — в контейнере
-# с тем же образом, что и сборка (deploy/backend.Dockerfile). Том сохраняет
-# кэш модулей между запусками, иначе каждый прогон качает зависимости заново.
+# Backend checks go through the local Go, and in its absence - in a container
+# with the same image as the build (deploy/backend.Dockerfile). The volume keeps
+# the module cache between runs, otherwise every run downloads dependencies anew.
 GO_IMAGE  := golang:1.25-alpine
 GO_CACHE  := timeline-go-mod
 HAVE_GO   := $(shell command -v go 2>/dev/null)
@@ -29,10 +29,11 @@ else
 GO_RUN := cd $(BACKEND) && sh -c
 endif
 
-# golangci-lint ставится не всегда: при отсутствии бинаря берётся официальный
-# образ той же версии. Кэш модулей общий с GO_RUN. В контейнер монтируется
-# корень репозитория, а не backend/: храповику --new-from-merge-base нужен .git,
-# без него линтер молча сваливается на выдачу всех замечаний разом.
+# golangci-lint is not always installed: when the binary is missing, the official
+# image of the same version is used. The module cache is shared with GO_RUN. The
+# repository root is mounted into the container, not backend/: the
+# --new-from-merge-base ratchet needs .git, without it the linter silently falls
+# back to reporting every issue at once.
 GOLANGCI_IMAGE := golangci/golangci-lint:v2.6-alpine
 HAVE_GOLANGCI  := $(shell command -v golangci-lint 2>/dev/null)
 
@@ -45,8 +46,8 @@ endif
 COMPOSE     := docker compose -f deploy/docker-compose.yml
 COMPOSE_DEV := $(COMPOSE) -f deploy/docker-compose.dev.yml
 
-# Долгоживущие сервисы: одноразовые migrate и bootstrap подтягиваются как их
-# зависимости, но ждать их завершения через --wait нельзя.
+# Long-running services: the one-shot migrate and bootstrap are pulled in as
+# their dependencies, but --wait cannot be used to wait for them to finish.
 SERVICES := api web worker
 
 WEB_PORT      ?= 5173
@@ -55,12 +56,12 @@ POSTGRES_PORT ?= 5432
 
 ADMIN_EMAIL    ?= admin@example.com
 ADMIN_PASSWORD ?= password123
-ADMIN_NAME     ?= Администратор
+ADMIN_NAME     ?= Administrator
 
-# MOCKS=1 переключает фронтенд в режиме разработки на моки MSW.
+# MOCKS=1 switches the frontend in development mode over to MSW mocks.
 MOCKS ?= 0
 
-# docker compose читает эти значения из окружения (см. deploy/docker-compose.yml).
+# docker compose reads these values from the environment (see deploy/docker-compose.yml).
 export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME MOCKS
 
 .PHONY: help endpoints \
@@ -72,126 +73,127 @@ export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME MOC
 
 .DEFAULT_GOAL := help
 
-help: ## Показать список команд
-	@echo "Hackathon Tracker"
+help: ## Show the list of commands
+	@echo "Timeline"
 	@echo ""
 	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 	@echo ""
-	@echo "Порты переопределяются так: make docker-up WEB_PORT=5199 API_PORT=8099 POSTGRES_PORT=5433"
-	@echo "Разработка на моках MSW:    make dev MOCKS=1"
+	@echo "Override ports like this: make docker-up WEB_PORT=5199 API_PORT=8099 POSTGRES_PORT=5433"
+	@echo "Development on MSW mocks: make dev MOCKS=1"
 
-# --- Боевой режим -----------------------------------------------------------
+# --- Production mode --------------------------------------------------------
 
-docker-up: $(BACKEND)/.env ## Поднять стек: база, миграции, API, worker и фронтенд
+docker-up: $(BACKEND)/.env ## Bring up the stack: database, migrations, API, worker and frontend
 	@$(COMPOSE) up -d --build --wait $(SERVICES)
 	@$(MAKE) --no-print-directory endpoints
 
-docker-down: ## Остановить стек (том с данными сохраняется)
+docker-down: ## Stop the stack (the data volume is preserved)
 	@$(COMPOSE) down
 
-docker-build: $(BACKEND)/.env ## Пересобрать образы, ничего не запуская
+docker-build: $(BACKEND)/.env ## Rebuild the images without starting anything
 	@$(COMPOSE) build
 
-docker-restart: ## Перезапустить стек
+docker-restart: ## Restart the stack
 	@$(MAKE) --no-print-directory docker-down
 	@$(MAKE) --no-print-directory docker-up
 
-docker-status: ## Показать состояние контейнеров
+docker-status: ## Show container status
 	@$(COMPOSE) ps
 
-docker-logs: ## Смотреть логи контейнеров (make docker-logs S=api — одного)
+docker-logs: ## Follow container logs (make docker-logs S=api - a single one)
 	@$(COMPOSE) logs -f $(S)
 
-docker-psql: ## Открыть psql в контейнере базы
-	@$(COMPOSE) exec postgres psql -U hackathon -d hackathon
+docker-psql: ## Open psql in the database container
+	@$(COMPOSE) exec postgres psql -U $${POSTGRES_USER:-timeline} -d $${POSTGRES_DB:-timeline}
 
-# --- Режим разработки -------------------------------------------------------
+# --- Development mode -------------------------------------------------------
 #
-# Тот же стек, но исходники смонтированы в контейнеры: фронтенд обновляется
-# по HMR без пересборки, backend перекомпилируется по `make dev-restart`.
+# The same stack, but the sources are mounted into the containers: the frontend
+# updates over HMR without a rebuild, the backend is recompiled by
+# `make dev-restart`.
 
-dev: $(BACKEND)/.env ## Поднять стек в режиме разработки: HMR и go run
+dev: $(BACKEND)/.env ## Bring up the stack in development mode: HMR and go run
 	@$(COMPOSE_DEV) up -d --build --wait $(SERVICES)
 	@$(MAKE) --no-print-directory endpoints
-	@if [ "$(MOCKS)" = "1" ]; then echo "фронтенд работает на моках MSW"; fi
+	@if [ "$(MOCKS)" = "1" ]; then echo "frontend is running on MSW mocks"; fi
 
-dev-down: ## Остановить стек режима разработки
+dev-down: ## Stop the development mode stack
 	@$(COMPOSE_DEV) down
 
-dev-restart: ## Перекомпилировать и перезапустить backend
+dev-restart: ## Recompile and restart the backend
 	@$(COMPOSE_DEV) up -d --force-recreate --wait api worker
-	@echo "backend перезапущен"
+	@echo "backend restarted"
 
-dev-logs: ## Смотреть логи режима разработки (make dev-logs S=api — одного)
+dev-logs: ## Follow development mode logs (make dev-logs S=api - a single one)
 	@$(COMPOSE_DEV) logs -f $(S)
 
 endpoints:
 	@echo ""
-	@echo "приложение → http://localhost:$(WEB_PORT)"
-	@echo "API        → http://localhost:$(API_PORT), Swagger UI /docs/"
-	@echo "вход: $(ADMIN_EMAIL), пароль $(ADMIN_PASSWORD)"
+	@echo "application -> http://localhost:$(WEB_PORT)"
+	@echo "API         -> http://localhost:$(API_PORT), Swagger UI /docs/"
+	@echo "login: $(ADMIN_EMAIL), password $(ADMIN_PASSWORD)"
 
-# Прикладная конфигурация контейнеров. Без файла действуют значения по
-# умолчанию из backend/internal/config (приложение C ТЗ).
+# Application configuration for the containers. Without the file, the defaults
+# from backend/internal/config apply (appendix C of the specification).
 $(BACKEND)/.env:
 	@cp $(BACKEND)/.env.example $(BACKEND)/.env
-	@echo "создан $(BACKEND)/.env из .env.example"
+	@echo "created $(BACKEND)/.env from .env.example"
 
-# --- Фронтенд ---------------------------------------------------------------
+# --- Frontend ---------------------------------------------------------------
 
-install: ## Установить зависимости frontend для проверок на машине
+install: ## Install frontend dependencies for checks on the machine
 	@cd $(FRONTEND) && if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 $(FRONTEND)/node_modules:
 	@$(MAKE) --no-print-directory install
 
-types: $(FRONTEND)/node_modules ## Перегенерировать типы из docs/swagger.json
+types: $(FRONTEND)/node_modules ## Regenerate types from docs/swagger.json
 	@cd $(FRONTEND) && npm run api:types
 
-types-check: $(FRONTEND)/node_modules ## Проверить, что типы не отстали от контракта
+types-check: $(FRONTEND)/node_modules ## Check that the types have not fallen behind the contract
 	@cd $(FRONTEND) && npm run api:check
 
-typecheck: $(FRONTEND)/node_modules ## Проверка типов
+typecheck: $(FRONTEND)/node_modules ## Type check
 	@cd $(FRONTEND) && npm run typecheck
 
-lint: $(FRONTEND)/node_modules ## Линтеры обеих частей: Biome и golangci-lint
+lint: $(FRONTEND)/node_modules ## Linters for both parts: Biome and golangci-lint
 	@cd $(FRONTEND) && npm run lint
 	@$(MAKE) --no-print-directory back-lint-new
 
-format: $(FRONTEND)/node_modules ## Исправить форматирование и автофиксы линтера
+format: $(FRONTEND)/node_modules ## Fix formatting and apply linter autofixes
 	@cd $(FRONTEND) && npm run lint:fix
 
-test: $(FRONTEND)/node_modules ## Прогнать тесты frontend
+test: $(FRONTEND)/node_modules ## Run the frontend tests
 	@cd $(FRONTEND) && npm run test
 
-test-cover: $(FRONTEND)/node_modules ## Тесты frontend с покрытием и проверкой порогов
+test-cover: $(FRONTEND)/node_modules ## Frontend tests with coverage and threshold checks
 	@cd $(FRONTEND) && npm run test:coverage
 
-build: $(FRONTEND)/node_modules ## Собрать production-сборку frontend на машине
+build: $(FRONTEND)/node_modules ## Build the frontend production bundle on the machine
 	@cd $(FRONTEND) && npm run build
 
 # --- Backend ----------------------------------------------------------------
 
-back-fmt: ## Форматировать код backend
+back-fmt: ## Format the backend code
 	@cd $(BACKEND) && $(MAKE) --no-print-directory fmt
 
-back-vet: ## Статический анализ backend
+back-vet: ## Static analysis of the backend
 	@$(GO_RUN) "go vet ./..."
 
-back-lint: ## golangci-lint: весь долг, включая существующий (справочно)
+back-lint: ## golangci-lint: all debt, including the existing one (for reference)
 	@$(GOLANGCI_RUN) ./...
 
-back-lint-new: ## golangci-lint храповиком: только замечания этого изменения
+back-lint-new: ## golangci-lint as a ratchet: only issues introduced by this change
 	@$(GOLANGCI_RUN) --new-from-merge-base=origin/main --whole-files ./...
 
-back-test: ## Модульные тесты backend
+back-test: ## Backend unit tests
 	@$(GO_RUN) "go test ./..."
 
-back-build: ## Сборка backend
+back-build: ## Build the backend
 	@$(GO_RUN) "go build ./..."
 
-back-test-integration: ## Тесты ограничений БД на временном PostgreSQL
+back-test-integration: ## Database constraint tests against a temporary PostgreSQL
 	@docker rm -f timeline-test-pg >/dev/null 2>&1 || true
 	@docker run -d --rm --name timeline-test-pg \
 		-e POSTGRES_PASSWORD=test -e POSTGRES_USER=test -e POSTGRES_DB=test \
@@ -203,48 +205,48 @@ back-test-integration: ## Тесты ограничений БД на време
 		$(GO_IMAGE) go test -tags=integration ./... ; \
 		status=$$? ; docker stop timeline-test-pg >/dev/null 2>&1 ; exit $$status
 
-back-cover: ## Покрытие backend с выводом итога
+back-cover: ## Backend coverage with a summary line
 	@$(GO_RUN) "go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out | tail -1"
 
-back-docs: ## Пересобрать спецификацию OpenAPI и опубликовать в docs/
+back-docs: ## Rebuild the OpenAPI specification and publish it to docs/
 	@cd $(BACKEND) && $(MAKE) --no-print-directory docs
 
-# --- Базовые уровни ---------------------------------------------------------
+# --- Baselines --------------------------------------------------------------
 #
-# Три проверки работают храповиком от зафиксированного уровня, а не от жёсткого
-# порога: при 25 файлах сверх лимита и покрытии около 11% жёсткий порог уронил
-# бы CI в первый же день и его бы отключили. Базовые уровни лежат в
-# docs/baselines/ и обновляются только в сторону улучшения.
+# Three checks work as a ratchet from a recorded level rather than from a hard
+# threshold: with 25 files over the limit and coverage around 11%, a hard
+# threshold would break CI on the very first day and would then be switched off.
+# The baselines live in docs/baselines/ and are only updated towards improvement.
 
-file-length: ## Лимит 250 строк на рукописный код (храповик)
+file-length: ## 250-line limit for hand-written code (ratchet)
 	@bash scripts/check-file-length.sh
 
-cyrillic: ## Язык кода — английский, кириллица только в словарях (храповик)
+cyrillic: ## Code language is English, Cyrillic only in dictionaries (ratchet)
 	@bash scripts/check-cyrillic.sh
 
-bundle-size: ## Размер production-сборки против базового уровня
+bundle-size: ## Production bundle size against the baseline
 	@node scripts/bundle-size.mjs
 
-baseline-file-length: ## Перезаписать базовый уровень лимита строк
+baseline-file-length: ## Rewrite the line-limit baseline
 	@bash scripts/check-file-length.sh --update
 
-baseline-cyrillic: ## Перезаписать базовый уровень проверки кириллицы
+baseline-cyrillic: ## Rewrite the Cyrillic check baseline
 	@bash scripts/check-cyrillic.sh --update
 
-baseline-bundle-size: build ## Перезаписать базовый уровень размера сборки
+baseline-bundle-size: build ## Rewrite the bundle size baseline
 	@node scripts/bundle-size.mjs --update
 
-# --- Проверки и очистка -----------------------------------------------------
+# --- Checks and cleanup -----------------------------------------------------
 
-verify: ## Полная проверка обеих частей: контракт, типы, линтер, тесты, сборка
+verify: ## Full check of both parts: contract, types, linter, tests, build
 	@$(MAKE) --no-print-directory file-length
 	@$(MAKE) --no-print-directory cyrillic
 	@cd $(FRONTEND) && npm run verify
 	@$(GO_RUN) "go build ./... && go vet ./... && go test ./..."
 	@$(MAKE) --no-print-directory back-lint-new
-	@echo "проверки пройдены"
+	@echo "checks passed"
 
-clean: ## Остановить контейнеры, удалить тома и артефакты сборки
+clean: ## Stop containers, remove volumes and build artifacts
 	@$(COMPOSE_DEV) down -v --remove-orphans 2>/dev/null || true
 	@rm -rf $(FRONTEND)/dist $(FRONTEND)/coverage $(BACKEND)/bin $(BACKEND)/coverage.out
-	@echo "очищено"
+	@echo "cleaned"

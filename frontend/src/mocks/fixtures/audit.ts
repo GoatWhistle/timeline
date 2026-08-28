@@ -25,7 +25,7 @@ export const auditLog: AuditResponse[] = [
     action: 'PARTICIPANT_ADD',
     entity_type: 'EVENT_PARTICIPANT',
     entity_id: participants[0]!.id,
-    after: { team_role: 'Разработчик', participation_status: 'ASSIGNED' },
+    after: { team_role: 'Developer', participation_status: 'ASSIGNED' },
     request_id: 'req-0002',
     created_at: at(-30),
   },

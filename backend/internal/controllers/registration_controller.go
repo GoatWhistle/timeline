@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/httpx"
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/middleware"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
+	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type RegistrationController struct {
@@ -167,7 +167,7 @@ func (c *RegistrationController) setState(w http.ResponseWriter, r *http.Request
 // @Security	CookieAuth
 // @Param		id			path		string	true	"Event identifier"	format(uuid)
 // @Param		page		query		int		false	"Page number"		default(1)
-// @Param		page_size	query		int		false	"Page size"		default(50)
+// @Param		page_size	query		int		false	"Page size"			default(50)
 // @Success	200			{object}	models.RegistrationStatusPage
 // @Failure	403			{object}	models.ErrorResponse
 // @Failure	404			{object}	models.ErrorResponse

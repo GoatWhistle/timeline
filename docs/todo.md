@@ -10,7 +10,7 @@
 (правило [CLAUDE.md](../CLAUDE.md) и [dependency-order.md](dependency-order.md)
 раздел 5).
 
-Прогресс: **77 из 146**. Закрыты этапы 0а, 0б, 0в, 1, 2, 2а и 3
+Прогресс: **86 из 146**. Закрыты этапы 0, 0а, 0б, 0в, 1, 2, 2а и 3
 (кроме пунктов 45, 53, 54 — правка ТЗ и backend).
 Слои `app/entities/features/shared`, тесты в `tests/`, 293 теста,
 ноль кириллицы в backend и в продуктовом коде frontend,
@@ -67,27 +67,27 @@
 
 Отдельным коммитом, без содержательных правок. Ветка, метка по завершении.
 
-- [ ] **1.** Модуль Go `hackathon-os-backend` → `timeline-backend` через
-      `go mod edit`, не `sed`; правка всех импортов
-- [ ] **2.** Имя пакета frontend, `<title>`, заголовок в оболочке
-- [ ] **3.** Переименование символов backend:
-  - [ ] `QueryController.MyTimeline` → `MySchedule` (`query_controller.go:101`)
-  - [ ] `QueryController.AdminTimeline` → `AdminSchedule`
-  - [ ] `QueryService.MyTimeline` / `AdminTimeline` (`deps.go:112-113`)
-  - [ ] `QueryRepository.TimelineRows` → `ScheduleRows` (`query_repo.go:184`)
-  - [ ] `models.TimelineFilter` → `ScheduleFilter`
-  - [ ] `models.TimelineResponse` / `TimelineRow` → `Schedule*`
-  - [ ] `QueryService` **не** переименовывать
-- [ ] **4.** Endpoint-ы (их два, одиночного `/timeline` нет):
-  - [ ] `/api/v1/me/timeline` → `/me/schedule` (`router.go:132`)
-  - [ ] `/api/v1/admin/timeline` → `/admin/schedule` (`router.go:181`)
-- [ ] **5.** Контракт строго по порядку: аннотации swag → `make back-docs` →
-      `make types` → обработчики MSW → `contract.test.ts` → один коммит
-- [ ] **6.** `modules/timeline/` → `features/schedule/`
-- [ ] **7.** Правка ТЗ, backlog, api-conventions под новые имена
-- [ ] **8.** Имена сервисов в compose и образах
-- [ ] **9.** `.git-blame-ignore-revs` с хешами массовых коммитов +
-      `git config blame.ignoreRevsFile`
+- [x] **1.** Модуль Go `hackathon-os-backend` → `github.com/GoatWhistle/timeline`
+      через `go mod edit`, не `sed`; правка всех импортов
+- [x] **2.** Имя пакета frontend, `<title>`, заголовок в оболочке
+- [x] **3.** Переименование символов backend:
+  - [x] `QueryController.MyTimeline` → `MySchedule`
+  - [x] `QueryController.AdminTimeline` → `AdminSchedule`
+  - [x] `QueryService.MyTimeline` / `AdminTimeline` → `MySchedule` / `AdminSchedule`
+  - [x] `QueryRepository.TimelineRows` → `ScheduleRows`
+  - [x] `models.TimelineFilter` → `ScheduleFilter`
+  - [x] `models.TimelineResponse` / `TimelineRow` / `TimelineItem` → `Schedule*`
+  - [x] `QueryService` **не** переименован
+- [x] **4.** Endpoint-ы (их два, одиночного `/timeline` нет):
+  - [x] `/api/v1/me/timeline` → `/me/schedule`
+  - [x] `/api/v1/admin/timeline` → `/admin/schedule`
+- [x] **5.** Контракт строго по порядку: аннотации swag → `make back-docs` →
+      `make types` → обработчики MSW → контрактные тесты
+- [x] **6.** `features/schedule/` — символы, ключи запросов и маршруты
+- [x] **7.** Правка ТЗ, backlog, api-conventions под новые имена
+- [x] **8.** Имена сервисов в compose и образах
+- [x] **9.** `.git-blame-ignore-revs` + инструкция
+      `git config blame.ignoreRevsFile` в README
 
 ## Этап 0в. `hackathon` → `event`
 
@@ -315,6 +315,44 @@
 - [!] **54.** Миграция: существующим `payload_json` проставить `ru`, иначе
       worker не отрисует старые записи — **backend**, вне объёма этапа 3
 - [x] **55.** Проверка раскладки на обоих языках: русский на 15–20% длиннее
+
+## Этап 3а. Удаление моков
+
+Решение владельца: моков нет, платформа ходит в настоящий backend.
+Разбор — часть IIIa плана.
+
+**Подделок нет нигде: ни на фронтенде, ни в backend, ни в базе.** Единственное
+допустимое место подставных данных — тесты (фикстуры и поднятый в контейнере
+настоящий API). Первый администратор при развёртывании — не мок, а часть
+запуска (раздел 2 ТЗ).
+
+**Осторожно: 47 тестов из 117 стоят на MSW**, из них 34 контрактных
+(`contract-read` 20, `contract-write` 14). Порядок обязателен: сначала
+замена, потом удаление — иначе репозиторий остаётся без проверки контракта.
+
+- [ ] **55а.** Контрактные тесты перевести на настоящий API в контейнере.
+      Приём готов: `make back-test-integration` уже поднимает временный
+      PostgreSQL, тем же способом поднимается связка API и базы
+- [ ] **55б.** `client.test.ts` — проверка транспорта на настоящих ответах
+- [ ] **55в.** `login.test.tsx` — сценарий входа переезжает в e2e Playwright
+- [ ] **55г.** Убедиться, что покрытие не просело: 47 тестов не должны
+      просто исчезнуть
+- [ ] **55д.** **Удалить `frontend/src/mocks/` целиком** — папки не должно
+      существовать. Не сократить, не перенести: 37 файлов под нож
+- [ ] **55д1.** Удалить `public/mockServiceWorker.js`
+- [ ] **55д2.** Убрать исключения `mocks` из `biome.json` и `vitest.config.ts`
+- [ ] **55д3.** Проверить, что подделок нет **нигде**: ни заглушек вместо API,
+      ни тестовых данных в рабочей базе, ни режима «работает без сервера».
+      Адаптеры Telegram и email в разработке — настоящие с тестовыми
+      учётными данными, а не заглушки, печатающие в журнал
+- [ ] **55е.** Убрать `msw` из `package.json` вместе с блоком `msw`
+- [ ] **55ж.** Убрать ветку запуска моков из `main.tsx`
+- [ ] **55з.** Убрать `MOCKS` из `Makefile`, `docker-compose.dev.yml` и
+      `make dev MOCKS=1`
+- [ ] **55и.** Вычистить упоминания из `README`, `CLAUDE.md`
+- [ ] **55к.** Правка ТЗ раздела 14.2 (строка про MSW) и `tasks.md` (таблица
+      интеграционных зависимостей frontend, где сказано «все frontend-задачи
+      выполнимы на моках сразу после FE-02»)
 
 ## Этап 4а. Место у этапа и поля из рабочих таблиц
 

@@ -10,8 +10,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/config"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/config"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type Sender interface {

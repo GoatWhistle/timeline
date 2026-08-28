@@ -6,7 +6,8 @@ import {
   STAGE_TYPE_KEY,
   STAGE_TYPE_PATTERNED,
 } from '@/entities/stage/stage.labels'
-import type { TimelineItem } from '@/shared/api/types.gen'
+import { EVENT_FORMAT_ICON, placeCity, placeLabel } from '@/entities/stage/stage.place'
+import type { ScheduleItem } from '@/shared/api/types.gen'
 import { formatDate } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/tooltip'
@@ -16,6 +17,7 @@ import {
   LABEL_MIN_WIDTH,
   LANE_STEP,
   LANE_TOP,
+  PLACE_MIN_WIDTH,
 } from '../model/schedule-scale'
 
 const PATTERN_STYLE = {
@@ -30,7 +32,7 @@ export function StageBar({
   width,
   lane,
 }: {
-  stage: TimelineItem
+  stage: ScheduleItem
   href: string
   left: number
   width: number
@@ -41,6 +43,10 @@ export function StageBar({
   const typeLabel = t(STAGE_TYPE_KEY[stage.type])
   const start = formatDate(stage.start_at)
   const end = formatDate(stage.end_at)
+  const city = placeCity(stage.place)
+  const PlaceIcon = EVENT_FORMAT_ICON[stage.place.format]
+  const showPlace = Boolean(city) && width >= PLACE_MIN_WIDTH
+  const placeText = placeLabel(stage.place, t('event:place.online'))
 
   return (
     <Tooltip>
@@ -67,6 +73,12 @@ export function StageBar({
               {stage.name}
             </span>
           )}
+          {showPlace && (
+            <span className="ml-auto flex shrink-0 items-center gap-0.5" aria-hidden="true">
+              <PlaceIcon className="size-3" />
+              <span className="truncate">{city}</span>
+            </span>
+          )}
         </Link>
       </TooltipTrigger>
       <TooltipContent>
@@ -74,6 +86,7 @@ export function StageBar({
         <p className="text-muted-foreground">
           {t('schedule.stageTooltip', { type: typeLabel, start, end })}
         </p>
+        <p className="text-muted-foreground">{placeText}</p>
       </TooltipContent>
     </Tooltip>
   )

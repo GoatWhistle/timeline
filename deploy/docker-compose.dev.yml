@@ -1,23 +1,23 @@
-# Режим разработки: тот же стек, но с монтированием исходников.
-# Накладывается поверх docker-compose.yml и не используется отдельно:
+# Development mode: the same stack, but with sources mounted.
+# Layered on top of docker-compose.yml and never used on its own:
 #
 #   make dev
 #   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml up -d --build
 #
-# Отличия от боевого режима:
-#   * фронтенд — dev-сервер Vite с HMR вместо nginx с готовой сборкой;
-#   * backend — `go run` поверх смонтированного кода: перекомпиляция при
-#     `make dev-restart`, пересборка образа не нужна;
-#   * MOCKS=1 переключает фронтенд на моки MSW вместо обращений к API.
+# Differences from production mode:
+#   * frontend - the Vite dev server with HMR instead of nginx with a built bundle;
+#   * backend - `go run` over the mounted code: recompilation on
+#     `make dev-restart`, no image rebuild needed;
+#   * MOCKS=1 switches the frontend to MSW mocks instead of calling the API.
 #
-# Кэши Go и сборка Vite живут в томах: без них каждый запуск компилировал бы
-# зависимости заново.
+# Go caches and the Vite build live in volumes: without them every run would
+# compile dependencies from scratch.
 
 services:
   migrate:
     build:
       target: dev
-    command: ["go", "run", "./cmd/hackathon", "migrate", "up"]
+    command: ["go", "run", "./cmd/timeline", "migrate", "up"]
     volumes:
       - ../backend:/src
       - gomod:/go/pkg/mod
@@ -26,7 +26,7 @@ services:
   bootstrap:
     build:
       target: dev
-    command: ["go", "run", "./cmd/hackathon", "admin", "create"]
+    command: ["go", "run", "./cmd/timeline", "admin", "create"]
     volumes:
       - ../backend:/src
       - gomod:/go/pkg/mod
@@ -35,13 +35,13 @@ services:
   api:
     build:
       target: dev
-    command: ["go", "run", "./cmd/hackathon", "serve"]
+    command: ["go", "run", "./cmd/timeline", "serve"]
     volumes:
       - ../backend:/src
       - gomod:/go/pkg/mod
       - gocache:/root/.cache/go-build
     healthcheck:
-      # Компиляция при старте занимает заметно больше, чем запуск бинаря.
+      # Compiling at startup takes noticeably longer than launching a binary.
       start_period: 120s
       interval: 5s
       retries: 30
@@ -49,7 +49,7 @@ services:
   worker:
     build:
       target: dev
-    command: ["go", "run", "./cmd/hackathon", "worker"]
+    command: ["go", "run", "./cmd/timeline", "worker"]
     volumes:
       - ../backend:/src
       - gomod:/go/pkg/mod
@@ -59,19 +59,19 @@ services:
     build:
       target: dev
       args:
-        # Аргумент боевой сборки в dev-стадии не используется, но должен быть
-        # объявлен: иначе compose передаст его в образ без такого ARG.
+        # The production build argument is unused in the dev stage but must be
+        # declared: otherwise compose passes it to an image without such an ARG.
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
-      # MOCKS=1 — экраны работают на моках MSW, backend не опрашивается.
+      # MOCKS=1 - screens run on MSW mocks, the backend is not queried.
       VITE_ENABLE_MSW: ${MOCKS:-0}
-      # Без моков dev-сервер проксирует /api на контейнер API.
+      # Without mocks the dev server proxies /api to the API container.
       VITE_API_PROXY: http://api:8080
-    # !override обязателен: списки в compose складываются, и без него к
-    # публикации из боевого файла (порт nginx 8080) добавился бы второй
-    # маппинг на тот же порт хоста.
+    # !override is required: compose merges lists, and without it a second
+    # mapping to the same host port would be added on top of the production
+    # file's publication (nginx port 8080).
     ports: !override
       - "${WEB_PORT:-5173}:5173"
     volumes:

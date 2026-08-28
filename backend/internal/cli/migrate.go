@@ -11,7 +11,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/spf13/cobra"
 
-	"github.com/kaifarikman/hackathon-os-backend/migrations"
+	"github.com/GoatWhistle/timeline/migrations"
 )
 
 func init() {

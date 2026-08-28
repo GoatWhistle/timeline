@@ -71,8 +71,8 @@ type Argon struct {
 }
 
 type RateLim struct {
-	LoginAttempts  int
-	LoginWindow    time.Duration
+	LoginAttempts   int
+	LoginWindow     time.Duration
 	ResendAttempts  int
 	ResendWindow    time.Duration
 	CatalogRequests int
@@ -179,10 +179,10 @@ func Load() (*Config, error) {
 			KeyLength:   uint32(envInt("ARGON2_KEY_LENGTH", 32)),
 		},
 		RateLim: RateLim{
-			LoginAttempts:  envInt("RATE_LIMIT_LOGIN_ATTEMPTS", 10),
-			LoginWindow:    envDuration("RATE_LIMIT_LOGIN_WINDOW", 15*time.Minute),
-			ResendAttempts: envInt("RATE_LIMIT_RESEND_ATTEMPTS", 5),
-			ResendWindow:   envDuration("RATE_LIMIT_RESEND_WINDOW", time.Hour),
+			LoginAttempts:   envInt("RATE_LIMIT_LOGIN_ATTEMPTS", 10),
+			LoginWindow:     envDuration("RATE_LIMIT_LOGIN_WINDOW", 15*time.Minute),
+			ResendAttempts:  envInt("RATE_LIMIT_RESEND_ATTEMPTS", 5),
+			ResendWindow:    envDuration("RATE_LIMIT_RESEND_WINDOW", time.Hour),
 			CatalogRequests: envInt("RATE_LIMIT_CATALOG_REQUESTS", 120),
 			CatalogWindow:   envDuration("RATE_LIMIT_CATALOG_WINDOW", time.Minute),
 		},
@@ -206,7 +206,7 @@ func Load() (*Config, error) {
 		Telegram: Telegram{
 			Driver:   env("TELEGRAM_DRIVER", "log"),
 			BotToken: env("TELEGRAM_BOT_TOKEN", ""),
-			BotName:  env("TELEGRAM_BOT_NAME", "hackathon_tracker_bot"),
+			BotName:  env("TELEGRAM_BOT_NAME", "timeline_bot"),
 			APIBase:  env("TELEGRAM_API_BASE", "https://api.telegram.org"),
 			Timeout:  envDuration("TELEGRAM_TIMEOUT", 10*time.Second),
 		},
@@ -217,7 +217,7 @@ func Load() (*Config, error) {
 			Username: env("SMTP_USERNAME", ""),
 			Password: env("SMTP_PASSWORD", ""),
 			From:     env("EMAIL_FROM", "no-reply@event.local"),
-			FromName: env("EMAIL_FROM_NAME", "Hackathon Tracker"),
+			FromName: env("EMAIL_FROM_NAME", "Timeline"),
 			Timeout:  envDuration("SMTP_TIMEOUT", 15*time.Second),
 			StartTLS: envBool("SMTP_STARTTLS", true),
 		},

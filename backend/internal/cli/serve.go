@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
-	_ "github.com/kaifarikman/hackathon-os-backend/docs"
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers"
+	_ "github.com/GoatWhistle/timeline/docs"
+	"github.com/GoatWhistle/timeline/internal/controllers"
 )
 
 func init() {

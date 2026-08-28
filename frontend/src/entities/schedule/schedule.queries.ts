@@ -2,19 +2,19 @@ import { queryOptions } from '@tanstack/react-query'
 import { api, unwrap } from '@/shared/api/client'
 import type { QueryParams } from '@/shared/api/params'
 
-export type MyTimelineParams = QueryParams<'/me/timeline', 'get'>
-export type AdminTimelineParams = QueryParams<'/admin/timeline', 'get'>
+export type MyScheduleParams = QueryParams<'/me/schedule', 'get'>
+export type AdminScheduleParams = QueryParams<'/admin/schedule', 'get'>
 
-export function myTimelineQuery(params: MyTimelineParams) {
+export function myScheduleQuery(params: MyScheduleParams) {
   return queryOptions({
-    queryKey: ['my-timeline', params],
-    queryFn: () => unwrap(api.GET('/me/timeline', { params: { query: params } })),
+    queryKey: ['my-schedule', params],
+    queryFn: () => unwrap(api.GET('/me/schedule', { params: { query: params } })),
   })
 }
 
-export function adminTimelineQuery(params: AdminTimelineParams) {
+export function adminScheduleQuery(params: AdminScheduleParams) {
   return queryOptions({
-    queryKey: ['admin-timeline', params],
-    queryFn: () => unwrap(api.GET('/admin/timeline', { params: { query: params } })),
+    queryKey: ['admin-schedule', params],
+    queryFn: () => unwrap(api.GET('/admin/schedule', { params: { query: params } })),
   })
 }

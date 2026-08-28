@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/httpx"
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/middleware"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
+	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type QueryController struct {
@@ -28,7 +28,7 @@ func NewQueryController(svc QueryService, pageDef, pageMax int) *QueryController
 // @Param			include_archived	query		bool	false	"Include archived records"
 // @Param			state				query		string	false	"Comma-separated state filter"	Enums(UPCOMING,ACTIVE,FINISHED,ARCHIVED)
 // @Param			page				query		int		false	"Page number"					default(1)
-// @Param			page_size			query		int		false	"Page size"					default(50)
+// @Param			page_size			query		int		false	"Page size"						default(50)
 // @Success		200					{object}	models.MyEventPage
 // @Failure		401					{object}	models.ErrorResponse
 // @Router			/me/events [get]
@@ -78,7 +78,7 @@ func (c *QueryController) EventCard(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, card)
 }
 
-// @Summary		User timeline
+// @Summary		User schedule
 // @Description	Only assigned, published, non-archived events. Each event is a separate row,
 // @Description	stages are returned as intervals and the registration deadline as a separate marker.
 // @Tags			queries
@@ -86,17 +86,17 @@ func (c *QueryController) EventCard(w http.ResponseWriter, r *http.Request) {
 // @Security		CookieAuth
 // @Param			from	query		string	false	"Start of the period, RFC3339"
 // @Param			to		query		string	false	"End of the period, RFC3339"
-// @Success		200		{object}	models.TimelineResponse
+// @Success		200		{object}	models.ScheduleResponse
 // @Failure		400		{object}	models.ErrorResponse
 // @Failure		401		{object}	models.ErrorResponse
-// @Router			/me/timeline [get]
-func (c *QueryController) MyTimeline(w http.ResponseWriter, r *http.Request) {
-	filter, err := c.timelineFilter(r)
+// @Router			/me/schedule [get]
+func (c *QueryController) MySchedule(w http.ResponseWriter, r *http.Request) {
+	filter, err := c.scheduleFilter(r)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	tl, err := c.svc.MyTimeline(r.Context(), middleware.ActorFrom(r), filter)
+	tl, err := c.svc.MySchedule(r.Context(), middleware.ActorFrom(r), filter)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -104,7 +104,7 @@ func (c *QueryController) MyTimeline(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, tl)
 }
 
-// @Summary		Administrative timeline
+// @Summary		Administrative schedule
 // @Description	All events with filters by state, participant and date range.
 // @Tags			queries
 // @Produce		json
@@ -114,12 +114,12 @@ func (c *QueryController) MyTimeline(w http.ResponseWriter, r *http.Request) {
 // @Param			state				query		string	false	"Comma-separated state filter"
 // @Param			participant_user_id	query		string	false	"Filter by participant"	format(uuid)
 // @Param			include_archived	query		bool	false	"Include archived records"
-// @Success		200					{object}	models.TimelineResponse
+// @Success		200					{object}	models.ScheduleResponse
 // @Failure		400					{object}	models.ErrorResponse
 // @Failure		403					{object}	models.ErrorResponse
-// @Router			/admin/timeline [get]
-func (c *QueryController) AdminTimeline(w http.ResponseWriter, r *http.Request) {
-	filter, err := c.timelineFilter(r)
+// @Router			/admin/schedule [get]
+func (c *QueryController) AdminSchedule(w http.ResponseWriter, r *http.Request) {
+	filter, err := c.scheduleFilter(r)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -131,7 +131,7 @@ func (c *QueryController) AdminTimeline(w http.ResponseWriter, r *http.Request) 
 	}
 	filter.ParticipantUser = userID
 	filter.States = parseStates(httpx.QueryTrimmed(r, "state"))
-	tl, err := c.svc.AdminTimeline(r.Context(), middleware.ActorFrom(r), filter)
+	tl, err := c.svc.AdminSchedule(r.Context(), middleware.ActorFrom(r), filter)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -139,9 +139,9 @@ func (c *QueryController) AdminTimeline(w http.ResponseWriter, r *http.Request) 
 	httpx.JSON(w, http.StatusOK, tl)
 }
 
-func (c *QueryController) timelineFilter(r *http.Request) (models.TimelineFilter, error) {
+func (c *QueryController) scheduleFilter(r *http.Request) (models.ScheduleFilter, error) {
 	now := time.Now().UTC()
-	filter := models.TimelineFilter{
+	filter := models.ScheduleFilter{
 		From: now.AddDate(0, -1, 0),
 		To:   now.AddDate(0, 3, 0),
 	}
@@ -175,9 +175,9 @@ func (c *QueryController) timelineFilter(r *http.Request) (models.TimelineFilter
 // @Tags			queries
 // @Produce		json
 // @Security		CookieAuth
-// @Param			within_hours	query		int	false	"Window in hours"		default(72)
-// @Param			page			query		int	false	"Page number"	default(1)
-// @Param			page_size		query		int	false	"Page size"	default(50)
+// @Param			within_hours	query		int	false	"Window in hours"	default(72)
+// @Param			page			query		int	false	"Page number"		default(1)
+// @Param			page_size		query		int	false	"Page size"			default(50)
 // @Success		200				{object}	models.DeadlinePage
 // @Failure		403				{object}	models.ErrorResponse
 // @Router			/admin/queries/upcoming [get]
@@ -210,7 +210,7 @@ func (c *QueryController) Upcoming(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			page		query		int	false	"Page number"	default(1)
-// @Param			page_size	query		int	false	"Page size"	default(50)
+// @Param			page_size	query		int	false	"Page size"		default(50)
 // @Success		200			{object}	models.DeadlinePage
 // @Failure		403			{object}	models.ErrorResponse
 // @Router			/admin/queries/overdue [get]

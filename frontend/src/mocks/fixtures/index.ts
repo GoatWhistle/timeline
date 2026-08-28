@@ -14,5 +14,5 @@ export {
   resetMockState,
   state,
 } from './session-state'
-export { stages } from './stage'
+export { resolvePlace, stages } from './stage'
 export { MOCK_PASSWORD, users } from './user'

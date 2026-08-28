@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 func (s *EventService) Publish(ctx context.Context, actor models.Actor, id uuid.UUID) (*models.Event, error) {

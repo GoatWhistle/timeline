@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EVENT_STATE_KEY, EVENT_STATES } from '@/entities/event/event.labels'
-import { adminTimelineQuery } from '@/entities/schedule/schedule.queries'
-import type { TimelineScale } from '@/features/schedule/model/schedule-scale'
+import { adminScheduleQuery } from '@/entities/schedule/schedule.queries'
+import type { ScheduleScale } from '@/features/schedule/model/schedule-scale'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid'
 import { ScheduleLegend } from '@/features/schedule/ui/schedule-legend'
 import { ZoomSwitch } from '@/features/schedule/zoom-switch/zoom-switch'
@@ -31,7 +31,7 @@ const DEFAULTS = { scale: 'month', state: ALL, participant: ALL, archived: '' }
 export function AdminSchedulePage() {
   const { t, i18n } = useTranslation()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
-  const scale: TimelineScale = filters.scale === 'week' ? 'week' : 'month'
+  const scale: ScheduleScale = filters.scale === 'week' ? 'week' : 'month'
 
   const users = useQuery(usersQuery({ page_size: 100 }))
 
@@ -44,7 +44,7 @@ export function AdminSchedulePage() {
   }, [users.data, language])
 
   const query = useQuery(
-    adminTimelineQuery({
+    adminScheduleQuery({
       ...(filters.state !== ALL ? { state: filters.state as EventState } : {}),
       ...(filters.participant !== ALL ? { participant_user_id: filters.participant } : {}),
       ...(filters.archived === '1' ? { include_archived: true } : {}),

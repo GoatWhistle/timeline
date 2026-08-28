@@ -30,13 +30,13 @@ type NavItem = {
 
 const USER_NAV: NavItem[] = [
   { to: '/', labelKey: 'nav.myEvents', icon: LayoutList },
-  { to: '/timeline', labelKey: 'nav.schedule', icon: CalendarRange },
+  { to: '/schedule', labelKey: 'nav.schedule', icon: CalendarRange },
   { to: '/profile', labelKey: 'nav.profile', icon: UserCog },
 ]
 
 const ADMIN_NAV: NavItem[] = [
   { to: '/admin/events', labelKey: 'nav.adminEvents', icon: ClipboardList },
-  { to: '/admin/timeline', labelKey: 'nav.adminSchedule', icon: CalendarRange },
+  { to: '/admin/schedule', labelKey: 'nav.adminSchedule', icon: CalendarRange },
   { to: '/admin/deadlines', labelKey: 'nav.adminDeadlines', icon: AlarmClock },
   { to: '/admin/users', labelKey: 'nav.adminUsers', icon: Users },
   { to: '/admin/invites', labelKey: 'nav.adminInvites', icon: Send },

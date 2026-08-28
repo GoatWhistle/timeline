@@ -2122,6 +2122,74 @@ export interface paths {
         };
         trace?: never;
     };
+    "/admin/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Administrative schedule
+         * @description All events with filters by state, participant and date range.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Start of the period, RFC3339 */
+                    from?: string;
+                    /** @description Include archived records */
+                    include_archived?: boolean;
+                    /** @description Filter by participant */
+                    participant_user_id?: string;
+                    /** @description Comma-separated state filter */
+                    state?: string;
+                    /** @description End of the period, RFC3339 */
+                    to?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ScheduleResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/stages/{id}": {
         parameters: {
             query?: never;
@@ -2230,74 +2298,6 @@ export interface paths {
                 };
             };
         };
-        trace?: never;
-    };
-    "/admin/timeline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Administrative timeline
-         * @description All events with filters by state, participant and date range.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Start of the period, RFC3339 */
-                    from?: string;
-                    /** @description Include archived records */
-                    include_archived?: boolean;
-                    /** @description Filter by participant */
-                    participant_user_id?: string;
-                    /** @description Comma-separated state filter */
-                    state?: string;
-                    /** @description End of the period, RFC3339 */
-                    to?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["models.TimelineResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["models.ErrorResponse"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["models.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
     "/admin/users": {
@@ -3128,6 +3128,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Event catalog
+         * @description Every published, non-archived event regardless of participation. The response
+         *     carries a dedicated payload that cannot include administrative notes.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Comma-separated format filter */
+                    format?: "ONLINE" | "OFFLINE" | "HYBRID";
+                    /** @description Lower bound of the period */
+                    from?: string;
+                    /** @description Comma-separated kind filter */
+                    kind?: "HACKATHON" | "MEETUP";
+                    /** @description Comma-separated origin filter */
+                    origin?: "RU" | "WORLD";
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Page size */
+                    page_size?: number;
+                    /** @description Search by title and organiser */
+                    search?: string;
+                    /** @description Comma-separated state filter */
+                    state?: "UPCOMING" | "ACTIVE" | "FINISHED";
+                    /** @description Upper bound of the period */
+                    to?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.CatalogPage"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description too many catalog requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events/{id}": {
         parameters: {
             query?: never;
@@ -3192,6 +3278,90 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Join an event
+         * @description Self-signup: the user joins a published event and supplies their own team role.
+         *     A meetup has no team role, so the field may be omitted.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Own team role */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.JoinEventRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantSelfResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the user already takes part in the event */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description too many join attempts */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -3756,6 +3926,69 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * User schedule
+         * @description Only assigned, published, non-archived events. Each event is a separate row,
+         *     stages are returned as intervals and the registration deadline as a separate marker.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Start of the period, RFC3339 */
+                    from?: string;
+                    /** @description End of the period, RFC3339 */
+                    to?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ScheduleResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/telegram": {
         parameters: {
             query?: never;
@@ -3844,69 +4077,6 @@ export interface paths {
                 };
             };
         };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/me/timeline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * User timeline
-         * @description Only assigned, published, non-archived events. Each event is a separate row,
-         *     stages are returned as intervals and the registration deadline as a separate marker.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Start of the period, RFC3339 */
-                    from?: string;
-                    /** @description End of the period, RFC3339 */
-                    to?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["models.TimelineResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["models.ErrorResponse"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["models.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4139,6 +4309,55 @@ export interface components {
             participant_ids?: string[];
             status?: components["schemas"]["models.RegistrationStatusValue"];
         };
+        "models.CatalogEvent": {
+            /** @example Moscow */
+            city?: string;
+            /** @example RU */
+            country_code?: string;
+            description?: string;
+            effective_format: components["schemas"]["models.EventFormat"];
+            /** Format: date-time */
+            end_at: string;
+            format: components["schemas"]["models.EventFormat"];
+            id: string;
+            /** @example false */
+            joined: boolean;
+            kind: components["schemas"]["models.EventKind"];
+            offline_stages: components["schemas"]["models.CatalogPlace"][];
+            /** @example Organising committee */
+            organizer?: string;
+            origin: components["schemas"]["models.EventOrigin"];
+            /** @example RUB */
+            prize_currency?: string;
+            /** @example 500000.00 */
+            prize_pool?: string;
+            /** Format: date-time */
+            start_at: string;
+            state: components["schemas"]["models.EventState"];
+            /** @example 5 */
+            team_size_max?: number;
+            /** @example National event */
+            title: string;
+            /** @example Smart city */
+            track?: string;
+            /** @example https://example.com */
+            website_url?: string;
+        };
+        "models.CatalogPage": {
+            items: components["schemas"]["models.CatalogEvent"][];
+            meta: components["schemas"]["models.PageMeta"];
+        };
+        "models.CatalogPlace": {
+            /** Format: date-time */
+            end_at: string;
+            id: string;
+            /** @example Final */
+            name: string;
+            place: components["schemas"]["models.Place"];
+            /** Format: date-time */
+            start_at: string;
+            type: components["schemas"]["models.StageType"];
+        };
         "models.ChangeEmailRequest": {
             /** @example new@example.com */
             new_email?: string;
@@ -4159,15 +4378,30 @@ export interface components {
             user_id: string;
         };
         "models.CreateEventRequest": {
+            /** @example Moscow */
+            city?: string;
+            /** @example RU */
+            country_code?: string;
             description?: string;
             /** Format: date-time */
             end_at?: string;
+            format?: components["schemas"]["models.EventFormat"];
+            kind?: components["schemas"]["models.EventKind"];
             notes?: string;
             organizer?: string;
+            origin?: components["schemas"]["models.EventOrigin"];
+            /** @example RUB */
+            prize_currency?: string;
+            /** @example 500000.00 */
+            prize_pool?: string;
             /** Format: date-time */
             start_at?: string;
+            /** @example 5 */
+            team_size_max?: number;
             /** @example National event */
             title?: string;
+            /** @example Smart city */
+            track?: string;
             /** @example https://example.com */
             website_url?: string;
         };
@@ -4198,16 +4432,25 @@ export interface components {
             slot_no?: number;
         };
         "models.CreateStageRequest": {
+            /** @example Kazan */
+            city?: string;
+            /** @example RU */
+            country_code?: string;
             description?: string;
             /** Format: date-time */
             end_at?: string;
+            format?: components["schemas"]["models.EventFormat"];
             /** @example Call for applications */
             name?: string;
+            /** @example https://example.com/stream */
+            online_url?: string;
             sort_order?: number;
             /** Format: date-time */
             start_at?: string;
             type?: components["schemas"]["models.StageType"];
             url?: string;
+            /** @example IT Park */
+            venue?: string;
         };
         "models.CSRFResponse": {
             /** @example 0f2a5c8d1b3e4f60 */
@@ -4259,6 +4502,12 @@ export interface components {
             /** @example Developer */
             team_role?: string;
         };
+        /** @enum {string} */
+        "models.EventFormat": "ONLINE" | "OFFLINE" | "HYBRID";
+        /** @enum {string} */
+        "models.EventKind": "HACKATHON" | "MEETUP";
+        /** @enum {string} */
+        "models.EventOrigin": "RU" | "WORLD";
         "models.EventPage": {
             items: components["schemas"]["models.EventResponse"][];
             meta: components["schemas"]["models.PageMeta"];
@@ -4266,22 +4515,38 @@ export interface components {
         "models.EventResponse": {
             /** Format: date-time */
             archived_at?: string;
+            /** @example Moscow */
+            city?: string;
+            /** @example RU */
+            country_code?: string;
             /** Format: date-time */
             created_at: string;
             description?: string;
+            effective_format: components["schemas"]["models.EventFormat"];
             /** Format: date-time */
             end_at: string;
+            format: components["schemas"]["models.EventFormat"];
             id: string;
+            kind: components["schemas"]["models.EventKind"];
             notes?: string;
             /** @example Organising committee */
             organizer?: string;
+            origin: components["schemas"]["models.EventOrigin"];
+            /** @example RUB */
+            prize_currency?: string;
+            /** @example 500000.00 */
+            prize_pool?: string;
             /** Format: date-time */
             published_at?: string;
             /** Format: date-time */
             start_at: string;
             state: components["schemas"]["models.EventState"];
+            /** @example 5 */
+            team_size_max?: number;
             /** @example National event */
             title: string;
+            /** @example Smart city */
+            track?: string;
             /** Format: date-time */
             updated_at: string;
             /** @example https://example.com */
@@ -4326,6 +4591,10 @@ export interface components {
             id: string;
             /** Format: date-time */
             revoked_at?: string;
+        };
+        "models.JoinEventRequest": {
+            /** @example Backend developer */
+            team_role?: string;
         };
         "models.LoginRequest": {
             /** @example ivan@example.com */
@@ -4428,8 +4697,30 @@ export interface components {
             team_role: string;
             user: components["schemas"]["models.UserSummary"];
         };
+        "models.ParticipantSelfResponse": {
+            /** Format: date-time */
+            assigned_at: string;
+            event_id: string;
+            id: string;
+            participation_status: components["schemas"]["models.ParticipationStatus"];
+            /** @example Backend developer */
+            team_role: string;
+        };
         /** @enum {string} */
         "models.ParticipationStatus": "ASSIGNED" | "REMOVED";
+        "models.Place": {
+            /** @example Kazan */
+            city?: string;
+            /** @example RU */
+            country_code?: string;
+            format: components["schemas"]["models.EventFormat"];
+            /** @example true */
+            inherited: boolean;
+            /** @example https://example.com/stream */
+            online_url?: string;
+            /** @example IT Park */
+            venue?: string;
+        };
         "models.PreviewResponse": {
             /** @example 12 */
             affected: number;
@@ -4522,16 +4813,54 @@ export interface components {
             /** @example 7f9c0f0e2f4b4a1d */
             token?: string;
         };
+        "models.ScheduleItem": {
+            /** Format: date-time */
+            end_at: string;
+            id: string;
+            /** @example Call for applications */
+            name: string;
+            place: components["schemas"]["models.Place"];
+            /** Format: date-time */
+            start_at: string;
+            type: components["schemas"]["models.StageType"];
+        };
+        "models.ScheduleResponse": {
+            range: components["schemas"]["models.TimeRange"];
+            rows: components["schemas"]["models.ScheduleRow"][];
+        };
+        "models.ScheduleRow": {
+            effective_format: components["schemas"]["models.EventFormat"];
+            /** Format: date-time */
+            end_at: string;
+            event_id: string;
+            /** Format: date-time */
+            registration_deadline?: string;
+            stages: components["schemas"]["models.ScheduleItem"][];
+            /** Format: date-time */
+            start_at: string;
+            state: components["schemas"]["models.EventState"];
+            team_role?: string;
+            /** @example National event */
+            title: string;
+        };
         "models.StageResponse": {
+            /** @example Kazan */
+            city?: string;
+            /** @example RU */
+            country_code?: string;
             /** Format: date-time */
             created_at: string;
             description?: string;
             /** Format: date-time */
             end_at: string;
             event_id: string;
+            format?: components["schemas"]["models.EventFormat"];
             id: string;
             /** @example Call for applications */
             name: string;
+            /** @example https://example.com/stream */
+            online_url?: string;
+            place: components["schemas"]["models.Place"];
             /** @example 0 */
             sort_order: number;
             /** Format: date-time */
@@ -4541,6 +4870,8 @@ export interface components {
             updated_at: string;
             /** @example https://example.com/stage */
             url?: string;
+            /** @example IT Park */
+            venue?: string;
         };
         "models.StageShort": {
             /** Format: date-time */
@@ -4555,38 +4886,10 @@ export interface components {
         /** @enum {string} */
         "models.StageType": "REGISTRATION" | "SELECTION" | "PARTICIPATION" | "CHECKPOINT" | "SUBMISSION" | "DEMO" | "RESULTS" | "OTHER";
         "models.TelegramLinkResponse": {
-            /** @example https://t.me/hackathon_tracker_bot?start=abc123 */
+            /** @example https://t.me/timeline_bot?start=abc123 */
             deep_link: string;
             /** Format: date-time */
             expires_at: string;
-        };
-        "models.TimelineItem": {
-            /** Format: date-time */
-            end_at: string;
-            id: string;
-            /** @example Call for applications */
-            name: string;
-            /** Format: date-time */
-            start_at: string;
-            type: components["schemas"]["models.StageType"];
-        };
-        "models.TimelineResponse": {
-            range: components["schemas"]["models.TimeRange"];
-            rows: components["schemas"]["models.TimelineRow"][];
-        };
-        "models.TimelineRow": {
-            /** Format: date-time */
-            end_at: string;
-            event_id: string;
-            /** Format: date-time */
-            registration_deadline?: string;
-            stages: components["schemas"]["models.TimelineItem"][];
-            /** Format: date-time */
-            start_at: string;
-            state: components["schemas"]["models.EventState"];
-            team_role?: string;
-            /** @example National event */
-            title: string;
         };
         "models.TimeRange": {
             /** Format: date-time */
@@ -4599,14 +4902,29 @@ export interface components {
             token?: string;
         };
         "models.UpdateEventRequest": {
+            /** @example Moscow */
+            city?: string;
+            /** @example RU */
+            country_code?: string;
             description?: string;
             /** Format: date-time */
             end_at?: string;
+            format?: components["schemas"]["models.EventFormat"];
+            kind?: components["schemas"]["models.EventKind"];
             notes?: string;
             organizer?: string;
+            origin?: components["schemas"]["models.EventOrigin"];
+            /** @example RUB */
+            prize_currency?: string;
+            /** @example 500000.00 */
+            prize_pool?: string;
             /** Format: date-time */
             start_at?: string;
+            /** @example 5 */
+            team_size_max?: number;
             title?: string;
+            /** @example Smart city */
+            track?: string;
             website_url?: string;
         };
         "models.UpdateProfileRequest": {
@@ -4630,15 +4948,26 @@ export interface components {
             offset_minutes?: number;
         };
         "models.UpdateStageRequest": {
+            /** @example Kazan */
+            city?: string;
+            /** @example false */
+            clear_format?: boolean;
+            /** @example RU */
+            country_code?: string;
             description?: string;
             /** Format: date-time */
             end_at?: string;
+            format?: components["schemas"]["models.EventFormat"];
             name?: string;
+            /** @example https://example.com/stream */
+            online_url?: string;
             sort_order?: number;
             /** Format: date-time */
             start_at?: string;
             type?: components["schemas"]["models.StageType"];
             url?: string;
+            /** @example IT Park */
+            venue?: string;
         };
         "models.UpdateTeamRoleRequest": {
             /** @example Captain */

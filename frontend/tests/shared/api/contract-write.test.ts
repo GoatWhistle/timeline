@@ -33,7 +33,7 @@ describe('Contract compliance: writes', () => {
 
   it('PATCH /me', async () => {
     const { data, response } = await api.PATCH('/me', {
-      body: { display_name: 'Анна Администратор' },
+      body: { display_name: 'Anna Administrator' },
     })
     expect(response.status).toBe(200)
     assertMatchesContract('/me', 'patch', 200, data)
@@ -48,7 +48,7 @@ describe('Contract compliance: writes', () => {
   it('POST /admin/events → 201', async () => {
     const { data, response } = await api.POST('/admin/events', {
       body: {
-        title: 'Тестовое событие контракта',
+        title: 'Contract test event',
         start_at: new Date(Date.now() + 86_400_000).toISOString(),
         end_at: new Date(Date.now() + 2 * 86_400_000).toISOString(),
       },
@@ -60,7 +60,7 @@ describe('Contract compliance: writes', () => {
   it('POST /admin/events/{id}/participants/batch-add', async () => {
     const { data, response } = await api.POST('/admin/events/{id}/participants/batch-add', {
       params: { path: { id: EVENT_ID } },
-      body: { items: [{ user_id: participants[0]?.user.id ?? '', team_role: 'Разработчик' }] },
+      body: { items: [{ user_id: participants[0]?.user.id ?? '', team_role: 'Developer' }] },
     })
     expect(response.status).toBe(200)
     assertMatchesContract('/admin/events/{id}/participants/batch-add', 'post', 200, data)
@@ -86,7 +86,7 @@ describe('Contract compliance: writes', () => {
   it('PATCH /admin/participants/{id}/team-role', async () => {
     const { data, response } = await api.PATCH('/admin/participants/{id}/team-role', {
       params: { path: { id: PARTICIPANT_ID } },
-      body: { team_role: 'Тимлид' },
+      body: { team_role: 'Team Lead' },
     })
     expect(response.status).toBe(200)
     assertMatchesContract('/admin/participants/{id}/team-role', 'patch', 200, data)
@@ -96,7 +96,7 @@ describe('Contract compliance: writes', () => {
     const { data, response } = await api.POST('/admin/events/{id}/stages', {
       params: { path: { id: EVENT_ID } },
       body: {
-        name: 'Проверочный этап',
+        name: 'Verification stage',
         type: 'CHECKPOINT',
         start_at: new Date(Date.now() + 86_400_000).toISOString(),
         end_at: new Date(Date.now() + 2 * 86_400_000).toISOString(),

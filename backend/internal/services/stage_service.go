@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/adapters/repositories"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type StageService struct {
@@ -24,51 +24,62 @@ func NewStageService(db *repositories.DB, stages *repositories.StageRepository,
 	return &StageService{db: db, stages: stages, events: events, participants: participants, audit: audit}
 }
 
-func (s *StageService) List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.Stage, error) {
+func (s *StageService) List(ctx context.Context, actor models.Actor,
+	eventID uuid.UUID) ([]models.Stage, *models.Event, error) {
+	event, err := s.events.GetByID(ctx, eventID)
+	if err != nil {
+		return nil, nil, err
+	}
 	if !actor.IsAdmin {
-		event, err := s.events.GetByID(ctx, eventID)
-		if err != nil {
-			return nil, err
-		}
 		if !event.Published() {
-			return nil, models.NewNotFound("event not found")
+			return nil, nil, models.NewNotFound("event not found")
 		}
 		participant, err := s.participants.GetByEventUser(ctx, eventID, actor.UserID)
 		if err != nil || !participant.Assigned() {
-			return nil, models.NewNotFound("event not found")
+			return nil, nil, models.NewNotFound("event not found")
 		}
 	}
-	return s.stages.ListByEvent(ctx, eventID)
+	items, err := s.stages.ListByEvent(ctx, eventID)
+	if err != nil {
+		return nil, nil, err
+	}
+	return items, event, nil
 }
 
-func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateStageRequest) (*models.Stage, error) {
+func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+	req models.CreateStageRequest) (*models.Stage, *models.Event, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("the operation is restricted to administrators")
+		return nil, nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	name, err := validateText("name", req.Name, 1, 120)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if !req.Type.Valid() {
-		return nil, models.NewValidation("invalid stage type",
+		return nil, nil, models.NewValidation("invalid stage type",
 			models.FieldError{Field: "type", Message: "value is not allowed"})
 	}
 	if !req.EndAt.After(req.StartAt) {
-		return nil, models.NewValidation("stage end must be later than its start",
+		return nil, nil, models.NewValidation("stage end must be later than its start",
 			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
 	}
 	url, err := optionalHTTPS("url", req.URL)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	sortOrder := 0
 	if req.SortOrder != nil {
 		sortOrder = *req.SortOrder
 	}
+	place, err := resolveStagePlace(req.Format, false, req.CountryCode, req.City,
+		req.Venue, req.OnlineURL, stagePlace{})
+	if err != nil {
+		return nil, nil, err
+	}
 
 	event, err := s.events.GetByID(ctx, eventID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if req.StartAt.Before(event.StartAt) || req.EndAt.After(event.EndAt) {
 		slog.InfoContext(ctx, "stage extends beyond event period",
@@ -85,6 +96,11 @@ func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID u
 			EndAt:       req.EndAt.UTC(),
 			Description: req.Description,
 			URL:         url,
+			Format:      place.format,
+			CountryCode: place.countryCode,
+			City:        place.city,
+			Venue:       place.venue,
+			OnlineURL:   place.onlineURL,
 			SortOrder:   sortOrder,
 		})
 		if err != nil {
@@ -94,37 +110,45 @@ func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID u
 			map[string]any{"name": created.Name, "type": created.Type, "start_at": created.StartAt, "end_at": created.EndAt})
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return created, nil
+	return created, event, nil
 }
 
-func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.UUID, req models.UpdateStageRequest) (*models.Stage, error) {
+func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.UUID,
+	req models.UpdateStageRequest) (*models.Stage, *models.Event, error) {
 	if !actor.IsAdmin {
-		return nil, models.NewForbidden("the operation is restricted to administrators")
+		return nil, nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 	if req.Name != nil {
 		name, err := validateText("name", *req.Name, 1, 120)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		req.Name = &name
 	}
 	if req.Type != nil && !req.Type.Valid() {
-		return nil, models.NewValidation("invalid stage type",
+		return nil, nil, models.NewValidation("invalid stage type",
 			models.FieldError{Field: "type", Message: "value is not allowed"})
 	}
 	if req.URL != nil && *req.URL != "" {
 		url, err := validateHTTPS("url", *req.URL)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		req.URL = &url
 	}
 
-	var updated *models.Stage
+	var (
+		updated *models.Stage
+		event   *models.Event
+	)
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		before, err := s.stages.GetByID(ctx, id)
+		if err != nil {
+			return err
+		}
+		event, err = s.events.GetByID(ctx, before.EventID)
 		if err != nil {
 			return err
 		}
@@ -141,7 +165,14 @@ func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.U
 				models.FieldError{Field: "end_at", Message: "must be later than start_at"})
 		}
 
-		updated, err = s.stages.Update(ctx, id, req)
+		place, err := resolveStagePlace(req.Format, req.ClearFormat, req.CountryCode, req.City,
+			req.Venue, req.OnlineURL, stagePlace{format: before.Format, countryCode: before.CountryCode,
+				city: before.City, venue: before.Venue, onlineURL: before.OnlineURL})
+		if err != nil {
+			return err
+		}
+
+		updated, err = s.stages.Update(ctx, id, req, stagePlacePatch(place))
 		if err != nil {
 			return err
 		}
@@ -150,9 +181,9 @@ func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.U
 			map[string]any{"name": updated.Name, "start_at": updated.StartAt, "end_at": updated.EndAt})
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return updated, nil
+	return updated, event, nil
 }
 
 func (s *StageService) Delete(ctx context.Context, actor models.Actor, id uuid.UUID) error {

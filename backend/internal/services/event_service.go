@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/adapters/repositories"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type Reconciler interface {
@@ -54,22 +54,37 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req model
 	if err != nil {
 		return nil, err
 	}
+	prize, err := resolvePrize(req.PrizePool, req.PrizeCurrency, prizeAmount{})
+	if err != nil {
+		return nil, err
+	}
+	track, err := normalizeTrack(req.Track)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateTeamSizeMax(req.TeamSizeMax); err != nil {
+		return nil, err
+	}
 
 	var created *models.Event
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
 		created, err = s.events.Create(ctx, &models.Event{
-			Title:       title,
-			Description: req.Description,
-			Organizer:   req.Organizer,
-			WebsiteURL:  website,
-			Notes:       req.Notes,
-			Kind:        place.kind,
-			Format:      place.format,
-			Origin:      place.origin,
-			CountryCode: place.countryCode,
-			City:        place.city,
-			StartAt:     req.StartAt.UTC(),
-			EndAt:       req.EndAt.UTC(),
+			Title:         title,
+			Description:   req.Description,
+			Organizer:     req.Organizer,
+			WebsiteURL:    website,
+			Notes:         req.Notes,
+			Kind:          place.kind,
+			Format:        place.format,
+			Origin:        place.origin,
+			CountryCode:   place.countryCode,
+			City:          place.city,
+			Track:         track,
+			PrizePool:     prize.pool,
+			PrizeCurrency: prize.currency,
+			TeamSizeMax:   req.TeamSizeMax,
+			StartAt:       req.StartAt.UTC(),
+			EndAt:         req.EndAt.UTC(),
 		})
 		if err != nil {
 			return err
@@ -147,6 +162,22 @@ func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.U
 			resolvedPlace{kind: before.Kind, format: before.Format, origin: before.Origin,
 				countryCode: before.CountryCode, city: before.City})
 		if err != nil {
+			return err
+		}
+		prize, err := resolvePrize(req.PrizePool, req.PrizeCurrency,
+			prizeAmount{pool: before.PrizePool, currency: before.PrizeCurrency})
+		if err != nil {
+			return err
+		}
+		req.PrizePool, req.PrizeCurrency = prize.pool, prize.currency
+		if req.Track != nil {
+			track, err := normalizeTrack(req.Track)
+			if err != nil {
+				return err
+			}
+			req.Track = track
+		}
+		if err := validateTeamSizeMax(req.TeamSizeMax); err != nil {
 			return err
 		}
 

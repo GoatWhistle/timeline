@@ -60,13 +60,13 @@ export function AppRouter() {
           <Route element={<AppShell />}>
             <Route index element={<MyEventsPage />} />
             <Route path="/events/:id" element={<EventCardPage />} />
-            <Route path="/timeline" element={<MySchedulePage />} />
+            <Route path="/schedule" element={<MySchedulePage />} />
             <Route path="/profile" element={<ProfilePage />} />
 
             <Route element={<RequireAdmin />}>
               <Route path="/admin/events" element={<AdminEventsPage />} />
               <Route path="/admin/events/:id" element={<AdminEventPage />} />
-              <Route path="/admin/timeline" element={<AdminSchedulePage />} />
+              <Route path="/admin/schedule" element={<AdminSchedulePage />} />
               <Route path="/admin/deadlines" element={<AdminDeadlinesPage />} />
               <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/invites" element={<AdminInvitesPage />} />

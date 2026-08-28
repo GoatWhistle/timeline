@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { myTimelineQuery } from '@/entities/schedule/schedule.queries'
-import type { TimelineScale } from '@/features/schedule/model/schedule-scale'
+import { myScheduleQuery } from '@/entities/schedule/schedule.queries'
+import type { ScheduleScale } from '@/features/schedule/model/schedule-scale'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid'
 import { ScheduleLegend } from '@/features/schedule/ui/schedule-legend'
 import { ZoomSwitch } from '@/features/schedule/zoom-switch/zoom-switch'
@@ -16,8 +16,8 @@ const DEFAULTS = { scale: 'month' as string }
 export function MySchedulePage() {
   const { t } = useTranslation()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
-  const scale: TimelineScale = filters.scale === 'week' ? 'week' : 'month'
-  const query = useQuery(myTimelineQuery({}))
+  const scale: ScheduleScale = filters.scale === 'week' ? 'week' : 'month'
+  const query = useQuery(myScheduleQuery({}))
 
   return (
     <div>

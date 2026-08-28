@@ -3,9 +3,9 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/httpx"
-	"github.com/kaifarikman/hackathon-os-backend/internal/controllers/middleware"
-	"github.com/kaifarikman/hackathon-os-backend/internal/models"
+	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
+	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type ParticipantController struct {
@@ -28,7 +28,7 @@ func NewParticipantController(svc ParticipantService, pageDef, pageMax int) *Par
 // @Param		include_removed		query		bool	false	"Include participants removed from the roster"
 // @Param		search				query		string	false	"Search by name and email"
 // @Param		page				query		int		false	"Page number"	default(1)
-// @Param		page_size			query		int		false	"Page size"	default(50)
+// @Param		page_size			query		int		false	"Page size"		default(50)
 // @Success	200					{object}	models.ParticipantPage
 // @Failure	403					{object}	models.ErrorResponse
 // @Failure	404					{object}	models.ErrorResponse

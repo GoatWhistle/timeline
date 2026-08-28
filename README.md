@@ -1,247 +1,275 @@
 # Timeline
 
-Трекер участия в хакатонах. Администратор заводит хакатон, назначает участников
-и настраивает напоминания; участник видит свои назначения и сам отмечает, что
-зарегистрировался. Напоминания уходят в Telegram или на email.
+A tracker for participation in events. An administrator creates an event, assigns
+participants and configures reminders; a participant sees their assignments and
+marks for themselves that they have registered. Reminders go out via Telegram or
+email.
 
-**Ключевая оговорка.** Система не проверяет внешний сайт регистрации. Статус
-регистрации — самоотчёт пользователя либо административно установленное
-состояние, а не подтверждённый факт. Формулировки в интерфейсе честные:
-«вы отметили», не «подтверждено».
+**Key caveat.** The system does not verify the external registration site. The
+registration status is a user's self-report or an administratively set state, not
+a confirmed fact. The wording in the interface is honest: "you marked", not
+"confirmed".
 
-Архитектура: модульный монолит на Go, PostgreSQL, REST/JSON API, React SPA,
-отдельный процесс worker/scheduler для доставки уведомлений.
+Architecture: a modular monolith in Go, PostgreSQL, a REST/JSON API, a React SPA
+and a separate worker/scheduler process for notification delivery.
 
-## Быстрый старт
+## Quick start
 
-Приложение работает только в контейнерах: Go, Node и PostgreSQL на машине для
-запуска не нужны, достаточно Docker.
+The application runs in containers only: Go, Node and PostgreSQL are not needed
+on the machine, Docker is enough.
 
 ```bash
-make docker-up     # боевой режим: nginx с production-сборкой фронтенда
-make dev           # режим разработки: HMR у фронтенда, go run у backend
-make dev MOCKS=1   # то же, но экраны работают на моках MSW
-make dev-restart   # перекомпилировать и перезапустить backend
-make docker-down   # остановить стек (том с данными сохраняется)
-make help          # полный список команд
+make docker-up     # production mode: nginx with the production frontend build
+make dev           # development mode: HMR for the frontend, go run for the backend
+make dev MOCKS=1   # the same, but screens run on MSW mocks
+make dev-restart   # recompile and restart the backend
+make docker-down   # stop the stack (the data volume is preserved)
+make help          # the full list of commands
 ```
 
-По умолчанию: приложение на `http://localhost:5173`, API на
-`http://localhost:8080`, Swagger UI на `/docs/`, вход `admin@example.com`
-с паролем `password123`.
+By default: the application on `http://localhost:5173`, the API on
+`http://localhost:8080`, Swagger UI on `/docs/`, sign in as `admin@example.com`
+with the password `password123`.
 
-Порты переопределяются переменными:
+Ports are overridden through variables:
 
 ```bash
 make docker-up WEB_PORT=5199 API_PORT=8099 POSTGRES_PORT=5433
 ```
 
-Оба режима поднимают один и тот же состав: postgres → миграции → создание
-первого администратора → API → worker → фронтенд. Отличается только последняя
-пара: в боевом режиме nginx раздаёт собранный SPA и проксирует `/api` и `/docs`
-на API, в режиме разработки dev-сервер Vite отдаёт SPA с HMR и проксирует
-`/api` сам. Исходники в режиме разработки смонтированы в контейнеры: правки
-фронтенда подхватываются сразу, backend перекомпилируется по `make dev-restart`.
+Both modes bring up the same set of services: postgres -> migrations -> creation of
+the first administrator -> API -> worker -> frontend. Only the last pair differs: in
+production mode nginx serves the built SPA and proxies `/api` and `/docs` to the
+API, while in development mode the Vite dev server serves the SPA with HMR and
+proxies `/api` itself. In development mode the sources are mounted into the
+containers: frontend edits are picked up immediately, the backend is recompiled by
+`make dev-restart`.
 
-Учётные записи в режиме моков — пароль у обеих `password123`:
+Accounts in mock mode - the password for both is `password123`:
 
-| Учётная запись      | Роль          |
+| Account             | Role          |
 |---------------------|---------------|
-| `admin@example.com` | администратор |
-| `user@example.com`  | участник      |
+| `admin@example.com` | administrator |
+| `user@example.com`  | participant   |
 
-## Структура
+## Structure
 
 ```
 backend/     Go: cmd, internal/{config,models,services,adapters,controllers,cli}, migrations
 frontend/    React + TypeScript + Vite, Tailwind + shadcn/ui, TanStack Query, react-router
-deploy/      Dockerfile backend и frontend, nginx.conf, docker-compose.yml (+ .dev.yml)
-docs/        ТЗ, backlog, порядок реализации, соглашения API, OpenAPI, базовые уровни
-scripts/     Проверки-храповики: лимит строк, размер сборки
-Makefile     Команды разработки монорепозитория
+deploy/      Backend and frontend Dockerfiles, nginx.conf, docker-compose.yml (+ .dev.yml)
+docs/        Specification, backlog, implementation order, API conventions, OpenAPI, baselines
+scripts/     Ratchet checks: line limit, bundle size
+Makefile     Monorepo development commands
 ```
 
-Оба Dockerfile многостадийные: стадия `runtime` собирается по умолчанию и идёт
-в боевой режим, стадия `dev` используется только оверлеем
-`deploy/docker-compose.dev.yml`.
+Both Dockerfiles are multi-stage: the `runtime` stage is built by default and goes
+to production, the `dev` stage is used only by the `deploy/docker-compose.dev.yml`
+overlay.
 
-Внутри backend слои разделены строго: `controllers` знают про HTTP, `services`
-содержат доменные правила и транзакционные границы, `adapters/repositories` —
-SQL поверх pgx, `models` — типы домена и ошибки. Контроллер не ходит в
-репозиторий напрямую.
+Inside the backend the layers are strictly separated: `controllers` know about
+HTTP, `services` hold domain rules and transaction boundaries,
+`adapters/repositories` is SQL over pgx, `models` is domain types and errors. A
+controller never reaches into a repository directly.
 
-Frontend организован по модулям предметной области (`src/modules/*`), общий код —
-в `src/shared` (`api`, `ui`, `lib`), оболочка и маршруты — в `src/app`.
-Кросс-импорты между доменными модулями запрещены: обмен идёт через `shared` и
-маршруты. Экран, которому нужно несколько модулей сразу, живёт в `app/pages`.
+The frontend is organised into layers: `src/app` is the shell and routes,
+`src/entities` and `src/features` are the domain, and shared code lives in
+`src/shared` (`api`, `ui`, `lib`). Cross-imports between domain modules are
+forbidden: exchange goes through `shared` and the routes.
 
-Конфигурация приложения — только переменные окружения
-(`backend/internal/config`), файлы `.env` приложением не читаются.
-`backend/.env.example` — полный список параметров; `make docker-up` создаёт из
-него `backend/.env`, который compose передаёт контейнерам.
+Application configuration comes only from environment variables
+(`backend/internal/config`); the application does not read `.env` files.
+`backend/.env.example` is the full list of parameters; `make docker-up` creates
+`backend/.env` from it, which compose passes to the containers.
 
-Игнор-файл в репозитории один — корневой `.gitignore`. `.dockerignore` остаётся
-отдельным: у него другая задача — контекст сборки образа, и Docker читает
-только его.
+There is a single ignore file in the repository - the root `.gitignore`.
+`.dockerignore` stays separate: it has a different job, the image build context,
+and Docker reads only that one.
 
-## Проверки
+## Checks
 
-В отличие от запуска приложения, проверки выполняются на машине и требуют
-Node. Go нужен не обязательно: при его отсутствии проверки backend выполняются
-в контейнере. В CI выполняются те же команды.
+Unlike running the application, the checks run on the machine and require Node. Go
+is not strictly required: when it is absent the backend checks run in a container.
+CI runs the same commands.
 
 ```bash
-make verify      # полная проверка: лимит строк, контракт, типы, линтеры, тесты
-make lint        # Biome по frontend и golangci-lint по backend
+make verify      # full check: line limit, contract, types, linters, tests
+make lint        # Biome for the frontend and golangci-lint for the backend
 make test        # vitest
-make test-cover  # vitest с покрытием и проверкой порогов
+make test-cover  # vitest with coverage and threshold checks
 make typecheck   # tsc --noEmit
 make back-test   # go test ./...
-make back-cover  # go test с профилем покрытия
+make back-cover  # go test with a coverage profile
 make back-vet    # go vet ./...
-make back-lint   # golangci-lint: весь долг, включая существующий
+make back-lint   # golangci-lint: the whole debt, including what already exists
 ```
 
-`make verify` должен проходить до того, как задача считается сделанной.
+`make verify` must pass before a task counts as done.
 
-### Храповики
+### Ratchets
 
-Три проверки работают от зафиксированного базового уровня, а не от жёсткого
-порога. Жёсткий порог на репозитории с 25 файлами сверх лимита строк и
-покрытием около 11% уронил бы CI в первый же день, после чего проверку просто
-отключили бы. Базовый уровень равен достигнутому и никогда не опускается:
-каждое изменение либо держит уровень, либо поднимает его.
+Three checks work from a recorded baseline rather than from a hard threshold. On a
+repository with 25 files over the line limit and coverage around 11%, a hard
+threshold would break CI on the very first day, after which the check would simply
+be switched off. The baseline equals what has been achieved and never drops: every
+change either holds the level or raises it.
 
-| Проверка | Базовый уровень | Команда |
+| Check | Baseline | Command |
 |----|----|----|
-| Лимит 250 строк на рукописный код | `docs/baselines/file-length.txt` | `make file-length` |
-| Покрытие frontend | `frontend/vitest.config.ts`, `docs/baselines/coverage.json` | `make test-cover` |
-| Размер production-сборки | `docs/baselines/bundle-size.json` | `make bundle-size` |
-| Замечания golangci-lint | история git (`--new-from-merge-base`) | `make back-lint-new` |
+| 250-line limit for hand-written code | `docs/baselines/file-length.txt` | `make file-length` |
+| Frontend coverage | `frontend/vitest.config.ts`, `docs/baselines/coverage.json` | `make test-cover` |
+| Production bundle size | `docs/baselines/bundle-size.json` | `make bundle-size` |
+| golangci-lint issues | git history (`--new-from-merge-base`) | `make back-lint-new` |
 
-Линтер backend работает от истории, а не от файла с базовым уровнем: на момент
-подключения существующий код даёт 88 замечаний (75 `lll`, 4 `funlen`,
+The backend linter works from history rather than from a baseline file: at the
+moment it was wired up the existing code produced 88 issues (75 `lll`, 4 `funlen`,
 3 `gocyclo`, 2 `unused`, 2 `gosec`, 1 `errcheck`, 1 `revive`). `make back-lint`
-показывает весь долг и потому падает — это справочная команда;
-`make back-lint-new` и CI показывают только замечания, внесённые самим
-изменением, и в `make verify` входит именно она. Долг разбирается задачами
-этапа 6, а не блокирует каждый коммит.
+shows the whole debt and therefore fails - it is a reference command;
+`make back-lint-new` and CI show only the issues introduced by the change itself,
+and that is the one included in `make verify`. The debt is worked off by stage 6
+tasks rather than blocking every commit.
 
-Лимит 250 строк распространяется на рукописный `.go`, `.ts`, `.tsx`, `.css`.
-Не распространяется на генерируемое (`*.gen.*`, `schema.d.ts`, `swagger.*`) и
-на SQL-миграции: миграцию нельзя разрезать пополам. Проверка падает, если
-лимит превысил новый файл или вырос существующий.
+The 250-line limit applies to hand-written `.go`, `.ts`, `.tsx` and `.css`. It does
+not apply to generated files (`*.gen.*`, `schema.d.ts`, `swagger.*`) or to SQL
+migrations: a migration cannot be cut in half. The check fails if a new file
+exceeds the limit or an existing one grows.
 
-Размер сборки не должен расти больше чем на десятую от базового уровня.
+The bundle size must not grow by more than a tenth of the baseline.
 
-Базовые уровни перезаписываются только в сторону улучшения:
+Baselines are rewritten only towards improvement:
 
 ```bash
 make baseline-file-length
 make baseline-bundle-size
 ```
 
-## Контракт
+## Contract
 
-`docs/swagger.json` ведёт backend в формате Swagger 2.0, генерируется из
-аннотаций swag рядом с кодом контроллеров и в
-`backend/internal/controllers/router.go`. Руками не правится. Контракт
-пишется до реализации: endpoint сначала описывается в OpenAPI, потом
-реализуется — тогда frontend и backend идут параллельно от общего контракта.
+`docs/swagger.json` is produced by the backend in Swagger 2.0 format, generated
+from the swag annotations next to the controller code and in
+`backend/internal/controllers/router.go`. It is never edited by hand. The contract
+is written before the implementation: an endpoint is first described in OpenAPI and
+only then implemented - that way the frontend and the backend proceed in parallel
+from a shared contract.
 
-После изменения API:
+After an API change:
 
 ```bash
-make back-docs   # пересобрать swagger.yaml/json и опубликовать в docs/
-make types       # перегенерировать frontend/src/shared/api/types.gen.ts
-make types-check # упасть, если типы отстали от контракта (выполняется в CI)
+make back-docs   # rebuild swagger.yaml/json and publish them to docs/
+make types       # regenerate frontend/src/shared/api/types.gen.ts
+make types-check # fail if the types have fallen behind the contract (runs in CI)
 ```
 
-Файлы `*.gen.*` руками не правятся.
+`*.gen.*` files are never edited by hand.
 
-Генератор типов (`frontend/scripts/generate-api-types.mjs`) делает три вещи
-помимо конвертации в OpenAPI 3, и все три компенсируют особенности исходного
-контракта:
+The type generator (`frontend/scripts/generate-api-types.mjs`) does three things
+besides converting to OpenAPI 3, and all three compensate for quirks of the source
+contract:
 
-1. **`required`.** Контракт почти не размечает обязательность (10 схем из 79),
-   из-за чего все поля стали бы `optional`. Обязательными считаются все поля,
-   кроме перечисленных в `OPTIONAL` — этот список выведен из ТЗ.
-2. **`format: date-time`.** В контракте нет ни одного такого формата, хотя по
-   соглашениям API всё время передаётся в RFC 3339.
-3. **Свёртка `enum` + `$ref`.** Генератор контракта дублирует enum рядом со
-   ссылкой; без свёртки получается пересечение типов вместо объединения.
+1. **`required`.** The contract barely marks anything as required, which would make
+   every field `optional`. All fields are treated as required except those listed
+   in `OPTIONAL` - that list is derived from the specification.
+2. **`format: date-time`.** The contract contains no such format at all, even
+   though by the API conventions every moment is transferred in RFC 3339.
+3. **Collapsing `enum` + `$ref`.** The contract generator duplicates the enum next
+   to the reference; without collapsing it you get an intersection of types instead
+   of a union.
 
-Все три правки исчезнут, как только те же сведения появятся в самом контракте.
+All three patches disappear as soon as the same information appears in the contract
+itself.
 
-`frontend/src/shared/api/contract.test.ts` прогоняет каждый смоканный endpoint
-и валидирует тело ответа против схемы контракта через ajv. Это ловит то, что
-не видит `tsc`: расхождение фактических данных со спецификацией.
+The contract tests in `frontend/tests/shared/api/` run every mocked endpoint and
+validate the response body against the contract schema via ajv. This catches what
+`tsc` cannot see: a divergence between the actual data and the specification.
 
-## Миграции
+## Migrations
 
-Только вперёд, парой `NNNNNN_name.up.sql` / `.down.sql` в `backend/migrations`.
-Существующие применённые миграции не редактируются.
+Forward only, as a `NNNNNN_name.up.sql` / `.down.sql` pair in `backend/migrations`.
+Existing applied migrations are never edited.
 
-Правила, которые обычный `CHECK` выразить не может, решены явными приёмами и
-менять их походя нельзя: `registration.deadline_at <= hackathon.end_at` — через
-денормализованный `hackathon_end_at` в той же строке, «не больше 10 правил на
-Registration» — через нумерованные слоты `slot_no` и сервисный слой,
-неизменяемость `audit_log` и запрет удаления `notifications` — через триггеры.
+Rules that a plain `CHECK` cannot express are solved with explicit techniques and
+must not be changed casually: `registration.deadline_at <= event.end_at` through a
+denormalised `event_end_at` in the same row; "no more than 10 rules per
+Registration" through numbered `slot_no` slots and the service layer; the
+immutability of `audit_log` and the ban on deleting `notifications` through
+triggers.
 
-## Что стоит помнить
+## Worth remembering
 
-* **Cookie и CSRF.** Сессия — `HttpOnly` cookie (`access_token` 15 минут,
-  `refresh_token` 30 дней с ротацией). Любой изменяющий запрос обязан нести
-  `X-CSRF-Token`, совпадающий с cookie `csrf_token`; токен ротируется, поэтому
-  клиент перечитывает его из cookie после ответа. Поэтому же SPA и API держатся
-  на одном origin (vite proxy в разработке, nginx в Docker).
-* **403 против 404.** Объект существует, но роль не даёт доступа — `403`.
-  Объект чужой и сам факт его существования раскрывать нельзя — `404`.
-* **Batch-операции** возвращают `200` даже при частичных отказах, каждый элемент
-  обрабатывается своей транзакцией, результат — построчный.
-* **Дедупликация уведомлений** держится на версионируемом `logical_key`.
-  Прежде чем трогать scheduler, worker или правила, перечитайте раздел 9 ТЗ и
-  сценарии AC-NOTIF-01…19.
-* **Моки MSW** покрывают весь контракт и живут в `frontend/src/mocks`. При
-  изменении API их нужно обновлять вместе с типами. Включаются только через
-  `make dev MOCKS=1`; в боевой сборке MSW вырезается из бандла целиком.
-* **Тесты — слабое место.** Сейчас в репозитории только точечные проверки.
-  Задачи QA-01…QA-07 из backlog не закрыты; при работе над доменом уведомлений,
-  правами и worker тесты приёмочных сценариев пишутся вместе с кодом.
+* **Cookies and CSRF.** A session is an `HttpOnly` cookie (`access_token` 15
+  minutes, `refresh_token` 30 days with rotation). Every mutating request must
+  carry `X-CSRF-Token` matching the `csrf_token` cookie; the token rotates, so the
+  client re-reads it from the cookie after a response. That is also why the SPA and
+  the API stay on one origin (the vite proxy in development, nginx in Docker).
+* **403 versus 404.** The object exists but the role grants no access - `403`. The
+  object belongs to someone else and its very existence must not be revealed -
+  `404`.
+* **Batch operations** return `200` even on partial failures, each item is processed
+  in its own transaction, and the result is per-row.
+* **Notification deduplication** rests on a versioned `logical_key`. Before touching
+  the scheduler, the worker or the rules, re-read section 9 of the specification and
+  scenarios AC-NOTIF-01...19.
+* **MSW mocks** cover the whole contract and live in `frontend/src/mocks`. When the
+  API changes they must be updated together with the types. They are enabled only
+  through `make dev MOCKS=1`; in a production build MSW is stripped from the bundle
+  entirely.
+* **Tests are the weak spot.** Right now the repository has only targeted checks.
+  Tasks QA-01...QA-07 from the backlog are not closed; when working on the
+  notification domain, permissions and the worker, acceptance-scenario tests are
+  written together with the code.
 
-## Язык и код
+## Language and code
 
-Комментарии в коде не пишутся — ни строчные, ни блочные, ни docstring.
-Комментарии в конфигурации (YAML, Makefile, скрипты) допустимы.
+No comments are written in code - neither line, nor block, nor docstring.
+Comments in configuration (YAML, Makefile, scripts) are allowed, but they are
+written in English.
 
-Комментарии в документации, сообщения об ошибках, продуктовые тексты и
-уведомления — на русском. Сообщения коммитов — `тип: описание` на русском
-(`feat`, `fix`, `docs`, `build`, `chore`, `refactor`, `test`).
+Russian lives in exactly two places: `docs/` and the JSON localisation
+dictionaries (`frontend/src/shared/i18n/locales/`,
+`backend/internal/locale/messages/`). Everywhere else is English.
 
-## Документация
+Commit messages are `type: description` in Russian (`feat`, `fix`, `docs`,
+`build`, `chore`, `refactor`, `test`).
 
-Порядок приоритета при расхождениях:
+### Mass renames and `git blame`
 
-1. [docs/technical-specification.md](docs/technical-specification.md) — ТЗ.
-   Доменные правила, состояния и переходы, приёмочные сценарии (раздел 19),
-   параметры конфигурации (приложение C). OpenAPI не может менять доменные
-   правила.
-2. [docs/api-conventions.md](docs/api-conventions.md) — общие правила
-   транспорта: схема ошибки, пагинация, batch-результат, коды состояния,
-   политика 403/404.
-3. [docs/swagger.yaml](docs/swagger.yaml) / [swagger.json](docs/swagger.json) —
-   контракт endpoint. Генерируется из аннотаций в коде, руками не правится.
-4. [docs/tasks.md](docs/tasks.md) — backlog MVP (INF, BE, FE, QA) с полями
-   `ТЗ`, `Приёмка`, `Зависит`.
-5. [docs/dependency-order.md](docs/dependency-order.md) — единственный источник
-   истины по очерёдности работ.
+Repository-wide mechanical renames (the module path, symbol renames, a language
+sweep) produce commits that touch hundreds of files without changing behaviour.
+They drown out `git blame`. The hashes of such commits are listed in
+`.git-blame-ignore-revs`, one per line with a comment naming the change.
 
-Планы развития:
+To make `git blame` skip them locally, configure it once:
 
-* [docs/refactoring.md](docs/refactoring.md) — план рефакторинга и развития.
-* [docs/todo.md](docs/todo.md) — рабочий список задач по нему.
-* [docs/realtime-notifications.md](docs/realtime-notifications.md) — план
-  доставки уведомлений в реальном времени.
-* [docs/frontend-status.md](docs/frontend-status.md) — что закрыто на стороне
-  SPA и что осталось.
-* [docs/baselines/](docs/baselines/) — базовые уровни храповиков.
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+GitHub applies the file automatically. When you land a mass-rename commit, add its
+hash to `.git-blame-ignore-revs` in a follow-up commit - the hash is not known until
+the rename is committed.
+
+## Documentation
+
+Priority order when sources disagree:
+
+1. [docs/technical-specification.md](docs/technical-specification.md) - the
+   specification. Domain rules, states and transitions, acceptance scenarios
+   (section 19), configuration parameters (appendix C). OpenAPI cannot change
+   domain rules.
+2. [docs/api-conventions.md](docs/api-conventions.md) - shared transport rules: the
+   error schema, pagination, batch results, status codes, the 403/404 policy.
+3. [docs/swagger.yaml](docs/swagger.yaml) / [swagger.json](docs/swagger.json) - the
+   endpoint contract. Generated from annotations in the code, never edited by hand.
+4. [docs/tasks.md](docs/tasks.md) - the MVP backlog (INF, BE, FE, QA).
+5. [docs/dependency-order.md](docs/dependency-order.md) - the single source of truth
+   for the order of work.
+
+Development plans:
+
+* [docs/refactoring.md](docs/refactoring.md) - the refactoring and development plan.
+* [docs/todo.md](docs/todo.md) - the working task list derived from it.
+* [docs/realtime-notifications.md](docs/realtime-notifications.md) - the plan for
+  real-time notification delivery.
+* [docs/frontend-status.md](docs/frontend-status.md) - what is closed on the SPA side
+  and what remains.
+* [docs/baselines/](docs/baselines/) - the ratchet baselines.

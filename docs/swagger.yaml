@@ -196,6 +196,109 @@ definitions:
         example: X-CSRF-Token
         type: string
     type: object
+  models.CatalogEvent:
+    properties:
+      city:
+        example: Moscow
+        type: string
+      country_code:
+        example: RU
+        type: string
+      description:
+        type: string
+      effective_format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
+      end_at:
+        type: string
+      format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
+      id:
+        type: string
+      joined:
+        example: false
+        type: boolean
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.EventKind'
+        enum:
+        - HACKATHON
+        - MEETUP
+      offline_stages:
+        items:
+          $ref: '#/definitions/models.CatalogPlace'
+        type: array
+      organizer:
+        example: Organising committee
+        type: string
+      origin:
+        allOf:
+        - $ref: '#/definitions/models.EventOrigin'
+        enum:
+        - RU
+        - WORLD
+      prize_currency:
+        example: RUB
+        type: string
+      prize_pool:
+        example: "500000.00"
+        type: string
+      start_at:
+        type: string
+      state:
+        allOf:
+        - $ref: '#/definitions/models.EventState'
+        enum:
+        - UPCOMING
+        - ACTIVE
+        - FINISHED
+      team_size_max:
+        example: 5
+        type: integer
+      title:
+        example: National event
+        type: string
+      track:
+        example: Smart city
+        type: string
+      website_url:
+        example: https://example.com
+        type: string
+    type: object
+  models.CatalogPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.CatalogEvent'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.CatalogPlace:
+    properties:
+      end_at:
+        type: string
+      id:
+        type: string
+      name:
+        example: Final
+        type: string
+      place:
+        $ref: '#/definitions/models.Place'
+      start_at:
+        type: string
+      type:
+        $ref: '#/definitions/models.StageType'
+    type: object
   models.ChangeEmailRequest:
     properties:
       new_email:
@@ -242,18 +345,55 @@ definitions:
     type: object
   models.CreateEventRequest:
     properties:
+      city:
+        example: Moscow
+        type: string
+      country_code:
+        example: RU
+        type: string
       description:
         type: string
       end_at:
         type: string
+      format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.EventKind'
+        enum:
+        - HACKATHON
+        - MEETUP
       notes:
         type: string
       organizer:
         type: string
+      origin:
+        allOf:
+        - $ref: '#/definitions/models.EventOrigin'
+        enum:
+        - RU
+        - WORLD
+      prize_currency:
+        example: RUB
+        type: string
+      prize_pool:
+        example: "500000.00"
+        type: string
       start_at:
         type: string
+      team_size_max:
+        example: 5
+        type: integer
       title:
         example: National event
+        type: string
+      track:
+        example: Smart city
         type: string
       website_url:
         example: https://example.com
@@ -302,12 +442,28 @@ definitions:
     type: object
   models.CreateStageRequest:
     properties:
+      city:
+        example: Kazan
+        type: string
+      country_code:
+        example: RU
+        type: string
       description:
         type: string
       end_at:
         type: string
+      format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
       name:
         example: Call for applications
+        type: string
+      online_url:
+        example: https://example.com/stream
         type: string
       sort_order:
         type: integer
@@ -326,6 +482,9 @@ definitions:
         - RESULTS
         - OTHER
       url:
+        type: string
+      venue:
+        example: IT Park
         type: string
     type: object
   models.DeadlineItem:
@@ -428,6 +587,32 @@ definitions:
         example: Developer
         type: string
     type: object
+  models.EventFormat:
+    enum:
+    - ONLINE
+    - OFFLINE
+    - HYBRID
+    type: string
+    x-enum-varnames:
+    - FormatOnline
+    - FormatOffline
+    - FormatHybrid
+  models.EventKind:
+    enum:
+    - HACKATHON
+    - MEETUP
+    type: string
+    x-enum-varnames:
+    - EventKindHackathon
+    - EventKindMeetup
+  models.EventOrigin:
+    enum:
+    - RU
+    - WORLD
+    type: string
+    x-enum-varnames:
+    - OriginRU
+    - OriginWorld
   models.EventPage:
     properties:
       items:
@@ -441,18 +626,56 @@ definitions:
     properties:
       archived_at:
         type: string
+      city:
+        example: Moscow
+        type: string
+      country_code:
+        example: RU
+        type: string
       created_at:
         type: string
       description:
         type: string
+      effective_format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
       end_at:
         type: string
+      format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
       id:
         type: string
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.EventKind'
+        enum:
+        - HACKATHON
+        - MEETUP
       notes:
         type: string
       organizer:
         example: Organising committee
+        type: string
+      origin:
+        allOf:
+        - $ref: '#/definitions/models.EventOrigin'
+        enum:
+        - RU
+        - WORLD
+      prize_currency:
+        example: RUB
+        type: string
+      prize_pool:
+        example: "500000.00"
         type: string
       published_at:
         type: string
@@ -467,8 +690,14 @@ definitions:
         - ACTIVE
         - FINISHED
         - ARCHIVED
+      team_size_max:
+        example: 5
+        type: integer
       title:
         example: National event
+        type: string
+      track:
+        example: Smart city
         type: string
       updated_at:
         type: string
@@ -543,6 +772,12 @@ definitions:
       id:
         type: string
       revoked_at:
+        type: string
+    type: object
+  models.JoinEventRequest:
+    properties:
+      team_role:
+        example: Backend developer
         type: string
     type: object
   models.LoginRequest:
@@ -732,6 +967,24 @@ definitions:
       user:
         $ref: '#/definitions/models.UserSummary'
     type: object
+  models.ParticipantSelfResponse:
+    properties:
+      assigned_at:
+        type: string
+      event_id:
+        type: string
+      id:
+        type: string
+      participation_status:
+        allOf:
+        - $ref: '#/definitions/models.ParticipationStatus'
+        enum:
+        - ASSIGNED
+        - REMOVED
+      team_role:
+        example: Backend developer
+        type: string
+    type: object
   models.ParticipationStatus:
     enum:
     - ASSIGNED
@@ -740,6 +993,31 @@ definitions:
     x-enum-varnames:
     - ParticipationAssigned
     - ParticipationRemoved
+  models.Place:
+    properties:
+      city:
+        example: Kazan
+        type: string
+      country_code:
+        example: RU
+        type: string
+      format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
+      inherited:
+        example: true
+        type: boolean
+      online_url:
+        example: https://example.com/stream
+        type: string
+      venue:
+        example: IT Park
+        type: string
+    type: object
   models.PreviewResponse:
     properties:
       affected:
@@ -921,8 +1199,68 @@ definitions:
         example: 7f9c0f0e2f4b4a1d
         type: string
     type: object
+  models.ScheduleItem:
+    properties:
+      end_at:
+        type: string
+      id:
+        type: string
+      name:
+        example: Call for applications
+        type: string
+      place:
+        $ref: '#/definitions/models.Place'
+      start_at:
+        type: string
+      type:
+        $ref: '#/definitions/models.StageType'
+    type: object
+  models.ScheduleResponse:
+    properties:
+      range:
+        $ref: '#/definitions/models.TimeRange'
+      rows:
+        items:
+          $ref: '#/definitions/models.ScheduleRow'
+        type: array
+    type: object
+  models.ScheduleRow:
+    properties:
+      effective_format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
+      end_at:
+        type: string
+      event_id:
+        type: string
+      registration_deadline:
+        type: string
+      stages:
+        items:
+          $ref: '#/definitions/models.ScheduleItem'
+        type: array
+      start_at:
+        type: string
+      state:
+        $ref: '#/definitions/models.EventState'
+      team_role:
+        type: string
+      title:
+        example: National event
+        type: string
+    type: object
   models.StageResponse:
     properties:
+      city:
+        example: Kazan
+        type: string
+      country_code:
+        example: RU
+        type: string
       created_at:
         type: string
       description:
@@ -931,11 +1269,23 @@ definitions:
         type: string
       event_id:
         type: string
+      format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
       id:
         type: string
       name:
         example: Call for applications
         type: string
+      online_url:
+        example: https://example.com/stream
+        type: string
+      place:
+        $ref: '#/definitions/models.Place'
       sort_order:
         example: 0
         type: integer
@@ -957,6 +1307,9 @@ definitions:
         type: string
       url:
         example: https://example.com/stage
+        type: string
+      venue:
+        example: IT Park
         type: string
     type: object
   models.StageShort:
@@ -996,7 +1349,7 @@ definitions:
   models.TelegramLinkResponse:
     properties:
       deep_link:
-        example: https://t.me/hackathon_tracker_bot?start=abc123
+        example: https://t.me/timeline_bot?start=abc123
         type: string
       expires_at:
         type: string
@@ -1008,51 +1361,6 @@ definitions:
       to:
         type: string
     type: object
-  models.TimelineItem:
-    properties:
-      end_at:
-        type: string
-      id:
-        type: string
-      name:
-        example: Call for applications
-        type: string
-      start_at:
-        type: string
-      type:
-        $ref: '#/definitions/models.StageType'
-    type: object
-  models.TimelineResponse:
-    properties:
-      range:
-        $ref: '#/definitions/models.TimeRange'
-      rows:
-        items:
-          $ref: '#/definitions/models.TimelineRow'
-        type: array
-    type: object
-  models.TimelineRow:
-    properties:
-      end_at:
-        type: string
-      event_id:
-        type: string
-      registration_deadline:
-        type: string
-      stages:
-        items:
-          $ref: '#/definitions/models.TimelineItem'
-        type: array
-      start_at:
-        type: string
-      state:
-        $ref: '#/definitions/models.EventState'
-      team_role:
-        type: string
-      title:
-        example: National event
-        type: string
-    type: object
   models.TokenRequest:
     properties:
       token:
@@ -1061,17 +1369,54 @@ definitions:
     type: object
   models.UpdateEventRequest:
     properties:
+      city:
+        example: Moscow
+        type: string
+      country_code:
+        example: RU
+        type: string
       description:
         type: string
       end_at:
         type: string
+      format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.EventKind'
+        enum:
+        - HACKATHON
+        - MEETUP
       notes:
         type: string
       organizer:
         type: string
+      origin:
+        allOf:
+        - $ref: '#/definitions/models.EventOrigin'
+        enum:
+        - RU
+        - WORLD
+      prize_currency:
+        example: RUB
+        type: string
+      prize_pool:
+        example: "500000.00"
+        type: string
       start_at:
         type: string
+      team_size_max:
+        example: 5
+        type: integer
       title:
+        type: string
+      track:
+        example: Smart city
         type: string
       website_url:
         type: string
@@ -1113,11 +1458,30 @@ definitions:
     type: object
   models.UpdateStageRequest:
     properties:
+      city:
+        example: Kazan
+        type: string
+      clear_format:
+        example: false
+        type: boolean
+      country_code:
+        example: RU
+        type: string
       description:
         type: string
       end_at:
         type: string
+      format:
+        allOf:
+        - $ref: '#/definitions/models.EventFormat'
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
       name:
+        type: string
+      online_url:
+        example: https://example.com/stream
         type: string
       sort_order:
         type: integer
@@ -1136,6 +1500,9 @@ definitions:
         - RESULTS
         - OTHER
       url:
+        type: string
+      venue:
+        example: IT Park
         type: string
     type: object
   models.UpdateTeamRoleRequest:
@@ -1195,9 +1562,9 @@ definitions:
 host: localhost:8080
 info:
   contact:
-    name: Hackathon Tracker team
+    name: Timeline team
   description: |-
-    Hackathon Tracker REST API. Implements technical specification v0.8:
+    Timeline REST API. Implements technical specification v0.8:
     accounts and invites, events and stages, participant assignments,
     registration with self-reported status, reminder rules and the audit log.
 
@@ -1210,8 +1577,8 @@ info:
     All timestamps are transferred in UTC using RFC 3339.
   license:
     name: MIT
-  termsOfService: https://github.com/kaifarikman/hackathon-os
-  title: Hackathon Tracker API
+  termsOfService: https://github.com/GoatWhistle/timeline
+  title: Timeline API
   version: 0.8.0
 paths:
   /admin/audit:
@@ -2517,6 +2884,51 @@ paths:
       summary: Administrative status transition
       tags:
       - registration
+  /admin/schedule:
+    get:
+      description: All events with filters by state, participant and date range.
+      parameters:
+      - description: Start of the period, RFC3339
+        in: query
+        name: from
+        type: string
+      - description: End of the period, RFC3339
+        in: query
+        name: to
+        type: string
+      - description: Comma-separated state filter
+        in: query
+        name: state
+        type: string
+      - description: Filter by participant
+        format: uuid
+        in: query
+        name: participant_user_id
+        type: string
+      - description: Include archived records
+        in: query
+        name: include_archived
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ScheduleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Administrative schedule
+      tags:
+      - queries
   /admin/stages/{id}:
     delete:
       parameters:
@@ -2584,51 +2996,6 @@ paths:
       summary: Update a stage
       tags:
       - stages
-  /admin/timeline:
-    get:
-      description: All events with filters by state, participant and date range.
-      parameters:
-      - description: Start of the period, RFC3339
-        in: query
-        name: from
-        type: string
-      - description: End of the period, RFC3339
-        in: query
-        name: to
-        type: string
-      - description: Comma-separated state filter
-        in: query
-        name: state
-        type: string
-      - description: Filter by participant
-        format: uuid
-        in: query
-        name: participant_user_id
-        type: string
-      - description: Include archived records
-        in: query
-        name: include_archived
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.TimelineResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Administrative timeline
-      tags:
-      - queries
   /admin/users:
     get:
       description: |-
@@ -3041,6 +3408,90 @@ paths:
       summary: Resend the confirmation email
       tags:
       - auth
+  /catalog:
+    get:
+      description: |-
+        Every published, non-archived event regardless of participation. The response
+        carries a dedicated payload that cannot include administrative notes.
+      parameters:
+      - description: Search by title and organiser
+        in: query
+        name: search
+        type: string
+      - description: Comma-separated origin filter
+        enum:
+        - RU
+        - WORLD
+        in: query
+        name: origin
+        type: string
+      - description: Comma-separated format filter
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
+        in: query
+        name: format
+        type: string
+      - description: Comma-separated kind filter
+        enum:
+        - HACKATHON
+        - MEETUP
+        in: query
+        name: kind
+        type: string
+      - description: Comma-separated state filter
+        enum:
+        - UPCOMING
+        - ACTIVE
+        - FINISHED
+        in: query
+        name: state
+        type: string
+      - description: Lower bound of the period
+        format: date-time
+        in: query
+        name: from
+        type: string
+      - description: Upper bound of the period
+        format: date-time
+        in: query
+        name: to
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CatalogPage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: too many catalog requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Event catalog
+      tags:
+      - catalog
   /events/{id}:
     get:
       description: |-
@@ -3077,6 +3528,54 @@ paths:
       summary: Assigned event card
       tags:
       - queries
+  /events/{id}/join:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Self-signup: the user joins a published event and supplies their own team role.
+        A meetup has no team role, so the field may be omitted.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Own team role
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.JoinEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ParticipantSelfResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: the user already takes part in the event
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: too many join attempts
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Join an event
+      tags:
+      - catalog
   /events/{id}/registration/done:
     post:
       description: |-
@@ -3371,6 +3870,40 @@ paths:
       summary: My events
       tags:
       - queries
+  /me/schedule:
+    get:
+      description: |-
+        Only assigned, published, non-archived events. Each event is a separate row,
+        stages are returned as intervals and the registration deadline as a separate marker.
+      parameters:
+      - description: Start of the period, RFC3339
+        in: query
+        name: from
+        type: string
+      - description: End of the period, RFC3339
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ScheduleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: User schedule
+      tags:
+      - queries
   /me/telegram:
     delete:
       produces:
@@ -3410,40 +3943,6 @@ paths:
       summary: Telegram link URL
       tags:
       - profile
-  /me/timeline:
-    get:
-      description: |-
-        Only assigned, published, non-archived events. Each event is a separate row,
-        stages are returned as intervals and the registration deadline as a separate marker.
-      parameters:
-      - description: Start of the period, RFC3339
-        in: query
-        name: from
-        type: string
-      - description: End of the period, RFC3339
-        in: query
-        name: to
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.TimelineResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: User timeline
-      tags:
-      - queries
   /metrics:
     get:
       description: |-
