@@ -26,3 +26,13 @@
   --urgency-done: var(--hue-green-500);
   --urgency-foreground: var(--neutral-000);
 }
+
+[data-avatar] {
+  background-color: oklch(0.88 0.06 var(--avatar-hue));
+  color: oklch(0.34 0.09 var(--avatar-hue));
+}
+
+.dark [data-avatar] {
+  background-color: oklch(0.36 0.07 var(--avatar-hue));
+  color: oklch(0.9 0.05 var(--avatar-hue));
+}

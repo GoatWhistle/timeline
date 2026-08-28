@@ -4,6 +4,7 @@ import { setUnauthenticatedHandler } from '@/shared/api/client'
 import { AppShell } from './app-shell'
 import { AuthLayout } from './auth-layout'
 import { AnonymousOnly, RequireAdmin, RequireAuth } from './guards'
+import { ScrollPage } from './layouts/scroll-page/scroll-page'
 import {
   AdminAuditPage,
   AdminDeadlinesPage,
@@ -22,6 +23,7 @@ import {
   ProfilePage,
   RegisterPage,
   ResetPasswordPage,
+  SettingsPage,
   VerifyEmailPage,
 } from './lazy-pages'
 import { ForbiddenPage } from './pages/forbidden-page'
@@ -59,22 +61,29 @@ export function AppRouter() {
         <Route element={<RequireAuth />}>
           <Route element={<AppShell />}>
             <Route index element={<MyEventsPage />} />
-            <Route path="/events/:id" element={<EventCardPage />} />
-            <Route path="/schedule" element={<MySchedulePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
 
             <Route element={<RequireAdmin />}>
               <Route path="/admin/events" element={<AdminEventsPage />} />
-              <Route path="/admin/events/:id" element={<AdminEventPage />} />
-              <Route path="/admin/schedule" element={<AdminSchedulePage />} />
-              <Route path="/admin/deadlines" element={<AdminDeadlinesPage />} />
-              <Route path="/admin/users" element={<AdminUsersPage />} />
-              <Route path="/admin/invites" element={<AdminInvitesPage />} />
-              <Route path="/admin/audit" element={<AdminAuditPage />} />
             </Route>
 
-            <Route path="/forbidden" element={<ForbiddenPage />} />
-            <Route path="*" element={<NotFoundPage />} />
+            <Route element={<ScrollPage />}>
+              <Route path="/events/:id" element={<EventCardPage />} />
+              <Route path="/schedule" element={<MySchedulePage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+
+              <Route element={<RequireAdmin />}>
+                <Route path="/admin/events/:id" element={<AdminEventPage />} />
+                <Route path="/admin/schedule" element={<AdminSchedulePage />} />
+                <Route path="/admin/deadlines" element={<AdminDeadlinesPage />} />
+                <Route path="/admin/users" element={<AdminUsersPage />} />
+                <Route path="/admin/invites" element={<AdminInvitesPage />} />
+                <Route path="/admin/audit" element={<AdminAuditPage />} />
+              </Route>
+
+              <Route path="/forbidden" element={<ForbiddenPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
           </Route>
         </Route>
 

@@ -7,16 +7,17 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type InviteService struct {
-	db      *repositories.DB
-	invites *repositories.InviteRepository
-	users   *repositories.UserRepository
+	db      *postgres.DB
+	invites *identity.Invites
+	users   *identity.Users
 	auth    *AuthService
 	audit   *AuditService
 	mailer  *Mailer
@@ -25,8 +26,8 @@ type InviteService struct {
 	now     func() time.Time
 }
 
-func NewInviteService(db *repositories.DB, invites *repositories.InviteRepository,
-	users *repositories.UserRepository, auth *AuthService, audit *AuditService, mailer *Mailer,
+func NewInviteService(db *postgres.DB, invites *identity.Invites,
+	users *identity.Users, auth *AuthService, audit *AuditService, mailer *Mailer,
 	limiter RateLimiter, cfg *config.Config) *InviteService {
 	return &InviteService{
 		db: db, invites: invites, users: users, auth: auth, audit: audit, mailer: mailer,

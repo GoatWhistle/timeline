@@ -5,23 +5,24 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type RuleService struct {
-	db            *repositories.DB
-	rules         *repositories.RuleRepository
-	registrations *repositories.RegistrationRepository
+	db            *postgres.DB
+	rules         *participation.Rules
+	registrations *participation.Registrations
 	notifier      *NotificationService
 	reconciler    Reconciler
 	audit         *AuditService
 	cfg           *config.Config
 }
 
-func NewRuleService(db *repositories.DB, rules *repositories.RuleRepository,
-	registrations *repositories.RegistrationRepository, notifier *NotificationService,
+func NewRuleService(db *postgres.DB, rules *participation.Rules,
+	registrations *participation.Registrations, notifier *NotificationService,
 	reconciler Reconciler, audit *AuditService, cfg *config.Config) *RuleService {
 	return &RuleService{db: db, rules: rules, registrations: registrations, notifier: notifier,
 		reconciler: reconciler, audit: audit, cfg: cfg}

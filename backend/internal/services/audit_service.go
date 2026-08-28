@@ -5,15 +5,15 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type AuditService struct {
-	repo *repositories.AuditRepository
+	repo *audit.Audit
 }
 
-func NewAuditService(repo *repositories.AuditRepository) *AuditService {
+func NewAuditService(repo *audit.Audit) *AuditService {
 	return &AuditService{repo: repo}
 }
 

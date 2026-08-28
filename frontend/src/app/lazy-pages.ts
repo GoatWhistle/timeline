@@ -42,6 +42,9 @@ export const MySchedulePage = lazy(() =>
 export const ProfilePage = lazy(() =>
   import('@/features/profile/profile').then((m) => ({ default: m.ProfilePage })),
 )
+export const SettingsPage = lazy(() =>
+  import('@/features/settings/settings').then((m) => ({ default: m.SettingsPage })),
+)
 
 const adminBundle = () => import('./admin-routes')
 

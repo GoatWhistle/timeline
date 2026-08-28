@@ -1,0 +1,28 @@
+:root {
+  --text-title: 20px;
+  --text-section: 15px;
+  --text-body: 14px;
+  --text-secondary: 13px;
+  --text-label: 12px;
+
+  --leading-title: 28px;
+  --leading-section: 20px;
+  --leading-body: 20px;
+  --leading-secondary: 18px;
+  --leading-label: 16px;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --tracking-title: -0.012em;
+  --tracking-section: -0.011em;
+  --tracking-body: 0em;
+
+  --row-height: 36px;
+  --row-height-roomy: 40px;
+  --grid-step: 4px;
+
+  --pane-sidebar: 240px;
+  --pane-detail: 380px;
+}

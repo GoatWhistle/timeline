@@ -13,7 +13,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/migrations"
 )
 
@@ -93,9 +93,9 @@ func Pool(t *testing.T) *pgxpool.Pool {
 	return pool
 }
 
-func DB(t *testing.T) *repositories.DB {
+func DB(t *testing.T) *postgres.DB {
 	t.Helper()
-	return repositories.NewDB(Pool(t))
+	return postgres.NewDB(Pool(t))
 }
 
 func Truncate(t *testing.T, pool *pgxpool.Pool) {

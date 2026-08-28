@@ -3,7 +3,6 @@ import {
   CalendarRange,
   ClipboardList,
   LayoutList,
-  LogOut,
   ScrollText,
   Send,
   UserCog,
@@ -12,15 +11,15 @@ import {
 import type * as React from 'react'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, Outlet, useNavigate } from 'react-router'
-import { useLogout } from '@/entities/session/session.queries'
+import { NavLink, Outlet, useLocation } from 'react-router'
+import { AppShortcuts, type GotoTarget } from '@/features/app-shortcuts/app-shortcuts'
 import { VerificationBanner } from '@/features/auth/verification-banner/verification-banner'
+import { ProfileMenu } from '@/features/profile-menu/profile-menu'
+import { EVENT_VIEWS } from '@/features/saved-views/saved-views'
+import { SavedViewsNav } from '@/features/saved-views/saved-views-nav'
 import { useSession } from '@/shared/api/session'
 import { useProfileLocale } from '@/shared/i18n/use-profile-locale'
 import { cn } from '@/shared/styling/class-names/class-names'
-import { Button } from '@/shared/ui/primitives/button'
-import { LanguageToggle } from '@/shared/ui/primitives/language-toggle'
-import { ThemeToggle } from '@/shared/ui/primitives/theme-toggle'
 import { RouteFallback } from './route-fallback'
 
 type NavItem = {
@@ -44,12 +43,24 @@ const ADMIN_NAV: NavItem[] = [
   { to: '/admin/audit', labelKey: 'nav.adminAudit', icon: ScrollText },
 ]
 
+const USER_TARGETS: GotoTarget[] = [
+  { id: 'events', path: '/', key: 'e', titleKey: 'nav.myEvents' },
+  { id: 'schedule', path: '/schedule', key: 's', titleKey: 'nav.schedule' },
+  { id: 'profile', path: '/profile', key: 'p', titleKey: 'nav.profile' },
+]
+
+const ADMIN_TARGETS: GotoTarget[] = [
+  { id: 'admin-events', path: '/admin/events', key: 'a', titleKey: 'nav.adminEvents' },
+  { id: 'admin-users', path: '/admin/users', key: 'u', titleKey: 'nav.adminUsers' },
+  { id: 'admin-audit', path: '/admin/audit', key: 'l', titleKey: 'nav.adminAudit' },
+]
+
 function NavSection({ title, items }: { title: string; items: NavItem[] }) {
   const { t } = useTranslation()
 
   return (
-    <div className="flex flex-col gap-1">
-      <p className="px-3 py-2 font-medium text-muted-foreground text-xs uppercase tracking-wide">
+    <div className="flex flex-col gap-0.5">
+      <p className="px-3 py-1.5 font-medium text-caption text-muted-foreground uppercase tracking-wide">
         {title}
       </p>
       {items.map(({ to, labelKey, icon: Icon }) => (
@@ -59,14 +70,15 @@ function NavSection({ title, items }: { title: string; items: NavItem[] }) {
           end={to === '/'}
           className={({ isActive }) =>
             cn(
-              'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
+              'flex h-row items-center gap-2 rounded-[6px] px-3 text-copy transition-colors duration-instant',
+              'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
               isActive
                 ? 'bg-accent-surface font-medium text-accent-surface-foreground'
-                : 'text-muted-foreground hover:bg-accent-surface hover:text-accent-surface-foreground',
+                : 'text-muted-foreground hover:bg-surface-3 hover:text-foreground',
             )
           }
         >
-          <Icon className="size-4 shrink-0" />
+          <Icon className="size-4 shrink-0" aria-hidden="true" />
           {t(labelKey)}
         </NavLink>
       ))}
@@ -77,17 +89,14 @@ function NavSection({ title, items }: { title: string; items: NavItem[] }) {
 export function AppShell() {
   const { user, isAdmin } = useSession()
   const { t } = useTranslation()
+  const location = useLocation()
   useProfileLocale()
-  const logout = useLogout()
-  const navigate = useNavigate()
 
-  async function onLogout() {
-    await logout.mutateAsync().catch(() => undefined)
-    navigate('/login', { replace: true })
-  }
+  const listPath = location.pathname.startsWith('/admin/events') ? '/admin/events' : '/'
+  const showViews = location.pathname === '/' || location.pathname === '/admin/events'
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2"
@@ -95,38 +104,26 @@ export function AppShell() {
         {t('app.skipToContent')}
       </a>
 
-      <aside className="flex w-64 shrink-0 flex-col justify-between border-r bg-card p-3">
-        <nav aria-label={t('app.mainNav')} className="flex flex-col gap-4">
+      <AppShortcuts targets={isAdmin ? [...USER_TARGETS, ...ADMIN_TARGETS] : USER_TARGETS} />
+
+      <aside className="flex w-sidebar shrink-0 flex-col justify-between overflow-y-auto border-border border-r bg-card p-2">
+        <nav aria-label={t('app.mainNav')} className="flex flex-col gap-3">
           <div className="px-3 py-2">
-            <p className="font-semibold">{t('app.name')}</p>
+            <p className="font-semibold text-heading">{t('app.name')}</p>
           </div>
           <NavSection title={t('app.sectionParticipant')} items={USER_NAV} />
+          {showViews && <SavedViewsNav views={EVENT_VIEWS} basePath={listPath} />}
           {isAdmin && <NavSection title={t('app.sectionAdmin')} items={ADMIN_NAV} />}
         </nav>
 
-        <div className="flex flex-col gap-2 border-t p-3">
-          <div className="min-w-0">
-            <p className="truncate font-medium text-sm">{user?.display_name}</p>
-            <p className="truncate text-muted-foreground text-xs">{user?.email}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={onLogout}
-              disabled={logout.isPending}
-            >
-              <LogOut className="size-4" />
-              {t('action.logout')}
-            </Button>
-            <LanguageToggle />
-            <ThemeToggle />
-          </div>
+        <div className="mt-4 border-border border-t px-1 pt-3 pb-1">
+          {user && (
+            <ProfileMenu userId={user.id} displayName={user.display_name} email={user.email} />
+          )}
         </div>
       </aside>
 
-      <main id="main" className="min-w-0 flex-1 p-8">
+      <main id="main" className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <VerificationBanner />
         <Suspense fallback={<RouteFallback />}>
           <Outlet />

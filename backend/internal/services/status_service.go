@@ -6,25 +6,28 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type StatusService struct {
-	db            *repositories.DB
-	statuses      *repositories.StatusRepository
-	registrations *repositories.RegistrationRepository
-	participants  *repositories.ParticipantRepository
-	events        *repositories.EventRepository
-	users         *repositories.UserRepository
+	db            *postgres.DB
+	statuses      *participation.Statuses
+	registrations *participation.Registrations
+	participants  *participation.Participants
+	events        *event.Events
+	users         *identity.Users
 	notifier      *NotificationService
 	reconciler    Reconciler
 	audit         *AuditService
 }
 
-func NewStatusService(db *repositories.DB, statuses *repositories.StatusRepository,
-	registrations *repositories.RegistrationRepository, participants *repositories.ParticipantRepository,
-	events *repositories.EventRepository, users *repositories.UserRepository,
+func NewStatusService(db *postgres.DB, statuses *participation.Statuses,
+	registrations *participation.Registrations, participants *participation.Participants,
+	events *event.Events, users *identity.Users,
 	notifier *NotificationService, reconciler Reconciler, audit *AuditService) *StatusService {
 	return &StatusService{
 		db: db, statuses: statuses, registrations: registrations, participants: participants,

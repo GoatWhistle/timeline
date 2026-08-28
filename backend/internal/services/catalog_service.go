@@ -7,27 +7,31 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type CatalogService struct {
-	db            *repositories.DB
-	catalog       *repositories.CatalogRepository
-	events        *repositories.EventRepository
-	participants  *repositories.ParticipantRepository
-	registrations *repositories.RegistrationRepository
-	statuses      *repositories.StatusRepository
-	users         *repositories.UserRepository
+	db            *postgres.DB
+	catalog       *query.Catalog
+	events        *event.Events
+	participants  *participation.Participants
+	registrations *participation.Registrations
+	statuses      *participation.Statuses
+	users         *identity.Users
 	notifier      *NotificationService
 	audit         *AuditService
 	now           func() time.Time
 }
 
-func NewCatalogService(db *repositories.DB, catalog *repositories.CatalogRepository,
-	events *repositories.EventRepository, participants *repositories.ParticipantRepository,
-	registrations *repositories.RegistrationRepository, statuses *repositories.StatusRepository,
-	users *repositories.UserRepository, notifier *NotificationService, audit *AuditService) *CatalogService {
+func NewCatalogService(db *postgres.DB, catalog *query.Catalog,
+	events *event.Events, participants *participation.Participants,
+	registrations *participation.Registrations, statuses *participation.Statuses,
+	users *identity.Users, notifier *NotificationService, audit *AuditService) *CatalogService {
 	return &CatalogService{
 		db: db, catalog: catalog, events: events, participants: participants,
 		registrations: registrations, statuses: statuses, users: users,

@@ -7,16 +7,17 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type ProfileService struct {
-	db       *repositories.DB
-	users    *repositories.UserRepository
-	tokens   *repositories.TokenRepository
-	sessions *repositories.SessionRepository
+	db       *postgres.DB
+	users    *identity.Users
+	tokens   *identity.Tokens
+	sessions *identity.Sessions
 	notifier *NotificationService
 	audit    *AuditService
 	hasher   *PasswordHasher
@@ -26,8 +27,8 @@ type ProfileService struct {
 	now      func() time.Time
 }
 
-func NewProfileService(db *repositories.DB, users *repositories.UserRepository,
-	tokens *repositories.TokenRepository, sessions *repositories.SessionRepository,
+func NewProfileService(db *postgres.DB, users *identity.Users,
+	tokens *identity.Tokens, sessions *identity.Sessions,
 	notifier *NotificationService, audit *AuditService, hasher *PasswordHasher, mailer *Mailer,
 	telegram TelegramSender, cfg *config.Config) *ProfileService {
 	return &ProfileService{
@@ -184,8 +185,8 @@ func (s *ProfileService) Deactivate(ctx context.Context, actor models.Actor) err
 	return deactivateUser(ctx, s.db, s.users, s.sessions, s.notifier, s.audit, actor, actor.UserID)
 }
 
-func deactivateUser(ctx context.Context, db *repositories.DB, users *repositories.UserRepository,
-	sessions *repositories.SessionRepository, notifier *NotificationService, audit *AuditService,
+func deactivateUser(ctx context.Context, db *postgres.DB, users *identity.Users,
+	sessions *identity.Sessions, notifier *NotificationService, audit *AuditService,
 	actor models.Actor, userID uuid.UUID) error {
 	return db.WithTx(ctx, func(ctx context.Context) error {
 		user, err := users.GetByID(ctx, userID)

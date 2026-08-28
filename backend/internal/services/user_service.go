@@ -5,20 +5,21 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type UserService struct {
-	db       *repositories.DB
-	users    *repositories.UserRepository
-	sessions *repositories.SessionRepository
+	db       *postgres.DB
+	users    *identity.Users
+	sessions *identity.Sessions
 	notifier *NotificationService
 	audit    *AuditService
 }
 
-func NewUserService(db *repositories.DB, users *repositories.UserRepository,
-	sessions *repositories.SessionRepository, notifier *NotificationService, audit *AuditService) *UserService {
+func NewUserService(db *postgres.DB, users *identity.Users,
+	sessions *identity.Sessions, notifier *NotificationService, audit *AuditService) *UserService {
 	return &UserService{db: db, users: users, sessions: sessions, notifier: notifier, audit: audit}
 }
 

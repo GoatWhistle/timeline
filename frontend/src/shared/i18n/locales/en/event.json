@@ -77,23 +77,11 @@
     "markFailed": "Could not change the status"
   },
   "detail": {
-    "publish": "Publish",
-    "archive": "Archive",
-    "tabGeneral": "General",
-    "tabStages": "Stages",
-    "tabParticipants": "Participants",
-    "tabRegistration": "Registration and rules",
-    "tabStatuses": "Statuses",
-    "saved": "Event saved",
-    "savedHint": "Changing the end date recalculates the reminder schedule",
-    "confirmPublishTitle": "Publish the event?",
-    "confirmPublishHint": "Assigned participants will see the event and the scheduler will start creating notifications, including deferred initial ones.",
-    "published": "Event published",
-    "publishFailed": "Could not publish",
-    "confirmArchiveTitle": "Move the event to the archive?",
-    "confirmArchiveHint": "Archiving is irreversible in this version. Scheduled notifications will be cancelled and no new ones will be created.",
-    "archived": "Event archived",
-    "archiveFailed": "Could not archive"
+    "registration": "Registration",
+    "stages": "Stages",
+    "openFull": "Open full card",
+    "close": "Close details",
+    "status": "Status"
   },
   "stages": {
     "add": "Add stage",
@@ -166,5 +154,15 @@
     "formOnlineUrl": "Broadcast link",
     "filterOffline": "In person",
     "filterOfflineHint": "Searches by stages: a hybrid event with an in-person final is included."
+  },
+  "row": {
+    "noOrganizer": "—"
+  },
+  "urgency": {
+    "calm": "in good time",
+    "soon": "due soon",
+    "today": "due today",
+    "overdue": "overdue",
+    "done": "registered"
   }
 }

@@ -7,23 +7,25 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type QueryService struct {
-	queries       *repositories.QueryRepository
-	events        *repositories.EventRepository
-	stages        *repositories.StageRepository
-	participants  *repositories.ParticipantRepository
-	registrations *repositories.RegistrationRepository
-	statuses      *repositories.StatusRepository
+	queries       *query.Timeline
+	events        *event.Events
+	stages        *event.Stages
+	participants  *participation.Participants
+	registrations *participation.Registrations
+	statuses      *participation.Statuses
 	now           func() time.Time
 }
 
-func NewQueryService(queries *repositories.QueryRepository, events *repositories.EventRepository,
-	stages *repositories.StageRepository, participants *repositories.ParticipantRepository,
-	registrations *repositories.RegistrationRepository, statuses *repositories.StatusRepository) *QueryService {
+func NewQueryService(queries *query.Timeline, events *event.Events,
+	stages *event.Stages, participants *participation.Participants,
+	registrations *participation.Registrations, statuses *participation.Statuses) *QueryService {
 	return &QueryService{
 		queries: queries, events: events, stages: stages, participants: participants,
 		registrations: registrations, statuses: statuses,

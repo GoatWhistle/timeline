@@ -7,7 +7,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
@@ -16,17 +18,17 @@ type Reconciler interface {
 }
 
 type EventService struct {
-	db            *repositories.DB
-	events        *repositories.EventRepository
-	registrations *repositories.RegistrationRepository
+	db            *postgres.DB
+	events        *event.Events
+	registrations *participation.Registrations
 	notifier      *NotificationService
 	reconciler    Reconciler
 	audit         *AuditService
 	now           func() time.Time
 }
 
-func NewEventService(db *repositories.DB, events *repositories.EventRepository,
-	registrations *repositories.RegistrationRepository, notifier *NotificationService,
+func NewEventService(db *postgres.DB, events *event.Events,
+	registrations *participation.Registrations, notifier *NotificationService,
 	reconciler Reconciler, audit *AuditService) *EventService {
 	return &EventService{
 		db: db, events: events, registrations: registrations, notifier: notifier,

@@ -7,25 +7,28 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type RegistrationService struct {
-	db            *repositories.DB
-	registrations *repositories.RegistrationRepository
-	events        *repositories.EventRepository
-	participants  *repositories.ParticipantRepository
-	statuses      *repositories.StatusRepository
-	users         *repositories.UserRepository
+	db            *postgres.DB
+	registrations *participation.Registrations
+	events        *event.Events
+	participants  *participation.Participants
+	statuses      *participation.Statuses
+	users         *identity.Users
 	notifier      *NotificationService
 	reconciler    Reconciler
 	audit         *AuditService
 }
 
-func NewRegistrationService(db *repositories.DB, registrations *repositories.RegistrationRepository,
-	events *repositories.EventRepository, participants *repositories.ParticipantRepository,
-	statuses *repositories.StatusRepository, users *repositories.UserRepository,
+func NewRegistrationService(db *postgres.DB, registrations *participation.Registrations,
+	events *event.Events, participants *participation.Participants,
+	statuses *participation.Statuses, users *identity.Users,
 	notifier *NotificationService, reconciler Reconciler, audit *AuditService) *RegistrationService {
 	return &RegistrationService{
 		db: db, registrations: registrations, events: events, participants: participants,

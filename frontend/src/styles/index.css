@@ -3,6 +3,7 @@
 @import "./tokens/palette.css";
 @import "./tokens/semantic.css";
 @import "./tokens/domain.css";
+@import "./tokens/typography.css";
 @import "./tokens/motion.css";
 @import "./tokens/dark.css";
 @import "./fonts.css";
@@ -75,6 +76,24 @@
   --color-urgency-overdue: var(--urgency-overdue);
   --color-urgency-done: var(--urgency-done);
   --color-urgency-foreground: var(--urgency-foreground);
+
+  --text-screen: var(--text-title);
+  --text-screen--line-height: var(--leading-title);
+  --text-screen--letter-spacing: var(--tracking-title);
+  --text-heading: var(--text-section);
+  --text-heading--line-height: var(--leading-section);
+  --text-heading--letter-spacing: var(--tracking-section);
+  --text-copy: var(--text-body);
+  --text-copy--line-height: var(--leading-body);
+  --text-meta: var(--text-secondary);
+  --text-meta--line-height: var(--leading-secondary);
+  --text-caption: var(--text-label);
+  --text-caption--line-height: var(--leading-label);
+
+  --spacing-row: var(--row-height);
+  --spacing-row-roomy: var(--row-height-roomy);
+  --spacing-sidebar: var(--pane-sidebar);
+  --spacing-detail: var(--pane-detail);
 
   --ease-out: var(--ease-out);
   --ease-in: var(--ease-in);

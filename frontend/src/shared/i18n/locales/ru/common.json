@@ -15,7 +15,8 @@
     "adminDeadlines": "Дедлайны",
     "adminUsers": "Пользователи",
     "adminInvites": "Приглашения",
-    "adminAudit": "Аудит"
+    "adminAudit": "Аудит",
+    "settings": "Настройки"
   },
   "action": {
     "confirm": "Подтвердить",
@@ -240,5 +241,52 @@
     "registrationDeadlineAria": "Дедлайн регистрации {{date}}",
     "stageAria": "{{name}}. {{type}}. {{start}} — {{end}}",
     "stageTooltip": "{{type}} · {{start}} — {{end}}"
+  },
+  "pane": {
+    "details": "Детали",
+    "close": "Закрыть детали"
+  },
+  "palette": {
+    "title": "Палитра команд",
+    "placeholder": "Введите команду или название страницы",
+    "empty": "Ничего не найдено",
+    "goto": "Перейти"
+  },
+  "shortcuts": {
+    "title": "Горячие клавиши",
+    "groupGlobal": "Общие",
+    "groupNavigation": "Навигация",
+    "groupList": "Список",
+    "groupAction": "Действия",
+    "palette": "Палитра команд",
+    "help": "Горячие клавиши",
+    "search": "Перейти к поиску",
+    "listNext": "Следующая строка",
+    "listPrevious": "Предыдущая строка",
+    "listClear": "Снять выделение"
+  },
+  "views": {
+    "legend": "Виды",
+    "all": "Все",
+    "upcoming": "Предстоящие",
+    "active": "Идут сейчас",
+    "deadlines": "Ближайшие дедлайны",
+    "archived": "В архиве"
+  },
+  "when": {
+    "today": "Сегодня, {{time}}",
+    "tomorrow": "Завтра, {{time}}",
+    "yesterday": "Вчера, {{time}}"
+  },
+  "settings": {
+    "title": "Настройки",
+    "description": "Параметры интерфейса и аккаунта",
+    "appearance": "Внешний вид",
+    "themeHint": "Светлая, тёмная или как в системе.",
+    "languageHint": "Действует в этом браузере. Уведомления приходят на языке из профиля.",
+    "profile": "Профиль",
+    "profileHint": "Имя, адрес почты, каналы уведомлений и сессии.",
+    "openProfile": "Открыть профиль",
+    "theme": "Тема оформления"
   }
 }

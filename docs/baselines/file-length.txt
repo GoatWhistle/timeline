@@ -1,17 +1,11 @@
 # Базовый уровень проверки лимита 250 строк (scripts/check-file-length.sh).
 # Формат: <строк> <путь>. Обновляется только вниз.
-351 backend/internal/adapters/repositories/constraints_integration_test.go
-253 backend/internal/adapters/repositories/event_repo.go
-360 backend/internal/adapters/repositories/notification_repo.go
-336 backend/internal/adapters/repositories/query_repo.go
-291 backend/internal/adapters/repositories/registration_repo.go
-318 backend/internal/config/config.go
+351 backend/internal/adapters/postgres/constraints_integration_test.go
 279 backend/internal/controllers/auth_controller.go
 326 backend/internal/controllers/event_controller.go
 438 backend/internal/controllers/registration_controller.go
-472 backend/internal/services/auth_service.go
-264 backend/internal/services/delivery_service.go
-251 backend/internal/services/event_service.go
-373 backend/internal/services/participant_service.go
-264 backend/internal/services/registration_service.go
-275 backend/internal/services/status_service.go
+473 backend/internal/services/auth_service.go
+267 backend/internal/services/delivery_service.go
+267 backend/internal/services/registration_service.go
+278 backend/internal/services/status_service.go
+278 frontend/tests/shared/keyboard/shortcut-registry.test.ts

@@ -6,26 +6,29 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type DeliveryService struct {
-	notifications *repositories.NotificationRepository
-	scheduler     *repositories.SchedulerRepository
-	users         *repositories.UserRepository
-	rules         *repositories.RuleRepository
-	audit         *repositories.AuditRepository
+	notifications *notification.Notifications
+	scheduler     *notification.Scheduler
+	users         *identity.Users
+	rules         *participation.Rules
+	audit         *audit.Audit
 	telegram      TelegramSender
 	email         EmailSender
 	cfg           *config.Config
 	now           func() time.Time
 }
 
-func NewDeliveryService(notifications *repositories.NotificationRepository,
-	scheduler *repositories.SchedulerRepository, users *repositories.UserRepository,
-	rules *repositories.RuleRepository, audit *repositories.AuditRepository,
+func NewDeliveryService(notifications *notification.Notifications,
+	scheduler *notification.Scheduler, users *identity.Users,
+	rules *participation.Rules, audit *audit.Audit,
 	telegram TelegramSender, email EmailSender, cfg *config.Config) *DeliveryService {
 	return &DeliveryService{
 		notifications: notifications, scheduler: scheduler, users: users, rules: rules, audit: audit,

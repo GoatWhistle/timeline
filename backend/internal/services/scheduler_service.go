@@ -7,20 +7,21 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type SchedulerService struct {
-	db        *repositories.DB
-	scheduler *repositories.SchedulerRepository
+	db        *postgres.DB
+	scheduler *notification.Scheduler
 	notifier  *NotificationService
 	cfg       *config.Config
 	now       func() time.Time
 }
 
-func NewSchedulerService(db *repositories.DB, scheduler *repositories.SchedulerRepository,
+func NewSchedulerService(db *postgres.DB, scheduler *notification.Scheduler,
 	notifier *NotificationService, cfg *config.Config) *SchedulerService {
 	return &SchedulerService{db: db, scheduler: scheduler, notifier: notifier, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() }}

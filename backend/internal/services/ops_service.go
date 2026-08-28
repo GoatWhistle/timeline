@@ -4,21 +4,22 @@ import (
 	"context"
 	"time"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type OpsService struct {
-	db            *repositories.DB
-	scheduler     *repositories.SchedulerRepository
-	notifications *repositories.NotificationRepository
+	db            *postgres.DB
+	scheduler     *notification.Scheduler
+	notifications *notification.Notifications
 	cfg           *config.Config
 	now           func() time.Time
 }
 
-func NewOpsService(db *repositories.DB, scheduler *repositories.SchedulerRepository,
-	notifications *repositories.NotificationRepository, cfg *config.Config) *OpsService {
+func NewOpsService(db *postgres.DB, scheduler *notification.Scheduler,
+	notifications *notification.Notifications, cfg *config.Config) *OpsService {
 	return &OpsService{
 		db: db, scheduler: scheduler, notifications: notifications, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() },

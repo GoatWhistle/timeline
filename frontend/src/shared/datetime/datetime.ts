@@ -1,5 +1,5 @@
 import { TZDate } from '@date-fns/tz'
-import { format, formatDistanceStrict, isValid, parseISO } from 'date-fns'
+import { addDays, format, formatDistanceStrict, isSameDay, isValid, parseISO } from 'date-fns'
 import type { Locale as DateFnsLocale } from 'date-fns/locale'
 import { enUS, ru } from 'date-fns/locale'
 import { i18n } from '@/shared/i18n/config'
@@ -114,4 +114,44 @@ export function compareByLocale(a: string, b: string, locale = currentLocale()):
 
 export function localeCollator(locale = currentLocale()): Intl.Collator {
   return new Intl.Collator(locale, { numeric: true, sensitivity: 'base' })
+}
+
+const EVENT_DAY_PATTERN: Record<Locale, string> = {
+  ru: 'EEE, d MMM',
+  en: 'EEE, d MMM',
+}
+
+const TIME_PATTERN = 'HH:mm'
+
+export function formatEventMoment(
+  iso: string | null | undefined,
+  base: Date = new Date(),
+  locale = currentLocale(),
+): string {
+  const date = toZoned(iso)
+  if (!date) return '—'
+  const t = i18n.getFixedT(null, 'common')
+  const zonedBase = new TZDate(base, SYSTEM_TIME_ZONE)
+  const options = { locale: dateFnsLocale(locale) }
+  const time = format(date, TIME_PATTERN, options)
+
+  if (isSameDay(date, zonedBase)) return t('when.today', { time })
+  if (isSameDay(date, addDays(zonedBase, 1))) return t('when.tomorrow', { time })
+  if (isSameDay(date, addDays(zonedBase, -1))) return t('when.yesterday', { time })
+
+  return `${format(date, EVENT_DAY_PATTERN[locale], options)}, ${time}`
+}
+
+export function formatDateRange(
+  startIso: string | null | undefined,
+  endIso: string | null | undefined,
+  locale = currentLocale(),
+): string {
+  const start = toZoned(startIso)
+  const end = toZoned(endIso)
+  if (!start) return '—'
+  const options = { locale: dateFnsLocale(locale) }
+  const startText = format(start, EVENT_DAY_PATTERN[locale], options)
+  if (!end || isSameDay(start, end)) return startText
+  return `${startText} — ${format(end, EVENT_DAY_PATTERN[locale], options)}`
 }

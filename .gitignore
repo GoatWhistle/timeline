@@ -29,3 +29,15 @@ Thumbs.db
 
 # Claude Code checkpoint (in any subdirectory)
 **/.claude/RESUME.md
+
+# Screenshots and captured images: working artefacts of UI work, never indexed.
+screenshots/
+.playwright-mcp/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+!frontend/public/**/*.png
+!frontend/public/**/*.svg
+!docs/**/*.png

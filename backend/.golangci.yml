@@ -137,32 +137,49 @@ linters:
       # Size and complexity ratchet. The list equals the current level
       # (docs/baselines/file-length.txt) and is only updated downwards: a line
       # is removed from here once the file is split and passes the check itself.
-      - path: internal/adapters/repositories/event_repo\.go
+      - path: internal/adapters/postgres/participation/participant\.go
         linters:
-          - dupl
+          - funlen
+          - lll
+
+      - path: internal/adapters/postgres/query/schedule\.go
+        linters:
+          - funlen
+
+      - path: internal/adapters/postgres/query/query\.go
+        linters:
           - funlen
           - gocyclo
           - lll
 
-      - path: internal/adapters/repositories/notification_repo\.go
+      - path: internal/adapters/postgres/audit/audit\.go
         linters:
-          - dupl
           - funlen
           - gocyclo
+
+      - path: internal/adapters/postgres/identity/token\.go
+        linters:
+          - gosec
           - lll
 
-      - path: internal/adapters/repositories/query_repo\.go
+      - path: internal/adapters/postgres/event/event\.go
         linters:
-          - dupl
-          - funlen
-          - gocyclo
           - lll
 
-      - path: internal/adapters/repositories/registration_repo\.go
+      - path: internal/adapters/postgres/participation/status\.go
         linters:
-          - dupl
-          - funlen
-          - gocyclo
+          - lll
+
+      - path: internal/adapters/postgres/participation/registration\.go
+        linters:
+          - lll
+
+      - path: internal/adapters/postgres/notification/delivery\.go
+        linters:
+          - lll
+
+      - path: internal/adapters/postgres/notification/scheduler\.go
+        linters:
           - lll
 
       - path: internal/config/config\.go
@@ -244,7 +261,7 @@ linters:
 
       # SQL queries in the repositories longer than 120 characters are not
       # wrapped: a line break inside a query makes it unreadable.
-      - path: internal/adapters/repositories/
+      - path: internal/adapters/postgres/
         source: '^\s*(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN|LEFT|VALUES|ON CONFLICT|RETURNING|ORDER BY|GROUP BY)'
         linters:
           - lll

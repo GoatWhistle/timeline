@@ -6,20 +6,22 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type StageService struct {
-	db           *repositories.DB
-	stages       *repositories.StageRepository
-	events       *repositories.EventRepository
-	participants *repositories.ParticipantRepository
+	db           *postgres.DB
+	stages       *event.Stages
+	events       *event.Events
+	participants *participation.Participants
 	audit        *AuditService
 }
 
-func NewStageService(db *repositories.DB, stages *repositories.StageRepository,
-	events *repositories.EventRepository, participants *repositories.ParticipantRepository,
+func NewStageService(db *postgres.DB, stages *event.Stages,
+	events *event.Events, participants *participation.Participants,
 	audit *AuditService) *StageService {
 	return &StageService{db: db, stages: stages, events: events, participants: participants, audit: audit}
 }

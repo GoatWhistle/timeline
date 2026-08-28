@@ -4,8 +4,14 @@ import (
 	"context"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/email"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/adapters/ratelimit"
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/services"
@@ -13,24 +19,24 @@ import (
 
 type container struct {
 	cfg *config.Config
-	db  *repositories.DB
+	db  *postgres.DB
 
 	repos struct {
-		users         *repositories.UserRepository
-		sessions      *repositories.SessionRepository
-		tokens        *repositories.TokenRepository
-		invites       *repositories.InviteRepository
-		events        *repositories.EventRepository
-		stages        *repositories.StageRepository
-		participants  *repositories.ParticipantRepository
-		registrations *repositories.RegistrationRepository
-		statuses      *repositories.StatusRepository
-		rules         *repositories.RuleRepository
-		notifications *repositories.NotificationRepository
-		scheduler     *repositories.SchedulerRepository
-		catalog       *repositories.CatalogRepository
-		queries       *repositories.QueryRepository
-		audit         *repositories.AuditRepository
+		users         *identity.Users
+		sessions      *identity.Sessions
+		tokens        *identity.Tokens
+		invites       *identity.Invites
+		events        *event.Events
+		stages        *event.Stages
+		participants  *participation.Participants
+		registrations *participation.Registrations
+		statuses      *participation.Statuses
+		rules         *participation.Rules
+		notifications *notification.Notifications
+		scheduler     *notification.Scheduler
+		catalog       *query.Catalog
+		queries       *query.Timeline
+		audit         *audit.Audit
 	}
 
 	telegram telegram.Sender
@@ -62,27 +68,27 @@ func newContainer(ctx context.Context) (*container, error) {
 	if err != nil {
 		return nil, err
 	}
-	db, err := repositories.Connect(ctx, cfg.DB)
+	db, err := postgres.Connect(ctx, cfg.DB)
 	if err != nil {
 		return nil, err
 	}
 
 	c := &container{cfg: cfg, db: db}
-	c.repos.users = repositories.NewUserRepository(db)
-	c.repos.sessions = repositories.NewSessionRepository(db)
-	c.repos.tokens = repositories.NewTokenRepository(db)
-	c.repos.invites = repositories.NewInviteRepository(db)
-	c.repos.events = repositories.NewEventRepository(db)
-	c.repos.stages = repositories.NewStageRepository(db)
-	c.repos.participants = repositories.NewParticipantRepository(db)
-	c.repos.registrations = repositories.NewRegistrationRepository(db)
-	c.repos.statuses = repositories.NewStatusRepository(db)
-	c.repos.rules = repositories.NewRuleRepository(db)
-	c.repos.notifications = repositories.NewNotificationRepository(db)
-	c.repos.scheduler = repositories.NewSchedulerRepository(db)
-	c.repos.catalog = repositories.NewCatalogRepository(db)
-	c.repos.queries = repositories.NewQueryRepository(db)
-	c.repos.audit = repositories.NewAuditRepository(db)
+	c.repos.users = identity.NewUsers(db)
+	c.repos.sessions = identity.NewSessions(db)
+	c.repos.tokens = identity.NewTokens(db)
+	c.repos.invites = identity.NewInvites(db)
+	c.repos.events = event.NewEvents(db)
+	c.repos.stages = event.NewStages(db)
+	c.repos.participants = participation.NewParticipants(db)
+	c.repos.registrations = participation.NewRegistrations(db)
+	c.repos.statuses = participation.NewStatuses(db)
+	c.repos.rules = participation.NewRules(db)
+	c.repos.notifications = notification.NewNotifications(db)
+	c.repos.scheduler = notification.NewScheduler(db)
+	c.repos.catalog = query.NewCatalog(db)
+	c.repos.queries = query.NewTimeline(db)
+	c.repos.audit = audit.NewAudit(db)
 
 	c.telegram = telegram.New(cfg.Telegram)
 	c.email = email.New(cfg.Email)

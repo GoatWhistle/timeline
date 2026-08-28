@@ -7,19 +7,19 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type NotificationService struct {
-	repo *repositories.NotificationRepository
+	repo *notification.Notifications
 	cfg  *config.Config
 	now  func() time.Time
 }
 
-func NewNotificationService(repo *repositories.NotificationRepository, cfg *config.Config) *NotificationService {
+func NewNotificationService(repo *notification.Notifications, cfg *config.Config) *NotificationService {
 	return &NotificationService{repo: repo, cfg: cfg, now: func() time.Time { return time.Now().UTC() }}
 }
 
@@ -142,26 +142,26 @@ func renderTemplate(lang string, kind models.NotificationType,
 }
 
 func (s *NotificationService) CancelForStatus(ctx context.Context, statusID uuid.UUID) error {
-	_, err := s.repo.CancelPending(ctx, repositories.CancelScope{StatusID: &statusID})
+	_, err := s.repo.CancelPending(ctx, notification.CancelScope{StatusID: &statusID})
 	return err
 }
 
 func (s *NotificationService) CancelForParticipant(ctx context.Context, participantID uuid.UUID) error {
-	_, err := s.repo.CancelPending(ctx, repositories.CancelScope{ParticipantID: &participantID})
+	_, err := s.repo.CancelPending(ctx, notification.CancelScope{ParticipantID: &participantID})
 	return err
 }
 
 func (s *NotificationService) CancelForRegistration(ctx context.Context, registrationID uuid.UUID) error {
-	_, err := s.repo.CancelPending(ctx, repositories.CancelScope{RegistrationID: &registrationID})
+	_, err := s.repo.CancelPending(ctx, notification.CancelScope{RegistrationID: &registrationID})
 	return err
 }
 
 func (s *NotificationService) CancelForEvent(ctx context.Context, eventID uuid.UUID) error {
-	_, err := s.repo.CancelPending(ctx, repositories.CancelScope{EventID: &eventID})
+	_, err := s.repo.CancelPending(ctx, notification.CancelScope{EventID: &eventID})
 	return err
 }
 
 func (s *NotificationService) CancelForRecipient(ctx context.Context, userID uuid.UUID) error {
-	_, err := s.repo.CancelPending(ctx, repositories.CancelScope{RecipientID: &userID})
+	_, err := s.repo.CancelPending(ctx, notification.CancelScope{RecipientID: &userID})
 	return err
 }

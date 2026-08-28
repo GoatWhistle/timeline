@@ -15,7 +15,8 @@
     "adminDeadlines": "Deadlines",
     "adminUsers": "Users",
     "adminInvites": "Invites",
-    "adminAudit": "Audit"
+    "adminAudit": "Audit",
+    "settings": "Settings"
   },
   "action": {
     "confirm": "Confirm",
@@ -239,5 +240,52 @@
     "registrationDeadlineAria": "Registration deadline {{date}}",
     "stageAria": "{{name}}. {{type}}. {{start}} — {{end}}",
     "stageTooltip": "{{type}} · {{start}} — {{end}}"
+  },
+  "pane": {
+    "details": "Details",
+    "close": "Close details"
+  },
+  "palette": {
+    "title": "Command palette",
+    "placeholder": "Type a command or a page name",
+    "empty": "Nothing found",
+    "goto": "Go to"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "groupGlobal": "Global",
+    "groupNavigation": "Navigation",
+    "groupList": "List",
+    "groupAction": "Actions",
+    "palette": "Command palette",
+    "help": "Keyboard shortcuts",
+    "search": "Focus search",
+    "listNext": "Next row",
+    "listPrevious": "Previous row",
+    "listClear": "Clear selection"
+  },
+  "views": {
+    "legend": "Views",
+    "all": "All",
+    "upcoming": "Upcoming",
+    "active": "Active",
+    "deadlines": "Nearest deadlines",
+    "archived": "Archived"
+  },
+  "when": {
+    "today": "Today, {{time}}",
+    "tomorrow": "Tomorrow, {{time}}",
+    "yesterday": "Yesterday, {{time}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Interface and account preferences",
+    "appearance": "Appearance",
+    "themeHint": "Light, dark, or follow the system setting.",
+    "languageHint": "Applies to this browser. Notifications use the language stored in your profile.",
+    "profile": "Profile",
+    "profileHint": "Name, email address, notification channels and sessions.",
+    "openProfile": "Open profile",
+    "theme": "Theme"
   }
 }

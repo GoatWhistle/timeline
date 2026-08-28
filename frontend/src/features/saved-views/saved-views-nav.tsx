@@ -1,0 +1,37 @@
+import { useTranslation } from 'react-i18next'
+import { NavLink, useLocation } from 'react-router'
+import { cn } from '@/shared/styling/class-names/class-names'
+import { isViewActive, type SavedView, viewSearch } from './saved-views'
+
+export function SavedViewsNav({ views, basePath }: { views: SavedView[]; basePath: string }) {
+  const { t } = useTranslation()
+  const location = useLocation()
+  const onList = location.pathname === basePath
+
+  return (
+    <div className="flex flex-col gap-0.5">
+      <p className="px-3 py-1.5 font-medium text-caption text-muted-foreground uppercase tracking-wide">
+        {t('views.legend')}
+      </p>
+      {views.map((view) => {
+        const active = onList && isViewActive(view, location.search)
+        return (
+          <NavLink
+            key={view.id}
+            to={{ pathname: basePath, search: viewSearch(view) }}
+            aria-current={active ? 'page' : undefined}
+            className={cn(
+              'flex h-row items-center rounded-[6px] px-3 text-copy transition-colors duration-instant',
+              'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
+              active
+                ? 'bg-accent-surface font-medium text-accent-surface-foreground'
+                : 'text-muted-foreground hover:bg-surface-3 hover:text-foreground',
+            )}
+          >
+            {t(view.titleKey)}
+          </NavLink>
+        )
+      })}
+    </div>
+  )
+}

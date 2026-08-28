@@ -8,7 +8,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
@@ -19,11 +20,11 @@ type RateLimiter interface {
 }
 
 type AuthService struct {
-	db       *repositories.DB
-	users    *repositories.UserRepository
-	sessions *repositories.SessionRepository
-	tokens   *repositories.TokenRepository
-	invites  *repositories.InviteRepository
+	db       *postgres.DB
+	users    *identity.Users
+	sessions *identity.Sessions
+	tokens   *identity.Tokens
+	invites  *identity.Invites
 	notifier *NotificationService
 	audit    *AuditService
 	hasher   *PasswordHasher
@@ -34,9 +35,9 @@ type AuthService struct {
 	now      func() time.Time
 }
 
-func NewAuthService(db *repositories.DB, users *repositories.UserRepository,
-	sessions *repositories.SessionRepository, tokens *repositories.TokenRepository,
-	invites *repositories.InviteRepository, notifier *NotificationService, audit *AuditService,
+func NewAuthService(db *postgres.DB, users *identity.Users,
+	sessions *identity.Sessions, tokens *identity.Tokens,
+	invites *identity.Invites, notifier *NotificationService, audit *AuditService,
 	hasher *PasswordHasher, issuer *TokenIssuer, mailer *Mailer, limiter RateLimiter,
 	cfg *config.Config) *AuthService {
 	return &AuthService{
