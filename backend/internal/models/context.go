@@ -66,6 +66,9 @@ func (p Page) Limit() int { return p.Size }
 type EventFilter struct {
 	Search          string
 	States          []EventState
+	Origins         []EventOrigin
+	Formats         []EventFormat
+	Kinds           []EventKind
 	IncludeArchived bool
 }
 

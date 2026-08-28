@@ -16,13 +16,18 @@ type EventRepository struct{ db *DB }
 func NewEventRepository(db *DB) *EventRepository { return &EventRepository{db: db} }
 
 const eventColumns = `id, title, description, organizer, website_url, notes,
+	kind, format, origin, country_code, city,
 	start_at, end_at, published_at, archived_at, created_at, updated_at`
+
+func scanEventInto(row pgx.Row, h *models.Event) error {
+	return row.Scan(&h.ID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL, &h.Notes,
+		&h.Kind, &h.Format, &h.Origin, &h.CountryCode, &h.City,
+		&h.StartAt, &h.EndAt, &h.PublishedAt, &h.ArchivedAt, &h.CreatedAt, &h.UpdatedAt)
+}
 
 func scanEvent(row pgx.Row) (*models.Event, error) {
 	var h models.Event
-	err := row.Scan(&h.ID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL, &h.Notes,
-		&h.StartAt, &h.EndAt, &h.PublishedAt, &h.ArchivedAt, &h.CreatedAt, &h.UpdatedAt)
-	if err != nil {
+	if err := scanEventInto(row, &h); err != nil {
 		return nil, mapError(err)
 	}
 	return &h, nil
@@ -30,10 +35,12 @@ func scanEvent(row pgx.Row) (*models.Event, error) {
 
 func (r *EventRepository) Create(ctx context.Context, h *models.Event) (*models.Event, error) {
 	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO events (title, description, organizer, website_url, notes, start_at, end_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO events (title, description, organizer, website_url, notes,
+			kind, format, origin, country_code, city, start_at, end_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		RETURNING `+eventColumns,
-		h.Title, h.Description, h.Organizer, h.WebsiteURL, h.Notes, h.StartAt, h.EndAt))
+		h.Title, h.Description, h.Organizer, h.WebsiteURL, h.Notes,
+		h.Kind, h.Format, h.Origin, h.CountryCode, h.City, h.StartAt, h.EndAt))
 }
 
 func (r *EventRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Event, error) {
@@ -45,7 +52,8 @@ func (r *EventRepository) GetForUpdate(ctx context.Context, id uuid.UUID) (*mode
 		`SELECT `+eventColumns+` FROM events WHERE id = $1 FOR UPDATE`, id))
 }
 
-func (r *EventRepository) Update(ctx context.Context, id uuid.UUID, req models.UpdateEventRequest) (*models.Event, error) {
+func (r *EventRepository) Update(ctx context.Context, id uuid.UUID, req models.UpdateEventRequest,
+	place models.EventPlacePatch) (*models.Event, error) {
 	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE events SET
 			title = COALESCE($2, title),
@@ -53,11 +61,19 @@ func (r *EventRepository) Update(ctx context.Context, id uuid.UUID, req models.U
 			organizer = COALESCE($4, organizer),
 			website_url = COALESCE($5, website_url),
 			notes = COALESCE($6, notes),
-			start_at = COALESCE($7, start_at),
-			end_at = COALESCE($8, end_at)
+			kind = COALESCE($7, kind),
+			format = COALESCE($8, format),
+			origin = COALESCE($9, origin),
+			country_code = CASE WHEN $10::boolean THEN $11 ELSE country_code END,
+			city = CASE WHEN $12::boolean THEN $13 ELSE city END,
+			start_at = COALESCE($14, start_at),
+			end_at = COALESCE($15, end_at)
 		WHERE id = $1
 		RETURNING `+eventColumns,
-		id, req.Title, req.Description, req.Organizer, req.WebsiteURL, req.Notes, req.StartAt, req.EndAt))
+		id, req.Title, req.Description, req.Organizer, req.WebsiteURL, req.Notes,
+		req.Kind, req.Format, req.Origin,
+		place.CountrySet, place.CountryCode, place.CitySet, place.City,
+		req.StartAt, req.EndAt))
 }
 
 func (r *EventRepository) Publish(ctx context.Context, id uuid.UUID, at time.Time) (*models.Event, error) {
@@ -95,8 +111,7 @@ func (r *EventRepository) List(ctx context.Context, filter models.EventFilter, p
 	items := make([]models.Event, 0, page.Limit())
 	for rows.Next() {
 		var h models.Event
-		if err := rows.Scan(&h.ID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL, &h.Notes,
-			&h.StartAt, &h.EndAt, &h.PublishedAt, &h.ArchivedAt, &h.CreatedAt, &h.UpdatedAt); err != nil {
+		if err := scanEventInto(rows, &h); err != nil {
 			return nil, 0, mapError(err)
 		}
 		items = append(items, h)
@@ -137,10 +152,40 @@ func eventFilterSQL(filter models.EventFilter, now time.Time) (string, []any) {
 			conds = append(conds, `(`+strings.Join(stateConds, " OR ")+`)`)
 		}
 	}
+	conds, args = appendTaxonomy(conds, args, filter.Origins, filter.Formats, filter.Kinds)
 	if len(conds) == 0 {
 		return "", args
 	}
 	return "WHERE " + strings.Join(conds, " AND "), args
+}
+
+func appendTaxonomy(conds []string, args []any, origins []models.EventOrigin,
+	formats []models.EventFormat, kinds []models.EventKind) ([]string, []any) {
+	if len(origins) > 0 {
+		values := make([]string, 0, len(origins))
+		for _, o := range origins {
+			values = append(values, string(o))
+		}
+		args = append(args, values)
+		conds = append(conds, `origin = ANY($`+itoa(len(args))+`)`)
+	}
+	if len(formats) > 0 {
+		values := make([]string, 0, len(formats))
+		for _, f := range formats {
+			values = append(values, string(f))
+		}
+		args = append(args, values)
+		conds = append(conds, `format = ANY($`+itoa(len(args))+`)`)
+	}
+	if len(kinds) > 0 {
+		values := make([]string, 0, len(kinds))
+		for _, k := range kinds {
+			values = append(values, string(k))
+		}
+		args = append(args, values)
+		conds = append(conds, `kind = ANY($`+itoa(len(args))+`)`)
+	}
+	return conds, args
 }
 
 func containsState(states []models.EventState, target models.EventState) bool {
@@ -150,104 +195,4 @@ func containsState(states []models.EventState, target models.EventState) bool {
 		}
 	}
 	return false
-}
-
-type StageRepository struct{ db *DB }
-
-func NewStageRepository(db *DB) *StageRepository { return &StageRepository{db: db} }
-
-const stageColumns = `id, event_id, name, type, start_at, end_at, description, url,
-	sort_order, created_at, updated_at`
-
-func scanStage(row pgx.Row) (*models.Stage, error) {
-	var s models.Stage
-	err := row.Scan(&s.ID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
-		&s.Description, &s.URL, &s.SortOrder, &s.CreatedAt, &s.UpdatedAt)
-	if err != nil {
-		return nil, mapError(err)
-	}
-	return &s, nil
-}
-
-func (r *StageRepository) Create(ctx context.Context, s *models.Stage) (*models.Stage, error) {
-	return scanStage(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO stages (event_id, name, type, start_at, end_at, description, url, sort_order)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		RETURNING `+stageColumns,
-		s.EventID, s.Name, s.Type, s.StartAt, s.EndAt, s.Description, s.URL, s.SortOrder))
-}
-
-func (r *StageRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Stage, error) {
-	return scanStage(r.db.Q(ctx).QueryRow(ctx, `SELECT `+stageColumns+` FROM stages WHERE id = $1`, id))
-}
-
-func (r *StageRepository) Update(ctx context.Context, id uuid.UUID, req models.UpdateStageRequest) (*models.Stage, error) {
-	return scanStage(r.db.Q(ctx).QueryRow(ctx, `
-		UPDATE stages SET
-			name = COALESCE($2, name),
-			type = COALESCE($3, type),
-			start_at = COALESCE($4, start_at),
-			end_at = COALESCE($5, end_at),
-			description = COALESCE($6, description),
-			url = COALESCE($7, url),
-			sort_order = COALESCE($8, sort_order)
-		WHERE id = $1
-		RETURNING `+stageColumns,
-		id, req.Name, req.Type, req.StartAt, req.EndAt, req.Description, req.URL, req.SortOrder))
-}
-
-func (r *StageRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	tag, err := r.db.Q(ctx).Exec(ctx, `DELETE FROM stages WHERE id = $1`, id)
-	if err != nil {
-		return mapError(err)
-	}
-	if tag.RowsAffected() == 0 {
-		return models.ErrNotFound
-	}
-	return nil
-}
-
-func (r *StageRepository) ListByEvent(ctx context.Context, eventID uuid.UUID) ([]models.Stage, error) {
-	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT `+stageColumns+` FROM stages WHERE event_id = $1
-		ORDER BY sort_order, start_at`, eventID)
-	if err != nil {
-		return nil, mapError(err)
-	}
-	defer rows.Close()
-
-	items := make([]models.Stage, 0, 8)
-	for rows.Next() {
-		var s models.Stage
-		if err := rows.Scan(&s.ID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
-			&s.Description, &s.URL, &s.SortOrder, &s.CreatedAt, &s.UpdatedAt); err != nil {
-			return nil, mapError(err)
-		}
-		items = append(items, s)
-	}
-	return items, mapError(rows.Err())
-}
-
-func (r *StageRepository) ListByEvents(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID][]models.Stage, error) {
-	result := make(map[uuid.UUID][]models.Stage, len(ids))
-	if len(ids) == 0 {
-		return result, nil
-	}
-	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT `+stageColumns+` FROM stages WHERE event_id = ANY($1)
-		ORDER BY sort_order, start_at`, ids)
-	if err != nil {
-		return nil, mapError(err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var s models.Stage
-		if err := rows.Scan(&s.ID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
-			&s.Description, &s.URL, &s.SortOrder, &s.CreatedAt, &s.UpdatedAt); err != nil {
-			return nil, mapError(err)
-		}
-		result[s.EventID] = append(result[s.EventID], s)
-	}
-	return result, mapError(rows.Err())
 }

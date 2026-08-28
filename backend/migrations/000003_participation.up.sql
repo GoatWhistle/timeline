@@ -3,7 +3,7 @@ CREATE TABLE event_participants (
     id                   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     event_id             uuid        NOT NULL REFERENCES events (id) ON DELETE CASCADE,
     user_id              uuid        NOT NULL REFERENCES users (id),
-    team_role            text        NOT NULL,
+    team_role            text,
     participation_status text        NOT NULL DEFAULT 'ASSIGNED',
     assignment_version   integer     NOT NULL DEFAULT 1,
     assigned_at          timestamptz NOT NULL DEFAULT now(),
@@ -11,7 +11,8 @@ CREATE TABLE event_participants (
     created_at           timestamptz NOT NULL DEFAULT now(),
     updated_at           timestamptz NOT NULL DEFAULT now(),
 
-    CONSTRAINT participants_team_role_len CHECK (length(btrim(team_role)) BETWEEN 1 AND 80),
+    CONSTRAINT participants_team_role_len CHECK (
+        team_role IS NULL OR length(btrim(team_role)) BETWEEN 1 AND 80),
     CONSTRAINT participants_status_enum CHECK (participation_status IN ('ASSIGNED', 'REMOVED')),
     CONSTRAINT participants_assignment_version_positive CHECK (assignment_version >= 1),
     CONSTRAINT participants_removed_consistency CHECK (

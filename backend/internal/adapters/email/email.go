@@ -61,7 +61,11 @@ func (s *smtpSender) Send(ctx context.Context, msg models.OutboundMessage) error
 	if err != nil {
 		return models.NewTemporaryDeliveryError("failed to start the SMTP session", err)
 	}
-	defer client.Quit()
+	defer func() {
+		if err := client.Quit(); err != nil {
+			slog.WarnContext(ctx, "SMTP session did not close cleanly", "error", err)
+		}
+	}()
 
 	if s.cfg.StartTLS {
 		if ok, _ := client.Extension("STARTTLS"); ok {

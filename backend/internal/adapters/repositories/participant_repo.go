@@ -28,11 +28,11 @@ func scanParticipant(row pgx.Row) (*models.EventParticipant, error) {
 	return &p, nil
 }
 
-func (r *ParticipantRepository) Create(ctx context.Context, eventID, userID uuid.UUID, teamRole string) (*models.EventParticipant, error) {
+func (r *ParticipantRepository) Create(ctx context.Context, eventID, userID uuid.UUID, teamRole *string) (*models.EventParticipant, error) {
 	return scanParticipant(r.db.Q(ctx).QueryRow(ctx, `
 		INSERT INTO event_participants (event_id, user_id, team_role)
 		VALUES ($1, $2, $3)
-		RETURNING `+participantColumns, eventID, userID, strings.TrimSpace(teamRole)))
+		RETURNING `+participantColumns, eventID, userID, teamRole))
 }
 
 func (r *ParticipantRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.EventParticipant, error) {
@@ -51,7 +51,7 @@ func (r *ParticipantRepository) GetByEventUser(ctx context.Context, eventID, use
 		eventID, userID))
 }
 
-func (r *ParticipantRepository) Reactivate(ctx context.Context, id uuid.UUID, teamRole string) (*models.EventParticipant, error) {
+func (r *ParticipantRepository) Reactivate(ctx context.Context, id uuid.UUID, teamRole *string) (*models.EventParticipant, error) {
 	return scanParticipant(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE event_participants SET
 			participation_status = 'ASSIGNED',
@@ -60,7 +60,7 @@ func (r *ParticipantRepository) Reactivate(ctx context.Context, id uuid.UUID, te
 			removed_at = NULL,
 			team_role = $2
 		WHERE id = $1 AND participation_status = 'REMOVED'
-		RETURNING `+participantColumns, id, strings.TrimSpace(teamRole)))
+		RETURNING `+participantColumns, id, teamRole))
 }
 
 func (r *ParticipantRepository) Remove(ctx context.Context, id uuid.UUID) (*models.EventParticipant, error) {
@@ -70,10 +70,10 @@ func (r *ParticipantRepository) Remove(ctx context.Context, id uuid.UUID) (*mode
 		RETURNING `+participantColumns, id))
 }
 
-func (r *ParticipantRepository) UpdateTeamRole(ctx context.Context, id uuid.UUID, teamRole string) (*models.EventParticipant, error) {
+func (r *ParticipantRepository) UpdateTeamRole(ctx context.Context, id uuid.UUID, teamRole *string) (*models.EventParticipant, error) {
 	return scanParticipant(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE event_participants SET team_role = $2 WHERE id = $1
-		RETURNING `+participantColumns, id, strings.TrimSpace(teamRole)))
+		RETURNING `+participantColumns, id, teamRole))
 }
 
 func (r *ParticipantRepository) ListAssigned(ctx context.Context, eventID uuid.UUID) ([]models.EventParticipant, error) {

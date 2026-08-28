@@ -13,6 +13,11 @@ type Event struct {
 	Organizer   *string    `json:"organizer,omitempty"`
 	WebsiteURL  *string    `json:"website_url,omitempty"`
 	Notes       *string    `json:"notes,omitempty"`
+	Kind        EventKind  `json:"kind"`
+	Format      EventFormat `json:"format"`
+	Origin      EventOrigin `json:"origin"`
+	CountryCode *string    `json:"country_code,omitempty"`
+	City        *string    `json:"city,omitempty"`
 	StartAt     time.Time  `json:"start_at"`
 	EndAt       time.Time  `json:"end_at"`
 	PublishedAt *time.Time `json:"published_at,omitempty"`
@@ -35,6 +40,8 @@ func (h *Event) State(now time.Time) EventState {
 		return EventActive
 	}
 }
+
+func (h *Event) Meetup() bool { return h.Kind == EventKindMeetup }
 
 func (h *Event) Published() bool { return h.PublishedAt != nil }
 
@@ -60,7 +67,7 @@ type EventParticipant struct {
 	ID                  uuid.UUID           `json:"id"`
 	EventID             uuid.UUID           `json:"event_id"`
 	UserID              uuid.UUID           `json:"user_id"`
-	TeamRole            string              `json:"team_role"`
+	TeamRole            *string             `json:"team_role,omitempty"`
 	ParticipationStatus ParticipationStatus `json:"participation_status"`
 	AssignmentVersion   int                 `json:"assignment_version"`
 	AssignedAt          time.Time           `json:"assigned_at"`

@@ -141,7 +141,7 @@ func PathUUID(r *http.Request, name string) (uuid.UUID, error) {
 	return id, nil
 }
 
-func ParsePage(r *http.Request, def, max int) (models.Page, error) {
+func ParsePage(r *http.Request, def, maxSize int) (models.Page, error) {
 	p := models.Page{Number: 1, Size: def}
 	if v := r.URL.Query().Get("page"); v != "" {
 		n, err := strconv.Atoi(v)
@@ -155,8 +155,8 @@ func ParsePage(r *http.Request, def, max int) (models.Page, error) {
 		if err != nil || n < 1 {
 			return p, models.NewValidation("page_size must be a positive number")
 		}
-		if n > max {
-			n = max
+		if n > maxSize {
+			n = maxSize
 		}
 		p.Size = n
 	}

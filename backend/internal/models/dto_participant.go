@@ -10,7 +10,7 @@ type ParticipantResponse struct {
 	ID                  uuid.UUID                `json:"id"`
 	EventID             uuid.UUID                `json:"event_id"`
 	User                UserSummary              `json:"user"`
-	TeamRole            string                   `json:"team_role" example:"Developer"`
+	TeamRole            *string                  `json:"team_role,omitempty" example:"Developer"`
 	ParticipationStatus ParticipationStatus      `json:"participation_status" enums:"ASSIGNED,REMOVED"`
 	AssignmentVersion   int                      `json:"assignment_version" example:"1"`
 	AssignedAt          time.Time                `json:"assigned_at"`
@@ -33,7 +33,7 @@ type ParticipantPage struct {
 
 type AddParticipantItem struct {
 	UserID   uuid.UUID `json:"user_id"`
-	TeamRole string    `json:"team_role" example:"Developer"`
+	TeamRole *string   `json:"team_role,omitempty" example:"Developer"`
 }
 
 type AddParticipantsRequest struct {
@@ -45,7 +45,7 @@ type RemoveParticipantsRequest struct {
 }
 
 type UpdateTeamRoleRequest struct {
-	TeamRole string `json:"team_role" example:"Captain"`
+	TeamRole *string `json:"team_role,omitempty" example:"Captain"`
 }
 
 type CopyParticipantsRequest struct {
@@ -55,5 +55,5 @@ type CopyParticipantsRequest struct {
 
 type CopyRoleOverride struct {
 	UserID   uuid.UUID `json:"user_id"`
-	TeamRole string    `json:"team_role" example:"Mentor"`
+	TeamRole *string   `json:"team_role,omitempty" example:"Mentor"`
 }

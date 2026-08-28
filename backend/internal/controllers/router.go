@@ -13,6 +13,7 @@ type Deps struct {
 	Profile       ProfileService
 	Users         UserService
 	Events        EventService
+	Catalog       CatalogService
 	Stages        StageService
 	Participants  ParticipantService
 	Registrations RegistrationService
@@ -25,6 +26,10 @@ type Deps struct {
 	Authenticator middleware.Authenticator
 	Metrics       http.Handler
 	SwaggerUI     http.Handler
+
+	CatalogLimiter    CatalogLimiter
+	CatalogRate       int
+	CatalogRateWindow time.Duration
 
 	Cookies      CookieOptions
 	PublicURL    string
@@ -67,6 +72,8 @@ type Deps struct {
 // @tag.description			Own profile and delivery channels
 // @tag.name					users
 // @tag.description			Administrative operations on accounts
+// @tag.name					catalog
+// @tag.description			Event catalog and self-signup
 // @tag.name					events
 // @tag.description			Events and their lifecycle
 // @tag.name					stages
@@ -89,6 +96,8 @@ func NewRouter(deps Deps) http.Handler {
 	profileC := NewProfileController(deps.Profile, deps.Cookies)
 	userC := NewUserController(deps.Users, deps.UserPageSize, deps.PageMax)
 	eventC := NewEventController(deps.Events, deps.Stages, deps.PageDefault, deps.PageMax)
+	catalogC := NewCatalogController(deps.Catalog, deps.CatalogLimiter, deps.CatalogRate,
+		deps.CatalogRateWindow, deps.PageDefault, deps.PageMax)
 	partC := NewParticipantController(deps.Participants, deps.PageDefault, deps.PageMax)
 	regC := NewRegistrationController(deps.Registrations, deps.Statuses, deps.Rules, deps.PageDefault, deps.PageMax)
 	queryC := NewQueryController(deps.Queries, deps.PageDefault, deps.PageMax)
@@ -123,6 +132,8 @@ func NewRouter(deps Deps) http.Handler {
 
 	mux.Handle("GET "+api+"/me/events", rt.authd(queryC.MyEvents))
 	mux.Handle("GET "+api+"/me/timeline", rt.authd(queryC.MyTimeline))
+	mux.Handle("GET "+api+"/catalog", rt.authd(catalogC.List))
+	mux.Handle("POST "+api+"/events/{id}/join", rt.authd(catalogC.Join))
 	mux.Handle("GET "+api+"/events/{id}", rt.authd(queryC.EventCard))
 	mux.Handle("GET "+api+"/events/{id}/stages", rt.authd(eventC.ListStages))
 	mux.Handle("POST "+api+"/events/{id}/registration/done", rt.authd(regC.MarkDone))

@@ -77,6 +77,7 @@ func newRouter(c *container) http.Handler {
 		Profile:       c.profile,
 		Users:         c.users,
 		Events:        c.events,
+		Catalog:       c.catalog,
 		Stages:        c.stages,
 		Participants:  c.participants,
 		Registrations: c.registrations,
@@ -88,6 +89,10 @@ func newRouter(c *container) http.Handler {
 
 		Authenticator: c.auth,
 		Metrics:       promhttp.Handler(),
+
+		CatalogLimiter:    c.limiter,
+		CatalogRate:       c.cfg.RateLim.CatalogRequests,
+		CatalogRateWindow: c.cfg.RateLim.CatalogWindow,
 
 		Cookies:      controllers.CookieOptions{Domain: c.cfg.HTTP.CookieDomain, Secure: c.cfg.HTTP.CookieSecure},
 		PublicURL:    c.cfg.App.PublicURL,

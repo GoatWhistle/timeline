@@ -30,6 +30,44 @@ const (
 	EventArchived    EventState = "ARCHIVED"
 )
 
+type EventKind string
+
+const (
+	EventKindHackathon EventKind = "HACKATHON"
+	EventKindMeetup    EventKind = "MEETUP"
+)
+
+func (k EventKind) Valid() bool {
+	return k == EventKindHackathon || k == EventKindMeetup
+}
+
+type EventFormat string
+
+const (
+	FormatOnline  EventFormat = "ONLINE"
+	FormatOffline EventFormat = "OFFLINE"
+	FormatHybrid  EventFormat = "HYBRID"
+)
+
+func (f EventFormat) Valid() bool {
+	return f == FormatOnline || f == FormatOffline || f == FormatHybrid
+}
+
+func (f EventFormat) RequiresPlace() bool {
+	return f == FormatOffline || f == FormatHybrid
+}
+
+type EventOrigin string
+
+const (
+	OriginRU    EventOrigin = "RU"
+	OriginWorld EventOrigin = "WORLD"
+)
+
+func (o EventOrigin) Valid() bool {
+	return o == OriginRU || o == OriginWorld
+}
+
 type StageType string
 
 const (

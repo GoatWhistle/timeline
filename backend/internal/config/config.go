@@ -75,8 +75,10 @@ type Argon struct {
 type RateLim struct {
 	LoginAttempts  int
 	LoginWindow    time.Duration
-	ResendAttempts int
-	ResendWindow   time.Duration
+	ResendAttempts  int
+	ResendWindow    time.Duration
+	CatalogRequests int
+	CatalogWindow   time.Duration
 }
 
 type Notify struct {
@@ -183,6 +185,8 @@ func Load() (*Config, error) {
 			LoginWindow:    envDuration("RATE_LIMIT_LOGIN_WINDOW", 15*time.Minute),
 			ResendAttempts: envInt("RATE_LIMIT_RESEND_ATTEMPTS", 5),
 			ResendWindow:   envDuration("RATE_LIMIT_RESEND_WINDOW", time.Hour),
+			CatalogRequests: envInt("RATE_LIMIT_CATALOG_REQUESTS", 120),
+			CatalogWindow:   envDuration("RATE_LIMIT_CATALOG_WINDOW", time.Minute),
 		},
 		Notify: Notify{
 			SchedulerInterval: envDuration("SCHEDULER_INTERVAL", 5*time.Minute),

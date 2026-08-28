@@ -61,14 +61,6 @@ func toChannels(values []string) []models.Channel {
 	return out
 }
 
-func fromChannels(values []models.Channel) []string {
-	out := make([]string, 0, len(values))
-	for _, v := range values {
-		out = append(out, string(v))
-	}
-	return out
-}
-
 func (r *NotificationRepository) Insert(ctx context.Context, n *models.Notification) (*models.Notification, bool, error) {
 	payload, err := json.Marshal(n.Payload)
 	if err != nil {

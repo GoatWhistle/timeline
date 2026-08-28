@@ -13,7 +13,7 @@ type MyEventItem struct {
 	StartAt              time.Time                `json:"start_at"`
 	EndAt                time.Time                `json:"end_at"`
 	State                EventState               `json:"state" enums:"UPCOMING,ACTIVE,FINISHED,ARCHIVED"`
-	TeamRole             string                   `json:"team_role" example:"Developer"`
+	TeamRole             *string                  `json:"team_role,omitempty" example:"Developer"`
 	RegistrationURL      *string                  `json:"registration_url,omitempty"`
 	RegistrationDeadline *time.Time               `json:"registration_deadline,omitempty"`
 	RegistrationStatus   *RegistrationStatusShort `json:"registration_status,omitempty"`
@@ -35,7 +35,7 @@ type MyEventPage struct {
 
 type EventCard struct {
 	Event              EventResponse            `json:"event"`
-	TeamRole           string                   `json:"team_role" example:"Developer"`
+	TeamRole           *string                  `json:"team_role,omitempty" example:"Developer"`
 	Stages             []StageResponse          `json:"stages"`
 	NextStage          *StageShort              `json:"next_stage,omitempty"`
 	Registration       *RegistrationPublic      `json:"registration,omitempty"`

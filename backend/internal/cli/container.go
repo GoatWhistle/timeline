@@ -28,6 +28,7 @@ type container struct {
 		rules         *repositories.RuleRepository
 		notifications *repositories.NotificationRepository
 		scheduler     *repositories.SchedulerRepository
+		catalog       *repositories.CatalogRepository
 		queries       *repositories.QueryRepository
 		audit         *repositories.AuditRepository
 	}
@@ -35,12 +36,14 @@ type container struct {
 	telegram telegram.Sender
 	email    email.Sender
 	hasher   *services.PasswordHasher
+	limiter  *ratelimit.Limiter
 
 	auth          *services.AuthService
 	invites       *services.InviteService
 	profile       *services.ProfileService
 	users         *services.UserService
 	events        *services.EventService
+	catalog       *services.CatalogService
 	stages        *services.StageService
 	participants  *services.ParticipantService
 	registrations *services.RegistrationService
@@ -77,13 +80,15 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.repos.rules = repositories.NewRuleRepository(db)
 	c.repos.notifications = repositories.NewNotificationRepository(db)
 	c.repos.scheduler = repositories.NewSchedulerRepository(db)
+	c.repos.catalog = repositories.NewCatalogRepository(db)
 	c.repos.queries = repositories.NewQueryRepository(db)
 	c.repos.audit = repositories.NewAuditRepository(db)
 
 	c.telegram = telegram.New(cfg.Telegram)
 	c.email = email.New(cfg.Email)
 	c.hasher = services.NewPasswordHasher(cfg.Argon)
-	limiter := ratelimit.New()
+	c.limiter = ratelimit.New()
+	limiter := c.limiter
 	issuer := services.NewTokenIssuer(cfg.Auth)
 	mailer := services.NewMailer(c.email, cfg.App.PublicURL)
 
@@ -107,6 +112,8 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.statuses = services.NewStatusService(db, c.repos.statuses, c.repos.registrations, c.repos.participants,
 		c.repos.events, c.repos.users, c.notifier, c.scheduler, c.audit)
 	c.rules = services.NewRuleService(db, c.repos.rules, c.repos.registrations, c.notifier, c.scheduler, c.audit, cfg)
+	c.catalog = services.NewCatalogService(db, c.repos.catalog, c.repos.events, c.repos.participants,
+		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
 	c.queries = services.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
 		c.repos.participants, c.repos.registrations, c.repos.statuses)
 	c.delivery = services.NewDeliveryService(c.repos.notifications, c.repos.scheduler, c.repos.users,

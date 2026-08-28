@@ -35,6 +35,8 @@
 3 frontend/src/mocks/http.ts
 4 frontend/src/shared/datetime/datetime.ts
 2 frontend/tests/features/auth/login/login.test.tsx
+9 frontend/tests/features/schedule/ui/schedule-fixtures.ts
 9 frontend/tests/features/schedule/ui/schedule-grid.test.tsx
 11 frontend/tests/shared/api/contract-write.test.ts
+5 frontend/tests/shared/i18n/i18n.test.ts
 3 frontend/vite.config.ts

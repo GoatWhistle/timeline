@@ -17,10 +17,7 @@ import (
 	"github.com/kaifarikman/hackathon-os-backend/migrations"
 )
 
-var (
-	once      sync.Once
-	sharedDSN string
-)
+var once sync.Once
 
 var tables = []string{
 	"audit_log",
@@ -47,7 +44,6 @@ func DSN(t *testing.T) string {
 		t.Skip("integration test skipped: TEST_DATABASE_URL is not set")
 	}
 	once.Do(func() {
-		sharedDSN = dsn
 		applyMigrations(t, dsn)
 	})
 	return dsn
