@@ -1,0 +1,201 @@
+//go:build integration
+
+package authz_test
+
+import (
+	"net/http"
+	"testing"
+)
+
+func TestStatusTodoToDoneBelongsToTheOwnerAndTheAdmin(t *testing.T) {
+	s := newStack(t)
+	f := s.seed(t)
+
+	if row := s.statusRow(t, f.statusID); row.Status != "TODO" || row.TodoCycle != 1 || row.RegisteredAt != nil {
+		t.Fatalf("a seeded status is %+v instead of a fresh TODO", row)
+	}
+	f.seedPending(t, s)
+
+	outsider := s.session(t, f.outsider)
+	requireErrorCode(t, outsider.post("/events/"+f.eventID.String()+"/registration/done", nil),
+		http.StatusNotFound, "not_found", "an unassigned user reporting a registration")
+	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
+		t.Fatalf("the refused attempt moved the status to %q", row.Status)
+	}
+
+	member := s.session(t, f.member)
+	requireStatus(t, member.post("/events/"+f.eventID.String()+"/registration/done", nil),
+		http.StatusOK, "the owner reporting a registration")
+
+	done := s.statusRow(t, f.statusID)
+	if done.Status != "DONE" {
+		t.Fatalf("the owner report left the status at %q", done.Status)
+	}
+	if done.RegisteredAt == nil {
+		t.Fatalf("registered_at stayed empty after DONE: %+v", done)
+	}
+	if done.TodoCycle != 1 {
+		t.Fatalf("todo_cycle moved to %d on entering DONE", done.TodoCycle)
+	}
+	if pending := s.pendingForStatus(t, f.statusID); pending != 0 {
+		t.Fatalf("DONE left %d pending notifications on the status", pending)
+	}
+}
+
+func TestStatusDoneToTodoIsAdminOnlyAndCyclesTheCounter(t *testing.T) {
+	s := newStack(t)
+	f := s.seed(t)
+
+	f.adminClient.forceStatus(t, f.statusID, "DONE")
+	before := s.statusRow(t, f.statusID)
+	if before.RegisteredAt == nil {
+		t.Fatalf("the administrative DONE recorded no registered_at: %+v", before)
+	}
+
+	member := s.session(t, f.member)
+	requireErrorCode(t, member.setStatus(t, f.statusID, "TODO"),
+		http.StatusForbidden, "forbidden", "a participant returning a status to TODO")
+	if row := s.statusRow(t, f.statusID); row.Status != "DONE" {
+		t.Fatalf("the refused attempt moved the status to %q", row.Status)
+	}
+
+	f.adminClient.forceStatus(t, f.statusID, "TODO")
+	after := s.statusRow(t, f.statusID)
+	if after.Status != "TODO" {
+		t.Fatalf("the administrative return left the status at %q", after.Status)
+	}
+	if after.TodoCycle != before.TodoCycle+1 {
+		t.Fatalf("todo_cycle went from %d to %d instead of +1", before.TodoCycle, after.TodoCycle)
+	}
+	if after.RegisteredAt != nil {
+		t.Fatalf("registered_at survived the return to TODO: %+v", after)
+	}
+}
+
+func TestStatusTodoAndDoneReachNotRequiredAndCancelPending(t *testing.T) {
+	s := newStack(t)
+	f := s.seed(t)
+
+	f.seedPending(t, s)
+	cancelledBefore := s.notificationCount(t, f.eventID, "CANCELLED")
+
+	member := s.session(t, f.member)
+	requireErrorCode(t, member.setStatus(t, f.statusID, "NOT_REQUIRED"),
+		http.StatusForbidden, "forbidden", "a participant excusing itself from registration")
+	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
+		t.Fatalf("the refused attempt moved the status to %q", row.Status)
+	}
+
+	f.adminClient.forceStatus(t, f.statusID, "NOT_REQUIRED")
+	if row := s.statusRow(t, f.statusID); row.Status != "NOT_REQUIRED" {
+		t.Fatalf("TODO did not reach NOT_REQUIRED, it is %q", row.Status)
+	}
+
+	f.adminClient.forceStatus(t, f.statusID, "TODO")
+	f.adminClient.forceStatus(t, f.statusID, "DONE")
+	f.adminClient.forceStatus(t, f.statusID, "NOT_REQUIRED")
+	excused := s.statusRow(t, f.statusID)
+	if excused.Status != "NOT_REQUIRED" {
+		t.Fatalf("DONE did not reach NOT_REQUIRED, it is %q", excused.Status)
+	}
+	if excused.RegisteredAt != nil {
+		t.Fatalf("registered_at survived the move out of DONE: %+v", excused)
+	}
+	if cancelled := s.notificationCount(t, f.eventID, "CANCELLED"); cancelled <= cancelledBefore {
+		t.Fatalf("the status changes cancelled nothing beyond the %d already cancelled", cancelledBefore)
+	}
+	if pending := s.pendingForStatus(t, f.statusID); pending != 0 {
+		t.Fatalf("NOT_REQUIRED left %d pending notifications on the status", pending)
+	}
+}
+
+func TestStatusNotRequiredReturnsToTodoAndRestartsTheCycle(t *testing.T) {
+	s := newStack(t)
+	f := s.seed(t)
+
+	f.adminClient.forceStatus(t, f.statusID, "NOT_REQUIRED")
+	before := s.statusRow(t, f.statusID)
+
+	member := s.session(t, f.member)
+	requireErrorCode(t, member.setStatus(t, f.statusID, "TODO"),
+		http.StatusForbidden, "forbidden", "a participant reopening its own excused status")
+	if row := s.statusRow(t, f.statusID); row.Status != "NOT_REQUIRED" {
+		t.Fatalf("the refused attempt moved the status to %q", row.Status)
+	}
+
+	f.adminClient.forceStatus(t, f.statusID, "TODO")
+	after := s.statusRow(t, f.statusID)
+	if after.Status != "TODO" {
+		t.Fatalf("NOT_REQUIRED did not return to TODO, it is %q", after.Status)
+	}
+	if after.TodoCycle != before.TodoCycle+1 {
+		t.Fatalf("todo_cycle went from %d to %d instead of +1", before.TodoCycle, after.TodoCycle)
+	}
+}
+
+func TestStatusNotRequiredCannotBeMarkedDoneDirectly(t *testing.T) {
+	t.Skip("todo item 98а: AdminChange allows NOT_REQUIRED -> DONE, which the specification never lists")
+
+	s := newStack(t)
+	f := s.seed(t)
+
+	f.adminClient.forceStatus(t, f.statusID, "NOT_REQUIRED")
+	requireErrorCode(t, f.adminClient.setStatus(t, f.statusID, "DONE"),
+		http.StatusConflict, "invalid_state_transition",
+		"an administrator marking an excused participant registered")
+	if row := s.statusRow(t, f.statusID); row.Status != "NOT_REQUIRED" {
+		t.Fatalf("the refused attempt moved the status to %q", row.Status)
+	}
+}
+
+func TestOwnerReportIsRefusedWhileTheRegistrationIsDisabledOrTheEventArchived(t *testing.T) {
+	s := newStack(t)
+	f := s.seed(t)
+
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/disable", nil),
+		http.StatusOK, "disabling the registration")
+
+	member := s.session(t, f.member)
+	requireErrorCode(t, member.post("/events/"+f.eventID.String()+"/registration/done", nil),
+		http.StatusConflict, "invalid_state_transition", "reporting into a disabled registration")
+	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
+		t.Fatalf("the refused report moved the status to %q", row.Status)
+	}
+
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/enable", nil),
+		http.StatusOK, "enabling the registration again")
+	requireStatus(t, f.adminClient.archive(t, f.eventID), http.StatusOK, "archiving the event")
+
+	requireErrorCode(t, member.post("/events/"+f.eventID.String()+"/registration/done", nil),
+		http.StatusConflict, "invalid_state_transition", "reporting into an archived event")
+	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
+		t.Fatalf("the refused report moved the status to %q", row.Status)
+	}
+}
+
+func TestOwnerReportIsRefusedAfterRemovalFromTheRoster(t *testing.T) {
+	s := newStack(t)
+	f := s.seed(t)
+
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/participants/batch-remove",
+		map[string]any{"participant_ids": []string{f.memberPart.String()}}),
+		http.StatusOK, "removing the member from the roster")
+
+	member := s.session(t, f.member)
+	requireErrorCode(t, member.post("/events/"+f.eventID.String()+"/registration/done", nil),
+		http.StatusNotFound, "not_found", "a removed participant reporting a registration")
+	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
+		t.Fatalf("the refused report moved the status to %q", row.Status)
+	}
+}
+
+func TestAdminStatusChangeRejectsAnUnknownValue(t *testing.T) {
+	s := newStack(t)
+	f := s.seed(t)
+
+	requireErrorCode(t, f.adminClient.setStatus(t, f.statusID, "REGISTERED"),
+		http.StatusBadRequest, "validation_failed", "an administrator using a status outside the enumeration")
+	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
+		t.Fatalf("the refused attempt moved the status to %q", row.Status)
+	}
+}

@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type RegisterRequest struct {
 	DisplayName string `json:"display_name" example:"John Smith"`
@@ -36,4 +40,18 @@ type AuthResponse struct {
 type CSRFResponse struct {
 	CSRFToken  string `json:"csrf_token" example:"0f2a5c8d1b3e4f60"`
 	HeaderName string `json:"header_name" example:"X-CSRF-Token"`
+}
+
+type SessionResponse struct {
+	ID         uuid.UUID  `json:"id"`
+	UserAgent  *string    `json:"user_agent,omitempty" example:"Mozilla/5.0 (X11; Linux x86_64)"`
+	IP         *string    `json:"ip,omitempty" example:"203.0.113.7"`
+	Current    bool       `json:"current" example:"true"`
+	CreatedAt  time.Time  `json:"created_at"`
+	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
+	ExpiresAt  time.Time  `json:"expires_at"`
+}
+
+type SessionListResponse struct {
+	Items []SessionResponse `json:"items"`
 }

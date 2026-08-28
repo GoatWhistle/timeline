@@ -27,9 +27,11 @@ type Deps struct {
 	Metrics       http.Handler
 	SwaggerUI     http.Handler
 
-	CatalogLimiter    CatalogLimiter
+	Limiter           Limiter
 	CatalogRate       int
 	CatalogRateWindow time.Duration
+	SessionRate       int
+	SessionRateWindow time.Duration
 
 	Cookies      CookieOptions
 	PublicURL    string
@@ -96,8 +98,10 @@ func NewRouter(deps Deps) http.Handler {
 	profileC := NewProfileController(deps.Profile, deps.Cookies)
 	userC := NewUserController(deps.Users, deps.UserPageSize, deps.PageMax)
 	eventC := NewEventController(deps.Events, deps.Stages, deps.PageDefault, deps.PageMax)
-	catalogC := NewCatalogController(deps.Catalog, deps.CatalogLimiter, deps.CatalogRate,
+	catalogC := NewCatalogController(deps.Catalog, deps.Limiter, deps.CatalogRate,
 		deps.CatalogRateWindow, deps.PageDefault, deps.PageMax)
+	sessionC := NewSessionController(deps.Auth, deps.Cookies, deps.Limiter,
+		deps.SessionRate, deps.SessionRateWindow)
 	partC := NewParticipantController(deps.Participants, deps.PageDefault, deps.PageMax)
 	regC := NewRegistrationController(deps.Registrations, deps.Statuses, deps.Rules, deps.PageDefault, deps.PageMax)
 	queryC := NewQueryController(deps.Queries, deps.PageDefault, deps.PageMax)
@@ -129,6 +133,8 @@ func NewRouter(deps Deps) http.Handler {
 	mux.Handle("DELETE "+api+"/me/telegram", rt.authd(profileC.TelegramUnlink))
 	mux.Handle("POST "+api+"/me/email-change", rt.authd(profileC.ChangeEmail))
 	mux.Handle("POST "+api+"/me/deactivate", rt.authd(profileC.Deactivate))
+	mux.Handle("GET "+api+"/me/sessions", rt.authd(sessionC.List))
+	mux.Handle("DELETE "+api+"/me/sessions/{id}", rt.authd(sessionC.Revoke))
 
 	mux.Handle("GET "+api+"/me/events", rt.authd(queryC.MyEvents))
 	mux.Handle("GET "+api+"/me/schedule", rt.authd(queryC.MySchedule))

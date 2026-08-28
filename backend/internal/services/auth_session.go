@@ -150,20 +150,20 @@ func (s *AuthService) LogoutAll(ctx context.Context, actor models.Actor) error {
 	return s.sessions.RevokeAllForUser(ctx, actor.UserID)
 }
 
-func (s *AuthService) Authenticate(ctx context.Context, accessToken string) (*models.User, error) {
-	userID, _, err := s.issuer.Parse(accessToken)
+func (s *AuthService) Authenticate(ctx context.Context, accessToken string) (*models.User, uuid.UUID, error) {
+	userID, sessionID, err := s.issuer.Parse(accessToken)
 	if err != nil {
-		return nil, err
+		return nil, uuid.Nil, err
 	}
 	user, err := s.users.GetByID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return nil, models.NewUnauthorized("user not found")
+			return nil, uuid.Nil, models.NewUnauthorized("user not found")
 		}
-		return nil, err
+		return nil, uuid.Nil, err
 	}
 	if !user.IsActive {
-		return nil, models.NewForbidden("the account is deactivated")
+		return nil, uuid.Nil, models.NewForbidden("the account is deactivated")
 	}
-	return user, nil
+	return user, sessionID, nil
 }

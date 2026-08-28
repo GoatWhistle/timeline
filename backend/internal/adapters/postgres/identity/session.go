@@ -2,6 +2,7 @@ package identity
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -64,4 +65,30 @@ func (r *Sessions) Rotate(ctx context.Context, current *models.Session, next *mo
 	}
 	next.FamilyID = current.FamilyID
 	return r.Create(ctx, next)
+}
+
+func (r *Sessions) ListActiveForUser(ctx context.Context, userID uuid.UUID, now time.Time) ([]models.Session, error) {
+	rows, err := r.db.Q(ctx).Query(ctx,
+		`SELECT `+sessionColumns+` FROM sessions
+		 WHERE user_id = $1 AND revoked_at IS NULL AND expires_at > $2
+		 ORDER BY coalesce(last_used_at, created_at) DESC, created_at DESC`, userID, now)
+	if err != nil {
+		return nil, mapError(err)
+	}
+	defer rows.Close()
+
+	items := make([]models.Session, 0, 8)
+	for rows.Next() {
+		s, err := scanSession(rows)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, *s)
+	}
+	return items, mapError(rows.Err())
+}
+
+func (r *Sessions) GetByID(ctx context.Context, id uuid.UUID) (*models.Session, error) {
+	return scanSession(r.db.Q(ctx).QueryRow(ctx,
+		`SELECT `+sessionColumns+` FROM sessions WHERE id = $1`, id))
 }

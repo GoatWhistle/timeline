@@ -10,20 +10,16 @@ import (
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
-type CatalogLimiter interface {
-	Allow(key string, limit int, window time.Duration) bool
-}
-
 type CatalogController struct {
 	catalog CatalogService
-	limiter CatalogLimiter
+	limiter Limiter
 	limit   int
 	window  time.Duration
 	pageDef int
 	pageMax int
 }
 
-func NewCatalogController(svc CatalogService, limiter CatalogLimiter, limit int,
+func NewCatalogController(svc CatalogService, limiter Limiter, limit int,
 	window time.Duration, pageDef, pageMax int) *CatalogController {
 	return &CatalogController{
 		catalog: svc, limiter: limiter, limit: limit, window: window,

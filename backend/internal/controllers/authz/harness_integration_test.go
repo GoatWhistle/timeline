@@ -104,9 +104,11 @@ func newStack(t *testing.T) *stack {
 		Ops:     services.NewOpsService(db, scheduleRepo, notifications, cfg),
 
 		Authenticator:     auth,
-		CatalogLimiter:    limiter,
+		Limiter:           limiter,
 		CatalogRate:       cfg.RateLim.CatalogRequests,
 		CatalogRateWindow: cfg.RateLim.CatalogWindow,
+		SessionRate:       cfg.RateLim.SessionRequests,
+		SessionRateWindow: cfg.RateLim.SessionWindow,
 
 		Cookies:      controllers.CookieOptions{},
 		PublicURL:    cfg.App.PublicURL,

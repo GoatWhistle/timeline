@@ -26,10 +26,13 @@ const (
 
 type ctxKey string
 
-const userKey ctxKey = "current_user"
+const (
+	userKey    ctxKey = "current_user"
+	sessionKey ctxKey = "current_session"
+)
 
 type Authenticator interface {
-	Authenticate(ctx context.Context, accessToken string) (*models.User, error)
+	Authenticate(ctx context.Context, accessToken string) (*models.User, uuid.UUID, error)
 }
 
 func RequestID(next http.Handler) http.Handler {
@@ -156,12 +159,14 @@ func Auth(a Authenticator) func(http.Handler) http.Handler {
 				httpx.Error(w, r, models.NewUnauthorized("authentication is required"))
 				return
 			}
-			user, err := a.Authenticate(r.Context(), token)
+			user, sessionID, err := a.Authenticate(r.Context(), token)
 			if err != nil {
 				httpx.Error(w, r, err)
 				return
 			}
-			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), userKey, user)))
+			ctx := context.WithValue(r.Context(), userKey, user)
+			ctx = context.WithValue(ctx, sessionKey, sessionID)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
@@ -202,11 +207,19 @@ func CurrentUser(r *http.Request) *models.User {
 	return nil
 }
 
+func CurrentSession(r *http.Request) uuid.UUID {
+	if v, ok := r.Context().Value(sessionKey).(uuid.UUID); ok {
+		return v
+	}
+	return uuid.Nil
+}
+
 func ActorFrom(r *http.Request) models.Actor {
 	actor := models.Actor{RequestID: httpx.RequestID(r)}
 	if u := CurrentUser(r); u != nil {
 		actor.UserID = u.ID
 		actor.IsAdmin = u.IsAdmin
+		actor.SessionID = CurrentSession(r)
 	}
 	return actor
 }

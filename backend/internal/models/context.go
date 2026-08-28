@@ -8,6 +8,7 @@ import (
 
 type Actor struct {
 	UserID    uuid.UUID
+	SessionID uuid.UUID
 	IsAdmin   bool
 	RequestID string
 }

@@ -90,9 +90,11 @@ func newRouter(c *container) http.Handler {
 		Authenticator: c.auth,
 		Metrics:       promhttp.Handler(),
 
-		CatalogLimiter:    c.limiter,
+		Limiter:           c.limiter,
 		CatalogRate:       c.cfg.RateLim.CatalogRequests,
 		CatalogRateWindow: c.cfg.RateLim.CatalogWindow,
+		SessionRate:       c.cfg.RateLim.SessionRequests,
+		SessionRateWindow: c.cfg.RateLim.SessionWindow,
 
 		Cookies:      controllers.CookieOptions{Domain: c.cfg.HTTP.CookieDomain, Secure: c.cfg.HTTP.CookieSecure},
 		PublicURL:    c.cfg.App.PublicURL,

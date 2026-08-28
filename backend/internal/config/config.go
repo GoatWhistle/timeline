@@ -77,6 +77,12 @@ type RateLim struct {
 	ResendWindow    time.Duration
 	CatalogRequests int
 	CatalogWindow   time.Duration
+	SessionRequests int
+	SessionWindow   time.Duration
+	PreviewRequests int
+	PreviewWindow   time.Duration
+	QueueRequests   int
+	QueueWindow     time.Duration
 }
 
 type Notify struct {
@@ -183,6 +189,12 @@ func Load() (*Config, error) {
 			ResendWindow:    envDuration("RATE_LIMIT_RESEND_WINDOW", time.Hour),
 			CatalogRequests: envInt("RATE_LIMIT_CATALOG_REQUESTS", 120),
 			CatalogWindow:   envDuration("RATE_LIMIT_CATALOG_WINDOW", time.Minute),
+			SessionRequests: envInt("RATE_LIMIT_SESSION_REQUESTS", 60),
+			SessionWindow:   envDuration("RATE_LIMIT_SESSION_WINDOW", time.Minute),
+			PreviewRequests: envInt("RATE_LIMIT_PREVIEW_REQUESTS", 60),
+			PreviewWindow:   envDuration("RATE_LIMIT_PREVIEW_WINDOW", time.Minute),
+			QueueRequests:   envInt("RATE_LIMIT_QUEUE_REQUESTS", 60),
+			QueueWindow:     envDuration("RATE_LIMIT_QUEUE_WINDOW", time.Minute),
 		},
 		Notify: Notify{
 			SchedulerInterval: envDuration("SCHEDULER_INTERVAL", 5*time.Minute),
