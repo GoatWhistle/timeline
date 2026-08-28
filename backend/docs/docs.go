@@ -2797,7 +2797,7 @@ const docTemplate = `{
                             "HYBRID"
                         ],
                         "type": "string",
-                        "description": "Comma-separated format filter",
+                        "description": "Comma-separated format filter. OFFLINE and HYBRID also match an event whose own format is ONLINE when at least one of its stages is held in person.",
                         "name": "format",
                         "in": "query"
                     },
@@ -3602,7 +3602,7 @@ const docTemplate = `{
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/models.WorkerHeartbeatResponse"
                         }
                     }
                 }
@@ -4820,6 +4820,14 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": false
                 },
+                "locale": {
+                    "type": "string",
+                    "enum": [
+                        "ru",
+                        "en"
+                    ],
+                    "example": "ru"
+                },
                 "pending_email": {
                     "type": "string"
                 },
@@ -5746,6 +5754,14 @@ const docTemplate = `{
                 "display_name": {
                     "type": "string",
                     "example": "John Smith"
+                },
+                "locale": {
+                    "type": "string",
+                    "enum": [
+                        "ru",
+                        "en"
+                    ],
+                    "example": "en"
                 },
                 "preferred_channel": {
                     "type": "string",

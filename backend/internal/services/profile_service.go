@@ -42,56 +42,26 @@ func (s *ProfileService) Get(ctx context.Context, userID uuid.UUID) (*models.Use
 }
 
 func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req models.UpdateProfileRequest) (*models.User, error) {
-	var (
-		displayName *string
-		channel     *models.Channel
-		clearChan   bool
-		username    *string
-		clearUser   bool
-	)
-	if req.DisplayName != nil {
-		value, err := validateText("display_name", *req.DisplayName, 1, 120)
-		if err != nil {
-			return nil, err
-		}
-		displayName = &value
-	}
-	if req.PreferredChannel != nil {
-		if *req.PreferredChannel == "" {
-			clearChan = true
-		} else {
-			value, err := parseChannel("preferred_channel", *req.PreferredChannel)
-			if err != nil {
-				return nil, err
-			}
-			channel = &value
-		}
-	}
-	if req.TelegramUsername != nil {
-		if *req.TelegramUsername == "" {
-			clearUser = true
-		} else {
-			value, err := validateText("telegram_username", *req.TelegramUsername, 1, 64)
-			if err != nil {
-				return nil, err
-			}
-			username = &value
-		}
+	patch, err := profilePatch(req)
+	if err != nil {
+		return nil, err
 	}
 
 	var updated *models.User
-	err := s.db.WithTx(ctx, func(ctx context.Context) error {
+	err = s.db.WithTx(ctx, func(ctx context.Context) error {
 		before, err := s.users.GetByID(ctx, actor.UserID)
 		if err != nil {
 			return err
 		}
-		updated, err = s.users.UpdateProfile(ctx, actor.UserID, displayName, username, clearUser, channel, clearChan)
+		updated, err = s.users.UpdateProfile(ctx, actor.UserID, patch)
 		if err != nil {
 			return err
 		}
 		return s.audit.Record(ctx, actor, models.AuditUserProfileChange, models.EntityUser, actor.UserID,
-			map[string]any{"display_name": before.DisplayName, "preferred_channel": before.PreferredChannel},
-			map[string]any{"display_name": updated.DisplayName, "preferred_channel": updated.PreferredChannel})
+			map[string]any{"display_name": before.DisplayName, "preferred_channel": before.PreferredChannel,
+				"locale": before.Locale},
+			map[string]any{"display_name": updated.DisplayName, "preferred_channel": updated.PreferredChannel,
+				"locale": updated.Locale})
 	})
 	if err != nil {
 		return nil, err
@@ -206,7 +176,7 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 		return err
 	}
 
-	s.mailer.SendEmailChange(ctx, newEmail, user.DisplayName, secret, s.cfg.Auth.EmailVerifyTTL)
+	s.mailer.SendEmailChange(ctx, newEmail, user.DisplayName, user.Locale, secret, s.cfg.Auth.EmailVerifyTTL)
 	return nil
 }
 

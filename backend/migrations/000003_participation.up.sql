@@ -43,7 +43,6 @@ CREATE TABLE registrations (
     created_at                   timestamptz NOT NULL DEFAULT now(),
     updated_at                   timestamptz NOT NULL DEFAULT now(),
 
-    CONSTRAINT registrations_url_https CHECK (url ~ '^https://'),
     CONSTRAINT registrations_state_enum CHECK (state IN ('ACTIVE', 'DISABLED')),
     CONSTRAINT registrations_schedule_version_positive CHECK (schedule_version >= 1),
     CONSTRAINT registrations_activation_version_positive CHECK (activation_version >= 1),

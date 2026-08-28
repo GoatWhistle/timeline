@@ -1,2 +1,7 @@
 # Baseline for the Cyrillic check (scripts/check-cyrillic.sh).
 # Format: <lines with Cyrillic> <path>. Only updated downwards.
+129 CLAUDE.md
+1 backend/internal/locale/locale_test.go
+2 backend/migrations/000007_english_trigger_messages.down.sql
+15 frontend/e2e/login.spec.ts
+5 frontend/tests/shared/i18n/i18n.test.ts

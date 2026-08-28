@@ -99,7 +99,6 @@ type Retention struct {
 }
 
 type Telegram struct {
-	Driver   string
 	BotToken string
 	BotName  string
 	APIBase  string
@@ -107,7 +106,6 @@ type Telegram struct {
 }
 
 type Email struct {
-	Driver   string
 	Host     string
 	Port     int
 	Username string
@@ -204,14 +202,12 @@ func Load() (*Config, error) {
 			Interval:            envDuration("RETENTION_INTERVAL", 24*time.Hour),
 		},
 		Telegram: Telegram{
-			Driver:   env("TELEGRAM_DRIVER", "log"),
 			BotToken: env("TELEGRAM_BOT_TOKEN", ""),
 			BotName:  env("TELEGRAM_BOT_NAME", "timeline_bot"),
 			APIBase:  env("TELEGRAM_API_BASE", "https://api.telegram.org"),
 			Timeout:  envDuration("TELEGRAM_TIMEOUT", 10*time.Second),
 		},
 		Email: Email{
-			Driver:   env("EMAIL_DRIVER", "log"),
 			Host:     env("SMTP_HOST", ""),
 			Port:     envInt("SMTP_PORT", 587),
 			Username: env("SMTP_USERNAME", ""),

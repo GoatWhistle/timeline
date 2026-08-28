@@ -14,12 +14,12 @@ export default defineConfig({
     setupFiles: ['./tests/support/setup.ts'],
     css: false,
     include: ['tests/**/*.test.{ts,tsx}'],
-    env: { VITE_API_BASE_URL: 'http://localhost/api/v1', VITE_ENABLE_MSW: '1' },
+    env: { VITE_API_BASE_URL: 'http://localhost/api/v1' },
     coverage: {
       provider: 'v8',
       reporter: ['text-summary', 'json-summary', 'html'],
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['**/*.gen.*', 'src/mocks/**', 'tests/**', '**/index.ts'],
+      exclude: ['**/*.gen.*', 'tests/**', '**/index.ts'],
       thresholds: {
         lines: 16.74,
         functions: 10.5,

@@ -3143,7 +3143,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description Comma-separated format filter */
+                    /** @description Comma-separated format filter. OFFLINE and HYBRID also match an event whose own format is ONLINE when at least one of its stages is held in person. */
                     format?: "ONLINE" | "OFFLINE" | "HYBRID";
                     /** @description Lower bound of the period */
                     from?: string;
@@ -4168,7 +4168,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["models.ErrorResponse"];
+                        "application/json": components["schemas"]["models.WorkerHeartbeatResponse"];
                     };
                 };
             };
@@ -4267,10 +4267,10 @@ export interface components {
             before?: unknown;
             /** Format: date-time */
             created_at: string;
-            entity_id: string;
+            entity_id?: string;
             entity_type: components["schemas"]["models.EntityType"];
             id: string;
-            request_id: string;
+            request_id?: string;
         };
         "models.AuthResponse": {
             /** Format: date-time */
@@ -4616,6 +4616,11 @@ export interface components {
             is_active: boolean;
             /** @example false */
             is_admin: boolean;
+            /**
+             * @example ru
+             * @enum {string}
+             */
+            locale: "ru" | "en";
             pending_email?: string;
             preferred_channel?: components["schemas"]["models.Channel"];
             /** @example false */
@@ -4930,6 +4935,11 @@ export interface components {
         "models.UpdateProfileRequest": {
             /** @example John Smith */
             display_name?: string;
+            /**
+             * @example en
+             * @enum {string}
+             */
+            locale?: "ru" | "en";
             /** @enum {string} */
             preferred_channel?: "TELEGRAM" | "EMAIL";
             /** @example @ivan */

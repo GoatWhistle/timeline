@@ -24,7 +24,6 @@ CREATE TABLE events (
 
     CONSTRAINT events_title_len CHECK (length(btrim(title)) BETWEEN 1 AND 200),
     CONSTRAINT events_organizer_len CHECK (organizer IS NULL OR length(organizer) <= 200),
-    CONSTRAINT events_website_https CHECK (website_url IS NULL OR website_url ~ '^https://'),
     CONSTRAINT events_period CHECK (end_at > start_at),
     CONSTRAINT events_kind_enum CHECK (kind IN ('HACKATHON', 'MEETUP')),
     CONSTRAINT events_format_enum CHECK (format IN ('ONLINE', 'OFFLINE', 'HYBRID')),
@@ -73,8 +72,6 @@ CREATE TABLE stages (
         'REGISTRATION', 'SELECTION', 'PARTICIPATION', 'CHECKPOINT',
         'SUBMISSION', 'DEMO', 'RESULTS', 'OTHER')),
     CONSTRAINT stages_period CHECK (end_at > start_at),
-    CONSTRAINT stages_url_https CHECK (url IS NULL OR url ~ '^https://'),
-    CONSTRAINT stages_online_url_https CHECK (online_url IS NULL OR online_url ~ '^https://'),
     CONSTRAINT stages_format_enum CHECK (format IS NULL OR format IN ('ONLINE', 'OFFLINE', 'HYBRID')),
     CONSTRAINT stages_country_code_format CHECK (country_code IS NULL OR country_code ~ '^[A-Z]{2}$'),
     CONSTRAINT stages_city_len CHECK (city IS NULL OR length(btrim(city)) BETWEEN 1 AND 120),

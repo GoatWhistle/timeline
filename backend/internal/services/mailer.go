@@ -28,24 +28,24 @@ func NewMailer(sender EmailSender, publicURL string) *Mailer {
 	return &Mailer{sender: sender, publicURL: strings.TrimRight(publicURL, "/")}
 }
 
-func (m *Mailer) SendVerification(ctx context.Context, to, displayName, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, "email.verification", displayName, m.link("/verify-email", token), ttl)
+func (m *Mailer) SendVerification(ctx context.Context, to, displayName, lang, token string, ttl time.Duration) {
+	m.sendTemplate(ctx, to, "email.verification", displayName, lang, m.link("/verify-email", token), ttl)
 }
 
-func (m *Mailer) SendPasswordReset(ctx context.Context, to, displayName, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, "email.password_reset", displayName, m.link("/reset-password", token), ttl)
+func (m *Mailer) SendPasswordReset(ctx context.Context, to, displayName, lang, token string, ttl time.Duration) {
+	m.sendTemplate(ctx, to, "email.password_reset", displayName, lang, m.link("/reset-password", token), ttl)
 }
 
-func (m *Mailer) SendEmailChange(ctx context.Context, to, displayName, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, "email.email_change", displayName, m.link("/confirm-email", token), ttl)
+func (m *Mailer) SendEmailChange(ctx context.Context, to, displayName, lang, token string, ttl time.Duration) {
+	m.sendTemplate(ctx, to, "email.email_change", displayName, lang, m.link("/confirm-email", token), ttl)
 }
 
-func (m *Mailer) SendInvite(ctx context.Context, to, invitedBy, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, "email.invite", invitedBy, m.link("/invite", token), ttl)
+func (m *Mailer) SendInvite(ctx context.Context, to, invitedBy, lang, token string, ttl time.Duration) {
+	m.sendTemplate(ctx, to, "email.invite", invitedBy, lang, m.link("/invite", token), ttl)
 }
 
-func (m *Mailer) sendTemplate(ctx context.Context, to, key, name, link string, ttl time.Duration) {
-	lang := locale.Default
+func (m *Mailer) sendTemplate(ctx context.Context, to, key, name, lang, link string, ttl time.Duration) {
+	lang = locale.Normalize(lang)
 	args := []string{"name", name, "link", link, "ttl", humanDuration(lang, ttl)}
 	m.send(ctx, to, locale.Message(lang, key+".subject", args...),
 		locale.Message(lang, key+".body", args...))

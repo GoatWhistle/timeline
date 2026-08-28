@@ -810,6 +810,12 @@ definitions:
       is_admin:
         example: false
         type: boolean
+      locale:
+        enum:
+        - ru
+        - en
+        example: ru
+        type: string
       pending_email:
         type: string
       preferred_channel:
@@ -1425,6 +1431,12 @@ definitions:
     properties:
       display_name:
         example: John Smith
+        type: string
+      locale:
+        enum:
+        - ru
+        - en
+        example: en
         type: string
       preferred_channel:
         enum:
@@ -3425,7 +3437,9 @@ paths:
         in: query
         name: origin
         type: string
-      - description: Comma-separated format filter
+      - description: Comma-separated format filter. OFFLINE and HYBRID also match
+          an event whose own format is ONLINE when at least one of its stages is held
+          in person.
         enum:
         - ONLINE
         - OFFLINE
@@ -3977,7 +3991,7 @@ paths:
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/models.WorkerHeartbeatResponse'
       summary: Background process status
       tags:
       - ops

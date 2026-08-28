@@ -5,7 +5,6 @@
 #
 #   make docker-up   production mode: nginx with the frontend production build
 #   make dev         development mode: HMR for the frontend, `go run` for backend
-#   make dev MOCKS=1 the same, but screens run on MSW mocks
 #
 # The check commands (lint, test, types, verify) require Node on the machine. Go
 # is optional: if it is missing, the backend checks run in a container.
@@ -45,6 +44,7 @@ endif
 
 COMPOSE     := docker compose -f deploy/docker-compose.yml
 COMPOSE_DEV := $(COMPOSE) -f deploy/docker-compose.dev.yml
+COMPOSE_CONTRACT := docker compose -f deploy/docker-compose.contract.yml
 
 # Long-running services: the one-shot migrate and bootstrap are pulled in as
 # their dependencies, but --wait cannot be used to wait for them to finish.
@@ -58,16 +58,17 @@ ADMIN_EMAIL    ?= admin@example.com
 ADMIN_PASSWORD ?= password123
 ADMIN_NAME     ?= Administrator
 
-# MOCKS=1 switches the frontend in development mode over to MSW mocks.
-MOCKS ?= 0
+# The contract suite runs against its own throwaway stack (deploy/docker-compose.contract.yml)
+# on a separate port, so a development stack may stay up at the same time.
+CONTRACT_API_PORT ?= 55480
 
 # docker compose reads these values from the environment (see deploy/docker-compose.yml).
-export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME MOCKS
+export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME CONTRACT_API_PORT
 
 .PHONY: help endpoints \
 	docker-up docker-down docker-build docker-restart docker-status docker-logs \
 	docker-psql dev dev-down dev-restart dev-logs \
-	install types types-check typecheck lint format test verify build \
+	install types types-check typecheck lint format test test-contract e2e verify build \
 	cyrillic baseline-cyrillic \
 	back-fmt back-vet back-test back-test-integration back-build back-cover back-docs clean
 
@@ -80,7 +81,6 @@ help: ## Show the list of commands
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "Override ports like this: make docker-up WEB_PORT=5199 API_PORT=8099 POSTGRES_PORT=5433"
-	@echo "Development on MSW mocks: make dev MOCKS=1"
 
 # --- Production mode --------------------------------------------------------
 
@@ -116,7 +116,6 @@ docker-psql: ## Open psql in the database container
 dev: $(BACKEND)/.env ## Bring up the stack in development mode: HMR and go run
 	@$(COMPOSE_DEV) up -d --build --wait $(SERVICES)
 	@$(MAKE) --no-print-directory endpoints
-	@if [ "$(MOCKS)" = "1" ]; then echo "frontend is running on MSW mocks"; fi
 
 dev-down: ## Stop the development mode stack
 	@$(COMPOSE_DEV) down
@@ -169,6 +168,17 @@ test: $(FRONTEND)/node_modules ## Run the frontend tests
 
 test-cover: $(FRONTEND)/node_modules ## Frontend tests with coverage and threshold checks
 	@cd $(FRONTEND) && npm run test:coverage
+
+# Contract tests run against a real API rather than mocks: the stack below is
+# brought up, the suite is run against it and the stack is torn down again. The
+# database lives in tmpfs and dies with the containers, so runs never share state.
+test-contract: $(FRONTEND)/node_modules ## Contract tests against a real API in a container
+	@$(COMPOSE_CONTRACT) up -d --build --wait api
+	@cd $(FRONTEND) && npm run test:contract ; 		status=$$? ; cd .. ; $(COMPOSE_CONTRACT) down -v --remove-orphans >/dev/null 2>&1 ; exit $$status
+
+e2e: $(FRONTEND)/node_modules ## Sign-in scenario in a real browser against a real API
+	@$(COMPOSE_CONTRACT) up -d --build --wait api
+	@cd $(FRONTEND) && npm run e2e ; 		status=$$? ; cd .. ; $(COMPOSE_CONTRACT) down -v --remove-orphans >/dev/null 2>&1 ; exit $$status
 
 build: $(FRONTEND)/node_modules ## Build the frontend production bundle on the machine
 	@cd $(FRONTEND) && npm run build
@@ -242,6 +252,7 @@ verify: ## Full check of both parts: contract, types, linter, tests, build
 	@$(MAKE) --no-print-directory file-length
 	@$(MAKE) --no-print-directory cyrillic
 	@cd $(FRONTEND) && npm run verify
+	@$(MAKE) --no-print-directory test-contract
 	@$(GO_RUN) "go build ./... && go vet ./... && go test ./..."
 	@$(MAKE) --no-print-directory back-lint-new
 	@echo "checks passed"

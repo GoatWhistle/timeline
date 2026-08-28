@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
@@ -20,21 +19,8 @@ type Sender interface {
 }
 
 func New(cfg config.Telegram) Sender {
-	if cfg.Driver == "bot" && cfg.BotToken != "" {
-		return &botSender{cfg: cfg, client: &http.Client{Timeout: cfg.Timeout}}
-	}
-	return &logSender{cfg: cfg}
+	return &botSender{cfg: cfg, client: &http.Client{Timeout: cfg.Timeout}}
 }
-
-type logSender struct{ cfg config.Telegram }
-
-func (s *logSender) Send(ctx context.Context, msg models.OutboundMessage) error {
-	slog.InfoContext(ctx, "telegram message not sent: log driver active",
-		"chat_id", msg.Recipient, "idempotency_key", msg.IdempotencyKey)
-	return nil
-}
-
-func (s *logSender) DeepLink(token string) string { return deepLink(s.cfg.BotName, token) }
 
 type botSender struct {
 	cfg    config.Telegram

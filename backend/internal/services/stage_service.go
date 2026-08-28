@@ -132,7 +132,7 @@ func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.U
 			models.FieldError{Field: "type", Message: "value is not allowed"})
 	}
 	if req.URL != nil && *req.URL != "" {
-		url, err := validateHTTPS("url", *req.URL)
+		url, err := validateURL("url", *req.URL)
 		if err != nil {
 			return nil, nil, err
 		}

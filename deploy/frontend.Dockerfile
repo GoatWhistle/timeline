@@ -22,9 +22,6 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 # Production build.
 FROM deps AS build
 COPY frontend/ ./
-# In the production image the MSW mocks are always off: requests are served by
-# the real backend, and MSW itself is stripped out of the bundle.
-ENV VITE_ENABLE_MSW=0
 ARG VITE_API_BASE_URL=/api/v1
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 RUN npm run build

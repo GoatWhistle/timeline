@@ -130,7 +130,7 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, 
 		return nil, nil, err
 	}
 
-	s.mailer.SendVerification(ctx, user.Email, user.DisplayName, verifySecret, s.cfg.Auth.EmailVerifyTTL)
+	s.mailer.SendVerification(ctx, user.Email, user.DisplayName, user.Locale, verifySecret, s.cfg.Auth.EmailVerifyTTL)
 
 	pair, err := s.startSession(ctx, user, meta)
 	if err != nil {
@@ -326,7 +326,7 @@ func (s *AuthService) ResendVerification(ctx context.Context, email string) erro
 	if err != nil {
 		return err
 	}
-	s.mailer.SendVerification(ctx, user.Email, user.DisplayName, secret, s.cfg.Auth.EmailVerifyTTL)
+	s.mailer.SendVerification(ctx, user.Email, user.DisplayName, user.Locale, secret, s.cfg.Auth.EmailVerifyTTL)
 	return nil
 }
 
@@ -366,7 +366,7 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 	if err != nil {
 		return err
 	}
-	s.mailer.SendPasswordReset(ctx, user.Email, user.DisplayName, secret, s.cfg.Auth.PasswordResetTTL)
+	s.mailer.SendPasswordReset(ctx, user.Email, user.DisplayName, user.Locale, secret, s.cfg.Auth.PasswordResetTTL)
 	return nil
 }
 

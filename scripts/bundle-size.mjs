@@ -29,7 +29,6 @@ const walk = (dir) =>
 
 const files = walk(dist)
   .map((full) => ({ name: relative(dist, full).split(sep).join('/'), buffer: readFileSync(full) }))
-  .filter(({ name }) => name !== 'mockServiceWorker.js')
   .map(({ name, buffer }) => ({
     file: name.replace(/-[A-Za-z0-9_-]{8}\./, '-[hash].'),
     bytes: buffer.length,

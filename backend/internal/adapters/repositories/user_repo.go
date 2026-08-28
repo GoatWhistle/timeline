@@ -15,13 +15,13 @@ type UserRepository struct{ db *DB }
 func NewUserRepository(db *DB) *UserRepository { return &UserRepository{db: db} }
 
 const userColumns = `id, display_name, email, pending_email, password_hash, email_verified_at,
-	telegram_username, telegram_chat_id, preferred_channel, is_admin, is_active,
+	telegram_username, telegram_chat_id, preferred_channel, locale, is_admin, is_active,
 	deleted_at, created_at, updated_at`
 
 func scanUser(row pgx.Row) (*models.User, error) {
 	var u models.User
 	err := row.Scan(&u.ID, &u.DisplayName, &u.Email, &u.PendingEmail, &u.PasswordHash, &u.EmailVerifiedAt,
-		&u.TelegramUsername, &u.TelegramChatID, &u.PreferredChannel, &u.IsAdmin, &u.IsActive,
+		&u.TelegramUsername, &u.TelegramChatID, &u.PreferredChannel, &u.Locale, &u.IsAdmin, &u.IsActive,
 		&u.DeletedAt, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -64,16 +64,17 @@ func (r *UserRepository) EmailTaken(ctx context.Context, email string, except uu
 	return exists, nil
 }
 
-func (r *UserRepository) UpdateProfile(ctx context.Context, id uuid.UUID, displayName *string,
-	telegramUsername *string, clearTelegramUsername bool, channel *models.Channel, clearChannel bool) (*models.User, error) {
+func (r *UserRepository) UpdateProfile(ctx context.Context, id uuid.UUID, p models.ProfilePatch) (*models.User, error) {
 	return scanUser(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE users SET
 			display_name = COALESCE($2, display_name),
 			telegram_username = CASE WHEN $4 THEN NULL ELSE COALESCE($3, telegram_username) END,
-			preferred_channel = CASE WHEN $6 THEN NULL ELSE COALESCE($5, preferred_channel) END
+			preferred_channel = CASE WHEN $6 THEN NULL ELSE COALESCE($5, preferred_channel) END,
+			locale = COALESCE($7, locale)
 		WHERE id = $1
 		RETURNING `+userColumns,
-		id, displayName, telegramUsername, clearTelegramUsername, channel, clearChannel))
+		id, p.DisplayName, p.TelegramUsername, p.ClearTelegramUsername,
+		p.PreferredChannel, p.ClearPreferredChannel, p.Locale))
 }
 
 func (r *UserRepository) SetPassword(ctx context.Context, id uuid.UUID, hash string) error {

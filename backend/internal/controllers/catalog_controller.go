@@ -46,14 +46,14 @@ func (c *CatalogController) allow(r *http.Request, scope string) bool {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			search		query		string	false	"Search by title and organiser"
-// @Param			origin		query		string	false	"Comma-separated origin filter"	Enums(RU,WORLD)
+// @Param			origin		query		string	false	"Comma-separated origin filter"																															Enums(RU,WORLD)
 // @Param			format		query		string	false	"Comma-separated format filter. OFFLINE and HYBRID also match an event whose own format is ONLINE when at least one of its stages is held in person."	Enums(ONLINE,OFFLINE,HYBRID)
-// @Param			kind		query		string	false	"Comma-separated kind filter"	Enums(HACKATHON,MEETUP)
-// @Param			state		query		string	false	"Comma-separated state filter"	Enums(UPCOMING,ACTIVE,FINISHED)
-// @Param			from		query		string	false	"Lower bound of the period"		format(date-time)
-// @Param			to			query		string	false	"Upper bound of the period"		format(date-time)
-// @Param			page		query		int		false	"Page number"					default(1)
-// @Param			page_size	query		int		false	"Page size"						default(50)
+// @Param			kind		query		string	false	"Comma-separated kind filter"																															Enums(HACKATHON,MEETUP)
+// @Param			state		query		string	false	"Comma-separated state filter"																															Enums(UPCOMING,ACTIVE,FINISHED)
+// @Param			from		query		string	false	"Lower bound of the period"																																format(date-time)
+// @Param			to			query		string	false	"Upper bound of the period"																																format(date-time)
+// @Param			page		query		int		false	"Page number"																																			default(1)
+// @Param			page_size	query		int		false	"Page size"																																				default(50)
 // @Success		200			{object}	models.CatalogPage
 // @Failure		400			{object}	models.ErrorResponse
 // @Failure		401			{object}	models.ErrorResponse

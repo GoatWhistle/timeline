@@ -16,6 +16,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router'
 import { useLogout } from '@/entities/session/session.queries'
 import { VerificationBanner } from '@/features/auth/verification-banner/verification-banner'
 import { useSession } from '@/shared/api/session'
+import { useProfileLocale } from '@/shared/i18n/use-profile-locale'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Button } from '@/shared/ui/primitives/button'
 import { LanguageToggle } from '@/shared/ui/primitives/language-toggle'
@@ -76,6 +77,7 @@ function NavSection({ title, items }: { title: string; items: NavItem[] }) {
 export function AppShell() {
   const { user, isAdmin } = useSession()
   const { t } = useTranslation()
+  useProfileLocale()
   const logout = useLogout()
   const navigate = useNavigate()
 

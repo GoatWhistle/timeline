@@ -7,6 +7,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
@@ -57,12 +58,20 @@ func validateText(field, value string, minLen, maxLen int) (string, error) {
 	return trimmed, nil
 }
 
-func validateHTTPS(field, value string) (string, error) {
+func validateURL(field, value string) (string, error) {
 	trimmed := strings.TrimSpace(value)
 	parsed, err := url.Parse(trimmed)
-	if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
-		return "", models.NewValidation("the link must start with https://",
-			models.FieldError{Field: field, Message: "an absolute HTTPS URL is required"})
+	if err != nil || parsed.Host == "" {
+		return "", models.NewValidation("the link is not a valid URL",
+			models.FieldError{Field: field, Message: "an absolute URL is required"})
+	}
+	switch strings.ToLower(parsed.Scheme) {
+	case "javascript", "data", "vbscript", "file":
+		return "", models.NewValidation("the link scheme is not allowed",
+			models.FieldError{Field: field, Message: "this scheme executes in the browser and is rejected"})
+	case "":
+		return "", models.NewValidation("the link is not a valid URL",
+			models.FieldError{Field: field, Message: "an absolute URL is required"})
 	}
 	return trimmed, nil
 }
@@ -74,6 +83,56 @@ func parseChannel(field, value string) (models.Channel, error) {
 			models.FieldError{Field: field, Message: "allowed values are TELEGRAM and EMAIL"})
 	}
 	return channel, nil
+}
+
+func parseLocale(field, value string) (string, error) {
+	normalized := strings.ToLower(strings.TrimSpace(value))
+	if !locale.Has(normalized) {
+		return "", models.NewValidation("unsupported interface language",
+			models.FieldError{Field: field, Message: "allowed values are " + strings.Join(locale.Supported(), " and ")})
+	}
+	return normalized, nil
+}
+
+func profilePatch(req models.UpdateProfileRequest) (models.ProfilePatch, error) {
+	var patch models.ProfilePatch
+	if req.DisplayName != nil {
+		value, err := validateText("display_name", *req.DisplayName, 1, 120)
+		if err != nil {
+			return patch, err
+		}
+		patch.DisplayName = &value
+	}
+	if req.PreferredChannel != nil {
+		if *req.PreferredChannel == "" {
+			patch.ClearPreferredChannel = true
+		} else {
+			value, err := parseChannel("preferred_channel", *req.PreferredChannel)
+			if err != nil {
+				return patch, err
+			}
+			patch.PreferredChannel = &value
+		}
+	}
+	if req.TelegramUsername != nil {
+		if *req.TelegramUsername == "" {
+			patch.ClearTelegramUsername = true
+		} else {
+			value, err := validateText("telegram_username", *req.TelegramUsername, 1, 64)
+			if err != nil {
+				return patch, err
+			}
+			patch.TelegramUsername = &value
+		}
+	}
+	if req.Locale != nil {
+		value, err := parseLocale("locale", *req.Locale)
+		if err != nil {
+			return patch, err
+		}
+		patch.Locale = &value
+	}
+	return patch, nil
 }
 
 func itoa(n int) string { return strconv.Itoa(n) }

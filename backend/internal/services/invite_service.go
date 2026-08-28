@@ -9,6 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/repositories"
 	"github.com/GoatWhistle/timeline/internal/config"
+	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
@@ -88,7 +89,7 @@ func (s *InviteService) Create(ctx context.Context, actor models.Actor, email st
 		return nil, "", err
 	}
 
-	s.mailer.SendInvite(ctx, normalized, creator.DisplayName, secret, s.cfg.Auth.InviteTTL)
+	s.mailer.SendInvite(ctx, normalized, creator.DisplayName, locale.Default, secret, s.cfg.Auth.InviteTTL)
 	return invite, secret, nil
 }
 

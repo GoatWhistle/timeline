@@ -1,0 +1,91 @@
+# Disposable stack for the frontend contract tests: PostgreSQL, migrations, the
+# first administrator and the HTTP API. Nothing else - no worker, no nginx, no
+# data volume.
+#
+#   make test-contract                                # from the repository root
+#
+# It is a separate compose project (`name:`) with its own ephemeral database, so
+# it never touches the data of `make docker-up` / `make dev`. The database lives
+# in tmpfs: the stack is thrown away after every run.
+#
+# The port is published on CONTRACT_API_PORT (55480 by default) rather than 8080
+# so that a development stack may stay up at the same time.
+
+name: timeline-contract
+
+x-backend: &backend
+  build:
+    context: ..
+    dockerfile: deploy/backend.Dockerfile
+  image: timeline-backend-contract:test
+  environment:
+    DATABASE_URL: postgres://timeline:timeline@postgres:5432/timeline?sslmode=disable
+    HTTP_ADDR: ":8080"
+    PUBLIC_URL: http://localhost:${CONTRACT_API_PORT:-55480}
+    CORS_ALLOWED_ORIGINS: http://localhost:${CONTRACT_API_PORT:-55480}
+    FIRST_ADMIN_EMAIL: ${CONTRACT_ADMIN_EMAIL:-contract-admin@example.com}
+    FIRST_ADMIN_PASSWORD: ${CONTRACT_ADMIN_PASSWORD:-contract-password-123}
+    FIRST_ADMIN_NAME: Contract Administrator
+    # The suite signs in dozens of times in a few seconds; the production limit
+    # of 10 attempts per 15 minutes would reject the run itself, not a defect.
+    RATE_LIMIT_LOGIN_ATTEMPTS: "10000"
+    RATE_LIMIT_RESEND_ATTEMPTS: "10000"
+    RATE_LIMIT_CATALOG_REQUESTS: "100000"
+  networks:
+    - contract
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: timeline
+      POSTGRES_PASSWORD: timeline
+      POSTGRES_DB: timeline
+      # The database is thrown away with the stack, so durability buys nothing
+      # and fsync only slows the run down.
+      POSTGRES_INITDB_ARGS: "--nosync"
+    tmpfs:
+      - /var/lib/postgresql/data
+    command: ["postgres", "-c", "fsync=off", "-c", "full_page_writes=off"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U timeline -d timeline"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks:
+      - contract
+
+  migrate:
+    <<: *backend
+    command: ["migrate", "up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  bootstrap:
+    <<: *backend
+    command: ["admin", "create"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  api:
+    <<: *backend
+    command: ["serve"]
+    ports:
+      - "${CONTRACT_API_PORT:-55480}:8080"
+    depends_on:
+      bootstrap:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 3s
+
+networks:
+  contract:
+    driver: bridge

@@ -12,8 +12,7 @@
       "!src/shared/api/schema.d.ts",
       "!src/shared/api/types.gen.ts",
       "!src/shared/api/openapi.gen.json",
-      "!dist",
-      "!public/mockServiceWorker.js"
+      "!dist"
     ]
   },
   "formatter": {
@@ -59,16 +58,6 @@
         "rules": {
           "complexity": {
             "noImportantStyles": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/mocks/fixtures/**"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noNonNullAssertion": "off"
           }
         }
       }

@@ -21,7 +21,6 @@ on the machine, Docker is enough.
 ```bash
 make docker-up     # production mode: nginx with the production frontend build
 make dev           # development mode: HMR for the frontend, go run for the backend
-make dev MOCKS=1   # the same, but screens run on MSW mocks
 make dev-restart   # recompile and restart the backend
 make docker-down   # stop the stack (the data volume is preserved)
 make help          # the full list of commands
@@ -45,12 +44,9 @@ proxies `/api` itself. In development mode the sources are mounted into the
 containers: frontend edits are picked up immediately, the backend is recompiled by
 `make dev-restart`.
 
-Accounts in mock mode - the password for both is `password123`:
-
-| Account             | Role          |
-|---------------------|---------------|
-| `admin@example.com` | administrator |
-| `user@example.com`  | participant   |
+The first administrator is created at startup from `ADMIN_EMAIL` /
+`ADMIN_PASSWORD` (`admin@example.com` / `password123` by default). There are no
+other ready-made accounts: further users are created through an invite.
 
 ## Structure
 
@@ -178,9 +174,12 @@ contract:
 All three patches disappear as soon as the same information appears in the contract
 itself.
 
-The contract tests in `frontend/tests/shared/api/` run every mocked endpoint and
-validate the response body against the contract schema via ajv. This catches what
-`tsc` cannot see: a divergence between the actual data and the specification.
+The contract tests in `frontend/tests-contract/` call a real API raised in a
+container and validate the response body against the contract schema via ajv. This
+catches what `tsc` cannot see: a divergence between the actual data and the
+specification. `make test-contract` brings the stack up, runs the suite and tears
+the stack down again; `make e2e` runs the sign-in scenario in a real browser
+against the same stack.
 
 ## Migrations
 
@@ -209,10 +208,9 @@ triggers.
 * **Notification deduplication** rests on a versioned `logical_key`. Before touching
   the scheduler, the worker or the rules, re-read section 9 of the specification and
   scenarios AC-NOTIF-01...19.
-* **MSW mocks** cover the whole contract and live in `frontend/src/mocks`. When the
-  API changes they must be updated together with the types. They are enabled only
-  through `make dev MOCKS=1`; in a production build MSW is stripped from the bundle
-  entirely.
+* **There are no mocks.** The platform talks to a real backend, in development as
+  well. The only place for stand-in data is tests: fixtures and a real API raised
+  in a container (`make test-contract`, `make e2e`).
 * **Tests are the weak spot.** Right now the repository has only targeted checks.
   Tasks QA-01...QA-07 from the backlog are not closed; when working on the
   notification domain, permissions and the worker, acceptance-scenario tests are

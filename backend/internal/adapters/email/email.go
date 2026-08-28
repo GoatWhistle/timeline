@@ -22,19 +22,7 @@ type Sender interface {
 }
 
 func New(cfg config.Email) Sender {
-	if cfg.Driver == "smtp" {
-		return &smtpSender{cfg: cfg}
-	}
-	return &logSender{from: cfg.From}
-}
-
-type logSender struct{ from string }
-
-func (s *logSender) Send(ctx context.Context, msg models.OutboundMessage) error {
-	slog.InfoContext(ctx, "email not sent: log driver active",
-		"from", s.from, "to", msg.Recipient, "subject", msg.Subject,
-		"idempotency_key", msg.IdempotencyKey)
-	return nil
+	return &smtpSender{cfg: cfg}
 }
 
 type smtpSender struct{ cfg config.Email }

@@ -6,6 +6,7 @@ import ruErrors from './locales/ru/errors.json'
 export { i18n } from './config'
 export { I18nProvider, useLocale, useTranslation } from './i18n-context'
 export { DEFAULT_LOCALE, isLocale, LOCALES, type Locale, resolveLocale } from './locale'
+export { useProfileLocale } from './use-profile-locale'
 
 const errorCatalogs: Record<Locale, Record<string, string>> = {
   en: enErrors,

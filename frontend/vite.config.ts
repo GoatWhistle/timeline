@@ -20,7 +20,6 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 5173,
-      // Without VITE_API_PROXY requests are served by MSW, with it - by the real backend.
       proxy: proxyTarget ? { '/api': { target: proxyTarget, changeOrigin: true } } : undefined,
     },
   }

@@ -7,8 +7,7 @@
 # Differences from production mode:
 #   * frontend - the Vite dev server with HMR instead of nginx with a built bundle;
 #   * backend - `go run` over the mounted code: recompilation on
-#     `make dev-restart`, no image rebuild needed;
-#   * MOCKS=1 switches the frontend to MSW mocks instead of calling the API.
+#     `make dev-restart`, no image rebuild needed.
 #
 # Go caches and the Vite build live in volumes: without them every run would
 # compile dependencies from scratch.
@@ -65,9 +64,7 @@ services:
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
-      # MOCKS=1 - screens run on MSW mocks, the backend is not queried.
-      VITE_ENABLE_MSW: ${MOCKS:-0}
-      # Without mocks the dev server proxies /api to the API container.
+      # The dev server proxies /api to the API container.
       VITE_API_PROXY: http://api:8080
     # !override is required: compose merges lists, and without it a second
     # mapping to the same host port would be added on top of the production

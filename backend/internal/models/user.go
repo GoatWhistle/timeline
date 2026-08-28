@@ -16,6 +16,7 @@ type User struct {
 	TelegramUsername *string    `json:"telegram_username,omitempty"`
 	TelegramChatID   *string    `json:"-"`
 	PreferredChannel *Channel   `json:"preferred_channel,omitempty"`
+	Locale           string     `json:"locale"`
 	IsAdmin          bool       `json:"is_admin"`
 	IsActive         bool       `json:"is_active"`
 	DeletedAt        *time.Time `json:"-"`

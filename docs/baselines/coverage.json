@@ -5,8 +5,7 @@
     "config": "frontend/vitest.config.ts",
     "exclude": [
       "**/*.gen.*",
-      "src/mocks/**",
-      "src/test/**",
+      "tests/**",
       "**/index.ts"
     ],
     "testFiles": 5,

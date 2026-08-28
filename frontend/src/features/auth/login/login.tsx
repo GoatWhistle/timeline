@@ -12,13 +12,6 @@ import { PasswordInput } from '@/shared/ui/forms/password-input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
-const MOCKS_ENABLED = import.meta.env.VITE_ENABLE_MSW === '1'
-const MOCK_PASSWORD = 'password123'
-const DEMO_ACCOUNTS = [
-  { labelKey: 'login.roleAdmin', email: 'admin@example.com' },
-  { labelKey: 'login.roleUser', email: 'user@example.com' },
-]
-
 const schema = z.object({
   email: z.email('auth:validation.email'),
   password: z.string().min(1, 'auth:validation.passwordRequired'),
@@ -36,7 +29,6 @@ export function LoginPage() {
     register,
     handleSubmit,
     setError,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -110,30 +102,6 @@ export function LoginPage() {
             </Link>
           </div>
         </form>
-
-        {MOCKS_ENABLED && (
-          <div className="mt-6 rounded-md border border-dashed p-3">
-            <p className="text-muted-foreground text-xs">
-              {t('login.mockHint')} <code className="font-mono">{MOCK_PASSWORD}</code>:
-            </p>
-            <div className="mt-2 flex gap-2">
-              {DEMO_ACCOUNTS.map((account) => (
-                <Button
-                  key={account.email}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setValue('email', account.email, { shouldValidate: true })
-                    setValue('password', MOCK_PASSWORD, { shouldValidate: true })
-                  }}
-                >
-                  {t(account.labelKey)}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   )

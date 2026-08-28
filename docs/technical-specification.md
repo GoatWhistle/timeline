@@ -146,10 +146,21 @@ Timeline — внутренняя веб-система, заменяющая Ex
 | organizer               | string(200), nullable                       |
 | website_url             | HTTPS URL, nullable                         |
 | notes                   | text, nullable; видны только Admin          |
+| kind                    | HACKATHON \| MEETUP, required, default HACKATHON |
+| format                  | ONLINE \| OFFLINE \| HYBRID, required, default ONLINE; **заявленный** формат: умолчание для этапов и быстрый фильтр каталога |
+| origin                  | RU \| WORLD, required, default RU           |
+| country_code            | char(2) ISO 3166-1 alpha-2, nullable; обязателен при format ≠ ONLINE |
+| city                    | string(120), nullable                       |
+| track                   | string(120), nullable; направление внутри события |
+| prize_pool              | numeric(14,2), nullable; **число, не строка** |
+| prize_currency          | char(3) ISO 4217, nullable; задаётся и очищается вместе с prize_pool |
+| team_size_max           | integer 1..100, nullable                    |
 | start_at / end_at       | datetime UTC, required; end_at \> start_at  |
 | published_at            | datetime UTC, nullable; NULL = UNPUBLISHED  |
 | archived_at             | datetime UTC, nullable; non-NULL = ARCHIVED |
 | created_at / updated_at | datetime UTC                                |
+
+**Фактический формат события вычисляется, а не хранится.** Собственный `format` события — заявленное значение; в ответах API оно остаётся в поле `format`, а вычисленное отдаётся отдельным полем `effective_format`. Правило: заявленный формат задаёт нижнюю границу, каждый этап с собственным `format` добавляет свидетельство очной или онлайновой части, и если есть и то и другое — событие HYBRID. Этап без собственного `format` наследует место события и нового свидетельства не несёт. Это снимает расхождение «в шапке онлайн, а финал в Москве». Пересчёт курса валют не выполняется: сумма показывается со своей валютой, суммы в разных валютах напрямую не сравниваются.
 
 Для опубликованного неархивного Event вычисляется состояние: UPCOMING при now \< start_at; ACTIVE при start_at ≤ now ≤ end_at; FINISHED при now \> end_at. ARCHIVED имеет приоритет над вычисляемым состоянием. Изменение start_at или end_at разрешено Admin и фиксируется в AuditLog. Поскольку end_at ограничивает окно правил просрочки раздела 9.4, изменение end_at увеличивает Registration.schedule_version на 1 и запускает reconciliation: устаревшие PENDING отменяются, актуальные создаются заново. Новое значение end_at обязано удовлетворять CHECK deadline_at ≤ end_at, иначе операция отклоняется. Unpublish и восстановление из ARCHIVED не входят в MVP. Hard delete Event через UI не поддерживается.
 
@@ -162,8 +173,19 @@ Timeline — внутренняя веб-система, заменяющая Ex
 | type | REGISTRATION, SELECTION, PARTICIPATION, CHECKPOINT, SUBMISSION, DEMO, RESULTS, OTHER |
 | start_at / end_at | datetime UTC, required; end_at \> start_at |
 | description / url | nullable text / HTTPS URL |
+| format | ONLINE \| OFFLINE \| HYBRID, **nullable**; NULL = «как у события» |
+| country_code | char(2), nullable; обязателен при format ∈ {OFFLINE, HYBRID} |
+| city | string(120), nullable |
+| venue | string(200), nullable; площадка, адрес или название места |
+| online_url | HTTPS URL, nullable; ссылка на трансляцию или встречу |
 | sort_order | integer, required, default 0 |
 | created_at / updated_at | datetime UTC |
+
+**Место принадлежит этапу, а не только событию.** Рабочие таблицы фиксируют формат как «Гибрид; сам онлайн, финал очный (Казань)»: отбор идёт онлайн, финал — в конкретном городе. Поэтому те же поля места живут и на этапе.
+
+**Наследование, а не дублирование.** Пустое поле этапа означает «как у события», а не «неизвестно»: иначе у события с десятью этапами один и тот же город пришлось бы повторить десять раз, и при первой же правке значения разъехались бы. Разрешение выполняется в слое чтения, и API отдаёт у каждого этапа поле `place` с итоговым местом и признаком `inherited`. Правило целостности допускает NULL: `CHECK (format IS NULL OR format = 'ONLINE' OR country_code IS NOT NULL)`. У этапа с собственным очным форматом незаполненные `country_code` и `city` берутся у события; у онлайнового этапа страна и город очищаются. `venue` и `online_url` принадлежат только этапу и не наследуются.
+
+Фильтр каталога по формату OFFLINE и HYBRID ищет **по этапам**: событие с собственным форматом ONLINE попадает в выборку, если хотя бы один его этап проходит очно. Иначе фильтр «очные» терял бы смысл для гибридов.
 
 Stage может пересекаться с другими Stage и выходить за общий период Event; UI показывает предупреждение, но отдельного подтверждающего флага и скрытого бизнес-состояния нет. Stage типа REGISTRATION служит только Шкале и не владеет Registration. Stage не порождает уведомлений: единственный источник напоминаний в MVP — Registration.deadline_at и её NotificationRule. Даты Stage отображаются на Шкале и в карточке, но не планируются worker-ом.
 
@@ -468,7 +490,7 @@ SPA без SSR: раздел 14 требует только статически
 | Даты и таймзоны | date-fns v4 с поддержкой таймзон | Хранение и обмен в UTC, отображение в системной таймзоне Europe/Moscow согласно разделу 9.6 |
 | Уведомления интерфейса | sonner | Результаты операций, включая частичные ошибки batch |
 | Иконки | lucide-react | Поставляется вместе с shadcn/ui |
-| Тесты | Vitest + React Testing Library, MSW для моков API, Playwright для e2e | Раздел 18 требует e2e критических путей |
+| Тесты | Vitest + React Testing Library, контрактные тесты против настоящего API в контейнере, Playwright для e2e | Раздел 18 требует e2e критических путей; моков нет — подставные данные допустимы только как фикстуры тестов |
 | Линт и формат | Biome, дополнительно eslint-plugin-jsx-a11y или эквивалентная проверка a11y | Один инструмент вместо пары ESLint и Prettier |
 | Проверка accessibility | axe в Playwright на критических экранах | Контраст, метки и фокус проверяются автоматически, а не ревью |
 

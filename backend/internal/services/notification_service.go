@@ -110,7 +110,8 @@ func (s *NotificationService) CreateForRule(ctx context.Context, c models.Reconc
 func (s *NotificationService) payload(kind models.NotificationType, c models.ReconcileCandidate) *models.NotificationPayload {
 	local := c.DeadlineAt.In(s.cfg.App.SystemTZ)
 	localText := local.Format("02.01.2006 15:04")
-	subject, body := renderTemplate(kind, c.EventTitle, c.RegistrationURL, localText, s.cfg.App.SystemTZID)
+	lang := locale.Normalize(c.RecipientLocale)
+	subject, body := renderTemplate(lang, kind, c.EventTitle, c.RegistrationURL, localText, s.cfg.App.SystemTZID)
 	return &models.NotificationPayload{
 		EventTitle:      c.EventTitle,
 		RegistrationURL: c.RegistrationURL,
@@ -118,12 +119,14 @@ func (s *NotificationService) payload(kind models.NotificationType, c models.Rec
 		DeadlineLocal:   localText,
 		TimezoneID:      s.cfg.App.SystemTZID,
 		Type:            string(kind),
+		Language:        lang,
 		Subject:         subject,
 		Body:            body,
 	}
 }
 
-func renderTemplate(kind models.NotificationType, title, url, deadlineLocal, timezone string) (string, string) {
+func renderTemplate(lang string, kind models.NotificationType,
+	title, url, deadlineLocal, timezone string) (string, string) {
 	var name string
 	switch kind {
 	case models.NotificationOverdue:
@@ -133,7 +136,6 @@ func renderTemplate(kind models.NotificationType, title, url, deadlineLocal, tim
 	default:
 		name = "primary"
 	}
-	lang := locale.Default
 	args := []string{"title", title, "url", url, "deadline", deadlineLocal, "timezone", timezone}
 	return locale.Message(lang, "notification."+name+".subject", args...),
 		locale.Message(lang, "notification."+name+".body", args...)

@@ -16,6 +16,7 @@ CREATE TABLE users (
     telegram_username text,
     telegram_chat_id  text,
     preferred_channel text,
+    locale            text        NOT NULL DEFAULT 'ru',
     is_admin          boolean     NOT NULL DEFAULT false,
     is_active         boolean     NOT NULL DEFAULT true,
     deleted_at        timestamptz,
@@ -29,7 +30,8 @@ CREATE TABLE users (
     CONSTRAINT users_pending_email_normalized CHECK (pending_email IS NULL OR pending_email = lower(pending_email)),
     CONSTRAINT users_pending_email_differs CHECK (pending_email IS NULL OR pending_email <> email),
     CONSTRAINT users_telegram_username_len CHECK (telegram_username IS NULL OR length(telegram_username) <= 64),
-    CONSTRAINT users_preferred_channel_enum CHECK (preferred_channel IS NULL OR preferred_channel IN ('TELEGRAM', 'EMAIL'))
+    CONSTRAINT users_preferred_channel_enum CHECK (preferred_channel IS NULL OR preferred_channel IN ('TELEGRAM', 'EMAIL')),
+    CONSTRAINT users_locale_enum CHECK (locale IN ('ru', 'en'))
 );
 
 CREATE UNIQUE INDEX users_email_key ON users (email);

@@ -22,9 +22,12 @@ docs-generate:
 	$(SWAG) init -g internal/controllers/router.go -o docs --parseInternal --outputTypes go,json,yaml
 	$(SWAG) fmt -g internal/controllers/router.go
 
+# api-conventions.md is hand-written and lives only at the repository root.
+# Copying the backend copy over it silently reverted edits, so only the
+# generated swagger files are published here.
 docs-publish: docs-generate ## Copy the specification into the repository with the spec
 	@if [ -d "$(SPEC_REPO)/docs" ]; then \
-		cp docs/swagger.yaml docs/swagger.json docs/api-conventions.md $(SPEC_REPO)/docs/; \
+		cp docs/swagger.yaml docs/swagger.json $(SPEC_REPO)/docs/; \
 		echo "specification copied to docs/"; \
 	else \
 		echo "docs directory not found in $(SPEC_REPO), copying skipped"; \

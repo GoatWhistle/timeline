@@ -17,6 +17,11 @@
 # A file from the baseline may only get cleaner; on a decrease the baseline is
 # updated with `make baseline-cyrillic`.
 #
+# Legitimate Cyrillic, kept in the baseline: CLAUDE.md (owner-facing rules),
+# *.down.sql (a rollback must restore the previous state verbatim), tests that
+# assert Russian plural forms or Russian UI labels, and e2e specs that query by
+# visible text. Everything else must be English.
+#
 # Does not apply to generated files (*.gen.*, schema.d.ts, swagger.*) or to
 # backend/docs/: that is an OpenAPI dump, not hand-written code.
 
@@ -37,7 +42,7 @@ current() {
     | grep -v '^backend/docs/' \
     | while read -r file; do
         [ -f "$file" ] || continue
-        hits=$(LC_ALL=C grep -cP '[\x{0400}-\x{04FF}]' "$file" 2>/dev/null || true)
+        hits=$(LC_ALL=C.UTF-8 grep -cP '\p{Cyrillic}' "$file" 2>/dev/null || true)
         if [ -n "$hits" ] && [ "$hits" -gt 0 ]; then
           printf '%s %s\n' "$hits" "$file"
         fi

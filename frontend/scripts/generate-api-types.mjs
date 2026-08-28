@@ -17,7 +17,14 @@ const OUT_SPEC = resolve(root, 'src/shared/api/openapi.gen.json')
  * which without this patch would make every field optional.
  */
 const OPTIONAL = {
-  'models.AuditResponse': ['actor_user_id', 'actor_email', 'before', 'after'],
+  'models.AuditResponse': [
+    'actor_user_id',
+    'actor_email',
+    'before',
+    'after',
+    'entity_id',
+    'request_id',
+  ],
   'models.BatchItemResult': ['id', 'key', 'code', 'message'],
   'models.DeadlineItem': ['overdue_minutes'],
   'models.ErrorBody': ['fields'],

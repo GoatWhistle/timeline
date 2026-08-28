@@ -1,15 +1,25 @@
 {
-  "measuredAt": "2026-08-27",
+  "measuredAt": "2026-08-28",
   "growthLimit": 1.1,
   "total": {
-    "bytes": 798750,
-    "gzip": 250396
+    "bytes": 1015303,
+    "gzip": 370660
   },
   "files": [
     {
       "file": "assets/index-[hash].js",
-      "bytes": 278255,
-      "gzip": 85156
+      "bytes": 260769,
+      "gzip": 79996
+    },
+    {
+      "file": "assets/spinner-[hash].js",
+      "bytes": 205295,
+      "gzip": 64197
+    },
+    {
+      "file": "fonts/geist-latin-wght-normal.woff2",
+      "bytes": 29400,
+      "gzip": 29428
     },
     {
       "file": "assets/schemas-[hash].js",
@@ -17,44 +27,49 @@
       "gzip": 29234
     },
     {
-      "file": "assets/spinner-[hash].js",
-      "bytes": 78916,
-      "gzip": 27204
-    },
-    {
       "file": "assets/admin-routes-[hash].js",
-      "bytes": 78902,
-      "gzip": 19668
+      "bytes": 89325,
+      "gzip": 23324
     },
     {
-      "file": "assets/confirm-dialog-[hash].js",
-      "bytes": 49802,
-      "gzip": 16502
+      "file": "fonts/geist-mono-latin-wght-normal.woff2",
+      "bytes": 23128,
+      "gzip": 23156
     },
     {
-      "file": "assets/timeline-[hash].js",
-      "bytes": 41880,
-      "gzip": 15062
+      "file": "assets/notification.labels-[hash].js",
+      "bytes": 50156,
+      "gzip": 16505
+    },
+    {
+      "file": "assets/zoom-switch-[hash].js",
+      "bytes": 42664,
+      "gzip": 15186
+    },
+    {
+      "file": "fonts/geist-cyrillic-wght-normal.woff2",
+      "bytes": 15084,
+      "gzip": 15107
+    },
+    {
+      "file": "fonts/geist-mono-cyrillic-wght-normal.woff2",
+      "bytes": 12940,
+      "gzip": 12963
     },
     {
       "file": "assets/dist-[hash].js",
-      "bytes": 32968,
-      "gzip": 12112
+      "bytes": 32964,
+      "gzip": 12125
     },
     {
       "file": "assets/datetime-[hash].js",
-      "bytes": 40826,
-      "gzip": 11128
+      "bytes": 41499,
+      "gzip": 11301
     },
     {
       "file": "assets/index-[hash].css",
-      "bytes": 32894,
-      "gzip": 6799
-    },
-    {
-      "file": "assets/profile-page-[hash].js",
-      "bytes": 8594,
-      "gzip": 3099
+      "bytes": 40843,
+      "gzip": 8400
     },
     {
       "file": "assets/dist-[hash].js",
@@ -62,84 +77,114 @@
       "gzip": 2892
     },
     {
-      "file": "assets/states-[hash].js",
-      "bytes": 6901,
-      "gzip": 2794
-    },
-    {
       "file": "assets/checkbox-[hash].js",
-      "bytes": 5320,
-      "gzip": 2318
+      "bytes": 5332,
+      "gzip": 2242
     },
     {
-      "file": "assets/hackathon-card-page-[hash].js",
-      "bytes": 4920,
-      "gzip": 1786
+      "file": "assets/profile-[hash].js",
+      "bytes": 6987,
+      "gzip": 2235
     },
     {
-      "file": "assets/password-pages-[hash].js",
-      "bytes": 4312,
-      "gzip": 1654
+      "file": "fonts/LICENSE-geist-mono.txt",
+      "bytes": 4498,
+      "gzip": 2001
     },
     {
-      "file": "assets/invite-page-[hash].js",
-      "bytes": 3152,
-      "gzip": 1382
+      "file": "fonts/LICENSE-geist.txt",
+      "bytes": 4486,
+      "gzip": 1995
     },
     {
-      "file": "assets/my-hackathons-page-[hash].js",
-      "bytes": 3044,
-      "gzip": 1382
+      "file": "assets/event-card-[hash].js",
+      "bytes": 6091,
+      "gzip": 1818
     },
     {
-      "file": "assets/register-page-[hash].js",
-      "bytes": 2868,
-      "gzip": 1299
+      "file": "assets/event-list-[hash].js",
+      "bytes": 2981,
+      "gzip": 1246
     },
     {
-      "file": "assets/verify-email-page-[hash].js",
-      "bytes": 3131,
-      "gzip": 1259
+      "file": "assets/stage.place-[hash].js",
+      "bytes": 2834,
+      "gzip": 1195
     },
     {
-      "file": "assets/login-page-[hash].js",
-      "bytes": 2226,
-      "gzip": 1126
+      "file": "assets/invite-[hash].js",
+      "bytes": 2823,
+      "gzip": 1112
     },
     {
-      "file": "assets/email-change-confirm-page-[hash].js",
-      "bytes": 1872,
-      "gzip": 898
+      "file": "assets/register-[hash].js",
+      "bytes": 2621,
+      "gzip": 1046
+    },
+    {
+      "file": "assets/verify-email-[hash].js",
+      "bytes": 2815,
+      "gzip": 1012
+    },
+    {
+      "file": "assets/login-[hash].js",
+      "bytes": 2199,
+      "gzip": 1002
+    },
+    {
+      "file": "assets/password-reset-confirm-[hash].js",
+      "bytes": 2323,
+      "gzip": 984
+    },
+    {
+      "file": "assets/event-state-badge-[hash].js",
+      "bytes": 2691,
+      "gzip": 874
+    },
+    {
+      "file": "assets/password-reset-request-[hash].js",
+      "bytes": 1778,
+      "gzip": 818
+    },
+    {
+      "file": "assets/empty-state-[hash].js",
+      "bytes": 1402,
+      "gzip": 802
     },
     {
       "file": "assets/password-input-[hash].js",
-      "bytes": 1352,
-      "gzip": 766
+      "bytes": 1345,
+      "gzip": 732
     },
     {
-      "file": "assets/state-badge-[hash].js",
-      "bytes": 2188,
-      "gzip": 640
+      "file": "assets/email-change-confirm-[hash].js",
+      "bytes": 1764,
+      "gzip": 731
     },
     {
-      "file": "assets/my-timeline-page-[hash].js",
-      "bytes": 966,
-      "gzip": 585
+      "file": "assets/event.labels-[hash].js",
+      "bytes": 1288,
+      "gzip": 679
     },
     {
       "file": "assets/field-[hash].js",
-      "bytes": 942,
-      "gzip": 499
+      "bytes": 1048,
+      "gzip": 569
+    },
+    {
+      "file": "index.html",
+      "bytes": 1160,
+      "gzip": 552
+    },
+    {
+      "file": "assets/schedule-[hash].js",
+      "bytes": 903,
+      "gzip": 509
     },
     {
       "file": "assets/dist-[hash].js",
       "bytes": 670,
-      "gzip": 463
-    },
-    {
-      "file": "assets/use-url-filters-[hash].js",
-      "bytes": 737,
-      "gzip": 456
+      "gzip": 465
     },
     {
       "file": "assets/label-[hash].js",
@@ -147,24 +192,24 @@
       "gzip": 409
     },
     {
-      "file": "assets/badge-[hash].js",
-      "bytes": 658,
-      "gzip": 371
+      "file": "assets/page-header-[hash].js",
+      "bytes": 664,
+      "gzip": 348
     },
     {
-      "file": "index.html",
-      "bytes": 453,
-      "gzip": 282
+      "file": "assets/badge-[hash].js",
+      "bytes": 532,
+      "gzip": 324
     },
     {
       "file": "assets/card-[hash].js",
       "bytes": 637,
-      "gzip": 279
+      "gzip": 278
     },
     {
-      "file": "assets/form-[hash].js",
+      "file": "assets/server-errors-[hash].js",
       "bytes": 267,
-      "gzip": 236
+      "gzip": 213
     },
     {
       "file": "assets/external-link-[hash].js",
@@ -174,7 +219,7 @@
     {
       "file": "assets/circle-x-[hash].js",
       "bytes": 198,
-      "gzip": 171
+      "gzip": 170
     },
     {
       "file": "assets/circle-check-[hash].js",
@@ -186,11 +231,5 @@
       "bytes": 115,
       "gzip": 132
     }
-  ],
-  "note": "Итог — сумма всех чанков. После разделения по маршрутам сумма выросла, а начальная загрузка упала: значение имеет и то и другое, поэтому entry вынесен отдельно. Правило роста применяется к total.gzip.",
-  "entry": {
-    "file": "assets/index-[hash].js",
-    "bytes": 278255,
-    "gzip": 85156
-  }
+  ]
 }

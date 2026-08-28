@@ -4,6 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 )
@@ -53,6 +54,23 @@ func Has(lang string) bool {
 	once.Do(load)
 	_, ok := catalogs[lang]
 	return ok
+}
+
+func Supported() []string {
+	once.Do(load)
+	out := make([]string, 0, len(catalogs))
+	for lang := range catalogs {
+		out = append(out, lang)
+	}
+	sort.Strings(out)
+	return out
+}
+
+func Normalize(lang string) string {
+	if Has(lang) {
+		return lang
+	}
+	return Default
 }
 
 func Keys(lang string) []string {

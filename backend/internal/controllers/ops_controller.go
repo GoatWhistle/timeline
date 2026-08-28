@@ -49,7 +49,7 @@ func (c *OpsController) Ready(w http.ResponseWriter, r *http.Request) {
 // @Tags			ops
 // @Produce		json
 // @Success		200	{object}	models.WorkerHeartbeatResponse
-// @Failure		503	{object}	models.ErrorResponse
+// @Failure		503	{object}	models.WorkerHeartbeatResponse
 // @Router			/ops/worker-heartbeat [get]
 func (c *OpsController) Heartbeat(w http.ResponseWriter, r *http.Request) {
 	hb, err := c.svc.Heartbeat(r.Context())

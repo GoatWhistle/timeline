@@ -125,7 +125,7 @@ func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.U
 		req.Title = &title
 	}
 	if req.WebsiteURL != nil && *req.WebsiteURL != "" {
-		website, err := validateHTTPS("website_url", *req.WebsiteURL)
+		website, err := validateURL("website_url", *req.WebsiteURL)
 		if err != nil {
 			return nil, err
 		}
@@ -233,7 +233,7 @@ func optionalHTTPS(field string, value *string) (*string, error) {
 	if value == nil || *value == "" {
 		return nil, nil
 	}
-	normalized, err := validateHTTPS(field, *value)
+	normalized, err := validateURL(field, *value)
 	if err != nil {
 		return nil, err
 	}

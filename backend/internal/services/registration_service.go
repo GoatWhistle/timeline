@@ -45,7 +45,7 @@ func (s *RegistrationService) Create(ctx context.Context, actor models.Actor, ev
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
-	url, err := validateHTTPS("url", req.URL)
+	url, err := validateURL("url", req.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (s *RegistrationService) Update(ctx context.Context, actor models.Actor, ev
 	}
 	var url *string
 	if req.URL != nil {
-		value, err := validateHTTPS("url", *req.URL)
+		value, err := validateURL("url", *req.URL)
 		if err != nil {
 			return nil, err
 		}

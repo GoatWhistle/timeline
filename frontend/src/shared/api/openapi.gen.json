@@ -3332,7 +3332,7 @@
             }
           },
           {
-            "description": "Comma-separated format filter",
+            "description": "Comma-separated format filter. OFFLINE and HYBRID also match an event whose own format is ONLINE when at least one of its stages is held in person.",
             "name": "format",
             "in": "query",
             "schema": {
@@ -4320,7 +4320,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/models.ErrorResponse"
+                  "$ref": "#/components/schemas/models.WorkerHeartbeatResponse"
                 }
               }
             }
@@ -4573,10 +4573,8 @@
         "required": [
           "action",
           "created_at",
-          "entity_id",
           "entity_type",
-          "id",
-          "request_id"
+          "id"
         ]
       },
       "models.AuthResponse": {
@@ -5583,6 +5581,14 @@
             "type": "boolean",
             "example": false
           },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "ru",
+              "en"
+            ],
+            "example": "ru"
+          },
           "pending_email": {
             "type": "string"
           },
@@ -5609,6 +5615,7 @@
           "id",
           "is_active",
           "is_admin",
+          "locale",
           "telegram_linked",
           "updated_at"
         ]
@@ -6539,6 +6546,14 @@
           "display_name": {
             "type": "string",
             "example": "John Smith"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "ru",
+              "en"
+            ],
+            "example": "en"
           },
           "preferred_channel": {
             "type": "string",

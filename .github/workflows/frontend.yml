@@ -7,6 +7,9 @@ on:
     branches: [main]
     paths:
       - 'frontend/**'
+      - 'backend/**'
+      - 'deploy/docker-compose.contract.yml'
+      - 'Makefile'
       - 'docs/swagger.json'
       - 'docs/baselines/**'
       - 'scripts/**'
@@ -15,6 +18,8 @@ on:
     paths:
       - 'frontend/**'
       - 'backend/**'
+      - 'deploy/docker-compose.contract.yml'
+      - 'Makefile'
       - 'docs/swagger.json'
       - 'docs/baselines/**'
       - 'scripts/**'
@@ -51,6 +56,18 @@ jobs:
       - name: Coverage against thresholds
         working-directory: frontend
         run: npm run test:coverage
+
+      # The contract tests replaced the MSW ones (part IIIa of the refactoring
+      # plan): they run against a real API raised by compose, not against mocks.
+      - name: Contract tests against a real API
+        run: make test-contract
+
+      - name: Install the Playwright browser
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Sign-in scenario end to end
+        run: make e2e
 
       - name: Production build
         working-directory: frontend

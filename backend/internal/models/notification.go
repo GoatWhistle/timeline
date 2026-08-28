@@ -13,6 +13,7 @@ type NotificationPayload struct {
 	DeadlineLocal   string    `json:"deadline_local"`
 	TimezoneID      string    `json:"timezone_id"`
 	Type            string    `json:"type"`
+	Language        string    `json:"language"`
 	Subject         string    `json:"subject"`
 	Body            string    `json:"body"`
 }
@@ -92,6 +93,7 @@ type ReconcileCandidate struct {
 	StatusID          uuid.UUID
 	TodoCycle         int
 	RecipientID       uuid.UUID
+	RecipientLocale   string
 	RecipientChannels RecipientChannels
 }
 

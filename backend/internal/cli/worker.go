@@ -34,8 +34,8 @@ func worker(ctx context.Context) error {
 	slog.InfoContext(ctx, "worker started",
 		"scheduler_interval", c.cfg.Notify.SchedulerInterval,
 		"worker_interval", c.cfg.Notify.WorkerInterval,
-		"telegram_driver", c.cfg.Telegram.Driver,
-		"email_driver", c.cfg.Email.Driver)
+		"smtp_host", c.cfg.Email.Host,
+		"telegram_api_base", c.cfg.Telegram.APIBase)
 
 	var wg sync.WaitGroup
 	wg.Add(2)

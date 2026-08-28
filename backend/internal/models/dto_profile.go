@@ -15,6 +15,7 @@ type MeResponse struct {
 	TelegramUsername *string   `json:"telegram_username,omitempty"`
 	TelegramLinked   bool      `json:"telegram_linked" example:"false"`
 	PreferredChannel *Channel  `json:"preferred_channel,omitempty" enums:"TELEGRAM,EMAIL"`
+	Locale           string    `json:"locale" example:"ru" enums:"ru,en"`
 	IsAdmin          bool      `json:"is_admin" example:"false"`
 	IsActive         bool      `json:"is_active" example:"true"`
 	CreatedAt        time.Time `json:"created_at"`
@@ -25,6 +26,16 @@ type UpdateProfileRequest struct {
 	DisplayName      *string `json:"display_name,omitempty" example:"John Smith"`
 	PreferredChannel *string `json:"preferred_channel,omitempty" enums:"TELEGRAM,EMAIL"`
 	TelegramUsername *string `json:"telegram_username,omitempty" example:"@ivan"`
+	Locale           *string `json:"locale,omitempty" example:"en" enums:"ru,en"`
+}
+
+type ProfilePatch struct {
+	DisplayName           *string
+	TelegramUsername      *string
+	ClearTelegramUsername bool
+	PreferredChannel      *Channel
+	ClearPreferredChannel bool
+	Locale                *string
 }
 
 type ChangeEmailRequest struct {
