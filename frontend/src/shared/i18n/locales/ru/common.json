@@ -4,9 +4,12 @@
     "skipToContent": "Перейти к содержимому",
     "mainNav": "Основная навигация",
     "sectionParticipant": "Участник",
-    "sectionAdmin": "Администрирование"
+    "sectionAdmin": "Администрирование",
+    "collapseSidebar": "Свернуть боковую панель",
+    "expandSidebar": "Развернуть боковую панель"
   },
   "nav": {
+    "burning": "Что горит",
     "myEvents": "Мои события",
     "catalog": "Каталог",
     "schedule": "Шкала",
@@ -289,7 +292,8 @@
     "search": "Перейти к поиску",
     "listNext": "Следующая строка",
     "listPrevious": "Предыдущая строка",
-    "listClear": "Снять выделение"
+    "listClear": "Снять выделение",
+    "sidebar": "Боковая панель"
   },
   "views": {
     "legend": "Виды",

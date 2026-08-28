@@ -1,7 +1,7 @@
 {
   "status": {
-    "TODO": "Not done",
-    "DONE": "Done",
+    "TODO": "Not marked",
+    "DONE": "You marked it",
     "NOT_REQUIRED": "Not required"
   },
   "state": {
@@ -160,5 +160,10 @@
     "removeScheduled_one": "Removing {{count}} participant",
     "removeScheduled_other": "Removing {{count}} participants",
     "removeUndoHint": "The change applies in a few seconds."
+  },
+  "statusHint": {
+    "TODO": "A registration mark is expected. You set it yourself — the system does not check the external site.",
+    "DONE": "You marked yourself as registered. This is your own report, not a confirmation from the organizer.",
+    "NOT_REQUIRED": "Registration is not required: an administrator waived it for you. This is not the same as you marking it."
   }
 }

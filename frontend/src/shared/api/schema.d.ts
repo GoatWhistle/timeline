@@ -3875,6 +3875,390 @@ export interface paths {
         };
         trace?: never;
     };
+    "/me/artifacts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete an own artifact */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Artifact identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the artifact is deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update an own artifact
+         * @description Changes one artifact of the caller, including the self-reported submitted mark.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Artifact id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Fields to change */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.UpdateArtifactRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantArtifact"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the artifact belongs to another user */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/me/bookmarks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own bookmarks
+         * @description Events the caller saved for later, newest first. The payload matches the catalog
+         *     entry, so the same card renders in both places.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Page size */
+                    page_size?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.BookmarkListResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/bookmarks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Bookmark an event
+         * @description Marks a catalog event as interesting without joining it. A bookmark is not
+         *     participation: it creates no assignment, no registration status and no
+         *     notifications, and an administrator does not see it.
+         *
+         *     Bookmarking twice is not an error — the operation is idempotent.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the event is bookmarked */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the event is not in the catalog */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Remove a bookmark */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the bookmark is removed */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/checklist-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Checklist templates
+         * @description The built-in checklist templates. A template is a shared reference list, not a
+         *     personal record: applying one creates the caller's own tasks, and editing a
+         *     template afterwards does not touch tasks already created.
+         *
+         *     Titles are dictionary keys, not finished text: the client renders them in the
+         *     reader's language.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.TemplateListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/deactivate": {
         parameters: {
             query?: never;
@@ -4036,6 +4420,805 @@ export interface paths {
                 };
                 /** @description Unauthorized */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/events/{id}/artifacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own submission artifacts
+         * @description What the caller says they submitted for the event: repository, video, slides,
+         *     demo stand or submission page.
+         *
+         *     The submitted mark is the participant's own word, exactly like the registration
+         *     status of specification 1: the system never checks an external site, so nothing
+         *     here is a verified fact.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ArtifactListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Add an own artifact
+         * @description Records one artifact of the caller for the event. The link is only checked for
+         *     being a parseable address; schemes that execute in a browser are rejected.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Artifact */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.CreateArtifactRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantArtifact"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the artifact limit for this event is reached */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/events/{id}/note": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own note for an event
+         * @description The caller's private Markdown note for one event. A missing note is answered
+         *     with an empty body rather than 404, so the editor opens on a blank page.
+         *
+         *     The server stores and returns the Markdown source and never renders it to HTML;
+         *     rendering belongs to the client. Nobody else can read this note, an
+         *     administrator included.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantNote"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the event is not visible to the caller */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Save an own note
+         * @description Stores the caller's note for the event; the endpoint suits autosave. Saving an
+         *     empty body deletes the record instead of keeping a blank one, so a list of
+         *     events carrying notes never fills with empty entries.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Markdown source */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.SaveNoteRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantNote"];
+                    };
+                };
+                /** @description the note is too long */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/events/{id}/outcome": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own outcome for an event
+         * @description The caller's self-reported result: how it went, and optionally a place, a prize,
+         *     a track and a note. The outcome is the participant's own account, not a verified
+         *     standing.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantOutcome"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description no outcome recorded yet */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Record an own outcome
+         * @description Stores the caller's result for the event. The default is PARTICIPATED, and that
+         *     is a complete outcome rather than an empty one: most events end without a prize,
+         *     and a tracker that can only record wins makes the ordinary case look like a
+         *     failure.
+         *
+         *     A place may accompany only SHORTLISTED, WINNER or PRIZE — "first place" alongside
+         *     "took part" would contradict itself.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Outcome */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.SaveOutcomeRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantOutcome"];
+                    };
+                };
+                /** @description a place requires a placing outcome */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Delete an own outcome */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the outcome is deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/events/{id}/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own tasks for an event
+         * @description The personal checklist of the caller for one event. A task belongs to the
+         *     person who created it: the listing never shows anyone else's tasks, and an
+         *     administrator has no privilege here either (specification 5.4).
+         *
+         *     Personal records are outside the notification and audit domains: a task never
+         *     becomes a queued notification and never reaches the audit log.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.TaskListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the event is not visible to the caller */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an own task
+         * @description Adds one task to the caller's personal checklist for the event. The optional
+         *     stage must belong to the same event.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Task */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.CreateTaskRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantTask"];
+                    };
+                };
+                /** @description the stage belongs to another event */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the task limit for this event is reached */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/events/{id}/tasks/apply-template": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply a checklist template
+         * @description Creates the caller's tasks from a template in one action. Due dates are counted
+         *     from the event start using the offset of each template item, so a negative
+         *     offset means "before the start".
+         *
+         *     A template item whose title already exists among the caller's tasks for this
+         *     event is skipped rather than duplicated, and the per-item outcome is reported
+         *     line by line, so applying the same template twice changes nothing.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Template to apply */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.ApplyTemplateRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.BatchResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description unknown template or invisible event */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own participation history
+         * @description A read model over what the caller already accumulated: the events they were
+         *     assigned to, with their team role, their recorded outcome, their artifacts and
+         *     the count of their tasks. It owns no tables and shows only the caller's records.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Page size */
+                    page_size?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.HistoryResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -4266,6 +5449,143 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/me/tasks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete an own task
+         * @description Removes one task of the caller. Personal records may be deleted outright:
+         *     unlike the administrative layer, they carry no retention obligation.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Task identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the task is deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update an own task
+         * @description Changes one task of the caller. Marking a task done and undone are both plain
+         *     updates: the transition is reversible and produces neither a notification nor
+         *     an audit entry. A task of another user answers 404, never 403.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Task identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Fields to change */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.UpdateTaskRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantTask"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the task belongs to another user */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/me/telegram": {
@@ -4628,6 +5948,15 @@ export interface components {
             note?: string;
             status?: components["schemas"]["models.RegistrationStatusValue"];
         };
+        "models.ApplyTemplateRequest": {
+            /** @example preparation */
+            template_id?: string;
+        };
+        /** @enum {string} */
+        "models.ArtifactKind": "REPOSITORY" | "VIDEO" | "SLIDES" | "DEMO" | "SUBMISSION" | "OTHER";
+        "models.ArtifactListResponse": {
+            items: components["schemas"]["models.ParticipantArtifact"][];
+        };
         /** @enum {string} */
         "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE";
         "models.AuditPage": {
@@ -4683,6 +6012,10 @@ export interface components {
             note?: string;
             participant_ids?: string[];
             status?: components["schemas"]["models.RegistrationStatusValue"];
+        };
+        "models.BookmarkListResponse": {
+            items: components["schemas"]["models.CatalogEvent"][];
+            meta: components["schemas"]["models.PageMeta"];
         };
         "models.CatalogEvent": {
             /** @example Moscow */
@@ -4743,6 +6076,19 @@ export interface components {
         "models.ChangeSource": "SYSTEM" | "USER" | "ADMIN";
         /** @enum {string} */
         "models.Channel": "TELEGRAM" | "EMAIL";
+        "models.ChecklistTemplate": {
+            /** @example preparation */
+            id: string;
+            items: components["schemas"]["models.ChecklistTemplateItem"][];
+        };
+        "models.ChecklistTemplateItem": {
+            /** @example -10080 */
+            due_offset_minutes: number;
+            /** @example 1 */
+            slot_no: number;
+            /** @example task.read_rules */
+            title_key: string;
+        };
         "models.CopyParticipantsRequest": {
             overrides?: components["schemas"]["models.CopyRoleOverride"][];
             source_event_id?: string;
@@ -4751,6 +6097,15 @@ export interface components {
             /** @example Mentor */
             team_role: string;
             user_id: string;
+        };
+        "models.CreateArtifactRequest": {
+            kind?: components["schemas"]["models.ArtifactKind"];
+            /** @example 0 */
+            sort_order?: number;
+            /** @example Project repository */
+            title?: string;
+            /** @example https://github.com/example/project */
+            url?: string;
         };
         "models.CreateEventRequest": {
             /** @example Moscow */
@@ -4826,6 +6181,16 @@ export interface components {
             url?: string;
             /** @example IT Park */
             venue?: string;
+        };
+        "models.CreateTaskRequest": {
+            /** Format: date-time */
+            due_at?: string;
+            notes?: string;
+            /** @example 0 */
+            sort_order?: number;
+            stage_id?: string;
+            /** @example Record the demo video */
+            title?: string;
         };
         "models.CSRFResponse": {
             /** @example 0f2a5c8d1b3e4f60 */
@@ -4940,6 +6305,30 @@ export interface components {
             status: string;
             /** Format: date-time */
             time: string;
+        };
+        "models.HistoryItem": {
+            artifacts: components["schemas"]["models.ParticipantArtifact"][];
+            /** Format: date-time */
+            end_at: string;
+            event_id: string;
+            /** @example true */
+            joined: boolean;
+            kind: components["schemas"]["models.EventKind"];
+            outcome: components["schemas"]["models.ParticipantOutcome"];
+            /** Format: date-time */
+            start_at: string;
+            /** @example 9 */
+            tasks_done: number;
+            /** @example 12 */
+            tasks_total: number;
+            /** @example Backend developer */
+            team_role: string;
+            /** @example National event */
+            title: string;
+        };
+        "models.HistoryResponse": {
+            items: components["schemas"]["models.HistoryItem"][];
+            meta: components["schemas"]["models.PageMeta"];
         };
         "models.InvitePage": {
             items: components["schemas"]["models.InviteResponse"][];
@@ -5073,6 +6462,8 @@ export interface components {
         "models.NotificationStatus": "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "CANCELLED" | "UNDELIVERABLE";
         /** @enum {string} */
         "models.NotificationType": "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE";
+        /** @enum {string} */
+        "models.Outcome": "PARTICIPATED" | "SHORTLISTED" | "WINNER" | "PRIZE";
         "models.PageMeta": {
             /** @example true */
             has_next: boolean;
@@ -5082,6 +6473,45 @@ export interface components {
             page_size: number;
             /** @example 137 */
             total: number;
+        };
+        "models.ParticipantArtifact": {
+            /** Format: date-time */
+            created_at: string;
+            event_id: string;
+            id: string;
+            kind: components["schemas"]["models.ArtifactKind"];
+            /** @example 0 */
+            sort_order: number;
+            /** Format: date-time */
+            submitted_at: string;
+            /** @example Project repository */
+            title: string;
+            /** Format: date-time */
+            updated_at: string;
+            /** @example https://github.com/example/project */
+            url: string;
+        };
+        "models.ParticipantNote": {
+            /** @example Draft notes in Markdown */
+            body: string;
+            event_id: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        "models.ParticipantOutcome": {
+            /** Format: date-time */
+            created_at: string;
+            event_id: string;
+            note: string;
+            outcome: components["schemas"]["models.Outcome"];
+            /** @example 2 */
+            place: number;
+            /** @example Jury award */
+            prize: string;
+            /** @example Smart city */
+            track: string;
+            /** Format: date-time */
+            updated_at: string;
         };
         "models.ParticipantPage": {
             items: components["schemas"]["models.ParticipantResponse"][];
@@ -5110,6 +6540,24 @@ export interface components {
             participation_status: components["schemas"]["models.ParticipationStatus"];
             /** @example Backend developer */
             team_role: string;
+        };
+        "models.ParticipantTask": {
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            done_at: string;
+            /** Format: date-time */
+            due_at: string;
+            event_id: string;
+            id: string;
+            notes: string;
+            /** @example 0 */
+            sort_order: number;
+            stage_id: string;
+            /** @example Record the demo video */
+            title: string;
+            /** Format: date-time */
+            updated_at: string;
         };
         /** @enum {string} */
         "models.ParticipationStatus": "ASSIGNED" | "REMOVED";
@@ -5244,6 +6692,20 @@ export interface components {
             /** @example 7f9c0f0e2f4b4a1d */
             token?: string;
         };
+        "models.SaveNoteRequest": {
+            /** @example Draft notes in Markdown */
+            body?: string;
+        };
+        "models.SaveOutcomeRequest": {
+            note?: string;
+            outcome?: components["schemas"]["models.Outcome"];
+            /** @example 2 */
+            place?: number;
+            /** @example Jury award */
+            prize?: string;
+            /** @example Smart city */
+            track?: string;
+        };
         "models.ScheduleItem": {
             /** Format: date-time */
             end_at: string;
@@ -5334,11 +6796,17 @@ export interface components {
         };
         /** @enum {string} */
         "models.StageType": "REGISTRATION" | "SELECTION" | "PARTICIPATION" | "CHECKPOINT" | "SUBMISSION" | "DEMO" | "RESULTS" | "OTHER";
+        "models.TaskListResponse": {
+            items: components["schemas"]["models.ParticipantTask"][];
+        };
         "models.TelegramLinkResponse": {
             /** @example https://t.me/timeline_bot?start=abc123 */
             deep_link: string;
             /** Format: date-time */
             expires_at: string;
+        };
+        "models.TemplateListResponse": {
+            items: components["schemas"]["models.ChecklistTemplate"][];
         };
         "models.TimeRange": {
             /** Format: date-time */
@@ -5349,6 +6817,19 @@ export interface components {
         "models.TokenRequest": {
             /** @example 7f9c0f0e2f4b4a1d */
             token?: string;
+        };
+        "models.UpdateArtifactRequest": {
+            /** @example false */
+            clear_title?: boolean;
+            kind?: components["schemas"]["models.ArtifactKind"];
+            /** @example 0 */
+            sort_order?: number;
+            /** @example true */
+            submitted?: boolean;
+            /** @example Project repository */
+            title?: string;
+            /** @example https://github.com/example/project */
+            url?: string;
         };
         "models.UpdateEventRequest": {
             /** @example Moscow */
@@ -5422,6 +6903,22 @@ export interface components {
             url?: string;
             /** @example IT Park */
             venue?: string;
+        };
+        "models.UpdateTaskRequest": {
+            /** @example false */
+            clear_due_at?: boolean;
+            /** @example false */
+            clear_stage?: boolean;
+            /** @example true */
+            done?: boolean;
+            /** Format: date-time */
+            due_at?: string;
+            notes?: string;
+            /** @example 0 */
+            sort_order?: number;
+            stage_id?: string;
+            /** @example Record the demo video */
+            title?: string;
         };
         "models.UpdateTeamRoleRequest": {
             /** @example Captain */

@@ -16,6 +16,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/personal"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/adapters/ratelimit"
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
@@ -69,6 +70,13 @@ func newStack(t *testing.T) *stack {
 	catalogRepo := query.NewCatalog(db)
 	queries := query.NewTimeline(db)
 	auditRepo := audit.NewAudit(db)
+	tasksRepo := personal.NewTasks(db)
+	notesRepo := personal.NewNotes(db)
+	artifactsRepo := personal.NewArtifacts(db)
+	outcomesRepo := personal.NewOutcomes(db)
+	bookmarksRepo := personal.NewBookmarks(db)
+	templatesRepo := personal.NewTemplates(db)
+	historyRepo := personal.NewHistory(db)
 
 	hasher := services.NewPasswordHasher(cfg.Argon)
 	issuer := services.NewTokenIssuer(cfg.Auth)
@@ -103,17 +111,22 @@ func newStack(t *testing.T) *stack {
 		Audit:    auditSvc,
 		Ops:      services.NewOpsService(db, scheduleRepo, notifications, cfg),
 		Previews: scheduler,
+		Personal: services.NewPersonalService(db, tasksRepo, notesRepo, artifactsRepo,
+			outcomesRepo, bookmarksRepo, templatesRepo, historyRepo,
+			events, stages, participants, cfg.Personal),
 
-		Authenticator:     auth,
-		Limiter:           limiter,
-		CatalogRate:       cfg.RateLim.CatalogRequests,
-		CatalogRateWindow: cfg.RateLim.CatalogWindow,
-		SessionRate:       cfg.RateLim.SessionRequests,
-		SessionRateWindow: cfg.RateLim.SessionWindow,
-		PreviewRate:       cfg.RateLim.PreviewRequests,
-		PreviewRateWindow: cfg.RateLim.PreviewWindow,
-		QueueRate:         cfg.RateLim.QueueRequests,
-		QueueRateWindow:   cfg.RateLim.QueueWindow,
+		Authenticator:      auth,
+		Limiter:            limiter,
+		CatalogRate:        cfg.RateLim.CatalogRequests,
+		CatalogRateWindow:  cfg.RateLim.CatalogWindow,
+		SessionRate:        cfg.RateLim.SessionRequests,
+		SessionRateWindow:  cfg.RateLim.SessionWindow,
+		PreviewRate:        cfg.RateLim.PreviewRequests,
+		PreviewRateWindow:  cfg.RateLim.PreviewWindow,
+		QueueRate:          cfg.RateLim.QueueRequests,
+		QueueRateWindow:    cfg.RateLim.QueueWindow,
+		PersonalRate:       cfg.RateLim.PersonalRequests,
+		PersonalRateWindow: cfg.RateLim.PersonalWindow,
 
 		Cookies:      controllers.CookieOptions{},
 		PublicURL:    cfg.App.PublicURL,

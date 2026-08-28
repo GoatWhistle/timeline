@@ -10,6 +10,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/personal"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/adapters/ratelimit"
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
@@ -35,6 +36,13 @@ type container struct {
 		notifications *notification.Notifications
 		scheduler     *notification.Scheduler
 		catalog       *query.Catalog
+		tasks         *personal.Tasks
+		notes         *personal.Notes
+		artifacts     *personal.Artifacts
+		outcomes      *personal.Outcomes
+		bookmarks     *personal.Bookmarks
+		templates     *personal.Templates
+		history       *personal.History
 		queries       *query.Timeline
 		audit         *audit.Audit
 	}
@@ -57,6 +65,7 @@ type container struct {
 	rules         *services.RuleService
 	queries       *services.QueryService
 	audit         *services.AuditService
+	personal      *services.PersonalService
 	notifier      *services.NotificationService
 	scheduler     *services.SchedulerService
 	delivery      *services.DeliveryService
@@ -87,6 +96,13 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.repos.notifications = notification.NewNotifications(db)
 	c.repos.scheduler = notification.NewScheduler(db)
 	c.repos.catalog = query.NewCatalog(db)
+	c.repos.tasks = personal.NewTasks(db)
+	c.repos.notes = personal.NewNotes(db)
+	c.repos.artifacts = personal.NewArtifacts(db)
+	c.repos.outcomes = personal.NewOutcomes(db)
+	c.repos.bookmarks = personal.NewBookmarks(db)
+	c.repos.templates = personal.NewTemplates(db)
+	c.repos.history = personal.NewHistory(db)
 	c.repos.queries = query.NewTimeline(db)
 	c.repos.audit = audit.NewAudit(db)
 
@@ -124,6 +140,9 @@ func newContainer(ctx context.Context) (*container, error) {
 		c.repos.participants, c.repos.registrations, c.repos.statuses)
 	c.delivery = services.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
 		c.repos.rules, c.repos.audit, c.telegram, c.email, cfg)
+	c.personal = services.NewPersonalService(db, c.repos.tasks, c.repos.notes, c.repos.artifacts,
+		c.repos.outcomes, c.repos.bookmarks, c.repos.templates, c.repos.history,
+		c.repos.events, c.repos.stages, c.repos.participants, cfg.Personal)
 	c.ops = services.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
 	return c, nil
 }

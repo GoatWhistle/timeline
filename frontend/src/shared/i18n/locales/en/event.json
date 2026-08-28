@@ -166,11 +166,26 @@
     "noOrganizer": "—"
   },
   "urgency": {
-    "calm": "in good time",
-    "soon": "due soon",
-    "today": "due today",
     "overdue": "overdue",
-    "done": "registered"
+    "today": "due today",
+    "soon": "due soon",
+    "calm": "in good time",
+    "done": "you marked it",
+    "waived": "not required",
+    "overdueBy_one": "overdue by {{count}} day",
+    "overdueBy_other": "overdue by {{count}} days",
+    "leftHours_one": "{{count}} hour left",
+    "leftHours_other": "{{count}} hours left",
+    "leftDays_one": "{{count}} day left",
+    "leftDays_other": "{{count}} days left",
+    "hint": {
+      "overdue": "The registration deadline has passed and you have not marked yourself as registered.",
+      "today": "Less than a day is left until the registration deadline.",
+      "soon": "Less than a week is left until the registration deadline.",
+      "calm": "More than a week is left until the registration deadline.",
+      "done": "You marked yourself as registered. The system does not check the external site.",
+      "waived": "Registration is not required for you — an administrator decided so. This is not the same as done."
+    }
   },
   "clone": {
     "title": "Clone the event",
@@ -237,6 +252,38 @@
       "done": "You are signed up",
       "failed": "Could not sign up",
       "finished": "The event has finished: only an administrator can add a participant now."
+    }
+  },
+  "burning": {
+    "title": "What is burning",
+    "subtitle": "what is required of you right now",
+    "summaryAria": "Urgency summary",
+    "needsAction": "needs action",
+    "activeOnly": "active only",
+    "sortLegend": "Sorting",
+    "sortUrgency": "By urgency",
+    "sortStart": "By start",
+    "quiet": "No deadline is close. Nothing is burning.",
+    "empty": "No events",
+    "emptyAction": "Nothing is required of you right now",
+    "emptyHint": "Change the filters or look into the catalog.",
+    "reason": {
+      "deadline": "deadline",
+      "starting": "starting soon",
+      "running": "running"
+    },
+    "action": {
+      "markShort": "Mark",
+      "openForm": "Open the registration form",
+      "openSite": "Open the event site"
+    },
+    "team": {
+      "title": "Team registration",
+      "ratio": "{{done}} of {{required}}",
+      "waived_one": "{{count}} member does not need to register",
+      "waived_other": "{{count}} members do not need to register",
+      "aria": "{{done}} of {{required}} marked themselves registered",
+      "selfReport": "The numbers come from what members reported themselves, not from checking the site."
     }
   }
 }

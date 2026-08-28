@@ -24,6 +24,7 @@
   --urgency-today: var(--hue-orange-500);
   --urgency-overdue: var(--hue-crimson-500);
   --urgency-done: var(--hue-green-500);
+  --urgency-waived: var(--hue-slate-500);
   --urgency-foreground: var(--neutral-000);
 }
 

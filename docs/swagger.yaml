@@ -39,6 +39,35 @@ definitions:
         - DONE
         - NOT_REQUIRED
     type: object
+  models.ApplyTemplateRequest:
+    properties:
+      template_id:
+        example: preparation
+        type: string
+    type: object
+  models.ArtifactKind:
+    enum:
+    - REPOSITORY
+    - VIDEO
+    - SLIDES
+    - DEMO
+    - SUBMISSION
+    - OTHER
+    type: string
+    x-enum-varnames:
+    - ArtifactRepository
+    - ArtifactVideo
+    - ArtifactSlides
+    - ArtifactDemo
+    - ArtifactSubmission
+    - ArtifactOther
+  models.ArtifactListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.ParticipantArtifact'
+        type: array
+    type: object
   models.AuditAction:
     enum:
     - USER_REGISTER
@@ -187,6 +216,15 @@ definitions:
         - TODO
         - NOT_REQUIRED
     type: object
+  models.BookmarkListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.CatalogEvent'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
   models.CSRFResponse:
     properties:
       csrf_token:
@@ -326,6 +364,28 @@ definitions:
     x-enum-varnames:
     - ChannelTelegram
     - ChannelEmail
+  models.ChecklistTemplate:
+    properties:
+      id:
+        example: preparation
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/models.ChecklistTemplateItem'
+        type: array
+    type: object
+  models.ChecklistTemplateItem:
+    properties:
+      due_offset_minutes:
+        example: -10080
+        type: integer
+      slot_no:
+        example: 1
+        type: integer
+      title_key:
+        example: task.read_rules
+        type: string
+    type: object
   models.CopyParticipantsRequest:
     properties:
       overrides:
@@ -341,6 +401,28 @@ definitions:
         example: Mentor
         type: string
       user_id:
+        type: string
+    type: object
+  models.CreateArtifactRequest:
+    properties:
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.ArtifactKind'
+        enum:
+        - REPOSITORY
+        - VIDEO
+        - SLIDES
+        - DEMO
+        - SUBMISSION
+        - OTHER
+      sort_order:
+        example: 0
+        type: integer
+      title:
+        example: Project repository
+        type: string
+      url:
+        example: https://github.com/example/project
         type: string
     type: object
   models.CreateEventRequest:
@@ -485,6 +567,21 @@ definitions:
         type: string
       venue:
         example: IT Park
+        type: string
+    type: object
+  models.CreateTaskRequest:
+    properties:
+      due_at:
+        type: string
+      notes:
+        type: string
+      sort_order:
+        example: 0
+        type: integer
+      stage_id:
+        type: string
+      title:
+        example: Record the demo video
         type: string
     type: object
   models.DeadlineItem:
@@ -736,6 +833,51 @@ definitions:
       time:
         type: string
     type: object
+  models.HistoryItem:
+    properties:
+      artifacts:
+        items:
+          $ref: '#/definitions/models.ParticipantArtifact'
+        type: array
+      end_at:
+        type: string
+      event_id:
+        type: string
+      joined:
+        example: true
+        type: boolean
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.EventKind'
+        enum:
+        - HACKATHON
+        - MEETUP
+      outcome:
+        $ref: '#/definitions/models.ParticipantOutcome'
+      start_at:
+        type: string
+      tasks_done:
+        example: 9
+        type: integer
+      tasks_total:
+        example: 12
+        type: integer
+      team_role:
+        example: Backend developer
+        type: string
+      title:
+        example: National event
+        type: string
+    type: object
+  models.HistoryResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.HistoryItem'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
   models.InvitePage:
     properties:
       items:
@@ -978,6 +1120,18 @@ definitions:
     - NotificationRequired
     - NotificationReminder
     - NotificationOverdue
+  models.Outcome:
+    enum:
+    - PARTICIPATED
+    - SHORTLISTED
+    - WINNER
+    - PRIZE
+    type: string
+    x-enum-varnames:
+    - OutcomeParticipated
+    - OutcomeShortlisted
+    - OutcomeWinner
+    - OutcomePrize
   models.PageMeta:
     properties:
       has_next:
@@ -992,6 +1146,76 @@ definitions:
       total:
         example: 137
         type: integer
+    type: object
+  models.ParticipantArtifact:
+    properties:
+      created_at:
+        type: string
+      event_id:
+        type: string
+      id:
+        type: string
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.ArtifactKind'
+        enum:
+        - REPOSITORY
+        - VIDEO
+        - SLIDES
+        - DEMO
+        - SUBMISSION
+        - OTHER
+      sort_order:
+        example: 0
+        type: integer
+      submitted_at:
+        type: string
+      title:
+        example: Project repository
+        type: string
+      updated_at:
+        type: string
+      url:
+        example: https://github.com/example/project
+        type: string
+    type: object
+  models.ParticipantNote:
+    properties:
+      body:
+        example: Draft notes in Markdown
+        type: string
+      event_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.ParticipantOutcome:
+    properties:
+      created_at:
+        type: string
+      event_id:
+        type: string
+      note:
+        type: string
+      outcome:
+        allOf:
+        - $ref: '#/definitions/models.Outcome'
+        enum:
+        - PARTICIPATED
+        - SHORTLISTED
+        - WINNER
+        - PRIZE
+      place:
+        example: 2
+        type: integer
+      prize:
+        example: Jury award
+        type: string
+      track:
+        example: Smart city
+        type: string
+      updated_at:
+        type: string
     type: object
   models.ParticipantPage:
     properties:
@@ -1045,6 +1269,31 @@ definitions:
         - REMOVED
       team_role:
         example: Backend developer
+        type: string
+    type: object
+  models.ParticipantTask:
+    properties:
+      created_at:
+        type: string
+      done_at:
+        type: string
+      due_at:
+        type: string
+      event_id:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      sort_order:
+        example: 0
+        type: integer
+      stage_id:
+        type: string
+      title:
+        example: Record the demo video
+        type: string
+      updated_at:
         type: string
     type: object
   models.ParticipationStatus:
@@ -1312,6 +1561,34 @@ definitions:
         example: 7f9c0f0e2f4b4a1d
         type: string
     type: object
+  models.SaveNoteRequest:
+    properties:
+      body:
+        example: Draft notes in Markdown
+        type: string
+    type: object
+  models.SaveOutcomeRequest:
+    properties:
+      note:
+        type: string
+      outcome:
+        allOf:
+        - $ref: '#/definitions/models.Outcome'
+        enum:
+        - PARTICIPATED
+        - SHORTLISTED
+        - WINNER
+        - PRIZE
+      place:
+        example: 2
+        type: integer
+      prize:
+        example: Jury award
+        type: string
+      track:
+        example: Smart city
+        type: string
+    type: object
   models.ScheduleItem:
     properties:
       end_at:
@@ -1486,6 +1763,13 @@ definitions:
     - StageDemo
     - StageResults
     - StageOther
+  models.TaskListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.ParticipantTask'
+        type: array
+    type: object
   models.TelegramLinkResponse:
     properties:
       deep_link:
@@ -1493,6 +1777,13 @@ definitions:
         type: string
       expires_at:
         type: string
+    type: object
+  models.TemplateListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.ChecklistTemplate'
+        type: array
     type: object
   models.TimeRange:
     properties:
@@ -1505,6 +1796,34 @@ definitions:
     properties:
       token:
         example: 7f9c0f0e2f4b4a1d
+        type: string
+    type: object
+  models.UpdateArtifactRequest:
+    properties:
+      clear_title:
+        example: false
+        type: boolean
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.ArtifactKind'
+        enum:
+        - REPOSITORY
+        - VIDEO
+        - SLIDES
+        - DEMO
+        - SUBMISSION
+        - OTHER
+      sort_order:
+        example: 0
+        type: integer
+      submitted:
+        example: true
+        type: boolean
+      title:
+        example: Project repository
+        type: string
+      url:
+        example: https://github.com/example/project
         type: string
     type: object
   models.UpdateEventRequest:
@@ -1649,6 +1968,30 @@ definitions:
         type: string
       venue:
         example: IT Park
+        type: string
+    type: object
+  models.UpdateTaskRequest:
+    properties:
+      clear_due_at:
+        example: false
+        type: boolean
+      clear_stage:
+        example: false
+        type: boolean
+      done:
+        example: true
+        type: boolean
+      due_at:
+        type: string
+      notes:
+        type: string
+      sort_order:
+        example: 0
+        type: integer
+      stage_id:
+        type: string
+      title:
+        example: Record the demo video
         type: string
     type: object
   models.UpdateTeamRoleRequest:
@@ -3996,6 +4339,213 @@ paths:
       summary: Update your own profile
       tags:
       - profile
+  /me/artifacts/{id}:
+    delete:
+      parameters:
+      - description: Artifact identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: the artifact is deleted
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Delete an own artifact
+      tags:
+      - personal
+    patch:
+      consumes:
+      - application/json
+      description: Changes one artifact of the caller, including the self-reported
+        submitted mark.
+      parameters:
+      - description: Artifact id
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields to change
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateArtifactRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantArtifact'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: the artifact belongs to another user
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Update an own artifact
+      tags:
+      - personal
+  /me/bookmarks:
+    get:
+      description: |-
+        Events the caller saved for later, newest first. The payload matches the catalog
+        entry, so the same card renders in both places.
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookmarkListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own bookmarks
+      tags:
+      - personal
+  /me/bookmarks/{id}:
+    delete:
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: the bookmark is removed
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Remove a bookmark
+      tags:
+      - personal
+    put:
+      description: |-
+        Marks a catalog event as interesting without joining it. A bookmark is not
+        participation: it creates no assignment, no registration status and no
+        notifications, and an administrator does not see it.
+
+        Bookmarking twice is not an error — the operation is idempotent.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: the event is bookmarked
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: the event is not in the catalog
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Bookmark an event
+      tags:
+      - personal
+  /me/checklist-templates:
+    get:
+      description: |-
+        The built-in checklist templates. A template is a shared reference list, not a
+        personal record: applying one creates the caller's own tasks, and editing a
+        template afterwards does not touch tasks already created.
+
+        Titles are dictionary keys, not finished text: the client renders them in the
+        reader's language.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TemplateListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Checklist templates
+      tags:
+      - personal
   /me/deactivate:
     post:
       description: |-
@@ -4099,6 +4649,487 @@ paths:
       summary: My events
       tags:
       - queries
+  /me/events/{id}/artifacts:
+    get:
+      description: |-
+        What the caller says they submitted for the event: repository, video, slides,
+        demo stand or submission page.
+
+        The submitted mark is the participant's own word, exactly like the registration
+        status of specification 1: the system never checks an external site, so nothing
+        here is a verified fact.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ArtifactListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own submission artifacts
+      tags:
+      - personal
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Records one artifact of the caller for the event. The link is only checked for
+        being a parseable address; schemes that execute in a browser are rejected.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Artifact
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateArtifactRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ParticipantArtifact'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: the artifact limit for this event is reached
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Add an own artifact
+      tags:
+      - personal
+  /me/events/{id}/note:
+    get:
+      description: |-
+        The caller's private Markdown note for one event. A missing note is answered
+        with an empty body rather than 404, so the editor opens on a blank page.
+
+        The server stores and returns the Markdown source and never renders it to HTML;
+        rendering belongs to the client. Nobody else can read this note, an
+        administrator included.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantNote'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: the event is not visible to the caller
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own note for an event
+      tags:
+      - personal
+    put:
+      consumes:
+      - application/json
+      description: |-
+        Stores the caller's note for the event; the endpoint suits autosave. Saving an
+        empty body deletes the record instead of keeping a blank one, so a list of
+        events carrying notes never fills with empty entries.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Markdown source
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SaveNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantNote'
+        "400":
+          description: the note is too long
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Save an own note
+      tags:
+      - personal
+  /me/events/{id}/outcome:
+    delete:
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: the outcome is deleted
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Delete an own outcome
+      tags:
+      - personal
+    get:
+      description: |-
+        The caller's self-reported result: how it went, and optionally a place, a prize,
+        a track and a note. The outcome is the participant's own account, not a verified
+        standing.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantOutcome'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: no outcome recorded yet
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own outcome for an event
+      tags:
+      - personal
+    put:
+      consumes:
+      - application/json
+      description: |-
+        Stores the caller's result for the event. The default is PARTICIPATED, and that
+        is a complete outcome rather than an empty one: most events end without a prize,
+        and a tracker that can only record wins makes the ordinary case look like a
+        failure.
+
+        A place may accompany only SHORTLISTED, WINNER or PRIZE — "first place" alongside
+        "took part" would contradict itself.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Outcome
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SaveOutcomeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantOutcome'
+        "400":
+          description: a place requires a placing outcome
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Record an own outcome
+      tags:
+      - personal
+  /me/events/{id}/tasks:
+    get:
+      description: |-
+        The personal checklist of the caller for one event. A task belongs to the
+        person who created it: the listing never shows anyone else's tasks, and an
+        administrator has no privilege here either (specification 5.4).
+
+        Personal records are outside the notification and audit domains: a task never
+        becomes a queued notification and never reaches the audit log.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TaskListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: the event is not visible to the caller
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own tasks for an event
+      tags:
+      - personal
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Adds one task to the caller's personal checklist for the event. The optional
+        stage must belong to the same event.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Task
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ParticipantTask'
+        "400":
+          description: the stage belongs to another event
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: the task limit for this event is reached
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Create an own task
+      tags:
+      - personal
+  /me/events/{id}/tasks/apply-template:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Creates the caller's tasks from a template in one action. Due dates are counted
+        from the event start using the offset of each template item, so a negative
+        offset means "before the start".
+
+        A template item whose title already exists among the caller's tasks for this
+        event is skipped rather than duplicated, and the per-item outcome is reported
+        line by line, so applying the same template twice changes nothing.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Template to apply
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ApplyTemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BatchResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: unknown template or invisible event
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Apply a checklist template
+      tags:
+      - personal
+  /me/history:
+    get:
+      description: |-
+        A read model over what the caller already accumulated: the events they were
+        assigned to, with their team role, their recorded outcome, their artifacts and
+        the count of their tasks. It owns no tables and shows only the caller's records.
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HistoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own participation history
+      tags:
+      - personal
   /me/schedule:
     get:
       description: |-
@@ -4213,6 +5244,86 @@ paths:
       summary: Terminate one own session
       tags:
       - auth
+  /me/tasks/{id}:
+    delete:
+      description: |-
+        Removes one task of the caller. Personal records may be deleted outright:
+        unlike the administrative layer, they carry no retention obligation.
+      parameters:
+      - description: Task identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: the task is deleted
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Delete an own task
+      tags:
+      - personal
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Changes one task of the caller. Marking a task done and undone are both plain
+        updates: the transition is reversible and produces neither a notification nor
+        an audit entry. A task of another user answers 404, never 403.
+      parameters:
+      - description: Task identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields to change
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantTask'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: the task belongs to another user
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Update an own task
+      tags:
+      - personal
   /me/telegram:
     delete:
       produces:

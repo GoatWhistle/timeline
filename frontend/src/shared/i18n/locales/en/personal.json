@@ -1,0 +1,106 @@
+{
+  "nav": {
+    "tasks": "Tasks",
+    "note": "Note",
+    "artifacts": "Artifacts",
+    "outcome": "Outcome",
+    "bookmarks": "Bookmarks",
+    "history": "History"
+  },
+  "task": {
+    "read_rules": "Read the rules and the timetable",
+    "assemble_team": "Assemble the team",
+    "register_on_site": "Register on the organiser's site",
+    "install_toolchain": "Install the toolchain",
+    "book_travel": "Book travel and accommodation",
+    "plan_idea": "Settle on the idea",
+    "create_repository": "Create the repository",
+    "split_the_work": "Split the work across the team",
+    "prepare_environment": "Prepare the environment and the deployment",
+    "checkpoint_progress": "Check progress against the plan",
+    "freeze_scope": "Freeze the scope",
+    "record_demo": "Record the demo video",
+    "prepare_slides": "Prepare the slides",
+    "open_repository": "Make the repository public",
+    "submit_the_work": "Submit the work",
+    "write_retrospective": "Write the retrospective"
+  },
+  "template": {
+    "preparation": "Preparation",
+    "build_day": "Build day",
+    "submission_day": "Submission day",
+    "apply": "Apply a template",
+    "applied_one": "{{count}} task added",
+    "applied_other": "{{count}} tasks added",
+    "skipped_one": "{{count}} task was already there",
+    "skipped_other": "{{count}} tasks were already there"
+  },
+  "tasks": {
+    "title": "My tasks",
+    "empty": "No tasks yet. Apply a template to start with a ready checklist.",
+    "add": "Add a task",
+    "titleLabel": "Title",
+    "notesLabel": "Notes",
+    "dueLabel": "Due",
+    "stageLabel": "Stage",
+    "done": "Done",
+    "remaining_one": "{{count}} task left",
+    "remaining_other": "{{count}} tasks left",
+    "limitReached": "The task limit for this event is reached."
+  },
+  "note": {
+    "title": "My note",
+    "placeholder": "Markdown. Saves as you type.",
+    "saved": "Saved",
+    "saving": "Saving",
+    "private": "Only you can read this note."
+  },
+  "artifacts": {
+    "title": "What I submitted",
+    "empty": "Nothing recorded yet.",
+    "add": "Add an artifact",
+    "kindLabel": "Kind",
+    "urlLabel": "Link",
+    "titleLabel": "Caption",
+    "markSubmitted": "I submitted this",
+    "submittedNote": "Your own mark. The system does not check the organiser's site.",
+    "kind": {
+      "REPOSITORY": "Repository",
+      "VIDEO": "Demo video",
+      "SLIDES": "Slides",
+      "DEMO": "Live demo",
+      "SUBMISSION": "Submission page",
+      "OTHER": "Other"
+    }
+  },
+  "outcome": {
+    "title": "How it went",
+    "empty": "No outcome recorded yet.",
+    "outcomeLabel": "Outcome",
+    "placeLabel": "Place",
+    "prizeLabel": "Prize",
+    "trackLabel": "Track",
+    "noteLabel": "Note",
+    "selfReported": "Your own account of the result.",
+    "value": {
+      "PARTICIPATED": "Took part",
+      "SHORTLISTED": "Shortlisted",
+      "WINNER": "Winner",
+      "PRIZE": "Prize"
+    }
+  },
+  "bookmarks": {
+    "title": "Saved",
+    "empty": "Nothing saved yet.",
+    "add": "Save",
+    "remove": "Remove from saved",
+    "hint": "Saving is not joining: it turns on no reminders."
+  },
+  "history": {
+    "title": "My history",
+    "empty": "No finished events yet.",
+    "events_one": "{{count}} event",
+    "events_other": "{{count}} events",
+    "tasksDone": "{{done}} of {{total}} tasks"
+  }
+}

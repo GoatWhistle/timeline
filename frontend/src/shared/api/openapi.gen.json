@@ -4057,6 +4057,394 @@
         }
       }
     },
+    "/me/artifacts/{id}": {
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "tags": [
+          "personal"
+        ],
+        "summary": "Delete an own artifact",
+        "parameters": [
+          {
+            "description": "Artifact identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "the artifact is deleted"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Changes one artifact of the caller, including the self-reported submitted mark.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Update an own artifact",
+        "parameters": [
+          {
+            "description": "Artifact id",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.UpdateArtifactRequest"
+              }
+            }
+          },
+          "description": "Fields to change",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ParticipantArtifact"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "the artifact belongs to another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/bookmarks": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Events the caller saved for later, newest first. The payload matches the catalog\nentry, so the same card renders in both places.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Own bookmarks",
+        "parameters": [
+          {
+            "description": "Page number",
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "description": "Page size",
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.BookmarkListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/bookmarks/{id}": {
+      "put": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Marks a catalog event as interesting without joining it. A bookmark is not\nparticipation: it creates no assignment, no registration status and no\nnotifications, and an administrator does not see it.\n\nBookmarking twice is not an error — the operation is idempotent.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Bookmark an event",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "the event is bookmarked"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "the event is not in the catalog",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "tags": [
+          "personal"
+        ],
+        "summary": "Remove a bookmark",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "the bookmark is removed"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/checklist-templates": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The built-in checklist templates. A template is a shared reference list, not a\npersonal record: applying one creates the caller's own tasks, and editing a\ntemplate afterwards does not touch tasks already created.\n\nTitles are dictionary keys, not finished text: the client renders them in the\nreader's language.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Checklist templates",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.TemplateListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/me/deactivate": {
       "post": {
         "security": [
@@ -4238,6 +4626,869 @@
         }
       }
     },
+    "/me/events/{id}/artifacts": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "What the caller says they submitted for the event: repository, video, slides,\ndemo stand or submission page.\n\nThe submitted mark is the participant's own word, exactly like the registration\nstatus of specification 1: the system never checks an external site, so nothing\nhere is a verified fact.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Own submission artifacts",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ArtifactListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Records one artifact of the caller for the event. The link is only checked for\nbeing a parseable address; schemes that execute in a browser are rejected.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Add an own artifact",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.CreateArtifactRequest"
+              }
+            }
+          },
+          "description": "Artifact",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ParticipantArtifact"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "the artifact limit for this event is reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/events/{id}/note": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The caller's private Markdown note for one event. A missing note is answered\nwith an empty body rather than 404, so the editor opens on a blank page.\n\nThe server stores and returns the Markdown source and never renders it to HTML;\nrendering belongs to the client. Nobody else can read this note, an\nadministrator included.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Own note for an event",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ParticipantNote"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "the event is not visible to the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Stores the caller's note for the event; the endpoint suits autosave. Saving an\nempty body deletes the record instead of keeping a blank one, so a list of\nevents carrying notes never fills with empty entries.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Save an own note",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.SaveNoteRequest"
+              }
+            }
+          },
+          "description": "Markdown source",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ParticipantNote"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "the note is too long",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/events/{id}/outcome": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The caller's self-reported result: how it went, and optionally a place, a prize,\na track and a note. The outcome is the participant's own account, not a verified\nstanding.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Own outcome for an event",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ParticipantOutcome"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "no outcome recorded yet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Stores the caller's result for the event. The default is PARTICIPATED, and that\nis a complete outcome rather than an empty one: most events end without a prize,\nand a tracker that can only record wins makes the ordinary case look like a\nfailure.\n\nA place may accompany only SHORTLISTED, WINNER or PRIZE — \"first place\" alongside\n\"took part\" would contradict itself.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Record an own outcome",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.SaveOutcomeRequest"
+              }
+            }
+          },
+          "description": "Outcome",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ParticipantOutcome"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "a place requires a placing outcome",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "tags": [
+          "personal"
+        ],
+        "summary": "Delete an own outcome",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "the outcome is deleted"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/events/{id}/tasks": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The personal checklist of the caller for one event. A task belongs to the\nperson who created it: the listing never shows anyone else's tasks, and an\nadministrator has no privilege here either (specification 5.4).\n\nPersonal records are outside the notification and audit domains: a task never\nbecomes a queued notification and never reaches the audit log.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Own tasks for an event",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.TaskListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "the event is not visible to the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Adds one task to the caller's personal checklist for the event. The optional\nstage must belong to the same event.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Create an own task",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.CreateTaskRequest"
+              }
+            }
+          },
+          "description": "Task",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ParticipantTask"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "the stage belongs to another event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "the task limit for this event is reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/events/{id}/tasks/apply-template": {
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Creates the caller's tasks from a template in one action. Due dates are counted\nfrom the event start using the offset of each template item, so a negative\noffset means \"before the start\".\n\nA template item whose title already exists among the caller's tasks for this\nevent is skipped rather than duplicated, and the per-item outcome is reported\nline by line, so applying the same template twice changes nothing.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Apply a checklist template",
+        "parameters": [
+          {
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.ApplyTemplateRequest"
+              }
+            }
+          },
+          "description": "Template to apply",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.BatchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "unknown template or invisible event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/history": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "A read model over what the caller already accumulated: the events they were\nassigned to, with their team role, their recorded outcome, their artifacts and\nthe count of their tasks. It owns no tables and shows only the caller's records.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Own participation history",
+        "parameters": [
+          {
+            "description": "Page number",
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "description": "Page size",
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.HistoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/me/schedule": {
       "get": {
         "security": [
@@ -4405,6 +5656,154 @@
           },
           "404": {
             "description": "the session does not exist or belongs to another account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/tasks/{id}": {
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Removes one task of the caller. Personal records may be deleted outright:\nunlike the administrative layer, they carry no retention obligation.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Delete an own task",
+        "parameters": [
+          {
+            "description": "Task identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "the task is deleted"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Changes one task of the caller. Marking a task done and undone are both plain\nupdates: the transition is reversible and produces neither a notification nor\nan audit entry. A task of another user answers 404, never 403.",
+        "tags": [
+          "personal"
+        ],
+        "summary": "Update an own task",
+        "parameters": [
+          {
+            "description": "Task identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.UpdateTaskRequest"
+              }
+            }
+          },
+          "description": "Fields to change",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ParticipantTask"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "the task belongs to another user",
             "content": {
               "application/json": {
                 "schema": {
@@ -4795,6 +6194,48 @@
           }
         }
       },
+      "models.ApplyTemplateRequest": {
+        "type": "object",
+        "properties": {
+          "template_id": {
+            "type": "string",
+            "example": "preparation"
+          }
+        }
+      },
+      "models.ArtifactKind": {
+        "type": "string",
+        "enum": [
+          "REPOSITORY",
+          "VIDEO",
+          "SLIDES",
+          "DEMO",
+          "SUBMISSION",
+          "OTHER"
+        ],
+        "x-enum-varnames": [
+          "ArtifactRepository",
+          "ArtifactVideo",
+          "ArtifactSlides",
+          "ArtifactDemo",
+          "ArtifactSubmission",
+          "ArtifactOther"
+        ]
+      },
+      "models.ArtifactListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.ParticipantArtifact"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
       "models.AuditAction": {
         "type": "string",
         "enum": [
@@ -5008,6 +6449,24 @@
           }
         }
       },
+      "models.BookmarkListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.CatalogEvent"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/models.PageMeta"
+          }
+        },
+        "required": [
+          "items",
+          "meta"
+        ]
+      },
       "models.CSRFResponse": {
         "type": "object",
         "properties": {
@@ -5207,6 +6666,47 @@
           "ChannelEmail"
         ]
       },
+      "models.ChecklistTemplate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "preparation"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.ChecklistTemplateItem"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "items"
+        ]
+      },
+      "models.ChecklistTemplateItem": {
+        "type": "object",
+        "properties": {
+          "due_offset_minutes": {
+            "type": "integer",
+            "example": -10080
+          },
+          "slot_no": {
+            "type": "integer",
+            "example": 1
+          },
+          "title_key": {
+            "type": "string",
+            "example": "task.read_rules"
+          }
+        },
+        "required": [
+          "due_offset_minutes",
+          "slot_no",
+          "title_key"
+        ]
+      },
       "models.CopyParticipantsRequest": {
         "type": "object",
         "properties": {
@@ -5236,6 +6736,26 @@
           "team_role",
           "user_id"
         ]
+      },
+      "models.CreateArtifactRequest": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/models.ArtifactKind"
+          },
+          "sort_order": {
+            "type": "integer",
+            "example": 0
+          },
+          "title": {
+            "type": "string",
+            "example": "Project repository"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://github.com/example/project"
+          }
+        }
       },
       "models.CreateEventRequest": {
         "type": "object",
@@ -5410,6 +6930,29 @@
           "venue": {
             "type": "string",
             "example": "IT Park"
+          }
+        }
+      },
+      "models.CreateTaskRequest": {
+        "type": "object",
+        "properties": {
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer",
+            "example": 0
+          },
+          "stage_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "example": "Record the demo video"
           }
         }
       },
@@ -5778,6 +7321,85 @@
         "required": [
           "status",
           "time"
+        ]
+      },
+      "models.HistoryItem": {
+        "type": "object",
+        "properties": {
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.ParticipantArtifact"
+            }
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "joined": {
+            "type": "boolean",
+            "example": true
+          },
+          "kind": {
+            "$ref": "#/components/schemas/models.EventKind"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/models.ParticipantOutcome"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tasks_done": {
+            "type": "integer",
+            "example": 9
+          },
+          "tasks_total": {
+            "type": "integer",
+            "example": 12
+          },
+          "team_role": {
+            "type": "string",
+            "example": "Backend developer"
+          },
+          "title": {
+            "type": "string",
+            "example": "National event"
+          }
+        },
+        "required": [
+          "artifacts",
+          "end_at",
+          "event_id",
+          "joined",
+          "kind",
+          "outcome",
+          "start_at",
+          "tasks_done",
+          "tasks_total",
+          "team_role",
+          "title"
+        ]
+      },
+      "models.HistoryResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.HistoryItem"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/models.PageMeta"
+          }
+        },
+        "required": [
+          "items",
+          "meta"
         ]
       },
       "models.InvitePage": {
@@ -6174,6 +7796,21 @@
           "NotificationOverdue"
         ]
       },
+      "models.Outcome": {
+        "type": "string",
+        "enum": [
+          "PARTICIPATED",
+          "SHORTLISTED",
+          "WINNER",
+          "PRIZE"
+        ],
+        "x-enum-varnames": [
+          "OutcomeParticipated",
+          "OutcomeShortlisted",
+          "OutcomeWinner",
+          "OutcomePrize"
+        ]
+      },
       "models.PageMeta": {
         "type": "object",
         "properties": {
@@ -6199,6 +7836,120 @@
           "page",
           "page_size",
           "total"
+        ]
+      },
+      "models.ParticipantArtifact": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/models.ArtifactKind"
+          },
+          "sort_order": {
+            "type": "integer",
+            "example": 0
+          },
+          "submitted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
+            "type": "string",
+            "example": "Project repository"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://github.com/example/project"
+          }
+        },
+        "required": [
+          "created_at",
+          "event_id",
+          "id",
+          "kind",
+          "sort_order",
+          "submitted_at",
+          "title",
+          "updated_at",
+          "url"
+        ]
+      },
+      "models.ParticipantNote": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "example": "Draft notes in Markdown"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "body",
+          "event_id",
+          "updated_at"
+        ]
+      },
+      "models.ParticipantOutcome": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/models.Outcome"
+          },
+          "place": {
+            "type": "integer",
+            "example": 2
+          },
+          "prize": {
+            "type": "string",
+            "example": "Jury award"
+          },
+          "track": {
+            "type": "string",
+            "example": "Smart city"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "created_at",
+          "event_id",
+          "note",
+          "outcome",
+          "place",
+          "prize",
+          "track",
+          "updated_at"
         ]
       },
       "models.ParticipantPage": {
@@ -6291,6 +8042,59 @@
           "id",
           "participation_status",
           "team_role"
+        ]
+      },
+      "models.ParticipantTask": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "done_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer",
+            "example": 0
+          },
+          "stage_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "example": "Record the demo video"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "created_at",
+          "done_at",
+          "due_at",
+          "event_id",
+          "id",
+          "notes",
+          "sort_order",
+          "stage_id",
+          "title",
+          "updated_at"
         ]
       },
       "models.ParticipationStatus": {
@@ -6704,6 +8508,38 @@
           }
         }
       },
+      "models.SaveNoteRequest": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "example": "Draft notes in Markdown"
+          }
+        }
+      },
+      "models.SaveOutcomeRequest": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/models.Outcome"
+          },
+          "place": {
+            "type": "integer",
+            "example": 2
+          },
+          "prize": {
+            "type": "string",
+            "example": "Jury award"
+          },
+          "track": {
+            "type": "string",
+            "example": "Smart city"
+          }
+        }
+      },
       "models.ScheduleItem": {
         "type": "object",
         "properties": {
@@ -6991,6 +8827,20 @@
           "StageOther"
         ]
       },
+      "models.TaskListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.ParticipantTask"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
       "models.TelegramLinkResponse": {
         "type": "object",
         "properties": {
@@ -7006,6 +8856,20 @@
         "required": [
           "deep_link",
           "expires_at"
+        ]
+      },
+      "models.TemplateListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.ChecklistTemplate"
+            }
+          }
+        },
+        "required": [
+          "items"
         ]
       },
       "models.TimeRange": {
@@ -7031,6 +8895,34 @@
           "token": {
             "type": "string",
             "example": "7f9c0f0e2f4b4a1d"
+          }
+        }
+      },
+      "models.UpdateArtifactRequest": {
+        "type": "object",
+        "properties": {
+          "clear_title": {
+            "type": "boolean",
+            "example": false
+          },
+          "kind": {
+            "$ref": "#/components/schemas/models.ArtifactKind"
+          },
+          "sort_order": {
+            "type": "integer",
+            "example": 0
+          },
+          "submitted": {
+            "type": "boolean",
+            "example": true
+          },
+          "title": {
+            "type": "string",
+            "example": "Project repository"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://github.com/example/project"
           }
         }
       },
@@ -7204,6 +9096,41 @@
           "venue": {
             "type": "string",
             "example": "IT Park"
+          }
+        }
+      },
+      "models.UpdateTaskRequest": {
+        "type": "object",
+        "properties": {
+          "clear_due_at": {
+            "type": "boolean",
+            "example": false
+          },
+          "clear_stage": {
+            "type": "boolean",
+            "example": false
+          },
+          "done": {
+            "type": "boolean",
+            "example": true
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer",
+            "example": 0
+          },
+          "stage_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "example": "Record the demo video"
           }
         }
       },

@@ -18,6 +18,7 @@ type Config struct {
 	Telegram Telegram
 	Email    Email
 	Ops      Ops
+	Personal Personal
 }
 
 type App struct {
@@ -114,6 +115,12 @@ type Ops struct {
 	UserSearchPageSize int
 }
 
+type Personal struct {
+	MaxTasksPerEvent     int
+	MaxArtifactsPerEvent int
+	MaxNoteLength        int
+}
+
 func Load() (*Config, error) {
 	tzID := env("SYSTEM_TIMEZONE", "Europe/Moscow")
 	loc, err := time.LoadLocation(tzID)
@@ -206,6 +213,11 @@ func Load() (*Config, error) {
 			PageSizeMax:        envInt("PAGE_SIZE_MAX", 200),
 			PageSizeDef:        envInt("PAGE_SIZE_DEFAULT", 50),
 			UserSearchPageSize: envInt("USER_SEARCH_PAGE_SIZE", 50),
+		},
+		Personal: Personal{
+			MaxTasksPerEvent:     envInt("PERSONAL_MAX_TASKS_PER_EVENT", 200),
+			MaxArtifactsPerEvent: envInt("PERSONAL_MAX_ARTIFACTS_PER_EVENT", 20),
+			MaxNoteLength:        envInt("PERSONAL_MAX_NOTE_LENGTH", 20000),
 		},
 	}
 

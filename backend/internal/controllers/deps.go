@@ -117,6 +117,41 @@ type PreviewService interface {
 		ruleID *uuid.UUID) (*models.NotificationPreviewResponse, error)
 }
 
+type PersonalService interface {
+	ListTasks(ctx context.Context, actor models.Actor,
+		eventID uuid.UUID) ([]models.ParticipantTask, error)
+	CreateTask(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+		req models.CreateTaskRequest) (*models.ParticipantTask, error)
+	UpdateTask(ctx context.Context, actor models.Actor, taskID uuid.UUID,
+		req models.UpdateTaskRequest) (*models.ParticipantTask, error)
+	DeleteTask(ctx context.Context, actor models.Actor, taskID uuid.UUID) error
+	ListTemplates(ctx context.Context, actor models.Actor) ([]models.ChecklistTemplate, error)
+	ApplyTemplate(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+		req models.ApplyTemplateRequest) (*models.BatchResult, error)
+	GetNote(ctx context.Context, actor models.Actor,
+		eventID uuid.UUID) (*models.ParticipantNote, error)
+	SaveNote(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+		req models.SaveNoteRequest) (*models.ParticipantNote, error)
+	ListArtifacts(ctx context.Context, actor models.Actor,
+		eventID uuid.UUID) ([]models.ParticipantArtifact, error)
+	CreateArtifact(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+		req models.CreateArtifactRequest) (*models.ParticipantArtifact, error)
+	UpdateArtifact(ctx context.Context, actor models.Actor, artifactID uuid.UUID,
+		req models.UpdateArtifactRequest) (*models.ParticipantArtifact, error)
+	DeleteArtifact(ctx context.Context, actor models.Actor, artifactID uuid.UUID) error
+	GetOutcome(ctx context.Context, actor models.Actor,
+		eventID uuid.UUID) (*models.ParticipantOutcome, error)
+	SaveOutcome(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+		req models.SaveOutcomeRequest) (*models.ParticipantOutcome, error)
+	DeleteOutcome(ctx context.Context, actor models.Actor, eventID uuid.UUID) error
+	AddBookmark(ctx context.Context, actor models.Actor, eventID uuid.UUID) error
+	RemoveBookmark(ctx context.Context, actor models.Actor, eventID uuid.UUID) error
+	ListBookmarks(ctx context.Context, actor models.Actor,
+		page models.Page) ([]models.CatalogEvent, int64, error)
+	History(ctx context.Context, actor models.Actor,
+		page models.Page) ([]models.HistoryItem, int64, error)
+}
+
 type Limiter interface {
 	Allow(key string, limit int, window time.Duration) bool
 }

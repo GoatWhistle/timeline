@@ -4,9 +4,12 @@
     "skipToContent": "Skip to content",
     "mainNav": "Main navigation",
     "sectionParticipant": "Participant",
-    "sectionAdmin": "Administration"
+    "sectionAdmin": "Administration",
+    "collapseSidebar": "Collapse the sidebar",
+    "expandSidebar": "Expand the sidebar"
   },
   "nav": {
+    "burning": "What is burning",
     "myEvents": "My events",
     "catalog": "Catalog",
     "schedule": "Schedule",
@@ -287,7 +290,8 @@
     "search": "Focus search",
     "listNext": "Next row",
     "listPrevious": "Previous row",
-    "listClear": "Clear selection"
+    "listClear": "Clear selection",
+    "sidebar": "Sidebar"
   },
   "views": {
     "legend": "Views",

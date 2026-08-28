@@ -28,6 +28,9 @@ export const EmailChangeConfirmPage = lazy(() =>
   })),
 )
 
+export const BurningPage = lazy(() =>
+  import('@/features/burning/burning-page').then((m) => ({ default: m.BurningPage })),
+)
 export const MyEventsPage = lazy(() =>
   import('@/features/event-list/my/event-list').then((m) => ({ default: m.MyEventsPage })),
 )

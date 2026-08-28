@@ -3,33 +3,37 @@ package config
 import "time"
 
 type RateLim struct {
-	LoginAttempts   int
-	LoginWindow     time.Duration
-	ResendAttempts  int
-	ResendWindow    time.Duration
-	CatalogRequests int
-	CatalogWindow   time.Duration
-	SessionRequests int
-	SessionWindow   time.Duration
-	PreviewRequests int
-	PreviewWindow   time.Duration
-	QueueRequests   int
-	QueueWindow     time.Duration
+	LoginAttempts    int
+	LoginWindow      time.Duration
+	ResendAttempts   int
+	ResendWindow     time.Duration
+	CatalogRequests  int
+	CatalogWindow    time.Duration
+	SessionRequests  int
+	SessionWindow    time.Duration
+	PreviewRequests  int
+	PreviewWindow    time.Duration
+	QueueRequests    int
+	QueueWindow      time.Duration
+	PersonalRequests int
+	PersonalWindow   time.Duration
 }
 
 func loadRateLim() RateLim {
 	return RateLim{
-		LoginAttempts:   envInt("RATE_LIMIT_LOGIN_ATTEMPTS", 10),
-		LoginWindow:     envDuration("RATE_LIMIT_LOGIN_WINDOW", 15*time.Minute),
-		ResendAttempts:  envInt("RATE_LIMIT_RESEND_ATTEMPTS", 5),
-		ResendWindow:    envDuration("RATE_LIMIT_RESEND_WINDOW", time.Hour),
-		CatalogRequests: envInt("RATE_LIMIT_CATALOG_REQUESTS", 120),
-		CatalogWindow:   envDuration("RATE_LIMIT_CATALOG_WINDOW", time.Minute),
-		SessionRequests: envInt("RATE_LIMIT_SESSION_REQUESTS", 60),
-		SessionWindow:   envDuration("RATE_LIMIT_SESSION_WINDOW", time.Minute),
-		PreviewRequests: envInt("RATE_LIMIT_PREVIEW_REQUESTS", 60),
-		PreviewWindow:   envDuration("RATE_LIMIT_PREVIEW_WINDOW", time.Minute),
-		QueueRequests:   envInt("RATE_LIMIT_QUEUE_REQUESTS", 60),
-		QueueWindow:     envDuration("RATE_LIMIT_QUEUE_WINDOW", time.Minute),
+		LoginAttempts:    envInt("RATE_LIMIT_LOGIN_ATTEMPTS", 10),
+		LoginWindow:      envDuration("RATE_LIMIT_LOGIN_WINDOW", 15*time.Minute),
+		ResendAttempts:   envInt("RATE_LIMIT_RESEND_ATTEMPTS", 5),
+		ResendWindow:     envDuration("RATE_LIMIT_RESEND_WINDOW", time.Hour),
+		CatalogRequests:  envInt("RATE_LIMIT_CATALOG_REQUESTS", 120),
+		CatalogWindow:    envDuration("RATE_LIMIT_CATALOG_WINDOW", time.Minute),
+		SessionRequests:  envInt("RATE_LIMIT_SESSION_REQUESTS", 60),
+		SessionWindow:    envDuration("RATE_LIMIT_SESSION_WINDOW", time.Minute),
+		PreviewRequests:  envInt("RATE_LIMIT_PREVIEW_REQUESTS", 60),
+		PreviewWindow:    envDuration("RATE_LIMIT_PREVIEW_WINDOW", time.Minute),
+		QueueRequests:    envInt("RATE_LIMIT_QUEUE_REQUESTS", 60),
+		QueueWindow:      envDuration("RATE_LIMIT_QUEUE_WINDOW", time.Minute),
+		PersonalRequests: envInt("RATE_LIMIT_PERSONAL_REQUESTS", 240),
+		PersonalWindow:   envDuration("RATE_LIMIT_PERSONAL_WINDOW", time.Minute),
 	}
 }

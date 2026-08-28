@@ -32,7 +32,14 @@ const STATES = [
 
 const STATUSES = ['status-todo', 'status-done', 'status-not-required']
 
-const URGENCY = ['urgency-calm', 'urgency-soon', 'urgency-today', 'urgency-overdue', 'urgency-done']
+const URGENCY = [
+  'urgency-calm',
+  'urgency-soon',
+  'urgency-today',
+  'urgency-overdue',
+  'urgency-done',
+  'urgency-waived',
+]
 
 const FILLED = [
   ['primary', 'primary-foreground'],
@@ -92,6 +99,13 @@ describe.each(THEMES)('token contrast, %s theme', (theme) => {
 })
 
 describe('domain state distinctness', () => {
+  it('a waived registration is not painted as a completed one', () => {
+    for (const theme of THEMES) {
+      const tokens = loadTheme(theme)
+      expect(resolve(tokens, '--urgency-waived')).not.toEqual(resolve(tokens, '--urgency-done'))
+    }
+  })
+
   it('NOT_REQUIRED differs from DONE in both themes', () => {
     for (const theme of THEMES) {
       const tokens = loadTheme(theme)

@@ -21,6 +21,11 @@ import (
 var once sync.Once
 
 var tables = []string{
+	"event_bookmarks",
+	"participant_outcomes",
+	"participant_artifacts",
+	"participant_notes",
+	"participant_tasks",
 	"audit_log",
 	"notifications",
 	"notification_rules",

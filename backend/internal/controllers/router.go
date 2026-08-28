@@ -23,20 +23,23 @@ type Deps struct {
 	Audit         AuditService
 	Ops           OpsService
 	Previews      PreviewService
+	Personal      PersonalService
 
 	Authenticator middleware.Authenticator
 	Metrics       http.Handler
 	SwaggerUI     http.Handler
 
-	Limiter           Limiter
-	CatalogRate       int
-	CatalogRateWindow time.Duration
-	SessionRate       int
-	SessionRateWindow time.Duration
-	PreviewRate       int
-	PreviewRateWindow time.Duration
-	QueueRate         int
-	QueueRateWindow   time.Duration
+	Limiter            Limiter
+	CatalogRate        int
+	CatalogRateWindow  time.Duration
+	SessionRate        int
+	SessionRateWindow  time.Duration
+	PreviewRate        int
+	PreviewRateWindow  time.Duration
+	QueueRate          int
+	QueueRateWindow    time.Duration
+	PersonalRate       int
+	PersonalRateWindow time.Duration
 
 	Cookies      CookieOptions
 	PublicURL    string
@@ -95,6 +98,8 @@ type Deps struct {
 // @tag.description			Read models: my events, the card, the schedule and deadlines
 // @tag.name					audit
 // @tag.description			Log of administrative changes
+// @tag.name					personal
+// @tag.description			The participant's own layer: tasks, notes, artifacts, outcome and bookmarks
 // @tag.name					ops
 // @tag.description			Service probes and metrics
 func NewRouter(deps Deps) http.Handler {
@@ -114,6 +119,8 @@ func NewRouter(deps Deps) http.Handler {
 	opsC := NewOpsController(deps.Ops, deps.MetricsToken, deps.Metrics, deps.Limiter,
 		deps.QueueRate, deps.QueueRateWindow, deps.PageDefault, deps.PageMax)
 	previewC := NewPreviewController(deps.Previews, deps.Limiter, deps.PreviewRate, deps.PreviewRateWindow)
+	personalC := NewPersonalController(deps.Personal, deps.Limiter, deps.PersonalRate,
+		deps.PersonalRateWindow, deps.PageDefault, deps.PageMax)
 
 	rt := &routes{authn: deps.Authenticator}
 	mux := http.NewServeMux()
@@ -150,6 +157,8 @@ func NewRouter(deps Deps) http.Handler {
 	mux.Handle("GET "+api+"/events/{id}", rt.authd(queryC.EventCard))
 	mux.Handle("GET "+api+"/events/{id}/stages", rt.authd(eventC.ListStages))
 	mux.Handle("POST "+api+"/events/{id}/registration/done", rt.authd(regC.MarkDone))
+
+	mountPersonal(mux, rt, api, personalC)
 
 	mux.Handle("GET "+api+"/admin/users", rt.admin(userC.Search))
 	mux.Handle("POST "+api+"/admin/users/{id}/deactivate", rt.admin(userC.Deactivate))
