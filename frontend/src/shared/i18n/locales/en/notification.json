@@ -14,18 +14,9 @@
     "preferred": "Preferred channel",
     "autoPlaceholder": "Automatic choice",
     "unavailable": " — unavailable",
-    "linked": "Linked",
-    "linkedAs": "Linked: @{{username}}",
-    "notLinked": "Not linked",
-    "unlink": "Unlink",
-    "link": "Link",
-    "deepLinkHint": "Open the link and send the start command to the bot:",
-    "openTelegram": "open Telegram",
-    "verified": "verified",
-    "unverified": "not verified",
     "channelUpdated": "Preferred channel updated",
     "channelFailed": "Could not change the channel",
-    "linkFailed": "Could not start linking"
+    "setUpInAccount": "Channels are set up in the Account section, together with the email address and Telegram."
   },
   "feed": {
     "open": "Open notifications",

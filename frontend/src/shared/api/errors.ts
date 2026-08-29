@@ -1,4 +1,4 @@
-import { errorMessage } from '../i18n'
+import { errorMessage } from '../i18n/error-message'
 import type { ErrorBody, FieldError } from './types.gen'
 
 export class ApiError extends Error {

@@ -5,7 +5,7 @@ import {
   CATALOG_VIEWS,
   resolveLayout,
 } from '@/entities/catalog/catalog.views'
-import { activeView, isViewActive, viewSearch } from '@/features/saved-views/saved-views'
+import { activeView, isViewActive, viewSearch } from '@/shared/navigation/saved-view'
 
 describe('catalog scope', () => {
   it('offers exactly the All, Russia and World views', () => {

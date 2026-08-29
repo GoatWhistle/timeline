@@ -9,6 +9,10 @@
 2 frontend/tests/entities/user/avatar-identity.test.ts
 3 frontend/tests/features/admin-stats/coverage-metric.test.tsx
 11 frontend/tests/features/burning/urgency-label.test.ts
+6 frontend/tests/features/device-list/device-list.test.tsx
+9 frontend/tests/features/settings-overlay/settings-panels.test.tsx
+15 frontend/tests/features/shortcut-settings/shortcut-settings.test.tsx
 5 frontend/tests/shared/i18n/i18n.test.ts
 11 frontend/tests/shared/keyboard/layout-map.test.ts
-11 frontend/tests/shared/keyboard/shortcut-matching.test.ts
+8 frontend/tests/shared/keyboard/shortcut-layout.test.ts
+3 frontend/tests/shared/keyboard/shortcut-matching.test.ts

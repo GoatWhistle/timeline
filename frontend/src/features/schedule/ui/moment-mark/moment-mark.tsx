@@ -35,8 +35,9 @@ function MomentMarkView({
   const date = formatDateTime(item.at)
   const remaining = formatRelative(item.at, now)
 
+  const urgencyWord = t(`event:urgency.${urgency}`)
   const label = isDeadline
-    ? t('schedule.registrationDeadlineAria', { date })
+    ? t('schedule.registrationDeadlineAria', { date, urgency: urgencyWord })
     : t('schedule.checkpointAria', { name: item.name, date })
 
   return (
@@ -55,6 +56,7 @@ function MomentMarkView({
             tabIndex={-1}
             data-schedule-item={item.id}
             data-hollow={isDeadline ? 'false' : 'true'}
+            data-urgency={isDeadline ? urgency : undefined}
             data-highlighted={highlighted ? 'true' : 'false'}
             data-focused={focused ? 'true' : 'false'}
             aria-label={label}
@@ -74,7 +76,9 @@ function MomentMarkView({
             {isDeadline ? t('schedule.registrationDeadline') : item.name}
           </p>
           <p className="text-muted-foreground">{date}</p>
-          <p className="text-muted-foreground">{remaining}</p>
+          <p className="text-muted-foreground">
+            {isDeadline ? `${remaining} · ${urgencyWord}` : remaining}
+          </p>
         </TooltipContent>
       </Tooltip>
     </>

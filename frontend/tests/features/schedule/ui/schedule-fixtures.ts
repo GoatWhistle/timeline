@@ -21,7 +21,7 @@ export function eventStateText(state: EventState): string {
 const place: Place = { format: 'ONLINE', inherited: true }
 
 export const deadlineName = new RegExp(
-  i18n.t('schedule.registrationDeadlineAria', { date: '' }).trim().replace(/\s+/g, '\\s+'),
+  i18n.t('schedule.registrationDeadline').trim().replace(/\s+/g, '\\s+'),
 )
 
 export const NOW = new Date('2026-01-15T00:00:00Z')

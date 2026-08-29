@@ -134,9 +134,4 @@ export async function unwrap<T>(promise: Promise<Result<T>>): Promise<T> {
   return data as T
 }
 
-export async function unwrapEmpty(promise: Promise<Result<unknown>>): Promise<void> {
-  const { error, response } = await promise
-  if (!response.ok) throw toApiError(response.status, error)
-}
-
 export { ApiError }

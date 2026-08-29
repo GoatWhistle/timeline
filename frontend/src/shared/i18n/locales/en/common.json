@@ -222,7 +222,6 @@
     "personalTitle": "Personal data",
     "name": "Name",
     "saved": "Profile saved",
-    "sessionsTitle": "Sessions",
     "sessionsHint": "Ending all sessions signs you out on every device.",
     "logoutAll": "End all sessions",
     "logoutAllFailed": "Could not end the sessions",
@@ -254,7 +253,8 @@
     "bio": "About",
     "bioHint": "Free text, at most {{count}} characters. Other participants can see it.",
     "bioCount": "{{current}} of {{max}}",
-    "linkOpens": "Opens:"
+    "linkOpens": "Opens:",
+    "logoutAllTitle": "Sign out everywhere"
   },
   "schedule": {
     "title": "Schedule",
@@ -274,7 +274,7 @@
     "columnEvent": "Event",
     "registrationDeadline": "Registration deadline",
     "registrationDeadlineAt": "Registration deadline: {{date}}",
-    "registrationDeadlineAria": "Registration deadline {{date}}",
+    "registrationDeadlineAria": "Registration deadline {{date}}, {{urgency}}",
     "stageAria": "{{name}}. {{type}}. {{start}} — {{end}}",
     "stageTooltip": "{{type}} · {{start}} — {{end}}",
     "quarter": "Quarter",
@@ -314,7 +314,21 @@
     "listNext": "Next row",
     "listPrevious": "Previous row",
     "listClear": "Clear selection",
-    "sidebar": "Sidebar"
+    "sidebar": "Sidebar",
+    "settingsTitle": "Active shortcuts",
+    "settingsHint": "Built from the registry: what is in effect right now, by scope. The scope stack grows while lists and panels are open.",
+    "readOnlyNote": "Remapping shortcuts is not supported yet — this list is read-only.",
+    "scopeApp": "Application",
+    "scopeSidebar": "Sidebar",
+    "scopeSearch": "Search",
+    "scopeList": "List",
+    "scopePalette": "Command palette",
+    "scopeHelp": "Help",
+    "scopeOther": "Current screen",
+    "scopeCount_one": "{{count}} shortcut",
+    "scopeCount_other": "{{count}} shortcuts",
+    "emptyTitle": "No shortcuts",
+    "emptyHint": "This screen has not registered any shortcuts."
   },
   "views": {
     "legend": "Views",
@@ -343,9 +357,11 @@
     "sectionAppearance": "Appearance",
     "sectionNotifications": "Notifications",
     "sectionSessions": "Sessions",
-    "sectionDanger": "Account",
+    "sectionDanger": "Danger zone",
     "timezone": "Time zone",
-    "timezoneHint": "All dates and deadlines are shown in this zone. Everything is stored in UTC."
+    "timezoneHint": "All dates and deadlines are shown in this zone. Everything is stored in UTC.",
+    "sectionAccount": "Account",
+    "sectionShortcuts": "Keyboard shortcuts"
   },
   "realtime": {
     "offline": "No live connection — data refreshes less often"
@@ -394,5 +410,24 @@
     "emptyHint": "You are signed in on this device only.",
     "count_one": "{{count}} active session",
     "count_other": "{{count}} active sessions"
+  },
+  "account": {
+    "identityTitle": "Credentials",
+    "identityHint": "The email address you sign in with, and your role in the system.",
+    "email": "Email",
+    "emailVerified": "verified",
+    "emailUnverified": "not verified",
+    "role": "Role",
+    "roleAdmin": "Administrator",
+    "roleMember": "Member",
+    "telegramTitle": "Telegram",
+    "telegramHint": "Linking is what allows notifications to be delivered over Telegram.",
+    "telegramLinked": "Linked",
+    "telegramNotLinked": "Not linked",
+    "telegramLink": "Link",
+    "telegramUnlink": "Unlink",
+    "telegramLinkFailed": "Could not start linking",
+    "telegramDeepLinkHint": "Open the link and send the start command to the bot:",
+    "telegramOpen": "open Telegram"
   }
 }

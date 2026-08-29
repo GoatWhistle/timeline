@@ -62,12 +62,7 @@ const DATE_PATTERN: Record<Locale, string> = {
   en: 'd MMMM yyyy',
 }
 
-const SHORT_DATE_PATTERN: Record<Locale, string> = {
-  ru: 'dd.MM.yyyy',
-  en: 'dd/MM/yyyy',
-}
-
-export function currentLocale(): Locale {
+function currentLocale(): Locale {
   const language = i18n.language?.split('-')[0]
   return isLocale(language) ? language : DEFAULT_LOCALE
 }
@@ -103,20 +98,6 @@ export function formatDate(iso: string | null | undefined, locale = currentLocal
   const date = toZoned(iso)
   if (!date) return '—'
   return format(date, DATE_PATTERN[locale], { locale: dateFnsLocale(locale) })
-}
-
-export function formatDateShort(iso: string | null | undefined, locale = currentLocale()): string {
-  const date = toZoned(iso)
-  if (!date) return '—'
-  return format(date, SHORT_DATE_PATTERN[locale], { locale: dateFnsLocale(locale) })
-}
-
-export function formatMonth(date: Date, locale = currentLocale()): string {
-  return format(date, 'LLLL yyyy', { locale: dateFnsLocale(locale) })
-}
-
-export function formatMonthShort(date: Date, locale = currentLocale()): string {
-  return format(date, 'LLL', { locale: dateFnsLocale(locale) })
 }
 
 export function formatRelative(
@@ -159,10 +140,6 @@ export function formatOffsetMinutes(offsetMinutes: number): string {
 
   const amount = parts.join(' ')
   return offsetMinutes > 0 ? t('duration.before', { amount }) : t('duration.after', { amount })
-}
-
-export function compareByLocale(a: string, b: string, locale = currentLocale()): number {
-  return new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }).compare(a, b)
 }
 
 export function localeCollator(locale = currentLocale()): Intl.Collator {

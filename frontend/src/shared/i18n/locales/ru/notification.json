@@ -14,18 +14,9 @@
     "preferred": "Предпочитаемый канал",
     "autoPlaceholder": "Автоматический выбор",
     "unavailable": " — недоступен",
-    "linked": "Привязан",
-    "linkedAs": "Привязан: @{{username}}",
-    "notLinked": "Не привязан",
-    "unlink": "Отвязать",
-    "link": "Привязать",
-    "deepLinkHint": "Откройте ссылку и отправьте боту команду запуска:",
-    "openTelegram": "перейти в Telegram",
-    "verified": "подтверждён",
-    "unverified": "не подтверждён",
     "channelUpdated": "Предпочитаемый канал обновлён",
     "channelFailed": "Не удалось изменить канал",
-    "linkFailed": "Не удалось начать привязку"
+    "setUpInAccount": "Каналы привязываются в разделе «Аккаунт»: там же адрес почты и Telegram."
   },
   "feed": {
     "open": "Открыть уведомления",

@@ -3,6 +3,7 @@ export {
   useShortcutList,
   useShortcutRegistry,
   useShortcutScope,
+  useShortcutScopeList,
 } from './shortcut-context'
 export {
   activeScopes,
@@ -11,8 +12,10 @@ export {
   isInteractiveTarget,
   isTypeAheadKey,
   keyAliases,
+  listByScope,
   normalizeKey,
   resolveShortcut,
+  type ScopeListing,
   type ShortcutDefinition,
   type ShortcutGroup,
   ShortcutRegistry,

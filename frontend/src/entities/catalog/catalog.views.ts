@@ -1,4 +1,4 @@
-import type { SavedView } from '@/features/saved-views/saved-views'
+import type { SavedView } from '@/shared/navigation/saved-view'
 
 export const CATALOG_SCOPES = ['', 'RU', 'WORLD'] as const
 export type CatalogScope = (typeof CATALOG_SCOPES)[number]

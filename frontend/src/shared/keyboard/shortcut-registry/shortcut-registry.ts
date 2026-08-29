@@ -105,6 +105,28 @@ export function visibleShortcuts(stack: ShortcutScope[]): ShortcutDefinition[] {
   return result
 }
 
+export type ScopeListing = {
+  id: string
+  mode: ShortcutScopeMode
+  shortcuts: ShortcutDefinition[]
+}
+
+export function listByScope(stack: ShortcutScope[]): ScopeListing[] {
+  const seen = new Set<string>()
+  const result: ScopeListing[] = []
+  for (const scope of stack.slice().reverse()) {
+    const shortcuts: ShortcutDefinition[] = []
+    for (const shortcut of scope.shortcuts) {
+      if (shortcut.hidden === true) continue
+      if (seen.has(shortcut.id)) continue
+      seen.add(shortcut.id)
+      shortcuts.push(shortcut)
+    }
+    if (shortcuts.length > 0) result.push({ id: scope.id, mode: scope.mode, shortcuts })
+  }
+  return result.reverse()
+}
+
 function matches(shortcut: ShortcutDefinition, pressed: string, chord: string | null): boolean {
   return shortcut.keys.some((combo) => {
     const steps = combo.split(' ')

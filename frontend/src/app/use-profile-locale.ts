@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
 import { useSession } from '@/shared/api/session'
-import { useLocale } from './i18n-context'
-import { isLocale } from './locale'
+import { useLocale } from '@/shared/i18n/i18n-context'
+import { isLocale } from '@/shared/i18n/locale'
 
 export function useProfileLocale(): void {
   const { user } = useSession()

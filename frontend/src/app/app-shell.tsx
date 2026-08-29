@@ -8,11 +8,11 @@ import { ConnectionBanner } from '@/features/connection-banner/connection-banner
 import { SettingsOverlay } from '@/features/settings-overlay/settings-overlay'
 import { useSession } from '@/shared/api/session'
 import { useProfileTimezone } from '@/shared/datetime/use-profile-timezone'
-import { useProfileLocale } from '@/shared/i18n/use-profile-locale'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { useSidebar } from '@/shared/ui/layout/sidebar/use-sidebar'
 import { RouteFallback } from './route-fallback'
 import { AppSidebar } from './sidebar/app-sidebar'
+import { useProfileLocale } from './use-profile-locale'
 
 const USER_TARGETS: GotoTarget[] = [
   { id: 'burning', path: '/', key: 'h', titleKey: 'nav.burning' },

@@ -29,7 +29,3 @@ export function fontSizeOf(font: string): number {
   const match = /(\d+(?:\.\d+)?)px/.exec(font)
   return match ? Number.parseFloat(match[1] ?? '') || 12 : 12
 }
-
-export function resetMeasureCache() {
-  context = undefined
-}

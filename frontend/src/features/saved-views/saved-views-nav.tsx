@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
+import { isViewActive, type SavedView, viewSearch } from '@/shared/navigation/saved-view'
 import { cn } from '@/shared/styling/class-names/class-names'
-import { isViewActive, type SavedView, viewSearch } from './saved-views'
 
 export function SavedViewsNav({
   views,

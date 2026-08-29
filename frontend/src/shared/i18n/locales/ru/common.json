@@ -224,7 +224,6 @@
     "personalTitle": "Личные данные",
     "name": "Имя",
     "saved": "Профиль сохранён",
-    "sessionsTitle": "Сессии",
     "sessionsHint": "Завершение всех сессий выкинет вас из системы на всех устройствах.",
     "logoutAll": "Завершить все сессии",
     "logoutAllFailed": "Не удалось завершить сессии",
@@ -256,7 +255,8 @@
     "bio": "О себе",
     "bioHint": "Свободный текст, не более {{count}} символов. Виден другим участникам.",
     "bioCount": "{{current}} из {{max}}",
-    "linkOpens": "Откроется:"
+    "linkOpens": "Откроется:",
+    "logoutAllTitle": "Выход на всех устройствах"
   },
   "schedule": {
     "title": "Шкала",
@@ -276,7 +276,7 @@
     "columnEvent": "Событие",
     "registrationDeadline": "Дедлайн регистрации",
     "registrationDeadlineAt": "Дедлайн регистрации: {{date}}",
-    "registrationDeadlineAria": "Дедлайн регистрации {{date}}",
+    "registrationDeadlineAria": "Дедлайн регистрации {{date}}, {{urgency}}",
     "stageAria": "{{name}}. {{type}}. {{start}} — {{end}}",
     "stageTooltip": "{{type}} · {{start}} — {{end}}",
     "quarter": "Квартал",
@@ -316,7 +316,22 @@
     "listNext": "Следующая строка",
     "listPrevious": "Предыдущая строка",
     "listClear": "Снять выделение",
-    "sidebar": "Боковая панель"
+    "sidebar": "Боковая панель",
+    "settingsTitle": "Действующие сочетания",
+    "settingsHint": "Список собирается из реестра: показано то, что действует сейчас, по областям. Стопка областей растёт, пока открыты списки и панели.",
+    "readOnlyNote": "Переназначение сочетаний пока не поддерживается — список только для чтения.",
+    "scopeApp": "Приложение",
+    "scopeSidebar": "Боковая панель",
+    "scopeSearch": "Поиск",
+    "scopeList": "Список",
+    "scopePalette": "Палитра команд",
+    "scopeHelp": "Справка",
+    "scopeOther": "Текущий экран",
+    "scopeCount_one": "{{count}} сочетание",
+    "scopeCount_few": "{{count}} сочетания",
+    "scopeCount_many": "{{count}} сочетаний",
+    "emptyTitle": "Сочетаний нет",
+    "emptyHint": "На этом экране не зарегистрировано ни одного сочетания."
   },
   "views": {
     "legend": "Виды",
@@ -345,9 +360,11 @@
     "sectionAppearance": "Внешний вид",
     "sectionNotifications": "Уведомления",
     "sectionSessions": "Сессии",
-    "sectionDanger": "Аккаунт",
+    "sectionDanger": "Опасная зона",
     "timezone": "Часовой пояс",
-    "timezoneHint": "В этом поясе показываются все даты и сроки. Хранится всё в UTC."
+    "timezoneHint": "В этом поясе показываются все даты и сроки. Хранится всё в UTC.",
+    "sectionAccount": "Аккаунт",
+    "sectionShortcuts": "Сочетания клавиш"
   },
   "realtime": {
     "offline": "Нет связи с сервером — данные обновляются реже"
@@ -401,5 +418,24 @@
     "count_one": "{{count}} активная сессия",
     "count_few": "{{count}} активные сессии",
     "count_many": "{{count}} активных сессий"
+  },
+  "account": {
+    "identityTitle": "Учётные данные",
+    "identityHint": "Адрес почты, которым вы входите, и роль в системе.",
+    "email": "Почта",
+    "emailVerified": "подтверждена",
+    "emailUnverified": "не подтверждена",
+    "role": "Роль",
+    "roleAdmin": "Администратор",
+    "roleMember": "Участник",
+    "telegramTitle": "Telegram",
+    "telegramHint": "Привязка нужна, чтобы уведомления могли уходить в Telegram.",
+    "telegramLinked": "Привязан",
+    "telegramNotLinked": "Не привязан",
+    "telegramLink": "Привязать",
+    "telegramUnlink": "Отвязать",
+    "telegramLinkFailed": "Не удалось начать привязку",
+    "telegramDeepLinkHint": "Откройте ссылку и отправьте боту команду запуска:",
+    "telegramOpen": "перейти в Telegram"
   }
 }

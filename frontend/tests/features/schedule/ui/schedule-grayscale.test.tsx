@@ -1,7 +1,9 @@
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
+import { URGENCY_KEY, type Urgency } from '@/entities/deadline/urgency/urgency'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
 import type { Place, ScheduleResponse } from '@/shared/api/types.gen'
+import { i18n } from '@/shared/i18n/config'
 import { NOW, range } from './schedule-fixtures'
 
 const place: Place = { format: 'ONLINE', inherited: true }
@@ -53,6 +55,34 @@ const data: ScheduleResponse = {
       ],
     },
   ],
+}
+
+const urgencies: ScheduleResponse = {
+  range: { from: '2026-01-01T00:00:00Z', to: '2026-04-01T00:00:00Z' },
+  rows: (
+    [
+      ['overdue', '2026-01-10T00:00:00Z'],
+      ['soon', '2026-01-18T00:00:00Z'],
+      ['calm', '2026-03-01T00:00:00Z'],
+    ] as const
+  ).map(([id, deadline]) => ({
+    event_id: id,
+    title: `Deadline ${id}`,
+    state: 'ACTIVE' as const,
+    start_at: '2026-01-05T00:00:00Z',
+    end_at: '2026-03-15T00:00:00Z',
+    effective_format: 'ONLINE' as const,
+    registration_deadline: deadline,
+    stages: [],
+  })),
+}
+
+function renderUrgencies() {
+  const view = renderWithProviders(
+    <ScheduleGrid data={urgencies} range={range} scale="quarter" now={NOW} />,
+  )
+  view.container.style.filter = 'grayscale(1)'
+  return view
 }
 
 function renderGrayscale() {
@@ -121,5 +151,23 @@ describe('schedule under grayscale', () => {
   it('leaves exactly one moment highlighted, distinguishable without colour', () => {
     const { container } = renderGrayscale()
     expect(container.querySelectorAll('[data-highlighted="true"]')).toHaveLength(1)
+  })
+
+  it('separates deadline urgency levels by a channel other than colour', () => {
+    const { container } = renderUrgencies()
+    const marks = [...container.querySelectorAll('[data-schedule-item][data-urgency]')]
+    const levels = marks.map((mark) => (mark as HTMLElement).dataset.urgency)
+    expect(new Set(levels).size).toBeGreaterThan(1)
+  })
+
+  it('names the urgency of every deadline in its accessible label', () => {
+    const { container } = renderUrgencies()
+    const marks = [...container.querySelectorAll('[data-schedule-item][data-urgency]')]
+    expect(marks.length).toBeGreaterThan(0)
+    for (const mark of marks) {
+      const level = (mark as HTMLElement).dataset.urgency as Urgency
+      const word = i18n.t(URGENCY_KEY[level])
+      expect(mark.getAttribute('aria-label') ?? '').toContain(word)
+    }
   })
 })

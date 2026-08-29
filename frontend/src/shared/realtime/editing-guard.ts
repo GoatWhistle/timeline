@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react'
+import { createContext } from 'react'
 
 export interface EditingGuard {
   hold: (owner: string) => void
@@ -7,10 +7,6 @@ export interface EditingGuard {
 }
 
 export const EditingGuardContext = createContext<EditingGuard | null>(null)
-
-export function useEditingGuard(): EditingGuard | null {
-  return useContext(EditingGuardContext)
-}
 
 export function createEditingGuard(): EditingGuard {
   const owners = new Set<string>()

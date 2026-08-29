@@ -6,7 +6,6 @@ import type {
   NotificationRuleResponse,
   PreviewResponse,
   RegistrationResponse,
-  RegistrationStatusResponse,
 } from '@/shared/api/types.gen'
 
 export type CreateRegistrationPayload = RequestBody<'/admin/events/{id}/registration', 'post'>
@@ -137,19 +136,6 @@ export function useDisableRule(eventId: string) {
   return useMutation<unknown, Error, string>({
     mutationFn: (id) =>
       unwrap(api.DELETE('/admin/registration-rules/{id}', { params: { path: { id } } })),
-    onSuccess: invalidate,
-  })
-}
-
-export function useChangeStatus(eventId: string) {
-  const invalidate = useInvalidateRegistration(eventId)
-  return useMutation<
-    RegistrationStatusResponse,
-    Error,
-    { id: string; body: RequestBody<'/admin/registration-statuses/{id}', 'patch'> }
-  >({
-    mutationFn: ({ id, body }) =>
-      unwrap(api.PATCH('/admin/registration-statuses/{id}', { params: { path: { id } }, body })),
     onSuccess: invalidate,
   })
 }

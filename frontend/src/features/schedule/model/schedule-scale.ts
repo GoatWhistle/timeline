@@ -11,30 +11,27 @@ export function isScheduleScale(value: unknown): value is ScheduleScale {
 export const ROW_LABEL_WIDTH = 260
 export const NARROW_LABEL_WIDTH = 148
 export const TICK_WIDTH: Record<ScheduleScale, number> = { week: 160, month: 120, quarter: 72 }
-export const CANVAS_WIDTH: Record<ScheduleScale, number> = {
+const CANVAS_WIDTH: Record<ScheduleScale, number> = {
   week: 1400,
   month: 1560,
   quarter: 1800,
 }
-export const MIN_CANVAS_WIDTH = 640
+const MIN_CANVAS_WIDTH = 640
 export const MIN_BAR_SPAN = 4
 
 export const BAR_HEIGHT = 30
 export const BAR_RADIUS = 3
 export const ROW_PITCH = 48
-export const LANE_STEP = ROW_PITCH
-export const LANE_TOP = (ROW_PITCH - BAR_HEIGHT) / 2
-export const ROW_PADDING = LANE_TOP
+const LANE_STEP = ROW_PITCH
+const LANE_TOP = (ROW_PITCH - BAR_HEIGHT) / 2
 
-export const EVENT_SPAN_HEIGHT = 3
+const EVENT_SPAN_HEIGHT = 3
 export const EVENT_SPAN_TOP = LANE_TOP - EVENT_SPAN_HEIGHT
 
 export const DIAMOND_SIZE = 11
 export const DIAMOND_HIT = 20
-export const TODAY_DOT_SIZE = 6
 
 export const ICON_MIN_WIDTH = 24
-export const LABEL_MIN_WIDTH = 56
 export const PLACE_MIN_WIDTH = 120
 export const LABEL_OUTSIDE_GAP = 5
 

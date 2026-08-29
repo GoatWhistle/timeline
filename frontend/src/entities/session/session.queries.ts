@@ -47,23 +47,6 @@ export function useLogout() {
   })
 }
 
-export function useLogoutAll() {
-  const queryClient = useQueryClient()
-  return useMutation<unknown, Error, void>({
-    mutationFn: () => unwrap(api.POST('/auth/logout-all')),
-    onSettled: () => {
-      resetCsrfToken()
-      queryClient.clear()
-    },
-  })
-}
-
-export function useVerifyEmail() {
-  return useMutation<unknown, Error, { token: string }>({
-    mutationFn: (body) => unwrap(api.POST('/auth/verify-email', { body })),
-  })
-}
-
 export function useResendVerification() {
   return useMutation<unknown, Error, { email: string }>({
     mutationFn: (body) => unwrap(api.POST('/auth/verify-email/resend', { body })),
