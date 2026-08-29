@@ -1,29 +1,23 @@
-import { screen, within } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
 import { STAGE_TYPE_COLOR } from '@/entities/stage/stage.labels'
-import {
-  BAR_HEIGHT,
-  DIAMOND_SIZE,
-  laneTop,
-  ROW_PITCH,
-  rowHeight,
-} from '@/features/schedule/model/schedule-scale'
+import { buildCalendarGrid } from '@/features/schedule/model/calendar-grid'
+import { DAYS_PER_WEEK } from '@/features/schedule/model/pack-lanes'
+import { BAR_HEIGHT, MARK_SIZE, MAX_LANES } from '@/features/schedule/model/schedule-scale'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
 import type { ScheduleResponse } from '@/shared/api/types.gen'
 import {
   bars,
-  checkpointStage,
-  deadlineName,
+  crowded,
   eventStateText,
-  moments,
+  longRunning,
+  marks,
   NOW,
-  overlappingStages,
   range,
   rowWith,
   schedule,
   stageTypeText,
-  track,
 } from './schedule-fixtures'
 
 function renderGrid(data: ScheduleResponse = schedule, props: Record<string, unknown> = {}) {
@@ -33,145 +27,193 @@ function renderGrid(data: ScheduleResponse = schedule, props: Record<string, unk
 }
 
 describe('ScheduleGrid', () => {
-  it('renders one row per event', () => {
-    renderGrid()
-    expect(screen.getByRole('link', { name: 'Winter Hackathon' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Spring Meetup' })).toBeInTheDocument()
-  })
-
-  it('links to the event page by default', () => {
-    renderGrid()
-    expect(screen.getByRole('link', { name: 'Winter Hackathon' })).toHaveAttribute(
-      'href',
-      '/events/e1',
-    )
-  })
-
-  it('respects the supplied href builder', () => {
-    renderGrid(schedule, {
-      hrefBuilder: (row: { event_id: string }) => `/admin/events/${row.event_id}`,
-    })
-    expect(screen.getByRole('link', { name: 'Spring Meetup' })).toHaveAttribute(
-      'href',
-      '/admin/events/e2',
-    )
-  })
-
-  it('labels the state and the team role', () => {
-    renderGrid()
-    expect(screen.getByText(`${eventStateText('ACTIVE')} · Captain`)).toBeInTheDocument()
-    expect(screen.getByText(eventStateText('UPCOMING'))).toBeInTheDocument()
-  })
-
-  it('draws a bar per stage with an accessible label', () => {
-    renderGrid()
-    expect(screen.getByRole('button', { name: /^Participant registration\./ })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^Application Review\./ })).toBeInTheDocument()
-  })
-
-  it('draws a stage as a range and a deadline as a fixed-size diamond', () => {
+  it('lays the range out as weeks of seven days', () => {
     const { container } = renderGrid()
-    for (const bar of bars(track(container))) {
-      expect(Number.parseFloat(bar.style.width)).toBeGreaterThan(0)
-    }
-    const deadline = screen.getByRole('button', { name: deadlineName })
-    expect(deadline.style.getPropertyValue('--diamond-size')).toBe(`${DIAMOND_SIZE}px`)
-    expect(deadline.style.width).toBe('')
-  })
+    const weeks = container.querySelectorAll('[data-schedule-week]')
+    const grid = buildCalendarGrid(new Date(range.from), new Date(range.to))
 
-  it('gives every stage bar the 30px height and the 3px radius', () => {
-    const { container } = renderGrid()
-    for (const bar of bars(track(container))) {
-      expect(bar.style.getPropertyValue('--bar-height')).toBe(`${BAR_HEIGHT}px`)
-      expect(bar.style.getPropertyValue('--bar-radius')).toBe('3px')
+    expect(weeks).toHaveLength(grid.weekCount)
+    for (const week of weeks) {
+      expect(week.querySelectorAll('[data-schedule-day]')).toHaveLength(DAYS_PER_WEEK)
     }
   })
 
-  it('draws the deadline mark only where one is set', () => {
-    renderGrid()
-    expect(screen.getAllByRole('button', { name: deadlineName })).toHaveLength(1)
-  })
-
-  it('fills the deadline diamond and leaves the checkpoint diamond hollow', () => {
-    const { container } = renderGrid(
-      rowWith([checkpointStage], { registration_deadline: '2026-01-20T00:00:00Z' }),
+  it('numbers the days consecutively across the whole grid', () => {
+    const { container } = renderGrid()
+    const days = [...container.querySelectorAll('[data-schedule-day]')].map((day) =>
+      Number((day as HTMLElement).dataset.scheduleDay),
     )
-    const marks = moments(track(container))
-    const hollow = marks.map((mark) => mark.dataset.hollow)
-    expect(hollow.sort()).toEqual(['false', 'true'])
+    expect(days).toEqual(days.map((_, index) => index))
   })
 
-  it('spreads overlapping stages across separate lanes at the 48px pitch', () => {
-    const { container } = renderGrid(rowWith(overlappingStages))
-    const tops = bars(track(container))
-      .map((bar) => Number.parseFloat(bar.style.top))
-      .sort((a, b) => a - b)
-    expect(tops).toEqual([laneTop(0), laneTop(1), laneTop(2)])
-    expect(laneTop(1) - laneTop(0)).toBe(ROW_PITCH)
+  it('draws one bar per event carrying its title', () => {
+    const { container } = renderGrid()
+    const titles = bars(container).map((bar) => bar.textContent?.trim())
+    expect(titles.some((title) => title?.includes('Winter Hackathon'))).toBe(true)
+    expect(titles.some((title) => title?.includes('Spring Meetup'))).toBe(true)
   })
 
-  it('grows the row height with the lane count so bars are not clipped', () => {
-    const single = renderGrid(rowWith(overlappingStages.slice(0, 1)))
-    const singleHeight = Number.parseFloat(track(single.container).style.height)
-    single.unmount()
+  it('runs a bar through the days it covers rather than a single cell', () => {
+    const { container } = renderGrid()
+    const bar = bars(container).find((element) => element.textContent?.includes('Winter Hackathon'))
+    const oneDay = 100 / 7
+    expect(Number.parseFloat(bar?.style.width.replace(/[^\d.]/g, '') ?? '0')).toBeGreaterThan(
+      oneDay + 0.5,
+    )
+  })
 
-    const stacked = renderGrid(rowWith(overlappingStages))
-    const stackedTrack = track(stacked.container)
-    const stackedHeight = Number.parseFloat(stackedTrack.style.height)
+  it('breaks an event crossing a week onto the next row', () => {
+    const { container } = renderGrid(longRunning)
+    const segments = bars(container).filter((bar) => bar.dataset.scheduleItem === 'e1')
+    expect(segments.length).toBeGreaterThan(1)
 
-    expect(singleHeight).toBe(rowHeight(1))
-    expect(stackedHeight).toBe(rowHeight(3))
+    const weeks = segments.map((segment) =>
+      segment.closest('[data-schedule-week]')?.getAttribute('data-schedule-week'),
+    )
+    expect(new Set(weeks).size).toBe(segments.length)
+  })
 
-    for (const bar of bars(stackedTrack)) {
-      const bottom = Number.parseFloat(bar.style.top) + BAR_HEIGHT
-      expect(bottom).toBeLessThanOrEqual(stackedHeight)
+  it('marks the cut edges of a continued bar instead of ending it silently', () => {
+    const { container } = renderGrid(longRunning)
+    const segments = bars(container).filter((bar) => bar.dataset.scheduleItem === 'e1')
+    const first = segments[0]
+    const last = segments[segments.length - 1]
+
+    expect(first?.dataset.clippedEnd).toBe('true')
+    expect(first?.dataset.clippedStart).toBe('false')
+    expect(last?.dataset.clippedStart).toBe('true')
+    expect(last?.dataset.clippedEnd).toBe('false')
+  })
+
+  it('gives every bar the height of its scale', () => {
+    const { container } = renderGrid()
+    for (const bar of bars(container)) {
+      expect(bar.style.getPropertyValue('--bar-height')).toBe(`${BAR_HEIGHT.month}px`)
     }
   })
 
-  it('encodes the stage type with more than colour', () => {
+  it('puts the checkpoint and deadline marks on the bar itself', () => {
     const { container } = renderGrid()
-    const bar = within(track(container)).getByRole('button', {
-      name: /Participant registration/,
-    })
-
-    expect(bar.className).toContain(STAGE_TYPE_COLOR.REGISTRATION)
-    expect(bar.querySelector('svg')).toBeInTheDocument()
-    expect(bar).toHaveTextContent('Participant registration')
-    expect(bar).toHaveAccessibleName(expect.stringContaining(stageTypeText('REGISTRATION')))
+    const carrying = bars(container).filter((bar) => marks(bar).length > 0)
+    expect(carrying.length).toBeGreaterThan(0)
+    for (const bar of carrying) expect(bar.dataset.scheduleItem).toBe('e1')
   })
 
-  it('describes stages and deadlines with Radix tooltips, not the title attribute', () => {
+  it('keeps a mark a fixed size rather than scaling it with the bar', () => {
+    const { container } = renderGrid()
+    for (const mark of container.querySelectorAll('[data-schedule-mark]')) {
+      expect((mark as HTMLElement).style.getPropertyValue('--mark-size')).toBe(`${MARK_SIZE}px`)
+    }
+  })
+
+  it('places a mark by its share of the bar, inside the bar', () => {
+    const { container } = renderGrid()
+    for (const mark of container.querySelectorAll('[data-schedule-mark]')) {
+      const percent = Number.parseFloat((mark as HTMLElement).style.left)
+      expect(percent).toBeGreaterThanOrEqual(0)
+      expect(percent).toBeLessThanOrEqual(100)
+    }
+  })
+
+  it('encodes the stage type with an icon and text, not colour alone', () => {
+    const { container } = renderGrid()
+    const bar = bars(container).find((element) => element.textContent?.includes('Winter Hackathon'))
+
+    expect(bar?.className).toContain(STAGE_TYPE_COLOR.REGISTRATION)
+    expect(bar?.querySelector('svg')).toBeInTheDocument()
+    expect(bar).toHaveAccessibleName(expect.stringContaining('Winter Hackathon'))
+  })
+
+  it('names the state in the accessible sentence', () => {
+    const { container } = renderGrid()
+    const bar = bars(container).find((element) => element.textContent?.includes('Winter Hackathon'))
+    expect(bar?.getAttribute('aria-label')).toContain(eventStateText('ACTIVE'))
+  })
+
+  it('names the stage type in the accessible sentence', () => {
+    const { container } = renderGrid()
+    const bar = bars(container).find((element) => element.textContent?.includes('Winter Hackathon'))
+    expect(bar?.getAttribute('aria-label')).toContain(stageTypeText('REGISTRATION'))
+  })
+
+  it('collapses a crowded week to the lane budget and offers the rest', () => {
+    const { container } = renderGrid(crowded, { scale: 'month' })
+    const overflow = container.querySelector('[data-schedule-overflow]')
+
+    expect(overflow).toBeInTheDocument()
+    expect(bars(container).length).toBeLessThanOrEqual(MAX_LANES.month)
+  })
+
+  it('reveals the hidden events when the overflow control is used', async () => {
+    const { container, user } = renderGrid(crowded, { scale: 'month' })
+    const before = bars(container).length
+    const overflow = container.querySelector('[data-schedule-overflow]') as HTMLElement
+
+    await user.click(overflow)
+
+    expect(bars(container).length).toBeGreaterThan(before)
+    expect(container.querySelector('[data-schedule-overflow]')).toBeNull()
+  })
+
+  it('shows no overflow control when every event fits', () => {
+    const { container } = renderGrid()
+    expect(container.querySelector('[data-schedule-overflow]')).toBeNull()
+  })
+
+  it('describes stages with Radix tooltips, not the title attribute', () => {
     const { container } = renderGrid()
     expect(container.querySelector('[title]')).toBeNull()
-    expect(bars(track(container))[0]).toHaveAttribute('data-state', 'closed')
+    expect(bars(container)[0]).toHaveAttribute('data-state', 'closed')
   })
 
-  it('builds denser grids as the zoom tightens', () => {
-    const quarter = renderGrid(schedule, { scale: 'quarter' })
-    const quarterTicks = quarter.container.querySelectorAll('[data-schedule-tick]').length
-    quarter.unmount()
+  it('marks an event with no stage information by outline, not by colour', () => {
+    const data = rowWith([])
+    const { container } = renderGrid(data)
+    const bar = bars(container)[0]
 
-    const week = renderGrid(schedule, { scale: 'week' })
-    const weekTicks = week.container.querySelectorAll('[data-schedule-tick]').length
-
-    expect(weekTicks).toBeGreaterThan(quarterTicks)
+    expect(bar).toHaveAttribute('data-unconfirmed', 'true')
+    expect(bar?.className).not.toContain('bg-stage-')
   })
 
-  it('pins the label column', () => {
+  it('marks the day that is today', () => {
     const { container } = renderGrid()
-    const label = container.querySelector('[data-schedule-label]')
-    expect(label?.className).toContain('sticky')
-    expect(label?.className).toContain('left-0')
+    expect(container.querySelectorAll('[data-today="true"]')).toHaveLength(1)
   })
 
-  it('survives an event without stages', () => {
+  it('greys the days falling outside the requested range', () => {
+    const { container } = renderGrid()
+    expect(container.querySelectorAll('[data-in-range="false"]').length).toBeGreaterThan(0)
+  })
+
+  it('survives a schedule with no events', () => {
     const empty: ScheduleResponse = { range: schedule.range, rows: [] }
     const { container } = renderGrid(empty)
-    expect(container.querySelectorAll('[data-schedule-track]')).toHaveLength(0)
+    expect(bars(container)).toHaveLength(0)
+    expect(container.querySelectorAll('[data-schedule-week]').length).toBeGreaterThan(0)
   })
 
-  it('keeps a row without stages at the single-lane height', () => {
-    const { container } = renderGrid(rowWith([]))
-    expect(Number.parseFloat(track(container).style.height)).toBe(rowHeight(0))
+  it('shortens the bars as the scale widens', () => {
+    const week = renderGrid(schedule, { scale: 'week' })
+    const weekHeight = bars(week.container)[0]?.style.getPropertyValue('--bar-height')
+    week.unmount()
+
+    const quarter = renderGrid(schedule, { scale: 'quarter' })
+    const quarterHeight = bars(quarter.container)[0]?.style.getPropertyValue('--bar-height')
+
+    expect(Number.parseInt(weekHeight ?? '0', 10)).toBeGreaterThan(
+      Number.parseInt(quarterHeight ?? '0', 10),
+    )
+  })
+
+  it('labels the weekday columns once, above the grid', () => {
+    const { container } = renderGrid()
+    const headers = container.querySelectorAll('[aria-hidden="true"] > span')
+    expect(headers.length).toBeGreaterThanOrEqual(DAYS_PER_WEEK)
+  })
+
+  it('links a bar to its event through navigation rather than an anchor', () => {
+    const { container } = renderGrid()
+    expect(screen.queryByRole('link', { name: 'Winter Hackathon' })).toBeNull()
+    expect(bars(container)[0]?.tagName).toBe('BUTTON')
   })
 })

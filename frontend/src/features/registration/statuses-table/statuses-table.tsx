@@ -4,6 +4,7 @@ import {
   CHANGE_SOURCE_KEY,
   REGISTRATION_STATUS_COLOR,
   REGISTRATION_STATUS_KEY,
+  REGISTRATION_STATUS_SHAPE,
 } from '@/entities/registration/registration.labels'
 import type { RegistrationStatusResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
@@ -75,7 +76,10 @@ export function StatusesTable({
             </TableCell>
             <TableCell>
               <span className="inline-flex items-center gap-1.5">
-                <Dot className={REGISTRATION_STATUS_COLOR[item.status]} />
+                <Dot
+                  shape={REGISTRATION_STATUS_SHAPE[item.status]}
+                  className={REGISTRATION_STATUS_COLOR[item.status]}
+                />
                 {t(REGISTRATION_STATUS_KEY[item.status])}
               </span>
             </TableCell>

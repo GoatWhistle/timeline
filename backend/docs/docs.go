@@ -5640,7 +5640,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Only assigned, published, non-archived events. Each event is a separate row,\nstages are returned as intervals and the registration deadline as a separate marker.",
+                "description": "Only assigned, published, non-archived events. Each event is a separate row,\nstages are returned as intervals and the registration deadline as a separate marker.\nregistration_status is the participant's own self reported mark, never a fact the\nsystem verified against the external registration site.",
                 "produces": [
                     "application/json"
                 ],
@@ -9092,6 +9092,9 @@ const docTemplate = `{
                 },
                 "registration_deadline": {
                     "type": "string"
+                },
+                "registration_status": {
+                    "$ref": "#/definitions/models.RegistrationStatusShort"
                 },
                 "stages": {
                     "type": "array",

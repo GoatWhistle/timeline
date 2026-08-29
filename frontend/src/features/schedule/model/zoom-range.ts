@@ -1,13 +1,13 @@
-import type { ScheduleScale } from './schedule-scale'
+import { SCALE_WEEKS, type ScheduleScale } from './schedule-scale'
 
 export type Range = { from: number; to: number }
 
 const DAY_MS = 86_400_000
 
 const SCALE_SPAN_DAYS: Record<ScheduleScale, number> = {
-  week: 21,
-  month: 92,
-  quarter: 366,
+  week: SCALE_WEEKS.week * 7,
+  month: SCALE_WEEKS.month * 7,
+  quarter: SCALE_WEEKS.quarter * 7,
 }
 
 export const MIN_SPAN_MS = DAY_MS

@@ -5,7 +5,8 @@ import { useParams } from 'react-router'
 import { toast } from 'sonner'
 import { eventCardQuery, useMarkRegistrationDone } from '@/entities/event/event.queries'
 import { EventStateBadge, RegistrationStatusBadge } from '@/entities/event/event-state-badge'
-import { STAGE_TYPE_COLOR, STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
+import { STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
+import { StageTypeMark } from '@/entities/stage/stage-type-mark/stage-type-mark'
 import { LinkList } from '@/features/event-links/ui/link-list/link-list'
 import { PinnedLinks } from '@/features/event-links/ui/pinned-links/pinned-links'
 import type { EventCard } from '@/shared/api/types.gen'
@@ -16,7 +17,6 @@ import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { DeadlineTime } from '@/shared/ui/primitives/deadline-time/deadline-time'
-import { Dot } from '@/shared/ui/primitives/dot'
 import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
 import { EventPlaceSummary } from './event-place-summary'
 
@@ -187,7 +187,7 @@ function EventCardBody({
               <ul className="flex flex-col gap-3">
                 {card.stages.map((stage) => (
                   <li key={stage.id} className="flex items-start gap-3">
-                    <Dot className={`mt-1.5 ${STAGE_TYPE_COLOR[stage.type]}`} />
+                    <StageTypeMark type={stage.type} labelled={false} className="mt-0.5" />
                     <div className="min-w-0">
                       <p className="font-medium text-copy">{stage.name}</p>
                       <p className="text-muted-foreground text-copy">

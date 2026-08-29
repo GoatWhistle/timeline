@@ -5,6 +5,7 @@ import { overdueQuery, upcomingQuery } from '@/entities/deadline/deadline.querie
 import {
   REGISTRATION_STATUS_COLOR,
   REGISTRATION_STATUS_KEY,
+  REGISTRATION_STATUS_SHAPE,
 } from '@/entities/registration/registration.labels'
 import type { DeadlineItem, DeadlinePage } from '@/shared/api/types.gen'
 import { formatDuration, formatRelative } from '@/shared/datetime/datetime'
@@ -95,7 +96,10 @@ function DeadlineTable({
               </TableCell>
               <TableCell>
                 <span className="inline-flex items-center gap-1.5">
-                  <Dot className={REGISTRATION_STATUS_COLOR[item.status]} />
+                  <Dot
+                    shape={REGISTRATION_STATUS_SHAPE[item.status]}
+                    className={REGISTRATION_STATUS_COLOR[item.status]}
+                  />
                   {t(REGISTRATION_STATUS_KEY[item.status])}
                 </span>
               </TableCell>

@@ -1,15 +1,16 @@
 import { type RefObject, useCallback, useEffect, useRef } from 'react'
+import type { CalendarGrid } from './calendar-grid'
+import { dayIndex } from './calendar-grid'
 import { type ScheduleScale, TODAY_TICK_MS, TODAY_VARIABLE } from './schedule-scale'
 
 export type TodayLineOptions = {
   target: RefObject<HTMLElement | null>
   scale: ScheduleScale
-  x: (date: Date) => number
-  width: number
+  grid: CalendarGrid
   onVisibilityChange?: (visible: boolean) => void
 }
 
-export function useTodayLine({ target, scale, x, width, onVisibilityChange }: TodayLineOptions) {
+export function useTodayLine({ target, scale, grid, onVisibilityChange }: TodayLineOptions) {
   const visibleRef = useRef(false)
   const notifyRef = useRef(onVisibilityChange)
   notifyRef.current = onVisibilityChange
@@ -17,15 +18,15 @@ export function useTodayLine({ target, scale, x, width, onVisibilityChange }: To
   const write = useCallback(() => {
     const element = target.current
     if (!element) return
-    const position = x(new Date())
-    const inside = position >= 0 && position <= width
-    element.style.setProperty(TODAY_VARIABLE, `${position}px`)
+    const index = dayIndex(grid, new Date())
+    const inside = index >= 0 && index < grid.dayCount
+    element.style.setProperty(TODAY_VARIABLE, `${index}`)
     element.dataset.todayVisible = inside ? 'true' : 'false'
     if (inside !== visibleRef.current) {
       visibleRef.current = inside
       notifyRef.current?.(inside)
     }
-  }, [target, x, width])
+  }, [target, grid])
 
   const writeRef = useRef(write)
   writeRef.current = write

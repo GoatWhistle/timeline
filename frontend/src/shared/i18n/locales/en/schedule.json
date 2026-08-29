@@ -14,7 +14,6 @@
     "zoomLegend": "Schedule zoom",
     "month": "Month",
     "week": "Week",
-    "columnEvent": "Event",
     "registrationDeadline": "Registration deadline",
     "registrationDeadlineAria": "Registration deadline {{date}}, {{urgency}}",
     "stageAria": "{{name}}. {{type}}. {{start}} — {{end}}",
@@ -29,6 +28,8 @@
     "sentenceStages": "{{count}} stages: {{list}}.",
     "sentenceCheckpoint": "Checkpoint {{name}}, {{date}}.",
     "sentenceDeadline": "Registration deadline {{date}}, {{remaining}}.",
-    "sentenceBar": "{{name}}. {{type}}. {{start}} to {{end}}."
+    "sentenceBar": "{{name}}. {{type}}. {{start}} to {{end}}.",
+    "weekAria": "Week of {{date}}",
+    "moreEvents": "{{count}} more"
   }
 }

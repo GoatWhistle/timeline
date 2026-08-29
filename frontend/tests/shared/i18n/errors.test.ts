@@ -1,4 +1,5 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import type { Dirent } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import enErrors from '@/shared/i18n/locales/en/errors.json'
@@ -6,17 +7,45 @@ import ruErrors from '@/shared/i18n/locales/ru/errors.json'
 
 const BACKEND = resolve(__dirname, '../../../../backend')
 
+function vanished(error: unknown): boolean {
+  const code = (error as NodeJS.ErrnoException).code
+  return code === 'ENOENT' || code === 'ENOTDIR' || code === 'EPERM' || code === 'EBUSY'
+}
+
 function goFiles(dir: string): string[] {
   const out: string[] = []
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry)
-    if (statSync(full).isDirectory()) {
+  let entries: Dirent[]
+  try {
+    entries = readdirSync(dir, { withFileTypes: true })
+  } catch (error) {
+    if (vanished(error)) return out
+    throw error
+  }
+  for (const entry of entries) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
       out.push(...goFiles(full))
-    } else if (entry.endsWith('.go') && !entry.endsWith('.gen.go')) {
+    } else if (
+      entry.isFile() &&
+      entry.name.endsWith('.go') &&
+      !entry.name.endsWith('.gen.go') &&
+      !entry.name.endsWith('_test.go')
+    ) {
       out.push(full)
     }
   }
   return out
+}
+
+function readStable(file: string): string | undefined {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return readFileSync(file, 'utf8')
+    } catch (error) {
+      if (!vanished(error)) throw error
+    }
+  }
+  return undefined
 }
 
 function serverCodes(): Set<string> {
@@ -27,7 +56,8 @@ function serverCodes(): Set<string> {
     /simple\(\s*"([a-z_]+)"/g,
   ]
   for (const file of goFiles(join(BACKEND, 'internal'))) {
-    const source = readFileSync(file, 'utf8')
+    const source = readStable(file)
+    if (source === undefined) continue
     for (const pattern of patterns) {
       for (const match of source.matchAll(pattern)) {
         const code = match[1]

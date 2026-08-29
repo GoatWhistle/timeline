@@ -1,5 +1,21 @@
 import { cn } from '@/shared/styling/class-names/class-names'
 
-export function Dot({ className }: { className?: string }) {
-  return <span aria-hidden="true" className={cn('size-2 shrink-0 rounded-full', className)} />
+export type DotShape = 'round' | 'square' | 'diamond' | 'ring' | 'bar'
+
+export const DOT_SHAPE: Record<DotShape, string> = {
+  round: 'rounded-full',
+  square: 'rounded-[1px]',
+  diamond: 'rotate-45 rounded-[1px]',
+  ring: 'rounded-full border-2 border-current bg-transparent',
+  bar: 'h-1 w-3 rounded-[1px]',
+}
+
+export function Dot({ shape = 'round', className }: { shape?: DotShape; className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      data-dot-shape={shape}
+      className={cn('size-2 shrink-0', DOT_SHAPE[shape], className)}
+    />
+  )
 }

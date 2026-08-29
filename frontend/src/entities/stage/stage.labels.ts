@@ -33,6 +33,17 @@ export const STAGE_TYPE_COLOR: Record<StageType, string> = {
   OTHER: 'bg-stage-other',
 }
 
+export const STAGE_TYPE_TEXT: Record<StageType, string> = {
+  REGISTRATION: 'text-stage-registration',
+  SELECTION: 'text-stage-selection',
+  PARTICIPATION: 'text-stage-participation',
+  CHECKPOINT: 'text-stage-checkpoint',
+  SUBMISSION: 'text-stage-submission',
+  DEMO: 'text-stage-demo',
+  RESULTS: 'text-stage-results',
+  OTHER: 'text-stage-other',
+}
+
 export const STAGE_TYPE_ICON: Record<StageType, React.ComponentType<{ className?: string }>> = {
   REGISTRATION: ClipboardList,
   SELECTION: Filter,

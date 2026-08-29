@@ -131,22 +131,60 @@ export function rowWith(
   }
 }
 
-export function track(container: HTMLElement) {
-  const element = container.querySelector('[data-schedule-track]')
-  if (!(element instanceof HTMLElement)) throw new Error('track not rendered')
-  return element
-}
-
 export function bars(container: HTMLElement): HTMLElement[] {
   return [...container.querySelectorAll('[data-schedule-item]')].filter(
-    (element): element is HTMLElement =>
-      element instanceof HTMLElement && element.dataset.unconfirmed !== undefined,
+    (element): element is HTMLElement => element instanceof HTMLElement,
   )
 }
 
-export function moments(container: HTMLElement): HTMLElement[] {
-  return [...container.querySelectorAll('[data-schedule-item]')].filter(
-    (element): element is HTMLElement =>
-      element instanceof HTMLElement && element.dataset.hollow !== undefined,
+export function marks(container: HTMLElement): HTMLElement[] {
+  return [...container.querySelectorAll('[data-schedule-mark]')].filter(
+    (element): element is HTMLElement => element instanceof HTMLElement,
   )
+}
+
+export const longRunning: ScheduleResponse = {
+  range: schedule.range,
+  rows: [
+    {
+      event_id: 'e1',
+      title: 'Long Marathon',
+      state: 'ACTIVE',
+      start_at: '2026-01-05T00:00:00Z',
+      end_at: '2026-02-08T00:00:00Z',
+      effective_format: 'ONLINE',
+      stages: [
+        {
+          id: 's1',
+          name: 'Participation',
+          type: 'PARTICIPATION',
+          start_at: '2026-01-05T00:00:00Z',
+          end_at: '2026-01-30T00:00:00Z',
+          place,
+        },
+      ],
+    },
+  ],
+}
+
+export const crowded: ScheduleResponse = {
+  range: schedule.range,
+  rows: Array.from({ length: 6 }, (_, index) => ({
+    event_id: `c${index}`,
+    title: `Crowded ${index}`,
+    state: 'ACTIVE' as const,
+    start_at: '2026-01-12T00:00:00Z',
+    end_at: '2026-01-16T00:00:00Z',
+    effective_format: 'ONLINE' as const,
+    stages: [
+      {
+        id: `cs${index}`,
+        name: `Stage ${index}`,
+        type: 'DEMO' as const,
+        start_at: '2026-01-12T00:00:00Z',
+        end_at: '2026-01-15T00:00:00Z',
+        place,
+      },
+    ],
+  })),
 }

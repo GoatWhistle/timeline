@@ -60,15 +60,16 @@ type ScheduleItem struct {
 }
 
 type ScheduleRow struct {
-	EventID              uuid.UUID      `json:"event_id"`
-	Title                string         `json:"title" example:"National event"`
-	State                EventState     `json:"state"`
-	StartAt              time.Time      `json:"start_at"`
-	EndAt                time.Time      `json:"end_at"`
-	TeamRole             *string        `json:"team_role,omitempty"`
-	EffectiveFormat      EventFormat    `json:"effective_format" enums:"ONLINE,OFFLINE,HYBRID"`
-	Stages               []ScheduleItem `json:"stages"`
-	RegistrationDeadline *time.Time     `json:"registration_deadline,omitempty"`
+	EventID              uuid.UUID                `json:"event_id"`
+	Title                string                   `json:"title" example:"National event"`
+	State                EventState               `json:"state"`
+	StartAt              time.Time                `json:"start_at"`
+	EndAt                time.Time                `json:"end_at"`
+	TeamRole             *string                  `json:"team_role,omitempty"`
+	EffectiveFormat      EventFormat              `json:"effective_format" enums:"ONLINE,OFFLINE,HYBRID"`
+	Stages               []ScheduleItem           `json:"stages"`
+	RegistrationDeadline *time.Time               `json:"registration_deadline,omitempty"`
+	RegistrationStatus   *RegistrationStatusShort `json:"registration_status,omitempty"`
 }
 
 type ScheduleResponse struct {

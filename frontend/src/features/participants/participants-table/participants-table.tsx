@@ -4,6 +4,7 @@ import { PARTICIPATION_STATUS_KEY } from '@/entities/participant/participant.lab
 import {
   REGISTRATION_STATUS_COLOR,
   REGISTRATION_STATUS_KEY,
+  REGISTRATION_STATUS_SHAPE,
 } from '@/entities/registration/registration.labels'
 import type { ParticipantResponse } from '@/shared/api/types.gen'
 import { formatDate } from '@/shared/datetime/datetime'
@@ -87,7 +88,10 @@ export function ParticipantsTable({
             <TableCell>
               {item.registration_status ? (
                 <span className="inline-flex items-center gap-1.5">
-                  <Dot className={REGISTRATION_STATUS_COLOR[item.registration_status.status]} />
+                  <Dot
+                    shape={REGISTRATION_STATUS_SHAPE[item.registration_status.status]}
+                    className={REGISTRATION_STATUS_COLOR[item.registration_status.status]}
+                  />
                   {t(REGISTRATION_STATUS_KEY[item.registration_status.status])}
                 </span>
               ) : (

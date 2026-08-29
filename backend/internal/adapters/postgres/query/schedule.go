@@ -10,47 +10,61 @@ import (
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
-func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilter, forUserID *uuid.UUID,
-	now time.Time) ([]models.ScheduleRow, error) {
+func scheduleQuery(filter models.ScheduleFilter, forUserID *uuid.UUID) (string, []any) {
 	conds := []string{
 		"h.start_at <= $2",
 		"h.end_at >= $1",
 	}
 	args := []any{filter.From, filter.To}
+	assigned := func(arg int) string {
+		return "EXISTS (SELECT 1 FROM event_participants p WHERE p.event_id = h.id " +
+			"AND p.user_id = $" + itoa(arg) + " AND p.participation_status = 'ASSIGNED')"
+	}
 
 	if forUserID != nil {
 		args = append(args, *forUserID)
 		conds = append(conds,
 			"h.published_at IS NOT NULL",
 			"h.archived_at IS NULL",
-			"EXISTS (SELECT 1 FROM event_participants p WHERE p.event_id = h.id AND p.user_id = $"+
-				itoa(len(args))+" AND p.participation_status = 'ASSIGNED')")
+			assigned(len(args)))
 	} else {
 		if filter.ParticipantUser != nil {
 			args = append(args, *filter.ParticipantUser)
-			conds = append(conds,
-				"EXISTS (SELECT 1 FROM event_participants p WHERE p.event_id = h.id AND p.user_id = $"+
-					itoa(len(args))+" AND p.participation_status = 'ASSIGNED')")
+			conds = append(conds, assigned(len(args)))
 		}
 		if !filter.IncludeArchived {
 			conds = append(conds, "h.archived_at IS NULL")
 		}
 	}
 
-	roleSelect := "NULL::text"
+	mineSelect := "NULL::text, NULL::uuid, NULL::text, NULL::int, NULL::timestamptz"
+	mineJoin := ""
 	if forUserID != nil {
-		roleSelect = `(SELECT p.team_role FROM event_participants p
-			WHERE p.event_id = h.id AND p.user_id = $` + itoa(len(args)) + ` LIMIT 1)`
+		mineSelect = "mine.team_role, mine.status_id, mine.status, mine.todo_cycle, mine.registered_at"
+		mineJoin = `
+		LEFT JOIN LATERAL (
+			SELECT p.team_role, s.id AS status_id, s.status, s.todo_cycle, s.registered_at
+			FROM event_participants p
+			LEFT JOIN registration_statuses s ON s.participant_id = p.id
+			WHERE p.event_id = h.id AND p.user_id = $` + itoa(len(args)) + `
+			LIMIT 1
+		) mine ON TRUE`
 	}
 
-	rows, err := r.db.Q(ctx).Query(ctx, `
+	return `
 		SELECT h.id, h.title, h.start_at, h.end_at, h.published_at, h.archived_at,
 		       h.format, h.country_code, h.city,
-		       `+roleSelect+`,
-		       (SELECT r.deadline_at FROM registrations r WHERE r.event_id = h.id AND r.state = 'ACTIVE')
-		FROM events h
-		WHERE `+strings.Join(conds, " AND ")+`
-		ORDER BY h.start_at`, args...)
+		       (SELECT r.deadline_at FROM registrations r WHERE r.event_id = h.id AND r.state = 'ACTIVE'),
+		       ` + mineSelect + `
+		FROM events h` + mineJoin + `
+		WHERE ` + strings.Join(conds, " AND ") + `
+		ORDER BY h.start_at`, args
+}
+
+func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilter, forUserID *uuid.UUID,
+	now time.Time) ([]models.ScheduleRow, error) {
+	sql, args := scheduleQuery(filter, forUserID)
+	rows, err := r.db.Q(ctx).Query(ctx, sql, args...)
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -65,11 +79,20 @@ func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilte
 			publishedAt *time.Time
 			archivedAt  *time.Time
 			event       models.Event
+			statusID    *uuid.UUID
+			statusValue *models.RegistrationStatusValue
+			todoCycle   *int
+			registered  *time.Time
 		)
 		if err := rows.Scan(&row.EventID, &row.Title, &row.StartAt, &row.EndAt, &publishedAt, &archivedAt,
-			&event.Format, &event.CountryCode, &event.City,
-			&row.TeamRole, &row.RegistrationDeadline); err != nil {
+			&event.Format, &event.CountryCode, &event.City, &row.RegistrationDeadline,
+			&row.TeamRole, &statusID, &statusValue, &todoCycle, &registered); err != nil {
 			return nil, mapError(err)
+		}
+		if statusID != nil && statusValue != nil && todoCycle != nil {
+			row.RegistrationStatus = &models.RegistrationStatusShort{
+				ID: *statusID, Status: *statusValue, TodoCycle: *todoCycle, RegisteredAt: registered,
+			}
 		}
 		events = append(events, event)
 		if publishedAt == nil && archivedAt == nil {

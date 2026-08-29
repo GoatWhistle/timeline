@@ -14,7 +14,6 @@
     "zoomLegend": "Масштаб шкалы",
     "month": "Месяц",
     "week": "Неделя",
-    "columnEvent": "Событие",
     "registrationDeadline": "Дедлайн регистрации",
     "registrationDeadlineAria": "Дедлайн регистрации {{date}}, {{urgency}}",
     "stageAria": "{{name}}. {{type}}. {{start}} — {{end}}",
@@ -29,6 +28,8 @@
     "sentenceStages": "Этапов: {{count}}. {{list}}.",
     "sentenceCheckpoint": "Контрольная точка {{name}}, {{date}}.",
     "sentenceDeadline": "Дедлайн регистрации {{date}}, {{remaining}}.",
-    "sentenceBar": "{{name}}. {{type}}. С {{start}} по {{end}}."
+    "sentenceBar": "{{name}}. {{type}}. С {{start}} по {{end}}.",
+    "weekAria": "Неделя от {{date}}",
+    "moreEvents": "ещё {{count}}"
   }
 }

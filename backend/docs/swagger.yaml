@@ -1915,6 +1915,8 @@ definitions:
         type: string
       registration_deadline:
         type: string
+      registration_status:
+        $ref: '#/definitions/models.RegistrationStatusShort'
       stages:
         items:
           $ref: '#/definitions/models.ScheduleItem'
@@ -6397,6 +6399,8 @@ paths:
       description: |-
         Only assigned, published, non-archived events. Each event is a separate row,
         stages are returned as intervals and the registration deadline as a separate marker.
+        registration_status is the participant's own self reported mark, never a fact the
+        system verified against the external registration site.
       parameters:
       - description: Start of the period, RFC3339
         in: query

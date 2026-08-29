@@ -3,13 +3,14 @@ import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { STAGE_TYPE_COLOR, STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
+import { STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
 import {
   stagesQuery,
   useCreateStage,
   useDeleteStage,
   useUpdateStage,
 } from '@/entities/stage/stage.queries'
+import { StageTypeMark } from '@/entities/stage/stage-type-mark/stage-type-mark'
 import type { EventResponse, StageResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
@@ -25,7 +26,6 @@ import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/overlays/dialog'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
-import { Dot } from '@/shared/ui/primitives/dot'
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { StageForm } from './stage-form'
 
@@ -88,7 +88,7 @@ export function StagesTab({ event }: { event: EventResponse }) {
                   <TableCell className="text-muted-foreground">{stage.sort_order}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Dot className={STAGE_TYPE_COLOR[stage.type]} />
+                      <StageTypeMark type={stage.type} labelled={false} />
                       <span className="font-medium">{stage.name}</span>
                       {overlaps(stage, stages) && (
                         <Badge tone="neutral">{t('stages.overlap')}</Badge>

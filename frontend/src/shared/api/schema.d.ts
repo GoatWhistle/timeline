@@ -6722,6 +6722,8 @@ export interface paths {
          * User schedule
          * @description Only assigned, published, non-archived events. Each event is a separate row,
          *     stages are returned as intervals and the registration deadline as a separate marker.
+         *     registration_status is the participant's own self reported mark, never a fact the
+         *     system verified against the external registration site.
          */
         get: {
             parameters: {
@@ -8575,6 +8577,7 @@ export interface components {
             event_id: string;
             /** Format: date-time */
             registration_deadline?: string;
+            registration_status?: components["schemas"]["models.RegistrationStatusShort"];
             stages: components["schemas"]["models.ScheduleItem"][];
             /** Format: date-time */
             start_at: string;

@@ -2,22 +2,22 @@
   "measuredAt": "2026-08-29",
   "growthLimit": 1.1,
   "total": {
-    "bytes": 1241508,
-    "gzip": 450414
+    "bytes": 1210423,
+    "gzip": 439578
   },
   "initial": {
-    "gzip": 426445
+    "gzip": 415598
   },
   "files": [
     {
       "file": "assets/index-[hash].js",
-      "bytes": 537787,
-      "gzip": 161589
+      "bytes": 537747,
+      "gzip": 161587
     },
     {
       "file": "assets/spinner-[hash].js",
       "bytes": 105763,
-      "gzip": 34270
+      "gzip": 34267
     },
     {
       "file": "fonts/geist-latin-wght-normal.woff2",
@@ -26,8 +26,8 @@
     },
     {
       "file": "assets/admin-routes-[hash].js",
-      "bytes": 108751,
-      "gzip": 27816
+      "bytes": 108640,
+      "gzip": 27785
     },
     {
       "file": "fonts/geist-mono-latin-wght-normal.woff2",
@@ -37,12 +37,7 @@
     {
       "file": "assets/tooltip-[hash].js",
       "bytes": 53683,
-      "gzip": 18693
-    },
-    {
-      "file": "assets/zoom-switch-[hash].js",
-      "bytes": 49154,
-      "gzip": 17513
+      "gzip": 18692
     },
     {
       "file": "fonts/geist-cyrillic-wght-normal.woff2",
@@ -61,28 +56,38 @@
     },
     {
       "file": "assets/index-[hash].css",
-      "bytes": 52839,
-      "gzip": 10453
+      "bytes": 52502,
+      "gzip": 10388
+    },
+    {
+      "file": "assets/view-tabs-[hash].js",
+      "bytes": 17054,
+      "gzip": 6402
     },
     {
       "file": "assets/burning-page-[hash].js",
-      "bytes": 16038,
+      "bytes": 16036,
       "gzip": 5342
     },
     {
       "file": "assets/useQuery-[hash].js",
       "bytes": 15676,
-      "gzip": 5227
+      "gzip": 5226
+    },
+    {
+      "file": "assets/event-card-[hash].js",
+      "bytes": 11464,
+      "gzip": 3706
     },
     {
       "file": "assets/catalog-[hash].js",
       "bytes": 10402,
-      "gzip": 3422
+      "gzip": 3426
     },
     {
       "file": "assets/event-detail-view-[hash].js",
-      "bytes": 7340,
-      "gzip": 2862
+      "bytes": 7338,
+      "gzip": 2868
     },
     {
       "file": "assets/account-[hash].js",
@@ -93,11 +98,6 @@
       "file": "assets/registration-[hash].js",
       "bytes": 9286,
       "gzip": 2807
-    },
-    {
-      "file": "assets/event-card-[hash].js",
-      "bytes": 8242,
-      "gzip": 2534
     },
     {
       "file": "assets/account-[hash].js",
@@ -130,6 +130,11 @@
       "gzip": 1807
     },
     {
+      "file": "assets/event-detail-pane-[hash].js",
+      "bytes": 4330,
+      "gzip": 1738
+    },
+    {
       "file": "assets/personal-[hash].js",
       "bytes": 4071,
       "gzip": 1736
@@ -138,11 +143,6 @@
       "file": "assets/event-schedule-[hash].js",
       "bytes": 4741,
       "gzip": 1726
-    },
-    {
-      "file": "assets/event-detail-pane-[hash].js",
-      "bytes": 4303,
-      "gzip": 1724
     },
     {
       "file": "assets/dist-[hash].js",
@@ -157,7 +157,12 @@
     {
       "file": "assets/use-debounced-value-[hash].js",
       "bytes": 3400,
-      "gzip": 1515
+      "gzip": 1518
+    },
+    {
+      "file": "assets/view-tabs-[hash].css",
+      "bytes": 5332,
+      "gzip": 1454
     },
     {
       "file": "assets/auth-[hash].js",
@@ -170,19 +175,9 @@
       "gzip": 1346
     },
     {
-      "file": "assets/link.labels-[hash].js",
-      "bytes": 3431,
-      "gzip": 1336
-    },
-    {
       "file": "assets/notification-[hash].js",
       "bytes": 2888,
       "gzip": 1327
-    },
-    {
-      "file": "assets/zoom-switch-[hash].css",
-      "bytes": 4648,
-      "gzip": 1295
     },
     {
       "file": "assets/event-schedule-[hash].js",
@@ -205,6 +200,11 @@
       "gzip": 1185
     },
     {
+      "file": "assets/stage-type-mark-[hash].js",
+      "bytes": 3409,
+      "gzip": 1174
+    },
+    {
       "file": "assets/event-list-[hash].js",
       "bytes": 2500,
       "gzip": 1152
@@ -217,17 +217,17 @@
     {
       "file": "assets/invite-[hash].js",
       "bytes": 2691,
-      "gzip": 1060
+      "gzip": 1063
     },
     {
       "file": "assets/event-list-[hash].js",
-      "bytes": 2307,
-      "gzip": 1037
+      "bytes": 2305,
+      "gzip": 1041
     },
     {
       "file": "assets/verify-email-[hash].js",
       "bytes": 2839,
-      "gzip": 1025
+      "gzip": 1026
     },
     {
       "file": "assets/auth-[hash].js",
@@ -237,37 +237,32 @@
     {
       "file": "assets/register-[hash].js",
       "bytes": 2496,
-      "gzip": 1002
+      "gzip": 1004
     },
     {
       "file": "assets/three-pane-[hash].js",
       "bytes": 1970,
-      "gzip": 998
+      "gzip": 1000
+    },
+    {
+      "file": "assets/stage.labels-[hash].js",
+      "bytes": 2431,
+      "gzip": 976
     },
     {
       "file": "assets/login-[hash].js",
       "bytes": 2110,
-      "gzip": 973
+      "gzip": 975
     },
     {
       "file": "assets/password-reset-confirm-[hash].js",
       "bytes": 2198,
-      "gzip": 940
+      "gzip": 942
     },
     {
       "file": "assets/ops-[hash].js",
       "bytes": 2039,
       "gzip": 931
-    },
-    {
-      "file": "assets/stage.labels-[hash].js",
-      "bytes": 2155,
-      "gzip": 929
-    },
-    {
-      "file": "assets/event-state-badge-[hash].js",
-      "bytes": 2763,
-      "gzip": 906
     },
     {
       "file": "assets/event-[hash].js",
@@ -292,7 +287,12 @@
     {
       "file": "assets/password-reset-request-[hash].js",
       "bytes": 1692,
-      "gzip": 788
+      "gzip": 790
+    },
+    {
+      "file": "assets/email-change-confirm-[hash].js",
+      "bytes": 1821,
+      "gzip": 759
     },
     {
       "file": "assets/event-form-[hash].js",
@@ -300,24 +300,19 @@
       "gzip": 759
     },
     {
-      "file": "assets/email-change-confirm-[hash].js",
-      "bytes": 1821,
-      "gzip": 757
-    },
-    {
       "file": "assets/event-row-[hash].js",
       "bytes": 1572,
-      "gzip": 751
+      "gzip": 750
+    },
+    {
+      "file": "assets/schedule-[hash].js",
+      "bytes": 1541,
+      "gzip": 730
     },
     {
       "file": "assets/shell-[hash].js",
       "bytes": 1325,
       "gzip": 724
-    },
-    {
-      "file": "assets/schedule-[hash].js",
-      "bytes": 1502,
-      "gzip": 719
     },
     {
       "file": "index.html",
@@ -336,8 +331,8 @@
     },
     {
       "file": "assets/schedule-[hash].js",
-      "bytes": 1102,
-      "gzip": 608
+      "bytes": 1062,
+      "gzip": 585
     },
     {
       "file": "assets/format-[hash].js",
@@ -352,7 +347,7 @@
     {
       "file": "assets/pagination-[hash].js",
       "bytes": 1014,
-      "gzip": 555
+      "gzip": 557
     },
     {
       "file": "assets/event-form-[hash].js",
@@ -362,27 +357,27 @@
     {
       "file": "assets/urgency-[hash].js",
       "bytes": 1152,
-      "gzip": 520
+      "gzip": 522
     },
     {
       "file": "assets/schedule-[hash].js",
-      "bytes": 1110,
-      "gzip": 509
-    },
-    {
-      "file": "assets/stage.place-[hash].js",
-      "bytes": 817,
-      "gzip": 470
+      "bytes": 1146,
+      "gzip": 518
     },
     {
       "file": "assets/use-url-filters-[hash].js",
       "bytes": 745,
-      "gzip": 461
+      "gzip": 462
     },
     {
       "file": "assets/profile-[hash].js",
       "bytes": 816,
-      "gzip": 453
+      "gzip": 455
+    },
+    {
+      "file": "assets/stage.place-[hash].js",
+      "bytes": 770,
+      "gzip": 454
     },
     {
       "file": "assets/deadline-time-[hash].js",
@@ -401,13 +396,13 @@
     },
     {
       "file": "assets/event.labels-[hash].js",
-      "bytes": 367,
-      "gzip": 203
+      "bytes": 464,
+      "gzip": 235
     },
     {
       "file": "assets/settings-[hash].js",
       "bytes": 206,
-      "gzip": 185
+      "gzip": 187
     },
     {
       "file": "assets/circle-x-[hash].js",

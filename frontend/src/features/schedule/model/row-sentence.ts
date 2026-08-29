@@ -1,3 +1,4 @@
+import { resolveUrgency, URGENCY_KEY } from '@/entities/deadline/urgency/urgency'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
 import type { ScheduleRow } from '@/shared/api/types.gen'
@@ -49,6 +50,7 @@ export function rowSentence(row: ScheduleRow, items: readonly RowItem[], ctx: Se
         date: formatDate(row.registration_deadline),
         remaining: ctx.formatRemaining(row.registration_deadline),
       }),
+      `${t(URGENCY_KEY[resolveUrgency({ deadlineAt: row.registration_deadline, now: ctx.now })])}.`,
     )
   }
 

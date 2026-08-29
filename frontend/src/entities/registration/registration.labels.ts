@@ -3,6 +3,7 @@ import type {
   RegistrationState,
   RegistrationStatusValue,
 } from '@/shared/api/types.gen'
+import type { DotShape } from '@/shared/ui/primitives/dot'
 
 export const REGISTRATION_STATUS_KEY: Record<RegistrationStatusValue, string> = {
   TODO: 'registration:status.TODO',
@@ -14,6 +15,12 @@ export const REGISTRATION_STATUS_COLOR: Record<RegistrationStatusValue, string> 
   TODO: 'bg-status-todo',
   DONE: 'bg-status-done',
   NOT_REQUIRED: 'bg-status-not-required',
+}
+
+export const REGISTRATION_STATUS_SHAPE: Record<RegistrationStatusValue, DotShape> = {
+  TODO: 'ring',
+  DONE: 'round',
+  NOT_REQUIRED: 'square',
 }
 
 export const REGISTRATION_STATE_KEY: Record<RegistrationState, string> = {

@@ -7,7 +7,7 @@ import { adminScheduleQuery } from '@/entities/schedule/schedule.queries'
 import { useScheduleView } from '@/features/schedule/model/use-schedule-view'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
 import { ScheduleLegend } from '@/features/schedule/ui/schedule-legend'
-import { ZoomSwitch } from '@/features/schedule/zoom-switch/zoom-switch'
+import { ViewTabs } from '@/features/schedule/ui/view-tabs/view-tabs'
 import { usersQuery } from '@/shared/api/directory'
 import type { EventState } from '@/shared/api/types.gen'
 import { localeCollator } from '@/shared/datetime/datetime'
@@ -55,11 +55,7 @@ export function AdminSchedulePage() {
 
   return (
     <div>
-      <PageHeader
-        title={t('schedule.title')}
-        description={t('schedule.adminDescription')}
-        actions={<ZoomSwitch value={view.scale} onChange={view.setScale} onToday={view.goToday} />}
-      />
+      <PageHeader title={t('schedule.title')} description={t('schedule.adminDescription')} />
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
         <div className="w-52">
@@ -123,12 +119,12 @@ export function AdminSchedulePage() {
                 data={query.data}
                 range={view.range}
                 scale={view.scale}
-                viewportWidth={view.viewportWidth}
                 onToday={view.goToday}
                 onZoom={view.zoom}
                 onNavigate={(href) => navigate(href)}
                 hrefBuilder={(row) => `/admin/events/${row.event_id}`}
               />
+              <ViewTabs value={view.scale} onChange={view.setScale} onToday={view.goToday} />
               <ScheduleLegend />
             </div>
           )

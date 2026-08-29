@@ -90,7 +90,7 @@ const OPTIONAL = {
     'venue',
     'online_url',
   ],
-  'models.ScheduleRow': ['registration_deadline', 'team_role'],
+  'models.ScheduleRow': ['registration_deadline', 'registration_status', 'team_role'],
   'models.WorkerHeartbeatResponse': ['scheduler_last_run_at', 'worker_last_run_at'],
 }
 

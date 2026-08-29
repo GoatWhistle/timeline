@@ -100,6 +100,8 @@ func (c *QueryController) EventCard(w http.ResponseWriter, r *http.Request) {
 // @Summary		User schedule
 // @Description	Only assigned, published, non-archived events. Each event is a separate row,
 // @Description	stages are returned as intervals and the registration deadline as a separate marker.
+// @Description	registration_status is the participant's own self reported mark, never a fact the
+// @Description	system verified against the external registration site.
 // @Tags			queries
 // @Produce		json
 // @Security		CookieAuth

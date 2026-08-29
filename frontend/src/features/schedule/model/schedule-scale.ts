@@ -8,34 +8,22 @@ export function isScheduleScale(value: unknown): value is ScheduleScale {
   return SCHEDULE_SCALES.includes(value as ScheduleScale)
 }
 
-export const ROW_LABEL_WIDTH = 260
-export const NARROW_LABEL_WIDTH = 148
-export const TICK_WIDTH: Record<ScheduleScale, number> = { week: 160, month: 120, quarter: 72 }
-const CANVAS_WIDTH: Record<ScheduleScale, number> = {
-  week: 1400,
-  month: 1560,
-  quarter: 1800,
+export const SCALE_WEEKS: Record<ScheduleScale, number> = { week: 1, month: 6, quarter: 14 }
+
+export const BAR_HEIGHT: Record<ScheduleScale, number> = { week: 34, month: 26, quarter: 18 }
+export const BAR_GAP = 3
+export const BAR_RADIUS = 5
+
+export const DAY_HEADER_HEIGHT = 22
+export const WEEK_MIN_HEIGHT: Record<ScheduleScale, number> = {
+  week: 220,
+  month: 108,
+  quarter: 64,
 }
-const MIN_CANVAS_WIDTH = 640
-export const MIN_BAR_SPAN = 4
 
-export const BAR_HEIGHT = 30
-export const BAR_RADIUS = 3
-export const ROW_PITCH = 48
-const LANE_STEP = ROW_PITCH
-const LANE_TOP = (ROW_PITCH - BAR_HEIGHT) / 2
+export const MAX_LANES: Record<ScheduleScale, number> = { week: 8, month: 3, quarter: 2 }
 
-const EVENT_SPAN_HEIGHT = 3
-export const EVENT_SPAN_TOP = LANE_TOP - EVENT_SPAN_HEIGHT
-
-export const DIAMOND_SIZE = 11
-export const DIAMOND_HIT = 20
-
-export const ICON_MIN_WIDTH = 24
-export const PLACE_MIN_WIDTH = 120
-export const LABEL_OUTSIDE_GAP = 5
-
-export const LABEL_ABOVE_BREAKPOINT = 760
+export const MARK_SIZE = 9
 
 export const ANNOUNCE_DELAY = 150
 
@@ -47,14 +35,12 @@ export const TODAY_TICK_MS: Record<ScheduleScale, number> = {
   quarter: 300_000,
 }
 
-export function rowHeight(laneCount: number) {
-  return Math.max(1, laneCount) * ROW_PITCH
+export function weekHeight(scale: ScheduleScale, laneCount: number, hasOverflow: boolean): number {
+  const lanes = Math.max(1, laneCount)
+  const bars = lanes * (BAR_HEIGHT[scale] + BAR_GAP) + (hasOverflow ? 18 : 0)
+  return Math.max(WEEK_MIN_HEIGHT[scale], DAY_HEADER_HEIGHT + bars + BAR_GAP)
 }
 
-export function laneTop(lane: number) {
-  return LANE_TOP + lane * LANE_STEP
-}
-
-export function canvasWidth(scale: ScheduleScale, available = 0) {
-  return Math.max(MIN_CANVAS_WIDTH, CANVAS_WIDTH[scale], available)
+export function laneOffset(scale: ScheduleScale, lane: number): number {
+  return DAY_HEADER_HEIGHT + lane * (BAR_HEIGHT[scale] + BAR_GAP)
 }
