@@ -134,9 +134,6 @@ func TestStatusNotRequiredReturnsToTodoAndRestartsTheCycle(t *testing.T) {
 }
 
 func TestStatusNotRequiredCannotBeMarkedDoneDirectly(t *testing.T) {
-	t.Skip("todo item 98a: StatusService.AdminChange allows NOT_REQUIRED -> DONE, " +
-		"a transition the specification lists nowhere in section 8 or the section 16 table")
-
 	s := newStack(t)
 	f := s.seed(t)
 

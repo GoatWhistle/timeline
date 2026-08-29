@@ -6,6 +6,7 @@ import enCommon from './locales/en/common.json'
 import enErrors from './locales/en/errors.json'
 import enEvent from './locales/en/event.json'
 import enNotification from './locales/en/notification.json'
+import enOps from './locales/en/ops.json'
 import enPersonal from './locales/en/personal.json'
 import enRegistration from './locales/en/registration.json'
 import ruAuth from './locales/ru/auth.json'
@@ -13,6 +14,7 @@ import ruCommon from './locales/ru/common.json'
 import ruErrors from './locales/ru/errors.json'
 import ruEvent from './locales/ru/event.json'
 import ruNotification from './locales/ru/notification.json'
+import ruOps from './locales/ru/ops.json'
 import ruPersonal from './locales/ru/personal.json'
 import ruRegistration from './locales/ru/registration.json'
 
@@ -24,6 +26,7 @@ export const NAMESPACES = [
   'auth',
   'errors',
   'personal',
+  'ops',
 ] as const
 
 export const resources = {
@@ -35,6 +38,7 @@ export const resources = {
     auth: ruAuth,
     errors: ruErrors,
     personal: ruPersonal,
+    ops: ruOps,
   },
   en: {
     common: enCommon,
@@ -44,6 +48,7 @@ export const resources = {
     auth: enAuth,
     errors: enErrors,
     personal: enPersonal,
+    ops: enOps,
   },
 } as const
 

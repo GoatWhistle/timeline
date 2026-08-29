@@ -43,5 +43,44 @@
       "QUEUE_AGE_HIGH": "The queue is building up",
       "QUEUE_AGE_NORMAL": "The queue is clear"
     }
+  },
+  "preview": {
+    "open": "Preview notification",
+    "title": "Notification preview",
+    "subtitle": "The text this recipient would receive. Nothing is sent, queued or logged by opening this.",
+    "noSideEffects": "Preview only: no notification is created and no rule is switched on.",
+    "rule": "Rule",
+    "primaryRule": "Primary notification (no rule)",
+    "subject": "Subject",
+    "body": "Body",
+    "channel": "Channel",
+    "scheduledAt": "Would be scheduled for",
+    "deadline": "Deadline",
+    "language": "Recipient language",
+    "timezone": "Recipient time zone",
+    "channelReady": "A channel is available",
+    "channelNotReady": "No usable channel",
+    "channelNotReadyHint": "This recipient has neither a linked Telegram account nor a verified email, so this notification would end as undeliverable.",
+    "nothingTitle": "Nothing would be sent",
+    "nothingHint": "This status has no notification to render: the event, the registration or the assignment rules it out.",
+    "errorTitle": "Preview unavailable",
+    "close": "Close"
+  },
+  "matrix": {
+    "title": "Event and channel",
+    "hint": "Which channel each reminder of this event would go to. One notification uses one channel: the override if set, otherwise the recipient preference, otherwise Telegram then Email.",
+    "columnRule": "Reminder",
+    "columnInApp": "In the app",
+    "inAppTitle": "In the app is a mirror, not a channel",
+    "inAppHint": "Everything sent is also shown in the app. It is never chosen instead of Telegram or Email, it does not take part in the channel choice and it cannot make a notification undeliverable.",
+    "cell_chosen": "Set explicitly for this reminder",
+    "cell_fallback": "Follows the recipient preference",
+    "cell_off": "Not used",
+    "cell_mirror": "Always mirrored",
+    "legend": "Legend",
+    "disabledRow": "Rule switched off",
+    "emptyTitle": "No reminders",
+    "emptyHint": "Add a rule to see which channel it would use.",
+    "totals": "Telegram: {{telegram}} · Email: {{email}}"
   }
 }

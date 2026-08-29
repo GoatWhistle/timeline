@@ -69,3 +69,6 @@ export const AdminInvitesPage = lazy(() =>
   adminBundle().then((m) => ({ default: m.AdminInvitesPage })),
 )
 export const AdminAuditPage = lazy(() => adminBundle().then((m) => ({ default: m.AdminAuditPage })))
+export const AdminOpsQueuePage = lazy(() =>
+  adminBundle().then((m) => ({ default: m.AdminOpsQueuePage })),
+)

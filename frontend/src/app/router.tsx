@@ -11,6 +11,7 @@ import {
   AdminEventPage,
   AdminEventsPage,
   AdminInvitesPage,
+  AdminOpsQueuePage,
   AdminSchedulePage,
   AdminUsersPage,
   BurningPage,
@@ -83,6 +84,7 @@ export function AppRouter() {
                 <Route path="/admin/users" element={<AdminUsersPage />} />
                 <Route path="/admin/invites" element={<AdminInvitesPage />} />
                 <Route path="/admin/audit" element={<AdminAuditPage />} />
+                <Route path="/admin/ops" element={<AdminOpsQueuePage />} />
               </Route>
 
               <Route path="/forbidden" element={<ForbiddenPage />} />

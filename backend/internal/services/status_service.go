@@ -130,6 +130,9 @@ func (s *StatusService) AdminChange(ctx context.Context, actor models.Actor, sta
 			updated = status
 			return nil
 		}
+		if !status.Status.AdminCanMoveTo(req.Status) {
+			return models.NewStateTransition("an excused participant is returned to TODO before being marked DONE")
+		}
 
 		updated, err = s.statuses.SetStatus(ctx, statusID, req.Status, models.SourceAdmin, actor.UserRef(), req.Note)
 		if err != nil {

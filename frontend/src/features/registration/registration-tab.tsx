@@ -11,6 +11,7 @@ import {
   useToggleRegistration,
   useUpdateRegistration,
 } from '@/entities/registration/registration.queries'
+import { ChannelMatrix } from '@/features/channel-matrix/channel-matrix'
 import { isApiError } from '@/shared/api/errors'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
@@ -195,6 +196,14 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
             </CardHeader>
             <CardContent>
               <RulesEditor eventId={event.id} />
+            </CardContent>
+          </Card>
+        )}
+
+        {registration && (
+          <Card>
+            <CardContent className="pt-6">
+              <ChannelMatrix eventId={event.id} />
             </CardContent>
           </Card>
         )}

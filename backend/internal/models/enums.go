@@ -116,6 +116,18 @@ func (s RegistrationStatusValue) Valid() bool {
 	return s == StatusTODO || s == StatusDONE || s == StatusNotRequired
 }
 
+func (s RegistrationStatusValue) AdminCanMoveTo(next RegistrationStatusValue) bool {
+	switch s {
+	case StatusTODO:
+		return next == StatusDONE || next == StatusNotRequired
+	case StatusDONE:
+		return next == StatusTODO || next == StatusNotRequired
+	case StatusNotRequired:
+		return next == StatusTODO
+	}
+	return false
+}
+
 type ChangeSource string
 
 const (

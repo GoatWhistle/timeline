@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
+import { DeviceList } from '@/features/device-list/device-list'
 import { AccountActionsCard } from '@/features/profile/account-actions-card/account-actions-card'
 import { EmailChangeCard } from '@/features/profile/email-change-card/email-change-card'
 import { NotificationChannelCard } from '@/features/profile/notification-channel-card/notification-channel-card'
@@ -74,6 +75,7 @@ export function SettingsPanel({ section, user }: { section: SettingsSectionId; u
   if (section === 'danger') {
     return (
       <div className="flex flex-col gap-4">
+        <DeviceList />
         <AccountActionsCard />
       </div>
     )

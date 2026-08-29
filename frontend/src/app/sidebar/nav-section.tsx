@@ -1,4 +1,5 @@
 import {
+  Activity,
   AlarmClock,
   CalendarRange,
   ClipboardList,
@@ -36,6 +37,7 @@ export const ADMIN_NAV: NavItem[] = [
   { to: '/admin/users', labelKey: 'nav.adminUsers', icon: Users },
   { to: '/admin/invites', labelKey: 'nav.adminInvites', icon: Send },
   { to: '/admin/audit', labelKey: 'nav.adminAudit', icon: ScrollText },
+  { to: '/admin/ops', labelKey: 'nav.adminOps', icon: Activity },
 ]
 
 export function NavSection({ title, items }: { title: string; items: NavItem[] }) {

@@ -20,6 +20,7 @@
     "adminUsers": "Users",
     "adminInvites": "Invites",
     "adminAudit": "Audit",
+    "adminOps": "Queue state",
     "settings": "Settings"
   },
   "action": {
@@ -350,5 +351,30 @@
     "left": "{{amount}} left",
     "past": "the deadline has passed",
     "label": "Time remaining"
+  },
+  "devices": {
+    "title": "Devices",
+    "hint": "Sessions that are signed in right now. Ending one signs out that device only.",
+    "current": "This device",
+    "currentHint": "The session you are using now",
+    "lastUsed": "Last used {{when}}",
+    "createdAt": "Signed in {{when}}",
+    "expiresAt": "Expires {{when}}",
+    "address": "Address {{ip}}",
+    "unknownDevice": "Unknown device",
+    "kind_mobile": "Phone",
+    "kind_tablet": "Tablet",
+    "kind_desktop": "Computer",
+    "kind_unknown": "Unknown device",
+    "revoke": "End session",
+    "revokeAria": "End the session on {{device}}",
+    "revoked": "The session was ended",
+    "revokeFailed": "The session could not be ended",
+    "revokeCurrentTitle": "End this session?",
+    "revokeCurrentHint": "This is the device you are using. Ending it signs you out here.",
+    "emptyTitle": "No other sessions",
+    "emptyHint": "You are signed in on this device only.",
+    "count_one": "{{count}} active session",
+    "count_other": "{{count}} active sessions"
   }
 }

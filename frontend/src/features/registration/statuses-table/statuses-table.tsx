@@ -1,3 +1,4 @@
+import { MailSearch } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   CHANGE_SOURCE_KEY,
@@ -15,6 +16,7 @@ import {
   TableRow,
 } from '@/shared/ui/data-display/table'
 import { Checkbox } from '@/shared/ui/forms/checkbox'
+import { Button } from '@/shared/ui/primitives/button'
 import { Dot } from '@/shared/ui/primitives/dot'
 
 export function StatusesTable({
@@ -23,12 +25,14 @@ export function StatusesTable({
   allSelected,
   onToggleAll,
   onToggleOne,
+  onPreview,
 }: {
   items: RegistrationStatusResponse[]
   selected: Set<string>
   allSelected: boolean
   onToggleAll: (checked: boolean) => void
   onToggleOne: (participantId: string, checked: boolean) => void
+  onPreview?: (statusId: string) => void
 }) {
   const { t } = useTranslation('registration')
   return (
@@ -47,6 +51,7 @@ export function StatusesTable({
           <TableHead>{t('statuses.cycle')}</TableHead>
           <TableHead>{t('statuses.source')}</TableHead>
           <TableHead>{t('statuses.markedAt')}</TableHead>
+          {onPreview ? <TableHead className="w-12" /> : null}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -81,6 +86,18 @@ export function StatusesTable({
             <TableCell className="text-muted-foreground">
               {item.registered_at ? formatDateTime(item.registered_at) : '—'}
             </TableCell>
+            {onPreview ? (
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t('notification:preview.open')}
+                  onClick={() => onPreview(item.id)}
+                >
+                  <MailSearch className="size-4" aria-hidden="true" />
+                </Button>
+              </TableCell>
+            ) : null}
           </TableRow>
         ))}
       </TableBody>

@@ -12,6 +12,7 @@ import {
   usePreviewBatchStatus,
 } from '@/entities/registration/registration.queries'
 import { BatchResultPanel } from '@/features/batch-result-panel/batch-result-panel'
+import { NotificationPreviewDialog } from '@/features/notification-preview/preview-dialog'
 import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
 import type { BatchResult, RegistrationStatusValue } from '@/shared/api/types.gen'
 import { usePageParam } from '@/shared/hooks/use-url-filters/use-url-filters'
@@ -48,6 +49,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
   const [open, setOpen] = useState(false)
   const [target, setTarget] = useState<RegistrationStatusValue>('TODO')
   const [note, setNote] = useState('')
+  const [previewId, setPreviewId] = useState<string | null>(null)
   const [previewResult, setPreviewResult] = useState<{ affected: number; skipped: number } | null>(
     null,
   )
@@ -116,7 +118,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
         error={query.error}
         onRetry={() => query.refetch()}
         hasData={query.data !== undefined}
-        skeleton={<SkeletonTable rows={10} columns={6} />}
+        skeleton={<SkeletonTable rows={10} columns={7} density="action" />}
       >
         {items.length === 0 ? (
           <EmptyState title={t('statuses.emptyTitle')} description={t('statuses.emptyHint')} />
@@ -135,6 +137,15 @@ export function StatusesTab({ eventId }: { eventId: string }) {
                   return next
                 })
               }
+              onPreview={setPreviewId}
+            />
+
+            <NotificationPreviewDialog
+              statusId={previewId}
+              open={previewId !== null}
+              onOpenChange={(next) => {
+                if (!next) setPreviewId(null)
+              }}
             />
 
             {query.data && <Pagination meta={query.data.meta} onPageChange={setPage} />}

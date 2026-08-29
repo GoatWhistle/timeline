@@ -18,7 +18,9 @@
 * Тело запроса и ответа — `application/json; charset=utf-8`.
 * Неизвестные поля в теле запроса отвергаются с кодом `400`.
 * Все моменты времени передаются в UTC в формате RFC 3339: `2026-08-22T09:00:00Z`.
-  Отображение в системной таймзоне (по умолчанию `Europe/Moscow`) — задача клиента.
+  Отображение — задача клиента, и идёт оно в личной таймзоне пользователя
+  (`User.timezone`, раздел 4 ТЗ); системная зона (по умолчанию `Europe/Moscow`)
+  остаётся запасным вариантом, когда личная не задана или нераспознаваема.
 * Идентификаторы — UUID в каноническом строковом виде.
 * Язык кода и ответов API — английский. `code` — стабильный английский
   идентификатор, `message` — английский запасной вариант для тех, кто читает
@@ -35,8 +37,8 @@
 {
   "error": {
     "code": "validation_failed",
-    "message": "некорректные данные запроса",
-    "fields": [{ "field": "email", "message": "некорректный адрес" }],
+    "message": "invalid request data",
+    "fields": [{ "field": "email", "message": "invalid email address" }],
     "request_id": "8f1c2b3a-..."
   }
 }
@@ -104,7 +106,7 @@
   "failed": 0,
   "results": [
     { "index": 0, "status": "ok", "id": "..." },
-    { "index": 1, "status": "skipped", "code": "already_assigned", "message": "участник уже назначен" }
+    { "index": 1, "status": "skipped", "code": "already_assigned", "message": "the participant is already assigned" }
   ]
 }
 ```
