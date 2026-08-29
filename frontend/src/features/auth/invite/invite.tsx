@@ -16,7 +16,17 @@ import { Button } from '@/shared/ui/primitives/button'
 
 const schema = z
   .object({
-    display_name: z.string().min(2, 'auth:validation.nameMin'),
+    first_name: z
+      .string()
+      .trim()
+      .min(1, 'auth:validation.firstNameMin')
+      .max(80, 'auth:validation.nameMax'),
+    middle_name: z.string().trim().max(80, 'auth:validation.nameMax').optional(),
+    last_name: z
+      .string()
+      .trim()
+      .min(1, 'auth:validation.lastNameMin')
+      .max(80, 'auth:validation.nameMax'),
     password: z.string().min(8, 'auth:validation.passwordMin'),
     password_repeat: z.string(),
   })
@@ -41,19 +51,27 @@ export function InvitePage() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { display_name: '', password: '', password_repeat: '' },
+    defaultValues: {
+      first_name: '',
+      middle_name: '',
+      last_name: '',
+      password: '',
+      password_repeat: '',
+    },
   })
 
   async function onSubmit(values: FormValues) {
     try {
       await accept.mutateAsync({
         token,
-        display_name: values.display_name,
+        first_name: values.first_name,
+        middle_name: values.middle_name?.trim() ? values.middle_name : undefined,
+        last_name: values.last_name,
         password: values.password,
       })
       navigate('/', { replace: true })
     } catch (error) {
-      applyServerErrors(error, setError, ['display_name', 'password'])
+      applyServerErrors(error, setError, ['first_name', 'middle_name', 'last_name', 'password'])
     }
   }
 
@@ -97,15 +115,35 @@ export function InvitePage() {
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
           <Field
-            label={t('field.name')}
-            htmlFor="display_name"
-            error={errors.display_name?.message}
+            label={t('field.firstName')}
+            htmlFor="first_name"
+            error={errors.first_name?.message}
           >
             <Input
-              id="display_name"
-              autoComplete="name"
-              aria-invalid={Boolean(errors.display_name)}
-              {...register('display_name')}
+              id="first_name"
+              autoComplete="given-name"
+              aria-invalid={Boolean(errors.first_name)}
+              {...register('first_name')}
+            />
+          </Field>
+          <Field label={t('field.lastName')} htmlFor="last_name" error={errors.last_name?.message}>
+            <Input
+              id="last_name"
+              autoComplete="family-name"
+              aria-invalid={Boolean(errors.last_name)}
+              {...register('last_name')}
+            />
+          </Field>
+          <Field
+            label={t('field.middleNameOptional')}
+            htmlFor="middle_name"
+            error={errors.middle_name?.message}
+          >
+            <Input
+              id="middle_name"
+              autoComplete="additional-name"
+              aria-invalid={Boolean(errors.middle_name)}
+              {...register('middle_name')}
             />
           </Field>
           <Field label={t('field.password')} htmlFor="password" error={errors.password?.message}>

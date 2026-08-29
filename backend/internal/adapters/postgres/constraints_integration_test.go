@@ -301,8 +301,8 @@ func insertUser(t *testing.T, pool *pgxpool.Pool, email string) string {
 	t.Helper()
 	var id string
 	err := pool.QueryRow(context.Background(), `
-		INSERT INTO users (display_name, email, password_hash, email_verified_at)
-		VALUES ('Test user', $1, 'hash', now()) RETURNING id`, email).Scan(&id)
+		INSERT INTO users (first_name, last_name, email, password_hash, email_verified_at)
+		VALUES ('Test', 'User', $1, 'hash', now()) RETURNING id`, email).Scan(&id)
 	if err != nil {
 		t.Fatalf("creating user: %v", err)
 	}

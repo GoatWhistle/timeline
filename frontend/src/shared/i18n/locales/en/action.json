@@ -45,7 +45,9 @@
     "invalidValue": "Invalid value",
     "linkTooLong": "The address is too long",
     "linkScheme": "This address cannot be opened in a browser",
-    "bioTooLong": "The text is too long"
+    "bioTooLong": "The text is too long",
+    "linkRequired": "Enter an address",
+    "labelTooLong": "The caption is too long"
   },
   "password": {
     "show": "Show password",

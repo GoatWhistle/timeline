@@ -17,7 +17,7 @@ func TestMutatingRequestsRequireAMatchingCSRFToken(t *testing.T) {
 		t.Fatal("the CSRF endpoint issued no cookie")
 	}
 
-	body := map[string]any{"display_name": "Forged"}
+	body := map[string]any{"last_name": "Forged"}
 
 	missing := member.do(http.MethodPatch, "/me", body, nil)
 	requireStatus(t, missing, http.StatusForbidden, "a mutation without the CSRF header")
@@ -74,7 +74,7 @@ func TestCSRFGuardsEveryMutatingMethodAndNotReads(t *testing.T) {
 		body   any
 	}{
 		{"POST", http.MethodPost, "/events/" + f.eventID.String() + "/registration/done", nil},
-		{"PATCH", http.MethodPatch, "/me", map[string]any{"display_name": "Forged"}},
+		{"PATCH", http.MethodPatch, "/me", map[string]any{"last_name": "Forged"}},
 		{"DELETE", http.MethodDelete, "/me/telegram", nil},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

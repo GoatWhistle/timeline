@@ -95,7 +95,7 @@ func (s *UserService) Delete(ctx context.Context, actor models.Actor, userID uui
 			return err
 		}
 		if err := s.audit.Record(ctx, actor, models.AuditUserDelete, models.EntityUser, userID,
-			map[string]any{"email": user.Email, "display_name": user.DisplayName},
+			map[string]any{"email": user.Email, "display_name": user.DisplayName(user.Locale)},
 			map[string]any{"deleted": true}); err != nil {
 			return err
 		}

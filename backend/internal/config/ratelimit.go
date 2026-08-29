@@ -29,6 +29,8 @@ type RateLim struct {
 	ICSWindow        time.Duration
 	ProfileRequests  int
 	ProfileWindow    time.Duration
+	PublicRequests   int
+	PublicWindow     time.Duration
 }
 
 func loadRateLim() RateLim {
@@ -59,5 +61,7 @@ func loadRateLim() RateLim {
 		CalendarWindow:   envDuration("RATE_LIMIT_CALENDAR_WINDOW", time.Minute),
 		ICSRequests:      envInt("RATE_LIMIT_ICS_REQUESTS", 60),
 		ICSWindow:        envDuration("RATE_LIMIT_ICS_WINDOW", time.Minute),
+		PublicRequests:   envInt("RATE_LIMIT_PUBLIC_PROFILE_REQUESTS", 60),
+		PublicWindow:     envDuration("RATE_LIMIT_PUBLIC_PROFILE_WINDOW", time.Minute),
 	}
 }

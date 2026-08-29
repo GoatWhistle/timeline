@@ -46,7 +46,8 @@ func TestUpdateProfileStoresLocale(t *testing.T) {
 	ctx := context.Background()
 
 	created, err := users.Create(ctx, &models.User{
-		DisplayName:  "Test user",
+		FirstName:    "Test",
+		LastName:     "User",
 		Email:        "locale-update@example.test",
 		PasswordHash: "hash",
 		IsActive:     true,
@@ -68,7 +69,7 @@ func TestUpdateProfileStoresLocale(t *testing.T) {
 	}
 
 	name := "Renamed"
-	kept, err := users.UpdateProfile(ctx, created.ID, models.ProfilePatch{DisplayName: &name})
+	kept, err := users.UpdateProfile(ctx, created.ID, models.ProfilePatch{FirstName: &name})
 	if err != nil {
 		t.Fatalf("updating profile without locale: %v", err)
 	}

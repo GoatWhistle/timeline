@@ -67,6 +67,7 @@ func createAdmin(ctx context.Context, email, password, name string) error {
 	if name == "" {
 		name = "Administrator"
 	}
+	firstName, lastName := splitAdminName(name)
 
 	if existing, err := c.repos.users.GetByEmail(ctx, email); err == nil {
 		fmt.Printf("user %s already exists (id %s, administrator: %t)\n",
@@ -82,7 +83,8 @@ func createAdmin(ctx context.Context, email, password, name string) error {
 	}
 	now := nowUTC()
 	created, err := c.repos.users.Create(ctx, &models.User{
-		DisplayName:     name,
+		FirstName:       firstName,
+		LastName:        lastName,
 		Email:           email,
 		PasswordHash:    hash,
 		EmailVerifiedAt: &now,
@@ -94,4 +96,12 @@ func createAdmin(ctx context.Context, email, password, name string) error {
 	}
 	fmt.Printf("administrator created: %s (id %s)\n", created.Email, created.ID)
 	return nil
+}
+
+func splitAdminName(name string) (string, string) {
+	parts := strings.Fields(name)
+	if len(parts) < 2 {
+		return name, name
+	}
+	return parts[0], parts[len(parts)-1]
 }

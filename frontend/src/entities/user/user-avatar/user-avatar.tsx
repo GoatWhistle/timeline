@@ -1,17 +1,21 @@
 import type * as React from 'react'
 import { useState } from 'react'
 import { cn } from '@/shared/styling/class-names/class-names'
-import { avatarHue, initials } from './avatar-identity'
+import { avatarHue, initials, personInitials } from './avatar-identity'
 import { isDisplayableAvatar } from './avatar-source'
 
 export function UserAvatar({
   seed,
   displayName,
+  firstName,
+  lastName,
   avatarUrl,
   className,
 }: {
   seed: string
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
   avatarUrl?: string | null
   className?: string
 }) {
@@ -29,7 +33,7 @@ export function UserAvatar({
       )}
       style={{ '--avatar-hue': hue } as React.CSSProperties}
     >
-      {initials(displayName)}
+      {firstName || lastName ? personInitials(firstName, lastName) : initials(displayName)}
       {source !== null && (
         <img
           src={source}

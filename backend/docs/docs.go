@@ -5633,6 +5633,287 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/profile-links": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The links shown on the profile, in their display order. The kind of each link\nis not stored: the client derives it from the address, so a new service needs\nno migration.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Your own profile links",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProfileLinkListResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Appends a link to the end of the list. The address must parse and use http or\nhttps; schemes that execute in the browser are rejected. The number of links\nper profile is bounded.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Add a profile link",
+                "parameters": [
+                    {
+                        "description": "Link",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateProfileLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProfileLink"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "the profile link limit is reached",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/profile-links/order": {
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Takes every link identifier of the profile exactly once, in the wanted order.\nA partial list is rejected, so a reorder cannot silently drop a link.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Reorder the profile links",
+                "parameters": [
+                    {
+                        "description": "Identifiers in display order",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ReorderProfileLinksRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProfileLinkListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/profile-links/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Remove a profile link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Link identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Change a profile link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Link identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Changed fields",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateProfileLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProfileLink"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me/schedule": {
             "get": {
                 "security": [
@@ -6208,6 +6489,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/profiles/{nickname}": {
+            "get": {
+                "description": "Served without authentication. A profile is visible only when its owner\nturned visibility on; otherwise the response is 404, so that the existence\nof a closed profile is not disclosed. Events are limited to published,\nnon-archived ones that the person allowed to be shown.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Public profile by nickname",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Nickname without the @ sign",
+                        "name": "nickname",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PublicProfileResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/readyz": {
             "get": {
                 "description": "Checks that the database is reachable.",
@@ -6279,9 +6601,17 @@ const docTemplate = `{
         "models.AcceptInviteRequest": {
             "type": "object",
             "properties": {
-                "display_name": {
+                "first_name": {
                     "type": "string",
-                    "example": "John Smith"
+                    "example": "John"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
                 },
                 "password": {
                     "type": "string",
@@ -7056,6 +7386,19 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateProfileLinkRequest": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "example": "My repositories"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://github.com/ivan"
+                }
+            }
+        },
         "models.CreateRegistrationRequest": {
             "type": "object",
             "properties": {
@@ -7796,9 +8139,9 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": true
                 },
-                "github_url": {
+                "first_name": {
                     "type": "string",
-                    "example": "https://github.com/ivan"
+                    "example": "John"
                 },
                 "id": {
                     "type": "string"
@@ -7811,6 +8154,14 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": false
                 },
+                "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                },
+                "legacy_display_name": {
+                    "type": "string",
+                    "example": "John Smith"
+                },
                 "locale": {
                     "type": "string",
                     "enum": [
@@ -7818,6 +8169,14 @@ const docTemplate = `{
                         "en"
                     ],
                     "example": "ru"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "jsmith"
                 },
                 "pending_email": {
                     "type": "string"
@@ -7832,6 +8191,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.Channel"
                         }
                     ]
+                },
+                "profile_public": {
+                    "type": "boolean",
+                    "example": false
                 },
                 "shortcuts": {
                     "$ref": "#/definitions/models.Shortcuts"
@@ -7849,10 +8212,6 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
-                },
-                "website_url": {
-                    "type": "string",
-                    "example": "https://ivan.example.com"
                 }
             }
         },
@@ -8546,6 +8905,100 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ProfileLink": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string",
+                    "example": "My repositories"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://github.com/ivan"
+                }
+            }
+        },
+        "models.ProfileLinkListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ProfileLink"
+                    }
+                }
+            }
+        },
+        "models.PublicProfileEvent": {
+            "type": "object",
+            "properties": {
+                "end_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Timeline Hack"
+                }
+            }
+        },
+        "models.PublicProfileResponse": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://example.com/a.png"
+                },
+                "bio": {
+                    "type": "string",
+                    "example": "Backend developer"
+                },
+                "display_name": {
+                    "type": "string",
+                    "example": "John Smith"
+                },
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PublicProfileEvent"
+                    }
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "jsmith"
+                }
+            }
+        },
         "models.QueueEntryPage": {
             "type": "object",
             "properties": {
@@ -8642,16 +9095,24 @@ const docTemplate = `{
         "models.RegisterRequest": {
             "type": "object",
             "properties": {
-                "display_name": {
-                    "type": "string",
-                    "example": "John Smith"
-                },
                 "email": {
                     "type": "string",
                     "example": "ivan@example.com"
                 },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
                 "invite_token": {
                     "type": "string"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
                 },
                 "password": {
                     "type": "string",
@@ -8900,6 +9361,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "participant_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "models.ReorderProfileLinksRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -9566,6 +10038,23 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UpdateProfileLinkRequest": {
+            "type": "object",
+            "properties": {
+                "clear_label": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "label": {
+                    "type": "string",
+                    "example": "My repositories"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://github.com/ivan"
+                }
+            }
+        },
         "models.UpdateProfileRequest": {
             "type": "object",
             "properties": {
@@ -9577,13 +10066,13 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Backend developer"
                 },
-                "display_name": {
+                "first_name": {
                     "type": "string",
-                    "example": "John Smith"
+                    "example": "John"
                 },
-                "github_url": {
+                "last_name": {
                     "type": "string",
-                    "example": "https://github.com/ivan"
+                    "example": "Smith"
                 },
                 "locale": {
                     "type": "string",
@@ -9593,12 +10082,24 @@ const docTemplate = `{
                     ],
                     "example": "en"
                 },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "jsmith"
+                },
                 "preferred_channel": {
                     "type": "string",
                     "enum": [
                         "TELEGRAM",
                         "EMAIL"
                     ]
+                },
+                "profile_public": {
+                    "type": "boolean",
+                    "example": false
                 },
                 "telegram_username": {
                     "type": "string",
@@ -9607,10 +10108,6 @@ const docTemplate = `{
                 "timezone": {
                     "type": "string",
                     "example": "Asia/Tokyo"
-                },
-                "website_url": {
-                    "type": "string",
-                    "example": "https://ivan.example.com"
                 }
             }
         },
@@ -9830,12 +10327,28 @@ const docTemplate = `{
                     "type": "string",
                     "example": "ivan@example.com"
                 },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
                 "id": {
                     "type": "string"
                 },
                 "is_active": {
                     "type": "boolean",
                     "example": true
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "jsmith"
                 }
             }
         },

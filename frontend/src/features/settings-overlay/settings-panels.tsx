@@ -8,6 +8,7 @@ import {
 } from '@/features/profile/account-actions-card/account-actions-card'
 import { AccountIdentityCard } from '@/features/profile/account-identity-card/account-identity-card'
 import { EmailChangeCard } from '@/features/profile/email-change-card/email-change-card'
+import { NicknameCard } from '@/features/profile/nickname-card/nickname-card'
 import { NotificationChannelCard } from '@/features/profile/notification-channel-card/notification-channel-card'
 import { PersonalDataCard } from '@/features/profile/personal-data-card/personal-data-card'
 import { ProfileLinksCard } from '@/features/profile/profile-links-card/profile-links-card'
@@ -112,7 +113,13 @@ export function SettingsPanel({ section, user }: { section: SettingsSectionId; u
 
   return (
     <div className="flex flex-col gap-4">
-      <PersonalDataCard displayName={user.display_name ?? ''} />
+      <PersonalDataCard
+        firstName={user.first_name ?? ''}
+        middleName={user.middle_name}
+        lastName={user.last_name ?? ''}
+        legacyDisplayName={user.legacy_display_name}
+      />
+      <NicknameCard nickname={user.nickname} profilePublic={user.profile_public} />
       <ProfileLinksCard user={user} />
     </div>
   )

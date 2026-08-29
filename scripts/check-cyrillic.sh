@@ -32,8 +32,19 @@ BASELINE="$ROOT/docs/baselines/cyrillic.txt"
 
 cd "$ROOT"
 
+# A file that is not in the index yet still has to obey the rule. git
+# ls-files alone lists only tracked paths, so Cyrillic in a brand new file
+# slipped past this check until it was staged. Untracked but not ignored
+# paths are listed too.
+tracked_and_new() {
+  {
+    git ls-files
+    git ls-files --others --exclude-standard
+  } | sort -u
+}
+
 current() {
-  git ls-files \
+  tracked_and_new \
     | grep -vE '^(docs/|frontend/src/shared/i18n/|backend/internal/locale/messages/)' \
     | grep -vE '[.](png|jpg|jpeg|gif|svg|ico|woff2?|ttf|otf|lock)$' \
     | grep -v '\.gen\.' \

@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
@@ -78,7 +79,8 @@ func (r *Timeline) Deadlines(ctx context.Context, overdue bool, within time.Dura
 
 	args = append(args, page.Limit(), page.Offset())
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT h.id, h.title, p.id, u.id, u.display_name, u.email, u.is_active,
+		SELECT h.id, h.title, p.id, u.id, u.first_name, u.middle_name, u.last_name,
+		       u.nickname, u.email, u.is_active,
 		       r.deadline_at, s.status `+from+`
 		ORDER BY r.deadline_at
 		LIMIT $`+itoa(len(args)-1)+` OFFSET $`+itoa(len(args)), args...)
@@ -91,13 +93,15 @@ func (r *Timeline) Deadlines(ctx context.Context, overdue bool, within time.Dura
 	for rows.Next() {
 		var item models.DeadlineItem
 		if err := rows.Scan(&item.EventID, &item.EventTitle, &item.ParticipantID,
-			&item.User.ID, &item.User.DisplayName, &item.User.Email, &item.User.IsActive,
+			&item.User.ID, &item.User.FirstName, &item.User.MiddleName, &item.User.LastName,
+			&item.User.Nickname, &item.User.Email, &item.User.IsActive,
 			&item.DeadlineAt, &item.Status); err != nil {
 			return nil, 0, mapError(err)
 		}
 		if now.After(item.DeadlineAt) {
 			item.OverdueMinutes = int(now.Sub(item.DeadlineAt).Minutes())
 		}
+		item.User.Fill(locale.Default)
 		items = append(items, item)
 	}
 	return items, total, mapError(rows.Err())

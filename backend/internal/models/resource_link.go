@@ -56,3 +56,14 @@ type ParticipantLink struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+const ProfileLinkMaxPerUser = 10
+
+type ProfileLink struct {
+	ID        uuid.UUID `json:"id"`
+	URL       string    `json:"url" example:"https://github.com/ivan"`
+	Label     *string   `json:"label,omitempty" example:"My repositories"`
+	SortOrder int       `json:"sort_order" example:"0"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}

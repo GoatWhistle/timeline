@@ -44,8 +44,8 @@ func (r *reminderStack) user(t *testing.T) uuid.UUID {
 	t.Helper()
 	var id uuid.UUID
 	err := r.db.Pool().QueryRow(context.Background(), `
-		INSERT INTO users (display_name, email, password_hash, email_verified_at)
-		VALUES ('Owner', $1, 'hash', now()) RETURNING id`,
+		INSERT INTO users (first_name, last_name, email, password_hash, email_verified_at)
+		VALUES ('Test', 'Owner', $1, 'hash', now()) RETURNING id`,
 		"owner-"+uuid.NewString()+"@example.com").Scan(&id)
 	if err != nil {
 		t.Fatalf("creating a user: %v", err)

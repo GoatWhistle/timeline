@@ -63,3 +63,28 @@ type ParticipantLinkPatch struct {
 type ParticipantLinkListResponse struct {
 	Items []ParticipantLink `json:"items"`
 }
+
+type CreateProfileLinkRequest struct {
+	URL   string  `json:"url" example:"https://github.com/ivan"`
+	Label *string `json:"label,omitempty" example:"My repositories"`
+}
+
+type UpdateProfileLinkRequest struct {
+	URL        *string `json:"url,omitempty" example:"https://github.com/ivan"`
+	Label      *string `json:"label,omitempty" example:"My repositories"`
+	ClearLabel bool    `json:"clear_label,omitempty" example:"false"`
+}
+
+type ReorderProfileLinksRequest struct {
+	IDs []uuid.UUID `json:"ids"`
+}
+
+type ProfileLinkPatch struct {
+	URL      *string
+	Label    *string
+	LabelSet bool
+}
+
+type ProfileLinkListResponse struct {
+	Items []ProfileLink `json:"items"`
+}

@@ -38,6 +38,7 @@ type container struct {
 
 	repos struct {
 		users         *identity.Users
+		profileLinks  *identity.ProfileLinks
 		sessions      *identity.Sessions
 		tokens        *identity.Tokens
 		invites       *identity.Invites
@@ -76,6 +77,7 @@ type container struct {
 	auth          *svcauth.AuthService
 	invites       *svcauth.InviteService
 	profile       *svcauth.ProfileService
+	profileLinks  *svcauth.ProfileLinkService
 	users         *svcauth.UserService
 	events        *svcevent.EventService
 	catalog       *svcevent.CatalogService
@@ -102,6 +104,7 @@ type container struct {
 func (c *container) wireRepositories() {
 	db := c.db
 	c.repos.users = identity.NewUsers(db)
+	c.repos.profileLinks = identity.NewProfileLinks(db)
 	c.repos.sessions = identity.NewSessions(db)
 	c.repos.tokens = identity.NewTokens(db)
 	c.repos.invites = identity.NewInvites(db)
@@ -162,6 +165,7 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.invites = svcauth.NewInviteService(db, c.repos.invites, c.repos.users, c.auth, c.audit, mailer, limiter, cfg)
 	c.profile = svcauth.NewProfileService(db, c.repos.users, c.repos.tokens, c.repos.sessions,
 		c.notifier, c.audit, c.hasher, mailer, c.telegram, cfg)
+	c.profileLinks = svcauth.NewProfileLinkService(db, c.repos.profileLinks)
 	c.users = svcauth.NewUserService(db, c.repos.users, c.repos.sessions, c.notifier, c.audit)
 	c.events = svcevent.NewEventService(db, c.repos.events, c.repos.registrations,
 		c.notifier, c.scheduler, c.audit)

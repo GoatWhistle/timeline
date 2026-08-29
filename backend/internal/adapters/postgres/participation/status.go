@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
@@ -88,12 +89,12 @@ func (r *Statuses) List(ctx context.Context, eventID uuid.UUID, page models.Page
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		SELECT s.id, s.event_id, s.registration_id, s.participant_id, s.status, s.todo_cycle,
 		       s.registered_at, s.last_change_source, s.last_changed_by_user_id, s.note, s.updated_at,
-		       u.id, u.display_name, u.email, u.is_active
+		       u.id, u.first_name, u.middle_name, u.last_name, u.nickname, u.email, u.is_active
 		FROM registration_statuses s
 		JOIN event_participants p ON p.id = s.participant_id
 		JOIN users u ON u.id = p.user_id
 		WHERE s.event_id = $1
-		ORDER BY u.display_name
+		ORDER BY lower(u.last_name), lower(u.first_name)
 		LIMIT $2 OFFSET $3`, eventID, page.Limit(), page.Offset())
 	if err != nil {
 		return nil, 0, mapError(err)
@@ -109,9 +110,11 @@ func (r *Statuses) List(ctx context.Context, eventID uuid.UUID, page models.Page
 		if err := rows.Scan(&item.ID, &item.EventID, &item.RegistrationID, &item.ParticipantID,
 			&item.Status, &item.TodoCycle, &item.RegisteredAt, &item.LastChangeSource,
 			&item.LastChangedByUserID, &item.Note, &item.UpdatedAt,
-			&user.ID, &user.DisplayName, &user.Email, &user.IsActive); err != nil {
+			&user.ID, &user.FirstName, &user.MiddleName, &user.LastName,
+			&user.Nickname, &user.Email, &user.IsActive); err != nil {
 			return nil, 0, mapError(err)
 		}
+		user.Fill(locale.Default)
 		item.User = &user
 		items = append(items, item)
 	}

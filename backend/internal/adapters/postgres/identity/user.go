@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
@@ -15,15 +16,18 @@ type Users struct{ db *postgres.DB }
 
 func NewUsers(db *postgres.DB) *Users { return &Users{db: db} }
 
-const userColumns = `id, display_name, email, pending_email, password_hash, email_verified_at,
-	telegram_username, telegram_chat_id, preferred_channel, avatar_url, bio, github_url, website_url,
+const userColumns = `id, first_name, middle_name, last_name, legacy_display_name, nickname,
+	profile_public, email, pending_email, password_hash, email_verified_at,
+	telegram_username, telegram_chat_id, preferred_channel, avatar_url, bio,
 	locale, timezone, shortcuts, is_admin, is_active, deleted_at, created_at, updated_at`
 
 func scanUser(row pgx.Row) (*models.User, error) {
 	var u models.User
-	err := row.Scan(&u.ID, &u.DisplayName, &u.Email, &u.PendingEmail, &u.PasswordHash, &u.EmailVerifiedAt,
+	err := row.Scan(&u.ID, &u.FirstName, &u.MiddleName, &u.LastName,
+		&u.LegacyDisplayName, &u.Nickname, &u.ProfilePublic, &u.Email, &u.PendingEmail,
+		&u.PasswordHash, &u.EmailVerifiedAt,
 		&u.TelegramUsername, &u.TelegramChatID, &u.PreferredChannel,
-		&u.AvatarURL, &u.Bio, &u.GithubURL, &u.WebsiteURL,
+		&u.AvatarURL, &u.Bio,
 		&u.Locale, &u.Timezone, &u.Shortcuts, &u.IsAdmin, &u.IsActive,
 		&u.DeletedAt, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
@@ -34,10 +38,12 @@ func scanUser(row pgx.Row) (*models.User, error) {
 
 func (r *Users) Create(ctx context.Context, u *models.User) (*models.User, error) {
 	return scanUser(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO users (display_name, email, password_hash, is_admin, is_active, email_verified_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO users (first_name, middle_name, last_name, email, password_hash,
+			is_admin, is_active, email_verified_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING `+userColumns,
-		u.DisplayName, u.Email, u.PasswordHash, u.IsAdmin, u.IsActive, u.EmailVerifiedAt))
+		u.FirstName, u.MiddleName, u.LastName, u.Email, u.PasswordHash,
+		u.IsAdmin, u.IsActive, u.EmailVerifiedAt))
 }
 
 func (r *Users) GetByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
@@ -65,22 +71,28 @@ func (r *Users) EmailTaken(ctx context.Context, email string, except uuid.UUID) 
 func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p models.ProfilePatch) (*models.User, error) {
 	return scanUser(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE users SET
-			display_name = COALESCE($2, display_name),
+			first_name = COALESCE($2, first_name),
+			middle_name = CASE WHEN $13 THEN NULL ELSE COALESCE($14, middle_name) END,
+			last_name = COALESCE($15, last_name),
+			nickname = CASE WHEN $16 THEN NULL ELSE COALESCE($17, nickname) END,
+			profile_public = COALESCE($18, profile_public),
+			legacy_display_name = CASE
+				WHEN $2 IS NOT NULL OR $15 IS NOT NULL OR $13 OR $14 IS NOT NULL
+				THEN NULL ELSE legacy_display_name END,
 			telegram_username = CASE WHEN $4 THEN NULL ELSE COALESCE($3, telegram_username) END,
 			preferred_channel = CASE WHEN $6 THEN NULL ELSE COALESCE($5, preferred_channel) END,
 			avatar_url = CASE WHEN $7 THEN NULL ELSE COALESCE($8, avatar_url) END,
 			bio = CASE WHEN $9 THEN NULL ELSE COALESCE($10, bio) END,
-			github_url = CASE WHEN $11 THEN NULL ELSE COALESCE($12, github_url) END,
-			website_url = CASE WHEN $13 THEN NULL ELSE COALESCE($14, website_url) END,
-			locale = COALESCE($15, locale),
-			timezone = COALESCE($16, timezone)
+			locale = COALESCE($11, locale),
+			timezone = COALESCE($12, timezone)
 		WHERE id = $1
 		RETURNING `+userColumns,
-		id, p.DisplayName, p.TelegramUsername, p.ClearTelegramUsername,
+		id, p.FirstName, p.TelegramUsername, p.ClearTelegramUsername,
 		p.PreferredChannel, p.ClearPreferredChannel,
 		p.ClearAvatarURL, p.AvatarURL, p.ClearBio, p.Bio,
-		p.ClearGithubURL, p.GithubURL, p.ClearWebsiteURL, p.WebsiteURL,
-		p.Locale, p.Timezone))
+		p.Locale, p.Timezone,
+		p.ClearMiddleName, p.MiddleName, p.LastName,
+		p.ClearNickname, p.Nickname, p.ProfilePublic))
 }
 
 func (r *Users) SetShortcuts(ctx context.Context, id uuid.UUID,
@@ -132,7 +144,12 @@ func (r *Users) ClearTelegram(ctx context.Context, id uuid.UUID) error {
 func (r *Users) Anonymize(ctx context.Context, id uuid.UUID) error {
 	return r.exec(ctx, `
 		UPDATE users SET
-			display_name = 'Deleted user',
+			first_name = 'Deleted',
+			middle_name = NULL,
+			last_name = 'user',
+			legacy_display_name = NULL,
+			nickname = NULL,
+			profile_public = false,
 			email = 'deleted+' || id::text || '@invalid.local',
 			pending_email = NULL,
 			password_hash = 'deleted',
@@ -142,8 +159,6 @@ func (r *Users) Anonymize(ctx context.Context, id uuid.UUID) error {
 			preferred_channel = NULL,
 			avatar_url = NULL,
 			bio = NULL,
-			github_url = NULL,
-			website_url = NULL,
 			shortcuts = '{}'::jsonb,
 			is_active = false,
 			is_admin = false,
@@ -156,16 +171,18 @@ func (r *Users) Search(ctx context.Context, query string, page models.Page) ([]m
 	var total int64
 	err := r.db.Q(ctx).QueryRow(ctx, `
 		SELECT count(*) FROM users
-		WHERE deleted_at IS NULL AND ($1 = '%%' OR lower(display_name) LIKE $1 OR email LIKE $1)`,
+		WHERE deleted_at IS NULL AND ($1 = '%%' OR lower(first_name) LIKE $1
+			OR lower(last_name) LIKE $1 OR lower(nickname) LIKE $1 OR email LIKE $1)`,
 		pattern).Scan(&total)
 	if err != nil {
 		return nil, 0, mapError(err)
 	}
 
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT id, display_name, email, is_active FROM users
-		WHERE deleted_at IS NULL AND ($1 = '%%' OR lower(display_name) LIKE $1 OR email LIKE $1)
-		ORDER BY display_name, email
+		SELECT id, first_name, middle_name, last_name, nickname, email, is_active FROM users
+		WHERE deleted_at IS NULL AND ($1 = '%%' OR lower(first_name) LIKE $1
+			OR lower(last_name) LIKE $1 OR lower(nickname) LIKE $1 OR email LIKE $1)
+		ORDER BY lower(last_name), lower(first_name), email
 		LIMIT $2 OFFSET $3`, pattern, page.Limit(), page.Offset())
 	if err != nil {
 		return nil, 0, mapError(err)
@@ -175,9 +192,11 @@ func (r *Users) Search(ctx context.Context, query string, page models.Page) ([]m
 	items := make([]models.UserSummary, 0, page.Limit())
 	for rows.Next() {
 		var s models.UserSummary
-		if err := rows.Scan(&s.ID, &s.DisplayName, &s.Email, &s.IsActive); err != nil {
+		if err := rows.Scan(&s.ID, &s.FirstName, &s.MiddleName, &s.LastName,
+			&s.Nickname, &s.Email, &s.IsActive); err != nil {
 			return nil, 0, mapError(err)
 		}
+		s.Fill(locale.Default)
 		items = append(items, s)
 	}
 	return items, total, mapError(rows.Err())

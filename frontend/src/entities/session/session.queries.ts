@@ -66,7 +66,13 @@ export function useAcceptInvite() {
   return useMutation<
     AuthResponse,
     Error,
-    { token: string; display_name: string; password: string }
+    {
+      token: string
+      first_name: string
+      middle_name?: string | undefined
+      last_name: string
+      password: string
+    }
   >({
     mutationFn: (body) => unwrap(api.POST('/invites/accept', { body })),
     onSuccess: (data) => queryClient.setQueryData(sessionQueryKey, data.user),

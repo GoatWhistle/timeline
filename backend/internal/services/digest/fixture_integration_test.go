@@ -41,8 +41,8 @@ func (d *digestStack) user(t *testing.T, timezone string) uuid.UUID {
 	t.Helper()
 	var id uuid.UUID
 	err := d.db.Pool().QueryRow(context.Background(), `
-		INSERT INTO users (display_name, email, password_hash, email_verified_at, timezone)
-		VALUES ('Owner', $1, 'hash', now(), $2) RETURNING id`,
+		INSERT INTO users (first_name, last_name, email, password_hash, email_verified_at, timezone)
+		VALUES ('Test', 'Owner', $1, 'hash', now(), $2) RETURNING id`,
 		"owner-"+uuid.NewString()+"@example.com", timezone).Scan(&id)
 	if err != nil {
 		t.Fatalf("creating a user: %v", err)

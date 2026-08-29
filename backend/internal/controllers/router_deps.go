@@ -18,6 +18,7 @@ type Deps struct {
 	Auth          auth.AuthService
 	Invites       auth.InviteService
 	Profile       auth.ProfileService
+	ProfileLinks  auth.ProfileLinkService
 	Users         auth.UserService
 	Events        event.EventService
 	Catalog       event.CatalogService
@@ -45,6 +46,9 @@ type Deps struct {
 	Limiter            shared.Limiter
 	CatalogRate        int
 	CatalogRateWindow  time.Duration
+	PublicProfiles     auth.PublicProfileService
+	PublicRate         int
+	PublicRateWindow   time.Duration
 	SessionRate        int
 	SessionRateWindow  time.Duration
 	ProfileRate        int

@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import {
   isAcceptedProfileLink,
   linksSchema,
+  newLinkSchema,
 } from '@/features/profile/profile-links-card/links-schema'
 import { ProfileLinkPreview } from '@/features/profile/profile-links-card/profile-link-preview'
 import { ProfileLinksCard } from '@/features/profile/profile-links-card/profile-links-card'
@@ -61,36 +62,61 @@ describe('profile link acceptance', () => {
     expect(isAcceptedProfileLink('ask me on the chat')).toBe(false)
     expect(isAcceptedProfileLink('/events/42')).toBe(false)
   })
+
+  it('accepts an address typed without a scheme', () => {
+    expect(isAcceptedProfileLink('github.com/ivan')).toBe(true)
+  })
 })
 
 describe('profile links schema', () => {
-  it('rejects an executable address in every link field', () => {
-    for (const field of ['avatar_url', 'github_url', 'website_url'] as const) {
-      const result = linksSchema.safeParse({
-        avatar_url: '',
-        github_url: '',
-        website_url: '',
-        bio: '',
-        [field]: 'javascript:alert(1)',
-      })
-      expect(result.success, `${field} accepted an executable address`).toBe(false)
-    }
+  it('rejects an executable address in the avatar field', () => {
+    const result = linksSchema.safeParse({ avatar_url: 'javascript:alert(1)', bio: '' })
+    expect(result.success).toBe(false)
   })
 
   it('accepts a filled-in profile', () => {
     const result = linksSchema.safeParse({
       avatar_url: 'https://example.org/a.png',
-      github_url: 'https://github.com/ivan',
-      website_url: 'https://ivan.example.org',
       bio: 'Backend developer',
     })
     expect(result.success).toBe(true)
   })
 
   it('bounds the bio at 2000 characters, matching the database constraint', () => {
-    const base = { avatar_url: '', github_url: '', website_url: '' }
+    const base = { avatar_url: '' }
     expect(linksSchema.safeParse({ ...base, bio: 'a'.repeat(2000) }).success).toBe(true)
     expect(linksSchema.safeParse({ ...base, bio: 'a'.repeat(2001) }).success).toBe(false)
+  })
+})
+
+describe('new profile link schema', () => {
+  it('requires an address', () => {
+    expect(newLinkSchema.safeParse({ url: '', label: '' }).success).toBe(false)
+    expect(newLinkSchema.safeParse({ url: '   ', label: '' }).success).toBe(false)
+  })
+
+  it('refuses an address the browser must not follow', () => {
+    for (const url of [
+      'javascript:alert(1)',
+      'javascript://github.com/%0aalert(1)',
+      'data:text/html,<script>alert(1)</script>',
+      'file:///etc/passwd',
+    ]) {
+      expect(newLinkSchema.safeParse({ url, label: '' }).success, url).toBe(false)
+    }
+  })
+
+  it('accepts an ordinary address with and without a caption', () => {
+    expect(newLinkSchema.safeParse({ url: 'https://github.com/ivan', label: '' }).success).toBe(
+      true,
+    )
+    expect(newLinkSchema.safeParse({ url: 'github.com/ivan', label: 'Code' }).success).toBe(true)
+  })
+
+  it('bounds the caption at 100 characters, matching the database constraint', () => {
+    const url = 'https://github.com/ivan'
+    expect(newLinkSchema.safeParse({ url, label: 'a'.repeat(100) }).success).toBe(true)
+    expect(newLinkSchema.safeParse({ url, label: 'a'.repeat(101) }).success).toBe(false)
   })
 })
 

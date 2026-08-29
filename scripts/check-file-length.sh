@@ -23,8 +23,19 @@ BASELINE="$ROOT/docs/baselines/file-length.txt"
 
 cd "$ROOT"
 
+# A file that is not in the index yet still has to obey the limit. `git
+# ls-files` alone lists only tracked paths, so a brand new file slipped past
+# this check until it was staged: the check reported success on a tree that
+# already broke the rule. Untracked but not ignored paths are listed too.
+tracked_and_new() {
+  {
+    git ls-files "$@"
+    git ls-files --others --exclude-standard "$@"
+  } | sort -u
+}
+
 current() {
-  git ls-files -- '*.go' '*.ts' '*.tsx' '*.css' \
+  tracked_and_new -- '*.go' '*.ts' '*.tsx' '*.css' \
     | grep -v '\.gen\.' \
     | grep -v 'schema\.d\.ts' \
     | grep -v 'swagger\.' \

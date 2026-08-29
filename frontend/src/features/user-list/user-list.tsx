@@ -2,11 +2,13 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { listName } from '@/entities/user/person-name/person-name'
 import { useActivateUser, useDeactivateUser, useDeleteUser } from '@/entities/user/user.queries'
 import { usersQuery } from '@/shared/api/directory'
 import type { UserSummary } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { useLocale } from '@/shared/i18n/i18n-context'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Table,
@@ -28,6 +30,7 @@ const DEFAULTS = { query: '' }
 
 export function AdminUsersPage() {
   const { t } = useTranslation()
+  const { locale } = useLocale()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const [page, setPage] = usePageParam()
   const [searchInput, setSearchInput] = useState(filters.query)
@@ -81,7 +84,7 @@ export function AdminUsersPage() {
               <TableBody>
                 {(query.data?.items ?? []).map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.display_name}</TableCell>
+                    <TableCell className="font-medium">{listName(item, locale)}</TableCell>
                     <TableCell className="text-muted-foreground">{item.email}</TableCell>
                     <TableCell>
                       {item.is_active ? (
@@ -144,7 +147,7 @@ export function AdminUsersPage() {
           <>
             {t('users.confirmDeleteHint')}
             <br />
-            <strong>{deleting?.display_name}</strong> · {deleting?.email}
+            <strong>{deleting ? listName(deleting, locale) : ''}</strong> · {deleting?.email}
           </>
         }
         confirmLabel={t('users.confirmDeleteLabel')}

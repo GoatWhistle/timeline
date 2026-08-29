@@ -78,6 +78,8 @@ func applyRateLimits(deps *controllers.Deps, c *container) {
 	deps.Limiter = c.limiter
 	deps.CatalogRate = c.cfg.RateLim.CatalogRequests
 	deps.CatalogRateWindow = c.cfg.RateLim.CatalogWindow
+	deps.PublicRate = c.cfg.RateLim.PublicRequests
+	deps.PublicRateWindow = c.cfg.RateLim.PublicWindow
 	deps.SessionRate = c.cfg.RateLim.SessionRequests
 	deps.SessionRateWindow = c.cfg.RateLim.SessionWindow
 	deps.ProfileRate = c.cfg.RateLim.ProfileRequests
@@ -103,26 +105,28 @@ func applyRateLimits(deps *controllers.Deps, c *container) {
 
 func newRouter(c *container) http.Handler {
 	deps := controllers.Deps{
-		Auth:          c.auth,
-		Invites:       c.invites,
-		Profile:       c.profile,
-		Users:         c.users,
-		Events:        c.events,
-		Catalog:       c.catalog,
-		Stages:        c.stages,
-		Participants:  c.participants,
-		Registrations: c.registrations,
-		Statuses:      c.statuses,
-		Rules:         c.rules,
-		Queries:       c.queries,
-		Audit:         c.audit,
-		Ops:           c.ops,
-		Previews:      c.scheduler,
-		Personal:      c.personal,
-		Links:         c.links,
-		Feed:          c.feed,
-		CalendarFeeds: c.calendar,
-		Notifications: c.notifier,
+		Auth:           c.auth,
+		Invites:        c.invites,
+		Profile:        c.profile,
+		ProfileLinks:   c.profileLinks,
+		PublicProfiles: c.profile,
+		Users:          c.users,
+		Events:         c.events,
+		Catalog:        c.catalog,
+		Stages:         c.stages,
+		Participants:   c.participants,
+		Registrations:  c.registrations,
+		Statuses:       c.statuses,
+		Rules:          c.rules,
+		Queries:        c.queries,
+		Audit:          c.audit,
+		Ops:            c.ops,
+		Previews:       c.scheduler,
+		Personal:       c.personal,
+		Links:          c.links,
+		Feed:           c.feed,
+		CalendarFeeds:  c.calendar,
+		Notifications:  c.notifier,
 
 		Authenticator: c.auth,
 		Metrics:       promhttp.Handler(),

@@ -94,8 +94,8 @@ func (w *world) newUser(email string, telegram, verified bool) uuid.UUID {
 		verifiedAt = "now()"
 	}
 	return w.scanUUID(`
-		INSERT INTO users (display_name, email, password_hash, telegram_chat_id, email_verified_at)
-		VALUES ('Test user', $1, 'hash', $2, `+verifiedAt+`) RETURNING id`, email, chatID)
+		INSERT INTO users (first_name, last_name, email, password_hash, telegram_chat_id, email_verified_at)
+		VALUES ('Test', 'User', $1, 'hash', $2, `+verifiedAt+`) RETURNING id`, email, chatID)
 }
 
 func (w *world) scanUUID(query string, args ...any) uuid.UUID {

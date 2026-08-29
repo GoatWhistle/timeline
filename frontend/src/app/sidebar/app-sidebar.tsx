@@ -2,11 +2,13 @@ import { PanelLeftClose } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { CATALOG_VIEW_KEYS, CATALOG_VIEWS } from '@/entities/catalog/catalog.views'
+import { listName } from '@/entities/user/person-name/person-name'
 import { EventFeedBell } from '@/features/event-feed-bell/event-feed-bell'
 import { ProfileMenu } from '@/features/profile-menu/profile-menu'
 import { EVENT_VIEWS } from '@/features/saved-views/saved-views'
 import { SavedViewsNav } from '@/features/saved-views/saved-views-nav'
 import type { MeResponse } from '@/shared/api/types.gen'
+import { useLocale } from '@/shared/i18n/i18n-context'
 import { cn } from '@/shared/styling/class-names/class-names'
 import type { SidebarState } from '@/shared/ui/layout/sidebar/use-sidebar'
 import { ADMIN_NAV, NavSection, USER_NAV } from './nav-section'
@@ -21,7 +23,15 @@ export function AppSidebar({
   sidebar: SidebarState
 }) {
   const { t } = useTranslation()
+  const { locale } = useLocale()
   const location = useLocation()
+
+  const displayedName = user
+    ? listName(
+        { first_name: user.first_name, middle_name: user.middle_name, last_name: user.last_name },
+        locale,
+      )
+    : ''
 
   const onCatalog = location.pathname === '/catalog'
   const listPath = location.pathname.startsWith('/admin/events') ? '/admin/events' : '/events'
@@ -71,7 +81,9 @@ export function AppSidebar({
             <div className="min-w-0 flex-1">
               <ProfileMenu
                 userId={user.id}
-                displayName={user.display_name}
+                displayName={displayedName}
+                firstName={user.first_name}
+                lastName={user.last_name}
                 email={user.email}
                 avatarUrl={user.avatar_url}
               />

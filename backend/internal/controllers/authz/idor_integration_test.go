@@ -137,7 +137,7 @@ func TestProfileEndpointsActOnlyOnTheCaller(t *testing.T) {
 		t.Fatalf("/me returned a different account: %s", me.Body)
 	}
 
-	renamed := member.patch("/me", map[string]any{"display_name": "Renamed"})
+	renamed := member.patch("/me", map[string]any{"last_name": "Renamed"})
 	requireStatus(t, renamed, http.StatusOK, "the member renames themselves")
 
 	outsider := s.session(t, f.outsider)

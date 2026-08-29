@@ -94,7 +94,8 @@ func (s *InviteService) Create(ctx context.Context, actor models.Actor, email st
 		return nil, "", err
 	}
 
-	s.mailer.SendInvite(ctx, normalized, creator.DisplayName, locale.Default, secret, s.cfg.Auth.InviteTTL)
+	s.mailer.SendInvite(ctx, normalized, creator.DisplayName(locale.Default), locale.Default,
+		secret, s.cfg.Auth.InviteTTL)
 	return invite, secret, nil
 }
 
@@ -151,7 +152,9 @@ func (s *InviteService) Accept(ctx context.Context, req models.AcceptInviteReque
 		return nil, nil, models.NewConflict("invite_not_usable", "the invite has already been used, revoked or expired")
 	}
 	return s.auth.Register(ctx, models.RegisterRequest{
-		DisplayName: req.DisplayName,
+		FirstName:   req.FirstName,
+		MiddleName:  req.MiddleName,
+		LastName:    req.LastName,
 		Email:       invite.NormalizedEmail,
 		Password:    req.Password,
 		InviteToken: req.Token,

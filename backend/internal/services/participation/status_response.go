@@ -29,9 +29,7 @@ func (s *StatusService) response(ctx context.Context, status *models.Registratio
 	if err != nil {
 		return resp, nil
 	}
-	resp.User = &models.UserSummary{
-		ID: user.ID, DisplayName: user.DisplayName,
-		Email: user.Email, IsActive: user.IsActive,
-	}
+	summary := userSummary(user)
+	resp.User = &summary
 	return resp, nil
 }

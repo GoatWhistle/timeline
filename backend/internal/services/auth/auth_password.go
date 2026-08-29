@@ -45,7 +45,8 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 	if err != nil {
 		return err
 	}
-	s.mailer.SendPasswordReset(ctx, user.Email, user.DisplayName, user.Locale, secret, s.cfg.Auth.PasswordResetTTL)
+	s.mailer.SendPasswordReset(ctx, user.Email, user.DisplayName(user.Locale), user.Locale,
+		secret, s.cfg.Auth.PasswordResetTTL)
 	return nil
 }
 

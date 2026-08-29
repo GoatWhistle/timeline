@@ -59,6 +59,9 @@ const OPTIONAL = {
   'models.InvitePreview': ['email', 'expires_at'],
   'models.InviteResponse': ['accepted_at', 'revoked_at'],
   'models.MeResponse': [
+    'middle_name',
+    'legacy_display_name',
+    'nickname',
     'pending_email',
     'telegram_username',
     'preferred_channel',
@@ -67,6 +70,8 @@ const OPTIONAL = {
     'github_url',
     'website_url',
   ],
+  'models.UserSummary': ['middle_name', 'nickname'],
+  'models.PublicProfileResponse': ['middle_name', 'avatar_url', 'bio'],
   'models.MyEventItem': [
     'organizer',
     'next_stage',

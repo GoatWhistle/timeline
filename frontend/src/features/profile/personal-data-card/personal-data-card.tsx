@@ -11,26 +11,56 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/car
 import { Button } from '@/shared/ui/primitives/button'
 
 const profileSchema = z.object({
-  display_name: z.string().min(2, 'auth:validation.nameMin').max(120),
+  first_name: z
+    .string()
+    .trim()
+    .min(1, 'auth:validation.firstNameMin')
+    .max(80, 'auth:validation.nameMax'),
+  middle_name: z.string().trim().max(80, 'auth:validation.nameMax'),
+  last_name: z
+    .string()
+    .trim()
+    .min(1, 'auth:validation.lastNameMin')
+    .max(80, 'auth:validation.nameMax'),
 })
 type ProfileValues = z.infer<typeof profileSchema>
 
-export function PersonalDataCard({ displayName }: { displayName: string }) {
+export function PersonalDataCard({
+  firstName,
+  middleName,
+  lastName,
+  legacyDisplayName,
+}: {
+  firstName: string
+  middleName?: string | null
+  lastName: string
+  legacyDisplayName?: string | null
+}) {
   const { t } = useTranslation()
   const updateProfile = useUpdateProfile()
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
-    values: { display_name: displayName },
+    values: {
+      first_name: firstName,
+      middle_name: middleName ?? '',
+      last_name: lastName,
+    },
   })
 
   async function onSaveProfile(values: ProfileValues) {
     try {
-      await updateProfile.mutateAsync({ display_name: values.display_name })
+      await updateProfile.mutateAsync({
+        first_name: values.first_name,
+        middle_name: values.middle_name,
+        last_name: values.last_name,
+      })
       toast.success(t('profile.saved'))
     } catch (error) {
-      applyServerErrors(error, profileForm.setError, ['display_name'])
+      applyServerErrors(error, profileForm.setError, ['first_name', 'middle_name', 'last_name'])
     }
   }
+
+  const errors = profileForm.formState.errors
 
   return (
     <Card>
@@ -38,20 +68,56 @@ export function PersonalDataCard({ displayName }: { displayName: string }) {
         <CardTitle>{t('profile.personalTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
+        {legacyDisplayName ? (
+          <div
+            role="status"
+            className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-caption"
+          >
+            <p className="font-medium">{t('profile.legacyTitle')}</p>
+            <p className="mt-1 text-muted-foreground">
+              {t('profile.legacyHint', { value: legacyDisplayName })}
+            </p>
+          </div>
+        ) : null}
         <form
           className="flex flex-col gap-4"
           onSubmit={profileForm.handleSubmit(onSaveProfile)}
           noValidate
         >
           <Field
-            label={t('profile.name')}
-            htmlFor="display_name"
-            error={profileForm.formState.errors.display_name?.message}
+            label={t('profile.firstName')}
+            htmlFor="first_name"
+            error={errors.first_name?.message}
           >
             <Input
-              id="display_name"
-              aria-invalid={Boolean(profileForm.formState.errors.display_name)}
-              {...profileForm.register('display_name')}
+              id="first_name"
+              autoComplete="given-name"
+              aria-invalid={Boolean(errors.first_name)}
+              {...profileForm.register('first_name')}
+            />
+          </Field>
+          <Field
+            label={t('profile.lastName')}
+            htmlFor="last_name"
+            error={errors.last_name?.message}
+          >
+            <Input
+              id="last_name"
+              autoComplete="family-name"
+              aria-invalid={Boolean(errors.last_name)}
+              {...profileForm.register('last_name')}
+            />
+          </Field>
+          <Field
+            label={t('profile.middleNameOptional')}
+            htmlFor="middle_name"
+            error={errors.middle_name?.message}
+          >
+            <Input
+              id="middle_name"
+              autoComplete="additional-name"
+              aria-invalid={Boolean(errors.middle_name)}
+              {...profileForm.register('middle_name')}
             />
           </Field>
           <div>

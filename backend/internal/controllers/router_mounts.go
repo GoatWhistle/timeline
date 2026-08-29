@@ -28,9 +28,14 @@ func mountAuth(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("POST "+api+"/invites/accept", http.HandlerFunc(inviteC.Accept))
 }
 
+func mountPublicProfile(mux *http.ServeMux, api string, c *auth.PublicProfileController) {
+	mux.Handle("GET "+api+"/profiles/{nickname}", http.HandlerFunc(c.Get))
+}
+
 func mountMe(mux *http.ServeMux, rt *routes, api string,
 	profileC *auth.ProfileController, sessionC *auth.SessionController, queryC *event.QueryController,
 	catalogC *event.CatalogController, eventC *event.Controller, statusC *participation.RegistrationStatusController,
+	profileLinkC *auth.ProfileLinkController,
 ) {
 	mux.Handle("GET "+api+"/me", rt.authd(profileC.Get))
 	mux.Handle("PATCH "+api+"/me", rt.authd(profileC.Update))
@@ -41,6 +46,11 @@ func mountMe(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("DELETE "+api+"/me/telegram", rt.authd(profileC.TelegramUnlink))
 	mux.Handle("POST "+api+"/me/email-change", rt.authd(profileC.ChangeEmail))
 	mux.Handle("POST "+api+"/me/deactivate", rt.authd(profileC.Deactivate))
+	mux.Handle("GET "+api+"/me/profile-links", rt.authd(profileLinkC.List))
+	mux.Handle("POST "+api+"/me/profile-links", rt.authd(profileLinkC.Create))
+	mux.Handle("PUT "+api+"/me/profile-links/order", rt.authd(profileLinkC.Reorder))
+	mux.Handle("PATCH "+api+"/me/profile-links/{id}", rt.authd(profileLinkC.Update))
+	mux.Handle("DELETE "+api+"/me/profile-links/{id}", rt.authd(profileLinkC.Delete))
 	mux.Handle("GET "+api+"/me/sessions", rt.authd(sessionC.List))
 	mux.Handle("DELETE "+api+"/me/sessions/{id}", rt.authd(sessionC.Revoke))
 

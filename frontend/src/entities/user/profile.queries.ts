@@ -1,6 +1,13 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, unwrap } from '@/shared/api/client'
-import type { MeResponse, TelegramLinkResponse, UpdateProfileRequest } from '@/shared/api/types.gen'
+import type {
+  CreateProfileLinkRequest,
+  MeResponse,
+  ProfileLink,
+  TelegramLinkResponse,
+  UpdateProfileLinkRequest,
+  UpdateProfileRequest,
+} from '@/shared/api/types.gen'
 
 const sessionQueryKey = ['session'] as const
 
@@ -44,4 +51,45 @@ export function useDeactivateAccount() {
   return useMutation<unknown, Error, void>({
     mutationFn: () => unwrap(api.POST('/me/deactivate')),
   })
+}
+
+const profileLinksQueryKey = ['profile-links'] as const
+
+export function useProfileLinks() {
+  return useQuery<ProfileLink[]>({
+    queryKey: profileLinksQueryKey,
+    queryFn: async () => (await unwrap(api.GET('/me/profile-links'))).items ?? [],
+  })
+}
+
+function useProfileLinksMutation<TVariables>(run: (variables: TVariables) => Promise<unknown>) {
+  const queryClient = useQueryClient()
+  return useMutation<unknown, Error, TVariables>({
+    mutationFn: run,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileLinksQueryKey }),
+  })
+}
+
+export function useCreateProfileLink() {
+  return useProfileLinksMutation<CreateProfileLinkRequest>((body) =>
+    unwrap(api.POST('/me/profile-links', { body })),
+  )
+}
+
+export function useUpdateProfileLink() {
+  return useProfileLinksMutation<{ id: string; body: UpdateProfileLinkRequest }>(({ id, body }) =>
+    unwrap(api.PATCH('/me/profile-links/{id}', { params: { path: { id } }, body })),
+  )
+}
+
+export function useDeleteProfileLink() {
+  return useProfileLinksMutation<string>((id) =>
+    unwrap(api.DELETE('/me/profile-links/{id}', { params: { path: { id } } })),
+  )
+}
+
+export function useReorderProfileLinks() {
+  return useProfileLinksMutation<string[]>((ids) =>
+    unwrap(api.PUT('/me/profile-links/order', { body: { ids } })),
+  )
 }

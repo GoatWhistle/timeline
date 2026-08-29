@@ -6711,6 +6711,342 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/profile-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your own profile links
+         * @description The links shown on the profile, in their display order. The kind of each link
+         *     is not stored: the client derives it from the address, so a new service needs
+         *     no migration.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ProfileLinkListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Add a profile link
+         * @description Appends a link to the end of the list. The address must parse and use http or
+         *     https; schemes that execute in the browser are rejected. The number of links
+         *     per profile is bounded.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Link */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.CreateProfileLinkRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ProfileLink"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the profile link limit is reached */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/profile-links/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a profile link */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Link identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.MessageResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /** Change a profile link */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Link identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Changed fields */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.UpdateProfileLinkRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ProfileLink"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/me/profile-links/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder the profile links
+         * @description Takes every link identifier of the profile exactly once, in the wanted order.
+         *     A partial list is rejected, so a reorder cannot silently drop a link.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Identifiers in display order */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.ReorderProfileLinksRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ProfileLinkListResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/schedule": {
         parameters: {
             query?: never;
@@ -7504,6 +7840,69 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/profiles/{nickname}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Public profile by nickname
+         * @description Served without authentication. A profile is visible only when its owner
+         *     turned visibility on; otherwise the response is 404, so that the existence
+         *     of a closed profile is not disclosed. Events are limited to published,
+         *     non-archived ones that the person allowed to be shown.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Nickname without the @ sign */
+                    nickname: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.PublicProfileResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/readyz": {
         parameters: {
             query?: never;
@@ -7633,8 +8032,12 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         "models.AcceptInviteRequest": {
-            /** @example John Smith */
-            display_name?: string;
+            /** @example John */
+            first_name?: string;
+            /** @example Smith */
+            last_name?: string;
+            /** @example Fitzgerald */
+            middle_name?: string;
             /** @example correct-horse-battery */
             password?: string;
             /** @example abc123 */
@@ -7870,6 +8273,12 @@ export interface components {
             /** @example My scratch notes */
             title?: string;
             /** @example https://example.org/my-notes */
+            url?: string;
+        };
+        "models.CreateProfileLinkRequest": {
+            /** @example My repositories */
+            label?: string;
+            /** @example https://github.com/ivan */
             url?: string;
         };
         "models.CreateRegistrationRequest": {
@@ -8125,20 +8534,30 @@ export interface components {
             email: string;
             /** @example true */
             email_verified: boolean;
-            /** @example https://github.com/ivan */
-            github_url?: string;
+            /** @example John */
+            first_name: string;
             id: string;
             /** @example true */
             is_active: boolean;
             /** @example false */
             is_admin: boolean;
+            /** @example Smith */
+            last_name: string;
+            /** @example John Smith */
+            legacy_display_name?: string;
             /**
              * @example ru
              * @enum {string}
              */
             locale: "ru" | "en";
+            /** @example Fitzgerald */
+            middle_name?: string;
+            /** @example jsmith */
+            nickname?: string;
             pending_email?: string;
             preferred_channel?: components["schemas"]["models.Channel"];
+            /** @example false */
+            profile_public: boolean;
             shortcuts: components["schemas"]["models.Shortcuts"];
             /** @example false */
             telegram_linked: boolean;
@@ -8147,8 +8566,6 @@ export interface components {
             timezone: string;
             /** Format: date-time */
             updated_at: string;
-            /** @example https://ivan.example.com */
-            website_url?: string;
         };
         "models.MessageResponse": {
             /** @example operation completed */
@@ -8387,6 +8804,48 @@ export interface components {
             /** @example 3 */
             skipped: number;
         };
+        "models.ProfileLink": {
+            /** Format: date-time */
+            created_at: string;
+            id: string;
+            /** @example My repositories */
+            label: string;
+            /** @example 0 */
+            sort_order: number;
+            /** Format: date-time */
+            updated_at: string;
+            /** @example https://github.com/ivan */
+            url: string;
+        };
+        "models.ProfileLinkListResponse": {
+            items: components["schemas"]["models.ProfileLink"][];
+        };
+        "models.PublicProfileEvent": {
+            /** Format: date-time */
+            end_at: string;
+            id: string;
+            /** Format: date-time */
+            start_at: string;
+            /** @example Timeline Hack */
+            title: string;
+        };
+        "models.PublicProfileResponse": {
+            /** @example https://example.com/a.png */
+            avatar_url?: string;
+            /** @example Backend developer */
+            bio?: string;
+            /** @example John Smith */
+            display_name: string;
+            events: components["schemas"]["models.PublicProfileEvent"][];
+            /** @example John */
+            first_name: string;
+            /** @example Smith */
+            last_name: string;
+            /** @example Fitzgerald */
+            middle_name?: string;
+            /** @example jsmith */
+            nickname: string;
+        };
         "models.QueueEntryPage": {
             items: components["schemas"]["models.QueueEntryResponse"][];
             meta: components["schemas"]["models.PageMeta"];
@@ -8420,11 +8879,15 @@ export interface components {
             status: string;
         };
         "models.RegisterRequest": {
-            /** @example John Smith */
-            display_name?: string;
             /** @example ivan@example.com */
             email?: string;
+            /** @example John */
+            first_name?: string;
             invite_token?: string;
+            /** @example Smith */
+            last_name?: string;
+            /** @example Fitzgerald */
+            middle_name?: string;
             /** @example correct-horse-battery */
             password?: string;
         };
@@ -8508,6 +8971,9 @@ export interface components {
         "models.RegistrationStatusValue": "TODO" | "DONE" | "NOT_REQUIRED";
         "models.RemoveParticipantsRequest": {
             participant_ids?: string[];
+        };
+        "models.ReorderProfileLinksRequest": {
+            ids?: string[];
         };
         "models.ResetPasswordRequest": {
             /** @example new-correct-horse */
@@ -8753,28 +9219,40 @@ export interface components {
             /** @example https://example.org/my-notes */
             url?: string;
         };
+        "models.UpdateProfileLinkRequest": {
+            /** @example false */
+            clear_label?: boolean;
+            /** @example My repositories */
+            label?: string;
+            /** @example https://github.com/ivan */
+            url?: string;
+        };
         "models.UpdateProfileRequest": {
             /** @example https://example.com/a.png */
             avatar_url?: string;
             /** @example Backend developer */
             bio?: string;
-            /** @example John Smith */
-            display_name?: string;
-            /** @example https://github.com/ivan */
-            github_url?: string;
+            /** @example John */
+            first_name?: string;
+            /** @example Smith */
+            last_name?: string;
             /**
              * @example en
              * @enum {string}
              */
             locale?: "ru" | "en";
+            /** @example Fitzgerald */
+            middle_name?: string;
+            /** @example jsmith */
+            nickname?: string;
             /** @enum {string} */
             preferred_channel?: "TELEGRAM" | "EMAIL";
+            /** @example false */
+            profile_public?: boolean;
             /** @example @ivan */
             telegram_username?: string;
             /** @example Asia/Tokyo */
             timezone?: string;
-            /** @example https://ivan.example.com */
-            website_url?: string;
         };
         "models.UpdateRegistrationRequest": {
             /** Format: date-time */
@@ -8859,9 +9337,17 @@ export interface components {
             display_name: string;
             /** @example ivan@example.com */
             email: string;
+            /** @example John */
+            first_name: string;
             id: string;
             /** @example true */
             is_active: boolean;
+            /** @example Smith */
+            last_name: string;
+            /** @example Fitzgerald */
+            middle_name?: string;
+            /** @example jsmith */
+            nickname?: string;
         };
         "models.WorkerHeartbeatResponse": {
             /** @example 0 */

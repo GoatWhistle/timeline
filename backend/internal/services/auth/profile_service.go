@@ -60,9 +60,20 @@ func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req mod
 		if err != nil {
 			return err
 		}
+		if err := s.checkNickname(ctx, actor, patch); err != nil {
+			return err
+		}
+		if err := s.holdPreviousNickname(ctx, before, patch); err != nil {
+			return err
+		}
 		updated, err = s.users.UpdateProfile(ctx, actor.UserID, patch)
 		if err != nil {
 			return err
+		}
+		if patch.Nickname != nil {
+			if err := s.users.DropReservation(ctx, *patch.Nickname); err != nil {
+				return err
+			}
 		}
 		return s.audit.Record(ctx, actor, models.AuditUserProfileChange, models.EntityUser, actor.UserID,
 			profileSnapshot(before), profileSnapshot(updated))
@@ -75,13 +86,15 @@ func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req mod
 
 func profileSnapshot(u *models.User) map[string]any {
 	return map[string]any{
-		"display_name":      u.DisplayName,
+		"first_name":        u.FirstName,
+		"middle_name":       u.MiddleName,
+		"last_name":         u.LastName,
+		"nickname":          u.Nickname,
+		"profile_public":    u.ProfilePublic,
 		"preferred_channel": u.PreferredChannel,
 		"locale":            u.Locale,
 		"timezone":          u.Timezone,
 		"avatar_url":        u.AvatarURL,
-		"github_url":        u.GithubURL,
-		"website_url":       u.WebsiteURL,
 		"bio_set":           u.Bio != nil,
 	}
 }
@@ -169,7 +182,7 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 		return err
 	}
 
-	s.mailer.SendEmailChange(ctx, newEmail, user.DisplayName, user.Locale, secret, s.cfg.Auth.EmailVerifyTTL)
+	s.mailer.SendEmailChange(ctx, newEmail, user.DisplayName(user.Locale), user.Locale, secret, s.cfg.Auth.EmailVerifyTTL)
 	return nil
 }
 

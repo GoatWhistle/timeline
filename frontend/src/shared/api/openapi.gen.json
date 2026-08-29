@@ -6930,6 +6930,357 @@
         }
       }
     },
+    "/me/profile-links": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The links shown on the profile, in their display order. The kind of each link\nis not stored: the client derives it from the address, so a new service needs\nno migration.",
+        "tags": [
+          "profile"
+        ],
+        "summary": "Your own profile links",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ProfileLinkListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Appends a link to the end of the list. The address must parse and use http or\nhttps; schemes that execute in the browser are rejected. The number of links\nper profile is bounded.",
+        "tags": [
+          "profile"
+        ],
+        "summary": "Add a profile link",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.CreateProfileLinkRequest"
+              }
+            }
+          },
+          "description": "Link",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ProfileLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "the profile link limit is reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/profile-links/order": {
+      "put": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Takes every link identifier of the profile exactly once, in the wanted order.\nA partial list is rejected, so a reorder cannot silently drop a link.",
+        "tags": [
+          "profile"
+        ],
+        "summary": "Reorder the profile links",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.ReorderProfileLinksRequest"
+              }
+            }
+          },
+          "description": "Identifiers in display order",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ProfileLinkListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/profile-links/{id}": {
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "tags": [
+          "profile"
+        ],
+        "summary": "Remove a profile link",
+        "parameters": [
+          {
+            "description": "Link identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.MessageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "tags": [
+          "profile"
+        ],
+        "summary": "Change a profile link",
+        "parameters": [
+          {
+            "description": "Link identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.UpdateProfileLinkRequest"
+              }
+            }
+          },
+          "description": "Changed fields",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ProfileLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/me/schedule": {
       "get": {
         "security": [
@@ -7649,6 +8000,58 @@
         }
       }
     },
+    "/profiles/{nickname}": {
+      "get": {
+        "description": "Served without authentication. A profile is visible only when its owner\nturned visibility on; otherwise the response is 404, so that the existence\nof a closed profile is not disclosed. Events are limited to published,\nnon-archived ones that the person allowed to be shown.",
+        "tags": [
+          "profile"
+        ],
+        "summary": "Public profile by nickname",
+        "parameters": [
+          {
+            "description": "Nickname without the @ sign",
+            "name": "nickname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.PublicProfileResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/readyz": {
       "get": {
         "description": "Checks that the database is reachable.",
@@ -7793,9 +8196,17 @@
       "models.AcceptInviteRequest": {
         "type": "object",
         "properties": {
-          "display_name": {
+          "first_name": {
             "type": "string",
-            "example": "John Smith"
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Smith"
+          },
+          "middle_name": {
+            "type": "string",
+            "example": "Fitzgerald"
           },
           "password": {
             "type": "string",
@@ -8566,6 +8977,19 @@
           }
         }
       },
+      "models.CreateProfileLinkRequest": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "My repositories"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://github.com/ivan"
+          }
+        }
+      },
       "models.CreateRegistrationRequest": {
         "type": "object",
         "properties": {
@@ -9322,9 +9746,9 @@
             "type": "boolean",
             "example": true
           },
-          "github_url": {
+          "first_name": {
             "type": "string",
-            "example": "https://github.com/ivan"
+            "example": "John"
           },
           "id": {
             "type": "string"
@@ -9337,6 +9761,14 @@
             "type": "boolean",
             "example": false
           },
+          "last_name": {
+            "type": "string",
+            "example": "Smith"
+          },
+          "legacy_display_name": {
+            "type": "string",
+            "example": "John Smith"
+          },
           "locale": {
             "type": "string",
             "enum": [
@@ -9345,11 +9777,23 @@
             ],
             "example": "ru"
           },
+          "middle_name": {
+            "type": "string",
+            "example": "Fitzgerald"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "jsmith"
+          },
           "pending_email": {
             "type": "string"
           },
           "preferred_channel": {
             "$ref": "#/components/schemas/models.Channel"
+          },
+          "profile_public": {
+            "type": "boolean",
+            "example": false
           },
           "shortcuts": {
             "$ref": "#/components/schemas/models.Shortcuts"
@@ -9368,10 +9812,6 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
-          },
-          "website_url": {
-            "type": "string",
-            "example": "https://ivan.example.com"
           }
         },
         "required": [
@@ -9379,10 +9819,13 @@
           "display_name",
           "email",
           "email_verified",
+          "first_name",
           "id",
           "is_active",
           "is_admin",
+          "last_name",
           "locale",
+          "profile_public",
           "shortcuts",
           "telegram_linked",
           "timezone",
@@ -10139,6 +10582,128 @@
           "skipped"
         ]
       },
+      "models.ProfileLink": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "example": "My repositories"
+          },
+          "sort_order": {
+            "type": "integer",
+            "example": 0
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://github.com/ivan"
+          }
+        },
+        "required": [
+          "created_at",
+          "id",
+          "label",
+          "sort_order",
+          "updated_at",
+          "url"
+        ]
+      },
+      "models.ProfileLinkListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.ProfileLink"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "models.PublicProfileEvent": {
+        "type": "object",
+        "properties": {
+          "end_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
+            "type": "string",
+            "example": "Timeline Hack"
+          }
+        },
+        "required": [
+          "end_at",
+          "id",
+          "start_at",
+          "title"
+        ]
+      },
+      "models.PublicProfileResponse": {
+        "type": "object",
+        "properties": {
+          "avatar_url": {
+            "type": "string",
+            "example": "https://example.com/a.png"
+          },
+          "bio": {
+            "type": "string",
+            "example": "Backend developer"
+          },
+          "display_name": {
+            "type": "string",
+            "example": "John Smith"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.PublicProfileEvent"
+            }
+          },
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Smith"
+          },
+          "middle_name": {
+            "type": "string",
+            "example": "Fitzgerald"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "jsmith"
+          }
+        },
+        "required": [
+          "display_name",
+          "events",
+          "first_name",
+          "last_name",
+          "nickname"
+        ]
+      },
       "models.QueueEntryPage": {
         "type": "object",
         "properties": {
@@ -10246,16 +10811,24 @@
       "models.RegisterRequest": {
         "type": "object",
         "properties": {
-          "display_name": {
-            "type": "string",
-            "example": "John Smith"
-          },
           "email": {
             "type": "string",
             "example": "ivan@example.com"
           },
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
           "invite_token": {
             "type": "string"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Smith"
+          },
+          "middle_name": {
+            "type": "string",
+            "example": "Fitzgerald"
           },
           "password": {
             "type": "string",
@@ -10511,6 +11084,17 @@
         "type": "object",
         "properties": {
           "participant_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "models.ReorderProfileLinksRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
             "type": "array",
             "items": {
               "type": "string"
@@ -11216,6 +11800,23 @@
           }
         }
       },
+      "models.UpdateProfileLinkRequest": {
+        "type": "object",
+        "properties": {
+          "clear_label": {
+            "type": "boolean",
+            "example": false
+          },
+          "label": {
+            "type": "string",
+            "example": "My repositories"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://github.com/ivan"
+          }
+        }
+      },
       "models.UpdateProfileRequest": {
         "type": "object",
         "properties": {
@@ -11227,13 +11828,13 @@
             "type": "string",
             "example": "Backend developer"
           },
-          "display_name": {
+          "first_name": {
             "type": "string",
-            "example": "John Smith"
+            "example": "John"
           },
-          "github_url": {
+          "last_name": {
             "type": "string",
-            "example": "https://github.com/ivan"
+            "example": "Smith"
           },
           "locale": {
             "type": "string",
@@ -11243,12 +11844,24 @@
             ],
             "example": "en"
           },
+          "middle_name": {
+            "type": "string",
+            "example": "Fitzgerald"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "jsmith"
+          },
           "preferred_channel": {
             "type": "string",
             "enum": [
               "TELEGRAM",
               "EMAIL"
             ]
+          },
+          "profile_public": {
+            "type": "boolean",
+            "example": false
           },
           "telegram_username": {
             "type": "string",
@@ -11257,10 +11870,6 @@
           "timezone": {
             "type": "string",
             "example": "Asia/Tokyo"
-          },
-          "website_url": {
-            "type": "string",
-            "example": "https://ivan.example.com"
           }
         }
       },
@@ -11465,19 +12074,37 @@
             "type": "string",
             "example": "ivan@example.com"
           },
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
           "id": {
             "type": "string"
           },
           "is_active": {
             "type": "boolean",
             "example": true
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Smith"
+          },
+          "middle_name": {
+            "type": "string",
+            "example": "Fitzgerald"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "jsmith"
           }
         },
         "required": [
           "display_name",
           "email",
+          "first_name",
           "id",
-          "is_active"
+          "is_active",
+          "last_name"
         ]
       },
       "models.WorkerHeartbeatResponse": {

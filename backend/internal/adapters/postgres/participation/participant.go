@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
@@ -116,7 +117,8 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 	}
 	if filter.Search != "" {
 		args = append(args, "%"+strings.ToLower(filter.Search)+"%")
-		conds = append(conds, "(lower(u.display_name) LIKE $"+itoa(len(args))+" OR u.email LIKE $"+itoa(len(args))+")")
+		conds = append(conds, "(lower(u.first_name) LIKE $"+itoa(len(args))+
+			" OR lower(u.last_name) LIKE $"+itoa(len(args))+" OR u.email LIKE $"+itoa(len(args))+")")
 	}
 	where := "WHERE " + strings.Join(conds, " AND ")
 
@@ -134,9 +136,9 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		SELECT p.id, p.event_id, p.team_role, p.participation_status, p.assignment_version,
 		       p.assigned_at, p.removed_at,
-		       u.id, u.display_name, u.email, u.is_active,
+		       u.id, u.first_name, u.middle_name, u.last_name, u.nickname, u.email, u.is_active,
 		       s.id, s.status, s.todo_cycle, s.registered_at, s.note `+from+where+`
-		ORDER BY u.display_name
+		ORDER BY lower(u.last_name), lower(u.first_name)
 		LIMIT $`+itoa(len(args)-1)+` OFFSET $`+itoa(len(args)), args...)
 	if err != nil {
 		return nil, 0, mapError(err)
@@ -155,7 +157,8 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 		)
 		if err := rows.Scan(&item.ID, &item.EventID, &item.TeamRole, &item.ParticipationStatus,
 			&item.AssignmentVersion, &item.AssignedAt, &item.RemovedAt,
-			&item.User.ID, &item.User.DisplayName, &item.User.Email, &item.User.IsActive,
+			&item.User.ID, &item.User.FirstName, &item.User.MiddleName, &item.User.LastName,
+			&item.User.Nickname, &item.User.Email, &item.User.IsActive,
 			&statusID, &statusValue, &todoCycle, &registeredAt, &note); err != nil {
 			return nil, 0, mapError(err)
 		}
@@ -168,6 +171,7 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 				Note:         note,
 			}
 		}
+		item.User.Fill(locale.Default)
 		items = append(items, item)
 	}
 	return items, total, mapError(rows.Err())

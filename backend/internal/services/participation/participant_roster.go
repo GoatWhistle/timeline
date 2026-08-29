@@ -136,12 +136,9 @@ func (s *ParticipantService) response(ctx context.Context, p *models.EventPartic
 		return nil, err
 	}
 	resp := &models.ParticipantResponse{
-		ID:      p.ID,
-		EventID: p.EventID,
-		User: models.UserSummary{
-			ID: user.ID, DisplayName: user.DisplayName,
-			Email: user.Email, IsActive: user.IsActive,
-		},
+		ID:                  p.ID,
+		EventID:             p.EventID,
+		User:                userSummary(user),
 		TeamRole:            p.TeamRole,
 		ParticipationStatus: p.ParticipationStatus,
 		AssignmentVersion:   p.AssignmentVersion,
@@ -168,4 +165,14 @@ func (s *ParticipantService) response(ctx context.Context, p *models.EventPartic
 		RegisteredAt: status.RegisteredAt, Note: status.Note,
 	}
 	return resp, nil
+}
+
+func userSummary(user *models.User) models.UserSummary {
+	summary := models.UserSummary{
+		ID: user.ID, FirstName: user.FirstName, MiddleName: user.MiddleName,
+		LastName: user.LastName, Nickname: user.Nickname,
+		Email: user.Email, IsActive: user.IsActive,
+	}
+	summary.Fill(user.Locale)
+	return summary
 }

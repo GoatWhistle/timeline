@@ -65,8 +65,8 @@ func (f *coverageFixture) user(email string, active bool, deleted bool) string {
 		deletedAt = &at
 	}
 	err := f.pool.QueryRow(context.Background(), `
-		INSERT INTO users (display_name, email, password_hash, email_verified_at, is_active, deleted_at)
-		VALUES ('Participant', $1, 'hash', now(), $2, $3) RETURNING id`,
+		INSERT INTO users (first_name, last_name, email, password_hash, email_verified_at, is_active, deleted_at)
+		VALUES ('Test', 'Participant', $1, 'hash', now(), $2, $3) RETURNING id`,
 		email, active, deletedAt).Scan(&id)
 	if err != nil {
 		f.t.Fatalf("creating user %q: %v", email, err)

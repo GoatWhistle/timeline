@@ -1,6 +1,7 @@
 package models
 
 import (
+	"sort"
 	"strings"
 	"time"
 
@@ -8,28 +9,41 @@ import (
 )
 
 type User struct {
-	ID               uuid.UUID  `json:"id"`
-	DisplayName      string     `json:"display_name"`
-	Email            string     `json:"email"`
-	PendingEmail     *string    `json:"pending_email,omitempty"`
-	PasswordHash     string     `json:"-"`
-	EmailVerifiedAt  *time.Time `json:"email_verified_at,omitempty"`
-	TelegramUsername *string    `json:"telegram_username,omitempty"`
-	TelegramChatID   *string    `json:"-"`
-	PreferredChannel *Channel   `json:"preferred_channel,omitempty"`
-	AvatarURL        *string    `json:"avatar_url,omitempty"`
-	Bio              *string    `json:"bio,omitempty"`
-	GithubURL        *string    `json:"github_url,omitempty"`
-	WebsiteURL       *string    `json:"website_url,omitempty"`
-	Locale           string     `json:"locale"`
-	Timezone         string     `json:"timezone"`
-	Shortcuts        Shortcuts  `json:"shortcuts"`
-	IsAdmin          bool       `json:"is_admin"`
-	IsActive         bool       `json:"is_active"`
-	DeletedAt        *time.Time `json:"-"`
-	CreatedAt        time.Time  `json:"created_at"`
-	UpdatedAt        time.Time  `json:"updated_at"`
+	ID                uuid.UUID  `json:"id"`
+	FirstName         string     `json:"first_name"`
+	MiddleName        *string    `json:"middle_name,omitempty"`
+	LastName          string     `json:"last_name"`
+	LegacyDisplayName *string    `json:"legacy_display_name,omitempty"`
+	Nickname          *string    `json:"nickname,omitempty"`
+	ProfilePublic     bool       `json:"profile_public"`
+	Email             string     `json:"email"`
+	PendingEmail      *string    `json:"pending_email,omitempty"`
+	PasswordHash      string     `json:"-"`
+	EmailVerifiedAt   *time.Time `json:"email_verified_at,omitempty"`
+	TelegramUsername  *string    `json:"telegram_username,omitempty"`
+	TelegramChatID    *string    `json:"-"`
+	PreferredChannel  *Channel   `json:"preferred_channel,omitempty"`
+	AvatarURL         *string    `json:"avatar_url,omitempty"`
+	Bio               *string    `json:"bio,omitempty"`
+	Locale            string     `json:"locale"`
+	Timezone          string     `json:"timezone"`
+	Shortcuts         Shortcuts  `json:"shortcuts"`
+	IsAdmin           bool       `json:"is_admin"`
+	IsActive          bool       `json:"is_active"`
+	DeletedAt         *time.Time `json:"-"`
+	CreatedAt         time.Time  `json:"created_at"`
+	UpdatedAt         time.Time  `json:"updated_at"`
 }
+
+func (u *User) DisplayName(locale string) string {
+	return FormatFullName(locale, u.FirstName, u.MiddleName, u.LastName)
+}
+
+func (u *User) Initials() string {
+	return NameInitials(u.FirstName, u.LastName)
+}
+
+func (u *User) NameCorrected() bool { return u.LegacyDisplayName == nil }
 
 func (u *User) TelegramLinked() bool {
 	return u.TelegramChatID != nil && *u.TelegramChatID != ""
@@ -87,68 +101,123 @@ func (i *Invite) Usable(now time.Time) bool {
 }
 
 const (
-	ShortcutMaxActions   = 64
-	ShortcutMaxActionLen = 64
-	ShortcutMaxComboLen  = 64
-	ShortcutMaxSteps     = 2
+	LocaleRU = "ru"
+
+	NameMinLen = 1
+	NameMaxLen = 80
+
+	NicknameMinLen = 3
+	NicknameMaxLen = 39
 )
 
-type Shortcuts map[string]string
-
-var shortcutModifiers = map[string]int{"mod": 1, "alt": 2, "shift": 3}
-
-var shortcutNamedKeys = map[string]bool{
-	"escape": true, "enter": true, "tab": true, "space": true, "backspace": true,
-	"delete": true, "home": true, "end": true, "pageup": true, "pagedown": true,
-	"arrowup": true, "arrowdown": true, "arrowleft": true, "arrowright": true,
-	"f1": true, "f2": true, "f3": true, "f4": true, "f5": true, "f6": true,
-	"f7": true, "f8": true, "f9": true, "f10": true, "f11": true, "f12": true,
+func FormatFullName(locale, first string, middle *string, last string) string {
+	first = strings.TrimSpace(first)
+	last = strings.TrimSpace(last)
+	if locale == LocaleRU {
+		return joinName(last, first, middleValue(middle))
+	}
+	return joinName(first, middleValue(middle), last)
 }
 
-var shortcutReserved = map[string]bool{
-	"tab": true, "escape": true, "enter": true, "backspace": true,
-	"mod+w": true, "mod+t": true, "mod+n": true, "mod+q": true, "mod+r": true,
-	"mod+l": true, "mod+p": true, "mod+s": true, "mod+f": true, "mod+d": true,
-	"mod+shift+w": true, "mod+shift+t": true, "mod+shift+n": true, "mod+shift+q": true,
-	"mod+tab": true, "alt+tab": true, "mod+shift+tab": true,
-	"f5": true, "f11": true, "f12": true,
+func FormatListName(locale, first string, middle *string, last string) string {
+	first = strings.TrimSpace(first)
+	last = strings.TrimSpace(last)
+	if locale == LocaleRU {
+		return joinName(last, first)
+	}
+	return joinName(first, last)
 }
 
-func ShortcutReserved(combo string) bool {
-	for _, step := range strings.Split(combo, " ") {
-		if shortcutReserved[step] {
-			return true
+func FormatAddressName(locale, first string, middle *string) string {
+	first = strings.TrimSpace(first)
+	if locale == LocaleRU {
+		return joinName(first, middleValue(middle))
+	}
+	return first
+}
+
+func NameInitials(first, last string) string {
+	return firstRune(first) + firstRune(last)
+}
+
+func middleValue(middle *string) string {
+	if middle == nil {
+		return ""
+	}
+	return strings.TrimSpace(*middle)
+}
+
+func joinName(parts ...string) string {
+	present := parts[:0]
+	for _, part := range parts {
+		if part != "" {
+			present = append(present, part)
 		}
 	}
-	return false
+	return strings.Join(present, " ")
 }
 
-func ShortcutStepValid(step string) bool {
-	parts := strings.Split(step, "+")
-	key := parts[len(parts)-1]
-	seen := 0
-	for _, modifier := range parts[:len(parts)-1] {
-		rank, ok := shortcutModifiers[modifier]
-		if !ok || rank <= seen {
-			return false
-		}
-		seen = rank
+func firstRune(value string) string {
+	for _, r := range strings.TrimSpace(value) {
+		return strings.ToUpper(string(r))
 	}
-	if shortcutNamedKeys[key] {
-		return true
-	}
-	return len([]rune(key)) == 1 && key == strings.ToLower(key) && key != " "
+	return ""
 }
 
-func ShortcutComboValid(combo string) bool {
-	steps := strings.Split(combo, " ")
-	if len(steps) == 0 || len(steps) > ShortcutMaxSteps {
+type NicknameReservation struct {
+	ID         uuid.UUID `json:"id"`
+	Nickname   string    `json:"nickname"`
+	UserID     uuid.UUID `json:"user_id"`
+	ReleasedAt time.Time `json:"released_at"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+const NicknameHold = 30 * 24 * time.Hour
+
+var reservedNicknames = map[string]bool{
+	"about": true, "admin": true, "api": true, "assets": true, "audit": true,
+	"auth": true, "calendar": true, "catalog": true, "deadlines": true,
+	"docs": true, "email-change": true, "events": true, "forbidden": true,
+	"forgot-password": true, "healthz": true, "help": true, "invite": true,
+	"invites": true, "login": true, "me": true, "metrics": true, "null": true,
+	"ops": true, "privacy": true, "profile": true, "public": true,
+	"readyz": true, "realtime": true, "register": true, "reset-password": true,
+	"root": true, "schedule": true, "security": true, "settings": true,
+	"static": true, "support": true, "swagger": true, "system": true,
+	"terms": true, "timeline": true, "undefined": true, "users": true,
+	"verify-email": true,
+}
+
+func NicknameReserved(nickname string) bool {
+	return reservedNicknames[NormalizeNickname(nickname)]
+}
+
+func ReservedNicknames() []string {
+	out := make([]string, 0, len(reservedNicknames))
+	for name := range reservedNicknames {
+		out = append(out, name)
+	}
+	sort.Strings(out)
+	return out
+}
+
+func NicknameFormatValid(nickname string) bool {
+	runes := []rune(nickname)
+	if len(runes) < NicknameMinLen || len(runes) > NicknameMaxLen {
 		return false
 	}
-	for _, step := range steps {
-		if step == "" || !ShortcutStepValid(step) {
-			return false
+	for index, r := range runes {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') {
+			continue
 		}
+		if (r == '-' || r == '_') && index > 0 && index < len(runes)-1 {
+			continue
+		}
+		return false
 	}
-	return len(steps) == 1 || !strings.Contains(steps[0], "+")
+	return true
+}
+
+func NormalizeNickname(nickname string) string {
+	return strings.ToLower(strings.TrimSpace(nickname))
 }

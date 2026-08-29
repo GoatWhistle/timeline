@@ -24,6 +24,7 @@ import {
   MyEventsPage,
   MySchedulePage,
   ProfilePage,
+  PublicProfilePage,
   RegisterPage,
   ResetPasswordPage,
   SettingsPage,
@@ -46,6 +47,8 @@ export function AppRouter() {
     <BrowserRouter>
       <UnauthenticatedRedirect />
       <Routes>
+        <Route path="/@:nickname" element={<PublicProfilePage />} />
+
         <Route element={<AnonymousOnly />}>
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />

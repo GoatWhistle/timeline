@@ -19,9 +19,7 @@ func TestProfilePatchRejectsExecutableSchemesInEveryLinkField(t *testing.T) {
 		"file:///etc/passwd",
 	}
 	fields := map[string]func(string) models.UpdateProfileRequest{
-		"avatar_url":  func(v string) models.UpdateProfileRequest { return models.UpdateProfileRequest{AvatarURL: ptr(v)} },
-		"github_url":  func(v string) models.UpdateProfileRequest { return models.UpdateProfileRequest{GithubURL: ptr(v)} },
-		"website_url": func(v string) models.UpdateProfileRequest { return models.UpdateProfileRequest{WebsiteURL: ptr(v)} },
+		"avatar_url": func(v string) models.UpdateProfileRequest { return models.UpdateProfileRequest{AvatarURL: ptr(v)} },
 	}
 
 	for field, build := range fields {
@@ -37,9 +35,7 @@ func TestProfilePatchRejectsExecutableSchemesInEveryLinkField(t *testing.T) {
 
 func TestProfilePatchAcceptsOrdinaryAddresses(t *testing.T) {
 	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{
-		AvatarURL:  ptr("https://example.org/a.png"),
-		GithubURL:  ptr("https://github.com/ivan"),
-		WebsiteURL: ptr("http://ivan.example.org"),
+		AvatarURL: ptr("https://example.org/a.png"),
 	})
 	if err != nil {
 		t.Fatalf("expected the addresses to be accepted, got %v", err)
@@ -47,41 +43,36 @@ func TestProfilePatchAcceptsOrdinaryAddresses(t *testing.T) {
 	if patch.AvatarURL == nil || *patch.AvatarURL != "https://example.org/a.png" {
 		t.Fatalf("avatar_url is %v, want the submitted address", patch.AvatarURL)
 	}
-	if patch.WebsiteURL == nil || *patch.WebsiteURL != "http://ivan.example.org" {
-		t.Fatalf("a plain http address was not accepted: %v", patch.WebsiteURL)
-	}
-	if patch.ClearAvatarURL || patch.ClearGithubURL || patch.ClearWebsiteURL {
+	if patch.ClearAvatarURL {
 		t.Fatalf("a non-empty address must not be read as a clear request")
 	}
 }
 
 func TestProfilePatchTreatsAnEmptyStringAsClearing(t *testing.T) {
 	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{
-		AvatarURL:  ptr(""),
-		GithubURL:  ptr("   "),
-		WebsiteURL: ptr(""),
-		Bio:        ptr(""),
+		AvatarURL: ptr(""),
+		Bio:       ptr(""),
 	})
 	if err != nil {
 		t.Fatalf("expected an empty value to clear the field, got %v", err)
 	}
-	if !patch.ClearAvatarURL || !patch.ClearGithubURL || !patch.ClearWebsiteURL || !patch.ClearBio {
+	if !patch.ClearAvatarURL || !patch.ClearBio {
 		t.Fatalf("an empty value did not request clearing: %+v", patch)
 	}
-	if patch.AvatarURL != nil || patch.GithubURL != nil || patch.WebsiteURL != nil || patch.Bio != nil {
+	if patch.AvatarURL != nil || patch.Bio != nil {
 		t.Fatalf("a clear request must not also carry a value: %+v", patch)
 	}
 }
 
 func TestProfilePatchLeavesUnmentionedFieldsAlone(t *testing.T) {
-	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{DisplayName: ptr("Ivan")})
+	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{FirstName: ptr("Ivan")})
 	if err != nil {
 		t.Fatalf("expected the request to be accepted, got %v", err)
 	}
-	if patch.AvatarURL != nil || patch.Bio != nil || patch.GithubURL != nil || patch.WebsiteURL != nil {
+	if patch.AvatarURL != nil || patch.Bio != nil {
 		t.Fatalf("an absent field was given a value: %+v", patch)
 	}
-	if patch.ClearAvatarURL || patch.ClearBio || patch.ClearGithubURL || patch.ClearWebsiteURL {
+	if patch.ClearAvatarURL || patch.ClearBio {
 		t.Fatalf("an absent field was cleared: %+v", patch)
 	}
 }
@@ -116,5 +107,86 @@ func TestProfilePatchKeepsBioTextVerbatim(t *testing.T) {
 	if *patch.Bio != want {
 		t.Fatalf("the bio was rewritten to %q; escaping belongs to the renderer, "+
 			"storing pre-escaped text would double-escape it", *patch.Bio)
+	}
+}
+
+func TestProfileLinkURLRejectsExecutableSchemes(t *testing.T) {
+	hostile := []string{
+		"javascript:alert(document.cookie)",
+		"JavaScript:alert(1)",
+		"javascript://github.com/%0aalert(1)",
+		"data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==",
+		"data://github.com/x",
+		"vbscript:msgbox(1)",
+		"file:///etc/passwd",
+		"ftp://example.org/x",
+		"mailto:someone@example.org",
+	}
+	for _, value := range hostile {
+		if _, err := validation.ProfileLinkURL("url", value); err == nil {
+			t.Fatalf("ProfileLinkURL accepted %q; such an address reaches an anchor href", value)
+		}
+	}
+}
+
+func TestProfileLinkURLAcceptsBrowserSchemes(t *testing.T) {
+	for _, value := range []string{"https://github.com/ivan", "http://ivan.example.org/page"} {
+		got, err := validation.ProfileLinkURL("url", value)
+		if err != nil {
+			t.Fatalf("ProfileLinkURL rejected %q: %v", value, err)
+		}
+		if got != value {
+			t.Fatalf("ProfileLinkURL returned %q, want %q", got, value)
+		}
+	}
+}
+
+func TestProfileLinkURLRejectsEmptyAndOverlongValues(t *testing.T) {
+	if _, err := validation.ProfileLinkURL("url", "   "); err == nil {
+		t.Fatal("a blank address was accepted")
+	}
+	if _, err := validation.ProfileLinkURL("url", "https://example.org/"+strings.Repeat("a", 2048)); err == nil {
+		t.Fatal("an address longer than 2048 characters was accepted")
+	}
+}
+
+func TestProfileLinkLabelTreatsBlankAsAbsent(t *testing.T) {
+	for _, value := range []string{"", "   "} {
+		label, err := validation.ProfileLinkLabel(&value)
+		if err != nil {
+			t.Fatalf("a blank label failed validation: %v", err)
+		}
+		if label != nil {
+			t.Fatalf("a blank label became %v, want nil", *label)
+		}
+	}
+	if label, err := validation.ProfileLinkLabel(nil); err != nil || label != nil {
+		t.Fatalf("an absent label became %v (%v)", label, err)
+	}
+}
+
+func TestProfileLinkPatchClearsTheLabelOnlyWhenAsked(t *testing.T) {
+	patch, err := validation.ProfileLinkPatch(models.UpdateProfileLinkRequest{ClearLabel: true})
+	if err != nil {
+		t.Fatalf("clearing the label failed: %v", err)
+	}
+	if !patch.LabelSet || patch.Label != nil {
+		t.Fatalf("clear_label did not produce an empty label: %+v", patch)
+	}
+
+	patch, err = validation.ProfileLinkPatch(models.UpdateProfileLinkRequest{URL: ptr("https://github.com/ivan")})
+	if err != nil {
+		t.Fatalf("updating only the address failed: %v", err)
+	}
+	if patch.LabelSet {
+		t.Fatalf("an untouched label was marked for change: %+v", patch)
+	}
+}
+
+func TestProfileLinkPatchRejectsAHostileURL(t *testing.T) {
+	if _, err := validation.ProfileLinkPatch(models.UpdateProfileLinkRequest{
+		URL: ptr("javascript:alert(1)"),
+	}); err == nil {
+		t.Fatal("ProfileLinkPatch accepted an executable scheme")
 	}
 }

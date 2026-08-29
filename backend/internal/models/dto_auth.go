@@ -7,10 +7,12 @@ import (
 )
 
 type RegisterRequest struct {
-	DisplayName string `json:"display_name" example:"John Smith"`
-	Email       string `json:"email" example:"ivan@example.com"`
-	Password    string `json:"password" example:"correct-horse-battery"`
-	InviteToken string `json:"invite_token,omitempty"`
+	FirstName   string  `json:"first_name" example:"John"`
+	MiddleName  *string `json:"middle_name,omitempty" example:"Fitzgerald"`
+	LastName    string  `json:"last_name" example:"Smith"`
+	Email       string  `json:"email" example:"ivan@example.com"`
+	Password    string  `json:"password" example:"correct-horse-battery"`
+	InviteToken string  `json:"invite_token,omitempty"`
 }
 
 type LoginRequest struct {

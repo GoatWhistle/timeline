@@ -28,23 +28,32 @@ func (s *AuthService) usableInvite(ctx context.Context, token, email string) (*m
 	return invite, nil
 }
 
-func (s *AuthService) validateRegistration(req models.RegisterRequest) (string, string, string, error) {
+type registrationName struct {
+	first  string
+	middle *string
+	last   string
+}
+
+func (s *AuthService) validateRegistration(req models.RegisterRequest) (string, registrationName, string, error) {
+	var name registrationName
 	email, err := validation.ValidateEmail("email", req.Email)
 	if err != nil {
-		return "", "", "", err
+		return "", name, "", err
 	}
-	displayName, err := validation.ValidateText("display_name", req.DisplayName, 1, 120)
+	first, middle, last, err := validation.PersonName("first_name", "last_name",
+		req.FirstName, req.MiddleName, req.LastName)
 	if err != nil {
-		return "", "", "", err
+		return "", name, "", err
 	}
+	name = registrationName{first: first, middle: middle, last: last}
 	if err := validation.ValidatePassword(req.Password, s.cfg.Auth.MinPasswordLength); err != nil {
-		return "", "", "", err
+		return "", name, "", err
 	}
 	hash, err := s.hasher.Hash(req.Password)
 	if err != nil {
-		return "", "", "", err
+		return "", name, "", err
 	}
-	return email, displayName, hash, nil
+	return email, name, hash, nil
 }
 
 func (s *AuthService) acceptInvite(ctx context.Context, invite *models.Invite, email string) error {
@@ -75,7 +84,7 @@ func (s *AuthService) issueVerification(ctx context.Context, userID uuid.UUID) (
 
 func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest,
 	meta models.SessionMeta) (*models.User, *models.TokenPair, error) {
-	email, displayName, hash, err := s.validateRegistration(req)
+	email, name, hash, err := s.validateRegistration(req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -98,12 +107,7 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest,
 			return models.NewConflict("email_taken", "a user with this email already exists")
 		}
 
-		user, err = s.users.Create(ctx, &models.User{
-			DisplayName:  displayName,
-			Email:        email,
-			PasswordHash: hash,
-			IsActive:     true,
-		})
+		user, err = s.createUser(ctx, name, email, hash)
 		if err != nil {
 			return err
 		}
@@ -119,13 +123,13 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest,
 
 		actor := models.Actor{UserID: user.ID, RequestID: ""}
 		return s.audit.Record(ctx, actor, models.AuditUserRegister, models.EntityUser, user.ID, nil,
-			map[string]any{"email": user.Email, "display_name": user.DisplayName})
+			map[string]any{"email": user.Email, "display_name": user.DisplayName(user.Locale)})
 	})
 	if err != nil {
 		return nil, nil, err
 	}
 
-	s.mailer.SendVerification(ctx, user.Email, user.DisplayName, user.Locale,
+	s.mailer.SendVerification(ctx, user.Email, user.DisplayName(user.Locale), user.Locale,
 		verifySecret, s.cfg.Auth.EmailVerifyTTL)
 
 	pair, err := s.startSession(ctx, user, meta)
@@ -133,4 +137,16 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest,
 		return nil, nil, err
 	}
 	return user, pair, nil
+}
+
+func (s *AuthService) createUser(ctx context.Context, name registrationName,
+	email, hash string) (*models.User, error) {
+	return s.users.Create(ctx, &models.User{
+		FirstName:    name.first,
+		MiddleName:   name.middle,
+		LastName:     name.last,
+		Email:        email,
+		PasswordHash: hash,
+		IsActive:     true,
+	})
 }

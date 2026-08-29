@@ -75,12 +75,16 @@ func NewRouter(deps Deps) http.Handler {
 		deps.CSRFTTL, deps.PageDefault, deps.PageMax)
 	profileC := auth.NewProfileController(deps.Profile, deps.Cookies, deps.Limiter,
 		deps.ProfileRate, deps.ProfileRateWindow)
+	publicProfileC := auth.NewPublicProfileController(deps.PublicProfiles, deps.Limiter,
+		deps.PublicRate, deps.PublicRateWindow)
 	userC := auth.NewUserController(deps.Users, deps.UserPageSize, deps.PageMax)
 	eventC := event.NewController(deps.Events, deps.Stages, deps.PageDefault, deps.PageMax)
 	catalogC := event.NewCatalogController(deps.Catalog, deps.Limiter, deps.CatalogRate,
 		deps.CatalogRateWindow, deps.PageDefault, deps.PageMax)
 	sessionC := auth.NewSessionController(deps.Auth, deps.Cookies, deps.Limiter,
 		deps.SessionRate, deps.SessionRateWindow)
+	profileLinkC := auth.NewProfileLinkController(deps.ProfileLinks, deps.Limiter,
+		deps.ProfileRate, deps.ProfileRateWindow)
 	partC := participation.NewController(deps.Participants, deps.PageDefault, deps.PageMax)
 	regC := participation.NewRegistrationController(deps.Registrations, deps.PageDefault, deps.PageMax)
 	statusC := participation.NewRegistrationStatusController(deps.Statuses, deps.PageDefault, deps.PageMax)
@@ -102,7 +106,8 @@ func NewRouter(deps Deps) http.Handler {
 	const api = "/api/v1"
 
 	mountAuth(mux, rt, api, authC, inviteC)
-	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC)
+	mountPublicProfile(mux, api, publicProfileC)
+	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC, profileLinkC)
 	mountPersonal(mux, rt, api, personalC)
 	mountResourceLinks(mux, rt, api, linkC)
 	mountCalendarFeed(mux, rt, api, calendarC)

@@ -22,9 +22,10 @@ func (s *stack) register(t *testing.T, email string) account {
 	t.Helper()
 	c := s.client(t)
 	resp := c.post("/auth/register", map[string]string{
-		"display_name": email,
-		"email":        email,
-		"password":     password,
+		"first_name": "Test",
+		"last_name":  email,
+		"email":      email,
+		"password":   password,
 	})
 	requireStatus(t, resp, http.StatusOK, "registering "+email)
 
