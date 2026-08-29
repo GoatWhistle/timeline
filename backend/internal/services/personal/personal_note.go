@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *PersonalService) GetNote(ctx context.Context, actor models.Actor,
@@ -53,7 +53,7 @@ func (s *PersonalService) SaveNote(ctx context.Context, actor models.Actor,
 		if len([]rune(body)) > s.limits.MaxNoteLength {
 			return models.NewValidation("the note is too long",
 				models.FieldError{Field: "body",
-					Message: "at most " + shared.Itoa(s.limits.MaxNoteLength) + " characters"})
+					Message: "at most " + validation.Itoa(s.limits.MaxNoteLength) + " characters"})
 		}
 		note, err = s.notes.Save(ctx, userID, eventID, body)
 		return err

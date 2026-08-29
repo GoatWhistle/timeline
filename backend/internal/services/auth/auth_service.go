@@ -11,7 +11,9 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 )
 
 type RateLimiter interface {
@@ -26,10 +28,10 @@ type AuthService struct {
 	tokens   *identity.Tokens
 	invites  *identity.Invites
 	notifier Notifier
-	audit    *shared.AuditService
-	hasher   *shared.PasswordHasher
-	issuer   *shared.TokenIssuer
-	mailer   *shared.Mailer
+	audit    *audit.AuditService
+	hasher   *crypto.PasswordHasher
+	issuer   *crypto.TokenIssuer
+	mailer   *mail.Mailer
 	limiter  RateLimiter
 	realtime SessionDropper
 	cfg      *config.Config
@@ -38,8 +40,8 @@ type AuthService struct {
 
 func NewAuthService(db *postgres.DB, users *identity.Users,
 	sessions *identity.Sessions, tokens *identity.Tokens,
-	invites *identity.Invites, notifier Notifier, audit *shared.AuditService,
-	hasher *shared.PasswordHasher, issuer *shared.TokenIssuer, mailer *shared.Mailer, limiter RateLimiter,
+	invites *identity.Invites, notifier Notifier, audit *audit.AuditService,
+	hasher *crypto.PasswordHasher, issuer *crypto.TokenIssuer, mailer *mail.Mailer, limiter RateLimiter,
 	cfg *config.Config) *AuthService {
 	return &AuthService{
 		db: db, users: users, sessions: sessions, tokens: tokens, invites: invites,
@@ -51,14 +53,14 @@ func NewAuthService(db *postgres.DB, users *identity.Users,
 func (s *AuthService) startSession(ctx context.Context, user *models.User,
 	meta models.SessionMeta) (*models.TokenPair, error) {
 	now := s.now()
-	secret, err := shared.NewSecret()
+	secret, err := crypto.NewSecret()
 	if err != nil {
 		return nil, err
 	}
 	session, err := s.sessions.Create(ctx, &models.Session{
 		UserID:           user.ID,
 		FamilyID:         uuid.New(),
-		RefreshTokenHash: shared.HashSecret(secret),
+		RefreshTokenHash: crypto.HashSecret(secret),
 		UserAgent:        optionalString(meta.UserAgent),
 		IP:               optionalString(meta.IP),
 		ExpiresAt:        now.Add(s.cfg.Auth.RefreshTTL),

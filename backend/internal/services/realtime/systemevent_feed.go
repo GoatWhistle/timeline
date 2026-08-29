@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 const markReadBatchMax = 200
@@ -35,7 +35,7 @@ func (s *SystemEventService) MarkRead(ctx context.Context, actor models.Actor,
 		return s.events.MarkAllRead(ctx, actor.UserID, actor.IsAdmin)
 	}
 	if len(ids) > markReadBatchMax {
-		return 0, models.NewValidation("at most " + shared.Itoa(markReadBatchMax) + " identifiers per request")
+		return 0, models.NewValidation("at most " + validation.Itoa(markReadBatchMax) + " identifiers per request")
 	}
 	return s.events.MarkRead(ctx, actor.UserID, actor.IsAdmin, ids)
 }

@@ -5,12 +5,13 @@ import (
 	"errors"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
-		record, err := s.tokens.Consume(ctx, shared.HashSecret(token), models.PurposeEmailVerification, s.now())
+		record, err := s.tokens.Consume(ctx, crypto.HashSecret(token), models.PurposeEmailVerification, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
 				return models.NewValidation("the confirmation token is invalid or has expired")
@@ -25,7 +26,7 @@ func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
 }
 
 func (s *AuthService) ResendVerification(ctx context.Context, email string) error {
-	normalized := shared.NormalizeEmail(email)
+	normalized := validation.NormalizeEmail(email)
 	if !s.limiter.Allow("resend|"+normalized, s.cfg.RateLim.ResendAttempts, s.cfg.RateLim.ResendWindow) {
 		return models.NewRateLimited("too many requests, try again later")
 	}
@@ -41,7 +42,7 @@ func (s *AuthService) ResendVerification(ctx context.Context, email string) erro
 		return nil
 	}
 
-	secret, err := shared.NewSecret()
+	secret, err := crypto.NewSecret()
 	if err != nil {
 		return err
 	}
@@ -52,7 +53,7 @@ func (s *AuthService) ResendVerification(ctx context.Context, email string) erro
 		_, err := s.tokens.Create(ctx, &models.OneTimeToken{
 			UserID:    &user.ID,
 			Purpose:   models.PurposeEmailVerification,
-			TokenHash: shared.HashSecret(secret),
+			TokenHash: crypto.HashSecret(secret),
 			ExpiresAt: s.now().Add(s.cfg.Auth.EmailVerifyTTL),
 		})
 		return err
@@ -66,7 +67,7 @@ func (s *AuthService) ResendVerification(ctx context.Context, email string) erro
 
 func (s *AuthService) ConfirmEmailChange(ctx context.Context, token string) error {
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
-		record, err := s.tokens.Consume(ctx, shared.HashSecret(token), models.PurposeEmailChange, s.now())
+		record, err := s.tokens.Consume(ctx, crypto.HashSecret(token), models.PurposeEmailChange, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
 				return models.NewValidation("the confirmation token is invalid or has expired")

@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *PersonalService) AddBookmark(ctx context.Context, actor models.Actor, eventID uuid.UUID) error {
@@ -17,7 +17,7 @@ func (s *PersonalService) AddBookmark(ctx context.Context, actor models.Actor, e
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
 		ev, err := s.events.GetByID(ctx, eventID)
 		if err != nil {
-			return shared.NotFoundOwned(err, "event")
+			return validation.NotFoundOwned(err, "event")
 		}
 		if !ev.Schedulable() {
 			return models.NewNotFound("event not found")
@@ -32,7 +32,7 @@ func (s *PersonalService) RemoveBookmark(ctx context.Context, actor models.Actor
 	if err != nil {
 		return err
 	}
-	return shared.NotFoundOwned(s.bookmarks.Remove(ctx, userID, eventID), "bookmark")
+	return validation.NotFoundOwned(s.bookmarks.Remove(ctx, userID, eventID), "bookmark")
 }
 
 func (s *PersonalService) ListBookmarks(ctx context.Context, actor models.Actor,

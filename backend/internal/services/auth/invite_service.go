@@ -12,7 +12,10 @@ import (
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 type InviteService struct {
@@ -20,15 +23,15 @@ type InviteService struct {
 	invites *identity.Invites
 	users   *identity.Users
 	auth    *AuthService
-	audit   *shared.AuditService
-	mailer  *shared.Mailer
+	audit   *audit.AuditService
+	mailer  *mail.Mailer
 	limiter RateLimiter
 	cfg     *config.Config
 	now     func() time.Time
 }
 
 func NewInviteService(db *postgres.DB, invites *identity.Invites,
-	users *identity.Users, auth *AuthService, audit *shared.AuditService, mailer *shared.Mailer,
+	users *identity.Users, auth *AuthService, audit *audit.AuditService, mailer *mail.Mailer,
 	limiter RateLimiter, cfg *config.Config) *InviteService {
 	return &InviteService{
 		db: db, invites: invites, users: users, auth: auth, audit: audit, mailer: mailer,
@@ -40,7 +43,7 @@ func (s *InviteService) Create(ctx context.Context, actor models.Actor, email st
 	if !actor.IsAdmin {
 		return nil, "", models.NewForbidden("only an administrator can create invites")
 	}
-	normalized, err := shared.ValidateEmail("email", email)
+	normalized, err := validation.ValidateEmail("email", email)
 	if err != nil {
 		return nil, "", err
 	}
@@ -48,7 +51,7 @@ func (s *InviteService) Create(ctx context.Context, actor models.Actor, email st
 		return nil, "", models.NewRateLimited("too many invites for this address, try again later")
 	}
 
-	secret, err := shared.NewSecret()
+	secret, err := crypto.NewSecret()
 	if err != nil {
 		return nil, "", err
 	}
@@ -74,7 +77,7 @@ func (s *InviteService) Create(ctx context.Context, actor models.Actor, email st
 		invite, err = s.invites.Create(ctx, &models.Invite{
 			NormalizedEmail: normalized,
 			CreatedByUserID: actor.UserID,
-			TokenHash:       shared.HashSecret(secret),
+			TokenHash:       crypto.HashSecret(secret),
 			ExpiresAt:       s.now().Add(s.cfg.Auth.InviteTTL),
 		})
 		if err != nil {
@@ -121,7 +124,7 @@ func (s *InviteService) Revoke(ctx context.Context, actor models.Actor, id uuid.
 }
 
 func (s *InviteService) Preview(ctx context.Context, token string) (*models.InvitePreview, error) {
-	invite, err := s.invites.GetByHash(ctx, shared.HashSecret(token))
+	invite, err := s.invites.GetByHash(ctx, crypto.HashSecret(token))
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
 			return nil, models.NewNotFound("invite not found")
@@ -137,7 +140,7 @@ func (s *InviteService) Preview(ctx context.Context, token string) (*models.Invi
 
 func (s *InviteService) Accept(ctx context.Context, req models.AcceptInviteRequest, meta models.SessionMeta,
 ) (*models.User, *models.TokenPair, error) {
-	invite, err := s.invites.GetByHash(ctx, shared.HashSecret(req.Token))
+	invite, err := s.invites.GetByHash(ctx, crypto.HashSecret(req.Token))
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
 			return nil, nil, models.NewNotFound("invite not found")

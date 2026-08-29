@@ -65,6 +65,12 @@ jobs:
       - name: Static analysis
         run: go vet ./...
 
+      # A cycle that runs through a test file is legal for the compiler and
+      # still knots two packages together, so `go build` cannot be the check.
+      - name: Import cycles
+        working-directory: .
+        run: bash scripts/check-import-cycles.sh
+
       # Ratchet on a PR: an issue blocks the build only if introduced by the
       # change itself. The existing debt does not break CI, but does not grow.
       - name: golangci-lint (PR changes)

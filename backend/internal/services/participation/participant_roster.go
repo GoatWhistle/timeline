@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *ParticipantService) UpdateTeamRole(ctx context.Context, actor models.Actor, participantID uuid.UUID,
@@ -26,7 +26,7 @@ func (s *ParticipantService) UpdateTeamRole(ctx context.Context, actor models.Ac
 		if err != nil {
 			return err
 		}
-		teamRole, err := shared.ValidateTeamRole(event.Kind, role)
+		teamRole, err := validation.ValidateTeamRole(event.Kind, role)
 		if err != nil {
 			return err
 		}
@@ -62,7 +62,7 @@ func (s *ParticipantService) Reactivate(ctx context.Context, actor models.Actor,
 		if err != nil {
 			return err
 		}
-		teamRole, err := shared.ValidateTeamRole(event.Kind, role)
+		teamRole, err := validation.ValidateTeamRole(event.Kind, role)
 		if err != nil {
 			return err
 		}

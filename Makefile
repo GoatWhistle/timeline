@@ -69,7 +69,7 @@ export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME CON
 	docker-up docker-down docker-build docker-restart docker-status docker-logs \
 	docker-psql dev dev-down dev-restart dev-logs \
 	install types types-check typecheck lint format test test-contract e2e verify build \
-	cyrillic baseline-cyrillic lint-baseline baseline-lint \
+	cyrillic baseline-cyrillic import-cycles lint-baseline baseline-lint \
 	package-size baseline-package-size \
 	back-fmt back-vet back-test back-test-integration back-build back-cover back-cover-integration back-docs clean
 
@@ -250,6 +250,9 @@ package-size: ## File-count limit per package (ratchet)
 cyrillic: ## Code language is English, Cyrillic only in dictionaries (ratchet)
 	@bash scripts/check-cyrillic.sh
 
+import-cycles: ## No import cycles between internal packages, tests included
+	@bash scripts/check-import-cycles.sh
+
 bundle-size: ## Production bundle size against the baseline
 	@node scripts/bundle-size.mjs
 
@@ -277,6 +280,7 @@ verify: ## Full check of both parts: contract, types, linter, tests, build
 	@$(MAKE) --no-print-directory package-size
 	@$(MAKE) --no-print-directory file-length
 	@$(MAKE) --no-print-directory cyrillic
+	@$(MAKE) --no-print-directory import-cycles
 	@cd $(FRONTEND) && npm run verify
 	@$(MAKE) --no-print-directory test-contract
 	@$(GO_RUN) "go build ./... && go vet ./... && go test ./..."

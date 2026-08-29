@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *PersonalService) ListTasks(ctx context.Context, actor models.Actor,
@@ -35,7 +35,7 @@ func (s *PersonalService) CreateTask(ctx context.Context, actor models.Actor,
 		if _, err := s.visibleEvent(ctx, userID, eventID); err != nil {
 			return err
 		}
-		title, err := shared.ValidateText("title", req.Title, 1, 200)
+		title, err := validation.ValidateText("title", req.Title, 1, 200)
 		if err != nil {
 			return err
 		}
@@ -82,7 +82,7 @@ func (s *PersonalService) UpdateTask(ctx context.Context, actor models.Actor,
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
 		existing, err := s.tasks.GetOwned(ctx, userID, taskID)
 		if err != nil {
-			return shared.NotFoundOwned(err, "task")
+			return validation.NotFoundOwned(err, "task")
 		}
 		patch, err := taskPatch(req, s.limits.MaxNoteLength)
 		if err != nil {
@@ -94,7 +94,7 @@ func (s *PersonalService) UpdateTask(ctx context.Context, actor models.Actor,
 			}
 		}
 		task, err = s.tasks.Update(ctx, userID, taskID, patch, existing.EventID)
-		return shared.NotFoundOwned(err, "task")
+		return validation.NotFoundOwned(err, "task")
 	})
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (s *PersonalService) DeleteTask(ctx context.Context, actor models.Actor, ta
 	if err != nil {
 		return err
 	}
-	return shared.NotFoundOwned(s.tasks.Delete(ctx, userID, taskID), "task")
+	return validation.NotFoundOwned(s.tasks.Delete(ctx, userID, taskID), "task")
 }
 
 func (s *PersonalService) ListTemplates(ctx context.Context,
@@ -133,7 +133,7 @@ func (s *PersonalService) ApplyTemplate(ctx context.Context, actor models.Actor,
 		}
 		template, err := s.templates.Get(ctx, strings.TrimSpace(req.TemplateID))
 		if err != nil {
-			return shared.NotFoundOwned(err, "template")
+			return validation.NotFoundOwned(err, "template")
 		}
 		existing, err := s.tasks.ExistingTitles(ctx, userID, eventID)
 		if err != nil {
@@ -204,7 +204,7 @@ func templateDue(ev *models.Event, item models.ChecklistTemplateItem) *time.Time
 func taskPatch(req models.UpdateTaskRequest, maxNote int) (models.TaskPatch, error) {
 	var patch models.TaskPatch
 	if req.Title != nil {
-		title, err := shared.ValidateText("title", *req.Title, 1, 200)
+		title, err := validation.ValidateText("title", *req.Title, 1, 200)
 		if err != nil {
 			return patch, err
 		}
@@ -242,7 +242,7 @@ func validateNotes(notes *string, maxLen int) error {
 	}
 	if len([]rune(*notes)) > maxLen {
 		return models.NewValidation("the note is too long",
-			models.FieldError{Field: "notes", Message: "at most " + shared.Itoa(maxLen) + " characters"})
+			models.FieldError{Field: "notes", Message: "at most " + validation.Itoa(maxLen) + " characters"})
 	}
 	return nil
 }

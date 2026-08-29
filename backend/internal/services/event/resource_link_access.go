@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func parseLinkKind(field, value string) (models.LinkKind, error) {
@@ -71,7 +71,7 @@ func resourceLinkPatch(req models.UpdateResourceLinkRequest) (models.ResourceLin
 		patch.Kind = &kind
 	}
 	if req.URL != nil {
-		url, err := shared.ValidateURL("url", *req.URL)
+		url, err := validation.ValidateURL("url", *req.URL)
 		if err != nil {
 			return patch, err
 		}
@@ -80,7 +80,7 @@ func resourceLinkPatch(req models.UpdateResourceLinkRequest) (models.ResourceLin
 	if req.ClearTitle {
 		patch.TitleSet = true
 	} else if req.Title != nil {
-		title, err := shared.OptionalText("title", req.Title, 200)
+		title, err := validation.OptionalText("title", req.Title, 200)
 		if err != nil {
 			return patch, err
 		}

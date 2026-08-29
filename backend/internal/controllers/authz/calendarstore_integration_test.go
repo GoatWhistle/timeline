@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	svcshared "github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 )
 
 func TestTheTokenStoreItselfHidesRevokedRows(t *testing.T) {
@@ -19,7 +19,7 @@ func TestTheTokenStoreItselfHidesRevokedRows(t *testing.T) {
 	ctx := context.Background()
 
 	secret := s.session(t, f.member).issueFeed(t)
-	hash := svcshared.HashSecret(secret)
+	hash := crypto.HashSecret(secret)
 
 	found, err := s.calendar.GetActiveByHash(ctx, hash)
 	if err != nil {

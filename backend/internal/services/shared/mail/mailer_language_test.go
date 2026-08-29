@@ -1,0 +1,59 @@
+package mail
+
+import (
+	"context"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/GoatWhistle/timeline/internal/locale"
+	"github.com/GoatWhistle/timeline/internal/models"
+)
+
+type recordingMailSender struct{ sent []models.OutboundMessage }
+
+func (s *recordingMailSender) Send(_ context.Context, msg models.OutboundMessage) error {
+	s.sent = append(s.sent, msg)
+	return nil
+}
+
+func (s *recordingMailSender) last(t *testing.T) models.OutboundMessage {
+	t.Helper()
+	if len(s.sent) == 0 {
+		t.Fatal("no message was sent")
+	}
+	return s.sent[len(s.sent)-1]
+}
+
+func TestMailerRendersInRecipientLanguage(t *testing.T) {
+	sender := &recordingMailSender{}
+	mailer := NewMailer(sender, "https://timeline.test")
+
+	mailer.SendVerification(context.Background(), "user@example.test", "John Smith", "en",
+		"token123", 24*time.Hour)
+	english := sender.last(t)
+	if english.Subject != locale.Message("en", "email.verification.subject") {
+		t.Errorf("subject is not English: %q", english.Subject)
+	}
+	if !strings.Contains(english.Body, "1 day") {
+		t.Errorf("duration is not English: %q", english.Body)
+	}
+
+	mailer.SendVerification(context.Background(), "user@example.test", "John Smith", "ru",
+		"token123", 24*time.Hour)
+	russian := sender.last(t)
+	if russian.Subject == english.Subject {
+		t.Error("Russian recipient received the English subject")
+	}
+}
+
+func TestMailerFallsBackToDefaultForUnknownLanguage(t *testing.T) {
+	sender := &recordingMailSender{}
+	mailer := NewMailer(sender, "https://timeline.test")
+
+	mailer.SendInvite(context.Background(), "new@example.test", "Admin", "", "token123", time.Hour)
+	got := sender.last(t)
+	if got.Subject != locale.Message(locale.Default, "email.invite.subject") {
+		t.Errorf("fallback is not the default language: %q", got.Subject)
+	}
+}

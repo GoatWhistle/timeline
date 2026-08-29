@@ -18,12 +18,18 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
 	"github.com/GoatWhistle/timeline/internal/config"
 	svcauth "github.com/GoatWhistle/timeline/internal/services/auth"
+	svcdelivery "github.com/GoatWhistle/timeline/internal/services/delivery"
+	svcdigest "github.com/GoatWhistle/timeline/internal/services/digest"
 	svcevent "github.com/GoatWhistle/timeline/internal/services/event"
 	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 	svcparticipation "github.com/GoatWhistle/timeline/internal/services/participation"
 	svcpersonal "github.com/GoatWhistle/timeline/internal/services/personal"
 	svcrealtime "github.com/GoatWhistle/timeline/internal/services/realtime"
-	svcshared "github.com/GoatWhistle/timeline/internal/services/shared"
+	svcreminder "github.com/GoatWhistle/timeline/internal/services/reminder"
+	svcscheduler "github.com/GoatWhistle/timeline/internal/services/scheduler"
+	sharedaudit "github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 )
 
 type container struct {
@@ -64,7 +70,7 @@ type container struct {
 
 	telegram telegram.Sender
 	email    email.Sender
-	hasher   *svcshared.PasswordHasher
+	hasher   *crypto.PasswordHasher
 	limiter  *ratelimit.Limiter
 
 	auth          *svcauth.AuthService
@@ -79,17 +85,17 @@ type container struct {
 	statuses      *svcparticipation.StatusService
 	rules         *svcparticipation.RuleService
 	queries       *svcevent.QueryService
-	audit         *svcshared.AuditService
+	audit         *sharedaudit.AuditService
 	personal      *svcpersonal.PersonalService
 	links         *svcevent.ResourceLinkService
 	notifier      *svcnotification.NotificationService
-	scheduler     *svcnotification.SchedulerService
-	delivery      *svcnotification.DeliveryService
-	ops           *svcnotification.OpsService
+	scheduler     *svcscheduler.SchedulerService
+	delivery      *svcdelivery.DeliveryService
+	ops           *svcdelivery.OpsService
 	feed          *svcrealtime.SystemEventService
 	calendar      *svcauth.CalendarFeedService
-	reminders     *svcpersonal.PersonalReminderService
-	digest        *svcnotification.DigestService
+	reminders     *svcreminder.Service
+	digest        *svcdigest.DigestService
 	hub           *svcrealtime.RealtimeHub
 }
 
@@ -141,15 +147,15 @@ func newContainer(ctx context.Context) (*container, error) {
 
 	c.telegram = telegram.New(cfg.Telegram)
 	c.email = email.New(cfg.Email)
-	c.hasher = svcshared.NewPasswordHasher(cfg.Argon)
+	c.hasher = crypto.NewPasswordHasher(cfg.Argon)
 	c.limiter = ratelimit.New()
 	limiter := c.limiter
-	issuer := svcshared.NewTokenIssuer(cfg.Auth)
-	mailer := svcshared.NewMailer(c.email, cfg.App.PublicURL)
+	issuer := crypto.NewTokenIssuer(cfg.Auth)
+	mailer := mail.NewMailer(c.email, cfg.App.PublicURL)
 
-	c.audit = svcshared.NewAuditService(c.repos.audit)
+	c.audit = sharedaudit.NewAuditService(c.repos.audit)
 	c.notifier = svcnotification.NewNotificationService(c.repos.notifications, cfg)
-	c.scheduler = svcnotification.NewSchedulerService(db, c.repos.scheduler, c.repos.rules, c.notifier, cfg)
+	c.scheduler = svcscheduler.NewSchedulerService(db, c.repos.scheduler, c.repos.rules, c.notifier, cfg)
 
 	c.auth = svcauth.NewAuthService(db, c.repos.users, c.repos.sessions, c.repos.tokens, c.repos.invites,
 		c.notifier, c.audit, c.hasher, issuer, mailer, limiter, cfg)
@@ -172,14 +178,14 @@ func newContainer(ctx context.Context) (*container, error) {
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
 	c.queries = svcevent.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
 		c.repos.participants, c.repos.registrations, c.repos.statuses)
-	c.delivery = svcnotification.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
+	c.delivery = svcdelivery.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
 		c.repos.rules, c.repos.audit, c.telegram, c.email, cfg)
 	c.personal = svcpersonal.NewPersonalService(db, c.repos.tasks, c.repos.notes, c.repos.artifacts,
 		c.repos.outcomes, c.repos.bookmarks, c.repos.templates, c.repos.history,
 		c.repos.events, c.repos.stages, c.repos.participants, cfg.Personal)
 	c.links = svcevent.NewResourceLinkService(db, c.repos.links, c.repos.userLinks,
 		c.repos.events, c.repos.stages, c.repos.participants, c.audit, cfg.Links)
-	c.ops = svcnotification.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
+	c.ops = svcdelivery.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
 	c.feed = svcrealtime.NewSystemEventService(db, c.repos.feed)
 	c.hub = svcrealtime.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
 	c.calendar = svcauth.NewCalendarFeedService(db, c.repos.calendarFeeds, c.repos.users,
@@ -191,8 +197,8 @@ func newContainer(ctx context.Context) (*container, error) {
 func (c *container) wireRealtime() {
 	c.delivery.WithEvents(c.feed)
 	c.personal.WithRetrospectives(c.repos.retros)
-	c.reminders = svcpersonal.NewPersonalReminderService(c.repos.reminders, c.feed, c.cfg.Personal)
-	c.digest = svcnotification.NewDigestService(c.repos.digests, c.feed, c.cfg.Digest, c.cfg.App)
+	c.reminders = svcreminder.New(c.repos.reminders, c.feed, c.cfg.Personal)
+	c.digest = svcdigest.NewDigestService(c.repos.digests, c.feed, c.cfg.Digest, c.cfg.App)
 	c.auth.WithRealtime(c.hub)
 	c.users.WithRealtime(c.hub)
 	c.profile.WithRealtime(c.hub)

@@ -1,7 +1,5 @@
 # Baseline for the package file-count check (scripts/check-package-size.sh).
 # Limits: 20 source files, 30 test files per package.
 # Format: <count> <src|test> <package>. Only updated downwards.
-42 src backend/internal/controllers
 36 test backend/internal/controllers/authz
 24 src backend/internal/models
-58 src backend/internal/services

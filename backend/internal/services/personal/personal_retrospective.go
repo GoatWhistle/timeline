@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *PersonalService) GetRetrospective(ctx context.Context, actor models.Actor,
@@ -93,7 +93,7 @@ func (s *PersonalService) retrospectiveField(field string, value *string) (*stri
 	if len([]rune(trimmed)) > s.limits.MaxNoteLength {
 		return nil, models.NewValidation("the retrospective field is too long",
 			models.FieldError{Field: field,
-				Message: "at most " + shared.Itoa(s.limits.MaxNoteLength) + " characters"})
+				Message: "at most " + validation.Itoa(s.limits.MaxNoteLength) + " characters"})
 	}
 	return &trimmed, nil
 }

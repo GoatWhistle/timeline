@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *ResourceLinkService) ListPersonal(ctx context.Context, actor models.Actor,
@@ -35,11 +35,11 @@ func (s *ResourceLinkService) CreatePersonal(ctx context.Context, actor models.A
 		if err != nil {
 			return err
 		}
-		url, err := shared.ValidateURL("url", req.URL)
+		url, err := validation.ValidateURL("url", req.URL)
 		if err != nil {
 			return err
 		}
-		title, err := shared.OptionalText("title", req.Title, 200)
+		title, err := validation.OptionalText("title", req.Title, 200)
 		if err != nil {
 			return err
 		}
@@ -84,7 +84,7 @@ func (s *ResourceLinkService) UpdatePersonal(ctx context.Context, actor models.A
 		patch.Kind = &kind
 	}
 	if req.URL != nil {
-		url, err := shared.ValidateURL("url", *req.URL)
+		url, err := validation.ValidateURL("url", *req.URL)
 		if err != nil {
 			return nil, err
 		}
@@ -93,7 +93,7 @@ func (s *ResourceLinkService) UpdatePersonal(ctx context.Context, actor models.A
 	if req.ClearTitle {
 		patch.TitleSet = true
 	} else if req.Title != nil {
-		title, err := shared.OptionalText("title", req.Title, 200)
+		title, err := validation.OptionalText("title", req.Title, 200)
 		if err != nil {
 			return nil, err
 		}
@@ -104,7 +104,7 @@ func (s *ResourceLinkService) UpdatePersonal(ctx context.Context, actor models.A
 
 	link, err := s.personal.Update(ctx, actor.UserID, id, patch)
 	if err != nil {
-		return nil, shared.NotFoundOwned(err, "personal link")
+		return nil, validation.NotFoundOwned(err, "personal link")
 	}
 	return link, nil
 }
@@ -115,7 +115,7 @@ func (s *ResourceLinkService) DeletePersonal(ctx context.Context, actor models.A
 		return models.NewForbidden("the personal layer requires an authenticated user")
 	}
 	if err := s.personal.Delete(ctx, actor.UserID, id); err != nil {
-		return shared.NotFoundOwned(err, "personal link")
+		return validation.NotFoundOwned(err, "personal link")
 	}
 	return nil
 }

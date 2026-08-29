@@ -11,7 +11,9 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/reconcile"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 type ParticipantService struct {
@@ -22,13 +24,13 @@ type ParticipantService struct {
 	statuses      *participation.Statuses
 	users         *identity.Users
 	notifier      Notifier
-	audit         *shared.AuditService
+	audit         *audit.AuditService
 }
 
 func NewParticipantService(db *postgres.DB, participants *participation.Participants,
 	events *event.Events, registrations *participation.Registrations,
 	statuses *participation.Statuses, users *identity.Users,
-	notifier Notifier, audit *shared.AuditService) *ParticipantService {
+	notifier Notifier, audit *audit.AuditService) *ParticipantService {
 	return &ParticipantService{
 		db: db, participants: participants, events: events, registrations: registrations,
 		statuses: statuses, users: users, notifier: notifier, audit: audit,
@@ -67,7 +69,7 @@ func (s *ParticipantService) AddMany(ctx context.Context, actor models.Actor, ev
 
 func (s *ParticipantService) addOne(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	kind models.EventKind, item models.AddParticipantItem) (*models.EventParticipant, error) {
-	teamRole, err := shared.ValidateTeamRole(kind, item.TeamRole)
+	teamRole, err := validation.ValidateTeamRole(kind, item.TeamRole)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +148,7 @@ func (s *ParticipantService) ensureStatusAndNotification(ctx context.Context, ev
 		return nil
 	}
 
-	candidate := shared.BuildCandidate(event, registration, participant, status.ID, status.TodoCycle, user)
+	candidate := reconcile.BuildCandidate(event, registration, participant, status.ID, status.TodoCycle, user)
 	_, _, err = s.notifier.CreatePrimary(ctx, candidate)
 	return err
 }

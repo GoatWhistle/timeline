@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 type stagePlace struct {
@@ -23,7 +23,7 @@ func normalizeVenue(value *string) (*string, error) {
 	if venue == "" {
 		return nil, nil
 	}
-	normalized, err := shared.ValidateText("venue", venue, 1, 200)
+	normalized, err := validation.ValidateText("venue", venue, 1, 200)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func resolveStagePlace(format *models.EventFormat, clearFormat bool, countryCode
 		out.venue = name
 	}
 	if onlineURL != nil {
-		link, err := shared.OptionalURL("online_url", onlineURL)
+		link, err := validation.OptionalURL("online_url", onlineURL)
 		if err != nil {
 			return out, err
 		}

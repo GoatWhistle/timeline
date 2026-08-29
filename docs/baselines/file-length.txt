@@ -3,6 +3,5 @@
 351 backend/internal/adapters/postgres/constraints_integration_test.go
 280 backend/internal/controllers/auth/auth.go
 327 backend/internal/controllers/event/event.go
-263 backend/internal/services/participation/registration_service.go
-257 backend/internal/services/participation/status_service.go
-255 backend/internal/services/shared/validate.go
+261 backend/internal/services/participation/registration_service.go
+256 backend/internal/services/participation/status_service.go

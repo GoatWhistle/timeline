@@ -7,12 +7,13 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *AuthService) Login(ctx context.Context, req models.LoginRequest,
 	meta models.SessionMeta) (*models.User, *models.TokenPair, error) {
-	email := shared.NormalizeEmail(req.Email)
+	email := validation.NormalizeEmail(req.Email)
 	key := meta.IP + "|" + email
 	if !s.limiter.Allow("login|"+key, s.cfg.RateLim.LoginAttempts, s.cfg.RateLim.LoginWindow) {
 		return nil, nil, models.NewRateLimited("too many sign-in attempts, try again later")
@@ -42,7 +43,7 @@ func (s *AuthService) Login(ctx context.Context, req models.LoginRequest,
 
 func (s *AuthService) Refresh(ctx context.Context, refreshToken string,
 	meta models.SessionMeta) (*models.User, *models.TokenPair, error) {
-	hash := shared.HashSecret(refreshToken)
+	hash := crypto.HashSecret(refreshToken)
 	now := s.now()
 
 	if err := s.terminateReplayedChain(ctx, hash); err != nil {
@@ -70,13 +71,13 @@ func (s *AuthService) Refresh(ctx context.Context, refreshToken string,
 			return err
 		}
 
-		secret, err := shared.NewSecret()
+		secret, err := crypto.NewSecret()
 		if err != nil {
 			return err
 		}
 		next, err := s.sessions.Rotate(ctx, session, &models.Session{
 			UserID:           user.ID,
-			RefreshTokenHash: shared.HashSecret(secret),
+			RefreshTokenHash: crypto.HashSecret(secret),
 			UserAgent:        optionalString(meta.UserAgent),
 			IP:               optionalString(meta.IP),
 			ExpiresAt:        now.Add(s.cfg.Auth.RefreshTTL),
@@ -134,7 +135,7 @@ func (s *AuthService) terminateReplayedChain(ctx context.Context, hash string) e
 }
 
 func (s *AuthService) Logout(ctx context.Context, refreshToken string) error {
-	session, err := s.sessions.GetByHash(ctx, shared.HashSecret(refreshToken))
+	session, err := s.sessions.GetByHash(ctx, crypto.HashSecret(refreshToken))
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
 			return nil

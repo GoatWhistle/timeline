@@ -9,7 +9,9 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/reconcile"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 type RuleService struct {
@@ -18,13 +20,13 @@ type RuleService struct {
 	registrations *participation.Registrations
 	notifier      Notifier
 	reconciler    Reconciler
-	audit         *shared.AuditService
+	audit         *audit.AuditService
 	cfg           *config.Config
 }
 
 func NewRuleService(db *postgres.DB, rules *participation.Rules,
 	registrations *participation.Registrations, notifier Notifier,
-	reconciler Reconciler, audit *shared.AuditService, cfg *config.Config) *RuleService {
+	reconciler Reconciler, audit *audit.AuditService, cfg *config.Config) *RuleService {
 	return &RuleService{db: db, rules: rules, registrations: registrations, notifier: notifier,
 		reconciler: reconciler, audit: audit, cfg: cfg}
 }
@@ -50,7 +52,7 @@ func (s *RuleService) resolveSlot(ctx context.Context, registrationID uuid.UUID,
 		return 0, models.NewValidation("invalid slot number",
 			models.FieldError{
 				Field:   "slot_no",
-				Message: "allowed values range from 1 to " + shared.Itoa(s.cfg.Notify.MaxRulesPerReg),
+				Message: "allowed values range from 1 to " + validation.Itoa(s.cfg.Notify.MaxRulesPerReg),
 			})
 	}
 	return slot, nil
@@ -216,7 +218,8 @@ func (s *RuleService) validateOffset(offset int) error {
 	limit := s.cfg.Notify.MaxOffsetMinutes
 	if offset < -limit || offset > limit {
 		return models.NewValidation("offset is out of the allowed range",
-			models.FieldError{Field: "offset_minutes", Message: "allowed range is " + shared.Itoa(limit) + " minutes"})
+			models.FieldError{Field: "offset_minutes",
+				Message: "allowed range is " + validation.Itoa(limit) + " minutes"})
 	}
 	return nil
 }
@@ -226,7 +229,7 @@ func (s *RuleService) reconcile(ctx context.Context, eventID uuid.UUID) {
 		return
 	}
 	if err := s.reconciler.ReconcileEvent(ctx, eventID); err != nil {
-		shared.LogReconcileFailure(ctx, eventID, err)
+		reconcile.LogReconcileFailure(ctx, eventID, err)
 	}
 }
 
@@ -234,7 +237,7 @@ func optionalChannel(field string, value *string) (*models.Channel, error) {
 	if value == nil || *value == "" {
 		return nil, nil
 	}
-	channel, err := shared.ParseChannel(field, *value)
+	channel, err := validation.ParseChannel(field, *value)
 	if err != nil {
 		return nil, err
 	}

@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 
-	svcshared "github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 )
 
 func TestCalendarFeedIsIssuedOnceAndServesTheOwnersSchedule(t *testing.T) {
@@ -153,7 +153,7 @@ func TestUnknownRevokedAndDeactivatedAreIndistinguishable(t *testing.T) {
 	requireStatus(t, f.adminClient.post("/admin/users/"+f.outsider.ID.String()+"/deactivate", nil),
 		http.StatusOK, "deactivating the outsider")
 
-	unknown, err := svcshared.NewSecret()
+	unknown, err := crypto.NewSecret()
 	if err != nil {
 		t.Fatalf("generating an unknown secret: %v", err)
 	}

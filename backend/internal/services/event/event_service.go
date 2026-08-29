@@ -11,7 +11,9 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/reconcile"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 type Reconciler interface {
@@ -24,13 +26,13 @@ type EventService struct {
 	registrations *participation.Registrations
 	notifier      Notifier
 	reconciler    Reconciler
-	audit         *shared.AuditService
+	audit         *audit.AuditService
 	now           func() time.Time
 }
 
 func NewEventService(db *postgres.DB, events *event.Events,
 	registrations *participation.Registrations, notifier Notifier,
-	reconciler Reconciler, audit *shared.AuditService) *EventService {
+	reconciler Reconciler, audit *audit.AuditService) *EventService {
 	return &EventService{
 		db: db, events: events, registrations: registrations, notifier: notifier,
 		reconciler: reconciler, audit: audit, now: func() time.Time { return time.Now().UTC() },
@@ -42,7 +44,7 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req model
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("creating an event is restricted to administrators")
 	}
-	title, err := shared.ValidateText("title", req.Title, 1, 200)
+	title, err := validation.ValidateText("title", req.Title, 1, 200)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +52,7 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req model
 		return nil, models.NewValidation("event end must be later than its start",
 			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
 	}
-	website, err := shared.OptionalURL("website_url", req.WebsiteURL)
+	website, err := validation.OptionalURL("website_url", req.WebsiteURL)
 	if err != nil {
 		return nil, err
 	}
@@ -123,14 +125,14 @@ func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.U
 		return nil, models.NewForbidden("editing an event is restricted to administrators")
 	}
 	if req.Title != nil {
-		title, err := shared.ValidateText("title", *req.Title, 1, 200)
+		title, err := validation.ValidateText("title", *req.Title, 1, 200)
 		if err != nil {
 			return nil, err
 		}
 		req.Title = &title
 	}
 	if req.WebsiteURL != nil && *req.WebsiteURL != "" {
-		website, err := shared.ValidateURL("website_url", *req.WebsiteURL)
+		website, err := validation.ValidateURL("website_url", *req.WebsiteURL)
 		if err != nil {
 			return nil, err
 		}
@@ -230,6 +232,6 @@ func (s *EventService) reconcile(ctx context.Context, eventID uuid.UUID) {
 		return
 	}
 	if err := s.reconciler.ReconcileEvent(ctx, eventID); err != nil {
-		shared.LogReconcileFailure(ctx, eventID, err)
+		reconcile.LogReconcileFailure(ctx, eventID, err)
 	}
 }

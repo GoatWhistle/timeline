@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func ptr(value string) *string { return &value }
@@ -27,7 +27,7 @@ func TestProfilePatchRejectsExecutableSchemesInEveryLinkField(t *testing.T) {
 	for field, build := range fields {
 		for _, value := range hostile {
 			t.Run(field+" "+value, func(t *testing.T) {
-				if _, err := shared.ProfilePatch(build(value)); err == nil {
+				if _, err := validation.ProfilePatch(build(value)); err == nil {
 					t.Fatalf("%s accepted %q; such an address reaches an anchor href", field, value)
 				}
 			})
@@ -36,7 +36,7 @@ func TestProfilePatchRejectsExecutableSchemesInEveryLinkField(t *testing.T) {
 }
 
 func TestProfilePatchAcceptsOrdinaryAddresses(t *testing.T) {
-	patch, err := shared.ProfilePatch(models.UpdateProfileRequest{
+	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{
 		AvatarURL:  ptr("https://example.org/a.png"),
 		GithubURL:  ptr("https://github.com/ivan"),
 		WebsiteURL: ptr("http://ivan.example.org"),
@@ -56,7 +56,7 @@ func TestProfilePatchAcceptsOrdinaryAddresses(t *testing.T) {
 }
 
 func TestProfilePatchTreatsAnEmptyStringAsClearing(t *testing.T) {
-	patch, err := shared.ProfilePatch(models.UpdateProfileRequest{
+	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{
 		AvatarURL:  ptr(""),
 		GithubURL:  ptr("   "),
 		WebsiteURL: ptr(""),
@@ -74,7 +74,7 @@ func TestProfilePatchTreatsAnEmptyStringAsClearing(t *testing.T) {
 }
 
 func TestProfilePatchLeavesUnmentionedFieldsAlone(t *testing.T) {
-	patch, err := shared.ProfilePatch(models.UpdateProfileRequest{DisplayName: ptr("Ivan")})
+	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{DisplayName: ptr("Ivan")})
 	if err != nil {
 		t.Fatalf("expected the request to be accepted, got %v", err)
 	}
@@ -87,12 +87,12 @@ func TestProfilePatchLeavesUnmentionedFieldsAlone(t *testing.T) {
 }
 
 func TestProfilePatchBoundsTheBioLength(t *testing.T) {
-	if _, err := shared.ProfilePatch(models.UpdateProfileRequest{
+	if _, err := validation.ProfilePatch(models.UpdateProfileRequest{
 		Bio: ptr(strings.Repeat("a", 2001)),
 	}); err == nil {
 		t.Fatalf("a bio over 2000 characters was accepted")
 	}
-	patch, err := shared.ProfilePatch(models.UpdateProfileRequest{
+	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{
 		Bio: ptr(strings.Repeat("a", 2000)),
 	})
 	if err != nil {
@@ -105,7 +105,7 @@ func TestProfilePatchBoundsTheBioLength(t *testing.T) {
 
 func TestProfilePatchKeepsBioTextVerbatim(t *testing.T) {
 	raw := "  I write <script>alert(1)</script> & \"quotes\"  "
-	patch, err := shared.ProfilePatch(models.UpdateProfileRequest{Bio: ptr(raw)})
+	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{Bio: ptr(raw)})
 	if err != nil {
 		t.Fatalf("expected the bio to be accepted, got %v", err)
 	}

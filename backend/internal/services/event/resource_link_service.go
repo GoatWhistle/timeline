@@ -12,7 +12,8 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/resourcelink"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 type ResourceLinkService struct {
@@ -22,14 +23,14 @@ type ResourceLinkService struct {
 	events       *event.Events
 	stages       *event.Stages
 	participants *participation.Participants
-	audit        *shared.AuditService
+	audit        *audit.AuditService
 	limits       config.ResourceLinks
 	now          func() time.Time
 }
 
 func NewResourceLinkService(db *postgres.DB, links *resourcelink.Links,
 	personal *resourcelink.PersonalLinks, events *event.Events, stages *event.Stages,
-	participants *participation.Participants, audit *shared.AuditService,
+	participants *participation.Participants, audit *audit.AuditService,
 	limits config.ResourceLinks) *ResourceLinkService {
 	return &ResourceLinkService{
 		db: db, links: links, personal: personal, events: events, stages: stages,
@@ -61,11 +62,11 @@ func (s *ResourceLinkService) Create(ctx context.Context, actor models.Actor, ev
 		if err != nil {
 			return err
 		}
-		url, err := shared.ValidateURL("url", req.URL)
+		url, err := validation.ValidateURL("url", req.URL)
 		if err != nil {
 			return err
 		}
-		title, err := shared.OptionalText("title", req.Title, 200)
+		title, err := validation.OptionalText("title", req.Title, 200)
 		if err != nil {
 			return err
 		}
@@ -119,7 +120,7 @@ func (s *ResourceLinkService) Update(ctx context.Context, actor models.Actor, ev
 		}
 		before, err := s.links.Get(ctx, eventID, id)
 		if err != nil {
-			return shared.NotFoundOwned(err, "resource link")
+			return validation.NotFoundOwned(err, "resource link")
 		}
 
 		patch, err := resourceLinkPatch(req)
@@ -134,7 +135,7 @@ func (s *ResourceLinkService) Update(ctx context.Context, actor models.Actor, ev
 
 		link, err = s.links.Update(ctx, eventID, id, patch)
 		if err != nil {
-			return shared.NotFoundOwned(err, "resource link")
+			return validation.NotFoundOwned(err, "resource link")
 		}
 		return s.audit.Record(ctx, actor, models.AuditLinkUpdate,
 			models.EntityResourceLink, id, before, link)
@@ -156,10 +157,10 @@ func (s *ResourceLinkService) Delete(ctx context.Context, actor models.Actor,
 		}
 		before, err := s.links.Get(ctx, eventID, id)
 		if err != nil {
-			return shared.NotFoundOwned(err, "resource link")
+			return validation.NotFoundOwned(err, "resource link")
 		}
 		if err := s.links.Delete(ctx, eventID, id); err != nil {
-			return shared.NotFoundOwned(err, "resource link")
+			return validation.NotFoundOwned(err, "resource link")
 		}
 		return s.audit.Record(ctx, actor, models.AuditLinkDelete,
 			models.EntityResourceLink, id, before, nil)

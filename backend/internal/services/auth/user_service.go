@@ -8,7 +8,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 )
 
 type UserService struct {
@@ -16,13 +16,13 @@ type UserService struct {
 	users    *identity.Users
 	sessions *identity.Sessions
 	notifier Notifier
-	audit    *shared.AuditService
+	audit    *audit.AuditService
 	feeds    *identity.CalendarFeeds
 	realtime SessionDropper
 }
 
 func NewUserService(db *postgres.DB, users *identity.Users,
-	sessions *identity.Sessions, notifier Notifier, audit *shared.AuditService) *UserService {
+	sessions *identity.Sessions, notifier Notifier, audit *audit.AuditService) *UserService {
 	return &UserService{db: db, users: users, sessions: sessions, notifier: notifier, audit: audit}
 }
 

@@ -25,12 +25,16 @@ import (
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/controllers"
 	svcauth "github.com/GoatWhistle/timeline/internal/services/auth"
+	svcdelivery "github.com/GoatWhistle/timeline/internal/services/delivery"
 	svcevent "github.com/GoatWhistle/timeline/internal/services/event"
 	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 	svcparticipation "github.com/GoatWhistle/timeline/internal/services/participation"
 	svcpersonal "github.com/GoatWhistle/timeline/internal/services/personal"
 	svcrealtime "github.com/GoatWhistle/timeline/internal/services/realtime"
-	svcshared "github.com/GoatWhistle/timeline/internal/services/shared"
+	svcscheduler "github.com/GoatWhistle/timeline/internal/services/scheduler"
+	sharedaudit "github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
@@ -95,13 +99,13 @@ func newStack(t *testing.T) *stack {
 	retrosRepo := personal.NewRetrospectives(db)
 	calendarRepo := identity.NewCalendarFeeds(db)
 
-	hasher := svcshared.NewPasswordHasher(cfg.Argon)
-	issuer := svcshared.NewTokenIssuer(cfg.Auth)
+	hasher := crypto.NewPasswordHasher(cfg.Argon)
+	issuer := crypto.NewTokenIssuer(cfg.Auth)
 	limiter := ratelimit.New()
-	mailer := svcshared.NewMailer(email.New(cfg.Email), cfg.App.PublicURL)
+	mailer := mail.NewMailer(email.New(cfg.Email), cfg.App.PublicURL)
 	tg := telegram.New(cfg.Telegram)
 
-	auditSvc := svcshared.NewAuditService(auditRepo)
+	auditSvc := sharedaudit.NewAuditService(auditRepo)
 	personalSvc := svcpersonal.NewPersonalService(db, tasksRepo, notesRepo, artifactsRepo,
 		outcomesRepo, bookmarksRepo, templatesRepo, historyRepo,
 		events, stages, participants, cfg.Personal)
@@ -109,7 +113,7 @@ func newStack(t *testing.T) *stack {
 	linksRepo := resourcelink.NewLinks(db)
 	userLinksRepo := resourcelink.NewPersonalLinks(db)
 	notifier := svcnotification.NewNotificationService(notifications, cfg)
-	scheduler := svcnotification.NewSchedulerService(db, scheduleRepo, rules, notifier, cfg)
+	scheduler := svcscheduler.NewSchedulerService(db, scheduleRepo, rules, notifier, cfg)
 	auth := svcauth.NewAuthService(db, users, sessions, tokens, invites,
 		notifier, auditSvc, hasher, issuer, mailer, limiter, cfg)
 	feed := svcrealtime.NewSystemEventService(db, feedRepo)
@@ -141,7 +145,7 @@ func newStack(t *testing.T) *stack {
 		Rules:    svcparticipation.NewRuleService(db, rules, registrations, notifier, scheduler, auditSvc, cfg),
 		Queries:  svcevent.NewQueryService(queries, events, stages, participants, registrations, statuses),
 		Audit:    auditSvc,
-		Ops:      svcnotification.NewOpsService(db, scheduleRepo, notifications, cfg),
+		Ops:      svcdelivery.NewOpsService(db, scheduleRepo, notifications, cfg),
 		Previews: scheduler,
 		Personal: personalSvc,
 		Links: svcevent.NewResourceLinkService(db, linksRepo, userLinksRepo,

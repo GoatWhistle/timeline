@@ -6,14 +6,15 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *AuthService) usableInvite(ctx context.Context, token, email string) (*models.Invite, error) {
 	if token == "" {
 		return nil, nil
 	}
-	invite, err := s.invites.GetByHash(ctx, shared.HashSecret(token))
+	invite, err := s.invites.GetByHash(ctx, crypto.HashSecret(token))
 	if err != nil {
 		return nil, models.NewValidation("invite not found or invalid")
 	}
@@ -28,15 +29,15 @@ func (s *AuthService) usableInvite(ctx context.Context, token, email string) (*m
 }
 
 func (s *AuthService) validateRegistration(req models.RegisterRequest) (string, string, string, error) {
-	email, err := shared.ValidateEmail("email", req.Email)
+	email, err := validation.ValidateEmail("email", req.Email)
 	if err != nil {
 		return "", "", "", err
 	}
-	displayName, err := shared.ValidateText("display_name", req.DisplayName, 1, 120)
+	displayName, err := validation.ValidateText("display_name", req.DisplayName, 1, 120)
 	if err != nil {
 		return "", "", "", err
 	}
-	if err := shared.ValidatePassword(req.Password, s.cfg.Auth.MinPasswordLength); err != nil {
+	if err := validation.ValidatePassword(req.Password, s.cfg.Auth.MinPasswordLength); err != nil {
 		return "", "", "", err
 	}
 	hash, err := s.hasher.Hash(req.Password)
@@ -57,14 +58,14 @@ func (s *AuthService) acceptInvite(ctx context.Context, invite *models.Invite, e
 }
 
 func (s *AuthService) issueVerification(ctx context.Context, userID uuid.UUID) (string, error) {
-	secret, err := shared.NewSecret()
+	secret, err := crypto.NewSecret()
 	if err != nil {
 		return "", err
 	}
 	if _, err := s.tokens.Create(ctx, &models.OneTimeToken{
 		UserID:    &userID,
 		Purpose:   models.PurposeEmailVerification,
-		TokenHash: shared.HashSecret(secret),
+		TokenHash: crypto.HashSecret(secret),
 		ExpiresAt: s.now().Add(s.cfg.Auth.EmailVerifyTTL),
 	}); err != nil {
 		return "", err

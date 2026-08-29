@@ -11,7 +11,9 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/reconcile"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 type RegistrationService struct {
@@ -23,13 +25,13 @@ type RegistrationService struct {
 	users         *identity.Users
 	notifier      Notifier
 	reconciler    Reconciler
-	audit         *shared.AuditService
+	audit         *audit.AuditService
 }
 
 func NewRegistrationService(db *postgres.DB, registrations *participation.Registrations,
 	events *event.Events, participants *participation.Participants,
 	statuses *participation.Statuses, users *identity.Users,
-	notifier Notifier, reconciler Reconciler, audit *shared.AuditService) *RegistrationService {
+	notifier Notifier, reconciler Reconciler, audit *audit.AuditService) *RegistrationService {
 	return &RegistrationService{
 		db: db, registrations: registrations, events: events, participants: participants,
 		statuses: statuses, users: users, notifier: notifier, reconciler: reconciler, audit: audit,
@@ -49,7 +51,7 @@ func (s *RegistrationService) Create(ctx context.Context, actor models.Actor, ev
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
-	url, err := shared.ValidateURL("url", req.URL)
+	url, err := validation.ValidateURL("url", req.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +113,7 @@ func (s *RegistrationService) seedStatuses(ctx context.Context, event *models.Ev
 		if !user.IsActive {
 			continue
 		}
-		candidate := shared.BuildCandidate(event, registration, &participant, status.ID, status.TodoCycle, user)
+		candidate := reconcile.BuildCandidate(event, registration, &participant, status.ID, status.TodoCycle, user)
 		if _, _, err := s.notifier.CreatePrimary(ctx, candidate); err != nil {
 			return err
 		}
@@ -126,17 +128,15 @@ func (s *RegistrationService) Update(ctx context.Context, actor models.Actor, ev
 	}
 	var url *string
 	if req.URL != nil {
-		value, err := shared.ValidateURL("url", *req.URL)
+		value, err := validation.ValidateURL("url", *req.URL)
 		if err != nil {
 			return nil, err
 		}
 		url = &value
 	}
 
-	var (
-		updated   *models.Registration
-		reconcile bool
-	)
+	var updated *models.Registration
+	var reconcileNeeded bool
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		before, err := s.registrations.GetByEventForUpdate(ctx, eventID)
 		if err != nil {
@@ -176,7 +176,7 @@ func (s *RegistrationService) Update(ctx context.Context, actor models.Actor, ev
 			if err := s.notifier.CancelForRegistration(ctx, before.ID); err != nil {
 				return err
 			}
-			reconcile = true
+			reconcileNeeded = true
 		}
 		return s.audit.Record(ctx, actor, models.AuditRegistrationChange, models.EntityRegistration, before.ID,
 			map[string]any{"url": before.URL, "deadline_at": before.DeadlineAt,
@@ -188,7 +188,7 @@ func (s *RegistrationService) Update(ctx context.Context, actor models.Actor, ev
 		return nil, err
 	}
 
-	if reconcile {
+	if reconcileNeeded {
 		s.reconcile(ctx, eventID)
 	}
 	return updated, nil
@@ -200,10 +200,8 @@ func (s *RegistrationService) SetState(ctx context.Context, actor models.Actor, 
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
 
-	var (
-		updated   *models.Registration
-		reconcile bool
-	)
+	var updated *models.Registration
+	var reconcileNeeded bool
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		before, err := s.registrations.GetByEventForUpdate(ctx, eventID)
 		if err != nil {
@@ -236,7 +234,7 @@ func (s *RegistrationService) SetState(ctx context.Context, actor models.Actor, 
 			if err := s.seedStatuses(ctx, event, updated); err != nil {
 				return err
 			}
-			reconcile = true
+			reconcileNeeded = true
 		}
 
 		return s.audit.Record(ctx, actor, models.AuditRegistrationChange, models.EntityRegistration, before.ID,
@@ -247,7 +245,7 @@ func (s *RegistrationService) SetState(ctx context.Context, actor models.Actor, 
 		return nil, err
 	}
 
-	if reconcile {
+	if reconcileNeeded {
 		s.reconcile(ctx, eventID)
 	}
 	return updated, nil
@@ -258,6 +256,6 @@ func (s *RegistrationService) reconcile(ctx context.Context, eventID uuid.UUID) 
 		return
 	}
 	if err := s.reconciler.ReconcileEvent(ctx, eventID); err != nil {
-		shared.LogReconcileFailure(ctx, eventID, err)
+		reconcile.LogReconcileFailure(ctx, eventID, err)
 	}
 }

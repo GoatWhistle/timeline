@@ -12,7 +12,9 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/calendar"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 )
 
 const (
@@ -28,13 +30,13 @@ type CalendarFeedService struct {
 	feeds     *identity.CalendarFeeds
 	users     *identity.Users
 	queries   *query.Timeline
-	audit     *shared.AuditService
+	audit     *audit.AuditService
 	publicURL string
 	now       func() time.Time
 }
 
 func NewCalendarFeedService(db *postgres.DB, feeds *identity.CalendarFeeds,
-	users *identity.Users, queries *query.Timeline, audit *shared.AuditService,
+	users *identity.Users, queries *query.Timeline, audit *audit.AuditService,
 	publicURL string) *CalendarFeedService {
 	return &CalendarFeedService{db: db, feeds: feeds, users: users, queries: queries,
 		audit: audit, publicURL: publicURL,
@@ -80,11 +82,11 @@ func (s *CalendarFeedService) Issue(ctx context.Context, actor models.Actor,
 			return err
 		}
 
-		secret, err := shared.NewSecret()
+		secret, err := crypto.NewSecret()
 		if err != nil {
 			return err
 		}
-		token, err := s.feeds.Create(ctx, actor.UserID, shared.HashSecret(secret))
+		token, err := s.feeds.Create(ctx, actor.UserID, crypto.HashSecret(secret))
 		if err != nil {
 			return err
 		}
@@ -142,7 +144,7 @@ func (s *CalendarFeedService) Render(ctx context.Context, secret string) (string
 	if err := s.feeds.TouchLastUsed(ctx, token.ID, now); err != nil {
 		return "", err
 	}
-	return shared.RenderCalendar("Timeline", entries, now), nil
+	return calendar.RenderCalendar("Timeline", entries, now), nil
 }
 
 func (s *CalendarFeedService) resolve(ctx context.Context,
@@ -150,7 +152,7 @@ func (s *CalendarFeedService) resolve(ctx context.Context,
 	if len(secret) < calendarFeedMinSecretLen {
 		return nil, calendarFeedNotFound()
 	}
-	token, err := s.feeds.GetActiveByHash(ctx, shared.HashSecret(secret))
+	token, err := s.feeds.GetActiveByHash(ctx, crypto.HashSecret(secret))
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
 			return nil, calendarFeedNotFound()

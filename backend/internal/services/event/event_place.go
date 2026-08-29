@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 type resolvedPlace struct {
@@ -44,7 +44,7 @@ func normalizeCity(value *string) (*string, error) {
 	if city == "" {
 		return nil, nil
 	}
-	normalized, err := shared.ValidateText("city", city, 1, 120)
+	normalized, err := validation.ValidateText("city", city, 1, 120)
 	if err != nil {
 		return nil, err
 	}

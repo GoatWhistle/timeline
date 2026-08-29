@@ -11,7 +11,10 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 type ProfileService struct {
@@ -21,10 +24,10 @@ type ProfileService struct {
 	sessions *identity.Sessions
 	feeds    *identity.CalendarFeeds
 	notifier Notifier
-	audit    *shared.AuditService
-	hasher   *shared.PasswordHasher
-	mailer   *shared.Mailer
-	telegram shared.TelegramSender
+	audit    *audit.AuditService
+	hasher   *crypto.PasswordHasher
+	mailer   *mail.Mailer
+	telegram mail.TelegramSender
 	realtime SessionDropper
 	cfg      *config.Config
 	now      func() time.Time
@@ -32,8 +35,8 @@ type ProfileService struct {
 
 func NewProfileService(db *postgres.DB, users *identity.Users,
 	tokens *identity.Tokens, sessions *identity.Sessions,
-	notifier Notifier, audit *shared.AuditService, hasher *shared.PasswordHasher, mailer *shared.Mailer,
-	telegram shared.TelegramSender, cfg *config.Config) *ProfileService {
+	notifier Notifier, audit *audit.AuditService, hasher *crypto.PasswordHasher, mailer *mail.Mailer,
+	telegram mail.TelegramSender, cfg *config.Config) *ProfileService {
 	return &ProfileService{
 		db: db, users: users, tokens: tokens, sessions: sessions, notifier: notifier,
 		audit: audit, hasher: hasher, mailer: mailer, telegram: telegram, cfg: cfg,
@@ -47,7 +50,7 @@ func (s *ProfileService) Get(ctx context.Context, userID uuid.UUID) (*models.Use
 
 func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req models.UpdateProfileRequest,
 ) (*models.User, error) {
-	patch, err := shared.ProfilePatch(req)
+	patch, err := validation.ProfilePatch(req)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +88,7 @@ func profileSnapshot(u *models.User) map[string]any {
 }
 
 func (s *ProfileService) StartTelegramLink(ctx context.Context, actor models.Actor) (string, time.Time, error) {
-	secret, err := shared.NewSecret()
+	secret, err := crypto.NewSecret()
 	if err != nil {
 		return "", time.Time{}, err
 	}
@@ -97,7 +100,7 @@ func (s *ProfileService) StartTelegramLink(ctx context.Context, actor models.Act
 		_, err := s.tokens.Create(ctx, &models.OneTimeToken{
 			UserID:    &actor.UserID,
 			Purpose:   models.PurposeTelegramLink,
-			TokenHash: shared.HashSecret(secret),
+			TokenHash: crypto.HashSecret(secret),
 			ExpiresAt: expires,
 		})
 		return err
@@ -112,7 +115,7 @@ func (s *ProfileService) CompleteTelegramLink(ctx context.Context, token, chatID
 ) (*models.User, error) {
 	var user *models.User
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
-		record, err := s.tokens.Consume(ctx, shared.HashSecret(token), models.PurposeTelegramLink, s.now())
+		record, err := s.tokens.Consume(ctx, crypto.HashSecret(token), models.PurposeTelegramLink, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
 				return models.NewValidation("the link is invalid or has expired")
@@ -146,7 +149,7 @@ func (s *ProfileService) UnlinkTelegram(ctx context.Context, actor models.Actor)
 
 func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Actor, req models.ChangeEmailRequest,
 ) error {
-	newEmail, err := shared.ValidateEmail("new_email", req.NewEmail)
+	newEmail, err := validation.ValidateEmail("new_email", req.NewEmail)
 	if err != nil {
 		return err
 	}
@@ -162,7 +165,7 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 		return models.NewValidation("the new email matches the current one")
 	}
 
-	secret, err := shared.NewSecret()
+	secret, err := crypto.NewSecret()
 	if err != nil {
 		return err
 	}
@@ -183,7 +186,7 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 		_, err = s.tokens.Create(ctx, &models.OneTimeToken{
 			UserID:      &user.ID,
 			Purpose:     models.PurposeEmailChange,
-			TokenHash:   shared.HashSecret(secret),
+			TokenHash:   crypto.HashSecret(secret),
 			TargetEmail: &newEmail,
 			ExpiresAt:   s.now().Add(s.cfg.Auth.EmailVerifyTTL),
 		})
@@ -208,7 +211,7 @@ func (s *ProfileService) Deactivate(ctx context.Context, actor models.Actor) err
 
 func deactivateUser(ctx context.Context, db *postgres.DB, users *identity.Users,
 	sessions *identity.Sessions, feeds *identity.CalendarFeeds, notifier Notifier,
-	audit *shared.AuditService, actor models.Actor, userID uuid.UUID) error {
+	audit *audit.AuditService, actor models.Actor, userID uuid.UUID) error {
 	return db.WithTx(ctx, func(ctx context.Context) error {
 		user, err := users.GetByID(ctx, userID)
 		if err != nil {

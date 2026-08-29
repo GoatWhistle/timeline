@@ -11,7 +11,8 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/reconcile"
 )
 
 type StatusService struct {
@@ -23,13 +24,13 @@ type StatusService struct {
 	users         *identity.Users
 	notifier      Notifier
 	reconciler    Reconciler
-	audit         *shared.AuditService
+	audit         *audit.AuditService
 }
 
 func NewStatusService(db *postgres.DB, statuses *participation.Statuses,
 	registrations *participation.Registrations, participants *participation.Participants,
 	events *event.Events, users *identity.Users,
-	notifier Notifier, reconciler Reconciler, audit *shared.AuditService) *StatusService {
+	notifier Notifier, reconciler Reconciler, audit *audit.AuditService) *StatusService {
 	return &StatusService{
 		db: db, statuses: statuses, registrations: registrations, participants: participants,
 		events: events, users: users, notifier: notifier, reconciler: reconciler, audit: audit,
@@ -118,10 +119,8 @@ func (s *StatusService) AdminChange(ctx context.Context, actor models.Actor, sta
 			models.FieldError{Field: "status", Message: "allowed values are TODO, DONE and NOT_REQUIRED"})
 	}
 
-	var (
-		updated   *models.RegistrationStatus
-		reconcile uuid.UUID
-	)
+	var updated *models.RegistrationStatus
+	var reconcileID uuid.UUID
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		status, err := s.statuses.GetByIDForUpdate(ctx, statusID)
 		if err != nil {
@@ -143,7 +142,7 @@ func (s *StatusService) AdminChange(ctx context.Context, actor models.Actor, sta
 			return err
 		}
 		if req.Status == models.StatusTODO {
-			reconcile = status.EventID
+			reconcileID = status.EventID
 		}
 		return s.audit.Record(ctx, actor, models.AuditStatusChange, models.EntityRegistrationStatus, statusID,
 			map[string]any{"status": status.Status, "todo_cycle": status.TodoCycle},
@@ -153,9 +152,9 @@ func (s *StatusService) AdminChange(ctx context.Context, actor models.Actor, sta
 		return nil, err
 	}
 
-	if reconcile != uuid.Nil && s.reconciler != nil {
-		if err := s.reconciler.ReconcileEvent(ctx, reconcile); err != nil {
-			shared.LogReconcileFailure(ctx, reconcile, err)
+	if reconcileID != uuid.Nil && s.reconciler != nil {
+		if err := s.reconciler.ReconcileEvent(ctx, reconcileID); err != nil {
+			reconcile.LogReconcileFailure(ctx, reconcileID, err)
 		}
 	}
 	return s.response(ctx, updated)

@@ -10,7 +10,8 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 type StageService struct {
@@ -18,12 +19,12 @@ type StageService struct {
 	stages       *event.Stages
 	events       *event.Events
 	participants *participation.Participants
-	audit        *shared.AuditService
+	audit        *audit.AuditService
 }
 
 func NewStageService(db *postgres.DB, stages *event.Stages,
 	events *event.Events, participants *participation.Participants,
-	audit *shared.AuditService) *StageService {
+	audit *audit.AuditService) *StageService {
 	return &StageService{db: db, stages: stages, events: events, participants: participants, audit: audit}
 }
 
@@ -58,7 +59,7 @@ type stageDraft struct {
 
 func validateStageDraft(req models.CreateStageRequest) (stageDraft, error) {
 	var out stageDraft
-	name, err := shared.ValidateText("name", req.Name, 1, 120)
+	name, err := validation.ValidateText("name", req.Name, 1, 120)
 	if err != nil {
 		return out, err
 	}
@@ -70,7 +71,7 @@ func validateStageDraft(req models.CreateStageRequest) (stageDraft, error) {
 		return out, models.NewValidation("stage end must be later than its start",
 			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
 	}
-	url, err := shared.OptionalURL("url", req.URL)
+	url, err := validation.OptionalURL("url", req.URL)
 	if err != nil {
 		return out, err
 	}
@@ -142,7 +143,7 @@ func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID u
 
 func validateStagePatch(req models.UpdateStageRequest) (models.UpdateStageRequest, error) {
 	if req.Name != nil {
-		name, err := shared.ValidateText("name", *req.Name, 1, 120)
+		name, err := validation.ValidateText("name", *req.Name, 1, 120)
 		if err != nil {
 			return req, err
 		}
@@ -153,7 +154,7 @@ func validateStagePatch(req models.UpdateStageRequest) (models.UpdateStageReques
 			models.FieldError{Field: "type", Message: "value is not allowed"})
 	}
 	if req.URL != nil && *req.URL != "" {
-		url, err := shared.ValidateURL("url", *req.URL)
+		url, err := validation.ValidateURL("url", *req.URL)
 		if err != nil {
 			return req, err
 		}

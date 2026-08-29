@@ -5,11 +5,12 @@ import (
 	"errors"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
-	normalized := shared.NormalizeEmail(email)
+	normalized := validation.NormalizeEmail(email)
 	if !s.limiter.Allow("reset|"+normalized, s.cfg.RateLim.ResendAttempts, s.cfg.RateLim.ResendWindow) {
 		return models.NewRateLimited("too many requests, try again later")
 	}
@@ -25,7 +26,7 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 		return nil
 	}
 
-	secret, err := shared.NewSecret()
+	secret, err := crypto.NewSecret()
 	if err != nil {
 		return err
 	}
@@ -36,7 +37,7 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 		_, err := s.tokens.Create(ctx, &models.OneTimeToken{
 			UserID:    &user.ID,
 			Purpose:   models.PurposePasswordReset,
-			TokenHash: shared.HashSecret(secret),
+			TokenHash: crypto.HashSecret(secret),
 			ExpiresAt: s.now().Add(s.cfg.Auth.PasswordResetTTL),
 		})
 		return err
@@ -49,7 +50,7 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 }
 
 func (s *AuthService) ResetPassword(ctx context.Context, token, password string) error {
-	if err := shared.ValidatePassword(password, s.cfg.Auth.MinPasswordLength); err != nil {
+	if err := validation.ValidatePassword(password, s.cfg.Auth.MinPasswordLength); err != nil {
 		return err
 	}
 	hash, err := s.hasher.Hash(password)
@@ -57,7 +58,7 @@ func (s *AuthService) ResetPassword(ctx context.Context, token, password string)
 		return err
 	}
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
-		record, err := s.tokens.Consume(ctx, shared.HashSecret(token), models.PurposePasswordReset, s.now())
+		record, err := s.tokens.Consume(ctx, crypto.HashSecret(token), models.PurposePasswordReset, s.now())
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
 				return models.NewValidation("the recovery token is invalid or has expired")

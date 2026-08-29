@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *PersonalService) ListArtifacts(ctx context.Context, actor models.Actor,
@@ -39,11 +39,11 @@ func (s *PersonalService) CreateArtifact(ctx context.Context, actor models.Actor
 				models.FieldError{Field: "kind",
 					Message: "allowed values are REPOSITORY, VIDEO, SLIDES, DEMO, SUBMISSION and OTHER"})
 		}
-		url, err := shared.ValidateURL("url", req.URL)
+		url, err := validation.ValidateURL("url", req.URL)
 		if err != nil {
 			return err
 		}
-		title, err := shared.OptionalText("title", req.Title, 200)
+		title, err := validation.OptionalText("title", req.Title, 200)
 		if err != nil {
 			return err
 		}
@@ -85,7 +85,7 @@ func (s *PersonalService) UpdateArtifact(ctx context.Context, actor models.Actor
 	}
 	artifact, err := s.artifacts.Update(ctx, userID, artifactID, patch)
 	if err != nil {
-		return nil, shared.NotFoundOwned(err, "artifact")
+		return nil, validation.NotFoundOwned(err, "artifact")
 	}
 	return artifact, nil
 }
@@ -96,7 +96,7 @@ func (s *PersonalService) DeleteArtifact(ctx context.Context, actor models.Actor
 	if err != nil {
 		return err
 	}
-	return shared.NotFoundOwned(s.artifacts.Delete(ctx, userID, artifactID), "artifact")
+	return validation.NotFoundOwned(s.artifacts.Delete(ctx, userID, artifactID), "artifact")
 }
 
 func (s *PersonalService) GetOutcome(ctx context.Context, actor models.Actor,
@@ -150,11 +150,11 @@ func (s *PersonalService) SaveOutcome(ctx context.Context, actor models.Actor,
 					models.FieldError{Field: "place", Message: "the place must be between 1 and 10000"})
 			}
 		}
-		prize, err := shared.OptionalText("prize", req.Prize, 200)
+		prize, err := validation.OptionalText("prize", req.Prize, 200)
 		if err != nil {
 			return err
 		}
-		track, err := shared.OptionalText("track", req.Track, 120)
+		track, err := validation.OptionalText("track", req.Track, 120)
 		if err != nil {
 			return err
 		}
@@ -177,7 +177,7 @@ func (s *PersonalService) DeleteOutcome(ctx context.Context, actor models.Actor,
 	if err != nil {
 		return err
 	}
-	return shared.NotFoundOwned(s.outcomes.Delete(ctx, userID, eventID), "outcome")
+	return validation.NotFoundOwned(s.outcomes.Delete(ctx, userID, eventID), "outcome")
 }
 
 func artifactPatch(req models.UpdateArtifactRequest) (models.ArtifactPatch, error) {
@@ -191,7 +191,7 @@ func artifactPatch(req models.UpdateArtifactRequest) (models.ArtifactPatch, erro
 		patch.Kind = req.Kind
 	}
 	if req.URL != nil {
-		url, err := shared.ValidateURL("url", *req.URL)
+		url, err := validation.ValidateURL("url", *req.URL)
 		if err != nil {
 			return patch, err
 		}
@@ -201,7 +201,7 @@ func artifactPatch(req models.UpdateArtifactRequest) (models.ArtifactPatch, erro
 	case req.ClearTitle:
 		patch.TitleSet = true
 	case req.Title != nil:
-		title, err := shared.OptionalText("title", req.Title, 200)
+		title, err := validation.OptionalText("title", req.Title, 200)
 		if err != nil {
 			return patch, err
 		}
