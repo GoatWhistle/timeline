@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { URGENCY_TEXT } from '@/entities/deadline/urgency/urgency'
 import { countdownLabel } from '@/entities/deadline/urgency/urgency-label'
@@ -9,7 +10,7 @@ import { cn } from '@/shared/styling/class-names/class-names'
 import { BurningActions } from '../burning-actions/burning-actions'
 import { ReasonTag } from '../reason-tag/reason-tag'
 
-export function BurningRow({
+function BurningRowView({
   item,
   selected,
   now,
@@ -91,3 +92,12 @@ export function BurningRow({
     </div>
   )
 }
+
+export const BurningRow = memo(BurningRowView, (prev, next) => {
+  if (prev.item !== next.item || prev.selected !== next.selected) return false
+  if (prev.onSelect !== next.onSelect) return false
+  return (
+    countdownLabel(prev.item.urgency, prev.item.deadlineAt, prev.now) ===
+    countdownLabel(next.item.urgency, next.item.deadlineAt, next.now)
+  )
+})
