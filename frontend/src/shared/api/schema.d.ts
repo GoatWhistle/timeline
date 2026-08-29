@@ -1856,6 +1856,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/queries/registration-coverage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Registration coverage
+         * @description Share of assigned participants who have self-reported registration across every
+         *     published, non-archived event with an ACTIVE registration. The system never checks
+         *     the external site: DONE means the participant said so, NOT_REQUIRED means an
+         *     administrator waived the requirement, and both count as covered. When no event
+         *     requires registration the aggregate is not applicable and share is omitted rather
+         *     than reported as zero.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.RegistrationCoverage"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/queries/upcoming": {
         parameters: {
             query?: never;
@@ -7908,9 +7961,9 @@ export interface components {
         };
         "models.MeResponse": {
             /** @example https://example.com/a.png */
-            avatar_url: string;
+            avatar_url?: string;
             /** @example Backend developer */
-            bio: string;
+            bio?: string;
             /** Format: date-time */
             created_at: string;
             /** @example John Smith */
@@ -7920,7 +7973,7 @@ export interface components {
             /** @example true */
             email_verified: boolean;
             /** @example https://github.com/ivan */
-            github_url: string;
+            github_url?: string;
             id: string;
             /** @example true */
             is_active: boolean;
@@ -7941,7 +7994,7 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
             /** @example https://ivan.example.com */
-            website_url: string;
+            website_url?: string;
         };
         "models.MessageResponse": {
             /** @example operation completed */
@@ -8220,6 +8273,22 @@ export interface components {
             invite_token?: string;
             /** @example correct-horse-battery */
             password?: string;
+        };
+        "models.RegistrationCoverage": {
+            /** @example true */
+            applicable: boolean;
+            /** @example 4 */
+            events_covered: number;
+            /** @example 1 */
+            not_required: number;
+            /** @example 2 */
+            outstanding: number;
+            /** @example 9 */
+            self_reported_done: number;
+            /** @example 0.75 */
+            share: number;
+            /** @example 12 */
+            total: number;
         };
         "models.RegistrationPublic": {
             /** Format: date-time */

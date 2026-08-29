@@ -75,3 +75,9 @@ jobs:
 
       - name: Bundle size against the baseline
         run: node scripts/bundle-size.mjs
+
+      # Writes coverage and bundle numbers into the run summary, so a failure
+      # is readable without opening the log.
+      - name: Run summary
+        if: always()
+        run: node scripts/ci-summary.mjs

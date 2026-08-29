@@ -85,20 +85,41 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
             | sh -s -- -b "$(go env GOPATH)/bin" v2.6.0
 
+      # The script lives at the repository root and walks down to backend/
+      # itself, so it must not inherit the backend working directory.
       - name: golangci-lint against the baseline
         if: github.event_name != 'pull_request'
+        working-directory: .
         run: bash scripts/check-lint-baseline.sh
 
       - name: Unit tests with coverage
         run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
 
-      - name: Coverage summary
-        run: |
-          go tool cover -func=coverage.out | tail -1
-          rm -f coverage.out
+      # The suites that carry the backend - authorization, section 16
+      # transitions and AC-NOTIF-01..19 - sit behind the `integration` tag, so
+      # they need their own profile. Reporting only the untagged number once
+      # made coverage look like 0.7% when it was in fact far higher.
+      - name: Integration tests with coverage
+        run: >-
+          go test -tags=integration -race -count=1
+          -coverpkg=./internal/... -coverprofile=coverage-integration.out ./...
 
-      - name: Integration tests
-        run: go test -tags=integration -race -count=1 ./...
+      - name: Test and coverage summary
+        if: always()
+        run: |
+          {
+            echo "## Backend"
+            echo ""
+            echo "| Check | Result |"
+            echo "|----|----|"
+            unit=$(go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $3}')
+            full=$(go tool cover -func=coverage-integration.out 2>/dev/null | tail -1 | awk '{print $3}')
+            echo "| Coverage, unit tests alone | ${unit:-n/a} |"
+            echo "| Coverage, including integration | ${full:-n/a} |"
+            echo "| Packages | $(go list ./... | wc -l) |"
+            echo "| golangci-lint | $(grep -oE '"total"[^0-9]*[0-9]+' ../docs/baselines/lint.json | grep -oE '[0-9]+$') issues, baseline |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          rm -f coverage.out coverage-integration.out
 
       - name: OpenAPI specification is up to date
         run: |

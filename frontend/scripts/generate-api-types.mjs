@@ -58,7 +58,15 @@ const OPTIONAL = {
   'models.Place': ['country_code', 'city', 'venue', 'online_url'],
   'models.InvitePreview': ['email', 'expires_at'],
   'models.InviteResponse': ['accepted_at', 'revoked_at'],
-  'models.MeResponse': ['pending_email', 'telegram_username', 'preferred_channel'],
+  'models.MeResponse': [
+    'pending_email',
+    'telegram_username',
+    'preferred_channel',
+    'avatar_url',
+    'bio',
+    'github_url',
+    'website_url',
+  ],
   'models.MyEventItem': [
     'organizer',
     'next_stage',
