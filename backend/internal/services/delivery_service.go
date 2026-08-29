@@ -24,6 +24,7 @@ type DeliveryService struct {
 	audit         *audit.Audit
 	telegram      TelegramSender
 	email         EmailSender
+	events        *SystemEventService
 	cfg           *config.Config
 	now           func() time.Time
 }
@@ -87,7 +88,11 @@ func (s *DeliveryService) handleSendError(ctx context.Context, n *models.Notific
 	}
 
 	if attempts >= s.cfg.Notify.MaxProviderCalls {
-		return false, s.notifications.MarkFailed(ctx, n.ID, sendErr.Error())
+		if err := s.notifications.MarkFailed(ctx, n.ID, sendErr.Error()); err != nil {
+			return false, err
+		}
+		s.emitTerminal(ctx, n, models.EventNotificationFailed, sendErr.Error())
+		return false, nil
 	}
 	next := s.now().Add(s.backoff(attempts))
 	slog.WarnContext(ctx, "temporary delivery error, entry returned to queue",
@@ -116,11 +121,8 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 	attempts := n.AttemptCount
 	for {
 		channel, ok := ChooseChannel(candidate.RecipientChannels, override, failed)
-		if !ok {
-			return s.notifications.MarkUndeliverable(ctx, n.ID, "no delivery channels remain available")
-		}
-		if attempts >= s.cfg.Notify.MaxProviderCalls {
-			return s.notifications.MarkFailed(ctx, n.ID, "the provider call limit is exhausted")
+		if settled, err := s.settleBeforeCall(ctx, n, ok, attempts); settled || err != nil {
+			return err
 		}
 
 		started, err := s.notifications.StartProviderCall(ctx, n.ID, channel, s.now())
@@ -137,7 +139,11 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 		if sendErr == nil {
 			slog.InfoContext(ctx, "notification sent",
 				"notification_id", n.ID, "channel", channel, "attempt", attempts)
-			return s.notifications.MarkSent(ctx, n.ID, channel, s.now())
+			if err := s.notifications.MarkSent(ctx, n.ID, channel, s.now()); err != nil {
+				return err
+			}
+			s.emitMirror(ctx, n)
+			return nil
 		}
 
 		retryChannel, err := s.handleSendError(ctx, n, channel, attempts, sendErr)

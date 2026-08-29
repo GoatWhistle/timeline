@@ -19,6 +19,8 @@ type Config struct {
 	Email    Email
 	Ops      Ops
 	Personal Personal
+	Realtime Realtime
+	Links    ResourceLinks
 }
 
 type App struct {
@@ -87,6 +89,7 @@ type Notify struct {
 type Retention struct {
 	NotificationPayload time.Duration
 	AuditLog            time.Duration
+	SystemEvent         time.Duration
 	Interval            time.Duration
 }
 
@@ -113,12 +116,6 @@ type Ops struct {
 	PageSizeMax        int
 	PageSizeDef        int
 	UserSearchPageSize int
-}
-
-type Personal struct {
-	MaxTasksPerEvent     int
-	MaxArtifactsPerEvent int
-	MaxNoteLength        int
 }
 
 func Load() (*Config, error) {
@@ -190,6 +187,7 @@ func Load() (*Config, error) {
 		Retent: Retention{
 			NotificationPayload: envDuration("RETENTION_NOTIFICATION_PAYLOAD", 90*24*time.Hour),
 			AuditLog:            envDuration("RETENTION_AUDIT_LOG", 365*24*time.Hour),
+			SystemEvent:         envDuration("RETENTION_SYSTEM_EVENT", 90*24*time.Hour),
 			Interval:            envDuration("RETENTION_INTERVAL", 24*time.Hour),
 		},
 		Telegram: Telegram{
@@ -214,11 +212,9 @@ func Load() (*Config, error) {
 			PageSizeDef:        envInt("PAGE_SIZE_DEFAULT", 50),
 			UserSearchPageSize: envInt("USER_SEARCH_PAGE_SIZE", 50),
 		},
-		Personal: Personal{
-			MaxTasksPerEvent:     envInt("PERSONAL_MAX_TASKS_PER_EVENT", 200),
-			MaxArtifactsPerEvent: envInt("PERSONAL_MAX_ARTIFACTS_PER_EVENT", 20),
-			MaxNoteLength:        envInt("PERSONAL_MAX_NOTE_LENGTH", 20000),
-		},
+		Personal: loadPersonal(),
+		Links:    loadResourceLinks(),
+		Realtime: loadRealtime(),
 	}
 
 	if err := cfg.validate(); err != nil {

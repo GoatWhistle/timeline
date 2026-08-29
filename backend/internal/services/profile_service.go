@@ -23,6 +23,7 @@ type ProfileService struct {
 	hasher   *PasswordHasher
 	mailer   *Mailer
 	telegram TelegramSender
+	realtime SessionDropper
 	cfg      *config.Config
 	now      func() time.Time
 }
@@ -182,7 +183,12 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 }
 
 func (s *ProfileService) Deactivate(ctx context.Context, actor models.Actor) error {
-	return deactivateUser(ctx, s.db, s.users, s.sessions, s.notifier, s.audit, actor, actor.UserID)
+	if err := deactivateUser(ctx, s.db, s.users, s.sessions, s.notifier,
+		s.audit, actor, actor.UserID); err != nil {
+		return err
+	}
+	s.dropUser(actor.UserID)
+	return nil
 }
 
 func deactivateUser(ctx context.Context, db *postgres.DB, users *identity.Users,

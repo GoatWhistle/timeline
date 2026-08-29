@@ -16,6 +16,7 @@ type UserService struct {
 	sessions *identity.Sessions
 	notifier *NotificationService
 	audit    *AuditService
+	realtime SessionDropper
 }
 
 func NewUserService(db *postgres.DB, users *identity.Users,
@@ -35,7 +36,12 @@ func (s *UserService) SetActive(ctx context.Context, actor models.Actor, userID 
 		return models.NewForbidden("the operation is restricted to administrators")
 	}
 	if !active {
-		return deactivateUser(ctx, s.db, s.users, s.sessions, s.notifier, s.audit, actor, userID)
+		if err := deactivateUser(ctx, s.db, s.users, s.sessions, s.notifier,
+			s.audit, actor, userID); err != nil {
+			return err
+		}
+		s.dropUser(userID)
+		return nil
 	}
 	return s.db.WithTx(ctx, func(ctx context.Context) error {
 		user, err := s.users.GetByID(ctx, userID)
@@ -80,8 +86,12 @@ func (s *UserService) Delete(ctx context.Context, actor models.Actor, userID uui
 		if err := s.users.Anonymize(ctx, userID); err != nil {
 			return err
 		}
-		return s.audit.Record(ctx, actor, models.AuditUserDelete, models.EntityUser, userID,
+		if err := s.audit.Record(ctx, actor, models.AuditUserDelete, models.EntityUser, userID,
 			map[string]any{"email": user.Email, "display_name": user.DisplayName},
-			map[string]any{"deleted": true})
+			map[string]any{"deleted": true}); err != nil {
+			return err
+		}
+		s.dropUser(userID)
+		return nil
 	})
 }

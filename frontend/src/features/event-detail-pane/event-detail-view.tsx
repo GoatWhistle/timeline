@@ -1,4 +1,4 @@
-import { ExternalLink, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -6,6 +6,7 @@ import { resolveUrgency, URGENCY_KEY, URGENCY_TEXT } from '@/entities/deadline/u
 import { EventStateBadge } from '@/entities/event/event-state-badge'
 import type { EventState } from '@/shared/api/types.gen'
 import { formatDateRange, formatEventMoment, formatRelative } from '@/shared/datetime/datetime'
+import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Button } from '@/shared/ui/primitives/button'
 
 export type DetailEvent = {
@@ -94,10 +95,7 @@ export function EventDetailView({
           </Button>
           {event.website_url && (
             <Button asChild variant="ghost" size="sm">
-              <a href={event.website_url} target="_blank" rel="noopener noreferrer">
-                {t('card.website')}
-                <ExternalLink className="size-3.5" aria-hidden="true" />
-              </a>
+              <ExternalLink href={event.website_url}>{t('card.website')}</ExternalLink>
             </Button>
           )}
         </div>

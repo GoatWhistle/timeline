@@ -162,3 +162,36 @@ type OpsService interface {
 	Queue(ctx context.Context, actor models.Actor, scope string,
 		page models.Page) ([]models.QueueEntryResponse, int64, error)
 }
+
+type SystemEventService interface {
+	List(ctx context.Context, actor models.Actor, unreadOnly bool,
+		page models.Page) ([]models.SystemEventResponse, int64, error)
+	UnreadCount(ctx context.Context, actor models.Actor) (int64, error)
+	MarkRead(ctx context.Context, actor models.Actor, ids []uuid.UUID) (int64, error)
+}
+
+type SessionChecker interface {
+	EnsureLive(ctx context.Context, userID, sessionID uuid.UUID) error
+}
+
+type RealtimeHub interface {
+	Subscribe(userID, sessionID uuid.UUID, isAdmin bool) (models.RealtimeSubscription, error)
+	Unsubscribe(sub models.RealtimeSubscription)
+}
+
+type ResourceLinkService interface {
+	List(ctx context.Context, actor models.Actor,
+		eventID uuid.UUID) ([]models.ResourceLink, error)
+	Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+		req models.CreateResourceLinkRequest) (*models.ResourceLink, error)
+	Update(ctx context.Context, actor models.Actor, eventID, linkID uuid.UUID,
+		req models.UpdateResourceLinkRequest) (*models.ResourceLink, error)
+	Delete(ctx context.Context, actor models.Actor, eventID, linkID uuid.UUID) error
+	ListPersonal(ctx context.Context, actor models.Actor,
+		eventID uuid.UUID) ([]models.ParticipantLink, error)
+	CreatePersonal(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+		req models.CreateParticipantLinkRequest) (*models.ParticipantLink, error)
+	UpdatePersonal(ctx context.Context, actor models.Actor, linkID uuid.UUID,
+		req models.UpdateParticipantLinkRequest) (*models.ParticipantLink, error)
+	DeletePersonal(ctx context.Context, actor models.Actor, linkID uuid.UUID) error
+}

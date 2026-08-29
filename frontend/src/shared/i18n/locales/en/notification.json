@@ -26,5 +26,22 @@
     "channelUpdated": "Preferred channel updated",
     "channelFailed": "Could not change the channel",
     "linkFailed": "Could not start linking"
+  },
+  "feed": {
+    "open": "Open notifications",
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "Nothing has happened yet",
+    "unread_one": "{{count}} unread",
+    "unread_other": "{{count}} unread",
+    "type": {
+      "REGISTRATION_REMINDER": "Registration reminder",
+      "NOTIFICATION_FAILED": "Notification was not delivered",
+      "NOTIFICATION_UNDELIVERABLE": "No delivery channel available",
+      "WORKER_STALLED": "The background process is silent",
+      "WORKER_RECOVERED": "The background process recovered",
+      "QUEUE_AGE_HIGH": "The queue is building up",
+      "QUEUE_AGE_NORMAL": "The queue is clear"
+    }
   }
 }

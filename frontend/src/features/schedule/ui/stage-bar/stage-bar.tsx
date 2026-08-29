@@ -7,6 +7,8 @@ import {
   STAGE_TYPE_PATTERNED,
 } from '@/entities/stage/stage.labels'
 import { EVENT_FORMAT_ICON, placeCity, placeLabel } from '@/entities/stage/stage.place'
+import { StageLinks } from '@/features/event-links/ui/stage-links/stage-links'
+import type { ResourceLink } from '@/shared/api/types.gen'
 import { formatDate } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { measureText } from '@/shared/styling/measure-text/measure-text'
@@ -30,6 +32,7 @@ export type StageBarProps = {
   labelAbove: boolean
   focused: boolean
   onFocusItem: () => void
+  links?: ResourceLink[]
 }
 
 function StageBarView({
@@ -42,6 +45,7 @@ function StageBarView({
   labelAbove,
   focused,
   onFocusItem,
+  links = [],
 }: StageBarProps) {
   const { t } = useTranslation()
   const { stage } = item
@@ -113,6 +117,7 @@ function StageBarView({
           {t('schedule.stageTooltip', { type: typeLabel, start, end })}
         </p>
         <p className="text-muted-foreground">{placeText}</p>
+        <StageLinks links={links} />
       </TooltipContent>
     </Tooltip>
   )

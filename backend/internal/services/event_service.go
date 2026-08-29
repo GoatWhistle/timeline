@@ -48,7 +48,7 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req model
 		return nil, models.NewValidation("event end must be later than its start",
 			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
 	}
-	website, err := optionalHTTPS("website_url", req.WebsiteURL)
+	website, err := optionalURL("website_url", req.WebsiteURL)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +231,7 @@ func (s *EventService) reconcile(ctx context.Context, eventID uuid.UUID) {
 	}
 }
 
-func optionalHTTPS(field string, value *string) (*string, error) {
+func optionalURL(field string, value *string) (*string, error) {
 	if value == nil || *value == "" {
 		return nil, nil
 	}

@@ -54,5 +54,6 @@ func (s *AuthService) RevokeSession(ctx context.Context, actor models.Actor,
 	if err := s.sessions.Revoke(ctx, session.ID); err != nil {
 		return false, err
 	}
+	s.dropSession(session.ID)
 	return session.ID == actor.SessionID, nil
 }

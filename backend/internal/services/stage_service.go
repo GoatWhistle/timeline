@@ -65,7 +65,7 @@ func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID u
 		return nil, nil, models.NewValidation("stage end must be later than its start",
 			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
 	}
-	url, err := optionalHTTPS("url", req.URL)
+	url, err := optionalURL("url", req.URL)
 	if err != nil {
 		return nil, nil, err
 	}

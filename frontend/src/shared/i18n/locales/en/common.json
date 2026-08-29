@@ -49,6 +49,11 @@
     "saving": "Saving",
     "dash": "—"
   },
+  "link": {
+    "external": "External link",
+    "insecure": "Not HTTPS",
+    "insecureHint": "This address opens over an unencrypted protocol. The link still works, but data travels in the clear."
+  },
   "pagination": {
     "label": "Pagination",
     "summary": "Page {{page}} of {{pages}} · {{total}} total"
@@ -320,5 +325,8 @@
     "sectionAppearance": "Appearance",
     "sectionNotifications": "Notifications",
     "sectionDanger": "Account"
+  },
+  "realtime": {
+    "offline": "No live connection — data refreshes less often"
   }
 }

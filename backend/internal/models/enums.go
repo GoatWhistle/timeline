@@ -169,6 +169,9 @@ const (
 	AuditRegistrationChange  AuditAction = "REGISTRATION_CHANGE"
 	AuditStatusChange        AuditAction = "STATUS_CHANGE"
 	AuditRuleChange          AuditAction = "RULE_CHANGE"
+	AuditLinkCreate          AuditAction = "RESOURCE_LINK_CREATE"
+	AuditLinkUpdate          AuditAction = "RESOURCE_LINK_UPDATE"
+	AuditLinkDelete          AuditAction = "RESOURCE_LINK_DELETE"
 )
 
 type EntityType string
@@ -182,4 +185,5 @@ const (
 	EntityRegistration       EntityType = "REGISTRATION"
 	EntityRegistrationStatus EntityType = "REGISTRATION_STATUS"
 	EntityNotificationRule   EntityType = "NOTIFICATION_RULE"
+	EntityResourceLink       EntityType = "RESOURCE_LINK"
 )

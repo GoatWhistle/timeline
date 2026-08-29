@@ -18,6 +18,8 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/personal"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/resourcelink"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/systemevent"
 	"github.com/GoatWhistle/timeline/internal/adapters/ratelimit"
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
 	"github.com/GoatWhistle/timeline/internal/config"
@@ -33,6 +35,9 @@ type stack struct {
 	users    *identity.Users
 	sessions *identity.Sessions
 	events   *event.Events
+	feed     *services.SystemEventService
+	feedRepo *systemevent.Events
+	hub      *services.RealtimeHub
 }
 
 func newStack(t *testing.T) *stack {
@@ -70,6 +75,7 @@ func newStack(t *testing.T) *stack {
 	catalogRepo := query.NewCatalog(db)
 	queries := query.NewTimeline(db)
 	auditRepo := audit.NewAudit(db)
+	feedRepo := systemevent.NewEvents(db)
 	tasksRepo := personal.NewTasks(db)
 	notesRepo := personal.NewNotes(db)
 	artifactsRepo := personal.NewArtifacts(db)
@@ -85,18 +91,27 @@ func newStack(t *testing.T) *stack {
 	tg := telegram.New(cfg.Telegram)
 
 	auditSvc := services.NewAuditService(auditRepo)
+	linksRepo := resourcelink.NewLinks(db)
+	userLinksRepo := resourcelink.NewPersonalLinks(db)
 	notifier := services.NewNotificationService(notifications, cfg)
 	scheduler := services.NewSchedulerService(db, scheduleRepo, rules, notifier, cfg)
 	auth := services.NewAuthService(db, users, sessions, tokens, invites,
 		notifier, auditSvc, hasher, issuer, mailer, limiter, cfg)
+	feed := services.NewSystemEventService(db, feedRepo)
+	hub := services.NewRealtimeHub(feedRepo, cfg.Realtime.MaxPerUser)
+	profileSvc := services.NewProfileService(db, users, tokens, sessions,
+		notifier, auditSvc, hasher, mailer, tg, cfg)
+	userSvc := services.NewUserService(db, users, sessions, notifier, auditSvc)
+	auth.WithRealtime(hub)
+	profileSvc.WithRealtime(hub)
+	userSvc.WithRealtime(hub)
 
 	deps := controllers.Deps{
 		Auth:    auth,
 		Invites: services.NewInviteService(db, invites, users, auth, auditSvc, mailer, limiter, cfg),
-		Profile: services.NewProfileService(db, users, tokens, sessions,
-			notifier, auditSvc, hasher, mailer, tg, cfg),
-		Users:  services.NewUserService(db, users, sessions, notifier, auditSvc),
-		Events: services.NewEventService(db, events, registrations, notifier, scheduler, auditSvc),
+		Profile: profileSvc,
+		Users:   userSvc,
+		Events:  services.NewEventService(db, events, registrations, notifier, scheduler, auditSvc),
 		Catalog: services.NewCatalogService(db, catalogRepo, events, participants,
 			registrations, statuses, users, notifier, auditSvc),
 		Stages: services.NewStageService(db, stages, events, participants, auditSvc),
@@ -114,6 +129,11 @@ func newStack(t *testing.T) *stack {
 		Personal: services.NewPersonalService(db, tasksRepo, notesRepo, artifactsRepo,
 			outcomesRepo, bookmarksRepo, templatesRepo, historyRepo,
 			events, stages, participants, cfg.Personal),
+		Links: services.NewResourceLinkService(db, linksRepo, userLinksRepo,
+			events, stages, participants, auditSvc, cfg.Links),
+		Feed:     feed,
+		Realtime: hub,
+		Sessions: auth,
 
 		Authenticator:      auth,
 		Limiter:            limiter,
@@ -127,6 +147,13 @@ func newStack(t *testing.T) *stack {
 		QueueRateWindow:    cfg.RateLim.QueueWindow,
 		PersonalRate:       cfg.RateLim.PersonalRequests,
 		PersonalRateWindow: cfg.RateLim.PersonalWindow,
+		LinkRate:           cfg.RateLim.LinkRequests,
+		LinkRateWindow:     cfg.RateLim.LinkWindow,
+		FeedRate:           cfg.RateLim.FeedRequests,
+		FeedRateWindow:     cfg.RateLim.FeedWindow,
+		RealtimeRate:       cfg.RateLim.RealtimeAttempts,
+		RealtimeRateWindow: cfg.RateLim.RealtimeWindow,
+		RealtimePing:       cfg.Realtime.PingInterval,
 
 		Cookies:      controllers.CookieOptions{},
 		PublicURL:    cfg.App.PublicURL,
@@ -142,6 +169,7 @@ func newStack(t *testing.T) *stack {
 	return &stack{
 		server: server, db: db, cfg: cfg,
 		users: users, sessions: sessions, events: events,
+		feed: feed, feedRepo: feedRepo, hub: hub,
 	}
 }
 

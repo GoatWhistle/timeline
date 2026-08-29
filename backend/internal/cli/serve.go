@@ -46,6 +46,10 @@ func serve(ctx context.Context) error {
 		IdleTimeout:  c.cfg.HTTP.IdleTimeout,
 	}
 
+	if c.cfg.Realtime.Enabled {
+		go c.hub.Start(ctx)
+	}
+
 	errc := make(chan error, 1)
 	go func() {
 		slog.InfoContext(ctx, "api started", "addr", srv.Addr, "swagger", c.cfg.HTTP.SwaggerEnabled)
@@ -88,6 +92,8 @@ func newRouter(c *container) http.Handler {
 		Ops:           c.ops,
 		Previews:      c.scheduler,
 		Personal:      c.personal,
+		Links:         c.links,
+		Feed:          c.feed,
 
 		Authenticator: c.auth,
 		Metrics:       promhttp.Handler(),
@@ -103,6 +109,13 @@ func newRouter(c *container) http.Handler {
 		QueueRateWindow:    c.cfg.RateLim.QueueWindow,
 		PersonalRate:       c.cfg.RateLim.PersonalRequests,
 		PersonalRateWindow: c.cfg.RateLim.PersonalWindow,
+		LinkRate:           c.cfg.RateLim.LinkRequests,
+		LinkRateWindow:     c.cfg.RateLim.LinkWindow,
+		FeedRate:           c.cfg.RateLim.FeedRequests,
+		FeedRateWindow:     c.cfg.RateLim.FeedWindow,
+		RealtimeRate:       c.cfg.RateLim.RealtimeAttempts,
+		RealtimeRateWindow: c.cfg.RateLim.RealtimeWindow,
+		RealtimePing:       c.cfg.Realtime.PingInterval,
 
 		Cookies:      controllers.CookieOptions{Domain: c.cfg.HTTP.CookieDomain, Secure: c.cfg.HTTP.CookieSecure},
 		PublicURL:    c.cfg.App.PublicURL,
@@ -112,6 +125,10 @@ func newRouter(c *container) http.Handler {
 		PageMax:      c.cfg.Ops.PageSizeMax,
 		UserPageSize: c.cfg.Ops.UserSearchPageSize,
 		CSRFTTL:      c.cfg.Auth.RefreshTTL,
+	}
+	if c.cfg.Realtime.Enabled {
+		deps.Realtime = c.hub
+		deps.Sessions = c.auth
 	}
 	if c.cfg.HTTP.SwaggerEnabled {
 		deps.SwaggerUI = httpSwagger.WrapHandler

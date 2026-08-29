@@ -1,4 +1,3 @@
-import { ExternalLink } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -18,6 +17,7 @@ import {
   SelectValue,
 } from '@/shared/ui/forms/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 
@@ -103,15 +103,9 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
         {deepLink && (
           <p className="text-sm">
             {t('card.deepLinkHint')}{' '}
-            <a
-              className="inline-flex items-center gap-1 text-primary hover:underline"
-              href={deepLink}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <ExternalLink className="text-primary hover:underline" href={deepLink}>
               {t('card.openTelegram')}
-              <ExternalLink className="size-3.5" aria-hidden="true" />
-            </a>
+            </ExternalLink>
           </p>
         )}
 

@@ -66,7 +66,7 @@ func resolveStagePlace(format *models.EventFormat, clearFormat bool, countryCode
 		out.venue = name
 	}
 	if onlineURL != nil {
-		link, err := optionalHTTPS("online_url", onlineURL)
+		link, err := optionalURL("online_url", onlineURL)
 		if err != nil {
 			return out, err
 		}

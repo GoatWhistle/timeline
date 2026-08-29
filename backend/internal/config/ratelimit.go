@@ -17,6 +17,12 @@ type RateLim struct {
 	QueueWindow      time.Duration
 	PersonalRequests int
 	PersonalWindow   time.Duration
+	FeedRequests     int
+	FeedWindow       time.Duration
+	RealtimeAttempts int
+	RealtimeWindow   time.Duration
+	LinkRequests     int
+	LinkWindow       time.Duration
 }
 
 func loadRateLim() RateLim {
@@ -35,5 +41,11 @@ func loadRateLim() RateLim {
 		QueueWindow:      envDuration("RATE_LIMIT_QUEUE_WINDOW", time.Minute),
 		PersonalRequests: envInt("RATE_LIMIT_PERSONAL_REQUESTS", 240),
 		PersonalWindow:   envDuration("RATE_LIMIT_PERSONAL_WINDOW", time.Minute),
+		FeedRequests:     envInt("RATE_LIMIT_FEED_REQUESTS", 240),
+		FeedWindow:       envDuration("RATE_LIMIT_FEED_WINDOW", time.Minute),
+		RealtimeAttempts: envInt("RATE_LIMIT_REALTIME_ATTEMPTS", 30),
+		RealtimeWindow:   envDuration("RATE_LIMIT_REALTIME_WINDOW", time.Minute),
+		LinkRequests:     envInt("RATE_LIMIT_LINK_REQUESTS", 240),
+		LinkWindow:       envDuration("RATE_LIMIT_LINK_WINDOW", time.Minute),
 	}
 }

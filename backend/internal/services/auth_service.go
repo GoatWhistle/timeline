@@ -30,6 +30,7 @@ type AuthService struct {
 	issuer   *TokenIssuer
 	mailer   *Mailer
 	limiter  RateLimiter
+	realtime SessionDropper
 	cfg      *config.Config
 	now      func() time.Time
 }

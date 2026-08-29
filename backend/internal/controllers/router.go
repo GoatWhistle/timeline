@@ -2,54 +2,9 @@ package controllers
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 )
-
-type Deps struct {
-	Auth          AuthService
-	Invites       InviteService
-	Profile       ProfileService
-	Users         UserService
-	Events        EventService
-	Catalog       CatalogService
-	Stages        StageService
-	Participants  ParticipantService
-	Registrations RegistrationService
-	Statuses      StatusService
-	Rules         RuleService
-	Queries       QueryService
-	Audit         AuditService
-	Ops           OpsService
-	Previews      PreviewService
-	Personal      PersonalService
-
-	Authenticator middleware.Authenticator
-	Metrics       http.Handler
-	SwaggerUI     http.Handler
-
-	Limiter            Limiter
-	CatalogRate        int
-	CatalogRateWindow  time.Duration
-	SessionRate        int
-	SessionRateWindow  time.Duration
-	PreviewRate        int
-	PreviewRateWindow  time.Duration
-	QueueRate          int
-	QueueRateWindow    time.Duration
-	PersonalRate       int
-	PersonalRateWindow time.Duration
-
-	Cookies      CookieOptions
-	PublicURL    string
-	CORSOrigins  []string
-	MetricsToken string
-	PageDefault  int
-	PageMax      int
-	UserPageSize int
-	CSRFTTL      time.Duration
-}
 
 // @title			Timeline API
 // @version		0.8.0
@@ -100,6 +55,10 @@ type Deps struct {
 // @tag.description			Log of administrative changes
 // @tag.name					personal
 // @tag.description			The participant's own layer: tasks, notes, artifacts, outcome and bookmarks
+// @tag.name					events-feed
+// @tag.description			The system event bus: an in-app mirror of what happened, not a delivery channel
+// @tag.name					realtime
+// @tag.description			The WebSocket channel that tells a client what went stale
 // @tag.name					ops
 // @tag.description			Service probes and metrics
 func NewRouter(deps Deps) http.Handler {
@@ -121,6 +80,8 @@ func NewRouter(deps Deps) http.Handler {
 	previewC := NewPreviewController(deps.Previews, deps.Limiter, deps.PreviewRate, deps.PreviewRateWindow)
 	personalC := NewPersonalController(deps.Personal, deps.Limiter, deps.PersonalRate,
 		deps.PersonalRateWindow, deps.PageDefault, deps.PageMax)
+	linkC := NewResourceLinkController(deps.Links, deps.Limiter, deps.LinkRate,
+		deps.LinkRateWindow)
 
 	rt := &routes{authn: deps.Authenticator}
 	mux := http.NewServeMux()
@@ -159,6 +120,8 @@ func NewRouter(deps Deps) http.Handler {
 	mux.Handle("POST "+api+"/events/{id}/registration/done", rt.authd(regC.MarkDone))
 
 	mountPersonal(mux, rt, api, personalC)
+	mountResourceLinks(mux, rt, api, linkC)
+	mountRealtime(mux, rt, api, deps)
 
 	mux.Handle("GET "+api+"/admin/users", rt.admin(userC.Search))
 	mux.Handle("POST "+api+"/admin/users/{id}/deactivate", rt.admin(userC.Deactivate))

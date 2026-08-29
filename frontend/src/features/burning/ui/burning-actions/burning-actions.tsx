@@ -1,8 +1,9 @@
-import { Check, ExternalLink } from 'lucide-react'
+import { Check, ExternalLink as ExternalLinkIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useMarkRegistrationDone } from '@/entities/event/event.queries'
 import type { BurningItem } from '@/features/burning/model/burning'
+import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/tooltip'
 import { Button } from '@/shared/ui/primitives/button'
 
@@ -26,10 +27,10 @@ export function BurningActions({ item }: { item: BurningItem }) {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button asChild variant="ghost" size="sm" className="h-7 px-2">
-              <a href={url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="size-3.5" aria-hidden="true" />
+              <ExternalLink href={url} showIcon={false}>
+                <ExternalLinkIcon className="size-3.5" aria-hidden="true" />
                 <span className="sr-only">{t('burning.action.openForm')}</span>
-              </a>
+              </ExternalLink>
             </Button>
           </TooltipTrigger>
           <TooltipContent>{t('burning.action.openForm')}</TooltipContent>

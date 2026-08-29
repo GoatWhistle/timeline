@@ -11,6 +11,8 @@ func (s *DeliveryService) Start(ctx context.Context) {
 	defer poll.Stop()
 	recovery := time.NewTicker(s.cfg.Notify.RecoveryInterval)
 	defer recovery.Stop()
+	watch := time.NewTicker(s.cfg.Notify.WorkerInterval)
+	defer watch.Stop()
 	retention := time.NewTicker(s.cfg.Retent.Interval)
 	defer retention.Stop()
 
@@ -23,6 +25,8 @@ func (s *DeliveryService) Start(ctx context.Context) {
 			s.runOnce(ctx)
 		case <-recovery.C:
 			s.recoverLeases(ctx)
+		case <-watch.C:
+			s.observe(ctx)
 		case <-retention.C:
 			s.cleanup(ctx)
 		}
@@ -80,7 +84,15 @@ func (s *DeliveryService) cleanup(ctx context.Context) {
 	}); err != nil {
 		slog.ErrorContext(ctx, "audit log cleanup failed", "error", err)
 	}
-	if payloads > 0 || entries > 0 {
-		slog.InfoContext(ctx, "retention policy applied", "payloads", payloads, "audit_entries", entries)
+	var feed int64
+	if s.events != nil {
+		feed, err = s.events.Cleanup(ctx, s.cfg.Retent.SystemEvent)
+		if err != nil {
+			slog.ErrorContext(ctx, "system event cleanup failed", "error", err)
+		}
+	}
+	if payloads > 0 || entries > 0 || feed > 0 {
+		slog.InfoContext(ctx, "retention policy applied",
+			"payloads", payloads, "audit_entries", entries, "system_events", feed)
 	}
 }

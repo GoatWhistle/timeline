@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Outlet } from 'react-router'
 import { AppShortcuts, type GotoTarget } from '@/features/app-shortcuts/app-shortcuts'
 import { VerificationBanner } from '@/features/auth/verification-banner/verification-banner'
+import { ConnectionBanner } from '@/features/connection-banner/connection-banner'
 import { SettingsOverlay } from '@/features/settings-overlay/settings-overlay'
 import { useSession } from '@/shared/api/session'
 import { useProfileLocale } from '@/shared/i18n/use-profile-locale'
@@ -47,6 +48,7 @@ export function AppShell() {
 
       <main id="main" className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <VerificationBanner />
+        <ConnectionBanner />
         {sidebar.collapsed && (
           <button
             type="button"

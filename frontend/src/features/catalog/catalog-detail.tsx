@@ -5,6 +5,7 @@ import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { formatDate, formatDateRange } from '@/shared/datetime/datetime'
+import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { JoinEventDialog } from './join-event-dialog'
@@ -109,9 +110,7 @@ export function CatalogDetail({
         )}
         {event.website_url && (
           <Button variant="ghost" asChild>
-            <a href={event.website_url} target="_blank" rel="noreferrer noopener">
-              {t('card.website')}
-            </a>
+            <ExternalLink href={event.website_url}>{t('card.website')}</ExternalLink>
           </Button>
         )}
       </div>

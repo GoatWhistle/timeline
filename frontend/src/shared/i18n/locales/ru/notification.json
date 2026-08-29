@@ -26,5 +26,23 @@
     "channelUpdated": "Предпочитаемый канал обновлён",
     "channelFailed": "Не удалось изменить канал",
     "linkFailed": "Не удалось начать привязку"
+  },
+  "feed": {
+    "open": "Открыть уведомления",
+    "title": "Уведомления",
+    "markAllRead": "Отметить все прочитанными",
+    "empty": "Пока ничего не произошло",
+    "unread_one": "{{count}} непрочитанное",
+    "unread_few": "{{count}} непрочитанных",
+    "unread_many": "{{count}} непрочитанных",
+    "type": {
+      "REGISTRATION_REMINDER": "Напоминание о регистрации",
+      "NOTIFICATION_FAILED": "Уведомление не доставлено",
+      "NOTIFICATION_UNDELIVERABLE": "Нет доступного канала доставки",
+      "WORKER_STALLED": "Фоновый процесс молчит",
+      "WORKER_RECOVERED": "Фоновый процесс восстановился",
+      "QUEUE_AGE_HIGH": "Очередь копится",
+      "QUEUE_AGE_NORMAL": "Очередь разобрана"
+    }
   }
 }

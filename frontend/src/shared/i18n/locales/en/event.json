@@ -285,5 +285,35 @@
       "aria": "{{done}} of {{required}} marked themselves registered",
       "selfReport": "The numbers come from what members reported themselves, not from checking the site."
     }
+  },
+  "linkKind": {
+    "WEBSITE": "Event website",
+    "RULES": "Rules and code of conduct",
+    "REGISTRATION": "Registration form",
+    "SUBMISSION": "Submission form",
+    "CHAT": "Participant chat",
+    "DATASET": "Dataset",
+    "API_DOCS": "API documentation",
+    "JUDGING": "Judging criteria",
+    "MENTORS": "Mentor sign-up",
+    "RESULTS": "Results page",
+    "SPONSOR": "Partners",
+    "OTHER": "Other"
+  },
+  "links": {
+    "title": "Links",
+    "pinned": "Pinned",
+    "empty": "No links yet",
+    "stageScoped": "Stage link",
+    "addTitle": "Add a link",
+    "kind": "Kind",
+    "url": "Address",
+    "label": "Label",
+    "pin": "Pin to the card",
+    "stage": "Stage",
+    "wholeEvent": "Whole event",
+    "personalTitle": "My links",
+    "personalEmpty": "No links of your own yet",
+    "personalHint": "Only you can see these links"
   }
 }

@@ -3081,6 +3081,287 @@ const docTemplate = `{
                 }
             }
         },
+        "/events/{id}/links": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Every link attached to the event: rules, chat, submission form, dataset,\njudging criteria and the rest. Pinned links come first, then the explicit\nsort order.\n\nA link carrying stage_id belongs to that stage and is meant to surface while\nthe stage runs rather than for the whole event. The system never follows a\nlink: no title, favicon or availability is fetched from the address, so an\naddress supplied here can never make the server call out (plan IVa.4).\n\nThe scheme is not restricted to HTTPS (specification 5.1): a plain http\naddress, an internal host or a tg:// address is stored as given. Only schemes\nthat execute in the browser are rejected. The client marks a non-HTTPS link\nbut never blocks it.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Resource links of an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResourceLinkListResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "the event is not visible to the caller",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Attaches a link to the event or, when stage_id is given, to one of its stages.\nA stage belonging to another event is rejected: the composite foreign key\n(stage_id, event_id) makes the mismatch impossible to store.\n\nThe canonical registration address stays in Registration.url because it takes\npart in notification content versioning (specification 7); a REGISTRATION link\nhere only displays that same value.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Add a resource link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Link",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateResourceLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResourceLink"
+                        }
+                    },
+                    "400": {
+                        "description": "bad address, executable scheme or a foreign stage",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "only an administrator edits event links",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "the link limit for the event is reached",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/links/{linkId}": {
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Deletes one link of the event. The action is recorded in the audit log.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Remove a resource link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Link identifier",
+                        "name": "linkId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "the link is removed"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Edits one link of the event. Moving a link to a stage of another event is\nrejected the same way as on creation.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Change a resource link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Link identifier",
+                        "name": "linkId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Fields to change",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateResourceLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResourceLink"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/events/{id}/registration/done": {
             "post": {
                 "security": [
@@ -3824,6 +4105,163 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/events-feed": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The system event bus, not the notification queue of specification section 9. A row here\nmirrors something that happened; it never competes with Telegram or email for delivery\nand never enters the deduplication and retry machinery of a Notification.\n\nThe feed returns exactly two audiences: events addressed to the caller personally and,\nfor an administrator, events addressed to administrators. There is no way to read\nsomebody else's feed.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events-feed"
+                ],
+                "summary": "Own event feed",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Return only entries the caller has not read",
+                        "name": "unread",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number, from 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SystemEventPage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/events-feed/read": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Marks the listed events read for the caller. An empty list marks the whole visible feed.\nIdentifiers outside the caller's audience are ignored rather than reported: the endpoint\nmust not become a way to probe which events exist.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events-feed"
+                ],
+                "summary": "Mark events as read",
+                "parameters": [
+                    {
+                        "description": "Identifiers to mark, empty for all",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MarkReadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UnreadCountResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/events-feed/unread-count": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The number the bell shows. Requested over REST on connect; the socket only sends the\ndelta afterwards, so the counter is correct even when the socket never opens.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events-feed"
+                ],
+                "summary": "Unread event count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UnreadCountResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me/events/{id}/artifacts": {
             "get": {
                 "security": [
@@ -3939,6 +4377,134 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "the artifact limit for this event is reached",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/events/{id}/links": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The caller's private links for one event, kept in a table of their own rather\nthan mixed into the event links. Separate storage keeps the permission check\nsimple: an event link is administrative, a personal link belongs to whoever\ncreated it, and no query has to tell the two apart at read time.\n\nNobody else can read these links, an administrator included.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "personal"
+                ],
+                "summary": "Own links for an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ParticipantLinkListResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "the event is not visible to the caller",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Saves a private link of the caller for one event. The address is validated the\nsame way as everywhere else: it must parse, and schemes that execute in the\nbrowser are rejected. HTTPS is not required.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "personal"
+                ],
+                "summary": "Add an own link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Link",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateParticipantLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ParticipantLink"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "the personal link limit for the event is reached",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -4498,6 +5064,125 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/links/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Deletes one of the caller's private links. Personal records stay outside the\naudit log, so the removal is not recorded there.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "personal"
+                ],
+                "summary": "Remove an own link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Link identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "the link is removed"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Edits one of the caller's private links. Somebody else's link answers 404: its\nexistence is not disclosed (specification 5.4).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "personal"
+                ],
+                "summary": "Change an own link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Link identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Fields to change",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateParticipantLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ParticipantLink"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me/schedule": {
             "get": {
                 "security": [
@@ -4972,6 +5657,46 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/realtime": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "WebSocket upgrade. The socket is read-only: it carries cache invalidation addresses and\nevent-bus entries, never domain payloads. Data still arrives over the ordinary authorized\nREST endpoints, so the socket cannot reveal anything a GET would refuse.\n\nThe handshake carries no CSRF header — a WebSocket handshake cannot set one — so Origin is\nchecked explicitly and a mismatch is refused with 403. SameSite=Lax does not cover a\nWebSocket upgrade: without this check any site a signed-in user visits could open a socket\nas them.\n\nThe connection is bound to the session rather than to the 15-minute access token, and is\nclosed when the session is revoked, the user signs out or the account is deactivated.",
+                "tags": [
+                    "realtime"
+                ],
+                "summary": "Realtime channel",
+                "responses": {
+                    "101": {
+                        "description": "switching protocols",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -5099,7 +5824,10 @@ const docTemplate = `{
                 "TEAM_ROLE_CHANGE",
                 "REGISTRATION_CHANGE",
                 "STATUS_CHANGE",
-                "RULE_CHANGE"
+                "RULE_CHANGE",
+                "RESOURCE_LINK_CREATE",
+                "RESOURCE_LINK_UPDATE",
+                "RESOURCE_LINK_DELETE"
             ],
             "x-enum-varnames": [
                 "AuditUserRegister",
@@ -5124,7 +5852,10 @@ const docTemplate = `{
                 "AuditTeamRoleChange",
                 "AuditRegistrationChange",
                 "AuditStatusChange",
-                "AuditRuleChange"
+                "AuditRuleChange",
+                "AuditLinkCreate",
+                "AuditLinkUpdate",
+                "AuditLinkDelete"
             ]
         },
         "models.AuditPage": {
@@ -5697,6 +6428,27 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateParticipantLinkRequest": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string",
+                    "example": "OTHER"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "title": {
+                    "type": "string",
+                    "example": "My scratch notes"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.org/my-notes"
+                }
+            }
+        },
         "models.CreateRegistrationRequest": {
             "type": "object",
             "properties": {
@@ -5709,6 +6461,34 @@ const docTemplate = `{
                 "url": {
                     "type": "string",
                     "example": "https://example.com/register"
+                }
+            }
+        },
+        "models.CreateResourceLinkRequest": {
+            "type": "object",
+            "properties": {
+                "is_pinned": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "kind": {
+                    "type": "string",
+                    "example": "RULES"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "stage_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Rules and code of conduct"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.org/rules"
                 }
             }
         },
@@ -5896,7 +6676,8 @@ const docTemplate = `{
                 "EVENT_PARTICIPANT",
                 "REGISTRATION",
                 "REGISTRATION_STATUS",
-                "NOTIFICATION_RULE"
+                "NOTIFICATION_RULE",
+                "RESOURCE_LINK"
             ],
             "x-enum-varnames": [
                 "EntityUser",
@@ -5906,7 +6687,8 @@ const docTemplate = `{
                 "EntityParticipant",
                 "EntityRegistration",
                 "EntityRegistrationStatus",
-                "EntityNotificationRule"
+                "EntityNotificationRule",
+                "EntityResourceLink"
             ]
         },
         "models.ErrorBody": {
@@ -6324,6 +7106,37 @@ const docTemplate = `{
                 }
             }
         },
+        "models.LinkKind": {
+            "type": "string",
+            "enum": [
+                "WEBSITE",
+                "RULES",
+                "REGISTRATION",
+                "SUBMISSION",
+                "CHAT",
+                "DATASET",
+                "API_DOCS",
+                "JUDGING",
+                "MENTORS",
+                "RESULTS",
+                "SPONSOR",
+                "OTHER"
+            ],
+            "x-enum-varnames": [
+                "LinkWebsite",
+                "LinkRules",
+                "LinkRegistration",
+                "LinkSubmission",
+                "LinkChat",
+                "LinkDataset",
+                "LinkAPIDocs",
+                "LinkJudging",
+                "LinkMentors",
+                "LinkResults",
+                "LinkSponsor",
+                "LinkOther"
+            ]
+        },
         "models.LoginRequest": {
             "type": "object",
             "properties": {
@@ -6334,6 +7147,17 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "correct-horse-battery"
+                }
+            }
+        },
+        "models.MarkReadRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -6695,6 +7519,54 @@ const docTemplate = `{
                 "url": {
                     "type": "string",
                     "example": "https://github.com/example/project"
+                }
+            }
+        },
+        "models.ParticipantLink": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.LinkKind"
+                        }
+                    ],
+                    "example": "OTHER"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "title": {
+                    "type": "string",
+                    "example": "My scratch notes"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.org/my-notes"
+                }
+            }
+        },
+        "models.ParticipantLinkListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ParticipantLink"
+                    }
                 }
             }
         },
@@ -7279,6 +8151,61 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ResourceLink": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_pinned": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "kind": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.LinkKind"
+                        }
+                    ],
+                    "example": "RULES"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "stage_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Rules and code of conduct"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.org/rules"
+                }
+            }
+        },
+        "models.ResourceLinkListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ResourceLink"
+                    }
+                }
+            }
+        },
         "models.SaveNoteRequest": {
             "type": "object",
             "properties": {
@@ -7574,6 +8501,59 @@ const docTemplate = `{
                 "StageOther"
             ]
         },
+        "models.SystemEventPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SystemEventResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/models.PageMeta"
+                }
+            }
+        },
+        "models.SystemEventResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "read": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "severity": {
+                    "type": "string",
+                    "enum": [
+                        "INFO",
+                        "WARNING",
+                        "CRITICAL"
+                    ],
+                    "example": "WARNING"
+                },
+                "subject_id": {
+                    "type": "string"
+                },
+                "subject_type": {
+                    "type": "string",
+                    "example": "notification"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "NOTIFICATION_FAILED"
+                }
+            }
+        },
         "models.TaskListResponse": {
             "type": "object",
             "properties": {
@@ -7625,6 +8605,15 @@ const docTemplate = `{
                 "token": {
                     "type": "string",
                     "example": "7f9c0f0e2f4b4a1d"
+                }
+            }
+        },
+        "models.UnreadCountResponse": {
+            "type": "object",
+            "properties": {
+                "unread": {
+                    "type": "integer",
+                    "example": 3
                 }
             }
         },
@@ -7752,6 +8741,31 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UpdateParticipantLinkRequest": {
+            "type": "object",
+            "properties": {
+                "clear_title": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "kind": {
+                    "type": "string",
+                    "example": "OTHER"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "title": {
+                    "type": "string",
+                    "example": "My scratch notes"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.org/my-notes"
+                }
+            }
+        },
         "models.UpdateProfileRequest": {
             "type": "object",
             "properties": {
@@ -7791,6 +8805,42 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string"
+                }
+            }
+        },
+        "models.UpdateResourceLinkRequest": {
+            "type": "object",
+            "properties": {
+                "clear_stage": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "clear_title": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_pinned": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "kind": {
+                    "type": "string",
+                    "example": "RULES"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "stage_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Rules and code of conduct"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.org/rules"
                 }
             }
         },

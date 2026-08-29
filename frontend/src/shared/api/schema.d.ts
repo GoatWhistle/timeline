@@ -3495,6 +3495,335 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events/{id}/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resource links of an event
+         * @description Every link attached to the event: rules, chat, submission form, dataset,
+         *     judging criteria and the rest. Pinned links come first, then the explicit
+         *     sort order.
+         *
+         *     A link carrying stage_id belongs to that stage and is meant to surface while
+         *     the stage runs rather than for the whole event. The system never follows a
+         *     link: no title, favicon or availability is fetched from the address, so an
+         *     address supplied here can never make the server call out (plan IVa.4).
+         *
+         *     The scheme is not restricted to HTTPS (specification 5.1): a plain http
+         *     address, an internal host or a tg:// address is stored as given. Only schemes
+         *     that execute in the browser are rejected. The client marks a non-HTTPS link
+         *     but never blocks it.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ResourceLinkListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the event is not visible to the caller */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Add a resource link
+         * @description Attaches a link to the event or, when stage_id is given, to one of its stages.
+         *     A stage belonging to another event is rejected: the composite foreign key
+         *     (stage_id, event_id) makes the mismatch impossible to store.
+         *
+         *     The canonical registration address stays in Registration.url because it takes
+         *     part in notification content versioning (specification 7); a REGISTRATION link
+         *     here only displays that same value.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Link */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.CreateResourceLinkRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ResourceLink"];
+                    };
+                };
+                /** @description bad address, executable scheme or a foreign stage */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description only an administrator edits event links */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the link limit for the event is reached */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/links/{linkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a resource link
+         * @description Deletes one link of the event. The action is recorded in the audit log.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                    /** @description Link identifier */
+                    linkId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the link is removed */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Change a resource link
+         * @description Edits one link of the event. Moving a link to a stage of another event is
+         *     rejected the same way as on creation.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                    /** @description Link identifier */
+                    linkId: string;
+                };
+                cookie?: never;
+            };
+            /** @description Fields to change */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.UpdateResourceLinkRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ResourceLink"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/events/{id}/registration/done": {
         parameters: {
             query?: never;
@@ -4437,6 +4766,216 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/events-feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own event feed
+         * @description The system event bus, not the notification queue of specification section 9. A row here
+         *     mirrors something that happened; it never competes with Telegram or email for delivery
+         *     and never enters the deduplication and retry machinery of a Notification.
+         *
+         *     The feed returns exactly two audiences: events addressed to the caller personally and,
+         *     for an administrator, events addressed to administrators. There is no way to read
+         *     somebody else's feed.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number, from 1 */
+                    page?: number;
+                    /** @description Page size */
+                    page_size?: number;
+                    /** @description Return only entries the caller has not read */
+                    unread?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.SystemEventPage"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/events-feed/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark events as read
+         * @description Marks the listed events read for the caller. An empty list marks the whole visible feed.
+         *     Identifiers outside the caller's audience are ignored rather than reported: the endpoint
+         *     must not become a way to probe which events exist.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Identifiers to mark, empty for all */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.MarkReadRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.UnreadCountResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/events-feed/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Unread event count
+         * @description The number the bell shows. Requested over REST on connect; the socket only sends the
+         *     delta afterwards, so the counter is correct even when the socket never opens.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.UnreadCountResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/events/{id}/artifacts": {
         parameters: {
             query?: never;
@@ -4563,6 +5102,158 @@ export interface paths {
                     };
                 };
                 /** @description the artifact limit for this event is reached */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/events/{id}/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own links for an event
+         * @description The caller's private links for one event, kept in a table of their own rather
+         *     than mixed into the event links. Separate storage keeps the permission check
+         *     simple: an event link is administrative, a personal link belongs to whoever
+         *     created it, and no query has to tell the two apart at read time.
+         *
+         *     Nobody else can read these links, an administrator included.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantLinkListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the event is not visible to the caller */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Add an own link
+         * @description Saves a private link of the caller for one event. The address is validated the
+         *     same way as everywhere else: it must parse, and schemes that execute in the
+         *     browser are rejected. HTTPS is not required.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Link */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.CreateParticipantLinkRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantLink"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the personal link limit for the event is reached */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5234,6 +5925,142 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/me/links/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove an own link
+         * @description Deletes one of the caller's private links. Personal records stay outside the
+         *     audit log, so the removal is not recorded there.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Link identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the link is removed */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Change an own link
+         * @description Edits one of the caller's private links. Somebody else's link answers 404: its
+         *     existence is not disclosed (specification 5.4).
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Link identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Fields to change */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.UpdateParticipantLinkRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantLink"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/me/schedule": {
@@ -5924,6 +6751,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/realtime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Realtime channel
+         * @description WebSocket upgrade. The socket is read-only: it carries cache invalidation addresses and
+         *     event-bus entries, never domain payloads. Data still arrives over the ordinary authorized
+         *     REST endpoints, so the socket cannot reveal anything a GET would refuse.
+         *
+         *     The handshake carries no CSRF header — a WebSocket handshake cannot set one — so Origin is
+         *     checked explicitly and a mismatch is refused with 403. SameSite=Lax does not cover a
+         *     WebSocket upgrade: without this check any site a signed-in user visits could open a socket
+         *     as them.
+         *
+         *     The connection is bound to the session rather than to the 15-minute access token, and is
+         *     closed when the session is revoked, the user signs out or the account is deactivated.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description switching protocols */
+                101: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": string;
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -5958,7 +6861,7 @@ export interface components {
             items: components["schemas"]["models.ParticipantArtifact"][];
         };
         /** @enum {string} */
-        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE";
+        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE";
         "models.AuditPage": {
             items: components["schemas"]["models.AuditResponse"][];
             meta: components["schemas"]["models.PageMeta"];
@@ -6144,11 +7047,34 @@ export interface components {
             accept_link: string;
             invite: components["schemas"]["models.InviteResponse"];
         };
+        "models.CreateParticipantLinkRequest": {
+            /** @example OTHER */
+            kind?: string;
+            /** @example 0 */
+            sort_order?: number;
+            /** @example My scratch notes */
+            title?: string;
+            /** @example https://example.org/my-notes */
+            url?: string;
+        };
         "models.CreateRegistrationRequest": {
             /** Format: date-time */
             deadline_at?: string;
             description?: string;
             /** @example https://example.com/register */
+            url?: string;
+        };
+        "models.CreateResourceLinkRequest": {
+            /** @example false */
+            is_pinned?: boolean;
+            /** @example RULES */
+            kind?: string;
+            /** @example 0 */
+            sort_order?: number;
+            stage_id?: string;
+            /** @example Rules and code of conduct */
+            title?: string;
+            /** @example https://example.org/rules */
             url?: string;
         };
         "models.CreateRuleRequest": {
@@ -6218,7 +7144,7 @@ export interface components {
             email?: string;
         };
         /** @enum {string} */
-        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE";
+        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK";
         "models.ErrorBody": {
             /** @example validation_failed */
             code: string;
@@ -6360,11 +7286,16 @@ export interface components {
             /** @example Backend developer */
             team_role?: string;
         };
+        /** @enum {string} */
+        "models.LinkKind": "WEBSITE" | "RULES" | "REGISTRATION" | "SUBMISSION" | "CHAT" | "DATASET" | "API_DOCS" | "JUDGING" | "MENTORS" | "RESULTS" | "SPONSOR" | "OTHER";
         "models.LoginRequest": {
             /** @example ivan@example.com */
             email?: string;
             /** @example correct-horse-battery */
             password?: string;
+        };
+        "models.MarkReadRequest": {
+            ids?: string[];
         };
         "models.MeResponse": {
             /** Format: date-time */
@@ -6490,6 +7421,24 @@ export interface components {
             updated_at: string;
             /** @example https://github.com/example/project */
             url: string;
+        };
+        "models.ParticipantLink": {
+            /** Format: date-time */
+            created_at: string;
+            event_id: string;
+            id: string;
+            kind: components["schemas"]["models.LinkKind"];
+            /** @example 0 */
+            sort_order: number;
+            /** @example My scratch notes */
+            title: string;
+            /** Format: date-time */
+            updated_at: string;
+            /** @example https://example.org/my-notes */
+            url: string;
+        };
+        "models.ParticipantLinkListResponse": {
+            items: components["schemas"]["models.ParticipantLink"][];
         };
         "models.ParticipantNote": {
             /** @example Draft notes in Markdown */
@@ -6692,6 +7641,27 @@ export interface components {
             /** @example 7f9c0f0e2f4b4a1d */
             token?: string;
         };
+        "models.ResourceLink": {
+            /** Format: date-time */
+            created_at: string;
+            event_id: string;
+            id: string;
+            /** @example false */
+            is_pinned: boolean;
+            kind: components["schemas"]["models.LinkKind"];
+            /** @example 0 */
+            sort_order: number;
+            stage_id: string;
+            /** @example Rules and code of conduct */
+            title: string;
+            /** Format: date-time */
+            updated_at: string;
+            /** @example https://example.org/rules */
+            url: string;
+        };
+        "models.ResourceLinkListResponse": {
+            items: components["schemas"]["models.ResourceLink"][];
+        };
         "models.SaveNoteRequest": {
             /** @example Draft notes in Markdown */
             body?: string;
@@ -6796,6 +7766,30 @@ export interface components {
         };
         /** @enum {string} */
         "models.StageType": "REGISTRATION" | "SELECTION" | "PARTICIPATION" | "CHECKPOINT" | "SUBMISSION" | "DEMO" | "RESULTS" | "OTHER";
+        "models.SystemEventPage": {
+            items: components["schemas"]["models.SystemEventResponse"][];
+            meta: components["schemas"]["models.PageMeta"];
+        };
+        "models.SystemEventResponse": {
+            /** Format: date-time */
+            created_at: string;
+            id: string;
+            payload: {
+                [key: string]: unknown;
+            };
+            /** @example false */
+            read: boolean;
+            /**
+             * @example WARNING
+             * @enum {string}
+             */
+            severity: "INFO" | "WARNING" | "CRITICAL";
+            subject_id: string;
+            /** @example notification */
+            subject_type: string;
+            /** @example NOTIFICATION_FAILED */
+            type: string;
+        };
         "models.TaskListResponse": {
             items: components["schemas"]["models.ParticipantTask"][];
         };
@@ -6817,6 +7811,10 @@ export interface components {
         "models.TokenRequest": {
             /** @example 7f9c0f0e2f4b4a1d */
             token?: string;
+        };
+        "models.UnreadCountResponse": {
+            /** @example 3 */
+            unread: number;
         };
         "models.UpdateArtifactRequest": {
             /** @example false */
@@ -6857,6 +7855,18 @@ export interface components {
             track?: string;
             website_url?: string;
         };
+        "models.UpdateParticipantLinkRequest": {
+            /** @example false */
+            clear_title?: boolean;
+            /** @example OTHER */
+            kind?: string;
+            /** @example 0 */
+            sort_order?: number;
+            /** @example My scratch notes */
+            title?: string;
+            /** @example https://example.org/my-notes */
+            url?: string;
+        };
         "models.UpdateProfileRequest": {
             /** @example John Smith */
             display_name?: string;
@@ -6874,6 +7884,23 @@ export interface components {
             /** Format: date-time */
             deadline_at?: string;
             description?: string;
+            url?: string;
+        };
+        "models.UpdateResourceLinkRequest": {
+            /** @example false */
+            clear_stage?: boolean;
+            /** @example false */
+            clear_title?: boolean;
+            /** @example true */
+            is_pinned?: boolean;
+            /** @example RULES */
+            kind?: string;
+            /** @example 0 */
+            sort_order?: number;
+            stage_id?: string;
+            /** @example Rules and code of conduct */
+            title?: string;
+            /** @example https://example.org/rules */
             url?: string;
         };
         "models.UpdateRuleRequest": {

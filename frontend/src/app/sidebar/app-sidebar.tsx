@@ -2,6 +2,7 @@ import { PanelLeftClose } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { CATALOG_VIEW_KEYS, CATALOG_VIEWS } from '@/entities/catalog/catalog.views'
+import { EventFeedBell } from '@/features/event-feed-bell/event-feed-bell'
 import { ProfileMenu } from '@/features/profile-menu/profile-menu'
 import { EVENT_VIEWS } from '@/features/saved-views/saved-views'
 import { SavedViewsNav } from '@/features/saved-views/saved-views-nav'
@@ -66,7 +67,12 @@ export function AppSidebar({
 
       <div className="mt-6 border-border border-t px-1 pt-4 pb-2">
         {user && (
-          <ProfileMenu userId={user.id} displayName={user.display_name} email={user.email} />
+          <div className="flex items-center gap-1">
+            <div className="min-w-0 flex-1">
+              <ProfileMenu userId={user.id} displayName={user.display_name} email={user.email} />
+            </div>
+            <EventFeedBell />
+          </div>
         )}
       </div>
     </aside>

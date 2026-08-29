@@ -1,0 +1,15 @@
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--color-warning-surface, var(--color-surface-2));
+  color: var(--color-copy);
+  font-size: 0.8125rem;
+}
+
+.icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}

@@ -140,14 +140,22 @@ func (s *AuthService) Logout(ctx context.Context, refreshToken string) error {
 		}
 		return err
 	}
-	return s.sessions.Revoke(ctx, session.ID)
+	if err := s.sessions.Revoke(ctx, session.ID); err != nil {
+		return err
+	}
+	s.dropSession(session.ID)
+	return nil
 }
 
 func (s *AuthService) LogoutAll(ctx context.Context, actor models.Actor) error {
 	if actor.IsSystem() {
 		return models.NewUnauthorized("authentication is required")
 	}
-	return s.sessions.RevokeAllForUser(ctx, actor.UserID)
+	if err := s.sessions.RevokeAllForUser(ctx, actor.UserID); err != nil {
+		return err
+	}
+	s.dropUser(actor.UserID)
+	return nil
 }
 
 func (s *AuthService) Authenticate(ctx context.Context, accessToken string) (*models.User, uuid.UUID, error) {

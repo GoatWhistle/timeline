@@ -93,6 +93,9 @@ definitions:
     - REGISTRATION_CHANGE
     - STATUS_CHANGE
     - RULE_CHANGE
+    - RESOURCE_LINK_CREATE
+    - RESOURCE_LINK_UPDATE
+    - RESOURCE_LINK_DELETE
     type: string
     x-enum-varnames:
     - AuditUserRegister
@@ -118,6 +121,9 @@ definitions:
     - AuditRegistrationChange
     - AuditStatusChange
     - AuditRuleChange
+    - AuditLinkCreate
+    - AuditLinkUpdate
+    - AuditLinkDelete
   models.AuditPage:
     properties:
       items:
@@ -495,6 +501,21 @@ definitions:
       invite:
         $ref: '#/definitions/models.InviteResponse'
     type: object
+  models.CreateParticipantLinkRequest:
+    properties:
+      kind:
+        example: OTHER
+        type: string
+      sort_order:
+        example: 0
+        type: integer
+      title:
+        example: My scratch notes
+        type: string
+      url:
+        example: https://example.org/my-notes
+        type: string
+    type: object
   models.CreateRegistrationRequest:
     properties:
       deadline_at:
@@ -503,6 +524,26 @@ definitions:
         type: string
       url:
         example: https://example.com/register
+        type: string
+    type: object
+  models.CreateResourceLinkRequest:
+    properties:
+      is_pinned:
+        example: false
+        type: boolean
+      kind:
+        example: RULES
+        type: string
+      sort_order:
+        example: 0
+        type: integer
+      stage_id:
+        type: string
+      title:
+        example: Rules and code of conduct
+        type: string
+      url:
+        example: https://example.org/rules
         type: string
     type: object
   models.CreateRuleRequest:
@@ -632,6 +673,7 @@ definitions:
     - REGISTRATION
     - REGISTRATION_STATUS
     - NOTIFICATION_RULE
+    - RESOURCE_LINK
     type: string
     x-enum-varnames:
     - EntityUser
@@ -642,6 +684,7 @@ definitions:
     - EntityRegistration
     - EntityRegistrationStatus
     - EntityNotificationRule
+    - EntityResourceLink
   models.ErrorBody:
     properties:
       code:
@@ -922,6 +965,34 @@ definitions:
         example: Backend developer
         type: string
     type: object
+  models.LinkKind:
+    enum:
+    - WEBSITE
+    - RULES
+    - REGISTRATION
+    - SUBMISSION
+    - CHAT
+    - DATASET
+    - API_DOCS
+    - JUDGING
+    - MENTORS
+    - RESULTS
+    - SPONSOR
+    - OTHER
+    type: string
+    x-enum-varnames:
+    - LinkWebsite
+    - LinkRules
+    - LinkRegistration
+    - LinkSubmission
+    - LinkChat
+    - LinkDataset
+    - LinkAPIDocs
+    - LinkJudging
+    - LinkMentors
+    - LinkResults
+    - LinkSponsor
+    - LinkOther
   models.LoginRequest:
     properties:
       email:
@@ -930,6 +1001,13 @@ definitions:
       password:
         example: correct-horse-battery
         type: string
+    type: object
+  models.MarkReadRequest:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
     type: object
   models.MeResponse:
     properties:
@@ -1178,6 +1256,37 @@ definitions:
       url:
         example: https://github.com/example/project
         type: string
+    type: object
+  models.ParticipantLink:
+    properties:
+      created_at:
+        type: string
+      event_id:
+        type: string
+      id:
+        type: string
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.LinkKind'
+        example: OTHER
+      sort_order:
+        example: 0
+        type: integer
+      title:
+        example: My scratch notes
+        type: string
+      updated_at:
+        type: string
+      url:
+        example: https://example.org/my-notes
+        type: string
+    type: object
+  models.ParticipantLinkListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.ParticipantLink'
+        type: array
     type: object
   models.ParticipantNote:
     properties:
@@ -1561,6 +1670,42 @@ definitions:
         example: 7f9c0f0e2f4b4a1d
         type: string
     type: object
+  models.ResourceLink:
+    properties:
+      created_at:
+        type: string
+      event_id:
+        type: string
+      id:
+        type: string
+      is_pinned:
+        example: false
+        type: boolean
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.LinkKind'
+        example: RULES
+      sort_order:
+        example: 0
+        type: integer
+      stage_id:
+        type: string
+      title:
+        example: Rules and code of conduct
+        type: string
+      updated_at:
+        type: string
+      url:
+        example: https://example.org/rules
+        type: string
+    type: object
+  models.ResourceLinkListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.ResourceLink'
+        type: array
+    type: object
   models.SaveNoteRequest:
     properties:
       body:
@@ -1763,6 +1908,43 @@ definitions:
     - StageDemo
     - StageResults
     - StageOther
+  models.SystemEventPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.SystemEventResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.SystemEventResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      payload:
+        additionalProperties: {}
+        type: object
+      read:
+        example: false
+        type: boolean
+      severity:
+        enum:
+        - INFO
+        - WARNING
+        - CRITICAL
+        example: WARNING
+        type: string
+      subject_id:
+        type: string
+      subject_type:
+        example: notification
+        type: string
+      type:
+        example: NOTIFICATION_FAILED
+        type: string
+    type: object
   models.TaskListResponse:
     properties:
       items:
@@ -1797,6 +1979,12 @@ definitions:
       token:
         example: 7f9c0f0e2f4b4a1d
         type: string
+    type: object
+  models.UnreadCountResponse:
+    properties:
+      unread:
+        example: 3
+        type: integer
     type: object
   models.UpdateArtifactRequest:
     properties:
@@ -1880,6 +2068,24 @@ definitions:
       website_url:
         type: string
     type: object
+  models.UpdateParticipantLinkRequest:
+    properties:
+      clear_title:
+        example: false
+        type: boolean
+      kind:
+        example: OTHER
+        type: string
+      sort_order:
+        example: 0
+        type: integer
+      title:
+        example: My scratch notes
+        type: string
+      url:
+        example: https://example.org/my-notes
+        type: string
+    type: object
   models.UpdateProfileRequest:
     properties:
       display_name:
@@ -1907,6 +2113,32 @@ definitions:
       description:
         type: string
       url:
+        type: string
+    type: object
+  models.UpdateResourceLinkRequest:
+    properties:
+      clear_stage:
+        example: false
+        type: boolean
+      clear_title:
+        example: false
+        type: boolean
+      is_pinned:
+        example: true
+        type: boolean
+      kind:
+        example: RULES
+        type: string
+      sort_order:
+        example: 0
+        type: integer
+      stage_id:
+        type: string
+      title:
+        example: Rules and code of conduct
+        type: string
+      url:
+        example: https://example.org/rules
         type: string
     type: object
   models.UpdateRuleRequest:
@@ -4148,6 +4380,213 @@ paths:
       summary: Join an event
       tags:
       - catalog
+  /events/{id}/links:
+    get:
+      description: |-
+        Every link attached to the event: rules, chat, submission form, dataset,
+        judging criteria and the rest. Pinned links come first, then the explicit
+        sort order.
+
+        A link carrying stage_id belongs to that stage and is meant to surface while
+        the stage runs rather than for the whole event. The system never follows a
+        link: no title, favicon or availability is fetched from the address, so an
+        address supplied here can never make the server call out (plan IVa.4).
+
+        The scheme is not restricted to HTTPS (specification 5.1): a plain http
+        address, an internal host or a tg:// address is stored as given. Only schemes
+        that execute in the browser are rejected. The client marks a non-HTTPS link
+        but never blocks it.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResourceLinkListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: the event is not visible to the caller
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Resource links of an event
+      tags:
+      - events
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Attaches a link to the event or, when stage_id is given, to one of its stages.
+        A stage belonging to another event is rejected: the composite foreign key
+        (stage_id, event_id) makes the mismatch impossible to store.
+
+        The canonical registration address stays in Registration.url because it takes
+        part in notification content versioning (specification 7); a REGISTRATION link
+        here only displays that same value.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Link
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateResourceLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ResourceLink'
+        "400":
+          description: bad address, executable scheme or a foreign stage
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: only an administrator edits event links
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: the link limit for the event is reached
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Add a resource link
+      tags:
+      - events
+  /events/{id}/links/{linkId}:
+    delete:
+      description: Deletes one link of the event. The action is recorded in the audit
+        log.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Link identifier
+        format: uuid
+        in: path
+        name: linkId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: the link is removed
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Remove a resource link
+      tags:
+      - events
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Edits one link of the event. Moving a link to a stage of another event is
+        rejected the same way as on creation.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Link identifier
+        format: uuid
+        in: path
+        name: linkId
+        required: true
+        type: string
+      - description: Fields to change
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateResourceLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResourceLink'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Change a resource link
+      tags:
+      - events
   /events/{id}/registration/done:
     post:
       description: |-
@@ -4649,6 +5088,117 @@ paths:
       summary: My events
       tags:
       - queries
+  /me/events-feed:
+    get:
+      description: |-
+        The system event bus, not the notification queue of specification section 9. A row here
+        mirrors something that happened; it never competes with Telegram or email for delivery
+        and never enters the deduplication and retry machinery of a Notification.
+
+        The feed returns exactly two audiences: events addressed to the caller personally and,
+        for an administrator, events addressed to administrators. There is no way to read
+        somebody else's feed.
+      parameters:
+      - description: Return only entries the caller has not read
+        in: query
+        name: unread
+        type: boolean
+      - description: Page number, from 1
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SystemEventPage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own event feed
+      tags:
+      - events-feed
+  /me/events-feed/read:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Marks the listed events read for the caller. An empty list marks the whole visible feed.
+        Identifiers outside the caller's audience are ignored rather than reported: the endpoint
+        must not become a way to probe which events exist.
+      parameters:
+      - description: Identifiers to mark, empty for all
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.MarkReadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UnreadCountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Mark events as read
+      tags:
+      - events-feed
+  /me/events-feed/unread-count:
+    get:
+      description: |-
+        The number the bell shows. Requested over REST on connect; the socket only sends the
+        delta afterwards, so the counter is correct even when the socket never opens.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UnreadCountResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Unread event count
+      tags:
+      - events-feed
   /me/events/{id}/artifacts:
     get:
       description: |-
@@ -4738,6 +5288,98 @@ paths:
       security:
       - CookieAuth: []
       summary: Add an own artifact
+      tags:
+      - personal
+  /me/events/{id}/links:
+    get:
+      description: |-
+        The caller's private links for one event, kept in a table of their own rather
+        than mixed into the event links. Separate storage keeps the permission check
+        simple: an event link is administrative, a personal link belongs to whoever
+        created it, and no query has to tell the two apart at read time.
+
+        Nobody else can read these links, an administrator included.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantLinkListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: the event is not visible to the caller
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own links for an event
+      tags:
+      - personal
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Saves a private link of the caller for one event. The address is validated the
+        same way as everywhere else: it must parse, and schemes that execute in the
+        browser are rejected. HTTPS is not required.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Link
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateParticipantLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ParticipantLink'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: the personal link limit for the event is reached
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Add an own link
       tags:
       - personal
   /me/events/{id}/note:
@@ -5130,6 +5772,87 @@ paths:
       summary: Own participation history
       tags:
       - personal
+  /me/links/{id}:
+    delete:
+      description: |-
+        Deletes one of the caller's private links. Personal records stay outside the
+        audit log, so the removal is not recorded there.
+      parameters:
+      - description: Link identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: the link is removed
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Remove an own link
+      tags:
+      - personal
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Edits one of the caller's private links. Somebody else's link answers 404: its
+        existence is not disclosed (specification 5.4).
+      parameters:
+      - description: Link identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields to change
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateParticipantLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantLink'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Change an own link
+      tags:
+      - personal
   /me/schedule:
     get:
       description: |-
@@ -5480,6 +6203,42 @@ paths:
       summary: Readiness probe
       tags:
       - ops
+  /realtime:
+    get:
+      description: |-
+        WebSocket upgrade. The socket is read-only: it carries cache invalidation addresses and
+        event-bus entries, never domain payloads. Data still arrives over the ordinary authorized
+        REST endpoints, so the socket cannot reveal anything a GET would refuse.
+
+        The handshake carries no CSRF header — a WebSocket handshake cannot set one — so Origin is
+        checked explicitly and a mismatch is refused with 403. SameSite=Lax does not cover a
+        WebSocket upgrade: without this check any site a signed-in user visits could open a socket
+        as them.
+
+        The connection is bound to the session rather than to the 15-minute access token, and is
+        closed when the session is revoked, the user signs out or the account is deactivated.
+      responses:
+        "101":
+          description: switching protocols
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Realtime channel
+      tags:
+      - realtime
 schemes:
 - http
 - https

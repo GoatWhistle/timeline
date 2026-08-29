@@ -1,15 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle2, ExternalLink } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { toast } from 'sonner'
 import { eventCardQuery, useMarkRegistrationDone } from '@/entities/event/event.queries'
 import { EventStateBadge, RegistrationStatusBadge } from '@/entities/event/event-state-badge'
 import { STAGE_TYPE_COLOR, STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
+import { LinkList } from '@/features/event-links/ui/link-list/link-list'
+import { PinnedLinks } from '@/features/event-links/ui/pinned-links/pinned-links'
 import type { EventCard } from '@/shared/api/types.gen'
 import { formatDate, formatDateTime, formatRelative } from '@/shared/datetime/datetime'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { PageHeader } from '@/shared/ui/layout/page-header'
+import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { Dot } from '@/shared/ui/primitives/dot'
@@ -95,6 +98,9 @@ function EventCardBody({
             <div className="col-span-2">
               <EventPlaceSummary event={event} stages={card.stages} />
             </div>
+            <div className="col-span-2">
+              <PinnedLinks eventId={event.id} />
+            </div>
             {event.description && (
               <div className="col-span-2">
                 <p className="text-muted-foreground">{t('card.description')}</p>
@@ -103,17 +109,20 @@ function EventCardBody({
             )}
             {event.website_url && (
               <div className="col-span-2">
-                <a
-                  className="inline-flex items-center gap-1 text-primary hover:underline"
-                  href={event.website_url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <ExternalLink className="text-primary hover:underline" href={event.website_url}>
                   {t('card.website')}
-                  <ExternalLink className="size-3.5" aria-hidden="true" />
-                </a>
+                </ExternalLink>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('links.title')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LinkList eventId={event.id} stages={card.stages} />
           </CardContent>
         </Card>
 
@@ -142,10 +151,7 @@ function EventCardBody({
 
               <div className="flex items-center gap-3">
                 <Button asChild variant="outline">
-                  <a href={registration.url} target="_blank" rel="noreferrer">
-                    {t('card.goToRegistration')}
-                    <ExternalLink className="size-3.5" aria-hidden="true" />
-                  </a>
+                  <ExternalLink href={registration.url}>{t('card.goToRegistration')}</ExternalLink>
                 </Button>
 
                 {card.can_mark_done && (

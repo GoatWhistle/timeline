@@ -12,6 +12,8 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/personal"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/resourcelink"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/systemevent"
 	"github.com/GoatWhistle/timeline/internal/adapters/ratelimit"
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
 	"github.com/GoatWhistle/timeline/internal/config"
@@ -43,7 +45,10 @@ type container struct {
 		bookmarks     *personal.Bookmarks
 		templates     *personal.Templates
 		history       *personal.History
+		links         *resourcelink.Links
+		userLinks     *resourcelink.PersonalLinks
 		queries       *query.Timeline
+		feed          *systemevent.Events
 		audit         *audit.Audit
 	}
 
@@ -66,10 +71,13 @@ type container struct {
 	queries       *services.QueryService
 	audit         *services.AuditService
 	personal      *services.PersonalService
+	links         *services.ResourceLinkService
 	notifier      *services.NotificationService
 	scheduler     *services.SchedulerService
 	delivery      *services.DeliveryService
 	ops           *services.OpsService
+	feed          *services.SystemEventService
+	hub           *services.RealtimeHub
 }
 
 func newContainer(ctx context.Context) (*container, error) {
@@ -103,7 +111,10 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.repos.bookmarks = personal.NewBookmarks(db)
 	c.repos.templates = personal.NewTemplates(db)
 	c.repos.history = personal.NewHistory(db)
+	c.repos.links = resourcelink.NewLinks(db)
+	c.repos.userLinks = resourcelink.NewPersonalLinks(db)
 	c.repos.queries = query.NewTimeline(db)
+	c.repos.feed = systemevent.NewEvents(db)
 	c.repos.audit = audit.NewAudit(db)
 
 	c.telegram = telegram.New(cfg.Telegram)
@@ -143,7 +154,15 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.personal = services.NewPersonalService(db, c.repos.tasks, c.repos.notes, c.repos.artifacts,
 		c.repos.outcomes, c.repos.bookmarks, c.repos.templates, c.repos.history,
 		c.repos.events, c.repos.stages, c.repos.participants, cfg.Personal)
+	c.links = services.NewResourceLinkService(db, c.repos.links, c.repos.userLinks,
+		c.repos.events, c.repos.stages, c.repos.participants, c.audit, cfg.Links)
 	c.ops = services.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
+	c.feed = services.NewSystemEventService(db, c.repos.feed)
+	c.hub = services.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
+	c.delivery.WithEvents(c.feed)
+	c.auth.WithRealtime(c.hub)
+	c.users.WithRealtime(c.hub)
+	c.profile.WithRealtime(c.hub)
 	return c, nil
 }
 

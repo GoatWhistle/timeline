@@ -203,6 +203,17 @@ linters:
           - gocyclo
           - lll
 
+      # swag annotations align into columns, and the widest DTO name pushes
+      # the padded rows past 120 characters. The annotation is the source of
+      # the API contract, so it is not wrapped.
+      - path: internal/controllers/resource_link_controller\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/participant_link_controller\.go
+        linters:
+          - lll
+
       - path: internal/controllers/registration_controller\.go
         linters:
           - dupl
