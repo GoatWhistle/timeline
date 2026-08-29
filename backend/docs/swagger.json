@@ -1730,6 +1730,37 @@
                 }
             }
         },
+        "/admin/queries/registration-coverage": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Share of assigned participants who have self-reported registration across every\npublished, non-archived event with an ACTIVE registration. The system never checks\nthe external site: DONE means the participant said so, NOT_REQUIRED means an\nadministrator waived the requirement, and both count as covered. When no event\nrequires registration the aggregate is not applicable and share is omitted rather\nthan reported as zero.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "queries"
+                ],
+                "summary": "Registration coverage",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.RegistrationCoverage"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/queries/upcoming": {
             "get": {
                 "security": [
@@ -8494,6 +8525,39 @@
                 "password": {
                     "type": "string",
                     "example": "correct-horse-battery"
+                }
+            }
+        },
+        "models.RegistrationCoverage": {
+            "type": "object",
+            "properties": {
+                "applicable": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "events_covered": {
+                    "type": "integer",
+                    "example": 4
+                },
+                "not_required": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "outstanding": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "self_reported_done": {
+                    "type": "integer",
+                    "example": 9
+                },
+                "share": {
+                    "type": "number",
+                    "example": 0.75
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 12
                 }
             }
         },

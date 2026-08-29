@@ -205,7 +205,13 @@
   },
   "stats": {
     "title": "Event statistics",
-    "overdue": "Overdue"
+    "overdue": "Overdue",
+    "coverage": "Marked as registered",
+    "coverageNotApplicable": "Registration not required",
+    "coverageAria": "Share of participants who marked themselves as registered",
+    "coverageHint_one": "{{done}} of {{count}} participant marked themselves as registered; {{waived}} waived by an administrator, {{outstanding}} still to mark. The system checks nothing.",
+    "coverageHint_other": "{{done}} of {{count}} participants marked themselves as registered; {{waived}} waived by an administrator, {{outstanding}} still to mark. The system checks nothing.",
+    "coverageEmptyHint": "No published event requires registration, so there is no share to show."
   },
   "catalog": {
     "title": "Catalog",

@@ -150,3 +150,13 @@ type QueueEntryPage struct {
 	Items []QueueEntryResponse `json:"items"`
 	Meta  PageMeta             `json:"meta"`
 }
+
+type RegistrationCoverage struct {
+	Applicable       bool     `json:"applicable" example:"true"`
+	EventsCovered    int64    `json:"events_covered" example:"4"`
+	Total            int64    `json:"total" example:"12"`
+	SelfReportedDone int64    `json:"self_reported_done" example:"9"`
+	NotRequired      int64    `json:"not_required" example:"1"`
+	Outstanding      int64    `json:"outstanding" example:"2"`
+	Share            *float64 `json:"share,omitempty" example:"0.75"`
+}

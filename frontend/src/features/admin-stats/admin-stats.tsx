@@ -5,6 +5,7 @@ import type { EventState } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Skeleton } from '@/shared/ui/states'
 import { COUNTED_STATES, eventStateCountsQuery, overdueCountQuery } from './admin-stats.queries'
+import { CoverageMetric } from './coverage-metric/coverage-metric'
 
 const STATE_DOT: Record<EventState, string> = {
   UNPUBLISHED: 'bg-state-unpublished',
@@ -103,6 +104,7 @@ export function AdminStats({
         pending={overdue.isPending}
         tone={overdue.data ? 'text-urgency-overdue' : undefined}
       />
+      <CoverageMetric />
     </section>
   )
 }

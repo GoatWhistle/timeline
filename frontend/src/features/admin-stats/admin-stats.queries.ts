@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import { api, unwrap } from '@/shared/api/client'
-import type { EventState } from '@/shared/api/types.gen'
+import type { EventState, RegistrationCoverage } from '@/shared/api/types.gen'
 
 export const STATS_STALE_MS = 5 * 60 * 1000
 
@@ -54,5 +54,15 @@ export function upcomingCountQuery(withinHours = 72) {
       )
       return page.meta?.total ?? 0
     },
+  })
+}
+
+export function registrationCoverageQuery() {
+  return queryOptions({
+    queryKey: ['admin-stats', 'registration-coverage'],
+    staleTime: STATS_STALE_MS,
+    gcTime: STATS_STALE_MS,
+    queryFn: async (): Promise<RegistrationCoverage> =>
+      unwrap(api.GET('/admin/queries/registration-coverage', {})),
   })
 }

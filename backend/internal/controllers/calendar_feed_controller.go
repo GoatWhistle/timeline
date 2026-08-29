@@ -179,7 +179,7 @@ func (c *CalendarFeedController) Revoke(w http.ResponseWriter, r *http.Request) 
 // @Description	context until the token has been resolved.
 // @Tags			calendar
 // @Produce		text/calendar
-// @Param			token	path		string	true	"Feed secret"
+// @Param			token	path		string					true	"Feed secret"
 // @Success		200		{string}	string					"iCalendar document"
 // @Failure		404		{object}	models.ErrorResponse	"unknown, revoked or malformed token"
 // @Failure		429		{object}	models.ErrorResponse

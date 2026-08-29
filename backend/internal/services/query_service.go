@@ -174,6 +174,18 @@ func (s *QueryService) Overdue(ctx context.Context, actor models.Actor,
 	return s.queries.Deadlines(ctx, true, 0, page, s.now())
 }
 
+func (s *QueryService) RegistrationCoverage(ctx context.Context,
+	actor models.Actor) (*models.RegistrationCoverage, error) {
+	if !actor.IsAdmin {
+		return nil, models.NewForbidden("the operation is restricted to administrators")
+	}
+	coverage, err := s.queries.RegistrationCoverage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &coverage, nil
+}
+
 func eventView(h *models.Event, stages []models.Stage, now time.Time) models.EventResponse {
 	return models.EventResponse{
 		ID:              h.ID,

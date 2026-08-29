@@ -76,6 +76,7 @@ const OPTIONAL = {
   ],
   'models.NotificationRuleResponse': ['channel_override'],
   'models.ParticipantResponse': ['removed_at', 'registration_status'],
+  'models.RegistrationCoverage': ['share'],
   'models.RegistrationPublic': ['description', 'deadline_at'],
   'models.RegistrationResponse': ['description', 'deadline_at'],
   'models.RegistrationStatusResponse': ['last_changed_by_user_id', 'note', 'registered_at'],

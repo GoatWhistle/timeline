@@ -52,6 +52,7 @@ type container struct {
 		queries       *query.Timeline
 		digests       *query.Digests
 		feed          *systemevent.Events
+		calendarFeeds *identity.CalendarFeeds
 		audit         *audit.Audit
 	}
 
@@ -80,6 +81,7 @@ type container struct {
 	delivery      *services.DeliveryService
 	ops           *services.OpsService
 	feed          *services.SystemEventService
+	calendar      *services.CalendarFeedService
 	reminders     *services.PersonalReminderService
 	digest        *services.DigestService
 	hub           *services.RealtimeHub
@@ -114,6 +116,7 @@ func (c *container) wireRepositories() {
 	c.repos.queries = query.NewTimeline(db)
 	c.repos.digests = query.NewDigests(db)
 	c.repos.feed = systemevent.NewEvents(db)
+	c.repos.calendarFeeds = identity.NewCalendarFeeds(db)
 	c.repos.audit = audit.NewAudit(db)
 }
 
@@ -172,6 +175,8 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.ops = services.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
 	c.feed = services.NewSystemEventService(db, c.repos.feed)
 	c.hub = services.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
+	c.calendar = services.NewCalendarFeedService(db, c.repos.calendarFeeds, c.repos.users,
+		c.repos.queries, c.audit, cfg.App.PublicURL)
 	c.wireRealtime()
 	return c, nil
 }
@@ -184,6 +189,8 @@ func (c *container) wireRealtime() {
 	c.auth.WithRealtime(c.hub)
 	c.users.WithRealtime(c.hub)
 	c.profile.WithRealtime(c.hub)
+	c.users.WithCalendarFeeds(c.repos.calendarFeeds)
+	c.profile.WithCalendarFeeds(c.repos.calendarFeeds)
 }
 
 func (c *container) Close() { c.db.Close() }

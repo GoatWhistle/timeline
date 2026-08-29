@@ -1627,6 +1627,30 @@ definitions:
         example: correct-horse-battery
         type: string
     type: object
+  models.RegistrationCoverage:
+    properties:
+      applicable:
+        example: true
+        type: boolean
+      events_covered:
+        example: 4
+        type: integer
+      not_required:
+        example: 1
+        type: integer
+      outstanding:
+        example: 2
+        type: integer
+      self_reported_done:
+        example: 9
+        type: integer
+      share:
+        example: 0.75
+        type: number
+      total:
+        example: 12
+        type: integer
+    type: object
   models.RegistrationPublic:
     properties:
       deadline_at:
@@ -3573,6 +3597,31 @@ paths:
       security:
       - CookieAuth: []
       summary: Overdue registrations
+      tags:
+      - queries
+  /admin/queries/registration-coverage:
+    get:
+      description: |-
+        Share of assigned participants who have self-reported registration across every
+        published, non-archived event with an ACTIVE registration. The system never checks
+        the external site: DONE means the participant said so, NOT_REQUIRED means an
+        administrator waived the requirement, and both count as covered. When no event
+        requires registration the aggregate is not applicable and share is omitted rather
+        than reported as zero.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationCoverage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Registration coverage
       tags:
       - queries
   /admin/queries/upcoming:

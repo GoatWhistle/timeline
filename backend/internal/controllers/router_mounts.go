@@ -101,6 +101,7 @@ func mountAdminQueries(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("GET "+api+"/admin/schedule", rt.admin(queryC.AdminSchedule))
 	mux.Handle("GET "+api+"/admin/queries/upcoming", rt.admin(queryC.Upcoming))
 	mux.Handle("GET "+api+"/admin/queries/overdue", rt.admin(queryC.Overdue))
+	mux.Handle("GET "+api+"/admin/queries/registration-coverage", rt.admin(queryC.RegistrationCoverage))
 	mux.Handle("GET "+api+"/admin/audit", rt.admin(auditC.List))
 
 	mux.Handle("GET "+api+"/healthz", http.HandlerFunc(opsC.Health))

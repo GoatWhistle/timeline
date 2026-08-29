@@ -8286,7 +8286,7 @@ export interface components {
             /** @example 9 */
             self_reported_done: number;
             /** @example 0.75 */
-            share: number;
+            share?: number;
             /** @example 12 */
             total: number;
         };

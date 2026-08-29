@@ -37,6 +37,7 @@ type stack struct {
 	events   *event.Events
 	feed     *services.SystemEventService
 	feedRepo *systemevent.Events
+	calendar *identity.CalendarFeeds
 	hub      *services.RealtimeHub
 }
 
@@ -54,6 +55,8 @@ func newStack(t *testing.T) *stack {
 	t.Setenv("ARGON2_PARALLELISM", "1")
 	t.Setenv("RATE_LIMIT_CATALOG_REQUESTS", "3")
 	t.Setenv("RATE_LIMIT_CATALOG_WINDOW", "1m")
+	t.Setenv("RATE_LIMIT_ICS_REQUESTS", "4")
+	t.Setenv("RATE_LIMIT_ICS_WINDOW", "1m")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -84,6 +87,7 @@ func newStack(t *testing.T) *stack {
 	templatesRepo := personal.NewTemplates(db)
 	historyRepo := personal.NewHistory(db)
 	retrosRepo := personal.NewRetrospectives(db)
+	calendarRepo := identity.NewCalendarFeeds(db)
 
 	hasher := services.NewPasswordHasher(cfg.Argon)
 	issuer := services.NewTokenIssuer(cfg.Auth)
@@ -110,6 +114,8 @@ func newStack(t *testing.T) *stack {
 	auth.WithRealtime(hub)
 	profileSvc.WithRealtime(hub)
 	userSvc.WithRealtime(hub)
+	userSvc.WithCalendarFeeds(calendarRepo)
+	profileSvc.WithCalendarFeeds(calendarRepo)
 
 	deps := controllers.Deps{
 		Auth:    auth,
@@ -134,7 +140,9 @@ func newStack(t *testing.T) *stack {
 		Personal: personalSvc,
 		Links: services.NewResourceLinkService(db, linksRepo, userLinksRepo,
 			events, stages, participants, auditSvc, cfg.Links),
-		Feed:          feed,
+		Feed: feed,
+		CalendarFeeds: services.NewCalendarFeedService(db, calendarRepo, users,
+			queries, auditSvc, cfg.App.PublicURL),
 		Notifications: notifier,
 		Realtime:      hub,
 		Sessions:      auth,
@@ -158,6 +166,10 @@ func newStack(t *testing.T) *stack {
 		RealtimeRate:       cfg.RateLim.RealtimeAttempts,
 		RealtimeRateWindow: cfg.RateLim.RealtimeWindow,
 		RealtimePing:       cfg.Realtime.PingInterval,
+		CalendarRate:       cfg.RateLim.CalendarRequests,
+		CalendarRateWindow: cfg.RateLim.CalendarWindow,
+		ICSRate:            cfg.RateLim.ICSRequests,
+		ICSRateWindow:      cfg.RateLim.ICSWindow,
 
 		Cookies:      controllers.CookieOptions{},
 		PublicURL:    cfg.App.PublicURL,
@@ -173,7 +185,7 @@ func newStack(t *testing.T) *stack {
 	return &stack{
 		server: server, db: db, cfg: cfg,
 		users: users, sessions: sessions, events: events,
-		feed: feed, feedRepo: feedRepo, hub: hub,
+		feed: feed, feedRepo: feedRepo, hub: hub, calendar: calendarRepo,
 	}
 }
 
