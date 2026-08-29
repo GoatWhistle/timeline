@@ -26,6 +26,10 @@ func NewUserService(db *postgres.DB, users *identity.Users,
 	return &UserService{db: db, users: users, sessions: sessions, notifier: notifier, audit: audit}
 }
 
+func (s *UserService) ResolveUserDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.users.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *UserService) Search(ctx context.Context, actor models.Actor, query string, page models.Page,
 ) ([]models.UserSummary, int64, error) {
 	if !actor.IsAdmin {

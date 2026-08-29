@@ -74,7 +74,7 @@ func (c *SessionController) List(w http.ResponseWriter, r *http.Request) {
 // @Tags			auth
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Session identifier"	format(uuid)
+// @Param			id	path		string	true	"Session identifier"	example(se_42ej2s5gh7e8)
 // @Success		200	{object}	models.MessageResponse
 // @Failure		400	{object}	models.ErrorResponse
 // @Failure		401	{object}	models.ErrorResponse
@@ -86,7 +86,7 @@ func (c *SessionController) Revoke(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, models.NewRateLimited("too many session requests, try again later"))
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindSession, c.svc.ResolveSessionDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

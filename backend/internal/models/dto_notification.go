@@ -2,12 +2,10 @@ package models
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type NotificationHistoryItem struct {
-	ID          uuid.UUID          `json:"id"`
+	ID          string             `json:"id" example:"nt_42ej2s5gh7e8"`
 	Type        NotificationType   `json:"type" enums:"REGISTRATION_REQUIRED,REGISTRATION_REMINDER,REGISTRATION_OVERDUE"`
 	Status      NotificationStatus `json:"status" enums:"PENDING,PROCESSING,SENT,FAILED,CANCELLED,UNDELIVERABLE"`
 	Channel     *Channel           `json:"channel,omitempty" enums:"TELEGRAM,EMAIL"`

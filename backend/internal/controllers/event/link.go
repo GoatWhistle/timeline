@@ -15,12 +15,17 @@ import (
 
 type ResourceLinkService interface {
 	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	ResolveStageDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	ResolveLinkDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	ResolvePersonalLinkDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ResourceLink, error)
 	Create(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateResourceLinkRequest,
+		stageID *uuid.UUID,
 	) (*models.ResourceLink, error)
 	Update(
 		ctx context.Context, actor models.Actor, eventID, linkID uuid.UUID, req models.UpdateResourceLinkRequest,
+		stageID *uuid.UUID,
 	) (*models.ResourceLink, error)
 	Delete(ctx context.Context, actor models.Actor, eventID, linkID uuid.UUID) error
 	ListPersonal(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ParticipantLink, error)
@@ -133,7 +138,13 @@ func (c *ResourceLinkController) Create(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	link, err := c.links.Create(r.Context(), middleware.ActorFrom(r), id, req)
+	stageID, err := httpx.BodyDisplayID(r.Context(), req.StageID,
+		models.DisplayKindStage, c.links.ResolveStageDisplayID)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	link, err := c.links.Create(r.Context(), middleware.ActorFrom(r), id, req, stageID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -149,7 +160,7 @@ func (c *ResourceLinkController) Create(w http.ResponseWriter, r *http.Request) 
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			linkId	path		string								true	"Link identifier"	format(uuid)
+// @Param			linkId	path		string								true	"Link identifier"	example(rl_42ej2s5gh7e8)
 // @Param			request	body		models.UpdateResourceLinkRequest	true	"Fields to change"
 // @Success		200		{object}	models.ResourceLink
 // @Failure		400		{object}	models.ErrorResponse
@@ -167,7 +178,7 @@ func (c *ResourceLinkController) Update(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	linkID, err := httpx.PathUUID(r, "linkId")
+	linkID, err := httpx.PathDisplayID(r, "linkId", models.DisplayKindResourceLink, c.links.ResolveLinkDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -177,7 +188,13 @@ func (c *ResourceLinkController) Update(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	link, err := c.links.Update(r.Context(), middleware.ActorFrom(r), eventID, linkID, req)
+	stageID, err := httpx.BodyDisplayID(r.Context(), req.StageID,
+		models.DisplayKindStage, c.links.ResolveStageDisplayID)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	link, err := c.links.Update(r.Context(), middleware.ActorFrom(r), eventID, linkID, req, stageID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -191,7 +208,7 @@ func (c *ResourceLinkController) Update(w http.ResponseWriter, r *http.Request) 
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			linkId	path	string	true	"Link identifier"	format(uuid)
+// @Param			linkId	path	string	true	"Link identifier"	example(rl_42ej2s5gh7e8)
 // @Success		204		"the link is removed"
 // @Failure		401		{object}	models.ErrorResponse
 // @Failure		403		{object}	models.ErrorResponse
@@ -207,7 +224,7 @@ func (c *ResourceLinkController) Delete(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	linkID, err := httpx.PathUUID(r, "linkId")
+	linkID, err := httpx.PathDisplayID(r, "linkId", models.DisplayKindResourceLink, c.links.ResolveLinkDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

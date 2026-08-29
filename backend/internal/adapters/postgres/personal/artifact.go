@@ -2,6 +2,7 @@ package personal
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -14,14 +15,14 @@ type Artifacts struct{ db *postgres.DB }
 
 func NewArtifacts(db *postgres.DB) *Artifacts { return &Artifacts{db: db} }
 
-const artifactColumns = `id, event_id,
+const artifactColumns = `id, display_id, event_id,
 	(SELECT e.display_id FROM events e WHERE e.id = event_id),
 	kind, url, title, submitted_at,
 	sort_order, created_at, updated_at`
 
 func scanArtifact(row pgx.Row) (*models.ParticipantArtifact, error) {
 	var a models.ParticipantArtifact
-	err := row.Scan(&a.ID, &a.EventID, &a.EventDisplayID, &a.Kind, &a.URL, &a.Title,
+	err := row.Scan(&a.ID, &a.DisplayID, &a.EventID, &a.EventDisplayID, &a.Kind, &a.URL, &a.Title,
 		&a.SubmittedAt, &a.SortOrder, &a.CreatedAt, &a.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -35,6 +36,19 @@ func (r *Artifacts) Create(ctx context.Context, userID, eventID uuid.UUID,
 		INSERT INTO participant_artifacts (user_id, event_id, kind, url, title, sort_order)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING `+artifactColumns, userID, eventID, kind, url, title, sortOrder))
+}
+
+func (r *Artifacts) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM participant_artifacts WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("artifact not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *Artifacts) GetOwned(ctx context.Context, userID, id uuid.UUID) (*models.ParticipantArtifact, error) {
@@ -75,7 +89,7 @@ func collectArtifacts(rows pgx.Rows) ([]models.ParticipantArtifact, error) {
 	items := make([]models.ParticipantArtifact, 0, 16)
 	for rows.Next() {
 		var a models.ParticipantArtifact
-		if err := rows.Scan(&a.ID, &a.EventID, &a.EventDisplayID, &a.Kind, &a.URL, &a.Title,
+		if err := rows.Scan(&a.ID, &a.DisplayID, &a.EventID, &a.EventDisplayID, &a.Kind, &a.URL, &a.Title,
 			&a.SubmittedAt, &a.SortOrder, &a.CreatedAt, &a.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

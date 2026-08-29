@@ -17,7 +17,7 @@ func NewReminders(db *postgres.DB) *Reminders { return &Reminders{db: db} }
 func (r *Reminders) DueTasks(ctx context.Context, from, until time.Time,
 	after uuid.UUID, limit int) ([]models.DueTaskCandidate, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT t.id, t.user_id, t.event_id, t.title, t.due_at, e.title
+		SELECT t.id, t.display_id, t.user_id, t.event_id, e.display_id, t.title, t.due_at, e.title
 		FROM participant_tasks t
 		JOIN events e ON e.id = t.event_id
 		JOIN users u ON u.id = t.user_id
@@ -39,7 +39,7 @@ func (r *Reminders) DueTasks(ctx context.Context, from, until time.Time,
 	items := make([]models.DueTaskCandidate, 0, limit)
 	for rows.Next() {
 		var c models.DueTaskCandidate
-		if err := rows.Scan(&c.TaskID, &c.UserID, &c.EventID, &c.Title,
+		if err := rows.Scan(&c.TaskID, &c.TaskDisplayID, &c.UserID, &c.EventID, &c.EventDisplayID, &c.Title,
 			&c.DueAt, &c.EventTitle); err != nil {
 			return nil, mapError(err)
 		}
@@ -51,7 +51,7 @@ func (r *Reminders) DueTasks(ctx context.Context, from, until time.Time,
 func (r *Reminders) DueRetrospectives(ctx context.Context, from, until time.Time,
 	afterEvent, afterUser uuid.UUID, limit int) ([]models.DueRetrospectiveCandidate, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT e.id, p.user_id, e.title, e.end_at
+		SELECT e.id, e.display_id, p.user_id, e.title, e.end_at
 		FROM events e
 		JOIN event_participants p ON p.event_id = e.id
 		JOIN users u ON u.id = p.user_id
@@ -76,7 +76,7 @@ func (r *Reminders) DueRetrospectives(ctx context.Context, from, until time.Time
 	items := make([]models.DueRetrospectiveCandidate, 0, limit)
 	for rows.Next() {
 		var c models.DueRetrospectiveCandidate
-		if err := rows.Scan(&c.EventID, &c.UserID, &c.EventTitle, &c.EndAt); err != nil {
+		if err := rows.Scan(&c.EventID, &c.EventDisplayID, &c.UserID, &c.EventTitle, &c.EndAt); err != nil {
 			return nil, mapError(err)
 		}
 		items = append(items, c)

@@ -74,6 +74,7 @@ type Stage struct {
 
 type EventParticipant struct {
 	ID                  uuid.UUID           `json:"id"`
+	DisplayID           string              `json:"display_id"`
 	EventID             uuid.UUID           `json:"event_id"`
 	UserID              uuid.UUID           `json:"user_id"`
 	TeamRole            *string             `json:"team_role,omitempty"`

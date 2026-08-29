@@ -2,6 +2,7 @@ package identity
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -14,11 +15,11 @@ type ProfileLinks struct{ db *postgres.DB }
 
 func NewProfileLinks(db *postgres.DB) *ProfileLinks { return &ProfileLinks{db: db} }
 
-const profileLinkColumns = `id, url, label, sort_order, created_at, updated_at`
+const profileLinkColumns = `id, display_id, url, label, sort_order, created_at, updated_at`
 
 func scanProfileLink(row pgx.Row) (*models.ProfileLink, error) {
 	var l models.ProfileLink
-	err := row.Scan(&l.ID, &l.URL, &l.Label, &l.SortOrder, &l.CreatedAt, &l.UpdatedAt)
+	err := row.Scan(&l.ID, &l.DisplayID, &l.URL, &l.Label, &l.SortOrder, &l.CreatedAt, &l.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -37,7 +38,7 @@ func (r *ProfileLinks) ListByUser(ctx context.Context, userID uuid.UUID) ([]mode
 	items := make([]models.ProfileLink, 0, models.ProfileLinkMaxPerUser)
 	for rows.Next() {
 		var l models.ProfileLink
-		if err := rows.Scan(&l.ID, &l.URL, &l.Label, &l.SortOrder,
+		if err := rows.Scan(&l.ID, &l.DisplayID, &l.URL, &l.Label, &l.SortOrder,
 			&l.CreatedAt, &l.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}
@@ -63,6 +64,19 @@ func (r *ProfileLinks) Create(ctx context.Context, userID uuid.UUID,
 		VALUES ($1, $2, $3,
 			COALESCE((SELECT max(sort_order) + 1 FROM profile_links WHERE user_id = $1), 0))
 		RETURNING `+profileLinkColumns, userID, url, label))
+}
+
+func (r *ProfileLinks) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM profile_links WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("profile link not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *ProfileLinks) GetOwned(ctx context.Context, userID, id uuid.UUID) (*models.ProfileLink, error) {

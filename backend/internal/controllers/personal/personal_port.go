@@ -10,12 +10,17 @@ import (
 
 type PersonalService interface {
 	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	ResolveStageDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	ResolveTaskDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	ResolveArtifactDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	ListTasks(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ParticipantTask, error)
 	CreateTask(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateTaskRequest,
+		stageID *uuid.UUID,
 	) (*models.ParticipantTask, error)
 	UpdateTask(
 		ctx context.Context, actor models.Actor, taskID uuid.UUID, req models.UpdateTaskRequest,
+		stageID *uuid.UUID,
 	) (*models.ParticipantTask, error)
 	DeleteTask(ctx context.Context, actor models.Actor, taskID uuid.UUID) error
 	ListTemplates(ctx context.Context, actor models.Actor) ([]models.ChecklistTemplate, error)

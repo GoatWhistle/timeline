@@ -8,7 +8,7 @@ import (
 
 func MeResponse(u *models.User) models.MeResponse {
 	return models.MeResponse{
-		ID:                u.ID,
+		ID:                u.DisplayID,
 		FirstName:         u.FirstName,
 		MiddleName:        u.MiddleName,
 		LastName:          u.LastName,
@@ -101,7 +101,7 @@ func StageResponse(s *models.Stage, event *models.Event) models.StageResponse {
 
 func RegistrationResponse(r *models.Registration, eventDisplayID string) models.RegistrationResponse {
 	return models.RegistrationResponse{
-		ID:                         r.ID,
+		ID:                         r.DisplayID,
 		EventID:                    eventDisplayID,
 		URL:                        r.URL,
 		DeadlineAt:                 r.DeadlineAt,
@@ -117,8 +117,8 @@ func RegistrationResponse(r *models.Registration, eventDisplayID string) models.
 
 func RuleResponse(r *models.NotificationRule) models.NotificationRuleResponse {
 	return models.NotificationRuleResponse{
-		ID:              r.ID,
-		RegistrationID:  r.RegistrationID,
+		ID:              r.DisplayID,
+		RegistrationID:  r.RegistrationDisplayID,
 		OffsetMinutes:   r.OffsetMinutes,
 		Type:            r.NotificationType(),
 		Enabled:         r.Enabled,
@@ -131,9 +131,9 @@ func RuleResponse(r *models.NotificationRule) models.NotificationRuleResponse {
 
 func InviteResponse(i *models.Invite) models.InviteResponse {
 	return models.InviteResponse{
-		ID:              i.ID,
+		ID:              i.DisplayID,
 		Email:           i.NormalizedEmail,
-		CreatedByUserID: i.CreatedByUserID,
+		CreatedByUserID: i.CreatedByUser,
 		ExpiresAt:       i.ExpiresAt,
 		AcceptedAt:      i.AcceptedAt,
 		RevokedAt:       i.RevokedAt,

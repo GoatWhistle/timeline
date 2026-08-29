@@ -20,8 +20,9 @@ type ProfileLinkService interface {
 	Update(ctx context.Context, actor models.Actor, id uuid.UUID,
 		req models.UpdateProfileLinkRequest) (*models.ProfileLink, error)
 	Delete(ctx context.Context, actor models.Actor, id uuid.UUID) error
+	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	Reorder(ctx context.Context, actor models.Actor,
-		req models.ReorderProfileLinksRequest) ([]models.ProfileLink, error)
+		req models.ReorderProfileLinksRequest, ids []uuid.UUID) ([]models.ProfileLink, error)
 }
 
 type ProfileLinkController struct {
@@ -108,7 +109,7 @@ func (c *ProfileLinkController) Create(w http.ResponseWriter, r *http.Request) {
 // @Accept		json
 // @Produce	json
 // @Security	CookieAuth
-// @Param		id		path		string							true	"Link identifier"	format(uuid)
+// @Param		id		path		string							true	"Link identifier"	example(pf_42ej2s5gh7e8)
 // @Param		request	body		models.UpdateProfileLinkRequest	true	"Changed fields"
 // @Success	200		{object}	models.ProfileLink
 // @Failure	400		{object}	models.ErrorResponse
@@ -120,7 +121,7 @@ func (c *ProfileLinkController) Update(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "profile.links.update") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindProfileLink, c.svc.ResolveDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -142,7 +143,7 @@ func (c *ProfileLinkController) Update(w http.ResponseWriter, r *http.Request) {
 // @Tags		profile
 // @Produce	json
 // @Security	CookieAuth
-// @Param		id	path		string	true	"Link identifier"	format(uuid)
+// @Param		id	path		string	true	"Link identifier"	example(pf_42ej2s5gh7e8)
 // @Success	200	{object}	models.MessageResponse
 // @Failure	401	{object}	models.ErrorResponse
 // @Failure	404	{object}	models.ErrorResponse
@@ -152,7 +153,7 @@ func (c *ProfileLinkController) Delete(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "profile.links.delete") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindProfileLink, c.svc.ResolveDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -187,7 +188,13 @@ func (c *ProfileLinkController) Reorder(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	items, err := c.svc.Reorder(r.Context(), middleware.ActorFrom(r), req)
+	ids, err := httpx.BodyDisplayIDs(r.Context(), req.IDs,
+		models.DisplayKindProfileLink, c.svc.ResolveDisplayID)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	items, err := c.svc.Reorder(r.Context(), middleware.ActorFrom(r), req, ids)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

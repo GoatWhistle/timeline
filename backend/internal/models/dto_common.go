@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type ErrorBody struct {
@@ -31,12 +29,12 @@ type PageMeta struct {
 }
 
 type BatchItemResult struct {
-	Index   int        `json:"index" example:"0"`
-	Key     string     `json:"key,omitempty" example:"3f1c1e6e-0b0e-4a2b-9c1a-7d1f1f5a1c11"`
-	ID      *uuid.UUID `json:"id,omitempty"`
-	Status  string     `json:"status" enums:"ok,skipped,error" example:"ok"`
-	Code    string     `json:"code,omitempty" example:"already_assigned"`
-	Message string     `json:"message,omitempty" example:"the participant is already assigned"`
+	Index   int    `json:"index" example:"0"`
+	Key     string `json:"key,omitempty" example:"pa_42ej2s5gh7e8"`
+	ID      string `json:"id,omitempty" example:"pa_42ej2s5gh7e8"`
+	Status  string `json:"status" enums:"ok,skipped,error" example:"ok"`
+	Code    string `json:"code,omitempty" example:"already_assigned"`
+	Message string `json:"message,omitempty" example:"the participant is already assigned"`
 }
 
 type BatchResult struct {
@@ -65,6 +63,19 @@ var (
 	DisplayKindEvent              = DisplayKind{Prefix: "ev", Entity: "event"}
 	DisplayKindStage              = DisplayKind{Prefix: "st", Entity: "stage"}
 	DisplayKindRegistrationStatus = DisplayKind{Prefix: "rs", Entity: "registration status"}
+	DisplayKindParticipant        = DisplayKind{Prefix: "pa", Entity: "participant"}
+	DisplayKindUser               = DisplayKind{Prefix: "us", Entity: "user"}
+	DisplayKindTask               = DisplayKind{Prefix: "tk", Entity: "task"}
+	DisplayKindResourceLink       = DisplayKind{Prefix: "rl", Entity: "resource link"}
+	DisplayKindParticipantLink    = DisplayKind{Prefix: "pl", Entity: "personal link"}
+	DisplayKindProfileLink        = DisplayKind{Prefix: "pf", Entity: "profile link"}
+	DisplayKindSession            = DisplayKind{Prefix: "se", Entity: "session"}
+	DisplayKindInvite             = DisplayKind{Prefix: "in", Entity: "invite"}
+	DisplayKindArtifact           = DisplayKind{Prefix: "ar", Entity: "artifact"}
+	DisplayKindNotificationRule   = DisplayKind{Prefix: "nr", Entity: "notification rule"}
+	DisplayKindSystemEvent        = DisplayKind{Prefix: "sy", Entity: "system event"}
+	DisplayKindRegistration       = DisplayKind{Prefix: "rg", Entity: "registration"}
+	DisplayKindNotification       = DisplayKind{Prefix: "nt", Entity: "notification"}
 )
 
 const (

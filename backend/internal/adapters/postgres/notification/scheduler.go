@@ -97,7 +97,8 @@ func (r *Scheduler) EnabledRules(ctx context.Context, registrationIDs []uuid.UUI
 
 	for rows.Next() {
 		var rule models.NotificationRule
-		if err := rows.Scan(&rule.ID, &rule.RegistrationID, &rule.OffsetMinutes, &rule.Enabled,
+		if err := rows.Scan(&rule.ID, &rule.DisplayID, &rule.RegistrationID, &rule.RegistrationDisplayID,
+			&rule.OffsetMinutes, &rule.Enabled,
 			&rule.SlotNo, &rule.ChannelOverride, &rule.CreatedAt, &rule.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

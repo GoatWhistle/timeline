@@ -26,6 +26,10 @@ func (s *SystemEventService) UnreadCount(ctx context.Context, actor models.Actor
 	return s.events.UnreadCount(ctx, actor.UserID, actor.IsAdmin)
 }
 
+func (s *SystemEventService) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.events.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *SystemEventService) MarkRead(ctx context.Context, actor models.Actor,
 	ids []uuid.UUID) (int64, error) {
 	if actor.IsSystem() {

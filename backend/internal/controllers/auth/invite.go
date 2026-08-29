@@ -14,6 +14,7 @@ import (
 )
 
 type InviteService interface {
+	ResolveInviteDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	Create(ctx context.Context, actor models.Actor, email string) (*models.Invite, string, error)
 	List(ctx context.Context, actor models.Actor, page models.Page) ([]models.Invite, int64, error)
 	Revoke(ctx context.Context, actor models.Actor, id uuid.UUID) error
@@ -103,13 +104,13 @@ func (c *InviteController) List(w http.ResponseWriter, r *http.Request) {
 // @Tags		invites
 // @Produce	json
 // @Security	CookieAuth
-// @Param		id	path		string	true	"Invite identifier"	format(uuid)
+// @Param		id	path		string	true	"Invite identifier"	example(in_42ej2s5gh7e8)
 // @Success	200	{object}	models.MessageResponse
 // @Failure	403	{object}	models.ErrorResponse
 // @Failure	404	{object}	models.ErrorResponse
 // @Router		/admin/invites/{id}/revoke [post]
 func (c *InviteController) Revoke(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindInvite, c.svc.ResolveInviteDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

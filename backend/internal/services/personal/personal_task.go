@@ -24,7 +24,7 @@ func (s *PersonalService) ListTasks(ctx context.Context, actor models.Actor,
 }
 
 func (s *PersonalService) CreateTask(ctx context.Context, actor models.Actor,
-	eventID uuid.UUID, req models.CreateTaskRequest) (*models.ParticipantTask, error) {
+	eventID uuid.UUID, req models.CreateTaskRequest, stageID *uuid.UUID) (*models.ParticipantTask, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (s *PersonalService) CreateTask(ctx context.Context, actor models.Actor,
 		if err := validateNotes(req.Notes, s.limits.MaxNoteLength); err != nil {
 			return err
 		}
-		if err := s.checkStage(ctx, eventID, req.StageID); err != nil {
+		if err := s.checkStage(ctx, eventID, stageID); err != nil {
 			return err
 		}
 
@@ -72,7 +72,7 @@ func (s *PersonalService) CreateTask(ctx context.Context, actor models.Actor,
 }
 
 func (s *PersonalService) UpdateTask(ctx context.Context, actor models.Actor,
-	taskID uuid.UUID, req models.UpdateTaskRequest) (*models.ParticipantTask, error) {
+	taskID uuid.UUID, req models.UpdateTaskRequest, stageID *uuid.UUID) (*models.ParticipantTask, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (s *PersonalService) UpdateTask(ctx context.Context, actor models.Actor,
 		if err != nil {
 			return validation.NotFoundOwned(err, "task")
 		}
-		patch, err := taskPatch(req, s.limits.MaxNoteLength)
+		patch, err := taskPatch(req, stageID, s.limits.MaxNoteLength)
 		if err != nil {
 			return err
 		}
@@ -187,7 +187,7 @@ func (s *PersonalService) applyItems(ctx context.Context, userID uuid.UUID, ev *
 		sortOrder++
 		result.Succeeded++
 		result.Results = append(result.Results, models.BatchItemResult{
-			Index: i, Key: item.TitleKey, ID: &task.ID, Status: "ok",
+			Index: i, Key: item.TitleKey, ID: task.DisplayID, Status: "ok",
 		})
 	}
 	return nil
@@ -201,7 +201,7 @@ func templateDue(ev *models.Event, item models.ChecklistTemplateItem) *time.Time
 	return &due
 }
 
-func taskPatch(req models.UpdateTaskRequest, maxNote int) (models.TaskPatch, error) {
+func taskPatch(req models.UpdateTaskRequest, stageID *uuid.UUID, maxNote int) (models.TaskPatch, error) {
 	var patch models.TaskPatch
 	if req.Title != nil {
 		title, err := validation.ValidateText("title", *req.Title, 1, 200)
@@ -227,8 +227,8 @@ func taskPatch(req models.UpdateTaskRequest, maxNote int) (models.TaskPatch, err
 	switch {
 	case req.ClearStage:
 		patch.StageSet = true
-	case req.StageID != nil:
-		patch.StageID = req.StageID
+	case stageID != nil:
+		patch.StageID = stageID
 		patch.StageSet = true
 	}
 	patch.SortOrder = req.SortOrder

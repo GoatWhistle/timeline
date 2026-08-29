@@ -2,6 +2,7 @@ package participation
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -14,12 +15,15 @@ type Rules struct{ db *postgres.DB }
 
 func NewRules(db *postgres.DB) *Rules { return &Rules{db: db} }
 
-const RuleColumns = `id, registration_id, offset_minutes, enabled, slot_no, channel_override,
+const RuleColumns = `id, display_id, registration_id,
+	(SELECT rg.display_id FROM registrations rg WHERE rg.id = registration_id),
+	offset_minutes, enabled, slot_no, channel_override,
 	created_at, updated_at`
 
 func ScanRule(row pgx.Row) (*models.NotificationRule, error) {
 	var r models.NotificationRule
-	err := row.Scan(&r.ID, &r.RegistrationID, &r.OffsetMinutes, &r.Enabled, &r.SlotNo,
+	err := row.Scan(&r.ID, &r.DisplayID, &r.RegistrationID, &r.RegistrationDisplayID,
+		&r.OffsetMinutes, &r.Enabled, &r.SlotNo,
 		&r.ChannelOverride, &r.CreatedAt, &r.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -33,6 +37,19 @@ func (r *Rules) Create(ctx context.Context, rule *models.NotificationRule) (*mod
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING `+RuleColumns,
 		rule.RegistrationID, rule.OffsetMinutes, rule.Enabled, rule.SlotNo, rule.ChannelOverride))
+}
+
+func (r *Rules) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM notification_rules WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("notification rule not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *Rules) GetByID(ctx context.Context, id uuid.UUID) (*models.NotificationRule, error) {
@@ -72,7 +89,8 @@ func (r *Rules) ListByRegistration(ctx context.Context, registrationID uuid.UUID
 	items := make([]models.NotificationRule, 0, 10)
 	for rows.Next() {
 		var rule models.NotificationRule
-		if err := rows.Scan(&rule.ID, &rule.RegistrationID, &rule.OffsetMinutes, &rule.Enabled,
+		if err := rows.Scan(&rule.ID, &rule.DisplayID, &rule.RegistrationID, &rule.RegistrationDisplayID,
+			&rule.OffsetMinutes, &rule.Enabled,
 			&rule.SlotNo, &rule.ChannelOverride, &rule.CreatedAt, &rule.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

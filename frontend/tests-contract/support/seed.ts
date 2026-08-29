@@ -9,6 +9,7 @@ export type Seeded = {
   eventId: string
   archivedEventId: string
   participantId: string
+  spareParticipantId: string
   registrationId: string
   memberEmail: string
   memberUserId: string
@@ -133,6 +134,10 @@ export async function seed(): Promise<Seeded> {
   expect(participants.response.status).toBe(200)
   const participantId = participants.data?.items?.find((item) => item.user?.id === member.id)?.id
   if (!participantId) throw new Error('the seeded participant is missing from the list')
+  const spareParticipantId = participants.data?.items?.find(
+    (item) => item.user?.id === spare.id,
+  )?.id
+  if (!spareParticipantId) throw new Error('the spare participant is missing from the list')
 
   const archivedEventId = await createEvent('Contract suite archived event')
   expect(
@@ -144,6 +149,7 @@ export async function seed(): Promise<Seeded> {
     eventId,
     archivedEventId,
     participantId,
+    spareParticipantId,
     registrationId,
     memberEmail: member.email,
     memberUserId: member.id,

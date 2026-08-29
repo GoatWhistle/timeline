@@ -12,23 +12,32 @@ func (s *StatusService) response(ctx context.Context, status *models.Registratio
 	if err != nil {
 		return nil, err
 	}
+	registration, err := s.registrations.GetByID(ctx, status.RegistrationID)
+	if err != nil {
+		return nil, err
+	}
 	resp := &models.RegistrationStatusResponse{
-		ID:                  status.DisplayID,
-		EventID:             eventDisplayID,
-		RegistrationID:      status.RegistrationID,
-		ParticipantID:       status.ParticipantID,
-		Status:              status.Status,
-		TodoCycle:           status.TodoCycle,
-		RegisteredAt:        status.RegisteredAt,
-		LastChangeSource:    status.LastChangeSource,
-		LastChangedByUserID: status.LastChangedByUserID,
-		Note:                status.Note,
-		UpdatedAt:           status.UpdatedAt,
+		ID:               status.DisplayID,
+		EventID:          eventDisplayID,
+		RegistrationID:   registration.DisplayID,
+		Status:           status.Status,
+		TodoCycle:        status.TodoCycle,
+		RegisteredAt:     status.RegisteredAt,
+		LastChangeSource: status.LastChangeSource,
+		Note:             status.Note,
+		UpdatedAt:        status.UpdatedAt,
+	}
+	if status.LastChangedByUserID != nil {
+		changedBy, err := s.users.GetByID(ctx, *status.LastChangedByUserID)
+		if err == nil {
+			resp.LastChangedByUserID = &changedBy.DisplayID
+		}
 	}
 	participant, err := s.participants.GetByID(ctx, status.ParticipantID)
 	if err != nil {
 		return resp, nil
 	}
+	resp.ParticipantID = participant.DisplayID
 	user, err := s.users.GetByID(ctx, participant.UserID)
 	if err != nil {
 		return resp, nil

@@ -18,6 +18,7 @@ type SystemEventService interface {
 		ctx context.Context, actor models.Actor, unreadOnly bool, page models.Page,
 	) ([]models.SystemEventResponse, int64, error)
 	UnreadCount(ctx context.Context, actor models.Actor) (int64, error)
+	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	MarkRead(ctx context.Context, actor models.Actor, ids []uuid.UUID) (int64, error)
 }
 
@@ -133,7 +134,13 @@ func (c *SystemEventController) MarkRead(w http.ResponseWriter, r *http.Request)
 		httpx.Error(w, r, err)
 		return
 	}
-	if _, err := c.svc.MarkRead(r.Context(), actor, req.IDs); err != nil {
+	ids, err := httpx.BodyDisplayIDs(r.Context(), req.IDs,
+		models.DisplayKindSystemEvent, c.svc.ResolveDisplayID)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	if _, err := c.svc.MarkRead(r.Context(), actor, ids); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}

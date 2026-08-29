@@ -51,8 +51,21 @@ func (s *ResourceLinkService) List(ctx context.Context, actor models.Actor,
 	return s.links.ListByEvent(ctx, eventID)
 }
 
+func (s *ResourceLinkService) ResolveLinkDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.links.ResolveDisplayID(ctx, displayID)
+}
+
+func (s *ResourceLinkService) ResolvePersonalLinkDisplayID(ctx context.Context,
+	displayID string) (uuid.UUID, error) {
+	return s.personal.ResolveDisplayID(ctx, displayID)
+}
+
+func (s *ResourceLinkService) ResolveStageDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.stages.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *ResourceLinkService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.CreateResourceLinkRequest) (*models.ResourceLink, error) {
+	req models.CreateResourceLinkRequest, stageID *uuid.UUID) (*models.ResourceLink, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -74,7 +87,7 @@ func (s *ResourceLinkService) Create(ctx context.Context, actor models.Actor, ev
 		if err != nil {
 			return err
 		}
-		if err := s.checkStageOfEvent(ctx, eventID, req.StageID); err != nil {
+		if err := s.checkStageOfEvent(ctx, eventID, stageID); err != nil {
 			return err
 		}
 
@@ -98,7 +111,7 @@ func (s *ResourceLinkService) Create(ctx context.Context, actor models.Actor, ev
 			return err
 		}
 
-		link, err = s.links.Create(ctx, eventID, req.StageID, kind, url, title, pinned, sortOrder)
+		link, err = s.links.Create(ctx, eventID, stageID, kind, url, title, pinned, sortOrder)
 		if err != nil {
 			return err
 		}
@@ -112,7 +125,7 @@ func (s *ResourceLinkService) Create(ctx context.Context, actor models.Actor, ev
 }
 
 func (s *ResourceLinkService) Update(ctx context.Context, actor models.Actor, eventID,
-	id uuid.UUID, req models.UpdateResourceLinkRequest) (*models.ResourceLink, error) {
+	id uuid.UUID, req models.UpdateResourceLinkRequest, stageID *uuid.UUID) (*models.ResourceLink, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -127,7 +140,7 @@ func (s *ResourceLinkService) Update(ctx context.Context, actor models.Actor, ev
 			return validation.NotFoundOwned(err, "resource link")
 		}
 
-		patch, err := resourceLinkPatch(req)
+		patch, err := resourceLinkPatch(req, stageID)
 		if err != nil {
 			return err
 		}

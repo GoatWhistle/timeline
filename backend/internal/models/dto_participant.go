@@ -1,13 +1,9 @@
 package models
 
-import (
-	"time"
-
-	"github.com/google/uuid"
-)
+import "time"
 
 type ParticipantResponse struct {
-	ID                  uuid.UUID                `json:"id"`
+	ID                  string                   `json:"id" example:"pa_42ej2s5gh7e8"`
 	EventID             string                   `json:"event_id" example:"ev_gma9hq8a96q5"`
 	User                UserSummary              `json:"user"`
 	TeamRole            *string                  `json:"team_role,omitempty" example:"Developer"`
@@ -32,8 +28,8 @@ type ParticipantPage struct {
 }
 
 type AddParticipantItem struct {
-	UserID   uuid.UUID `json:"user_id"`
-	TeamRole *string   `json:"team_role,omitempty" example:"Developer"`
+	UserID   string  `json:"user_id" example:"us_42ej2s5gh7e8"`
+	TeamRole *string `json:"team_role,omitempty" example:"Developer"`
 }
 
 type AddParticipantsRequest struct {
@@ -41,7 +37,7 @@ type AddParticipantsRequest struct {
 }
 
 type RemoveParticipantsRequest struct {
-	ParticipantIDs []uuid.UUID `json:"participant_ids"`
+	ParticipantIDs []string `json:"participant_ids" example:"pa_42ej2s5gh7e8"`
 }
 
 type UpdateTeamRoleRequest struct {
@@ -49,11 +45,11 @@ type UpdateTeamRoleRequest struct {
 }
 
 type CopyParticipantsRequest struct {
-	SourceEventID uuid.UUID          `json:"source_event_id"`
+	SourceEventID string             `json:"source_event_id" example:"ev_gma9hq8a96q5"`
 	Overrides     []CopyRoleOverride `json:"overrides,omitempty"`
 }
 
 type CopyRoleOverride struct {
-	UserID   uuid.UUID `json:"user_id"`
-	TeamRole *string   `json:"team_role,omitempty" example:"Mentor"`
+	UserID   string  `json:"user_id" example:"us_42ej2s5gh7e8"`
+	TeamRole *string `json:"team_role,omitempty" example:"Mentor"`
 }

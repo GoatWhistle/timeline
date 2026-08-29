@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 import { api } from '@/shared/api/client'
-import { seed, signInAsMember } from '../support/seed'
+import { type Seeded, seed, signInAsMember } from '../support/seed'
 import { signInAsAdmin } from '../support/session'
 
 const UUID_SHAPE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
@@ -28,12 +28,14 @@ function expectNoUuid(label: string, body: unknown): void {
 }
 
 let eventId = ''
+let seeded: Seeded
 
 const inThe = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString()
 
 describe('No response body carries a UUID', () => {
   beforeAll(async () => {
-    eventId = (await seed()).eventId
+    seeded = await seed()
+    eventId = seeded.eventId
     await signInAsAdmin()
     const stage = await api.POST('/admin/events/{id}/stages', {
       params: { path: { id: eventId } },
@@ -96,5 +98,130 @@ describe('No response body carries a UUID', () => {
   it('GET /me/history', async () => {
     const { data } = await api.GET('/me/history', { params: { query: {} } })
     expectNoUuid('GET /me/history', data)
+  })
+
+  it('GET /admin/events/{id}/participants', async () => {
+    const { data } = await api.GET('/admin/events/{id}/participants', {
+      params: { path: { id: eventId }, query: {} },
+    })
+    expectNoUuid('GET /admin/events/{id}/participants', data)
+  })
+
+  it('GET /admin/events/{id}/registration', async () => {
+    const { data } = await api.GET('/admin/events/{id}/registration', {
+      params: { path: { id: eventId } },
+    })
+    expectNoUuid('GET /admin/events/{id}/registration', data)
+  })
+
+  it('GET /admin/events/{id}/registration/rules', async () => {
+    const { data } = await api.GET('/admin/events/{id}/registration/rules', {
+      params: { path: { id: eventId } },
+    })
+    expectNoUuid('GET /admin/events/{id}/registration/rules', data)
+  })
+
+  it('GET /admin/events/{id}/registration-statuses', async () => {
+    const { data } = await api.GET('/admin/events/{id}/registration-statuses', {
+      params: { path: { id: eventId }, query: {} },
+    })
+    expectNoUuid('GET /admin/events/{id}/registration-statuses', data)
+  })
+
+  it('POST /admin/events/{id}/participants/batch-remove', async () => {
+    const { data } = await api.POST('/admin/events/{id}/participants/batch-remove', {
+      params: { path: { id: eventId } },
+      body: { participant_ids: [seeded.spareParticipantId] },
+    })
+    expectNoUuid('POST /admin/events/{id}/participants/batch-remove', data)
+  })
+
+  it('GET /admin/users', async () => {
+    const { data } = await api.GET('/admin/users', { params: { query: {} } })
+    expectNoUuid('GET /admin/users', data)
+  })
+
+  it('GET /admin/invites', async () => {
+    const { data } = await api.GET('/admin/invites', { params: { query: {} } })
+    expectNoUuid('GET /admin/invites', data)
+  })
+
+  it('GET /me', async () => {
+    const { data } = await api.GET('/me')
+    expectNoUuid('GET /me', data)
+  })
+
+  it('GET /me/sessions', async () => {
+    const { data } = await api.GET('/me/sessions')
+    expectNoUuid('GET /me/sessions', data)
+  })
+
+  it('GET /me/profile-links', async () => {
+    const created = await api.POST('/me/profile-links', {
+      body: { url: 'https://github.com/leak-probe' },
+    })
+    expect(created.response.status).toBe(201)
+    const { data } = await api.GET('/me/profile-links')
+    expectNoUuid('GET /me/profile-links', data)
+  })
+
+  it('GET /events/{id}/links', async () => {
+    const created = await api.POST('/events/{id}/links', {
+      params: { path: { id: eventId } },
+      body: { kind: 'RULES', url: 'https://example.org/leak-probe-rules' },
+    })
+    expect(created.response.status).toBe(201)
+    const { data } = await api.GET('/events/{id}/links', { params: { path: { id: eventId } } })
+    expectNoUuid('GET /events/{id}/links', data)
+  })
+
+  it('GET /me/events/{id}/tasks', async () => {
+    await signInAsMember()
+    const created = await api.POST('/me/events/{id}/tasks', {
+      params: { path: { id: eventId } },
+      body: { title: 'Leak probe task' },
+    })
+    expect(created.response.status).toBe(201)
+    const { data } = await api.GET('/me/events/{id}/tasks', { params: { path: { id: eventId } } })
+    expectNoUuid('GET /me/events/{id}/tasks', data)
+    await signInAsAdmin()
+  })
+
+  it('GET /me/events/{id}/artifacts', async () => {
+    await signInAsMember()
+    const created = await api.POST('/me/events/{id}/artifacts', {
+      params: { path: { id: eventId } },
+      body: { kind: 'REPOSITORY', url: 'https://github.com/example/leak-probe' },
+    })
+    expect(created.response.status).toBe(201)
+    const { data } = await api.GET('/me/events/{id}/artifacts', {
+      params: { path: { id: eventId } },
+    })
+    expectNoUuid('GET /me/events/{id}/artifacts', data)
+    await signInAsAdmin()
+  })
+
+  it('GET /me/events/{id}/links', async () => {
+    await signInAsMember()
+    const created = await api.POST('/me/events/{id}/links', {
+      params: { path: { id: eventId } },
+      body: { kind: 'OTHER', url: 'https://example.org/leak-probe-personal' },
+    })
+    expect(created.response.status).toBe(201)
+    const { data } = await api.GET('/me/events/{id}/links', { params: { path: { id: eventId } } })
+    expectNoUuid('GET /me/events/{id}/links', data)
+    await signInAsAdmin()
+  })
+
+  it('GET /me/notifications', async () => {
+    await signInAsMember()
+    const { data } = await api.GET('/me/notifications', { params: { query: {} } })
+    expectNoUuid('GET /me/notifications', data)
+    await signInAsAdmin()
+  })
+
+  it('GET /me/events-feed', async () => {
+    const { data } = await api.GET('/me/events-feed', { params: { query: {} } })
+    expectNoUuid('GET /me/events-feed', data)
   })
 })

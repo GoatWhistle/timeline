@@ -46,6 +46,7 @@ const (
 
 type SystemEvent struct {
 	ID          uuid.UUID
+	DisplayID   string
 	Type        SystemEventType
 	Severity    EventSeverity
 	Audience    AudienceKind
@@ -58,11 +59,10 @@ type SystemEvent struct {
 }
 
 type SystemEventResponse struct {
-	ID          uuid.UUID      `json:"id"`
+	ID          string         `json:"id" example:"sy_42ej2s5gh7e8"`
 	Type        string         `json:"type" example:"NOTIFICATION_FAILED"`
 	Severity    string         `json:"severity" enums:"INFO,WARNING,CRITICAL" example:"WARNING"`
 	SubjectType *string        `json:"subject_type,omitempty" example:"notification"`
-	SubjectID   *uuid.UUID     `json:"subject_id,omitempty"`
 	Payload     map[string]any `json:"payload"`
 	Read        bool           `json:"read" example:"false"`
 	CreatedAt   time.Time      `json:"created_at"`
@@ -78,7 +78,7 @@ type UnreadCountResponse struct {
 }
 
 type MarkReadRequest struct {
-	IDs []uuid.UUID `json:"ids"`
+	IDs []string `json:"ids" example:"sy_42ej2s5gh7e8"`
 }
 
 type InvalidationKey []string

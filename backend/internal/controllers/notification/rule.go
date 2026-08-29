@@ -22,6 +22,7 @@ func NewNotificationRuleController(rules RuleService) *NotificationRuleControlle
 
 type RuleService interface {
 	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	ResolveRuleDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.NotificationRule, error)
 	Create(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateRuleRequest,
@@ -101,7 +102,7 @@ func (c *NotificationRuleController) CreateRule(w http.ResponseWriter, r *http.R
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Rule identifier"	format(uuid)
+// @Param			id		path		string						true	"Rule identifier"	example(nr_42ej2s5gh7e8)
 // @Param			request	body		models.UpdateRuleRequest	true	"Mutable fields"
 // @Success		200		{object}	models.NotificationRuleResponse
 // @Failure		400		{object}	models.ErrorResponse
@@ -110,7 +111,7 @@ func (c *NotificationRuleController) CreateRule(w http.ResponseWriter, r *http.R
 // @Failure		409		{object}	models.ErrorResponse
 // @Router			/admin/registration-rules/{id} [patch]
 func (c *NotificationRuleController) UpdateRule(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindNotificationRule, c.rules.ResolveRuleDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -134,13 +135,13 @@ func (c *NotificationRuleController) UpdateRule(w http.ResponseWriter, r *http.R
 // @Tags			rules
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path	string	true	"Rule identifier"	format(uuid)
+// @Param			id	path	string	true	"Rule identifier"	example(nr_42ej2s5gh7e8)
 // @Success		204	"the rule is disabled"
 // @Failure		403	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse
 // @Router			/admin/registration-rules/{id} [delete]
 func (c *NotificationRuleController) DisableRule(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindNotificationRule, c.rules.ResolveRuleDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

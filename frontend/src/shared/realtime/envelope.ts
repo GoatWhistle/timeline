@@ -8,7 +8,6 @@ export interface RealtimeEvent {
   type: string
   severity: 'INFO' | 'WARNING' | 'CRITICAL'
   subject_type?: string
-  subject_id?: string
   payload: Record<string, unknown>
   read: boolean
   created_at: string

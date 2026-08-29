@@ -2,6 +2,7 @@ package resourcelink
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -14,7 +15,7 @@ type Links struct{ db *postgres.DB }
 
 func NewLinks(db *postgres.DB) *Links { return &Links{db: db} }
 
-const linkColumns = `id, event_id,
+const linkColumns = `id, display_id, event_id,
 	(SELECT e.display_id FROM events e WHERE e.id = event_id),
 	stage_id,
 	(SELECT st.display_id FROM stages st WHERE st.id = stage_id),
@@ -23,12 +24,26 @@ const linkColumns = `id, event_id,
 
 func scanLink(row pgx.Row) (*models.ResourceLink, error) {
 	var l models.ResourceLink
-	err := row.Scan(&l.ID, &l.EventID, &l.EventDisplayID, &l.StageID, &l.StageDisplayID, &l.Kind, &l.URL, &l.Title,
+	err := row.Scan(&l.ID, &l.DisplayID, &l.EventID, &l.EventDisplayID, &l.StageID, &l.StageDisplayID,
+		&l.Kind, &l.URL, &l.Title,
 		&l.IsPinned, &l.SortOrder, &l.CreatedAt, &l.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
 	}
 	return &l, nil
+}
+
+func (r *Links) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM resource_links WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("resource link not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *Links) Create(ctx context.Context, eventID uuid.UUID, stageID *uuid.UUID,
@@ -80,7 +95,8 @@ func collect(rows pgx.Rows) ([]models.ResourceLink, error) {
 	items := make([]models.ResourceLink, 0, 16)
 	for rows.Next() {
 		var l models.ResourceLink
-		if err := rows.Scan(&l.ID, &l.EventID, &l.EventDisplayID, &l.StageID, &l.Kind, &l.URL, &l.Title,
+		if err := rows.Scan(&l.ID, &l.DisplayID, &l.EventID, &l.EventDisplayID, &l.StageID, &l.StageDisplayID,
+			&l.Kind, &l.URL, &l.Title,
 			&l.IsPinned, &l.SortOrder, &l.CreatedAt, &l.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

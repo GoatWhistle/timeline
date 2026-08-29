@@ -24,6 +24,7 @@ definitions:
         example: Developer
         type: string
       user_id:
+        example: us_42ej2s5gh7e8
         type: string
     type: object
   models.AddParticipantsRequest:
@@ -183,12 +184,13 @@ definitions:
         example: already_assigned
         type: string
       id:
+        example: pa_42ej2s5gh7e8
         type: string
       index:
         example: 0
         type: integer
       key:
-        example: 3f1c1e6e-0b0e-4a2b-9c1a-7d1f1f5a1c11
+        example: pa_42ej2s5gh7e8
         type: string
       message:
         example: the participant is already assigned
@@ -222,6 +224,8 @@ definitions:
       note:
         type: string
       participant_ids:
+        example:
+        - pa_42ej2s5gh7e8
         items:
           type: string
         type: array
@@ -429,6 +433,7 @@ definitions:
           $ref: '#/definitions/models.CopyRoleOverride'
         type: array
       source_event_id:
+        example: ev_gma9hq8a96q5
         type: string
     type: object
   models.CopyRoleOverride:
@@ -437,6 +442,7 @@ definitions:
         example: Mentor
         type: string
       user_id:
+        example: us_42ej2s5gh7e8
         type: string
     type: object
   models.CreateArtifactRequest:
@@ -577,6 +583,7 @@ definitions:
         example: 0
         type: integer
       stage_id:
+        example: st_42ej2s5gh7e8
         type: string
       title:
         example: Rules and code of conduct
@@ -659,6 +666,7 @@ definitions:
         example: 0
         type: integer
       stage_id:
+        example: st_42ej2s5gh7e8
         type: string
       title:
         example: Record the demo video
@@ -992,6 +1000,7 @@ definitions:
       created_at:
         type: string
       created_by_user_id:
+        example: us_42ej2s5gh7e8
         type: string
       email:
         example: new@example.com
@@ -999,6 +1008,7 @@ definitions:
       expires_at:
         type: string
       id:
+        example: in_42ej2s5gh7e8
         type: string
       revoked_at:
         type: string
@@ -1049,6 +1059,8 @@ definitions:
   models.MarkReadRequest:
     properties:
       ids:
+        example:
+        - sy_42ej2s5gh7e8
         items:
           type: string
         type: array
@@ -1076,6 +1088,7 @@ definitions:
         example: John
         type: string
       id:
+        example: us_42ej2s5gh7e8
         type: string
       is_active:
         example: true
@@ -1188,6 +1201,7 @@ definitions:
         example: Demo Day
         type: string
       id:
+        example: nt_42ej2s5gh7e8
         type: string
       preview:
         example: The registration deadline is approaching
@@ -1280,11 +1294,13 @@ definitions:
         example: true
         type: boolean
       id:
+        example: nr_42ej2s5gh7e8
         type: string
       offset_minutes:
         example: 1440
         type: integer
       registration_id:
+        example: rg_42ej2s5gh7e8
         type: string
       slot_no:
         example: 1
@@ -1359,6 +1375,7 @@ definitions:
         example: ev_gma9hq8a96q5
         type: string
       id:
+        example: ar_42ej2s5gh7e8
         type: string
       kind:
         allOf:
@@ -1392,6 +1409,7 @@ definitions:
         example: ev_gma9hq8a96q5
         type: string
       id:
+        example: pl_42ej2s5gh7e8
         type: string
       kind:
         allOf:
@@ -1476,6 +1494,7 @@ definitions:
         example: ev_gma9hq8a96q5
         type: string
       id:
+        example: pa_42ej2s5gh7e8
         type: string
       participation_status:
         allOf:
@@ -1540,6 +1559,7 @@ definitions:
         example: ev_gma9hq8a96q5
         type: string
       id:
+        example: tk_42ej2s5gh7e8
         type: string
       notes:
         type: string
@@ -1602,6 +1622,7 @@ definitions:
       created_at:
         type: string
       id:
+        example: pf_42ej2s5gh7e8
         type: string
       label:
         example: My repositories
@@ -1797,6 +1818,7 @@ definitions:
         example: ev_gma9hq8a96q5
         type: string
       id:
+        example: rg_42ej2s5gh7e8
         type: string
       notification_content_version:
         example: 1
@@ -1849,14 +1871,17 @@ definitions:
         - USER
         - ADMIN
       last_changed_by_user_id:
+        example: us_42ej2s5gh7e8
         type: string
       note:
         type: string
       participant_id:
+        example: pa_42ej2s5gh7e8
         type: string
       registered_at:
         type: string
       registration_id:
+        example: rg_42ej2s5gh7e8
         type: string
       status:
         allOf:
@@ -1906,6 +1931,8 @@ definitions:
   models.RemoveParticipantsRequest:
     properties:
       participant_ids:
+        example:
+        - pa_42ej2s5gh7e8
         items:
           type: string
         type: array
@@ -1913,6 +1940,8 @@ definitions:
   models.ReorderProfileLinksRequest:
     properties:
       ids:
+        example:
+        - pf_42ej2s5gh7e8
         items:
           type: string
         type: array
@@ -1934,6 +1963,7 @@ definitions:
         example: ev_gma9hq8a96q5
         type: string
       id:
+        example: rl_42ej2s5gh7e8
         type: string
       is_pinned:
         example: false
@@ -2076,6 +2106,7 @@ definitions:
       expires_at:
         type: string
       id:
+        example: se_42ej2s5gh7e8
         type: string
       ip:
         example: 203.0.113.7
@@ -2205,6 +2236,7 @@ definitions:
       created_at:
         type: string
       id:
+        example: sy_42ej2s5gh7e8
         type: string
       payload:
         additionalProperties: {}
@@ -2218,8 +2250,6 @@ definitions:
         - WARNING
         - CRITICAL
         example: WARNING
-        type: string
-      subject_id:
         type: string
       subject_type:
         example: notification
@@ -2449,6 +2479,7 @@ definitions:
         example: 0
         type: integer
       stage_id:
+        example: st_42ej2s5gh7e8
         type: string
       title:
         example: Rules and code of conduct
@@ -2542,6 +2573,7 @@ definitions:
         example: 0
         type: integer
       stage_id:
+        example: st_42ej2s5gh7e8
         type: string
       title:
         example: Record the demo video
@@ -2574,6 +2606,7 @@ definitions:
         example: John
         type: string
       id:
+        example: us_42ej2s5gh7e8
         type: string
       is_active:
         example: true
@@ -3045,7 +3078,7 @@ paths:
         and returned as separate result entries.
       parameters:
       - description: Target event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3632,7 +3665,7 @@ paths:
     post:
       parameters:
       - description: Invite identifier
-        format: uuid
+        example: in_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -3666,7 +3699,7 @@ paths:
         and sets the role again. An existing registration status is preserved.
       parameters:
       - description: Participant identifier
-        format: uuid
+        example: pa_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -3712,7 +3745,7 @@ paths:
       description: team_role is a free-text role on the event, not an access permission.
       parameters:
       - description: Participant identifier
-        format: uuid
+        example: pa_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -3845,7 +3878,7 @@ paths:
         and offset stay reserved.
       parameters:
       - description: Rule identifier
-        format: uuid
+        example: nr_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -3876,7 +3909,7 @@ paths:
         and triggers notification reconciliation.
       parameters:
       - description: Rule identifier
-        format: uuid
+        example: nr_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -4185,7 +4218,7 @@ paths:
         Participation references and audit entries are preserved.
       parameters:
       - description: User identifier
-        format: uuid
+        example: us_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -4215,7 +4248,7 @@ paths:
       description: Restores access. Previously cancelled notifications are not revived.
       parameters:
       - description: User identifier
-        format: uuid
+        example: us_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -4246,7 +4279,7 @@ paths:
         to CANCELLED.
       parameters:
       - description: User identifier
-        format: uuid
+        example: us_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -4904,7 +4937,7 @@ paths:
         required: true
         type: string
       - description: Link identifier
-        format: uuid
+        example: rl_42ej2s5gh7e8
         in: path
         name: linkId
         required: true
@@ -4949,7 +4982,7 @@ paths:
         required: true
         type: string
       - description: Link identifier
-        format: uuid
+        example: rl_42ej2s5gh7e8
         in: path
         name: linkId
         required: true
@@ -5191,7 +5224,7 @@ paths:
     delete:
       parameters:
       - description: Artifact identifier
-        format: uuid
+        example: ar_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -5222,8 +5255,8 @@ paths:
       description: Changes one artifact of the caller, including the self-reported
         submitted mark.
       parameters:
-      - description: Artifact id
-        format: uuid
+      - description: Artifact identifier
+        example: ar_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -6428,7 +6461,7 @@ paths:
         audit log, so the removal is not recorded there.
       parameters:
       - description: Link identifier
-        format: uuid
+        example: pl_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -6463,7 +6496,7 @@ paths:
         existence is not disclosed (specification 5.4).
       parameters:
       - description: Link identifier
-        format: uuid
+        example: pl_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -6620,7 +6653,7 @@ paths:
     delete:
       parameters:
       - description: Link identifier
-        format: uuid
+        example: pf_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -6654,7 +6687,7 @@ paths:
       - application/json
       parameters:
       - description: Link identifier
-        format: uuid
+        example: pf_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -6818,7 +6851,7 @@ paths:
         ends the refresh chain, it does not reach a token already issued.
       parameters:
       - description: Session identifier
-        format: uuid
+        example: se_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -6940,7 +6973,7 @@ paths:
         unlike the administrative layer, they carry no retention obligation.
       parameters:
       - description: Task identifier
-        format: uuid
+        example: tk_42ej2s5gh7e8
         in: path
         name: id
         required: true
@@ -6974,7 +7007,7 @@ paths:
         an audit entry. A task of another user answers 404, never 403.
       parameters:
       - description: Task identifier
-        format: uuid
+        example: tk_42ej2s5gh7e8
         in: path
         name: id
         required: true

@@ -26,7 +26,7 @@ func (s *AuthService) ListSessions(ctx context.Context, actor models.Actor) ([]m
 
 func sessionResponse(session *models.Session, current uuid.UUID) models.SessionResponse {
 	return models.SessionResponse{
-		ID:         session.ID,
+		ID:         session.DisplayID,
 		UserAgent:  session.UserAgent,
 		IP:         session.IP,
 		Current:    session.ID == current,
@@ -34,6 +34,10 @@ func sessionResponse(session *models.Session, current uuid.UUID) models.SessionR
 		LastUsedAt: session.LastUsedAt,
 		ExpiresAt:  session.ExpiresAt,
 	}
+}
+
+func (s *AuthService) ResolveSessionDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.sessions.ResolveDisplayID(ctx, displayID)
 }
 
 func (s *AuthService) RevokeSession(ctx context.Context, actor models.Actor,

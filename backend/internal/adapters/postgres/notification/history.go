@@ -23,7 +23,7 @@ func (r *Notifications) History(ctx context.Context, recipientID uuid.UUID,
 	}
 
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT id, notification_type, status,
+		SELECT display_id, notification_type, status,
 		       coalesce(actual_channel, requested_channel),
 		       payload_json ->> 'event_title',
 		       left(payload_json ->> 'subject', $4),

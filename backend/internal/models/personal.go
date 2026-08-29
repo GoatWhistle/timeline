@@ -49,7 +49,8 @@ func (o Outcome) AllowsPlace() bool {
 }
 
 type ParticipantTask struct {
-	ID             uuid.UUID  `json:"id"`
+	ID             uuid.UUID  `json:"-"`
+	DisplayID      string     `json:"id" example:"tk_42ej2s5gh7e8"`
 	EventID        uuid.UUID  `json:"-"`
 	EventDisplayID string     `json:"event_id" example:"ev_gma9hq8a96q5"`
 	StageID        *uuid.UUID `json:"-"`
@@ -71,7 +72,8 @@ type ParticipantNote struct {
 }
 
 type ParticipantArtifact struct {
-	ID             uuid.UUID    `json:"id"`
+	ID             uuid.UUID    `json:"-"`
+	DisplayID      string       `json:"id" example:"ar_42ej2s5gh7e8"`
 	EventID        uuid.UUID    `json:"-"`
 	EventDisplayID string       `json:"event_id" example:"ev_gma9hq8a96q5"`
 	Kind           ArtifactKind `json:"kind" enums:"REPOSITORY,VIDEO,SLIDES,DEMO,SUBMISSION,OTHER"`
@@ -130,17 +132,20 @@ func blankText(value *string) bool {
 }
 
 type DueTaskCandidate struct {
-	TaskID     uuid.UUID
-	UserID     uuid.UUID
-	EventID    uuid.UUID
-	Title      string
-	DueAt      time.Time
-	EventTitle string
+	TaskID         uuid.UUID
+	TaskDisplayID  string
+	UserID         uuid.UUID
+	EventID        uuid.UUID
+	EventDisplayID string
+	Title          string
+	DueAt          time.Time
+	EventTitle     string
 }
 
 type DueRetrospectiveCandidate struct {
-	EventID    uuid.UUID
-	UserID     uuid.UUID
-	EventTitle string
-	EndAt      time.Time
+	EventID        uuid.UUID
+	EventDisplayID string
+	UserID         uuid.UUID
+	EventTitle     string
+	EndAt          time.Time
 }

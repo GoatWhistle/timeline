@@ -20,6 +20,7 @@ type NotificationPayload struct {
 
 type Notification struct {
 	ID                   uuid.UUID        `json:"id"`
+	DisplayID            string           `json:"display_id"`
 	NotificationType     NotificationType `json:"notification_type"`
 	RecipientUserID      uuid.UUID        `json:"recipient_user_id"`
 	RegistrationStatusID uuid.UUID        `json:"registration_status_id"`

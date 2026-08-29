@@ -23,6 +23,7 @@ func NewRegistrationStatusController(st StatusService, pageDef, pageMax int) *Re
 
 type StatusService interface {
 	ResolveStatusDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	ResolveParticipantDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, page models.Page,
@@ -33,9 +34,11 @@ type StatusService interface {
 	) (*models.RegistrationStatusResponse, error)
 	BatchSet(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.BatchSetStatusRequest,
+		participantIDs []uuid.UUID,
 	) (*models.BatchResult, error)
 	BatchSetPreview(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.BatchSetStatusRequest,
+		participantIDs []uuid.UUID,
 	) (*models.PreviewResponse, error)
 }
 
@@ -148,7 +151,13 @@ func (c *RegistrationStatusController) BatchSetStatus(w http.ResponseWriter, r *
 	if !ok {
 		return
 	}
-	res, err := c.statuses.BatchSet(r.Context(), middleware.ActorFrom(r), id, req)
+	participantIDs, err := httpx.BodyDisplayIDs(r.Context(), req.ParticipantIDs,
+		models.DisplayKindParticipant, c.statuses.ResolveParticipantDisplayID)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	res, err := c.statuses.BatchSet(r.Context(), middleware.ActorFrom(r), id, req, participantIDs)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -174,7 +183,13 @@ func (c *RegistrationStatusController) BatchSetStatusPreview(w http.ResponseWrit
 	if !ok {
 		return
 	}
-	res, err := c.statuses.BatchSetPreview(r.Context(), middleware.ActorFrom(r), id, req)
+	participantIDs, err := httpx.BodyDisplayIDs(r.Context(), req.ParticipantIDs,
+		models.DisplayKindParticipant, c.statuses.ResolveParticipantDisplayID)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	res, err := c.statuses.BatchSetPreview(r.Context(), middleware.ActorFrom(r), id, req, participantIDs)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

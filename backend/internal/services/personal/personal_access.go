@@ -86,6 +86,18 @@ func (s *PersonalService) visibleEvent(ctx context.Context, userID,
 	return ev, nil
 }
 
+func (s *PersonalService) ResolveStageDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.stages.ResolveDisplayID(ctx, displayID)
+}
+
+func (s *PersonalService) ResolveTaskDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.tasks.ResolveDisplayID(ctx, displayID)
+}
+
+func (s *PersonalService) ResolveArtifactDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.artifacts.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *PersonalService) checkStage(ctx context.Context, eventID uuid.UUID,
 	stageID *uuid.UUID) error {
 	if stageID == nil {

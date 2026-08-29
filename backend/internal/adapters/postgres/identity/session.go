@@ -2,6 +2,7 @@ package identity
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,12 +16,12 @@ type Sessions struct{ db *postgres.DB }
 
 func NewSessions(db *postgres.DB) *Sessions { return &Sessions{db: db} }
 
-const sessionColumns = `id, user_id, family_id, refresh_token_hash, user_agent, ip,
+const sessionColumns = `id, display_id, user_id, family_id, refresh_token_hash, user_agent, ip,
 	expires_at, last_used_at, revoked_at, created_at`
 
 func scanSession(row pgx.Row) (*models.Session, error) {
 	var s models.Session
-	err := row.Scan(&s.ID, &s.UserID, &s.FamilyID, &s.RefreshTokenHash, &s.UserAgent, &s.IP,
+	err := row.Scan(&s.ID, &s.DisplayID, &s.UserID, &s.FamilyID, &s.RefreshTokenHash, &s.UserAgent, &s.IP,
 		&s.ExpiresAt, &s.LastUsedAt, &s.RevokedAt, &s.CreatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -86,6 +87,19 @@ func (r *Sessions) ListActiveForUser(ctx context.Context, userID uuid.UUID, now 
 		items = append(items, *s)
 	}
 	return items, mapError(rows.Err())
+}
+
+func (r *Sessions) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM sessions WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("session not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *Sessions) GetByID(ctx context.Context, id uuid.UUID) (*models.Session, error) {

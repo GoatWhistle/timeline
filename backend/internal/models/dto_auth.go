@@ -2,8 +2,6 @@ package models
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type RegisterRequest struct {
@@ -45,7 +43,7 @@ type CSRFResponse struct {
 }
 
 type SessionResponse struct {
-	ID         uuid.UUID  `json:"id"`
+	ID         string     `json:"id" example:"se_42ej2s5gh7e8"`
 	UserAgent  *string    `json:"user_agent,omitempty" example:"Mozilla/5.0 (X11; Linux x86_64)"`
 	IP         *string    `json:"ip,omitempty" example:"203.0.113.7"`
 	Current    bool       `json:"current" example:"true"`

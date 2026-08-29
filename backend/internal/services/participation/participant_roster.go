@@ -92,41 +92,48 @@ func (s *ParticipantService) Reactivate(ctx context.Context, actor models.Actor,
 }
 
 func (s *ParticipantService) CopyFrom(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.CopyParticipantsRequest) (*models.BatchResult, error) {
+	req models.CopyParticipantsRequest, sourceEventID uuid.UUID,
+	overrideUserIDs []uuid.UUID) (*models.BatchResult, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
-	if req.SourceEventID == eventID {
+	if sourceEventID == eventID {
 		return nil, models.NewValidation("source and target events are the same")
 	}
-	if _, err := s.events.GetByID(ctx, req.SourceEventID); err != nil {
+	if _, err := s.events.GetByID(ctx, sourceEventID); err != nil {
 		return nil, models.NewNotFound("source event not found")
 	}
 	if _, err := s.events.GetByID(ctx, eventID); err != nil {
 		return nil, err
 	}
 
-	source, err := s.participants.ListAssigned(ctx, req.SourceEventID)
+	source, err := s.participants.ListAssigned(ctx, sourceEventID)
 	if err != nil {
 		return nil, err
 	}
 	overrides := make(map[uuid.UUID]*string, len(req.Overrides))
-	for _, o := range req.Overrides {
-		overrides[o.UserID] = o.TeamRole
+	for index, o := range req.Overrides {
+		overrides[overrideUserIDs[index]] = o.TeamRole
 	}
 
 	items := make([]models.AddParticipantItem, 0, len(source))
+	userIDs := make([]uuid.UUID, 0, len(source))
 	for _, p := range source {
 		role := p.TeamRole
 		if custom, ok := overrides[p.UserID]; ok {
 			role = custom
 		}
-		items = append(items, models.AddParticipantItem{UserID: p.UserID, TeamRole: role})
+		user, err := s.users.GetByID(ctx, p.UserID)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, models.AddParticipantItem{UserID: user.DisplayID, TeamRole: role})
+		userIDs = append(userIDs, p.UserID)
 	}
 	if len(items) == 0 {
 		return &models.BatchResult{Results: []models.BatchItemResult{}}, nil
 	}
-	return s.AddMany(ctx, actor, eventID, models.AddParticipantsRequest{Items: items})
+	return s.AddMany(ctx, actor, eventID, models.AddParticipantsRequest{Items: items}, userIDs)
 }
 
 func (s *ParticipantService) response(ctx context.Context, p *models.EventParticipant,
@@ -140,7 +147,7 @@ func (s *ParticipantService) response(ctx context.Context, p *models.EventPartic
 		return nil, err
 	}
 	resp := &models.ParticipantResponse{
-		ID:                  p.ID,
+		ID:                  p.DisplayID,
 		EventID:             eventDisplayID,
 		User:                userSummary(user),
 		TeamRole:            p.TeamRole,
@@ -173,7 +180,7 @@ func (s *ParticipantService) response(ctx context.Context, p *models.EventPartic
 
 func userSummary(user *models.User) models.UserSummary {
 	summary := models.UserSummary{
-		ID: user.ID, FirstName: user.FirstName, MiddleName: user.MiddleName,
+		ID: user.DisplayID, FirstName: user.FirstName, MiddleName: user.MiddleName,
 		LastName: user.LastName, Nickname: user.Nickname,
 		Email: user.Email, IsActive: user.IsActive,
 	}

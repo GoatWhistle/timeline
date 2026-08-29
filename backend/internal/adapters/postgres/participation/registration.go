@@ -17,12 +17,12 @@ func NewRegistrations(db *postgres.DB) *Registrations {
 	return &Registrations{db: db}
 }
 
-const registrationColumns = `id, event_id, url, deadline_at, event_end_at, description,
+const registrationColumns = `id, display_id, event_id, url, deadline_at, event_end_at, description,
 	state, schedule_version, activation_version, notification_content_version, created_at, updated_at`
 
 func scanRegistration(row pgx.Row) (*models.Registration, error) {
 	var r models.Registration
-	err := row.Scan(&r.ID, &r.EventID, &r.URL, &r.DeadlineAt, &r.EventEndAt, &r.Description,
+	err := row.Scan(&r.ID, &r.DisplayID, &r.EventID, &r.URL, &r.DeadlineAt, &r.EventEndAt, &r.Description,
 		&r.State, &r.ScheduleVersion, &r.ActivationVersion, &r.NotificationContentVersion,
 		&r.CreatedAt, &r.UpdatedAt)
 	if err != nil {

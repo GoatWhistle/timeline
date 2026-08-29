@@ -156,7 +156,7 @@ func (c *Controller) CreateArtifact(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Artifact id"	format(uuid)
+// @Param			id		path		string							true	"Artifact identifier"	example(ar_42ej2s5gh7e8)
 // @Param			request	body		models.UpdateArtifactRequest	true	"Fields to change"
 // @Success		200		{object}	models.ParticipantArtifact
 // @Failure		400		{object}	models.ErrorResponse
@@ -168,7 +168,7 @@ func (c *Controller) UpdateArtifact(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.artifacts.update") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindArtifact, c.personal.ResolveArtifactDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -189,7 +189,7 @@ func (c *Controller) UpdateArtifact(w http.ResponseWriter, r *http.Request) {
 // @Summary	Delete an own artifact
 // @Tags		personal
 // @Security	CookieAuth
-// @Param		id	path	string	true	"Artifact identifier"	format(uuid)
+// @Param		id	path	string	true	"Artifact identifier"	example(ar_42ej2s5gh7e8)
 // @Success	204	"the artifact is deleted"
 // @Failure	401	{object}	models.ErrorResponse
 // @Failure	404	{object}	models.ErrorResponse
@@ -199,7 +199,7 @@ func (c *Controller) DeleteArtifact(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.artifacts.delete") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindArtifact, c.personal.ResolveArtifactDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

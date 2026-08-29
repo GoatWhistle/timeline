@@ -46,7 +46,7 @@ func (s *ParticipantService) List(ctx context.Context, actor models.Actor, event
 }
 
 func (s *ParticipantService) AddMany(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.AddParticipantsRequest) (*models.BatchResult, error) {
+	req models.AddParticipantsRequest, userIDs []uuid.UUID) (*models.BatchResult, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -60,15 +60,15 @@ func (s *ParticipantService) AddMany(ctx context.Context, actor models.Actor, ev
 
 	result := &models.BatchResult{Results: make([]models.BatchItemResult, 0, len(req.Items))}
 	for index, item := range req.Items {
-		participant, err := s.addOne(ctx, actor, eventID, event.Kind, item)
-		result.Results = append(result.Results, batchItem(index, item.UserID.String(), participant, err))
+		participant, err := s.addOne(ctx, actor, eventID, event.Kind, item, userIDs[index])
+		result.Results = append(result.Results, batchItem(index, item.UserID, participant, err))
 		countBatch(result, err)
 	}
 	return result, nil
 }
 
 func (s *ParticipantService) addOne(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	kind models.EventKind, item models.AddParticipantItem) (*models.EventParticipant, error) {
+	kind models.EventKind, item models.AddParticipantItem, userID uuid.UUID) (*models.EventParticipant, error) {
 	teamRole, err := validation.ValidateTeamRole(kind, item.TeamRole)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (s *ParticipantService) addOne(ctx context.Context, actor models.Actor, eve
 
 	var participant *models.EventParticipant
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
-		user, err := s.users.GetByID(ctx, item.UserID)
+		user, err := s.users.GetByID(ctx, userID)
 		if err != nil {
 			return models.NewNotFound("user not found")
 		}
@@ -84,7 +84,7 @@ func (s *ParticipantService) addOne(ctx context.Context, actor models.Actor, eve
 			return models.NewConflict("user_inactive", "a deactivated user cannot be assigned")
 		}
 
-		existing, err := s.participants.GetByEventUser(ctx, eventID, item.UserID)
+		existing, err := s.participants.GetByEventUser(ctx, eventID, userID)
 		switch {
 		case err == nil && existing.Assigned():
 			return models.NewConflict("already_assigned", "the participant is already assigned to the event")
@@ -99,12 +99,12 @@ func (s *ParticipantService) addOne(ctx context.Context, actor models.Actor, eve
 				return err
 			}
 		case errors.Is(err, models.ErrNotFound):
-			participant, err = s.participants.Create(ctx, eventID, item.UserID, teamRole)
+			participant, err = s.participants.Create(ctx, eventID, userID, teamRole)
 			if err != nil {
 				return err
 			}
 			if err := s.audit.Record(ctx, actor, models.AuditParticipantAdd, models.EntityParticipant,
-				participant.ID, nil, map[string]any{"user_id": item.UserID, "team_role": teamRole}); err != nil {
+				participant.ID, nil, map[string]any{"user_id": userID, "team_role": teamRole}); err != nil {
 				return err
 			}
 		default:
@@ -154,7 +154,7 @@ func (s *ParticipantService) ensureStatusAndNotification(ctx context.Context, ev
 }
 
 func (s *ParticipantService) RemoveMany(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.RemoveParticipantsRequest) (*models.BatchResult, error) {
+	req models.RemoveParticipantsRequest, participantIDs []uuid.UUID) (*models.BatchResult, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -162,8 +162,8 @@ func (s *ParticipantService) RemoveMany(ctx context.Context, actor models.Actor,
 		return nil, models.NewValidation("the participant list is empty")
 	}
 
-	result := &models.BatchResult{Results: make([]models.BatchItemResult, 0, len(req.ParticipantIDs))}
-	for index, id := range req.ParticipantIDs {
+	result := &models.BatchResult{Results: make([]models.BatchItemResult, 0, len(participantIDs))}
+	for index, id := range participantIDs {
 		var participant *models.EventParticipant
 		err := s.db.WithTx(ctx, func(ctx context.Context) error {
 			existing, err := s.participants.GetForUpdate(ctx, id)
@@ -187,7 +187,7 @@ func (s *ParticipantService) RemoveMany(ctx context.Context, actor models.Actor,
 				map[string]any{"participation_status": models.ParticipationAssigned},
 				map[string]any{"participation_status": models.ParticipationRemoved})
 		})
-		result.Results = append(result.Results, batchItem(index, id.String(), participant, err))
+		result.Results = append(result.Results, batchItem(index, req.ParticipantIDs[index], participant, err))
 		countBatch(result, err)
 	}
 	return result, nil
@@ -198,8 +198,7 @@ func batchItem(index int, key string, participant *models.EventParticipant, err 
 	if err == nil {
 		item.Status = "ok"
 		if participant != nil {
-			id := participant.ID
-			item.ID = &id
+			item.ID = participant.DisplayID
 		}
 		return item
 	}

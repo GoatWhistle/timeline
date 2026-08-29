@@ -100,11 +100,14 @@ func (r *Statuses) List(ctx context.Context, eventID uuid.UUID, page models.Page
 	}
 
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT s.id, s.display_id, e.display_id, s.registration_id, s.participant_id, s.status, s.todo_cycle,
-		       s.registered_at, s.last_change_source, s.last_changed_by_user_id, s.note, s.updated_at,
-		       u.id, u.first_name, u.middle_name, u.last_name, u.nickname, u.email, u.is_active
+		SELECT s.id, s.display_id, e.display_id, rg.display_id, p.display_id, s.status, s.todo_cycle,
+		       s.registered_at, s.last_change_source,
+		       (SELECT cu.display_id FROM users cu WHERE cu.id = s.last_changed_by_user_id),
+		       s.note, s.updated_at,
+		       u.display_id, u.first_name, u.middle_name, u.last_name, u.nickname, u.email, u.is_active
 		FROM registration_statuses s
 		JOIN events e ON e.id = s.event_id
+		JOIN registrations rg ON rg.id = s.registration_id
 		JOIN event_participants p ON p.id = s.participant_id
 		JOIN users u ON u.id = p.user_id
 		WHERE s.event_id = $1

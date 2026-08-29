@@ -34,7 +34,8 @@ func (k LinkKind) Valid() bool {
 }
 
 type ResourceLink struct {
-	ID             uuid.UUID  `json:"id"`
+	ID             uuid.UUID  `json:"-"`
+	DisplayID      string     `json:"id" example:"rl_42ej2s5gh7e8"`
 	EventID        uuid.UUID  `json:"-"`
 	EventDisplayID string     `json:"event_id" example:"ev_gma9hq8a96q5"`
 	StageID        *uuid.UUID `json:"-"`
@@ -49,7 +50,8 @@ type ResourceLink struct {
 }
 
 type ParticipantLink struct {
-	ID             uuid.UUID `json:"id"`
+	ID             uuid.UUID `json:"-"`
+	DisplayID      string    `json:"id" example:"pl_42ej2s5gh7e8"`
 	EventID        uuid.UUID `json:"-"`
 	EventDisplayID string    `json:"event_id" example:"ev_gma9hq8a96q5"`
 	Kind           LinkKind  `json:"kind" example:"OTHER"`
@@ -63,7 +65,8 @@ type ParticipantLink struct {
 const ProfileLinkMaxPerUser = 10
 
 type ProfileLink struct {
-	ID        uuid.UUID `json:"id"`
+	ID        uuid.UUID `json:"-"`
+	DisplayID string    `json:"id" example:"pf_42ej2s5gh7e8"`
 	URL       string    `json:"url" example:"https://github.com/ivan"`
 	Label     *string   `json:"label,omitempty" example:"My repositories"`
 	SortOrder int       `json:"sort_order" example:"0"`

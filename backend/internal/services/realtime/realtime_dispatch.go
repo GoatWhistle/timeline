@@ -55,11 +55,10 @@ func audienceMatch(userID *uuid.UUID, admin bool) func(*Subscriber) bool {
 
 func SystemEventResponse(e *models.SystemEvent, read bool) models.SystemEventResponse {
 	return models.SystemEventResponse{
-		ID:          e.ID,
+		ID:          e.DisplayID,
 		Type:        string(e.Type),
 		Severity:    string(e.Severity),
 		SubjectType: e.SubjectType,
-		SubjectID:   e.SubjectID,
 		Payload:     e.Payload,
 		Read:        read,
 		CreatedAt:   e.CreatedAt,

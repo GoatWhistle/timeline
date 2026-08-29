@@ -61,7 +61,8 @@ func (s *ResourceLinkService) checkStageOfEvent(ctx context.Context, eventID uui
 	return nil
 }
 
-func resourceLinkPatch(req models.UpdateResourceLinkRequest) (models.ResourceLinkPatch, error) {
+func resourceLinkPatch(req models.UpdateResourceLinkRequest,
+	stageID *uuid.UUID) (models.ResourceLinkPatch, error) {
 	var patch models.ResourceLinkPatch
 	if req.Kind != nil {
 		kind, err := parseLinkKind("kind", *req.Kind)
@@ -89,8 +90,8 @@ func resourceLinkPatch(req models.UpdateResourceLinkRequest) (models.ResourceLin
 	}
 	if req.ClearStage {
 		patch.StageSet = true
-	} else if req.StageID != nil {
-		patch.StageID = req.StageID
+	} else if stageID != nil {
+		patch.StageID = stageID
 		patch.StageSet = true
 	}
 	patch.IsPinned = req.IsPinned

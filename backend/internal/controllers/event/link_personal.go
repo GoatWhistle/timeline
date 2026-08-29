@@ -87,7 +87,7 @@ func (c *ResourceLinkController) CreatePersonal(w http.ResponseWriter, r *http.R
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Link identifier"	format(uuid)
+// @Param			id		path		string								true	"Link identifier"	example(pl_42ej2s5gh7e8)
 // @Param			request	body		models.UpdateParticipantLinkRequest	true	"Fields to change"
 // @Success		200		{object}	models.ParticipantLink
 // @Failure		400		{object}	models.ErrorResponse
@@ -99,7 +99,8 @@ func (c *ResourceLinkController) UpdatePersonal(w http.ResponseWriter, r *http.R
 	if !c.guard(w, r, "links.personal.update") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindParticipantLink,
+		c.links.ResolvePersonalLinkDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -123,7 +124,7 @@ func (c *ResourceLinkController) UpdatePersonal(w http.ResponseWriter, r *http.R
 // @Tags			personal
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path	string	true	"Link identifier"	format(uuid)
+// @Param			id	path	string	true	"Link identifier"	example(pl_42ej2s5gh7e8)
 // @Success		204	"the link is removed"
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse
@@ -133,7 +134,8 @@ func (c *ResourceLinkController) DeletePersonal(w http.ResponseWriter, r *http.R
 	if !c.guard(w, r, "links.personal.delete") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindParticipantLink,
+		c.links.ResolvePersonalLinkDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

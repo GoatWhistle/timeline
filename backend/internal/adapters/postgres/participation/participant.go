@@ -2,6 +2,7 @@ package participation
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
@@ -17,12 +18,12 @@ type Participants struct{ db *postgres.DB }
 
 func NewParticipants(db *postgres.DB) *Participants { return &Participants{db: db} }
 
-const participantColumns = `id, event_id, user_id, team_role, participation_status,
+const participantColumns = `id, display_id, event_id, user_id, team_role, participation_status,
 	assignment_version, assigned_at, removed_at, created_at, updated_at`
 
 func scanParticipant(row pgx.Row) (*models.EventParticipant, error) {
 	var p models.EventParticipant
-	err := row.Scan(&p.ID, &p.EventID, &p.UserID, &p.TeamRole, &p.ParticipationStatus,
+	err := row.Scan(&p.ID, &p.DisplayID, &p.EventID, &p.UserID, &p.TeamRole, &p.ParticipationStatus,
 		&p.AssignmentVersion, &p.AssignedAt, &p.RemovedAt, &p.CreatedAt, &p.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -35,6 +36,19 @@ func (r *Participants) Create(ctx context.Context, eventID, userID uuid.UUID, te
 		INSERT INTO event_participants (event_id, user_id, team_role)
 		VALUES ($1, $2, $3)
 		RETURNING `+participantColumns, eventID, userID, teamRole))
+}
+
+func (r *Participants) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM event_participants WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("participant not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *Participants) GetByID(ctx context.Context, id uuid.UUID) (*models.EventParticipant, error) {
@@ -91,7 +105,7 @@ func (r *Participants) ListAssigned(ctx context.Context, eventID uuid.UUID) ([]m
 	items := make([]models.EventParticipant, 0, 16)
 	for rows.Next() {
 		var p models.EventParticipant
-		if err := rows.Scan(&p.ID, &p.EventID, &p.UserID, &p.TeamRole, &p.ParticipationStatus,
+		if err := rows.Scan(&p.ID, &p.DisplayID, &p.EventID, &p.UserID, &p.TeamRole, &p.ParticipationStatus,
 			&p.AssignmentVersion, &p.AssignedAt, &p.RemovedAt, &p.CreatedAt, &p.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}
@@ -124,6 +138,7 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 
 	from := `
 		FROM event_participants p
+		JOIN events e ON e.id = p.event_id
 		JOIN users u ON u.id = p.user_id
 		LEFT JOIN registration_statuses s ON s.participant_id = p.id `
 
@@ -134,9 +149,9 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 
 	args = append(args, page.Limit(), page.Offset())
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT p.id, p.event_id, p.team_role, p.participation_status, p.assignment_version,
+		SELECT p.display_id, e.display_id, p.team_role, p.participation_status, p.assignment_version,
 		       p.assigned_at, p.removed_at,
-		       u.id, u.first_name, u.middle_name, u.last_name, u.nickname, u.email, u.is_active,
+		       u.display_id, u.first_name, u.middle_name, u.last_name, u.nickname, u.email, u.is_active,
 		       s.display_id, s.status, s.todo_cycle, s.registered_at, s.note `+from+where+`
 		ORDER BY lower(u.last_name), lower(u.first_name)
 		LIMIT $`+itoa(len(args)-1)+` OFFSET $`+itoa(len(args)), args...)

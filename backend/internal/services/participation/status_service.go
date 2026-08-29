@@ -161,28 +161,27 @@ func (s *StatusService) AdminChange(ctx context.Context, actor models.Actor, sta
 }
 
 func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.BatchSetStatusRequest) (*models.BatchResult, error) {
-	targets, err := s.batchTargets(ctx, actor, eventID, req)
+	req models.BatchSetStatusRequest, participantIDs []uuid.UUID) (*models.BatchResult, error) {
+	targets, err := s.batchTargets(ctx, actor, eventID, req, participantIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	result := &models.BatchResult{Results: make([]models.BatchItemResult, 0, len(req.ParticipantIDs))}
-	for index, participantID := range req.ParticipantIDs {
+	result := &models.BatchResult{Results: make([]models.BatchItemResult, 0, len(participantIDs))}
+	for index, participantID := range participantIDs {
 		status, ok := targets[participantID]
 		if !ok {
 			result.Results = append(result.Results, models.BatchItemResult{
-				Index: index, Key: participantID.String(), Status: "error",
+				Index: index, Key: req.ParticipantIDs[index], Status: "error",
 				Code: "not_found", Message: "participant status not found",
 			})
 			result.Failed++
 			continue
 		}
 		_, err := s.AdminChange(ctx, actor, status.ID, models.AdminChangeStatusRequest{Status: req.Status, Note: req.Note})
-		item := models.BatchItemResult{Index: index, Key: participantID.String()}
+		item := models.BatchItemResult{Index: index, Key: req.ParticipantIDs[index]}
 		if err == nil {
-			id := status.ID
-			item.ID = &id
+			item.ID = status.DisplayID
 			item.Status = "ok"
 		} else {
 			var domainErr *models.DomainError
@@ -206,13 +205,13 @@ func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, eventI
 }
 
 func (s *StatusService) BatchSetPreview(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.BatchSetStatusRequest) (*models.PreviewResponse, error) {
-	targets, err := s.batchTargets(ctx, actor, eventID, req)
+	req models.BatchSetStatusRequest, participantIDs []uuid.UUID) (*models.PreviewResponse, error) {
+	targets, err := s.batchTargets(ctx, actor, eventID, req, participantIDs)
 	if err != nil {
 		return nil, err
 	}
 	preview := &models.PreviewResponse{}
-	for _, participantID := range req.ParticipantIDs {
+	for _, participantID := range participantIDs {
 		status, ok := targets[participantID]
 		if !ok || status.Status == req.Status {
 			preview.Skipped++
@@ -224,7 +223,8 @@ func (s *StatusService) BatchSetPreview(ctx context.Context, actor models.Actor,
 }
 
 func (s *StatusService) batchTargets(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.BatchSetStatusRequest) (map[uuid.UUID]*models.RegistrationStatus, error) {
+	req models.BatchSetStatusRequest,
+	participantIDs []uuid.UUID) (map[uuid.UUID]*models.RegistrationStatus, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -241,8 +241,8 @@ func (s *StatusService) batchTargets(ctx context.Context, actor models.Actor, ev
 		return nil, notFoundRegistration(err)
 	}
 
-	targets := make(map[uuid.UUID]*models.RegistrationStatus, len(req.ParticipantIDs))
-	for _, participantID := range req.ParticipantIDs {
+	targets := make(map[uuid.UUID]*models.RegistrationStatus, len(participantIDs))
+	for _, participantID := range participantIDs {
 		status, err := s.statuses.GetByParticipant(ctx, registration.ID, participantID)
 		if errors.Is(err, models.ErrNotFound) {
 			continue

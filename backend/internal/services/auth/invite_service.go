@@ -107,6 +107,10 @@ func (s *InviteService) List(ctx context.Context, actor models.Actor, page model
 	return s.invites.List(ctx, page)
 }
 
+func (s *InviteService) ResolveInviteDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.invites.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *InviteService) Revoke(ctx context.Context, actor models.Actor, id uuid.UUID) error {
 	if !actor.IsAdmin {
 		return models.NewForbidden("revoking an invite is restricted to administrators")

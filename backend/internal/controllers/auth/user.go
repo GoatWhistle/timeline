@@ -12,6 +12,7 @@ import (
 )
 
 type UserService interface {
+	ResolveUserDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	Search(ctx context.Context, actor models.Actor, query string, page models.Page) ([]models.UserSummary, int64, error)
 	SetActive(ctx context.Context, actor models.Actor, userID uuid.UUID, active bool) error
 	Delete(ctx context.Context, actor models.Actor, userID uuid.UUID) error
@@ -58,7 +59,7 @@ func (c *UserController) Search(w http.ResponseWriter, r *http.Request) {
 // @Tags			users
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"User identifier"	format(uuid)
+// @Param			id	path		string	true	"User identifier"	example(us_42ej2s5gh7e8)
 // @Success		200	{object}	models.MessageResponse
 // @Failure		403	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse
@@ -72,7 +73,7 @@ func (c *UserController) Deactivate(w http.ResponseWriter, r *http.Request) {
 // @Tags			users
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"User identifier"	format(uuid)
+// @Param			id	path		string	true	"User identifier"	example(us_42ej2s5gh7e8)
 // @Success		200	{object}	models.MessageResponse
 // @Failure		403	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse
@@ -82,7 +83,7 @@ func (c *UserController) Activate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *UserController) setActive(w http.ResponseWriter, r *http.Request, active bool) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindUser, c.svc.ResolveUserDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -104,13 +105,13 @@ func (c *UserController) setActive(w http.ResponseWriter, r *http.Request, activ
 // @Tags			users
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"User identifier"	format(uuid)
+// @Param			id	path		string	true	"User identifier"	example(us_42ej2s5gh7e8)
 // @Success		200	{object}	models.MessageResponse
 // @Failure		403	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse
 // @Router			/admin/users/{id} [delete]
 func (c *UserController) Delete(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindUser, c.svc.ResolveUserDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

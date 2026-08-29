@@ -123,7 +123,7 @@ func (c *Controller) AddBookmark(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.bookmarks.add") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -148,7 +148,7 @@ func (c *Controller) RemoveBookmark(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.bookmarks.remove") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

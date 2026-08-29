@@ -230,6 +230,22 @@ linters:
         linters:
           - lll
 
+      - path: internal/controllers/participation/participant_batch\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/personal/record\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/personal/task\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/auth/profile_links\.go
+        linters:
+          - lll
+
       - path: internal/controllers/participation/status\.go
         linters:
           - lll

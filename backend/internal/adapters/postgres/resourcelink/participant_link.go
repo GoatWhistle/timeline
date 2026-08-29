@@ -2,6 +2,7 @@ package resourcelink
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -14,13 +15,13 @@ type PersonalLinks struct{ db *postgres.DB }
 
 func NewPersonalLinks(db *postgres.DB) *PersonalLinks { return &PersonalLinks{db: db} }
 
-const personalColumns = `id, event_id,
+const personalColumns = `id, display_id, event_id,
 	(SELECT e.display_id FROM events e WHERE e.id = event_id),
 	kind, url, title, sort_order, created_at, updated_at`
 
 func scanPersonal(row pgx.Row) (*models.ParticipantLink, error) {
 	var l models.ParticipantLink
-	err := row.Scan(&l.ID, &l.EventID, &l.EventDisplayID, &l.Kind, &l.URL, &l.Title,
+	err := row.Scan(&l.ID, &l.DisplayID, &l.EventID, &l.EventDisplayID, &l.Kind, &l.URL, &l.Title,
 		&l.SortOrder, &l.CreatedAt, &l.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -34,6 +35,19 @@ func (r *PersonalLinks) Create(ctx context.Context, userID, eventID uuid.UUID,
 		INSERT INTO participant_links (user_id, event_id, kind, url, title, sort_order)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING `+personalColumns, userID, eventID, kind, url, title, sortOrder))
+}
+
+func (r *PersonalLinks) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM participant_links WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("personal link not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *PersonalLinks) GetOwned(ctx context.Context, userID, id uuid.UUID) (*models.ParticipantLink, error) {
@@ -58,7 +72,7 @@ func collectPersonal(rows pgx.Rows) ([]models.ParticipantLink, error) {
 	items := make([]models.ParticipantLink, 0, 8)
 	for rows.Next() {
 		var l models.ParticipantLink
-		if err := rows.Scan(&l.ID, &l.EventID, &l.EventDisplayID, &l.Kind, &l.URL, &l.Title,
+		if err := rows.Scan(&l.ID, &l.DisplayID, &l.EventID, &l.EventDisplayID, &l.Kind, &l.URL, &l.Title,
 			&l.SortOrder, &l.CreatedAt, &l.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

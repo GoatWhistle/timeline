@@ -638,7 +638,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Target event identifier */
+                    /**
+                     * @description Target event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -1655,7 +1658,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Invite identifier */
+                    /**
+                     * @description Invite identifier
+                     * @example in_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -1716,7 +1722,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Participant identifier */
+                    /**
+                     * @description Participant identifier
+                     * @example pa_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -1803,7 +1812,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Participant identifier */
+                    /**
+                     * @description Participant identifier
+                     * @example pa_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2036,7 +2048,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Rule identifier */
+                    /**
+                     * @description Rule identifier
+                     * @example nr_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2082,7 +2097,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Rule identifier */
+                    /**
+                     * @description Rule identifier
+                     * @example nr_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2600,7 +2618,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description User identifier */
+                    /**
+                     * @description User identifier
+                     * @example us_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2659,7 +2680,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description User identifier */
+                    /**
+                     * @description User identifier
+                     * @example us_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2719,7 +2743,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description User identifier */
+                    /**
+                     * @description User identifier
+                     * @example us_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3897,7 +3924,10 @@ export interface paths {
                      * @example ev_3k7d8gb9be
                      */
                     id: string;
-                    /** @description Link identifier */
+                    /**
+                     * @description Link identifier
+                     * @example rl_42ej2s5gh7e8
+                     */
                     linkId: string;
                 };
                 cookie?: never;
@@ -3966,7 +3996,10 @@ export interface paths {
                      * @example ev_3k7d8gb9be
                      */
                     id: string;
-                    /** @description Link identifier */
+                    /**
+                     * @description Link identifier
+                     * @example rl_42ej2s5gh7e8
+                     */
                     linkId: string;
                 };
                 cookie?: never;
@@ -4447,7 +4480,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Artifact identifier */
+                    /**
+                     * @description Artifact identifier
+                     * @example ar_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -4501,7 +4537,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Artifact id */
+                    /**
+                     * @description Artifact identifier
+                     * @example ar_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -6635,7 +6674,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Link identifier */
+                    /**
+                     * @description Link identifier
+                     * @example pl_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -6690,7 +6732,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Link identifier */
+                    /**
+                     * @description Link identifier
+                     * @example pl_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -6970,7 +7015,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Link identifier */
+                    /**
+                     * @description Link identifier
+                     * @example pf_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -7023,7 +7071,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Link identifier */
+                    /**
+                     * @description Link identifier
+                     * @example pf_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -7323,7 +7374,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Session identifier */
+                    /**
+                     * @description Session identifier
+                     * @example se_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -7553,7 +7607,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Task identifier */
+                    /**
+                     * @description Task identifier
+                     * @example tk_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -7609,7 +7666,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Task identifier */
+                    /**
+                     * @description Task identifier
+                     * @example tk_42ej2s5gh7e8
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -8164,6 +8224,7 @@ export interface components {
         "models.AddParticipantItem": {
             /** @example Developer */
             team_role: string;
+            /** @example us_42ej2s5gh7e8 */
             user_id: string;
         };
         "models.AddParticipantsRequest": {
@@ -8211,10 +8272,11 @@ export interface components {
         "models.BatchItemResult": {
             /** @example already_assigned */
             code?: string;
+            /** @example pa_42ej2s5gh7e8 */
             id?: string;
             /** @example 0 */
             index: number;
-            /** @example 3f1c1e6e-0b0e-4a2b-9c1a-7d1f1f5a1c11 */
+            /** @example pa_42ej2s5gh7e8 */
             key?: string;
             /** @example the participant is already assigned */
             message?: string;
@@ -8235,6 +8297,11 @@ export interface components {
         };
         "models.BatchSetStatusRequest": {
             note?: string;
+            /**
+             * @example [
+             *       "pa_42ej2s5gh7e8"
+             *     ]
+             */
             participant_ids?: string[];
             status?: components["schemas"]["models.RegistrationStatusValue"];
         };
@@ -8332,11 +8399,13 @@ export interface components {
         };
         "models.CopyParticipantsRequest": {
             overrides?: components["schemas"]["models.CopyRoleOverride"][];
+            /** @example ev_gma9hq8a96q5 */
             source_event_id?: string;
         };
         "models.CopyRoleOverride": {
             /** @example Mentor */
             team_role: string;
+            /** @example us_42ej2s5gh7e8 */
             user_id: string;
         };
         "models.CreateArtifactRequest": {
@@ -8415,6 +8484,7 @@ export interface components {
             kind?: string;
             /** @example 0 */
             sort_order?: number;
+            /** @example st_42ej2s5gh7e8 */
             stage_id?: string;
             /** @example Rules and code of conduct */
             title?: string;
@@ -8458,6 +8528,7 @@ export interface components {
             notes?: string;
             /** @example 0 */
             sort_order?: number;
+            /** @example st_42ej2s5gh7e8 */
             stage_id?: string;
             /** @example Record the demo video */
             title?: string;
@@ -8620,11 +8691,13 @@ export interface components {
             accepted_at?: string;
             /** Format: date-time */
             created_at: string;
+            /** @example us_42ej2s5gh7e8 */
             created_by_user_id: string;
             /** @example new@example.com */
             email: string;
             /** Format: date-time */
             expires_at: string;
+            /** @example in_42ej2s5gh7e8 */
             id: string;
             /** Format: date-time */
             revoked_at?: string;
@@ -8642,6 +8715,11 @@ export interface components {
             password?: string;
         };
         "models.MarkReadRequest": {
+            /**
+             * @example [
+             *       "sy_42ej2s5gh7e8"
+             *     ]
+             */
             ids?: string[];
         };
         "models.MeResponse": {
@@ -8659,6 +8737,7 @@ export interface components {
             email_verified: boolean;
             /** @example John */
             first_name: string;
+            /** @example us_42ej2s5gh7e8 */
             id: string;
             /** @example true */
             is_active: boolean;
@@ -8723,6 +8802,7 @@ export interface components {
             created_at: string;
             /** @example Demo Day */
             event_title: string;
+            /** @example nt_42ej2s5gh7e8 */
             id: string;
             /** @example The registration deadline is approaching */
             preview: string;
@@ -8768,9 +8848,11 @@ export interface components {
             created_at: string;
             /** @example true */
             enabled: boolean;
+            /** @example nr_42ej2s5gh7e8 */
             id: string;
             /** @example 1440 */
             offset_minutes: number;
+            /** @example rg_42ej2s5gh7e8 */
             registration_id: string;
             /** @example 1 */
             slot_no: number;
@@ -8799,6 +8881,7 @@ export interface components {
             created_at: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
+            /** @example ar_42ej2s5gh7e8 */
             id: string;
             kind: components["schemas"]["models.ArtifactKind"];
             /** @example 0 */
@@ -8817,6 +8900,7 @@ export interface components {
             created_at: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
+            /** @example pl_42ej2s5gh7e8 */
             id: string;
             kind: components["schemas"]["models.LinkKind"];
             /** @example 0 */
@@ -8866,6 +8950,7 @@ export interface components {
             assignment_version: number;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
+            /** @example pa_42ej2s5gh7e8 */
             id: string;
             participation_status: components["schemas"]["models.ParticipationStatus"];
             registration_status?: components["schemas"]["models.RegistrationStatusShort"];
@@ -8905,6 +8990,7 @@ export interface components {
             due_at: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
+            /** @example tk_42ej2s5gh7e8 */
             id: string;
             notes: string;
             /** @example 0 */
@@ -8940,6 +9026,7 @@ export interface components {
         "models.ProfileLink": {
             /** Format: date-time */
             created_at: string;
+            /** @example pf_42ej2s5gh7e8 */
             id: string;
             /** @example My repositories */
             label: string;
@@ -9058,6 +9145,7 @@ export interface components {
             description?: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
+            /** @example rg_42ej2s5gh7e8 */
             id: string;
             /** @example 1 */
             notification_content_version: number;
@@ -9081,11 +9169,14 @@ export interface components {
             /** @example rs_42ej2s5gh7e8 */
             id: string;
             last_change_source: components["schemas"]["models.ChangeSource"];
+            /** @example us_42ej2s5gh7e8 */
             last_changed_by_user_id?: string;
             note?: string;
+            /** @example pa_42ej2s5gh7e8 */
             participant_id: string;
             /** Format: date-time */
             registered_at?: string;
+            /** @example rg_42ej2s5gh7e8 */
             registration_id: string;
             status: components["schemas"]["models.RegistrationStatusValue"];
             /** @example 1 */
@@ -9107,9 +9198,19 @@ export interface components {
         /** @enum {string} */
         "models.RegistrationStatusValue": "TODO" | "DONE" | "NOT_REQUIRED";
         "models.RemoveParticipantsRequest": {
+            /**
+             * @example [
+             *       "pa_42ej2s5gh7e8"
+             *     ]
+             */
             participant_ids?: string[];
         };
         "models.ReorderProfileLinksRequest": {
+            /**
+             * @example [
+             *       "pf_42ej2s5gh7e8"
+             *     ]
+             */
             ids?: string[];
         };
         "models.ResetPasswordRequest": {
@@ -9123,6 +9224,7 @@ export interface components {
             created_at: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
+            /** @example rl_42ej2s5gh7e8 */
             id: string;
             /** @example false */
             is_pinned: boolean;
@@ -9203,6 +9305,7 @@ export interface components {
             current: boolean;
             /** Format: date-time */
             expires_at: string;
+            /** @example se_42ej2s5gh7e8 */
             id: string;
             /** @example 203.0.113.7 */
             ip: string;
@@ -9269,6 +9372,7 @@ export interface components {
         "models.SystemEventResponse": {
             /** Format: date-time */
             created_at: string;
+            /** @example sy_42ej2s5gh7e8 */
             id: string;
             payload: {
                 [key: string]: unknown;
@@ -9280,7 +9384,6 @@ export interface components {
              * @enum {string}
              */
             severity: "INFO" | "WARNING" | "CRITICAL";
-            subject_id: string;
             /** @example notification */
             subject_type: string;
             /** @example NOTIFICATION_FAILED */
@@ -9415,6 +9518,7 @@ export interface components {
             kind?: string;
             /** @example 0 */
             sort_order?: number;
+            /** @example st_42ej2s5gh7e8 */
             stage_id?: string;
             /** @example Rules and code of conduct */
             title?: string;
@@ -9464,6 +9568,7 @@ export interface components {
             notes?: string;
             /** @example 0 */
             sort_order?: number;
+            /** @example st_42ej2s5gh7e8 */
             stage_id?: string;
             /** @example Record the demo video */
             title?: string;
@@ -9483,6 +9588,7 @@ export interface components {
             email: string;
             /** @example John */
             first_name: string;
+            /** @example us_42ej2s5gh7e8 */
             id: string;
             /** @example true */
             is_active: boolean;

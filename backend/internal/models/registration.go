@@ -8,6 +8,7 @@ import (
 
 type Registration struct {
 	ID                         uuid.UUID         `json:"id"`
+	DisplayID                  string            `json:"display_id"`
 	EventID                    uuid.UUID         `json:"event_id"`
 	URL                        string            `json:"url"`
 	DeadlineAt                 time.Time         `json:"deadline_at"`
@@ -40,14 +41,16 @@ type RegistrationStatus struct {
 }
 
 type NotificationRule struct {
-	ID              uuid.UUID `json:"id"`
-	RegistrationID  uuid.UUID `json:"registration_id"`
-	OffsetMinutes   int       `json:"offset_minutes"`
-	Enabled         bool      `json:"enabled"`
-	SlotNo          int       `json:"slot_no"`
-	ChannelOverride *Channel  `json:"channel_override,omitempty"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID                    uuid.UUID `json:"id"`
+	DisplayID             string    `json:"display_id"`
+	RegistrationID        uuid.UUID `json:"registration_id"`
+	RegistrationDisplayID string    `json:"-"`
+	OffsetMinutes         int       `json:"offset_minutes"`
+	Enabled               bool      `json:"enabled"`
+	SlotNo                int       `json:"slot_no"`
+	ChannelOverride       *Channel  `json:"channel_override,omitempty"`
+	CreatedAt             time.Time `json:"created_at"`
+	UpdatedAt             time.Time `json:"updated_at"`
 }
 
 func (r *NotificationRule) NotificationType() NotificationType {

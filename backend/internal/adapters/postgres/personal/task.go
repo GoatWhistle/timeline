@@ -2,6 +2,7 @@ package personal
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -14,7 +15,7 @@ type Tasks struct{ db *postgres.DB }
 
 func NewTasks(db *postgres.DB) *Tasks { return &Tasks{db: db} }
 
-const taskColumns = `id, event_id,
+const taskColumns = `id, display_id, event_id,
 	(SELECT e.display_id FROM events e WHERE e.id = event_id),
 	stage_id,
 	(SELECT st.display_id FROM stages st WHERE st.id = stage_id),
@@ -23,7 +24,8 @@ const taskColumns = `id, event_id,
 
 func scanTask(row pgx.Row) (*models.ParticipantTask, error) {
 	var t models.ParticipantTask
-	err := row.Scan(&t.ID, &t.EventID, &t.EventDisplayID, &t.StageID, &t.StageDisplayID, &t.Title, &t.Notes,
+	err := row.Scan(&t.ID, &t.DisplayID, &t.EventID, &t.EventDisplayID, &t.StageID, &t.StageDisplayID,
+		&t.Title, &t.Notes,
 		&t.DueAt, &t.DoneAt, &t.SortOrder, &t.CreatedAt, &t.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -45,6 +47,19 @@ func (r *Tasks) Create(ctx context.Context, userID, eventID uuid.UUID,
 		userID, eventID, req.StageID, stageEventID, title, req.Notes, req.DueAt, sortOrder))
 }
 
+func (r *Tasks) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM participant_tasks WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("task not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
+}
+
 func (r *Tasks) GetOwned(ctx context.Context, userID, id uuid.UUID) (*models.ParticipantTask, error) {
 	return scanTask(r.db.Q(ctx).QueryRow(ctx,
 		`SELECT `+taskColumns+` FROM participant_tasks WHERE id = $1 AND user_id = $2`, id, userID))
@@ -63,7 +78,8 @@ func (r *Tasks) ListByEvent(ctx context.Context, userID, eventID uuid.UUID) ([]m
 	items := make([]models.ParticipantTask, 0, 16)
 	for rows.Next() {
 		var t models.ParticipantTask
-		if err := rows.Scan(&t.ID, &t.EventID, &t.EventDisplayID, &t.StageID, &t.Title, &t.Notes,
+		if err := rows.Scan(&t.ID, &t.DisplayID, &t.EventID, &t.EventDisplayID, &t.StageID, &t.StageDisplayID,
+			&t.Title, &t.Notes,
 			&t.DueAt, &t.DoneAt, &t.SortOrder, &t.CreatedAt, &t.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

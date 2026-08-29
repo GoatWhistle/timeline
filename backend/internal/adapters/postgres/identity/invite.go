@@ -2,6 +2,7 @@ package identity
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -14,12 +15,14 @@ type Invites struct{ db *postgres.DB }
 
 func NewInvites(db *postgres.DB) *Invites { return &Invites{db: db} }
 
-const inviteColumns = `id, normalized_email, created_by_user_id, token_hash, expires_at,
+const inviteColumns = `id, display_id, normalized_email, created_by_user_id,
+	(SELECT u.display_id FROM users u WHERE u.id = created_by_user_id), token_hash, expires_at,
 	accepted_at, revoked_at, created_at`
 
 func scanInvite(row pgx.Row) (*models.Invite, error) {
 	var i models.Invite
-	err := row.Scan(&i.ID, &i.NormalizedEmail, &i.CreatedByUserID, &i.TokenHash, &i.ExpiresAt,
+	err := row.Scan(&i.ID, &i.DisplayID, &i.NormalizedEmail, &i.CreatedByUserID, &i.CreatedByUser,
+		&i.TokenHash, &i.ExpiresAt,
 		&i.AcceptedAt, &i.RevokedAt, &i.CreatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -37,6 +40,19 @@ func (r *Invites) Create(ctx context.Context, i *models.Invite) (*models.Invite,
 
 func (r *Invites) GetByID(ctx context.Context, id uuid.UUID) (*models.Invite, error) {
 	return scanInvite(r.db.Q(ctx).QueryRow(ctx, `SELECT `+inviteColumns+` FROM invites WHERE id = $1`, id))
+}
+
+func (r *Invites) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM invites WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("invite not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *Invites) GetByHash(ctx context.Context, hash string) (*models.Invite, error) {
@@ -98,7 +114,8 @@ func (r *Invites) List(ctx context.Context, page models.Page) ([]models.Invite, 
 	items := make([]models.Invite, 0, page.Limit())
 	for rows.Next() {
 		var i models.Invite
-		if err := rows.Scan(&i.ID, &i.NormalizedEmail, &i.CreatedByUserID, &i.TokenHash, &i.ExpiresAt,
+		if err := rows.Scan(&i.ID, &i.DisplayID, &i.NormalizedEmail, &i.CreatedByUserID, &i.CreatedByUser,
+			&i.TokenHash, &i.ExpiresAt,
 			&i.AcceptedAt, &i.RevokedAt, &i.CreatedAt); err != nil {
 			return nil, 0, mapError(err)
 		}

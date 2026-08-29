@@ -8,7 +8,7 @@ import (
 )
 
 type MeResponse struct {
-	ID                uuid.UUID `json:"id"`
+	ID                string    `json:"id" example:"us_42ej2s5gh7e8"`
 	FirstName         string    `json:"first_name" example:"John"`
 	MiddleName        *string   `json:"middle_name,omitempty" example:"Fitzgerald"`
 	LastName          string    `json:"last_name" example:"Smith"`
@@ -86,14 +86,14 @@ type TelegramLinkResponse struct {
 }
 
 type UserSummary struct {
-	ID          uuid.UUID `json:"id"`
-	FirstName   string    `json:"first_name" example:"John"`
-	MiddleName  *string   `json:"middle_name,omitempty" example:"Fitzgerald"`
-	LastName    string    `json:"last_name" example:"Smith"`
-	DisplayName string    `json:"display_name" example:"John Smith"`
-	Nickname    *string   `json:"nickname,omitempty" example:"jsmith"`
-	Email       string    `json:"email" example:"ivan@example.com"`
-	IsActive    bool      `json:"is_active" example:"true"`
+	ID          string  `json:"id" example:"us_42ej2s5gh7e8"`
+	FirstName   string  `json:"first_name" example:"John"`
+	MiddleName  *string `json:"middle_name,omitempty" example:"Fitzgerald"`
+	LastName    string  `json:"last_name" example:"Smith"`
+	DisplayName string  `json:"display_name" example:"John Smith"`
+	Nickname    *string `json:"nickname,omitempty" example:"jsmith"`
+	Email       string  `json:"email" example:"ivan@example.com"`
+	IsActive    bool    `json:"is_active" example:"true"`
 }
 
 func (u *UserSummary) Fill(locale string) {
@@ -130,9 +130,9 @@ type UserPage struct {
 }
 
 type InviteResponse struct {
-	ID              uuid.UUID  `json:"id"`
+	ID              string     `json:"id" example:"in_42ej2s5gh7e8"`
 	Email           string     `json:"email" example:"new@example.com"`
-	CreatedByUserID uuid.UUID  `json:"created_by_user_id"`
+	CreatedByUserID string     `json:"created_by_user_id" example:"us_42ej2s5gh7e8"`
 	ExpiresAt       time.Time  `json:"expires_at"`
 	AcceptedAt      *time.Time `json:"accepted_at,omitempty"`
 	RevokedAt       *time.Time `json:"revoked_at,omitempty"`

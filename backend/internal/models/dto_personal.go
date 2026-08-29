@@ -10,7 +10,7 @@ type CreateTaskRequest struct {
 	Title     string     `json:"title" example:"Record the demo video"`
 	Notes     *string    `json:"notes,omitempty"`
 	DueAt     *time.Time `json:"due_at,omitempty"`
-	StageID   *uuid.UUID `json:"stage_id,omitempty"`
+	StageID   *string    `json:"stage_id,omitempty" example:"st_42ej2s5gh7e8"`
 	SortOrder *int       `json:"sort_order,omitempty" example:"0"`
 }
 
@@ -19,7 +19,7 @@ type UpdateTaskRequest struct {
 	Notes      *string    `json:"notes,omitempty"`
 	DueAt      *time.Time `json:"due_at,omitempty"`
 	ClearDueAt bool       `json:"clear_due_at,omitempty" example:"false"`
-	StageID    *uuid.UUID `json:"stage_id,omitempty"`
+	StageID    *string    `json:"stage_id,omitempty" example:"st_42ej2s5gh7e8"`
 	ClearStage bool       `json:"clear_stage,omitempty" example:"false"`
 	SortOrder  *int       `json:"sort_order,omitempty" example:"0"`
 	Done       *bool      `json:"done,omitempty" example:"true"`

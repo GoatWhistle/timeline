@@ -3,23 +3,23 @@ package models
 import "github.com/google/uuid"
 
 type CreateResourceLinkRequest struct {
-	Kind      string     `json:"kind" example:"RULES"`
-	URL       string     `json:"url" example:"https://example.org/rules"`
-	Title     *string    `json:"title,omitempty" example:"Rules and code of conduct"`
-	StageID   *uuid.UUID `json:"stage_id,omitempty"`
-	IsPinned  *bool      `json:"is_pinned,omitempty" example:"false"`
-	SortOrder *int       `json:"sort_order,omitempty" example:"0"`
+	Kind      string  `json:"kind" example:"RULES"`
+	URL       string  `json:"url" example:"https://example.org/rules"`
+	Title     *string `json:"title,omitempty" example:"Rules and code of conduct"`
+	StageID   *string `json:"stage_id,omitempty" example:"st_42ej2s5gh7e8"`
+	IsPinned  *bool   `json:"is_pinned,omitempty" example:"false"`
+	SortOrder *int    `json:"sort_order,omitempty" example:"0"`
 }
 
 type UpdateResourceLinkRequest struct {
-	Kind       *string    `json:"kind,omitempty" example:"RULES"`
-	URL        *string    `json:"url,omitempty" example:"https://example.org/rules"`
-	Title      *string    `json:"title,omitempty" example:"Rules and code of conduct"`
-	ClearTitle bool       `json:"clear_title,omitempty" example:"false"`
-	StageID    *uuid.UUID `json:"stage_id,omitempty"`
-	ClearStage bool       `json:"clear_stage,omitempty" example:"false"`
-	IsPinned   *bool      `json:"is_pinned,omitempty" example:"true"`
-	SortOrder  *int       `json:"sort_order,omitempty" example:"0"`
+	Kind       *string `json:"kind,omitempty" example:"RULES"`
+	URL        *string `json:"url,omitempty" example:"https://example.org/rules"`
+	Title      *string `json:"title,omitempty" example:"Rules and code of conduct"`
+	ClearTitle bool    `json:"clear_title,omitempty" example:"false"`
+	StageID    *string `json:"stage_id,omitempty" example:"st_42ej2s5gh7e8"`
+	ClearStage bool    `json:"clear_stage,omitempty" example:"false"`
+	IsPinned   *bool   `json:"is_pinned,omitempty" example:"true"`
+	SortOrder  *int    `json:"sort_order,omitempty" example:"0"`
 }
 
 type ResourceLinkPatch struct {
@@ -76,7 +76,7 @@ type UpdateProfileLinkRequest struct {
 }
 
 type ReorderProfileLinksRequest struct {
-	IDs []uuid.UUID `json:"ids"`
+	IDs []string `json:"ids" example:"pf_42ej2s5gh7e8"`
 }
 
 type ProfileLinkPatch struct {

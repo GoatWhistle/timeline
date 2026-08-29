@@ -7,7 +7,7 @@ import (
 )
 
 type RegistrationResponse struct {
-	ID                         uuid.UUID         `json:"id"`
+	ID                         string            `json:"id" example:"rg_42ej2s5gh7e8"`
 	EventID                    string            `json:"event_id" example:"ev_gma9hq8a96q5"`
 	URL                        string            `json:"url" example:"https://example.com/register"`
 	DeadlineAt                 time.Time         `json:"deadline_at"`
@@ -35,14 +35,14 @@ type UpdateRegistrationRequest struct {
 type RegistrationStatusResponse struct {
 	ID                  string                  `json:"id" example:"rs_42ej2s5gh7e8"`
 	EventID             string                  `json:"event_id" example:"ev_gma9hq8a96q5"`
-	RegistrationID      uuid.UUID               `json:"registration_id"`
-	ParticipantID       uuid.UUID               `json:"participant_id"`
+	RegistrationID      string                  `json:"registration_id" example:"rg_42ej2s5gh7e8"`
+	ParticipantID       string                  `json:"participant_id" example:"pa_42ej2s5gh7e8"`
 	User                *UserSummary            `json:"user,omitempty"`
 	Status              RegistrationStatusValue `json:"status" enums:"TODO,DONE,NOT_REQUIRED"`
 	TodoCycle           int                     `json:"todo_cycle" example:"1"`
 	RegisteredAt        *time.Time              `json:"registered_at,omitempty"`
 	LastChangeSource    ChangeSource            `json:"last_change_source" enums:"SYSTEM,USER,ADMIN"`
-	LastChangedByUserID *uuid.UUID              `json:"last_changed_by_user_id,omitempty"`
+	LastChangedByUserID *string                 `json:"last_changed_by_user_id,omitempty" example:"us_42ej2s5gh7e8"`
 	Note                *string                 `json:"note,omitempty"`
 	UpdatedAt           time.Time               `json:"updated_at"`
 }
@@ -58,14 +58,14 @@ type AdminChangeStatusRequest struct {
 }
 
 type BatchSetStatusRequest struct {
-	ParticipantIDs []uuid.UUID             `json:"participant_ids"`
+	ParticipantIDs []string                `json:"participant_ids" example:"pa_42ej2s5gh7e8"`
 	Status         RegistrationStatusValue `json:"status" enums:"TODO,NOT_REQUIRED"`
 	Note           *string                 `json:"note,omitempty"`
 }
 
 type NotificationRuleResponse struct {
-	ID              uuid.UUID        `json:"id"`
-	RegistrationID  uuid.UUID        `json:"registration_id"`
+	ID              string           `json:"id" example:"nr_42ej2s5gh7e8"`
+	RegistrationID  string           `json:"registration_id" example:"rg_42ej2s5gh7e8"`
 	OffsetMinutes   int              `json:"offset_minutes" example:"1440"`
 	Type            NotificationType `json:"type" enums:"REGISTRATION_REMINDER,REGISTRATION_OVERDUE"`
 	Enabled         bool             `json:"enabled" example:"true"`

@@ -30,7 +30,7 @@ func (r *Events) List(ctx context.Context, userID uuid.UUID, isAdmin bool,
 	}
 
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT e.id, e.event_type, e.severity, e.subject_type, e.subject_id, e.payload_json,
+		SELECT e.display_id, e.event_type, e.severity, e.subject_type, e.payload_json,
 		       EXISTS (SELECT 1 FROM system_event_reads sr
 		               WHERE sr.event_id = e.id AND sr.user_id = $1) AS read,
 		       e.created_at
@@ -51,7 +51,7 @@ func (r *Events) List(ctx context.Context, userID uuid.UUID, isAdmin bool,
 		var item models.SystemEventResponse
 		var raw []byte
 		if err := rows.Scan(&item.ID, &item.Type, &item.Severity, &item.SubjectType,
-			&item.SubjectID, &raw, &item.Read, &item.CreatedAt); err != nil {
+			&raw, &item.Read, &item.CreatedAt); err != nil {
 			return nil, 0, mapError(err)
 		}
 		if len(raw) > 0 {

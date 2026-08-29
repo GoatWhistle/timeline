@@ -67,8 +67,12 @@ func (s *ProfileLinkService) Delete(ctx context.Context, actor models.Actor, id 
 	return s.links.Delete(ctx, actor.UserID, id)
 }
 
+func (s *ProfileLinkService) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.links.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *ProfileLinkService) Reorder(ctx context.Context, actor models.Actor,
-	req models.ReorderProfileLinksRequest) ([]models.ProfileLink, error) {
+	req models.ReorderProfileLinksRequest, ids []uuid.UUID) ([]models.ProfileLink, error) {
 	if len(req.IDs) == 0 {
 		return nil, models.NewValidation("the order is empty",
 			models.FieldError{Field: "ids", Message: "at least one identifier is required"})
@@ -77,8 +81,8 @@ func (s *ProfileLinkService) Reorder(ctx context.Context, actor models.Actor,
 		return nil, models.NewValidation("too many identifiers",
 			models.FieldError{Field: "ids", Message: "more identifiers than links are allowed"})
 	}
-	seen := make(map[uuid.UUID]bool, len(req.IDs))
-	for _, id := range req.IDs {
+	seen := make(map[uuid.UUID]bool, len(ids))
+	for _, id := range ids {
 		if seen[id] {
 			return nil, models.NewValidation("the order repeats an identifier",
 				models.FieldError{Field: "ids", Message: "identifiers must be unique"})
@@ -96,7 +100,7 @@ func (s *ProfileLinkService) Reorder(ctx context.Context, actor models.Actor,
 			return models.NewValidation("the order must list every link",
 				models.FieldError{Field: "ids", Message: "every link of the profile must be listed once"})
 		}
-		if err := s.links.Reorder(ctx, actor.UserID, req.IDs); err != nil {
+		if err := s.links.Reorder(ctx, actor.UserID, ids); err != nil {
 			return err
 		}
 		items, err = s.links.ListByUser(ctx, actor.UserID)

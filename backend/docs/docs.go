@@ -642,7 +642,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Target event identifier",
                         "name": "id",
                         "in": "path",
@@ -1519,7 +1519,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "in_42ej2s5gh7e8",
                         "description": "Invite identifier",
                         "name": "id",
                         "in": "path",
@@ -1569,7 +1569,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "pa_42ej2s5gh7e8",
                         "description": "Participant identifier",
                         "name": "id",
                         "in": "path",
@@ -1640,7 +1640,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "pa_42ej2s5gh7e8",
                         "description": "Participant identifier",
                         "name": "id",
                         "in": "path",
@@ -1834,7 +1834,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "nr_42ej2s5gh7e8",
                         "description": "Rule identifier",
                         "name": "id",
                         "in": "path",
@@ -1879,7 +1879,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "nr_42ej2s5gh7e8",
                         "description": "Rule identifier",
                         "name": "id",
                         "in": "path",
@@ -2317,7 +2317,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "us_42ej2s5gh7e8",
                         "description": "User identifier",
                         "name": "id",
                         "in": "path",
@@ -2364,7 +2364,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "us_42ej2s5gh7e8",
                         "description": "User identifier",
                         "name": "id",
                         "in": "path",
@@ -2411,7 +2411,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "us_42ej2s5gh7e8",
                         "description": "User identifier",
                         "name": "id",
                         "in": "path",
@@ -3311,7 +3311,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "rl_42ej2s5gh7e8",
                         "description": "Link identifier",
                         "name": "linkId",
                         "in": "path",
@@ -3376,7 +3376,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "rl_42ej2s5gh7e8",
                         "description": "Link identifier",
                         "name": "linkId",
                         "in": "path",
@@ -3740,7 +3740,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ar_42ej2s5gh7e8",
                         "description": "Artifact identifier",
                         "name": "id",
                         "in": "path",
@@ -3791,8 +3791,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
-                        "description": "Artifact id",
+                        "example": "ar_42ej2s5gh7e8",
+                        "description": "Artifact identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -5465,7 +5465,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "pl_42ej2s5gh7e8",
                         "description": "Link identifier",
                         "name": "id",
                         "in": "path",
@@ -5516,7 +5516,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "pl_42ej2s5gh7e8",
                         "description": "Link identifier",
                         "name": "id",
                         "in": "path",
@@ -5803,7 +5803,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "pf_42ej2s5gh7e8",
                         "description": "Link identifier",
                         "name": "id",
                         "in": "path",
@@ -5856,7 +5856,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "pf_42ej2s5gh7e8",
                         "description": "Link identifier",
                         "name": "id",
                         "in": "path",
@@ -6012,7 +6012,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "se_42ej2s5gh7e8",
                         "description": "Session identifier",
                         "name": "id",
                         "in": "path",
@@ -6194,7 +6194,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "tk_42ej2s5gh7e8",
                         "description": "Task identifier",
                         "name": "id",
                         "in": "path",
@@ -6245,7 +6245,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "tk_42ej2s5gh7e8",
                         "description": "Task identifier",
                         "name": "id",
                         "in": "path",
@@ -6623,7 +6623,8 @@ const docTemplate = `{
                     "example": "Developer"
                 },
                 "user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "us_42ej2s5gh7e8"
                 }
             }
         },
@@ -6837,7 +6838,8 @@ const docTemplate = `{
                     "example": "already_assigned"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "pa_42ej2s5gh7e8"
                 },
                 "index": {
                     "type": "integer",
@@ -6845,7 +6847,7 @@ const docTemplate = `{
                 },
                 "key": {
                     "type": "string",
-                    "example": "3f1c1e6e-0b0e-4a2b-9c1a-7d1f1f5a1c11"
+                    "example": "pa_42ej2s5gh7e8"
                 },
                 "message": {
                     "type": "string",
@@ -6895,7 +6897,10 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "pa_42ej2s5gh7e8"
+                    ]
                 },
                 "status": {
                     "enum": [
@@ -7204,7 +7209,8 @@ const docTemplate = `{
                     }
                 },
                 "source_event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 }
             }
         },
@@ -7216,7 +7222,8 @@ const docTemplate = `{
                     "example": "Mentor"
                 },
                 "user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "us_42ej2s5gh7e8"
                 }
             }
         },
@@ -7424,7 +7431,8 @@ const docTemplate = `{
                     "example": 0
                 },
                 "stage_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
                 },
                 "title": {
                     "type": "string",
@@ -7543,7 +7551,8 @@ const docTemplate = `{
                     "example": 0
                 },
                 "stage_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
                 },
                 "title": {
                     "type": "string",
@@ -8029,7 +8038,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "created_by_user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "us_42ej2s5gh7e8"
                 },
                 "email": {
                     "type": "string",
@@ -8039,7 +8049,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "in_42ej2s5gh7e8"
                 },
                 "revoked_at": {
                     "type": "string"
@@ -8106,7 +8117,10 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "sy_42ej2s5gh7e8"
+                    ]
                 }
             }
         },
@@ -8141,7 +8155,8 @@ const docTemplate = `{
                     "example": "John"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "us_42ej2s5gh7e8"
                 },
                 "is_active": {
                     "type": "boolean",
@@ -8308,7 +8323,8 @@ const docTemplate = `{
                     "example": "Demo Day"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "nt_42ej2s5gh7e8"
                 },
                 "preview": {
                     "type": "string",
@@ -8448,14 +8464,16 @@ const docTemplate = `{
                     "example": true
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "nr_42ej2s5gh7e8"
                 },
                 "offset_minutes": {
                     "type": "integer",
                     "example": 1440
                 },
                 "registration_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "rg_42ej2s5gh7e8"
                 },
                 "slot_no": {
                     "type": "integer",
@@ -8556,7 +8574,8 @@ const docTemplate = `{
                     "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ar_42ej2s5gh7e8"
                 },
                 "kind": {
                     "enum": [
@@ -8604,7 +8623,8 @@ const docTemplate = `{
                     "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "pl_42ej2s5gh7e8"
                 },
                 "kind": {
                     "allOf": [
@@ -8730,7 +8750,8 @@ const docTemplate = `{
                     "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "pa_42ej2s5gh7e8"
                 },
                 "participation_status": {
                     "enum": [
@@ -8829,7 +8850,8 @@ const docTemplate = `{
                     "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "tk_42ej2s5gh7e8"
                 },
                 "notes": {
                     "type": "string"
@@ -8919,7 +8941,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "pf_42ej2s5gh7e8"
                 },
                 "label": {
                     "type": "string",
@@ -9207,7 +9230,8 @@ const docTemplate = `{
                     "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "rg_42ej2s5gh7e8"
                 },
                 "notification_content_version": {
                     "type": "integer",
@@ -9286,19 +9310,22 @@ const docTemplate = `{
                     ]
                 },
                 "last_changed_by_user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "us_42ej2s5gh7e8"
                 },
                 "note": {
                     "type": "string"
                 },
                 "participant_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "pa_42ej2s5gh7e8"
                 },
                 "registered_at": {
                     "type": "string"
                 },
                 "registration_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "rg_42ej2s5gh7e8"
                 },
                 "status": {
                     "enum": [
@@ -9375,7 +9402,10 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "pa_42ej2s5gh7e8"
+                    ]
                 }
             }
         },
@@ -9386,7 +9416,10 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "pf_42ej2s5gh7e8"
+                    ]
                 }
             }
         },
@@ -9414,7 +9447,8 @@ const docTemplate = `{
                     "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "rl_42ej2s5gh7e8"
                 },
                 "is_pinned": {
                     "type": "boolean",
@@ -9629,7 +9663,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "se_42ej2s5gh7e8"
                 },
                 "ip": {
                     "type": "string",
@@ -9812,7 +9847,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "sy_42ej2s5gh7e8"
                 },
                 "payload": {
                     "type": "object",
@@ -9830,9 +9866,6 @@ const docTemplate = `{
                         "CRITICAL"
                     ],
                     "example": "WARNING"
-                },
-                "subject_id": {
-                    "type": "string"
                 },
                 "subject_type": {
                     "type": "string",
@@ -10167,7 +10200,8 @@ const docTemplate = `{
                     "example": 0
                 },
                 "stage_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
                 },
                 "title": {
                     "type": "string",
@@ -10303,7 +10337,8 @@ const docTemplate = `{
                     "example": 0
                 },
                 "stage_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
                 },
                 "title": {
                     "type": "string",
@@ -10350,7 +10385,8 @@ const docTemplate = `{
                     "example": "John"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "us_42ej2s5gh7e8"
                 },
                 "is_active": {
                     "type": "boolean",

@@ -10,6 +10,7 @@ import (
 
 type User struct {
 	ID                uuid.UUID  `json:"id"`
+	DisplayID         string     `json:"display_id"`
 	FirstName         string     `json:"first_name"`
 	MiddleName        *string    `json:"middle_name,omitempty"`
 	LastName          string     `json:"last_name"`
@@ -55,6 +56,7 @@ func (u *User) EmailVerified() bool {
 
 type Session struct {
 	ID               uuid.UUID  `json:"id"`
+	DisplayID        string     `json:"display_id"`
 	UserID           uuid.UUID  `json:"user_id"`
 	FamilyID         uuid.UUID  `json:"-"`
 	RefreshTokenHash string     `json:"-"`
@@ -87,8 +89,10 @@ func (t *OneTimeToken) Usable(now time.Time) bool {
 
 type Invite struct {
 	ID              uuid.UUID  `json:"id"`
+	DisplayID       string     `json:"display_id"`
 	NormalizedEmail string     `json:"email"`
 	CreatedByUserID uuid.UUID  `json:"created_by_user_id"`
+	CreatedByUser   string     `json:"-"`
 	TokenHash       string     `json:"-"`
 	ExpiresAt       time.Time  `json:"expires_at"`
 	AcceptedAt      *time.Time `json:"accepted_at,omitempty"`

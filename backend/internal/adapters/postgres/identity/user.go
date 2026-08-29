@@ -2,6 +2,7 @@ package identity
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/google/uuid"
@@ -16,14 +17,14 @@ type Users struct{ db *postgres.DB }
 
 func NewUsers(db *postgres.DB) *Users { return &Users{db: db} }
 
-const userColumns = `id, first_name, middle_name, last_name, legacy_display_name, nickname,
+const userColumns = `id, display_id, first_name, middle_name, last_name, legacy_display_name, nickname,
 	profile_public, email, pending_email, password_hash, email_verified_at,
 	telegram_username, telegram_chat_id, preferred_channel, avatar_url, bio,
 	locale, timezone, shortcuts, is_admin, is_active, deleted_at, created_at, updated_at`
 
 func scanUser(row pgx.Row) (*models.User, error) {
 	var u models.User
-	err := row.Scan(&u.ID, &u.FirstName, &u.MiddleName, &u.LastName,
+	err := row.Scan(&u.ID, &u.DisplayID, &u.FirstName, &u.MiddleName, &u.LastName,
 		&u.LegacyDisplayName, &u.Nickname, &u.ProfilePublic, &u.Email, &u.PendingEmail,
 		&u.PasswordHash, &u.EmailVerifiedAt,
 		&u.TelegramUsername, &u.TelegramChatID, &u.PreferredChannel,
@@ -48,6 +49,19 @@ func (r *Users) Create(ctx context.Context, u *models.User) (*models.User, error
 
 func (r *Users) GetByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
 	return scanUser(r.db.Q(ctx).QueryRow(ctx, `SELECT `+userColumns+` FROM users WHERE id = $1`, id))
+}
+
+func (r *Users) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM users WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("user not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *Users) GetByEmail(ctx context.Context, email string) (*models.User, error) {
@@ -179,7 +193,7 @@ func (r *Users) Search(ctx context.Context, query string, page models.Page) ([]m
 	}
 
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT id, first_name, middle_name, last_name, nickname, email, is_active FROM users
+		SELECT display_id, first_name, middle_name, last_name, nickname, email, is_active FROM users
 		WHERE deleted_at IS NULL AND ($1 = '%%' OR lower(first_name) LIKE $1
 			OR lower(last_name) LIKE $1 OR lower(nickname) LIKE $1 OR email LIKE $1)
 		ORDER BY lower(last_name), lower(first_name), email
