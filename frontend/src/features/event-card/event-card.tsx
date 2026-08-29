@@ -83,7 +83,7 @@ function EventCardBody({
           <CardHeader>
             <CardTitle>{t('card.participation')}</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4 text-sm">
+          <CardContent className="grid grid-cols-2 gap-4 text-copy">
             <div>
               <p className="text-muted-foreground">{t('card.teamRole')}</p>
               <p className="font-medium">{card.team_role ?? '—'}</p>
@@ -134,7 +134,7 @@ function EventCardBody({
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <div className="flex items-start justify-between gap-4">
-                <div className="text-sm">
+                <div className="text-copy">
                   <p className="text-muted-foreground">{t('card.deadline')}</p>
                   <p className="font-medium">
                     <DeadlineTime iso={registration.deadline_at} />
@@ -148,7 +148,7 @@ function EventCardBody({
                 {status && <RegistrationStatusBadge status={status.status} />}
               </div>
 
-              {registration.description && <p className="text-sm">{registration.description}</p>}
+              {registration.description && <p className="text-copy">{registration.description}</p>}
 
               <div className="flex items-center gap-3">
                 <Button asChild variant="outline">
@@ -164,14 +164,14 @@ function EventCardBody({
               </div>
 
               {status?.status === 'DONE' && status.registered_at && (
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-copy">
                   {t('card.markedAt', { date: formatDateTime(status.registered_at) })}
                 </p>
               )}
               {registration.state === 'DISABLED' && (
-                <p className="text-muted-foreground text-sm">{t('card.disabled')}</p>
+                <p className="text-muted-foreground text-copy">{t('card.disabled')}</p>
               )}
-              <p className="text-muted-foreground text-xs">{t('card.selfReport')}</p>
+              <p className="text-muted-foreground text-caption">{t('card.selfReport')}</p>
             </CardContent>
           </Card>
         )}
@@ -182,21 +182,21 @@ function EventCardBody({
           </CardHeader>
           <CardContent>
             {card.stages.length === 0 ? (
-              <p className="text-muted-foreground text-sm">{t('card.noStages')}</p>
+              <p className="text-muted-foreground text-copy">{t('card.noStages')}</p>
             ) : (
               <ul className="flex flex-col gap-3">
                 {card.stages.map((stage) => (
                   <li key={stage.id} className="flex items-start gap-3">
                     <Dot className={`mt-1.5 ${STAGE_TYPE_COLOR[stage.type]}`} />
                     <div className="min-w-0">
-                      <p className="font-medium text-sm">{stage.name}</p>
-                      <p className="text-muted-foreground text-sm">
+                      <p className="font-medium text-copy">{stage.name}</p>
+                      <p className="text-muted-foreground text-copy">
                         <Badge tone="neutral">{t(STAGE_TYPE_KEY[stage.type])}</Badge>
                         <span className="ml-2">
                           {formatDate(stage.start_at)} — {formatDate(stage.end_at)}
                         </span>
                       </p>
-                      {stage.description && <p className="text-sm">{stage.description}</p>}
+                      {stage.description && <p className="text-copy">{stage.description}</p>}
                     </div>
                   </li>
                 ))}

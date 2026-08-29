@@ -167,8 +167,8 @@ export function AdminInvitesPage() {
 
           {link ? (
             <div className="flex flex-col gap-3">
-              <p className="text-sm">{t('invites.link')}</p>
-              <code className="break-all rounded-md bg-muted p-3 text-xs">{link}</code>
+              <p className="text-copy">{t('invites.link')}</p>
+              <code className="break-all rounded-md bg-muted p-3 text-caption">{link}</code>
               <DialogFooter>
                 <Button onClick={() => setOpen(false)}>{t('invites.done')}</Button>
               </DialogFooter>
@@ -189,7 +189,7 @@ export function AdminInvitesPage() {
                 />
               </Field>
               {errors.root && (
-                <p role="alert" className="text-destructive text-sm">
+                <p role="alert" className="text-destructive text-copy">
                   {errors.root.message}
                 </p>
               )}

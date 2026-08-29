@@ -4,7 +4,7 @@ import { cn } from '@/shared/styling/class-names/class-names'
 export function Table({ className, ...props }: React.ComponentProps<'table'>) {
   return (
     <div className="w-full overflow-x-auto rounded-lg border">
-      <table className={cn('w-full caption-bottom text-sm', className)} {...props} />
+      <table className={cn('w-full caption-bottom text-copy', className)} {...props} />
     </div>
   )
 }

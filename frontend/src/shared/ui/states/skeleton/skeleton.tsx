@@ -6,7 +6,7 @@ export function Skeleton({ className }: { className?: string }) {
     <span
       aria-hidden="true"
       className={cn(
-        'block animate-pulse rounded-[4px] bg-muted motion-reduce:animate-none',
+        'block animate-pulse rounded-badge bg-muted motion-reduce:animate-none',
         className,
       )}
     />

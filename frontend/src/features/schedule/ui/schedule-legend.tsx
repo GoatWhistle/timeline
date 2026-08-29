@@ -11,7 +11,7 @@ export function ScheduleLegend() {
   const { t } = useTranslation()
 
   return (
-    <ul className="flex flex-wrap gap-3 text-muted-foreground text-xs">
+    <ul className="flex flex-wrap gap-3 text-muted-foreground text-caption">
       {STAGE_TYPES.map((type) => {
         const Icon = STAGE_TYPE_ICON[type]
         return (

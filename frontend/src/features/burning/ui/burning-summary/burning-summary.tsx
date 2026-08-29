@@ -26,7 +26,7 @@ export function BurningSummaryStrip({ summary }: { summary: Summary }) {
             key={urgency}
             data-summary-level={urgency}
             className={cn(
-              'flex min-w-24 items-center gap-1.5 rounded-[6px] px-2.5 py-1',
+              'flex min-w-24 items-center gap-1.5 rounded-control px-2.5 py-1',
               count > 0 ? URGENCY_TEXT[urgency] : 'text-faint-foreground',
             )}
           >

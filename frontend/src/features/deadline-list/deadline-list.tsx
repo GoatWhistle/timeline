@@ -96,7 +96,7 @@ function DeadlineTable({
               <TableCell>
                 <span className="inline-flex items-center gap-1.5">
                   <Dot className={REGISTRATION_STATUS_COLOR[item.status]} />
-                  {REGISTRATION_STATUS_KEY[item.status]}
+                  {t(REGISTRATION_STATUS_KEY[item.status])}
                 </span>
               </TableCell>
             </TableRow>

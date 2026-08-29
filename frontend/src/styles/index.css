@@ -15,9 +15,14 @@
   --font-sans: "Geist Variable", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono Variable", "Geist Mono Fallback", ui-monospace, monospace;
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
+  --radius-sm: var(--radius-badge);
+  --radius-md: var(--radius-control);
+  --radius-lg: var(--radius-surface);
+
+  --radius-badge: var(--radius-badge);
+  --radius-control: var(--radius-control);
+  --radius-surface: var(--radius-surface);
+  --radius-pill: var(--radius-pill);
 
   --color-surface-0: var(--surface-0);
   --color-surface-1: var(--surface-1);

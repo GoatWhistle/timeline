@@ -8,7 +8,7 @@ import { spaceAfterOnLane } from '../../model/bar-label'
 import { nearestUpcomingId } from '../../model/nearest-moment'
 import { MIN_BAR_WIDTH, packLanes } from '../../model/pack-lanes'
 import type { RowItem } from '../../model/row-items'
-import { laneTop, rowHeight } from '../../model/schedule-scale'
+import { EVENT_SPAN_TOP, laneTop, rowHeight } from '../../model/schedule-scale'
 import { MomentMark } from '../moment-mark/moment-mark'
 import { StageBar } from '../stage-bar/stage-bar'
 import { StageStepper } from '../stage-stepper/stage-stepper'
@@ -88,12 +88,16 @@ function ScheduleRowView(props: ScheduleRowProps) {
       className={cn(styles.row, 'grid border-b last:border-b-0')}
       style={{ gridTemplateColumns: `${props.labelWidth}px ${canvasWidth}px` }}
     >
-      <td data-schedule-label className="sticky left-0 z-20 border-r bg-card px-3 py-3 align-top">
-        <div className="flex flex-col gap-1">
-          <Link to={href} tabIndex={-1} className="font-medium text-sm hover:underline">
+      <td
+        data-schedule-label
+        className={cn(styles.label, 'sticky left-0 z-20 border-r bg-card px-3')}
+        style={{ height }}
+      >
+        <div className="flex min-w-0 flex-col justify-center gap-0.5">
+          <Link to={href} tabIndex={-1} className="truncate font-medium text-copy hover:underline">
             {row.title}
           </Link>
-          <p className="text-muted-foreground text-caption">
+          <p className="truncate text-caption text-muted-foreground">
             {t(EVENT_STATE_KEY[row.state])}
             {row.team_role ? ` · ${row.team_role}` : ''}
           </p>
@@ -104,7 +108,7 @@ function ScheduleRowView(props: ScheduleRowProps) {
       <td ref={trackRef} data-schedule-track className="relative" style={{ height }}>
         <div
           className={styles.eventSpan}
-          style={{ left: eventSpan.left, width: eventSpan.width, top: 6 }}
+          style={{ left: eventSpan.left, width: eventSpan.width, top: EVENT_SPAN_TOP }}
           aria-hidden="true"
         />
 

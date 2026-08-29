@@ -11,7 +11,7 @@ export function formatShare(share: number): string {
   return `${Math.round(percent)}%`
 }
 
-const SHELL = 'flex min-w-24 flex-col gap-0.5 rounded-[6px] px-2.5 py-1.5'
+const SHELL = 'flex min-w-24 flex-col gap-0.5 rounded-control px-2.5 py-1.5'
 
 export function CoverageMetric() {
   const { t } = useTranslation('event')

@@ -29,7 +29,7 @@ export function SavedViewsNav({
             to={{ pathname: basePath, search: viewSearch(view) }}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex h-row items-center rounded-[6px] px-3 text-copy transition-colors duration-instant',
+              'flex h-row items-center rounded-control px-3 text-copy transition-colors duration-instant',
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
               active
                 ? 'bg-accent-surface font-medium text-accent-surface-foreground'

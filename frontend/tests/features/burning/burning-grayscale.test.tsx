@@ -112,3 +112,26 @@ describe('honest wording', () => {
     }
   })
 })
+
+describe('urgency announcement', () => {
+  it('does not repeat the urgency word when the visible label already is that word', () => {
+    const { container } = renderRows()
+    for (const mark of container.querySelectorAll<HTMLElement>('[data-urgency]')) {
+      const visible = mark.querySelector('.tabular')?.textContent?.trim()
+      const hidden = mark.querySelector('.sr-only')?.textContent?.trim()
+      if (visible === undefined || hidden === undefined) continue
+      expect(hidden).not.toBe(visible)
+    }
+  })
+
+  it('still spells out the urgency next to a countdown that does not name it', () => {
+    const view = renderWithProviders(
+      <UrgencyMark
+        urgency="overdue"
+        label={countdownLabel('overdue', '2026-08-27T00:00:00Z', NOW)}
+      />,
+    )
+    const mark = view.container.querySelector<HTMLElement>('[data-urgency="overdue"]')
+    expect(mark?.querySelector('.sr-only')?.textContent).toBeTruthy()
+  })
+})

@@ -95,7 +95,7 @@ export function StagesTab({ event }: { event: EventResponse }) {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>{STAGE_TYPE_KEY[stage.type]}</TableCell>
+                  <TableCell>{t(STAGE_TYPE_KEY[stage.type])}</TableCell>
                   <TableCell className="whitespace-nowrap text-muted-foreground">
                     {formatDateTime(stage.start_at)} — {formatDateTime(stage.end_at)}
                   </TableCell>

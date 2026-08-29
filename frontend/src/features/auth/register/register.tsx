@@ -108,7 +108,7 @@ export function RegisterPage() {
           </Field>
 
           {errors.root && (
-            <p role="alert" className="text-destructive text-sm">
+            <p role="alert" className="text-destructive text-copy">
               {errors.root.message}
             </p>
           )}
@@ -117,7 +117,7 @@ export function RegisterPage() {
             {isSubmitting ? <Spinner label={t('register.pending')} /> : t('register.submit')}
           </Button>
 
-          <p className="text-center text-sm">
+          <p className="text-center text-copy">
             {t('register.haveAccount')}{' '}
             <Link className="text-primary hover:underline" to="/login">
               {t('register.signIn')}

@@ -55,7 +55,7 @@ export function NavSection({ title, items }: { title: string; items: NavItem[] }
           end={to === '/'}
           className={({ isActive }) =>
             cn(
-              'flex h-row items-center gap-2 rounded-[6px] px-3 text-copy transition-colors duration-instant',
+              'flex h-row items-center gap-2 rounded-control px-3 text-copy transition-colors duration-instant',
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
               isActive
                 ? 'bg-accent-surface font-medium text-accent-surface-foreground'

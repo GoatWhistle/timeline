@@ -42,6 +42,7 @@ export function UrgencyMark({
   className?: string
 }) {
   const { t } = useTranslation('event')
+  const word = t(`urgency.${urgency}`)
 
   return (
     <span
@@ -56,7 +57,7 @@ export function UrgencyMark({
     >
       <UrgencyIcon urgency={urgency} />
       <span className="tabular whitespace-nowrap">{label}</span>
-      <span className="sr-only">{t(`urgency.${urgency}`)}</span>
+      {word === label ? null : <span className="sr-only">{word}</span>}
     </span>
   )
 }

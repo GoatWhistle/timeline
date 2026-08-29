@@ -96,7 +96,7 @@ export function RulesEditor({ eventId }: { eventId: string }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-copy">
           {t('rules.count', { count: rules.length, max: MAX_RULES })}
         </p>
         <Button onClick={() => openDialog(null)} disabled={limitReached}>

@@ -342,6 +342,7 @@
     "sectionProfile": "Profile",
     "sectionAppearance": "Appearance",
     "sectionNotifications": "Notifications",
+    "sectionSessions": "Sessions",
     "sectionDanger": "Account",
     "timezone": "Time zone",
     "timezoneHint": "All dates and deadlines are shown in this zone. Everything is stored in UTC."

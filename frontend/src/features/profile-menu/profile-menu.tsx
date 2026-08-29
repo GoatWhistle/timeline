@@ -8,7 +8,7 @@ import { useSettingsOverlay } from '@/features/settings-overlay/use-settings-ove
 import { cn } from '@/shared/styling/class-names/class-names'
 
 const ITEM = cn(
-  'flex h-8 cursor-pointer items-center gap-2 rounded-[6px] px-2 text-copy outline-none',
+  'flex h-8 cursor-pointer items-center gap-2 rounded-control px-2 text-copy outline-none',
   'data-[highlighted]:bg-accent-surface data-[highlighted]:text-accent-surface-foreground',
 )
 
@@ -37,7 +37,7 @@ export function ProfileMenu({
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
         className={cn(
-          'flex w-full items-center gap-2.5 rounded-[8px] p-2 text-left',
+          'flex w-full items-center gap-2.5 rounded-control p-2 text-left',
           'transition-colors duration-instant hover:bg-surface-3',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         )}
@@ -56,7 +56,7 @@ export function ProfileMenu({
           align="start"
           sideOffset={6}
           className={cn(
-            'z-50 min-w-56 rounded-[8px] border border-border bg-popover p-1 shadow-lg',
+            'z-50 min-w-56 rounded-control border border-border bg-popover p-1 shadow-lg',
             'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
             'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
           )}

@@ -68,7 +68,7 @@ export function StatusesTable({
               <span className="font-medium">{item.user.display_name}</span>
               <span className="ml-2 text-muted-foreground">{item.user.email}</span>
               {item.note && (
-                <p className="text-muted-foreground text-xs">
+                <p className="text-muted-foreground text-caption">
                   {t('statuses.note', { note: item.note })}
                 </p>
               )}
@@ -76,12 +76,12 @@ export function StatusesTable({
             <TableCell>
               <span className="inline-flex items-center gap-1.5">
                 <Dot className={REGISTRATION_STATUS_COLOR[item.status]} />
-                {REGISTRATION_STATUS_KEY[item.status]}
+                {t(REGISTRATION_STATUS_KEY[item.status])}
               </span>
             </TableCell>
             <TableCell className="text-muted-foreground">{item.todo_cycle}</TableCell>
             <TableCell className="text-muted-foreground">
-              {CHANGE_SOURCE_KEY[item.last_change_source]}
+              {t(CHANGE_SOURCE_KEY[item.last_change_source])}
             </TableCell>
             <TableCell className="text-muted-foreground">
               {item.registered_at ? formatDateTime(item.registered_at) : '—'}

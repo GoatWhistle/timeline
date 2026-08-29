@@ -49,7 +49,7 @@ export function CatalogCard({
         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
         layout === 'grid'
           ? 'h-full flex-col gap-2 rounded-lg border border-border bg-card p-3'
-          : 'shrink-0 items-center gap-3 border-border/60 border-b px-3 py-2.5',
+          : 'h-row-roomy shrink-0 items-center gap-3 border-border/60 border-b px-3',
         selected ? 'bg-accent-surface' : 'hover:bg-surface-3',
       )}
     >

@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { i18n, resources } from '@/shared/i18n/config'
 import { LOCALES } from '@/shared/i18n/locale'
@@ -82,5 +84,69 @@ describe('locale switching', () => {
 
     await i18n.changeLanguage('en')
     expect(i18n.t('event:state.ACTIVE')).toBe('Active')
+  })
+})
+
+const SOURCE_ROOT = resolve(process.cwd(), 'src')
+const PLURAL_SUFFIXES = ['', '_zero', '_one', '_two', '_few', '_many', '_other']
+const CALL = /\bt\(\s*'([^']+)'/g
+const NAMESPACE = /useTranslation\(\s*'([a-z]+)'\s*\)/
+const TITLE_KEY = /titleKey:\s*'([^']+)'/g
+
+function sourceFiles(dir: string): string[] {
+  const out: string[] = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) out.push(...sourceFiles(full))
+    else if (/\.tsx?$/.test(entry.name) && !entry.name.endsWith('.gen.ts')) out.push(full)
+  }
+  return out
+}
+
+function resolves(locale: 'ru' | 'en', namespace: string, key: string): boolean {
+  const tree = (resources[locale] as Record<string, Tree>)[namespace]
+  if (!tree) return false
+  return PLURAL_SUFFIXES.some((suffix) => {
+    const node = (key + suffix)
+      .split('.')
+      .reduce<string | Tree | undefined>(
+        (acc, part) => (acc && typeof acc === 'object' ? acc[part] : undefined),
+        tree,
+      )
+    return typeof node === 'string'
+  })
+}
+
+function referencedKeys(): { key: string; namespace: string; file: string }[] {
+  const found: { key: string; namespace: string; file: string }[] = []
+  for (const file of sourceFiles(SOURCE_ROOT)) {
+    const source = readFileSync(file, 'utf8')
+    const fallback = NAMESPACE.exec(source)?.[1] ?? 'common'
+    const raw = [...source.matchAll(CALL), ...source.matchAll(TITLE_KEY)].map((match) => match[1])
+    for (const literal of raw) {
+      if (literal === undefined || literal.includes('${') || literal.includes('{{')) continue
+      const [head, tail] = literal.includes(':') ? literal.split(':') : [fallback, literal]
+      if (head === undefined || tail === undefined) continue
+      found.push({ namespace: head, key: tail, file })
+    }
+  }
+  return found
+}
+
+describe('every key the code asks for exists', () => {
+  it('finds a large number of translation calls to check', () => {
+    expect(referencedKeys().length).toBeGreaterThan(200)
+  })
+
+  it('resolves in both languages', () => {
+    const unresolved: string[] = []
+    for (const { namespace, key, file } of referencedKeys()) {
+      for (const locale of LOCALES) {
+        if (!resolves(locale, namespace, key)) {
+          unresolved.push(`${locale} ${namespace}:${key} (${file})`)
+        }
+      }
+    }
+    expect([...new Set(unresolved)]).toEqual([])
   })
 })

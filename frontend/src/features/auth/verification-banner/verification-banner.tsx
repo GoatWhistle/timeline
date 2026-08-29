@@ -19,7 +19,7 @@ export function VerificationBanner() {
     >
       <div className="flex items-center gap-2">
         <MailWarning className="size-4 shrink-0" aria-hidden="true" />
-        <p className="text-sm">
+        <p className="text-copy">
           {t('banner.addressPrefix')} <strong>{user.email}</strong> {t('banner.unverified')}
         </p>
       </div>

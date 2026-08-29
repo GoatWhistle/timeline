@@ -115,7 +115,7 @@ export function CommandPalette({
               onMouseEnter={() => setActive(index)}
               onClick={() => choose(index)}
               className={cn(
-                'flex h-row-roomy w-full items-center gap-3 rounded-[6px] px-3 text-left',
+                'flex h-row-roomy w-full items-center gap-3 rounded-control px-3 text-left',
                 'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
                 index === active ? 'bg-accent-surface' : 'hover:bg-surface-3',
               )}

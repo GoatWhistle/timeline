@@ -25,12 +25,12 @@ export function Field({ label, htmlFor, error, hint, children, className }: Fiel
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
       {hint && !message && (
-        <p id={hintId} className="text-muted-foreground text-xs">
+        <p id={hintId} className="text-caption text-muted-foreground">
           {hint}
         </p>
       )}
       {message && (
-        <p id={errorId} role="alert" className="text-destructive text-xs">
+        <p id={errorId} role="alert" className="text-caption text-destructive">
           {message}
         </p>
       )}

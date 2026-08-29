@@ -84,7 +84,7 @@ export function LoginPage() {
           </Field>
 
           {errors.root && (
-            <p role="alert" className="text-destructive text-sm">
+            <p role="alert" className="text-destructive text-copy">
               {errors.root.message}
             </p>
           )}
@@ -93,7 +93,7 @@ export function LoginPage() {
             {isSubmitting ? <Spinner label={t('login.pending')} /> : t('login.submit')}
           </Button>
 
-          <div className="flex justify-between text-sm">
+          <div className="flex justify-between text-copy">
             <Link className="text-primary hover:underline" to="/forgot-password">
               {t('login.forgot')}
             </Link>

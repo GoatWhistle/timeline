@@ -45,7 +45,7 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
       </CardHeader>
       <CardContent>
         {pendingEmail && (
-          <p className="mb-4 rounded-md border border-dashed p-3 text-sm">
+          <p className="mb-4 rounded-md border border-dashed p-3 text-copy">
             {t('profile.emailPending')} <strong>{pendingEmail}</strong>
           </p>
         )}
@@ -79,7 +79,7 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
             />
           </Field>
           {emailForm.formState.errors.root && (
-            <p role="alert" className="text-destructive text-sm">
+            <p role="alert" className="text-destructive text-copy">
               {emailForm.formState.errors.root.message}
             </p>
           )}

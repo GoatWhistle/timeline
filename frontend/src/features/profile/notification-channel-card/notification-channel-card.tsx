@@ -76,8 +76,8 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
 
         <div className="flex items-center justify-between gap-4 rounded-md border p-4">
           <div>
-            <p className="font-medium text-sm">Telegram</p>
-            <p className="text-muted-foreground text-sm">
+            <p className="font-medium text-copy">Telegram</p>
+            <p className="text-muted-foreground text-copy">
               {user.telegram_linked
                 ? user.telegram_username
                   ? t('card.linkedAs', { username: user.telegram_username })
@@ -101,7 +101,7 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
         </div>
 
         {deepLink && (
-          <p className="text-sm">
+          <p className="text-copy">
             {t('card.deepLinkHint')}{' '}
             <ExternalLink className="text-primary hover:underline" href={deepLink}>
               {t('card.openTelegram')}
@@ -109,7 +109,7 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
           </p>
         )}
 
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-copy">
           <span className="text-muted-foreground">Email:</span>
           <span>{user.email}</span>
           {user.email_verified ? (

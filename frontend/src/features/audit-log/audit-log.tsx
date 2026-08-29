@@ -41,8 +41,8 @@ const DEFAULTS = { action: ALL, entity: ALL, from: '', to: '' }
 function DiffBlock({ title, value }: { title: string; value: unknown }) {
   return (
     <div className="min-w-0 flex-1">
-      <p className="mb-1 font-medium text-muted-foreground text-xs uppercase">{title}</p>
-      <pre className="overflow-x-auto rounded-md bg-muted p-3 text-xs">
+      <p className="mb-1 font-medium text-muted-foreground text-caption uppercase">{title}</p>
+      <pre className="overflow-x-auto rounded-md bg-muted p-3 text-caption">
         {value === undefined || value === null ? '—' : JSON.stringify(value, null, 2)}
       </pre>
     </div>
@@ -185,14 +185,14 @@ export function AdminAuditPage() {
           </DialogHeader>
           {detail && (
             <div className="flex flex-col gap-4">
-              <dl className="grid grid-cols-2 gap-3 text-sm">
+              <dl className="grid grid-cols-2 gap-3 text-copy">
                 <div>
                   <dt className="text-muted-foreground">{t('audit.columnActor')}</dt>
                   <dd>{detail.actor_email ?? t('audit.system')}</dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground">{t('audit.requestId')}</dt>
-                  <dd className="font-mono text-xs">{detail.request_id}</dd>
+                  <dd className="font-mono text-caption">{detail.request_id}</dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground">{t('audit.columnEntity')}</dt>
@@ -200,7 +200,7 @@ export function AdminAuditPage() {
                 </div>
                 <div>
                   <dt className="text-muted-foreground">{t('audit.entityId')}</dt>
-                  <dd className="font-mono text-xs">{detail.entity_id}</dd>
+                  <dd className="font-mono text-caption">{detail.entity_id}</dd>
                 </div>
               </dl>
               <div className="flex gap-4">

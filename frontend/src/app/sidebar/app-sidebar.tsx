@@ -48,7 +48,7 @@ export function AppSidebar({
             aria-expanded={!sidebar.collapsed}
             data-sidebar-toggle
             className={cn(
-              'flex size-6 shrink-0 items-center justify-center rounded-[6px] text-muted-foreground',
+              'flex size-6 shrink-0 items-center justify-center rounded-control text-muted-foreground',
               'transition-colors duration-instant hover:bg-surface-3 hover:text-foreground',
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
             )}

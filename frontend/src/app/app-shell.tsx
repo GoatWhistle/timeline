@@ -59,7 +59,7 @@ export function AppShell() {
             aria-expanded={false}
             data-sidebar-toggle
             className={cn(
-              'absolute top-2 left-2 z-30 flex size-7 items-center justify-center rounded-[6px]',
+              'absolute top-2 left-2 z-30 flex size-7 items-center justify-center rounded-control',
               'border border-border bg-card text-muted-foreground shadow-sm',
               'transition-colors duration-instant hover:bg-surface-3 hover:text-foreground',
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',

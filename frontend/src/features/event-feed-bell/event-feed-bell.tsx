@@ -25,7 +25,7 @@ export function EventFeedBell() {
       <DropdownMenu.Trigger
         aria-label={t('feed.open')}
         className={cn(
-          'relative flex h-8 w-8 items-center justify-center rounded-[8px]',
+          'relative flex h-8 w-8 items-center justify-center rounded-control',
           'transition-colors duration-instant hover:bg-surface-3',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         )}
@@ -41,7 +41,9 @@ export function EventFeedBell() {
         <DropdownMenu.Content
           align="end"
           sideOffset={8}
-          className={cn('z-50 w-80 rounded-[10px] border border-border bg-surface-1 p-2 shadow-lg')}
+          className={cn(
+            'z-50 w-80 rounded-surface border border-border bg-surface-1 p-2 shadow-lg',
+          )}
         >
           <div className={styles.header}>
             <span className="font-medium text-copy">{t('feed.title')}</span>

@@ -41,7 +41,7 @@ export function DetailPane({
       <button
         type="button"
         onClick={onClose}
-        className="sr-only focus:not-sr-only focus:m-2 focus:rounded-[6px] focus:border focus:px-3 focus:py-1.5 focus:text-meta"
+        className="sr-only focus:not-sr-only focus:m-2 focus:rounded-control focus:border focus:px-3 focus:py-1.5 focus:text-meta"
       >
         {t('pane.close')}
       </button>

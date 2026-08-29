@@ -10,8 +10,8 @@ export function ForbiddenPage() {
     <div className="flex flex-col items-center gap-4 py-24 text-center">
       <ShieldAlert className="size-10 text-muted-foreground" aria-hidden="true" />
       <div>
-        <h1 className="font-semibold text-xl">{t('page.forbiddenTitle')}</h1>
-        <p className="text-muted-foreground text-sm">{t('page.forbiddenHint')}</p>
+        <h1 className="font-semibold text-screen">{t('page.forbiddenTitle')}</h1>
+        <p className="text-muted-foreground text-copy">{t('page.forbiddenHint')}</p>
       </div>
       <Button asChild variant="outline">
         <Link to="/">{t('action.home')}</Link>

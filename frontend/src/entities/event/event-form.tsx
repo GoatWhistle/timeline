@@ -170,7 +170,7 @@ export function EventForm({
       </Field>
 
       {errors.root && (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-copy">
           {errors.root.message}
         </p>
       )}

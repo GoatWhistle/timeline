@@ -20,7 +20,7 @@ export function LanguageToggle({ className }: { className?: string }) {
           title={t(`language.${value}`)}
           className={cn(
             'inline-flex h-7 cursor-pointer items-center justify-center rounded-sm px-2',
-            'font-medium text-xs transition-colors duration-instant',
+            'font-medium text-caption transition-colors duration-instant',
             'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
             locale === value
               ? 'bg-accent-surface text-accent-surface-foreground'

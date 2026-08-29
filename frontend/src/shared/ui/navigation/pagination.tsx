@@ -18,7 +18,7 @@ export function Pagination({
 
   return (
     <nav aria-label={t('pagination.label')} className="flex items-center justify-between gap-4">
-      <p className="text-muted-foreground text-sm tabular">
+      <p className="text-meta text-muted-foreground tabular">
         {t('pagination.summary', { page: meta.page, pages, total: meta.total })}
       </p>
       <div className="flex gap-2">

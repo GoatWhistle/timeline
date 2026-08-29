@@ -76,10 +76,10 @@ export function ParticipantsTable({
             <TableCell>{item.team_role}</TableCell>
             <TableCell>
               <Badge tone={item.participation_status === 'ASSIGNED' ? 'primary' : 'danger'}>
-                {PARTICIPATION_STATUS_KEY[item.participation_status]}
+                {t(PARTICIPATION_STATUS_KEY[item.participation_status])}
               </Badge>
               {item.removed_at && (
-                <span className="ml-2 text-muted-foreground text-xs">
+                <span className="ml-2 text-muted-foreground text-caption">
                   {formatDate(item.removed_at)}
                 </span>
               )}
@@ -88,7 +88,7 @@ export function ParticipantsTable({
               {item.registration_status ? (
                 <span className="inline-flex items-center gap-1.5">
                   <Dot className={REGISTRATION_STATUS_COLOR[item.registration_status.status]} />
-                  {REGISTRATION_STATUS_KEY[item.registration_status.status]}
+                  {t(REGISTRATION_STATUS_KEY[item.registration_status.status])}
                 </span>
               ) : (
                 <span className="text-muted-foreground">—</span>

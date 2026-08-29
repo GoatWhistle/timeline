@@ -344,6 +344,7 @@
     "sectionProfile": "Профиль",
     "sectionAppearance": "Внешний вид",
     "sectionNotifications": "Уведомления",
+    "sectionSessions": "Сессии",
     "sectionDanger": "Аккаунт",
     "timezone": "Часовой пояс",
     "timezoneHint": "В этом поясе показываются все даты и сроки. Хранится всё в UTC."

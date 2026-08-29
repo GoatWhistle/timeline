@@ -28,9 +28,13 @@ export function resolveLayout(value: string): CatalogLayout {
 export const CATALOG_VIEW_KEYS = ['state', 'format', 'kind'] as const
 
 export const CATALOG_VIEWS: SavedView[] = [
-  { id: 'catalog-all', titleKey: 'catalog.views.all', params: {} },
-  { id: 'catalog-upcoming', titleKey: 'catalog.views.upcoming', params: { state: 'UPCOMING' } },
-  { id: 'catalog-active', titleKey: 'catalog.views.active', params: { state: 'ACTIVE' } },
-  { id: 'catalog-offline', titleKey: 'catalog.views.offline', params: { format: 'OFFLINE' } },
-  { id: 'catalog-meetups', titleKey: 'catalog.views.meetups', params: { kind: 'MEETUP' } },
+  { id: 'catalog-all', titleKey: 'event:catalog.views.all', params: {} },
+  {
+    id: 'catalog-upcoming',
+    titleKey: 'event:catalog.views.upcoming',
+    params: { state: 'UPCOMING' },
+  },
+  { id: 'catalog-active', titleKey: 'event:catalog.views.active', params: { state: 'ACTIVE' } },
+  { id: 'catalog-offline', titleKey: 'event:catalog.views.offline', params: { format: 'OFFLINE' } },
+  { id: 'catalog-meetups', titleKey: 'event:catalog.views.meetups', params: { kind: 'MEETUP' } },
 ]

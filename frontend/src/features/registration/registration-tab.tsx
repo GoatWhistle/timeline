@@ -109,7 +109,7 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
               {registration && (
                 <div className="flex shrink-0 items-center gap-2">
                   <Badge tone={registration.state === 'ACTIVE' ? 'primary' : 'danger'}>
-                    {REGISTRATION_STATE_KEY[registration.state]}
+                    {t(REGISTRATION_STATE_KEY[registration.state])}
                   </Badge>
                   <Button
                     variant="outline"
@@ -157,7 +157,7 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
               </Field>
 
               {errors.root && (
-                <p role="alert" className="text-destructive text-sm">
+                <p role="alert" className="text-destructive text-copy">
                   {errors.root.message}
                 </p>
               )}
@@ -170,7 +170,7 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
             </form>
 
             {registration && (
-              <dl className="mt-6 grid grid-cols-3 gap-4 border-t pt-4 text-sm">
+              <dl className="mt-6 grid grid-cols-3 gap-4 border-t pt-4 text-copy">
                 <div>
                   <dt className="text-muted-foreground">{t('tab.scheduleVersion')}</dt>
                   <dd className="font-medium">{registration.schedule_version}</dd>

@@ -41,7 +41,7 @@ export function PasswordResetRequest() {
       <CardContent>
         {isSubmitSuccessful && !errors.root ? (
           <div className="flex flex-col gap-4">
-            <p className="text-sm">{t('reset.requestSent')}</p>
+            <p className="text-copy">{t('reset.requestSent')}</p>
             <Button asChild variant="outline">
               <Link to="/login">{t('reset.backToLogin')}</Link>
             </Button>
@@ -58,7 +58,7 @@ export function PasswordResetRequest() {
               />
             </Field>
             {errors.root && (
-              <p role="alert" className="text-destructive text-sm">
+              <p role="alert" className="text-destructive text-copy">
                 {errors.root.message}
               </p>
             )}
@@ -69,7 +69,7 @@ export function PasswordResetRequest() {
                 t('reset.requestSubmit')
               )}
             </Button>
-            <p className="text-center text-sm">
+            <p className="text-center text-copy">
               <Link className="text-primary hover:underline" to="/login">
                 {t('reset.backToLogin')}
               </Link>

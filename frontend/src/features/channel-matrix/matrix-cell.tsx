@@ -26,7 +26,7 @@ export function MatrixCell({ state }: { state: CellState }) {
   return (
     <span
       className={cn(
-        'inline-flex size-7 items-center justify-center rounded-[6px] border',
+        'inline-flex size-7 items-center justify-center rounded-control border',
         TONE[state],
       )}
       title={label}

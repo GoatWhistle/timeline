@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { contrastRatio } from '@/styles/oklch'
+import { contrastRatio, oklchToSrgb } from '@/styles/oklch'
 import { loadTheme, resolve } from '@/styles/read-tokens'
 
 const TEXT_AA = 4.5
@@ -113,6 +113,23 @@ describe.each(THEMES)('token contrast, %s theme', (theme) => {
       expect(ratio(mark, bg)).toBeGreaterThanOrEqual(UI_AA)
     },
   )
+})
+
+const AVATAR_HUES = Array.from({ length: 360 }, (_, hue) => hue)
+
+const AVATAR_PAIRS = {
+  light: { fill: [0.88, 0.06] as const, ink: [0.34, 0.09] as const },
+  dark: { fill: [0.36, 0.07] as const, ink: [0.9, 0.05] as const },
+}
+
+describe.each(THEMES)('avatar initials contrast, %s theme', (theme) => {
+  const { fill, ink } = AVATAR_PAIRS[theme]
+
+  it.each(AVATAR_HUES)('hue %i keeps the initials readable at 4.5:1', (hue) => {
+    const background = oklchToSrgb(fill[0], fill[1], hue)
+    const foreground = oklchToSrgb(ink[0], ink[1], hue)
+    expect(contrastRatio(foreground, background)).toBeGreaterThanOrEqual(TEXT_AA)
+  })
 })
 
 describe('domain state distinctness', () => {

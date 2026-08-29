@@ -1,7 +1,6 @@
 :root {
   color-scheme: light dark;
 
-  --radius: 0.625rem;
   --radius-control: 6px;
   --radius-surface: 12px;
   --radius-badge: 4px;

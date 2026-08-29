@@ -10,6 +10,7 @@ export {
   isEditableTarget,
   isInteractiveTarget,
   isTypeAheadKey,
+  keyAliases,
   normalizeKey,
   resolveShortcut,
   type ShortcutDefinition,

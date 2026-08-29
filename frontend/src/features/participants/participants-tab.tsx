@@ -113,7 +113,7 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
 
       {selected.size > 0 && (
         <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-2">
-          <p className="text-sm">{t('participants.selected', { count: selected.size })}</p>
+          <p className="text-copy">{t('participants.selected', { count: selected.size })}</p>
           <Button variant="destructive" size="sm" onClick={onRemoveSelected}>
             <Trash2 className="size-4" />
             {t('participants.removeSelected')}

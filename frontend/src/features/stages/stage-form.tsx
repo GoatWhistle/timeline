@@ -172,7 +172,7 @@ export function StageForm({
               <SelectContent>
                 {STAGE_TYPES.map((type) => (
                   <SelectItem key={type} value={type}>
-                    {STAGE_TYPE_KEY[type]}
+                    {t(STAGE_TYPE_KEY[type])}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -191,7 +191,7 @@ export function StageForm({
       </div>
 
       {outOfRange && (
-        <p className="rounded-md border border-dashed p-3 text-sm">{t('stages.outOfRange')}</p>
+        <p className="rounded-md border border-dashed p-3 text-copy">{t('stages.outOfRange')}</p>
       )}
 
       <Field
@@ -222,7 +222,7 @@ export function StageForm({
       </Field>
 
       {errors.root && (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-copy">
           {errors.root.message}
         </p>
       )}

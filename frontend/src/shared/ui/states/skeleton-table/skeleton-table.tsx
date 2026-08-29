@@ -31,7 +31,7 @@ export function SkeletonTable({
       aria-busy="true"
     >
       <span className="sr-only">{t('state.loading')}</span>
-      <table className="w-full caption-bottom text-sm">
+      <table className="w-full caption-bottom text-copy">
         <thead className="[&_tr]:border-b">
           <tr className="border-b">
             {Array.from({ length: columns }, (_, index) => `skeleton-head-${index}`).map((key) => (

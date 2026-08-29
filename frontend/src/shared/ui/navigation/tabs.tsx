@@ -23,7 +23,7 @@ export function TabsTrigger({
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 font-medium text-sm transition-all',
+        'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 font-medium text-copy transition-all',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         'disabled:pointer-events-none disabled:opacity-50',
         'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',

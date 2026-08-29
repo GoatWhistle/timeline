@@ -22,13 +22,15 @@ export function EventPlaceSummary({
   const offline = stages.filter((stage) => isOffline(stage.place))
 
   return (
-    <div className="flex flex-col gap-2 text-sm">
+    <div className="flex flex-col gap-2 text-copy">
       <div className="flex items-center gap-2">
         <Badge tone="outline">
           <FormatIcon className="size-3" aria-hidden="true" />
           {t(EVENT_FORMAT_KEY[event.effective_format])}
         </Badge>
-        {derived && <span className="text-muted-foreground text-xs">{t('place.derivedHint')}</span>}
+        {derived && (
+          <span className="text-muted-foreground text-caption">{t('place.derivedHint')}</span>
+        )}
       </div>
 
       {offline.map((stage) => (

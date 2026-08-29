@@ -104,7 +104,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
     <div className="flex flex-col gap-4">
       {selected.size > 0 && (
         <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-2">
-          <p className="text-sm">{t('statuses.selected', { count: selected.size })}</p>
+          <p className="text-copy">{t('statuses.selected', { count: selected.size })}</p>
           <Button size="sm" onClick={openDialog}>
             {t('statuses.changeStatus')}
           </Button>
@@ -171,7 +171,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
                 <SelectContent>
                   {REGISTRATION_STATUSES.map((status) => (
                     <SelectItem key={status} value={status}>
-                      {REGISTRATION_STATUS_KEY[status]}
+                      {t(REGISTRATION_STATUS_KEY[status])}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -194,7 +194,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
               />
             )}
 
-            <div className="rounded-md border border-dashed p-3 text-sm">
+            <div className="rounded-md border border-dashed p-3 text-copy">
               {previewResult ? (
                 <Trans
                   t={t}

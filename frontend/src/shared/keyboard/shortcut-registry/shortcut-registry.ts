@@ -1,3 +1,5 @@
+import { toLatinLayout } from '../layout-map/layout-map'
+
 export type ShortcutScopeMode = 'normal' | 'exclusive'
 
 export type ShortcutGroup = 'navigation' | 'list' | 'action' | 'global'
@@ -47,6 +49,17 @@ export function normalizeKey(event: KeyEventLike): string {
   if (event.shiftKey && lower.length > 1) parts.push('shift')
   parts.push(lower === ' ' ? 'space' : lower)
   return parts.join('+')
+}
+
+export function keyAliases(event: KeyEventLike): string[] {
+  const pressed = normalizeKey(event)
+  if (event.key.length !== 1) return [pressed]
+
+  const latin = toLatinLayout(event.key)
+  if (latin === event.key.toLocaleLowerCase('ru')) return [pressed]
+
+  const transliterated = normalizeKey({ ...event, key: latin })
+  return transliterated === pressed ? [pressed] : [pressed, transliterated]
 }
 
 export function isEditableTarget(target: unknown): boolean {
@@ -169,12 +182,18 @@ export class ShortcutRegistry {
   }
 
   handle(event: KeyEventLike, target?: unknown, now = Date.now()): ShortcutDefinition | null {
-    const pressed = normalizeKey(event)
+    const aliases = keyAliases(event)
+    const pressed = aliases[0] ?? normalizeKey(event)
     if (this.chord !== null && now - this.chordAt > CHORD_TIMEOUT_MS) this.chord = null
 
     const typeAhead = !pressed.includes('+') && isTypeAheadKey(pressed)
     const editable = isEditableTarget(target) || (typeAhead && isInteractiveTarget(target))
-    const found = resolveShortcut(this.stack, pressed, this.chord, editable)
+
+    let found: ShortcutDefinition | null = null
+    for (const alias of aliases) {
+      found = resolveShortcut(this.stack, alias, this.chord, editable)
+      if (found) break
+    }
 
     if (found) {
       this.chord = null
@@ -183,8 +202,9 @@ export class ShortcutRegistry {
       return found
     }
 
-    if (this.chord === null && !editable && isChordPrefix(this.stack, pressed)) {
-      this.chord = pressed
+    const prefix = aliases.find((alias) => isChordPrefix(this.stack, alias))
+    if (this.chord === null && !editable && prefix !== undefined) {
+      this.chord = prefix
       this.chordAt = now
       this.emit()
       return null

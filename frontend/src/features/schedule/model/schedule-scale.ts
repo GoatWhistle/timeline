@@ -26,6 +26,9 @@ export const LANE_STEP = ROW_PITCH
 export const LANE_TOP = (ROW_PITCH - BAR_HEIGHT) / 2
 export const ROW_PADDING = LANE_TOP
 
+export const EVENT_SPAN_HEIGHT = 3
+export const EVENT_SPAN_TOP = LANE_TOP - EVENT_SPAN_HEIGHT
+
 export const DIAMOND_SIZE = 11
 export const DIAMOND_HIT = 20
 export const TODAY_DOT_SIZE = 6

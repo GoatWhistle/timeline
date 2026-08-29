@@ -48,14 +48,16 @@ export function EmailChangeConfirmPage() {
         {isError && (
           <div className="flex items-start gap-2" role="alert">
             <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden="true" />
-            <p className="text-sm">{isApiError(error) ? error.message : t('emailChange.failed')}</p>
+            <p className="text-copy">
+              {isApiError(error) ? error.message : t('emailChange.failed')}
+            </p>
           </div>
         )}
 
         {!isPending && !isError && (
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-status-done" aria-hidden="true" />
-            <p className="text-sm">{t('emailChange.changed')}</p>
+            <p className="text-copy">{t('emailChange.changed')}</p>
           </div>
         )}
 

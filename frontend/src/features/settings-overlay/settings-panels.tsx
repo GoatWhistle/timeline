@@ -73,10 +73,17 @@ export function SettingsPanel({ section, user }: { section: SettingsSectionId; u
     )
   }
 
-  if (section === 'danger') {
+  if (section === 'sessions') {
     return (
       <div className="flex flex-col gap-4">
         <DeviceList />
+      </div>
+    )
+  }
+
+  if (section === 'danger') {
+    return (
+      <div className="flex flex-col gap-4">
         <AccountActionsCard />
       </div>
     )

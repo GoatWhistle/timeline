@@ -12,8 +12,8 @@ export function PageHeader({
   return (
     <div className="mb-6 flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="font-semibold text-2xl tracking-tight">{title}</h1>
-        {description && <p className="mt-1 text-muted-foreground text-sm">{description}</p>}
+        <h1 className="font-semibold text-screen">{title}</h1>
+        {description && <p className="mt-1 text-meta text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>

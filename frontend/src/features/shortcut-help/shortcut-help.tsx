@@ -45,7 +45,7 @@ function KeyCap({ combo }: { combo: string }) {
       {keySteps(combo).map(({ id, label }) => (
         <kbd
           key={id}
-          className="rounded-[4px] border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-caption"
+          className="rounded-badge border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-caption"
         >
           {label}
         </kbd>

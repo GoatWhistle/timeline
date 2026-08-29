@@ -56,7 +56,7 @@ export function ParticipantsFilters({
               <SelectItem value={ALL}>{t('participants.anyStatus')}</SelectItem>
               {REGISTRATION_STATUSES.map((item) => (
                 <SelectItem key={item} value={item}>
-                  {REGISTRATION_STATUS_KEY[item]}
+                  {t(REGISTRATION_STATUS_KEY[item])}
                 </SelectItem>
               ))}
             </SelectContent>

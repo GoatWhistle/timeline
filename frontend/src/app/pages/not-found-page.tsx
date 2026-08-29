@@ -7,8 +7,8 @@ export function NotFoundPage() {
 
   return (
     <div className="flex flex-col items-center gap-4 py-24 text-center">
-      <h1 className="font-semibold text-xl">{t('page.notFoundTitle')}</h1>
-      <p className="text-muted-foreground text-sm">{t('page.notFoundHint')}</p>
+      <h1 className="font-semibold text-screen">{t('page.notFoundTitle')}</h1>
+      <p className="text-muted-foreground text-copy">{t('page.notFoundHint')}</p>
       <Button asChild variant="outline">
         <Link to="/">{t('action.home')}</Link>
       </Button>

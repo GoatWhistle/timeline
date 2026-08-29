@@ -20,7 +20,7 @@ export function ScopeTabs({
     <div
       role="tablist"
       aria-label={t('ops:scope.label')}
-      className="mb-4 inline-flex gap-1 rounded-[8px] border border-border bg-surface-2 p-1"
+      className="mb-4 inline-flex gap-1 rounded-control border border-border bg-surface-2 p-1"
     >
       {SCOPES.map(({ id, labelKey }) => (
         <button
@@ -30,7 +30,7 @@ export function ScopeTabs({
           aria-selected={value === id}
           onClick={() => onChange(id)}
           className={cn(
-            'h-8 rounded-[6px] px-3 text-copy transition-colors duration-instant',
+            'h-8 rounded-control px-3 text-copy transition-colors duration-instant',
             'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
             value === id
               ? 'bg-accent-surface font-medium text-accent-surface-foreground'

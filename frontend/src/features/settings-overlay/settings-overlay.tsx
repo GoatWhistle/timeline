@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/shared/api/session'
+import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Button } from '@/shared/ui/primitives/button'
 import { SETTINGS_SECTIONS } from './sections'
@@ -14,6 +15,7 @@ export function SettingsOverlay() {
   const { user } = useSession()
   const { open, section, setSection, closeSettings } = useSettingsOverlay()
   const activeRef = useRef<HTMLButtonElement>(null)
+  const returnFocus = useReturnFocus(open)
 
   useEffect(() => {
     if (open) activeRef.current?.focus()
@@ -38,9 +40,10 @@ export function SettingsOverlay() {
         />
         <DialogPrimitive.Content
           aria-label={t('settings.title')}
+          onCloseAutoFocus={returnFocus}
           className={cn(
             'fixed inset-0 z-50 m-auto flex h-[min(90vh,44rem)] w-[min(92vw,64rem)] overflow-hidden',
-            'rounded-[12px] border border-border bg-background shadow-lg',
+            'rounded-surface border border-border bg-background shadow-lg',
             'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
             'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
           )}
@@ -60,7 +63,7 @@ export function SettingsOverlay() {
                 aria-current={section === id ? 'page' : undefined}
                 onClick={() => setSection(id)}
                 className={cn(
-                  'flex h-row items-center gap-2 rounded-[6px] px-3 text-left text-copy',
+                  'flex h-row items-center gap-2 rounded-control px-3 text-left text-copy',
                   'transition-colors duration-instant',
                   'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
                   section === id

@@ -49,7 +49,7 @@ function Metric({
     </>
   )
 
-  const shell = 'flex min-w-20 flex-col gap-0.5 rounded-[6px] px-2.5 py-1.5 text-left'
+  const shell = 'flex min-w-20 flex-col gap-0.5 rounded-control px-2.5 py-1.5 text-left'
 
   if (!onSelect) return <div className={shell}>{body}</div>
 

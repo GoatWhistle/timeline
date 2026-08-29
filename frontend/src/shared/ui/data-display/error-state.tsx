@@ -20,9 +20,9 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
     >
       <AlertCircle className="size-8 text-destructive" aria-hidden="true" />
       <div>
-        <p className="font-medium">{message}</p>
+        <p className="font-medium text-copy">{message}</p>
         {requestId && (
-          <p className="font-mono text-muted-foreground text-xs">
+          <p className="font-mono text-caption text-muted-foreground">
             {t('state.requestId', { id: requestId })}
           </p>
         )}

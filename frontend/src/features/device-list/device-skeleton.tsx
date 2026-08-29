@@ -21,7 +21,7 @@ export function DeviceSkeleton({ rows = 3 }: { rows?: number }) {
               <Skeleton className="h-3 w-56" />
             </span>
           </div>
-          <Skeleton className="h-8 w-28 shrink-0 rounded-[6px]" />
+          <Skeleton className="h-8 w-28 shrink-0 rounded-control" />
         </div>
       ))}
     </div>
