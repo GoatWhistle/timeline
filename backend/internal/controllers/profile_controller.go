@@ -24,10 +24,23 @@ type ProfileService interface {
 type ProfileController struct {
 	svc     ProfileService
 	cookies CookieOptions
+	limiter Limiter
+	limit   int
+	window  time.Duration
 }
 
-func NewProfileController(svc ProfileService, cookies CookieOptions) *ProfileController {
-	return &ProfileController{svc: svc, cookies: cookies}
+func NewProfileController(svc ProfileService, cookies CookieOptions, limiter Limiter,
+	limit int, window time.Duration) *ProfileController {
+	return &ProfileController{svc: svc, cookies: cookies, limiter: limiter,
+		limit: limit, window: window}
+}
+
+func (c *ProfileController) allow(r *http.Request) bool {
+	if c.limiter == nil {
+		return true
+	}
+	return c.limiter.Allow("profile-update:"+middleware.ActorFrom(r).UserID.String(),
+		c.limit, c.window)
 }
 
 // @Summary	Your own profile
@@ -56,8 +69,13 @@ func (c *ProfileController) Get(w http.ResponseWriter, r *http.Request) {
 // @Success		200		{object}	models.MeResponse
 // @Failure		400		{object}	models.ErrorResponse
 // @Failure		401		{object}	models.ErrorResponse
+// @Failure		429		{object}	models.ErrorResponse
 // @Router			/me [patch]
 func (c *ProfileController) Update(w http.ResponseWriter, r *http.Request) {
+	if !c.allow(r) {
+		httpx.Error(w, r, models.NewRateLimited("too many profile updates, try again later"))
+		return
+	}
 	var req models.UpdateProfileRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)

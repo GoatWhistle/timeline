@@ -15,6 +15,10 @@ type MeResponse struct {
 	TelegramUsername *string   `json:"telegram_username,omitempty"`
 	TelegramLinked   bool      `json:"telegram_linked" example:"false"`
 	PreferredChannel *Channel  `json:"preferred_channel,omitempty" enums:"TELEGRAM,EMAIL"`
+	AvatarURL        *string   `json:"avatar_url,omitempty" example:"https://example.com/a.png"`
+	Bio              *string   `json:"bio,omitempty" example:"Backend developer"`
+	GithubURL        *string   `json:"github_url,omitempty" example:"https://github.com/ivan"`
+	WebsiteURL       *string   `json:"website_url,omitempty" example:"https://ivan.example.com"`
 	Locale           string    `json:"locale" example:"ru" enums:"ru,en"`
 	Timezone         string    `json:"timezone" example:"Europe/Moscow"`
 	IsAdmin          bool      `json:"is_admin" example:"false"`
@@ -27,6 +31,10 @@ type UpdateProfileRequest struct {
 	DisplayName      *string `json:"display_name,omitempty" example:"John Smith"`
 	PreferredChannel *string `json:"preferred_channel,omitempty" enums:"TELEGRAM,EMAIL"`
 	TelegramUsername *string `json:"telegram_username,omitempty" example:"@ivan"`
+	AvatarURL        *string `json:"avatar_url,omitempty" example:"https://example.com/a.png"`
+	Bio              *string `json:"bio,omitempty" example:"Backend developer"`
+	GithubURL        *string `json:"github_url,omitempty" example:"https://github.com/ivan"`
+	WebsiteURL       *string `json:"website_url,omitempty" example:"https://ivan.example.com"`
 	Locale           *string `json:"locale,omitempty" example:"en" enums:"ru,en"`
 	Timezone         *string `json:"timezone,omitempty" example:"Asia/Tokyo"`
 }
@@ -37,6 +45,14 @@ type ProfilePatch struct {
 	ClearTelegramUsername bool
 	PreferredChannel      *Channel
 	ClearPreferredChannel bool
+	AvatarURL             *string
+	ClearAvatarURL        bool
+	Bio                   *string
+	ClearBio              bool
+	GithubURL             *string
+	ClearGithubURL        bool
+	WebsiteURL            *string
+	ClearWebsiteURL       bool
 	Locale                *string
 	Timezone              *string
 }

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var allowedPrefixes = []string{"notification.", "email.", "duration."}
+var allowedPrefixes = []string{"notification.", "email.", "duration.", "digest."}
 
 func TestBackendCatalogHoldsOnlyWorkerRenderedText(t *testing.T) {
 	for _, lang := range []string{"ru", "en"} {

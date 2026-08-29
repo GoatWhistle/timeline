@@ -2830,6 +2830,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/calendar/{token}/feed.ics": {
+            "get": {
+                "description": "Returns the owner's schedule as an iCalendar document (RFC 5545) with the\nmedia type text/calendar. This is the only unauthenticated endpoint in the\nsystem that returns personal data, and everything about it follows from that\n(specification 5.6).\n\nThe token in the path is the whole credential: there is no session, no cookie\nand no CSRF check, because a calendar client sends none of them. The address is\nfetched by Google, Apple or Microsoft servers rather than by the owner's\ndevice, so it cannot be bound to a device or an address range.\n\nThe content is exactly what the owner sees in GET /me/schedule: their assigned\npublished events, the stages of those events and the registration deadline.\nNo other participant, no administrative field and nothing from the personal\nlayer appears here — widening the feed would be a privilege escalation through\na channel that has no authentication.\n\nAn unknown, malformed or revoked token answers 404, and so does the feed of a\ndeactivated account. A revoked token and one that never existed are\ndeliberately indistinguishable: 403 would confirm that the address was once\nreal. Rate limiting is keyed on the presented token, since there is no account\ncontext until the token has been resolved.",
+                "produces": [
+                    "text/calendar"
+                ],
+                "tags": [
+                    "calendar"
+                ],
+                "summary": "The calendar feed itself",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Feed secret",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "iCalendar document",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "unknown, revoked or malformed token",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/catalog": {
             "get": {
                 "security": [
@@ -3646,6 +3687,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -3902,6 +3949,153 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/calendar-feed": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Tells whether a calendar feed is currently issued for the caller and when it\nwas last fetched by a calendar client.\n\nThe address itself is never returned here. The secret exists exactly once, in\nthe response that issued or rotated it (specification 5.6.1): a feed URL is a\nbearer credential, the database keeps only its hash, and an endpoint that\nhanded it back on demand would turn any read of this resource into a way to\nrecover it. A lost address is replaced by rotation, not recovered.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calendar"
+                ],
+                "summary": "State of the own calendar feed",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CalendarFeedResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Creates the caller's calendar feed and returns its address once. The address\ncarries a secret of at least 128 bits; only its hash reaches the database.\n\nOne feed per account (specification 5.6.1). When a feed already exists the\ncall answers 409 rather than silently issuing a second address: rotation is an\nexplicit operation, so that replacing a feed is never something that happens by\naccident to a subscription living in someone's calendar service.\n\nThe issue is written to the audit log — it is an account security operation of\nthe same kind as revoking a session — but neither the secret nor its hash is\nrecorded there.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calendar"
+                ],
+                "summary": "Issue a calendar feed",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.CalendarFeedSecretResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "a feed already exists; rotate it instead",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Stops the caller's feed. Idempotent: revoking an absent or already revoked\nfeed answers 204 as well.\n\nThe row is not deleted — it keeps the token hash taken and records that the\naddress was deliberately revoked rather than lost. After this the address\nanswers 404, indistinguishable from one that never existed.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calendar"
+                ],
+                "summary": "Revoke the calendar feed",
+                "responses": {
+                    "204": {
+                        "description": "the feed is revoked"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/calendar-feed/rotate": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Revokes the current address and issues a new one in a single transaction. The\nprevious address stops working immediately: every calendar already subscribed\nto it starts receiving 404 and must be re-subscribed to the new address.\n\nThis is the response to a leaked feed URL. Because the address is a bearer\ncredential stored on third-party servers, there is no narrower remedy: the\nholder of a leaked URL cannot be identified or blocked individually.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calendar"
+                ],
+                "summary": "Rotate the calendar feed",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CalendarFeedSecretResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -6052,7 +6246,9 @@ const docTemplate = `{
                 "RULE_CHANGE",
                 "RESOURCE_LINK_CREATE",
                 "RESOURCE_LINK_UPDATE",
-                "RESOURCE_LINK_DELETE"
+                "RESOURCE_LINK_DELETE",
+                "CALENDAR_FEED_ISSUE",
+                "CALENDAR_FEED_REVOKE"
             ],
             "x-enum-varnames": [
                 "AuditUserRegister",
@@ -6080,7 +6276,9 @@ const docTemplate = `{
                 "AuditRuleChange",
                 "AuditLinkCreate",
                 "AuditLinkUpdate",
-                "AuditLinkDelete"
+                "AuditLinkDelete",
+                "AuditCalendarFeedIssue",
+                "AuditCalendarFeedRevoke"
             ]
         },
         "models.AuditPage": {
@@ -6257,6 +6455,33 @@ const docTemplate = `{
                 "header_name": {
                     "type": "string",
                     "example": "X-CSRF-Token"
+                }
+            }
+        },
+        "models.CalendarFeedResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "last_used_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CalendarFeedSecretResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://timeline.example.com/api/v1/calendar/9Qk3.../feed.ics"
                 }
             }
         },
@@ -6902,7 +7127,8 @@ const docTemplate = `{
                 "REGISTRATION",
                 "REGISTRATION_STATUS",
                 "NOTIFICATION_RULE",
-                "RESOURCE_LINK"
+                "RESOURCE_LINK",
+                "CALENDAR_FEED"
             ],
             "x-enum-varnames": [
                 "EntityUser",
@@ -6913,7 +7139,8 @@ const docTemplate = `{
                 "EntityRegistration",
                 "EntityRegistrationStatus",
                 "EntityNotificationRule",
-                "EntityResourceLink"
+                "EntityResourceLink",
+                "EntityCalendarFeed"
             ]
         },
         "models.ErrorBody": {
@@ -7389,6 +7616,14 @@ const docTemplate = `{
         "models.MeResponse": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://example.com/a.png"
+                },
+                "bio": {
+                    "type": "string",
+                    "example": "Backend developer"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -7403,6 +7638,10 @@ const docTemplate = `{
                 "email_verified": {
                     "type": "boolean",
                     "example": true
+                },
+                "github_url": {
+                    "type": "string",
+                    "example": "https://github.com/ivan"
                 },
                 "id": {
                     "type": "string"
@@ -7450,6 +7689,10 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                },
+                "website_url": {
+                    "type": "string",
+                    "example": "https://ivan.example.com"
                 }
             }
         },
@@ -9116,9 +9359,21 @@ const docTemplate = `{
         "models.UpdateProfileRequest": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://example.com/a.png"
+                },
+                "bio": {
+                    "type": "string",
+                    "example": "Backend developer"
+                },
                 "display_name": {
                     "type": "string",
                     "example": "John Smith"
+                },
+                "github_url": {
+                    "type": "string",
+                    "example": "https://github.com/ivan"
                 },
                 "locale": {
                     "type": "string",
@@ -9142,6 +9397,10 @@ const docTemplate = `{
                 "timezone": {
                     "type": "string",
                     "example": "Asia/Tokyo"
+                },
+                "website_url": {
+                    "type": "string",
+                    "example": "https://ivan.example.com"
                 }
             }
         },

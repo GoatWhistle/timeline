@@ -184,6 +184,8 @@ const (
 	AuditLinkCreate          AuditAction = "RESOURCE_LINK_CREATE"
 	AuditLinkUpdate          AuditAction = "RESOURCE_LINK_UPDATE"
 	AuditLinkDelete          AuditAction = "RESOURCE_LINK_DELETE"
+	AuditCalendarFeedIssue   AuditAction = "CALENDAR_FEED_ISSUE"
+	AuditCalendarFeedRevoke  AuditAction = "CALENDAR_FEED_REVOKE"
 )
 
 type EntityType string
@@ -198,4 +200,5 @@ const (
 	EntityRegistrationStatus EntityType = "REGISTRATION_STATUS"
 	EntityNotificationRule   EntityType = "NOTIFICATION_RULE"
 	EntityResourceLink       EntityType = "RESOURCE_LINK"
+	EntityCalendarFeed       EntityType = "CALENDAR_FEED"
 )

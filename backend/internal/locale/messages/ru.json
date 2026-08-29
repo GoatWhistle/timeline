@@ -21,5 +21,15 @@
   "duration.hour.many": "%d часов",
   "duration.minute.one": "%d минуту",
   "duration.minute.few": "%d минуты",
-  "duration.minute.many": "%d минут"
+  "duration.minute.many": "%d минут",
+  "digest.weekly.subject": "Что на этой неделе в Timeline",
+  "digest.weekly.intro": "Ваша неделя с {{from}} по {{to}} ({{timezone}}):",
+  "digest.weekly.line": "{{when}} — {{kind}}: {{what}} ({{event}})",
+  "digest.kind.deadline": "дедлайн регистрации",
+  "digest.kind.stage": "начало этапа",
+  "digest.kind.task": "личная задача",
+  "digest.kind.other": "запись",
+  "digest.entry.one": "%d запись",
+  "digest.entry.few": "%d записи",
+  "digest.entry.many": "%d записей"
 }

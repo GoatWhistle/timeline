@@ -41,6 +41,7 @@ const (
 	EventRegistrationReminder      SystemEventType = "REGISTRATION_REMINDER"
 	EventPersonalTaskDue           SystemEventType = "PERSONAL_TASK_DUE"
 	EventPersonalRetrospectiveDue  SystemEventType = "PERSONAL_RETROSPECTIVE_DUE"
+	EventWeeklyDigest              SystemEventType = "WEEKLY_DIGEST"
 )
 
 type SystemEvent struct {

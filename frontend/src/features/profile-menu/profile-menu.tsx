@@ -16,10 +16,12 @@ export function ProfileMenu({
   userId,
   displayName,
   email,
+  avatarUrl,
 }: {
   userId: string
   displayName?: string | null
   email?: string | null
+  avatarUrl?: string | null
 }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -40,7 +42,7 @@ export function ProfileMenu({
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         )}
       >
-        <UserAvatar seed={userId} displayName={displayName} />
+        <UserAvatar seed={userId} displayName={displayName} avatarUrl={avatarUrl} />
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium text-copy">{displayName}</span>
           <span className="block truncate text-caption text-muted-foreground">{email}</span>

@@ -29,6 +29,7 @@ type Deps struct {
 	Realtime      RealtimeHub
 	Sessions      SessionChecker
 	Links         ResourceLinkService
+	CalendarFeeds CalendarFeedService
 
 	Authenticator middleware.Authenticator
 	Metrics       http.Handler
@@ -39,6 +40,8 @@ type Deps struct {
 	CatalogRateWindow  time.Duration
 	SessionRate        int
 	SessionRateWindow  time.Duration
+	ProfileRate        int
+	ProfileRateWindow  time.Duration
 	PreviewRate        int
 	PreviewRateWindow  time.Duration
 	QueueRate          int
@@ -47,6 +50,10 @@ type Deps struct {
 	PersonalRateWindow time.Duration
 	FeedRate           int
 	FeedRateWindow     time.Duration
+	CalendarRate       int
+	CalendarRateWindow time.Duration
+	ICSRate            int
+	ICSRateWindow      time.Duration
 	RealtimeRate       int
 	RealtimeRateWindow time.Duration
 	RealtimePing       time.Duration

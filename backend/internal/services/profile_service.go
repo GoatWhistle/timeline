@@ -18,6 +18,7 @@ type ProfileService struct {
 	users    *identity.Users
 	tokens   *identity.Tokens
 	sessions *identity.Sessions
+	feeds    *identity.CalendarFeeds
 	notifier *NotificationService
 	audit    *AuditService
 	hasher   *PasswordHasher
@@ -61,15 +62,25 @@ func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req mod
 			return err
 		}
 		return s.audit.Record(ctx, actor, models.AuditUserProfileChange, models.EntityUser, actor.UserID,
-			map[string]any{"display_name": before.DisplayName, "preferred_channel": before.PreferredChannel,
-				"locale": before.Locale},
-			map[string]any{"display_name": updated.DisplayName, "preferred_channel": updated.PreferredChannel,
-				"locale": updated.Locale})
+			profileSnapshot(before), profileSnapshot(updated))
 	})
 	if err != nil {
 		return nil, err
 	}
 	return updated, nil
+}
+
+func profileSnapshot(u *models.User) map[string]any {
+	return map[string]any{
+		"display_name":      u.DisplayName,
+		"preferred_channel": u.PreferredChannel,
+		"locale":            u.Locale,
+		"timezone":          u.Timezone,
+		"avatar_url":        u.AvatarURL,
+		"github_url":        u.GithubURL,
+		"website_url":       u.WebsiteURL,
+		"bio_set":           u.Bio != nil,
+	}
 }
 
 func (s *ProfileService) StartTelegramLink(ctx context.Context, actor models.Actor) (string, time.Time, error) {
@@ -186,7 +197,7 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 }
 
 func (s *ProfileService) Deactivate(ctx context.Context, actor models.Actor) error {
-	if err := deactivateUser(ctx, s.db, s.users, s.sessions, s.notifier,
+	if err := deactivateUser(ctx, s.db, s.users, s.sessions, s.feeds, s.notifier,
 		s.audit, actor, actor.UserID); err != nil {
 		return err
 	}
@@ -195,8 +206,8 @@ func (s *ProfileService) Deactivate(ctx context.Context, actor models.Actor) err
 }
 
 func deactivateUser(ctx context.Context, db *postgres.DB, users *identity.Users,
-	sessions *identity.Sessions, notifier *NotificationService, audit *AuditService,
-	actor models.Actor, userID uuid.UUID) error {
+	sessions *identity.Sessions, feeds *identity.CalendarFeeds, notifier *NotificationService,
+	audit *AuditService, actor models.Actor, userID uuid.UUID) error {
 	return db.WithTx(ctx, func(ctx context.Context) error {
 		user, err := users.GetByID(ctx, userID)
 		if err != nil {
@@ -210,6 +221,11 @@ func deactivateUser(ctx context.Context, db *postgres.DB, users *identity.Users,
 		}
 		if err := sessions.RevokeAllForUser(ctx, userID); err != nil {
 			return err
+		}
+		if feeds != nil {
+			if _, err := feeds.RevokeAllForUser(ctx, userID); err != nil {
+				return err
+			}
 		}
 		if err := users.ClearTelegram(ctx, userID); err != nil {
 			return err

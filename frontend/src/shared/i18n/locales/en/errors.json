@@ -3,6 +3,7 @@
   "already_assigned": "The participant is already assigned to this event.",
   "already_deleted": "The account has already been deleted.",
   "already_disabled": "The record is already disabled.",
+  "calendar_feed_exists": "A calendar feed already exists. Rotate it to get a new address.",
   "already_inactive": "The account is already deactivated.",
   "already_present": "A task with this title already exists.",
   "already_removed": "The participant has already been removed from the roster.",

@@ -82,7 +82,10 @@
     "forbiddenHint": "Раздел доступен только администратору системы."
   },
   "validation": {
-    "invalidValue": "Некорректное значение"
+    "invalidValue": "Некорректное значение",
+    "linkTooLong": "Адрес слишком длинный",
+    "linkScheme": "Такой адрес нельзя открыть в браузере",
+    "bioTooLong": "Текст слишком длинный"
   },
   "batch": {
     "succeeded": "Успешно: {{count}}",
@@ -239,7 +242,21 @@
     "currentPasswordRequired": "Введите текущий пароль",
     "sendConfirmation": "Отправить подтверждение",
     "emailSent": "Письмо отправлено",
-    "emailSentHint": "Адрес изменится только после подтверждения по ссылке из письма"
+    "emailSentHint": "Адрес изменится только после подтверждения по ссылке из письма",
+    "linksTitle": "Ссылки и о себе",
+    "avatar_url": "Ссылка на аватар",
+    "avatar_urlHint": "Изображение по адресу заменит инициалы. Пустое поле возвращает инициалы.",
+    "avatar_urlPlaceholder": "https://example.org/avatar.png",
+    "github_url": "GitHub",
+    "github_urlHint": "Профиль на GitHub",
+    "github_urlPlaceholder": "https://github.com/username",
+    "website_url": "Сайт",
+    "website_urlHint": "Личная страница или портфолио",
+    "website_urlPlaceholder": "https://example.org",
+    "bio": "О себе",
+    "bioHint": "Свободный текст, не более {{count}} символов. Виден другим участникам.",
+    "bioCount": "{{current}} из {{max}}",
+    "linkOpens": "Откроется:"
   },
   "schedule": {
     "title": "Шкала",

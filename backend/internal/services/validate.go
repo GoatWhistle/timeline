@@ -139,6 +139,9 @@ func profilePatch(req models.UpdateProfileRequest) (models.ProfilePatch, error) 
 			patch.TelegramUsername = &value
 		}
 	}
+	if err := profileLinks(req, &patch); err != nil {
+		return patch, err
+	}
 	if req.Locale != nil {
 		value, err := parseLocale("locale", *req.Locale)
 		if err != nil {
@@ -154,6 +157,54 @@ func profilePatch(req models.UpdateProfileRequest) (models.ProfilePatch, error) 
 		patch.Timezone = &value
 	}
 	return patch, nil
+}
+
+func clearableURL(field string, raw *string, target **string, reset *bool) error {
+	if raw == nil {
+		return nil
+	}
+	if strings.TrimSpace(*raw) == "" {
+		*reset = true
+		return nil
+	}
+	value, err := validateURL(field, *raw)
+	if err != nil {
+		return err
+	}
+	if utf8.RuneCountInString(value) > 2048 {
+		return models.NewValidation("value is too long",
+			models.FieldError{Field: field, Message: "at most 2048 characters"})
+	}
+	*target = &value
+	return nil
+}
+
+func profileLinks(req models.UpdateProfileRequest, patch *models.ProfilePatch) error {
+	if err := clearableURL("avatar_url", req.AvatarURL,
+		&patch.AvatarURL, &patch.ClearAvatarURL); err != nil {
+		return err
+	}
+	if err := clearableURL("github_url", req.GithubURL,
+		&patch.GithubURL, &patch.ClearGithubURL); err != nil {
+		return err
+	}
+	if err := clearableURL("website_url", req.WebsiteURL,
+		&patch.WebsiteURL, &patch.ClearWebsiteURL); err != nil {
+		return err
+	}
+	if req.Bio == nil {
+		return nil
+	}
+	if strings.TrimSpace(*req.Bio) == "" {
+		patch.ClearBio = true
+		return nil
+	}
+	value, err := validateText("bio", *req.Bio, 1, 2000)
+	if err != nil {
+		return err
+	}
+	patch.Bio = &value
+	return nil
 }
 
 func itoa(n int) string { return strconv.Itoa(n) }

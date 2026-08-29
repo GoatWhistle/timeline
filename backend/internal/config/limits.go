@@ -13,6 +13,12 @@ type Personal struct {
 	ReminderBatch        int
 }
 
+type Digest struct {
+	Interval time.Duration
+	Batch    int
+	MaxItems int
+}
+
 type ResourceLinks struct {
 	MaxPerEvent         int
 	MaxPersonalPerEvent int
@@ -28,6 +34,14 @@ func loadPersonal() Personal {
 		RetrospectiveDelay:   envDuration("PERSONAL_RETROSPECTIVE_DELAY", 48*time.Hour),
 		RetrospectiveGrace:   envDuration("PERSONAL_RETROSPECTIVE_GRACE", 14*24*time.Hour),
 		ReminderBatch:        envInt("PERSONAL_REMINDER_BATCH", 200),
+	}
+}
+
+func loadDigest() Digest {
+	return Digest{
+		Interval: envDuration("DIGEST_INTERVAL", time.Hour),
+		Batch:    envInt("DIGEST_BATCH", 200),
+		MaxItems: envInt("DIGEST_MAX_ITEMS", 50),
 	}
 }
 

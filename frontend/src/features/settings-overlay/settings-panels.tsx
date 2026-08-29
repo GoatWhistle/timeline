@@ -6,6 +6,7 @@ import { AccountActionsCard } from '@/features/profile/account-actions-card/acco
 import { EmailChangeCard } from '@/features/profile/email-change-card/email-change-card'
 import { NotificationChannelCard } from '@/features/profile/notification-channel-card/notification-channel-card'
 import { PersonalDataCard } from '@/features/profile/personal-data-card/personal-data-card'
+import { ProfileLinksCard } from '@/features/profile/profile-links-card/profile-links-card'
 import type { MeResponse } from '@/shared/api/types.gen'
 import { SYSTEM_TIME_ZONE } from '@/shared/datetime/datetime'
 import { LanguageToggle } from '@/shared/ui/primitives/language-toggle'
@@ -84,6 +85,7 @@ export function SettingsPanel({ section, user }: { section: SettingsSectionId; u
   return (
     <div className="flex flex-col gap-4">
       <PersonalDataCard displayName={user.display_name ?? ''} />
+      <ProfileLinksCard user={user} />
       <EmailChangeCard pendingEmail={user.pending_email} />
     </div>
   )

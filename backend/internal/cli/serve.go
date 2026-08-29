@@ -74,6 +74,29 @@ func serve(ctx context.Context) error {
 	return nil
 }
 
+func applyRateLimits(deps *controllers.Deps, c *container) {
+	deps.Limiter = c.limiter
+	deps.CatalogRate = c.cfg.RateLim.CatalogRequests
+	deps.CatalogRateWindow = c.cfg.RateLim.CatalogWindow
+	deps.SessionRate = c.cfg.RateLim.SessionRequests
+	deps.SessionRateWindow = c.cfg.RateLim.SessionWindow
+	deps.ProfileRate = c.cfg.RateLim.ProfileRequests
+	deps.ProfileRateWindow = c.cfg.RateLim.ProfileWindow
+	deps.PreviewRate = c.cfg.RateLim.PreviewRequests
+	deps.PreviewRateWindow = c.cfg.RateLim.PreviewWindow
+	deps.QueueRate = c.cfg.RateLim.QueueRequests
+	deps.QueueRateWindow = c.cfg.RateLim.QueueWindow
+	deps.PersonalRate = c.cfg.RateLim.PersonalRequests
+	deps.PersonalRateWindow = c.cfg.RateLim.PersonalWindow
+	deps.LinkRate = c.cfg.RateLim.LinkRequests
+	deps.LinkRateWindow = c.cfg.RateLim.LinkWindow
+	deps.FeedRate = c.cfg.RateLim.FeedRequests
+	deps.FeedRateWindow = c.cfg.RateLim.FeedWindow
+	deps.RealtimeRate = c.cfg.RateLim.RealtimeAttempts
+	deps.RealtimeRateWindow = c.cfg.RateLim.RealtimeWindow
+	deps.RealtimePing = c.cfg.Realtime.PingInterval
+}
+
 func newRouter(c *container) http.Handler {
 	deps := controllers.Deps{
 		Auth:          c.auth,
@@ -99,25 +122,6 @@ func newRouter(c *container) http.Handler {
 		Authenticator: c.auth,
 		Metrics:       promhttp.Handler(),
 
-		Limiter:            c.limiter,
-		CatalogRate:        c.cfg.RateLim.CatalogRequests,
-		CatalogRateWindow:  c.cfg.RateLim.CatalogWindow,
-		SessionRate:        c.cfg.RateLim.SessionRequests,
-		SessionRateWindow:  c.cfg.RateLim.SessionWindow,
-		PreviewRate:        c.cfg.RateLim.PreviewRequests,
-		PreviewRateWindow:  c.cfg.RateLim.PreviewWindow,
-		QueueRate:          c.cfg.RateLim.QueueRequests,
-		QueueRateWindow:    c.cfg.RateLim.QueueWindow,
-		PersonalRate:       c.cfg.RateLim.PersonalRequests,
-		PersonalRateWindow: c.cfg.RateLim.PersonalWindow,
-		LinkRate:           c.cfg.RateLim.LinkRequests,
-		LinkRateWindow:     c.cfg.RateLim.LinkWindow,
-		FeedRate:           c.cfg.RateLim.FeedRequests,
-		FeedRateWindow:     c.cfg.RateLim.FeedWindow,
-		RealtimeRate:       c.cfg.RateLim.RealtimeAttempts,
-		RealtimeRateWindow: c.cfg.RateLim.RealtimeWindow,
-		RealtimePing:       c.cfg.Realtime.PingInterval,
-
 		Cookies:      controllers.CookieOptions{Domain: c.cfg.HTTP.CookieDomain, Secure: c.cfg.HTTP.CookieSecure},
 		PublicURL:    c.cfg.App.PublicURL,
 		CORSOrigins:  c.cfg.HTTP.CORSOrigins,
@@ -127,6 +131,7 @@ func newRouter(c *container) http.Handler {
 		UserPageSize: c.cfg.Ops.UserSearchPageSize,
 		CSRFTTL:      c.cfg.Auth.RefreshTTL,
 	}
+	applyRateLimits(&deps, c)
 	if c.cfg.Realtime.Enabled {
 		deps.Realtime = c.hub
 		deps.Sessions = c.auth

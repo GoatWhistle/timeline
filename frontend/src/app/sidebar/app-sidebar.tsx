@@ -69,7 +69,12 @@ export function AppSidebar({
         {user && (
           <div className="flex items-center gap-1">
             <div className="min-w-0 flex-1">
-              <ProfileMenu userId={user.id} displayName={user.display_name} email={user.email} />
+              <ProfileMenu
+                userId={user.id}
+                displayName={user.display_name}
+                email={user.email}
+                avatarUrl={user.avatar_url}
+              />
             </div>
             <EventFeedBell />
           </div>

@@ -16,13 +16,15 @@ type Users struct{ db *postgres.DB }
 func NewUsers(db *postgres.DB) *Users { return &Users{db: db} }
 
 const userColumns = `id, display_name, email, pending_email, password_hash, email_verified_at,
-	telegram_username, telegram_chat_id, preferred_channel, locale, timezone, is_admin, is_active,
-	deleted_at, created_at, updated_at`
+	telegram_username, telegram_chat_id, preferred_channel, avatar_url, bio, github_url, website_url,
+	locale, timezone, is_admin, is_active, deleted_at, created_at, updated_at`
 
 func scanUser(row pgx.Row) (*models.User, error) {
 	var u models.User
 	err := row.Scan(&u.ID, &u.DisplayName, &u.Email, &u.PendingEmail, &u.PasswordHash, &u.EmailVerifiedAt,
-		&u.TelegramUsername, &u.TelegramChatID, &u.PreferredChannel, &u.Locale, &u.Timezone, &u.IsAdmin, &u.IsActive,
+		&u.TelegramUsername, &u.TelegramChatID, &u.PreferredChannel,
+		&u.AvatarURL, &u.Bio, &u.GithubURL, &u.WebsiteURL,
+		&u.Locale, &u.Timezone, &u.IsAdmin, &u.IsActive,
 		&u.DeletedAt, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -71,12 +73,19 @@ func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p models.Profil
 			display_name = COALESCE($2, display_name),
 			telegram_username = CASE WHEN $4 THEN NULL ELSE COALESCE($3, telegram_username) END,
 			preferred_channel = CASE WHEN $6 THEN NULL ELSE COALESCE($5, preferred_channel) END,
-			locale = COALESCE($7, locale),
-			timezone = COALESCE($8, timezone)
+			avatar_url = CASE WHEN $7 THEN NULL ELSE COALESCE($8, avatar_url) END,
+			bio = CASE WHEN $9 THEN NULL ELSE COALESCE($10, bio) END,
+			github_url = CASE WHEN $11 THEN NULL ELSE COALESCE($12, github_url) END,
+			website_url = CASE WHEN $13 THEN NULL ELSE COALESCE($14, website_url) END,
+			locale = COALESCE($15, locale),
+			timezone = COALESCE($16, timezone)
 		WHERE id = $1
 		RETURNING `+userColumns,
 		id, p.DisplayName, p.TelegramUsername, p.ClearTelegramUsername,
-		p.PreferredChannel, p.ClearPreferredChannel, p.Locale, p.Timezone))
+		p.PreferredChannel, p.ClearPreferredChannel,
+		p.ClearAvatarURL, p.AvatarURL, p.ClearBio, p.Bio,
+		p.ClearGithubURL, p.GithubURL, p.ClearWebsiteURL, p.WebsiteURL,
+		p.Locale, p.Timezone))
 }
 
 func (r *Users) SetPassword(ctx context.Context, id uuid.UUID, hash string) error {
@@ -127,6 +136,10 @@ func (r *Users) Anonymize(ctx context.Context, id uuid.UUID) error {
 			telegram_username = NULL,
 			telegram_chat_id = NULL,
 			preferred_channel = NULL,
+			avatar_url = NULL,
+			bio = NULL,
+			github_url = NULL,
+			website_url = NULL,
 			is_active = false,
 			is_admin = false,
 			deleted_at = now()

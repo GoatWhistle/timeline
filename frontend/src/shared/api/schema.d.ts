@@ -3238,6 +3238,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/calendar/{token}/feed.ics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The calendar feed itself
+         * @description Returns the owner's schedule as an iCalendar document (RFC 5545) with the
+         *     media type text/calendar. This is the only unauthenticated endpoint in the
+         *     system that returns personal data, and everything about it follows from that
+         *     (specification 5.6).
+         *
+         *     The token in the path is the whole credential: there is no session, no cookie
+         *     and no CSRF check, because a calendar client sends none of them. The address is
+         *     fetched by Google, Apple or Microsoft servers rather than by the owner's
+         *     device, so it cannot be bound to a device or an address range.
+         *
+         *     The content is exactly what the owner sees in GET /me/schedule: their assigned
+         *     published events, the stages of those events and the registration deadline.
+         *     No other participant, no administrative field and nothing from the personal
+         *     layer appears here — widening the feed would be a privilege escalation through
+         *     a channel that has no authentication.
+         *
+         *     An unknown, malformed or revoked token answers 404, and so does the feed of a
+         *     deactivated account. A revoked token and one that never existed are
+         *     deliberately indistinguishable: 403 would confirm that the address was once
+         *     real. Rate limiting is keyed on the presented token, since there is no account
+         *     context until the token has been resolved.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Feed secret */
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description iCalendar document */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/calendar": string;
+                    };
+                };
+                /** @description unknown, revoked or malformed token */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/calendar": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/calendar": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalog": {
         parameters: {
             query?: never;
@@ -4200,6 +4280,15 @@ export interface paths {
                         "application/json": components["schemas"]["models.ErrorResponse"];
                     };
                 };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
             };
         };
         trace?: never;
@@ -4521,6 +4610,237 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/calendar-feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * State of the own calendar feed
+         * @description Tells whether a calendar feed is currently issued for the caller and when it
+         *     was last fetched by a calendar client.
+         *
+         *     The address itself is never returned here. The secret exists exactly once, in
+         *     the response that issued or rotated it (specification 5.6.1): a feed URL is a
+         *     bearer credential, the database keeps only its hash, and an endpoint that
+         *     handed it back on demand would turn any read of this resource into a way to
+         *     recover it. A lost address is replaced by rotation, not recovered.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.CalendarFeedResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Issue a calendar feed
+         * @description Creates the caller's calendar feed and returns its address once. The address
+         *     carries a secret of at least 128 bits; only its hash reaches the database.
+         *
+         *     One feed per account (specification 5.6.1). When a feed already exists the
+         *     call answers 409 rather than silently issuing a second address: rotation is an
+         *     explicit operation, so that replacing a feed is never something that happens by
+         *     accident to a subscription living in someone's calendar service.
+         *
+         *     The issue is written to the audit log — it is an account security operation of
+         *     the same kind as revoking a session — but neither the secret nor its hash is
+         *     recorded there.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.CalendarFeedSecretResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description a feed already exists; rotate it instead */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Revoke the calendar feed
+         * @description Stops the caller's feed. Idempotent: revoking an absent or already revoked
+         *     feed answers 204 as well.
+         *
+         *     The row is not deleted — it keeps the token hash taken and records that the
+         *     address was deliberately revoked rather than lost. After this the address
+         *     answers 404, indistinguishable from one that never existed.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the feed is revoked */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/calendar-feed/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rotate the calendar feed
+         * @description Revokes the current address and issues a new one in a single transaction. The
+         *     previous address stops working immediately: every calendar already subscribed
+         *     to it starts receiving 404 and must be re-subscribed to the new address.
+         *
+         *     This is the response to a leaked feed URL. Because the address is a bearer
+         *     credential stored on third-party servers, there is no narrower remedy: the
+         *     holder of a leaked URL cannot be identified or blocked individually.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.CalendarFeedSecretResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -7136,7 +7456,7 @@ export interface components {
             items: components["schemas"]["models.ParticipantArtifact"][];
         };
         /** @enum {string} */
-        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE";
+        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "CALENDAR_FEED_ISSUE" | "CALENDAR_FEED_REVOKE";
         "models.AuditPage": {
             items: components["schemas"]["models.AuditResponse"][];
             meta: components["schemas"]["models.PageMeta"];
@@ -7194,6 +7514,20 @@ export interface components {
         "models.BookmarkListResponse": {
             items: components["schemas"]["models.CatalogEvent"][];
             meta: components["schemas"]["models.PageMeta"];
+        };
+        "models.CalendarFeedResponse": {
+            /** Format: date-time */
+            created_at: string;
+            /** @example true */
+            enabled: boolean;
+            /** Format: date-time */
+            last_used_at: string;
+        };
+        "models.CalendarFeedSecretResponse": {
+            /** Format: date-time */
+            created_at: string;
+            /** @example https://timeline.example.com/api/v1/calendar/9Qk3.../feed.ics */
+            url: string;
         };
         "models.CatalogEvent": {
             /** @example Moscow */
@@ -7419,7 +7753,7 @@ export interface components {
             email?: string;
         };
         /** @enum {string} */
-        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK";
+        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "CALENDAR_FEED";
         "models.ErrorBody": {
             /** @example validation_failed */
             code: string;
@@ -7573,6 +7907,10 @@ export interface components {
             ids?: string[];
         };
         "models.MeResponse": {
+            /** @example https://example.com/a.png */
+            avatar_url: string;
+            /** @example Backend developer */
+            bio: string;
             /** Format: date-time */
             created_at: string;
             /** @example John Smith */
@@ -7581,6 +7919,8 @@ export interface components {
             email: string;
             /** @example true */
             email_verified: boolean;
+            /** @example https://github.com/ivan */
+            github_url: string;
             id: string;
             /** @example true */
             is_active: boolean;
@@ -7600,6 +7940,8 @@ export interface components {
             timezone: string;
             /** Format: date-time */
             updated_at: string;
+            /** @example https://ivan.example.com */
+            website_url: string;
         };
         "models.MessageResponse": {
             /** @example operation completed */
@@ -8182,8 +8524,14 @@ export interface components {
             url?: string;
         };
         "models.UpdateProfileRequest": {
+            /** @example https://example.com/a.png */
+            avatar_url?: string;
+            /** @example Backend developer */
+            bio?: string;
             /** @example John Smith */
             display_name?: string;
+            /** @example https://github.com/ivan */
+            github_url?: string;
             /**
              * @example en
              * @enum {string}
@@ -8195,6 +8543,8 @@ export interface components {
             telegram_username?: string;
             /** @example Asia/Tokyo */
             timezone?: string;
+            /** @example https://ivan.example.com */
+            website_url?: string;
         };
         "models.UpdateRegistrationRequest": {
             /** Format: date-time */

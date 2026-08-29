@@ -21,5 +21,15 @@
   "duration.hour.many": "%d hours",
   "duration.minute.one": "%d minute",
   "duration.minute.few": "%d minutes",
-  "duration.minute.many": "%d minutes"
+  "duration.minute.many": "%d minutes",
+  "digest.weekly.subject": "What is on this week in Timeline",
+  "digest.weekly.intro": "Your week from {{from}} to {{to}} ({{timezone}}):",
+  "digest.weekly.line": "{{when}} — {{kind}}: {{what}} ({{event}})",
+  "digest.kind.deadline": "registration deadline",
+  "digest.kind.stage": "stage starts",
+  "digest.kind.task": "personal task",
+  "digest.kind.other": "entry",
+  "digest.entry.one": "%d entry",
+  "digest.entry.few": "%d entries",
+  "digest.entry.many": "%d entries"
 }

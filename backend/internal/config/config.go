@@ -19,6 +19,7 @@ type Config struct {
 	Email    Email
 	Ops      Ops
 	Personal Personal
+	Digest   Digest
 	Realtime Realtime
 	Links    ResourceLinks
 }
@@ -213,6 +214,7 @@ func Load() (*Config, error) {
 			UserSearchPageSize: envInt("USER_SEARCH_PAGE_SIZE", 50),
 		},
 		Personal: loadPersonal(),
+		Digest:   loadDigest(),
 		Links:    loadResourceLinks(),
 		Realtime: loadRealtime(),
 	}

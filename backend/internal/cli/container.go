@@ -50,6 +50,7 @@ type container struct {
 		links         *resourcelink.Links
 		userLinks     *resourcelink.PersonalLinks
 		queries       *query.Timeline
+		digests       *query.Digests
 		feed          *systemevent.Events
 		audit         *audit.Audit
 	}
@@ -80,6 +81,7 @@ type container struct {
 	ops           *services.OpsService
 	feed          *services.SystemEventService
 	reminders     *services.PersonalReminderService
+	digest        *services.DigestService
 	hub           *services.RealtimeHub
 }
 
@@ -110,6 +112,7 @@ func (c *container) wireRepositories() {
 	c.repos.links = resourcelink.NewLinks(db)
 	c.repos.userLinks = resourcelink.NewPersonalLinks(db)
 	c.repos.queries = query.NewTimeline(db)
+	c.repos.digests = query.NewDigests(db)
 	c.repos.feed = systemevent.NewEvents(db)
 	c.repos.audit = audit.NewAudit(db)
 }
@@ -177,6 +180,7 @@ func (c *container) wireRealtime() {
 	c.delivery.WithEvents(c.feed)
 	c.personal.WithRetrospectives(c.repos.retros)
 	c.reminders = services.NewPersonalReminderService(c.repos.reminders, c.feed, c.cfg.Personal)
+	c.digest = services.NewDigestService(c.repos.digests, c.feed, c.cfg.Digest, c.cfg.App)
 	c.auth.WithRealtime(c.hub)
 	c.users.WithRealtime(c.hub)
 	c.profile.WithRealtime(c.hub)

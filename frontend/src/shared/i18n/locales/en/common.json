@@ -82,7 +82,10 @@
     "forbiddenHint": "This section is available to system administrators only."
   },
   "validation": {
-    "invalidValue": "Invalid value"
+    "invalidValue": "Invalid value",
+    "linkTooLong": "The address is too long",
+    "linkScheme": "This address cannot be opened in a browser",
+    "bioTooLong": "The text is too long"
   },
   "batch": {
     "succeeded": "Succeeded: {{count}}",
@@ -237,7 +240,21 @@
     "currentPasswordRequired": "Enter your current password",
     "sendConfirmation": "Send confirmation",
     "emailSent": "Email sent",
-    "emailSentHint": "The address changes only after confirming via the link in the email"
+    "emailSentHint": "The address changes only after confirming via the link in the email",
+    "linksTitle": "Links and about",
+    "avatar_url": "Avatar URL",
+    "avatar_urlHint": "An image at this address replaces the initials. An empty field brings them back.",
+    "avatar_urlPlaceholder": "https://example.org/avatar.png",
+    "github_url": "GitHub",
+    "github_urlHint": "Your GitHub profile",
+    "github_urlPlaceholder": "https://github.com/username",
+    "website_url": "Website",
+    "website_urlHint": "A personal page or portfolio",
+    "website_urlPlaceholder": "https://example.org",
+    "bio": "About",
+    "bioHint": "Free text, at most {{count}} characters. Other participants can see it.",
+    "bioCount": "{{current}} of {{max}}",
+    "linkOpens": "Opens:"
   },
   "schedule": {
     "title": "Schedule",

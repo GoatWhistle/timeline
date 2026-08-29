@@ -52,7 +52,7 @@ func Recover(next http.Handler) http.Handler {
 			if rec := recover(); rec != nil {
 				slog.Error("handler panic",
 					"panic", rec,
-					"path", r.URL.Path,
+					"path", httpx.ScrubPath(r.URL.Path),
 					"request_id", httpx.RequestID(r),
 					"stack", string(debug.Stack()))
 				httpx.JSON(w, http.StatusInternalServerError, models.ErrorResponse{Error: models.ErrorBody{
@@ -76,7 +76,7 @@ func Logging(next http.Handler) http.Handler {
 		}
 		slog.Info("http",
 			"method", r.Method,
-			"path", r.URL.Path,
+			"path", httpx.ScrubPath(r.URL.Path),
 			"status", sw.status,
 			"bytes", sw.bytes,
 			"duration_ms", float64(time.Since(start).Microseconds())/1000,
@@ -160,7 +160,7 @@ func AdminOnly(next http.Handler) http.Handler {
 		}
 		if !user.IsAdmin {
 			slog.Warn("access denied",
-				"path", r.URL.Path,
+				"path", httpx.ScrubPath(r.URL.Path),
 				"user_id", user.ID,
 				"request_id", httpx.RequestID(r))
 			httpx.Error(w, r, models.NewForbidden("the operation is restricted to administrators"))

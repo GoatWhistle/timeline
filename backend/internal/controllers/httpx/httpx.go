@@ -71,10 +71,10 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 
 	if status >= http.StatusInternalServerError {
 		slog.ErrorContext(r.Context(), "internal request error",
-			"error", err, "path", r.URL.Path, "method", r.Method, "request_id", body.Error.RequestID)
+			"error", err, "path", ScrubPath(r.URL.Path), "method", r.Method, "request_id", body.Error.RequestID)
 	} else {
 		slog.DebugContext(r.Context(), "request error",
-			"error", err, "path", r.URL.Path, "method", r.Method, "status", status)
+			"error", err, "path", ScrubPath(r.URL.Path), "method", r.Method, "status", status)
 	}
 	JSON(w, status, body)
 }

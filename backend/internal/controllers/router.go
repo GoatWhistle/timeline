@@ -59,13 +59,16 @@ import (
 // @tag.description			The system event bus: an in-app mirror of what happened, not a delivery channel
 // @tag.name					realtime
 // @tag.description			The WebSocket channel that tells a client what went stale
+// @tag.name					calendar
+// @tag.description			The participant's own schedule as an iCalendar feed served by a secret token
 // @tag.name					ops
 // @tag.description			Service probes and metrics
 func NewRouter(deps Deps) http.Handler {
 	authC := NewAuthController(deps.Auth, deps.Cookies, deps.CSRFTTL)
 	inviteC := NewInviteController(deps.Invites, deps.Cookies, deps.PublicURL,
 		deps.CSRFTTL, deps.PageDefault, deps.PageMax)
-	profileC := NewProfileController(deps.Profile, deps.Cookies)
+	profileC := NewProfileController(deps.Profile, deps.Cookies, deps.Limiter,
+		deps.ProfileRate, deps.ProfileRateWindow)
 	userC := NewUserController(deps.Users, deps.UserPageSize, deps.PageMax)
 	eventC := NewEventController(deps.Events, deps.Stages, deps.PageDefault, deps.PageMax)
 	catalogC := NewCatalogController(deps.Catalog, deps.Limiter, deps.CatalogRate,
@@ -85,6 +88,8 @@ func NewRouter(deps Deps) http.Handler {
 		deps.PersonalRateWindow, deps.PageDefault, deps.PageMax)
 	linkC := NewResourceLinkController(deps.Links, deps.Limiter, deps.LinkRate,
 		deps.LinkRateWindow)
+	calendarC := NewCalendarFeedController(deps.CalendarFeeds, deps.Limiter,
+		deps.CalendarRate, deps.CalendarRateWindow, deps.ICSRate, deps.ICSRateWindow)
 
 	rt := &routes{authn: deps.Authenticator}
 	mux := http.NewServeMux()
@@ -94,6 +99,7 @@ func NewRouter(deps Deps) http.Handler {
 	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC)
 	mountPersonal(mux, rt, api, personalC)
 	mountResourceLinks(mux, rt, api, linkC)
+	mountCalendarFeed(mux, rt, api, calendarC)
 	mountRealtime(mux, rt, api, deps)
 	mountAdminIdentity(mux, rt, api, userC, inviteC, eventC)
 	mountAdminRegistration(mux, rt, api, partC, regC, statusC, ruleC, previewC)
