@@ -104,16 +104,6 @@ func (r *Notifications) GetByLogicalKey(ctx context.Context, key string) (*model
 		`SELECT `+notificationColumns+` FROM notifications WHERE logical_key = $1`, key))
 }
 
-func (r *Notifications) ExistsLogicalKey(ctx context.Context, key string) (bool, error) {
-	var exists bool
-	err := r.db.Q(ctx).QueryRow(ctx,
-		`SELECT EXISTS (SELECT 1 FROM notifications WHERE logical_key = $1)`, key).Scan(&exists)
-	if err != nil {
-		return false, mapError(err)
-	}
-	return exists, nil
-}
-
 func (r *Notifications) ListByStatus(ctx context.Context, statusID uuid.UUID) ([]models.Notification, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		SELECT `+notificationColumns+` FROM notifications

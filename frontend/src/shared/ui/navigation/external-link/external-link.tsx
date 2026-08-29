@@ -5,7 +5,7 @@ import { cn } from '@/shared/styling/class-names/class-names'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/tooltip'
 import { isInsecureLink } from './external-url'
 
-export function InsecureLinkMark({ className }: { className?: string }) {
+function InsecureLinkMark({ className }: { className?: string }) {
   const { t } = useTranslation('common')
   const label = t('link.insecure')
   return (

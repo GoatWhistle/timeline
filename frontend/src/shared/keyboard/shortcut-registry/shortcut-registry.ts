@@ -31,7 +31,6 @@ export type KeyEventLike = {
 }
 
 const ESCAPE = 'escape'
-const CHORD_TIMEOUT_MS = 1200
 const ALPHANUMERIC = /^[\p{Letter}\p{Number}]$/u
 
 export function isTypeAheadKey(pressed: string): boolean {
@@ -160,86 +159,4 @@ export function resolveShortcut(
     }
   }
   return null
-}
-
-export class ShortcutRegistry {
-  private stack: ShortcutScope[] = []
-  private chord: string | null = null
-  private chordAt = 0
-  private listeners = new Set<() => void>()
-
-  push(scope: ShortcutScope): () => void {
-    this.stack = [...this.stack, scope]
-    this.emit()
-    return () => this.remove(scope.id)
-  }
-
-  remove(id: string): void {
-    const next = this.stack.filter((scope) => scope.id !== id)
-    if (next.length === this.stack.length) return
-    this.stack = next
-    this.chord = null
-    this.emit()
-  }
-
-  subscribe(listener: () => void): () => void {
-    this.listeners.add(listener)
-    return () => this.listeners.delete(listener)
-  }
-
-  getScopes(): ShortcutScope[] {
-    return this.stack
-  }
-
-  list(): ShortcutDefinition[] {
-    return visibleShortcuts(this.stack)
-  }
-
-  listExcluding(scopeId: string): ShortcutDefinition[] {
-    return visibleShortcuts(this.stack.filter((scope) => scope.id !== scopeId))
-  }
-
-  pendingChord(): string | null {
-    return this.chord
-  }
-
-  handle(event: KeyEventLike, target?: unknown, now = Date.now()): ShortcutDefinition | null {
-    const aliases = keyAliases(event)
-    const pressed = aliases[0] ?? normalizeKey(event)
-    if (this.chord !== null && now - this.chordAt > CHORD_TIMEOUT_MS) this.chord = null
-
-    const typeAhead = !pressed.includes('+') && isTypeAheadKey(pressed)
-    const editable = isEditableTarget(target) || (typeAhead && isInteractiveTarget(target))
-
-    let found: ShortcutDefinition | null = null
-    for (const alias of aliases) {
-      found = resolveShortcut(this.stack, alias, this.chord, editable)
-      if (found) break
-    }
-
-    if (found) {
-      this.chord = null
-      this.emit()
-      found.run()
-      return found
-    }
-
-    const prefix = aliases.find((alias) => isChordPrefix(this.stack, alias))
-    if (this.chord === null && !editable && prefix !== undefined) {
-      this.chord = prefix
-      this.chordAt = now
-      this.emit()
-      return null
-    }
-
-    if (this.chord !== null) {
-      this.chord = null
-      this.emit()
-    }
-    return null
-  }
-
-  private emit(): void {
-    for (const listener of this.listeners) listener()
-  }
 }

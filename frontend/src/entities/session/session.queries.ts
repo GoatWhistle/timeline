@@ -1,20 +1,8 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, resetCsrfToken, unwrap } from '@/shared/api/client'
-import type {
-  AuthResponse,
-  LoginRequest,
-  MeResponse,
-  RegisterRequest,
-} from '@/shared/api/types.gen'
+import type { AuthResponse, LoginRequest, RegisterRequest } from '@/shared/api/types.gen'
 
-export const sessionQueryKey = ['session'] as const
-
-export const sessionQueryOptions = queryOptions<MeResponse>({
-  queryKey: sessionQueryKey,
-  queryFn: () => unwrap(api.GET('/me')),
-  retry: false,
-  staleTime: 60_000,
-})
+const sessionQueryKey = ['session'] as const
 
 export function useLogin() {
   const queryClient = useQueryClient()

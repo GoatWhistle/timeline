@@ -3,7 +3,7 @@ import { api, unwrap } from '@/shared/api/client'
 import type { QueryParams } from '@/shared/api/params'
 import type { JoinEventRequest, ParticipantSelfResponse } from '@/shared/api/types.gen'
 
-export const catalogKeys = {
+const catalogKeys = {
   list: (params: Record<string, unknown>) => ['catalog', params] as const,
 }
 

@@ -45,8 +45,6 @@ func (h *Event) State(now time.Time) EventState {
 	}
 }
 
-func (h *Event) Meetup() bool { return h.Kind == EventKindMeetup }
-
 func (h *Event) Published() bool { return h.PublishedAt != nil }
 
 func (h *Event) Archived() bool { return h.ArchivedAt != nil }

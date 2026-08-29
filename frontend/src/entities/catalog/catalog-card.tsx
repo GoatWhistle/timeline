@@ -7,7 +7,7 @@ import { cn } from '@/shared/styling/class-names/class-names'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { CatalogKindMark } from './catalog-kind-mark'
 
-export function CatalogPlaceLine({ event }: { event: CatalogEvent }) {
+function CatalogPlaceLine({ event }: { event: CatalogEvent }) {
   const { t } = useTranslation('event')
   const final = event.offline_stages.at(-1)
   if (!final) return null

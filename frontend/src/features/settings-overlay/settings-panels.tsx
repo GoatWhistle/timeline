@@ -32,7 +32,7 @@ function Row({ title, hint, control }: { title: string; hint: string; control: R
   )
 }
 
-export function AppearancePanel({ user }: { user: MeResponse }) {
+function AppearancePanel({ user }: { user: MeResponse }) {
   const { t } = useTranslation()
   const updateProfile = useUpdateProfile()
 
@@ -68,7 +68,7 @@ export function AppearancePanel({ user }: { user: MeResponse }) {
   )
 }
 
-export function AccountPanel({ user }: { user: MeResponse }) {
+function AccountPanel({ user }: { user: MeResponse }) {
   return (
     <div className="flex flex-col gap-4">
       <AccountIdentityCard user={user} />

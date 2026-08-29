@@ -51,7 +51,7 @@ function offsetLabel(zone: string): string {
   }
 }
 
-export function zoneOptions(current: string | null | undefined): string[] {
+function zoneOptions(current: string | null | undefined): string[] {
   const zones = new Set(COMMON_ZONES)
   const detected = browserTimeZone()
   if (isTimeZone(detected)) zones.add(detected)

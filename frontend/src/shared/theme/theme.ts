@@ -1,4 +1,4 @@
-export const THEME_PREFERENCES = ['light', 'dark', 'system'] as const
+const THEME_PREFERENCES = ['light', 'dark', 'system'] as const
 
 export type ThemePreference = (typeof THEME_PREFERENCES)[number]
 
@@ -31,7 +31,7 @@ export function writeStoredTheme(preference: ThemePreference): void {
   }
 }
 
-export function systemTheme(): ResolvedTheme {
+function systemTheme(): ResolvedTheme {
   return typeof matchMedia === 'function' && matchMedia(DARK_QUERY).matches ? 'dark' : 'light'
 }
 

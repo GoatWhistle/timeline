@@ -10,7 +10,7 @@ export function isLocale(value: unknown): value is Locale {
   return LOCALES.includes(value as Locale)
 }
 
-export function readStoredLocale(): Locale | null {
+function readStoredLocale(): Locale | null {
   try {
     const raw = localStorage.getItem(LOCALE_STORAGE_KEY)
     return isLocale(raw) ? raw : null
@@ -27,7 +27,7 @@ export function writeStoredLocale(locale: Locale): void {
   }
 }
 
-export function navigatorLocale(): Locale | null {
+function navigatorLocale(): Locale | null {
   if (typeof navigator === 'undefined') return null
   for (const tag of navigator.languages ?? [navigator.language]) {
     const base = tag?.split('-')[0]

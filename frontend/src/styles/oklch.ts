@@ -31,7 +31,7 @@ export function oklchToSrgb(l: number, c: number, h: number): Srgb {
   return [linearToSrgb(r), linearToSrgb(g), linearToSrgb(b)]
 }
 
-export function relativeLuminance([r, g, b]: Srgb): number {
+function relativeLuminance([r, g, b]: Srgb): number {
   return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b)
 }
 

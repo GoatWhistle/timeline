@@ -21,6 +21,7 @@ type MeResponse struct {
 	WebsiteURL       *string   `json:"website_url,omitempty" example:"https://ivan.example.com"`
 	Locale           string    `json:"locale" example:"ru" enums:"ru,en"`
 	Timezone         string    `json:"timezone" example:"Europe/Moscow"`
+	Shortcuts        Shortcuts `json:"shortcuts"`
 	IsAdmin          bool      `json:"is_admin" example:"false"`
 	IsActive         bool      `json:"is_active" example:"true"`
 	CreatedAt        time.Time `json:"created_at"`
@@ -55,6 +56,14 @@ type ProfilePatch struct {
 	ClearWebsiteURL       bool
 	Locale                *string
 	Timezone              *string
+}
+
+type UpdateShortcutsRequest struct {
+	Shortcuts Shortcuts `json:"shortcuts"`
+}
+
+type ShortcutsResponse struct {
+	Shortcuts Shortcuts `json:"shortcuts"`
 }
 
 type ChangeEmailRequest struct {

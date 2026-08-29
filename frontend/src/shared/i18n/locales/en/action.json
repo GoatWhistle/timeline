@@ -4,17 +4,13 @@
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
-    "edit": "Edit",
-    "add": "Add",
     "close": "Close",
     "retry": "Retry",
     "back": "Back",
     "forward": "Next",
     "logout": "Sign out",
     "home": "Go home",
-    "reset": "Reset",
     "apply": "Apply",
-    "copy": "Copy",
     "undo": "Undo"
   },
   "state": {
@@ -22,8 +18,6 @@
     "loadingPage": "Loading page",
     "loadFailed": "Failed to load data",
     "requestId": "Request id: {{id}}",
-    "empty": "Nothing here yet",
-    "saving": "Saving",
     "dash": "—"
   },
   "batch": {

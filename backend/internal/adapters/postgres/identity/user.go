@@ -17,14 +17,14 @@ func NewUsers(db *postgres.DB) *Users { return &Users{db: db} }
 
 const userColumns = `id, display_name, email, pending_email, password_hash, email_verified_at,
 	telegram_username, telegram_chat_id, preferred_channel, avatar_url, bio, github_url, website_url,
-	locale, timezone, is_admin, is_active, deleted_at, created_at, updated_at`
+	locale, timezone, shortcuts, is_admin, is_active, deleted_at, created_at, updated_at`
 
 func scanUser(row pgx.Row) (*models.User, error) {
 	var u models.User
 	err := row.Scan(&u.ID, &u.DisplayName, &u.Email, &u.PendingEmail, &u.PasswordHash, &u.EmailVerifiedAt,
 		&u.TelegramUsername, &u.TelegramChatID, &u.PreferredChannel,
 		&u.AvatarURL, &u.Bio, &u.GithubURL, &u.WebsiteURL,
-		&u.Locale, &u.Timezone, &u.IsAdmin, &u.IsActive,
+		&u.Locale, &u.Timezone, &u.Shortcuts, &u.IsAdmin, &u.IsActive,
 		&u.DeletedAt, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -47,11 +47,6 @@ func (r *Users) GetByID(ctx context.Context, id uuid.UUID) (*models.User, error)
 func (r *Users) GetByEmail(ctx context.Context, email string) (*models.User, error) {
 	return scanUser(r.db.Q(ctx).QueryRow(ctx,
 		`SELECT `+userColumns+` FROM users WHERE email = $1`, NormalizeEmail(email)))
-}
-
-func (r *Users) GetByChatID(ctx context.Context, chatID string) (*models.User, error) {
-	return scanUser(r.db.Q(ctx).QueryRow(ctx,
-		`SELECT `+userColumns+` FROM users WHERE telegram_chat_id = $1`, chatID))
 }
 
 func (r *Users) EmailTaken(ctx context.Context, email string, except uuid.UUID) (bool, error) {
@@ -86,6 +81,15 @@ func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p models.Profil
 		p.ClearAvatarURL, p.AvatarURL, p.ClearBio, p.Bio,
 		p.ClearGithubURL, p.GithubURL, p.ClearWebsiteURL, p.WebsiteURL,
 		p.Locale, p.Timezone))
+}
+
+func (r *Users) SetShortcuts(ctx context.Context, id uuid.UUID,
+	shortcuts models.Shortcuts) (*models.User, error) {
+	if shortcuts == nil {
+		shortcuts = models.Shortcuts{}
+	}
+	return scanUser(r.db.Q(ctx).QueryRow(ctx,
+		`UPDATE users SET shortcuts = $2 WHERE id = $1 RETURNING `+userColumns, id, shortcuts))
 }
 
 func (r *Users) SetPassword(ctx context.Context, id uuid.UUID, hash string) error {
@@ -140,6 +144,7 @@ func (r *Users) Anonymize(ctx context.Context, id uuid.UUID) error {
 			bio = NULL,
 			github_url = NULL,
 			website_url = NULL,
+			shortcuts = '{}'::jsonb,
 			is_active = false,
 			is_admin = false,
 			deleted_at = now()

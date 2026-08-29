@@ -2,12 +2,14 @@ import { PanelLeftOpen } from 'lucide-react'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet } from 'react-router'
+import { useShortcutBindings } from '@/entities/user/shortcuts.queries'
 import { AppShortcuts, type GotoTarget } from '@/features/app-shortcuts/app-shortcuts'
 import { VerificationBanner } from '@/features/auth/verification-banner/verification-banner'
 import { ConnectionBanner } from '@/features/connection-banner/connection-banner'
 import { SettingsOverlay } from '@/features/settings-overlay/settings-overlay'
 import { useSession } from '@/shared/api/session'
 import { useProfileTimezone } from '@/shared/datetime/use-profile-timezone'
+import { useProfileShortcuts } from '@/shared/keyboard/shortcut-bindings'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { useSidebar } from '@/shared/ui/layout/sidebar/use-sidebar'
 import { RouteFallback } from './route-fallback'
@@ -34,6 +36,7 @@ export function AppShell() {
   const sidebar = useSidebar()
   useProfileLocale()
   useProfileTimezone()
+  useProfileShortcuts(useShortcutBindings())
 
   return (
     <div className="relative flex h-screen overflow-hidden">

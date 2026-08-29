@@ -2,7 +2,6 @@ package personal
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 
@@ -49,5 +48,3 @@ func (r *Notes) Delete(ctx context.Context, userID, eventID uuid.UUID) error {
 func (r *Notes) Empty(eventID uuid.UUID) *models.ParticipantNote {
 	return &models.ParticipantNote{EventID: eventID, Body: ""}
 }
-
-func IsNotFound(err error) bool { return errors.Is(err, models.ErrNotFound) }

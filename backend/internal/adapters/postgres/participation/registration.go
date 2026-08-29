@@ -88,10 +88,3 @@ func (r *Registrations) Disable(ctx context.Context, id uuid.UUID) (*models.Regi
 		WHERE id = $1 AND state = 'ACTIVE'
 		RETURNING `+registrationColumns, id))
 }
-
-func (r *Registrations) SyncEventEnd(ctx context.Context, eventID uuid.UUID) error {
-	_, err := r.db.Q(ctx).Exec(ctx, `
-		UPDATE registrations SET event_end_at = h.end_at
-		FROM events h WHERE h.id = registrations.event_id AND registrations.event_id = $1`, eventID)
-	return mapError(err)
-}

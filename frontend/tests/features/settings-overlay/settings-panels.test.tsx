@@ -21,6 +21,7 @@ const USER: MeResponse = {
   is_admin: false,
   locale: 'ru',
   telegram_linked: false,
+  shortcuts: {},
   timezone: 'Europe/Moscow',
   created_at: '2026-01-10T10:00:00Z',
   updated_at: '2026-08-01T10:00:00Z',

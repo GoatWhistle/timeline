@@ -27,10 +27,7 @@
     "minutes_one": "{{count}} minute",
     "minutes_other": "{{count}} minutes",
     "seconds_one": "{{count}} second",
-    "seconds_other": "{{count}} seconds",
-    "left": "{{amount}} left",
-    "past": "the deadline has passed",
-    "label": "Time remaining"
+    "seconds_other": "{{count}} seconds"
   },
   "realtime": {
     "offline": "No live connection — data refreshes less often"

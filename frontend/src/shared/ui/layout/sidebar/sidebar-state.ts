@@ -2,7 +2,7 @@ export const SIDEBAR_STORAGE_KEY = 'timeline-sidebar-collapsed'
 
 export const PEEK_EDGE_PX = 8
 
-export function isCollapsedValue(raw: unknown): boolean {
+function isCollapsedValue(raw: unknown): boolean {
   return raw === '1'
 }
 

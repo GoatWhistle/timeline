@@ -16,7 +16,6 @@
     "week": "Week",
     "columnEvent": "Event",
     "registrationDeadline": "Registration deadline",
-    "registrationDeadlineAt": "Registration deadline: {{date}}",
     "registrationDeadlineAria": "Registration deadline {{date}}, {{urgency}}",
     "stageAria": "{{name}}. {{type}}. {{start}} — {{end}}",
     "stageTooltip": "{{type}} · {{start}} — {{end}}",
@@ -30,9 +29,6 @@
     "sentenceStages": "{{count}} stages: {{list}}.",
     "sentenceCheckpoint": "Checkpoint {{name}}, {{date}}.",
     "sentenceDeadline": "Registration deadline {{date}}, {{remaining}}.",
-    "sentenceBar": "{{name}}. {{type}}. {{start}} to {{end}}.",
-    "unconfirmedDates": "Dates not confirmed",
-    "checkpoint": "Checkpoint",
-    "nearestCheckpoint": "Nearest checkpoint"
+    "sentenceBar": "{{name}}. {{type}}. {{start}} to {{end}}."
   }
 }

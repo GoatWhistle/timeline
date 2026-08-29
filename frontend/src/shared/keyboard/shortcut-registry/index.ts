@@ -1,3 +1,4 @@
+export { ShortcutRegistry } from './registry-store'
 export {
   ShortcutProvider,
   useShortcutList,
@@ -11,6 +12,7 @@ export {
   isEditableTarget,
   isInteractiveTarget,
   isTypeAheadKey,
+  type KeyEventLike,
   keyAliases,
   listByScope,
   normalizeKey,
@@ -18,7 +20,6 @@ export {
   type ScopeListing,
   type ShortcutDefinition,
   type ShortcutGroup,
-  ShortcutRegistry,
   type ShortcutScope,
   type ShortcutScopeMode,
   visibleShortcuts,

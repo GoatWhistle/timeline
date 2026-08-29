@@ -21,11 +21,11 @@ export function measureText(text: string, font: string): number {
   return measured > 0 ? measured : estimateText(text, fontSizeOf(font))
 }
 
-export function estimateText(text: string, fontSize: number): number {
+function estimateText(text: string, fontSize: number): number {
   return text.length * fontSize * FALLBACK_RATIO
 }
 
-export function fontSizeOf(font: string): number {
+function fontSizeOf(font: string): number {
   const match = /(\d+(?:\.\d+)?)px/.exec(font)
   return match ? Number.parseFloat(match[1] ?? '') || 12 : 12
 }

@@ -31,10 +31,7 @@
     "minutes_many": "{{count}} минут",
     "seconds_one": "{{count}} секунда",
     "seconds_few": "{{count}} секунды",
-    "seconds_many": "{{count}} секунд",
-    "left": "осталось {{amount}}",
-    "past": "срок прошёл",
-    "label": "До срока"
+    "seconds_many": "{{count}} секунд"
   },
   "realtime": {
     "offline": "Нет связи с сервером — данные обновляются реже"

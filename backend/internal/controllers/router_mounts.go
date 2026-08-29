@@ -34,6 +34,9 @@ func mountMe(mux *http.ServeMux, rt *routes, api string,
 ) {
 	mux.Handle("GET "+api+"/me", rt.authd(profileC.Get))
 	mux.Handle("PATCH "+api+"/me", rt.authd(profileC.Update))
+	mux.Handle("GET "+api+"/me/shortcuts", rt.authd(profileC.Shortcuts))
+	mux.Handle("PUT "+api+"/me/shortcuts", rt.authd(profileC.UpdateShortcuts))
+	mux.Handle("DELETE "+api+"/me/shortcuts", rt.authd(profileC.ResetShortcuts))
 	mux.Handle("POST "+api+"/me/telegram/link", rt.authd(profileC.TelegramLink))
 	mux.Handle("DELETE "+api+"/me/telegram", rt.authd(profileC.TelegramUnlink))
 	mux.Handle("POST "+api+"/me/email-change", rt.authd(profileC.ChangeEmail))

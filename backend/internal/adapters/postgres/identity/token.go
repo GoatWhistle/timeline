@@ -48,11 +48,3 @@ func (r *Tokens) InvalidateForUser(ctx context.Context, userID uuid.UUID, purpos
 		WHERE user_id = $1 AND purpose = $2 AND consumed_at IS NULL`, userID, purpose)
 	return mapError(err)
 }
-
-func (r *Tokens) DeleteExpired(ctx context.Context, before time.Time) (int64, error) {
-	tag, err := r.db.Q(ctx).Exec(ctx, `DELETE FROM one_time_tokens WHERE expires_at < $1`, before)
-	if err != nil {
-		return 0, mapError(err)
-	}
-	return tag.RowsAffected(), nil
-}

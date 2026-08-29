@@ -6926,6 +6926,157 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/shortcuts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your own keyboard shortcut overrides
+         * @description The map binds an action identifier to a shortcut. An action missing from the map keeps its default.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ShortcutsResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Replace your own keyboard shortcut overrides
+         * @description The whole map is replaced. Two actions may not claim the same shortcut,
+         *     and shortcuts owned by the browser or the operating system are refused.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Action to shortcut map */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.UpdateShortcutsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ShortcutsResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the shortcut is taken or reserved */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Reset every keyboard shortcut to its default */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ShortcutsResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/tasks/{id}": {
         parameters: {
             query?: never;
@@ -7986,6 +8137,7 @@ export interface components {
             locale: "ru" | "en";
             pending_email?: string;
             preferred_channel?: components["schemas"]["models.Channel"];
+            shortcuts: components["schemas"]["models.Shortcuts"];
             /** @example false */
             telegram_linked: boolean;
             telegram_username?: string;
@@ -8449,6 +8601,12 @@ export interface components {
             /** @example Mozilla/5.0 (X11; Linux x86_64) */
             user_agent: string;
         };
+        "models.Shortcuts": {
+            [key: string]: string;
+        };
+        "models.ShortcutsResponse": {
+            shortcuts: components["schemas"]["models.Shortcuts"];
+        };
         "models.StageResponse": {
             /** @example Kazan */
             city?: string;
@@ -8643,6 +8801,9 @@ export interface components {
             channel_override?: "TELEGRAM" | "EMAIL";
             enabled?: boolean;
             offset_minutes?: number;
+        };
+        "models.UpdateShortcutsRequest": {
+            shortcuts?: components["schemas"]["models.Shortcuts"];
         };
         "models.UpdateStageRequest": {
             /** @example Kazan */

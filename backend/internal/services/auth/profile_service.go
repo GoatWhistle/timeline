@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -109,32 +108,6 @@ func (s *ProfileService) StartTelegramLink(ctx context.Context, actor models.Act
 		return "", time.Time{}, err
 	}
 	return s.telegram.DeepLink(secret), expires, nil
-}
-
-func (s *ProfileService) CompleteTelegramLink(ctx context.Context, token, chatID string, username *string,
-) (*models.User, error) {
-	var user *models.User
-	err := s.db.WithTx(ctx, func(ctx context.Context) error {
-		record, err := s.tokens.Consume(ctx, crypto.HashSecret(token), models.PurposeTelegramLink, s.now())
-		if err != nil {
-			if errors.Is(err, models.ErrNotFound) {
-				return models.NewValidation("the link is invalid or has expired")
-			}
-			return err
-		}
-		if record.UserID == nil {
-			return models.NewValidation("the link is invalid")
-		}
-		if err := s.users.SetTelegram(ctx, *record.UserID, chatID, username); err != nil {
-			return err
-		}
-		user, err = s.users.GetByID(ctx, *record.UserID)
-		return err
-	})
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
 }
 
 func (s *ProfileService) UnlinkTelegram(ctx context.Context, actor models.Actor) error {

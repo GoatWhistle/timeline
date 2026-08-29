@@ -16,7 +16,6 @@
     "week": "Неделя",
     "columnEvent": "Событие",
     "registrationDeadline": "Дедлайн регистрации",
-    "registrationDeadlineAt": "Дедлайн регистрации: {{date}}",
     "registrationDeadlineAria": "Дедлайн регистрации {{date}}, {{urgency}}",
     "stageAria": "{{name}}. {{type}}. {{start}} — {{end}}",
     "stageTooltip": "{{type}} · {{start}} — {{end}}",
@@ -30,9 +29,6 @@
     "sentenceStages": "Этапов: {{count}}. {{list}}.",
     "sentenceCheckpoint": "Контрольная точка {{name}}, {{date}}.",
     "sentenceDeadline": "Дедлайн регистрации {{date}}, {{remaining}}.",
-    "sentenceBar": "{{name}}. {{type}}. С {{start}} по {{end}}.",
-    "unconfirmedDates": "Даты не подтверждены",
-    "checkpoint": "Контрольная точка",
-    "nearestCheckpoint": "Ближайшая контрольная точка"
+    "sentenceBar": "{{name}}. {{type}}. С {{start}} по {{end}}."
   }
 }

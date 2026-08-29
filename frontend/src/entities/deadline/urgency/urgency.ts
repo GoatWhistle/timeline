@@ -11,7 +11,7 @@ export type UrgencyInput = {
 }
 
 export const DAY_MS = 86_400_000
-export const SOON_DAYS = 7
+const SOON_DAYS = 7
 
 export function resolveUrgency({ deadlineAt, status, now = new Date() }: UrgencyInput): Urgency {
   if (status === 'NOT_REQUIRED') return 'waived'
@@ -43,7 +43,7 @@ export function urgencyRank(urgency: Urgency): number {
   return RANK[urgency]
 }
 
-export const PRESSING: Urgency[] = ['overdue', 'today', 'soon']
+const PRESSING: Urgency[] = ['overdue', 'today', 'soon']
 
 export function isPressing(urgency: Urgency): boolean {
   return PRESSING.includes(urgency)

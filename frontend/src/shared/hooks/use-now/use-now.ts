@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export const MINUTE_MS = 60_000
+const MINUTE_MS = 60_000
 
 export function useNow(intervalMs = MINUTE_MS): Date {
   const [now, setNow] = useState(() => new Date())

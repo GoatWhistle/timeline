@@ -18,6 +18,9 @@ type ProfileService interface {
 	Update(ctx context.Context, actor models.Actor, req models.UpdateProfileRequest) (*models.User, error)
 	StartTelegramLink(ctx context.Context, actor models.Actor) (string, time.Time, error)
 	UnlinkTelegram(ctx context.Context, actor models.Actor) error
+	UpdateShortcuts(ctx context.Context, actor models.Actor,
+		req models.UpdateShortcutsRequest) (*models.User, error)
+	ResetShortcuts(ctx context.Context, actor models.Actor) (*models.User, error)
 	RequestEmailChange(ctx context.Context, actor models.Actor, req models.ChangeEmailRequest) error
 	Deactivate(ctx context.Context, actor models.Actor) error
 }
@@ -41,6 +44,14 @@ func (c *ProfileController) allow(r *http.Request) bool {
 		return true
 	}
 	return c.limiter.Allow("profile-update:"+middleware.ActorFrom(r).UserID.String(),
+		c.limit, c.window)
+}
+
+func (c *ProfileController) allowShortcuts(r *http.Request) bool {
+	if c.limiter == nil {
+		return true
+	}
+	return c.limiter.Allow("shortcuts-update:"+middleware.ActorFrom(r).UserID.String(),
 		c.limit, c.window)
 }
 

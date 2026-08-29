@@ -19,7 +19,7 @@ export type BurningItem = {
   sortAt: number
 }
 
-export const STARTING_WINDOW_DAYS = 7
+const STARTING_WINDOW_DAYS = 7
 
 const DAY_MS = 86_400_000
 
@@ -71,7 +71,7 @@ export function compareByUrgency(a: BurningItem, b: BurningItem): number {
   return a.event.id.localeCompare(b.event.id)
 }
 
-export function compareByStart(a: BurningItem, b: BurningItem): number {
+function compareByStart(a: BurningItem, b: BurningItem): number {
   const aStart = new Date(a.event.start_at).getTime()
   const bStart = new Date(b.event.start_at).getTime()
   if (aStart !== bStart) return aStart - bStart
@@ -97,7 +97,7 @@ export const DEFAULT_FILTERS: BurningFilters = {
   needsAction: false,
 }
 
-export function isOpenState(event: MyEventItem): boolean {
+function isOpenState(event: MyEventItem): boolean {
   return !CLOSED_STATES.has(event.state)
 }
 

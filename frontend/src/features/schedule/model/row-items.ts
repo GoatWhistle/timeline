@@ -22,7 +22,7 @@ export type MomentItem = {
 
 export type RowItem = BarItem | MomentItem
 
-export const MOMENT_STAGE_TYPES: StageType[] = ['CHECKPOINT']
+const MOMENT_STAGE_TYPES: StageType[] = ['CHECKPOINT']
 
 export const DEADLINE_ITEM_ID = 'registration-deadline'
 

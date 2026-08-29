@@ -1077,6 +1077,8 @@ definitions:
         enum:
         - TELEGRAM
         - EMAIL
+      shortcuts:
+        $ref: '#/definitions/models.Shortcuts'
       telegram_linked:
         example: false
         type: boolean
@@ -1954,6 +1956,15 @@ definitions:
         example: Mozilla/5.0 (X11; Linux x86_64)
         type: string
     type: object
+  models.Shortcuts:
+    additionalProperties:
+      type: string
+    type: object
+  models.ShortcutsResponse:
+    properties:
+      shortcuts:
+        $ref: '#/definitions/models.Shortcuts'
+    type: object
   models.StageResponse:
     properties:
       city:
@@ -2306,6 +2317,11 @@ definitions:
         type: boolean
       offset_minutes:
         type: integer
+    type: object
+  models.UpdateShortcutsRequest:
+    properties:
+      shortcuts:
+        $ref: '#/definitions/models.Shortcuts'
     type: object
   models.UpdateStageRequest:
     properties:
@@ -6490,6 +6506,88 @@ paths:
       summary: Terminate one own session
       tags:
       - auth
+  /me/shortcuts:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ShortcutsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Reset every keyboard shortcut to its default
+      tags:
+      - profile
+    get:
+      description: The map binds an action identifier to a shortcut. An action missing
+        from the map keeps its default.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ShortcutsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Your own keyboard shortcut overrides
+      tags:
+      - profile
+    put:
+      consumes:
+      - application/json
+      description: |-
+        The whole map is replaced. Two actions may not claim the same shortcut,
+        and shortcuts owned by the browser or the operating system are refused.
+      parameters:
+      - description: Action to shortcut map
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateShortcutsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ShortcutsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: the shortcut is taken or reserved
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Replace your own keyboard shortcut overrides
+      tags:
+      - profile
   /me/tasks/{id}:
     delete:
       description: |-

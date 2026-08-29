@@ -22,11 +22,19 @@ func MeResponse(u *models.User) models.MeResponse {
 		WebsiteURL:       u.WebsiteURL,
 		Locale:           u.Locale,
 		Timezone:         u.Timezone,
+		Shortcuts:        Shortcuts(u.Shortcuts),
 		IsAdmin:          u.IsAdmin,
 		IsActive:         u.IsActive,
 		CreatedAt:        u.CreatedAt,
 		UpdatedAt:        u.UpdatedAt,
 	}
+}
+
+func Shortcuts(s models.Shortcuts) models.Shortcuts {
+	if s == nil {
+		return models.Shortcuts{}
+	}
+	return s
 }
 
 func EventResponse(h *models.Event, now time.Time, admin bool) models.EventResponse {

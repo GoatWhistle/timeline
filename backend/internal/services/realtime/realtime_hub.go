@@ -116,12 +116,6 @@ func (h *RealtimeHub) drop(match func(*Subscriber) bool) int {
 	return len(victims)
 }
 
-func (h *RealtimeHub) Connections() int {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-	return len(h.subscribers)
-}
-
 func (h *RealtimeHub) Broadcast(env models.RealtimeEnvelope, match func(*Subscriber) bool) {
 	h.mu.RLock()
 	targets := make([]*Subscriber, 0, len(h.subscribers))

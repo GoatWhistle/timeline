@@ -2,8 +2,8 @@ import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query
 import { api, unwrap } from '@/shared/api/client'
 import type { SystemEventPage, UnreadCountResponse } from '@/shared/api/types.gen'
 
-export const eventFeedQueryKey = ['events-feed'] as const
-export const unreadCountQueryKey = ['events-feed', 'unread-count'] as const
+const eventFeedQueryKey = ['events-feed'] as const
+const unreadCountQueryKey = ['events-feed', 'unread-count'] as const
 
 export const unreadCountQueryOptions = queryOptions<UnreadCountResponse>({
   queryKey: unreadCountQueryKey,

@@ -8,19 +8,6 @@ import (
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
-func (r *Events) ObservedState(ctx context.Context, key string) (string, error) {
-	var state string
-	err := r.db.Q(ctx).QueryRow(ctx,
-		`SELECT state FROM observed_states WHERE subject_key = $1`, key).Scan(&state)
-	if err != nil {
-		if mapped := mapError(err); errors.Is(mapped, models.ErrNotFound) {
-			return "", nil
-		}
-		return "", mapError(err)
-	}
-	return state, nil
-}
-
 func (r *Events) StoreObservedState(ctx context.Context, key, state string) (bool, time.Time, error) {
 	var changedAt time.Time
 	err := r.db.Q(ctx).QueryRow(ctx, `

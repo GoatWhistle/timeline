@@ -7118,6 +7118,160 @@
         }
       }
     },
+    "/me/shortcuts": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The map binds an action identifier to a shortcut. An action missing from the map keeps its default.",
+        "tags": [
+          "profile"
+        ],
+        "summary": "Your own keyboard shortcut overrides",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ShortcutsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The whole map is replaced. Two actions may not claim the same shortcut,\nand shortcuts owned by the browser or the operating system are refused.",
+        "tags": [
+          "profile"
+        ],
+        "summary": "Replace your own keyboard shortcut overrides",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.UpdateShortcutsRequest"
+              }
+            }
+          },
+          "description": "Action to shortcut map",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ShortcutsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "the shortcut is taken or reserved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "tags": [
+          "profile"
+        ],
+        "summary": "Reset every keyboard shortcut to its default",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ShortcutsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/me/tasks/{id}": {
       "delete": {
         "security": [
@@ -9197,6 +9351,9 @@
           "preferred_channel": {
             "$ref": "#/components/schemas/models.Channel"
           },
+          "shortcuts": {
+            "$ref": "#/components/schemas/models.Shortcuts"
+          },
           "telegram_linked": {
             "type": "boolean",
             "example": false
@@ -9226,6 +9383,7 @@
           "is_active",
           "is_admin",
           "locale",
+          "shortcuts",
           "telegram_linked",
           "timezone",
           "updated_at"
@@ -10641,6 +10799,23 @@
           "user_agent"
         ]
       },
+      "models.Shortcuts": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "models.ShortcutsResponse": {
+        "type": "object",
+        "properties": {
+          "shortcuts": {
+            "$ref": "#/components/schemas/models.Shortcuts"
+          }
+        },
+        "required": [
+          "shortcuts"
+        ]
+      },
       "models.StageResponse": {
         "type": "object",
         "properties": {
@@ -11152,6 +11327,14 @@
           },
           "offset_minutes": {
             "type": "integer"
+          }
+        }
+      },
+      "models.UpdateShortcutsRequest": {
+        "type": "object",
+        "properties": {
+          "shortcuts": {
+            "$ref": "#/components/schemas/models.Shortcuts"
           }
         }
       },

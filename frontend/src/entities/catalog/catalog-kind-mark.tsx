@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import type { EventKind } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
 
-export const EVENT_KIND_KEY: Record<EventKind, string> = {
+const EVENT_KIND_KEY: Record<EventKind, string> = {
   HACKATHON: 'catalog.kindLabel.HACKATHON',
   MEETUP: 'catalog.kindLabel.MEETUP',
 }

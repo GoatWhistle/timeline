@@ -23,6 +23,8 @@
   "restrict_violation": "The record cannot be deleted because it is still referenced.",
   "rule_limit_reached": "A registration accepts at most 10 rules.",
   "self_delete": "You cannot delete your own account.",
+  "shortcut_conflict": "This shortcut is already taken by another action.",
+  "shortcut_reserved": "This shortcut belongs to the browser or the operating system.",
   "task_limit_reached": "The task limit for this event is reached.",
   "unauthorized": "Sign-in is required.",
   "unique_violation": "A record with these values already exists.",

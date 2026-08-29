@@ -33,14 +33,6 @@ func (k LinkKind) Valid() bool {
 	return false
 }
 
-func LinkKinds() []LinkKind {
-	return []LinkKind{
-		LinkWebsite, LinkRules, LinkRegistration, LinkSubmission,
-		LinkChat, LinkDataset, LinkAPIDocs, LinkJudging,
-		LinkMentors, LinkResults, LinkSponsor, LinkOther,
-	}
-}
-
 type ResourceLink struct {
 	ID        uuid.UUID  `json:"id"`
 	EventID   uuid.UUID  `json:"event_id"`

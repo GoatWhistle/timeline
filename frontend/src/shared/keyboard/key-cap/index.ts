@@ -1,1 +1,1 @@
-export { KeyCap, keySteps } from './key-cap'
+export { KeyCap, keyGlyph, keySteps } from './key-cap'

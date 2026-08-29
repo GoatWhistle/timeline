@@ -60,7 +60,6 @@
     "en": "English"
   },
   "link": {
-    "external": "External link",
     "insecure": "Not HTTPS",
     "insecureHint": "This address opens over an unencrypted protocol. The link still works, but data travels in the clear."
   }

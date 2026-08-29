@@ -2,7 +2,6 @@ package realtime
 
 import (
 	"context"
-	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -83,16 +82,6 @@ func (s *SystemEventService) EmitOnTransition(ctx context.Context, subjectKey, s
 	}
 	req.DedupKey = subjectKey + ":" + state + ":" + changedAt.UTC().Format(time.RFC3339Nano)
 	return s.Emit(ctx, req)
-}
-
-func (s *SystemEventService) Invalidate(ctx context.Context, keys []string,
-	userID *uuid.UUID, admin bool) {
-	if len(keys) == 0 {
-		return
-	}
-	if err := s.events.Publish(ctx, systemevent.Signal{Keys: keys, UserID: userID, Admin: admin}); err != nil {
-		slog.WarnContext(ctx, "cache invalidation was not published", "error", err, "keys", keys)
-	}
 }
 
 func (s *SystemEventService) Cleanup(ctx context.Context, retention time.Duration) (int64, error) {

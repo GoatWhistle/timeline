@@ -8,7 +8,7 @@ import type {
   UpdateEventRequest,
 } from '@/shared/api/types.gen'
 
-export const eventKeys = {
+const eventKeys = {
   mine: (params: Record<string, unknown>) => ['my-events', params] as const,
   card: (id: string) => ['event-card', id] as const,
   adminList: (params: Record<string, unknown>) => ['admin-events', params] as const,

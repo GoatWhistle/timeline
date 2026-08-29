@@ -4,14 +4,14 @@ export type Range = { from: number; to: number }
 
 const DAY_MS = 86_400_000
 
-export const SCALE_SPAN_DAYS: Record<ScheduleScale, number> = {
+const SCALE_SPAN_DAYS: Record<ScheduleScale, number> = {
   week: 21,
   month: 92,
   quarter: 366,
 }
 
 export const MIN_SPAN_MS = DAY_MS
-export const RANGE_PADDING = 0.08
+const RANGE_PADDING = 0.08
 
 export function spanOf(range: Range): number {
   return Math.max(MIN_SPAN_MS, range.to - range.from)

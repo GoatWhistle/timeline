@@ -1,5 +1,5 @@
 import createClient, { type Middleware } from 'openapi-fetch'
-import { ApiError, toApiError } from './errors'
+import { toApiError } from './errors'
 import type { paths } from './schema'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
@@ -133,5 +133,3 @@ export async function unwrap<T>(promise: Promise<Result<T>>): Promise<T> {
   if (error !== undefined || !response.ok) throw toApiError(response.status, error)
   return data as T
 }
-
-export { ApiError }

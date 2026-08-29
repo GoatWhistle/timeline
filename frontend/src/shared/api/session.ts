@@ -5,7 +5,7 @@ import type { MeResponse } from './types.gen'
 
 export const sessionQueryKey = ['session'] as const
 
-export const sessionQueryOptions = queryOptions<MeResponse>({
+const sessionQueryOptions = queryOptions<MeResponse>({
   queryKey: sessionQueryKey,
   queryFn: () => unwrap(api.GET('/me')),
   retry: false,

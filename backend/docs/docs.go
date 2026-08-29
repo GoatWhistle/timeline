@@ -5780,6 +5780,132 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/shortcuts": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The map binds an action identifier to a shortcut. An action missing from the map keeps its default.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Your own keyboard shortcut overrides",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortcutsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The whole map is replaced. Two actions may not claim the same shortcut,\nand shortcuts owned by the browser or the operating system are refused.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Replace your own keyboard shortcut overrides",
+                "parameters": [
+                    {
+                        "description": "Action to shortcut map",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateShortcutsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortcutsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "the shortcut is taken or reserved",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Reset every keyboard shortcut to its default",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortcutsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me/tasks/{id}": {
             "delete": {
                 "security": [
@@ -7707,6 +7833,9 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "shortcuts": {
+                    "$ref": "#/definitions/models.Shortcuts"
+                },
                 "telegram_linked": {
                     "type": "boolean",
                     "example": false
@@ -9025,6 +9154,20 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Shortcuts": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "models.ShortcutsResponse": {
+            "type": "object",
+            "properties": {
+                "shortcuts": {
+                    "$ref": "#/definitions/models.Shortcuts"
+                }
+            }
+        },
         "models.StageResponse": {
             "type": "object",
             "properties": {
@@ -9533,6 +9676,14 @@ const docTemplate = `{
                 },
                 "offset_minutes": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.UpdateShortcutsRequest": {
+            "type": "object",
+            "properties": {
+                "shortcuts": {
+                    "$ref": "#/definitions/models.Shortcuts"
                 }
             }
         },

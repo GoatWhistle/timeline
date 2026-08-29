@@ -100,15 +100,6 @@ func (r *Events) MarkAllRead(ctx context.Context, userID uuid.UUID, isAdmin bool
 	return tag.RowsAffected(), nil
 }
 
-func (r *Events) Visible(ctx context.Context, id uuid.UUID, userID uuid.UUID, isAdmin bool) (bool, error) {
-	var exists bool
-	err := r.db.Q(ctx).QueryRow(ctx, `
-		SELECT EXISTS (SELECT 1 FROM system_events e
-		               WHERE e.id = $3 AND `+audienceFilter+`)`,
-		userID, isAdmin, id).Scan(&exists)
-	return exists, mapError(err)
-}
-
 func (r *Events) DeleteOlderThan(ctx context.Context, before time.Time) (int64, error) {
 	tag, err := r.db.Q(ctx).Exec(ctx,
 		`DELETE FROM system_events WHERE created_at < $1`, before)

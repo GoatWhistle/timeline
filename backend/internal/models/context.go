@@ -13,10 +13,6 @@ type Actor struct {
 	RequestID string
 }
 
-func SystemActor(requestID string) Actor {
-	return Actor{RequestID: requestID}
-}
-
 func (a Actor) IsSystem() bool { return a.UserID == uuid.Nil }
 
 func (a Actor) UserRef() *uuid.UUID {
