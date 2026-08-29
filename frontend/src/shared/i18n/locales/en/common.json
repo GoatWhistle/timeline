@@ -324,9 +324,31 @@
     "sectionProfile": "Profile",
     "sectionAppearance": "Appearance",
     "sectionNotifications": "Notifications",
-    "sectionDanger": "Account"
+    "sectionDanger": "Account",
+    "timezone": "Time zone",
+    "timezoneHint": "All dates and deadlines are shown in this zone. Everything is stored in UTC."
   },
   "realtime": {
     "offline": "No live connection — data refreshes less often"
+  },
+  "timezone": {
+    "legend": "Time zone selection",
+    "placeholder": "Select a zone",
+    "systemNote": "System time: {{time}}",
+    "updated": "The time zone is saved",
+    "failed": "The time zone could not be saved"
+  },
+  "countdown": {
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "hours_one": "{{count}} hour",
+    "hours_other": "{{count}} hours",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "seconds_one": "{{count}} second",
+    "seconds_other": "{{count}} seconds",
+    "left": "{{amount}} left",
+    "past": "the deadline has passed",
+    "label": "Time remaining"
   }
 }

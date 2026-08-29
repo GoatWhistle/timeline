@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,7 +35,8 @@ func NewRegistrationService(db *postgres.DB, registrations *participation.Regist
 	}
 }
 
-func (s *RegistrationService) Get(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*models.Registration, error) {
+func (s *RegistrationService) Get(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+) (*models.Registration, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -87,7 +87,9 @@ func (s *RegistrationService) Create(ctx context.Context, actor models.Actor, ev
 	return created, nil
 }
 
-func (s *RegistrationService) seedStatuses(ctx context.Context, event *models.Event, registration *models.Registration) error {
+func (s *RegistrationService) seedStatuses(ctx context.Context, event *models.Event,
+	registration *models.Registration,
+) error {
 	participants, err := s.participants.ListAssigned(ctx, event.ID)
 	if err != nil {
 		return err
@@ -257,11 +259,4 @@ func (s *RegistrationService) reconcile(ctx context.Context, eventID uuid.UUID) 
 	if err := s.reconciler.ReconcileEvent(ctx, eventID); err != nil {
 		logReconcileFailure(ctx, eventID, err)
 	}
-}
-
-func notFoundRegistration(err error) error {
-	if errors.Is(err, models.ErrNotFound) {
-		return models.NewNotFound("event registration is not configured")
-	}
-	return err
 }

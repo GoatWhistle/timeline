@@ -6,7 +6,7 @@ export const ADMIN_EMAIL = process.env.CONTRACT_ADMIN_EMAIL ?? 'contract-admin@e
 export const ADMIN_PASSWORD = process.env.CONTRACT_ADMIN_PASSWORD ?? 'contract-password-123'
 export const MEMBER_PASSWORD = 'contract-e2e-123'
 
-type Jar = Map<string, string>
+export type Jar = Map<string, string>
 
 function absorb(jar: Jar, response: Response): void {
   for (const raw of response.headers.getSetCookie()) {
@@ -19,7 +19,7 @@ function absorb(jar: Jar, response: Response): void {
 
 const cookieHeader = (jar: Jar) => [...jar].map(([name, value]) => `${name}=${value}`).join('; ')
 
-async function call(
+export async function call(
   jar: Jar,
   method: string,
   path: string,
@@ -42,10 +42,9 @@ async function call(
   return { status: response.status, json: text ? JSON.parse(text) : null }
 }
 
-export async function createMember(): Promise<{ email: string; password: string }> {
+export async function adminJar(): Promise<Jar> {
   const jar: Jar = new Map()
   await call(jar, 'GET', '/auth/csrf')
-
   const signedIn = await call(jar, 'POST', '/auth/login', {
     email: ADMIN_EMAIL,
     password: ADMIN_PASSWORD,
@@ -53,6 +52,11 @@ export async function createMember(): Promise<{ email: string; password: string 
   if (signedIn.status !== 200) {
     throw new Error(`the administrator could not sign in: ${signedIn.status}`)
   }
+  return jar
+}
+
+export async function createMember(): Promise<{ email: string; password: string; id: string }> {
+  const jar = await adminJar()
 
   const email = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`
   const invited = await call(jar, 'POST', '/admin/invites', { email })
@@ -71,5 +75,8 @@ export async function createMember(): Promise<{ email: string; password: string 
   })
   if (accepted.status !== 200) throw new Error(`the invite was not accepted: ${accepted.status}`)
 
-  return { email, password: MEMBER_PASSWORD }
+  const id = (accepted.json as { user?: { id?: string } }).user?.id
+  if (!id) throw new Error('accepting the invite returned no user')
+
+  return { email, password: MEMBER_PASSWORD, id }
 }

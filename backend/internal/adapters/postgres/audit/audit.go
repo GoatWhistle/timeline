@@ -36,7 +36,8 @@ func marshalOrNil(value any) ([]byte, error) {
 	return json.Marshal(value)
 }
 
-func (r *Audit) List(ctx context.Context, filter models.AuditFilter, page models.Page) ([]models.AuditResponse, int64, error) {
+func (r *Audit) List(ctx context.Context, filter models.AuditFilter, page models.Page,
+) ([]models.AuditResponse, int64, error) {
 	conds := make([]string, 0, 6)
 	args := make([]any, 0, 6)
 

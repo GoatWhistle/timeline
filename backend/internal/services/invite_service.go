@@ -94,7 +94,8 @@ func (s *InviteService) Create(ctx context.Context, actor models.Actor, email st
 	return invite, secret, nil
 }
 
-func (s *InviteService) List(ctx context.Context, actor models.Actor, page models.Page) ([]models.Invite, int64, error) {
+func (s *InviteService) List(ctx context.Context, actor models.Actor, page models.Page,
+) ([]models.Invite, int64, error) {
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("the invite list is restricted to administrators")
 	}
@@ -133,7 +134,8 @@ func (s *InviteService) Preview(ctx context.Context, token string) (*models.Invi
 	}, nil
 }
 
-func (s *InviteService) Accept(ctx context.Context, req models.AcceptInviteRequest, meta models.SessionMeta) (*models.User, *models.TokenPair, error) {
+func (s *InviteService) Accept(ctx context.Context, req models.AcceptInviteRequest, meta models.SessionMeta,
+) (*models.User, *models.TokenPair, error) {
 	invite, err := s.invites.GetByHash(ctx, HashSecret(req.Token))
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {

@@ -7,7 +7,7 @@ import {
   REGISTRATION_STATUS_KEY,
 } from '@/entities/registration/registration.labels'
 import type { DeadlineItem, DeadlinePage } from '@/shared/api/types.gen'
-import { formatDateTime, formatDuration, formatRelative } from '@/shared/datetime/datetime'
+import { formatDuration, formatRelative } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
@@ -28,6 +28,7 @@ import {
 import { PageHeader } from '@/shared/ui/layout/page-header'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/navigation/tabs'
+import { DeadlineTime } from '@/shared/ui/primitives/deadline-time/deadline-time'
 import { Dot } from '@/shared/ui/primitives/dot'
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 
@@ -85,7 +86,7 @@ function DeadlineTable({
                 </Link>
               </TableCell>
               <TableCell className="whitespace-nowrap text-muted-foreground">
-                {formatDateTime(item.deadline_at)}
+                <DeadlineTime iso={item.deadline_at} />
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 {showOverdue && item.overdue_minutes !== undefined

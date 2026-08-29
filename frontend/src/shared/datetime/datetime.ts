@@ -7,6 +7,49 @@ import { DEFAULT_LOCALE, isLocale, type Locale } from '@/shared/i18n/locale'
 
 export const SYSTEM_TIME_ZONE = 'Europe/Moscow'
 
+let activeTimeZone: string = SYSTEM_TIME_ZONE
+
+export function isTimeZone(value: string | null | undefined): value is string {
+  if (!value) return false
+  try {
+    new Intl.DateTimeFormat('en', { timeZone: value })
+    return true
+  } catch {
+    return false
+  }
+}
+
+export function setTimeZone(value: string | null | undefined): void {
+  activeTimeZone = isTimeZone(value) ? value : SYSTEM_TIME_ZONE
+}
+
+export function currentTimeZone(): string {
+  return activeTimeZone
+}
+
+export function browserTimeZone(): string {
+  const detected = Intl.DateTimeFormat().resolvedOptions().timeZone
+  return isTimeZone(detected) ? detected : SYSTEM_TIME_ZONE
+}
+
+export function zoneAbbreviation(iso: string | null | undefined, zone = currentTimeZone()): string {
+  const date = toZoned(iso, zone)
+  if (!date) return ''
+  const parts = new Intl.DateTimeFormat('en', {
+    timeZone: zone,
+    timeZoneName: 'shortOffset',
+  }).formatToParts(date)
+  return parts.find((part) => part.type === 'timeZoneName')?.value ?? ''
+}
+
+export function zonesAgree(iso: string | null | undefined): boolean {
+  const date = toZoned(iso, currentTimeZone())
+  if (!date) return true
+  const inPersonal = format(new TZDate(date, currentTimeZone()), 'yyyy-MM-dd HH:mm')
+  const inSystem = format(new TZDate(date, SYSTEM_TIME_ZONE), 'yyyy-MM-dd HH:mm')
+  return inPersonal === inSystem
+}
+
 const DATE_FNS_LOCALES: Record<Locale, DateFnsLocale> = { ru, en: enUS }
 
 const DATE_TIME_PATTERN: Record<Locale, string> = {
@@ -33,15 +76,25 @@ function dateFnsLocale(locale: Locale): DateFnsLocale {
   return DATE_FNS_LOCALES[locale]
 }
 
-function toZoned(iso: string | null | undefined): TZDate | null {
+function toZoned(iso: string | null | undefined, zone = currentTimeZone()): TZDate | null {
   if (!iso) return null
   const parsed = parseISO(iso)
   if (!isValid(parsed)) return null
-  return new TZDate(parsed, SYSTEM_TIME_ZONE)
+  return new TZDate(parsed, zone)
 }
 
 export function formatDateTime(iso: string | null | undefined, locale = currentLocale()): string {
   const date = toZoned(iso)
+  if (!date) return '—'
+  return format(date, DATE_TIME_PATTERN[locale], { locale: dateFnsLocale(locale) })
+}
+
+export function formatInZone(
+  iso: string | null | undefined,
+  zone: string,
+  locale = currentLocale(),
+): string {
+  const date = toZoned(iso, zone)
   if (!date) return '—'
   return format(date, DATE_TIME_PATTERN[locale], { locale: dateFnsLocale(locale) })
 }
@@ -131,7 +184,7 @@ export function formatEventMoment(
   const date = toZoned(iso)
   if (!date) return '—'
   const t = i18n.getFixedT(null, 'common')
-  const zonedBase = new TZDate(base, SYSTEM_TIME_ZONE)
+  const zonedBase = new TZDate(base, currentTimeZone())
   const options = { locale: dateFnsLocale(locale) }
   const time = format(date, TIME_PATTERN, options)
 

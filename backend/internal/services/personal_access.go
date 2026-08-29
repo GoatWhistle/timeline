@@ -24,6 +24,7 @@ type PersonalService struct {
 	bookmarks    *personal.Bookmarks
 	templates    *personal.Templates
 	history      *personal.History
+	retros       *personal.Retrospectives
 	events       *event.Events
 	stages       *event.Stages
 	participants *participation.Participants
@@ -42,6 +43,10 @@ func NewPersonalService(db *postgres.DB, tasks *personal.Tasks, notes *personal.
 		stages: stages, participants: participants, limits: limits,
 		now: func() time.Time { return time.Now().UTC() },
 	}
+}
+
+func (s *PersonalService) WithRetrospectives(retros *personal.Retrospectives) {
+	s.retros = retros
 }
 
 func (s *PersonalService) owner(actor models.Actor) (uuid.UUID, error) {

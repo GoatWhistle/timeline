@@ -1,13 +1,35 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type ResourceLinkService interface {
+	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ResourceLink, error)
+	Create(
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateResourceLinkRequest,
+	) (*models.ResourceLink, error)
+	Update(
+		ctx context.Context, actor models.Actor, eventID, linkID uuid.UUID, req models.UpdateResourceLinkRequest,
+	) (*models.ResourceLink, error)
+	Delete(ctx context.Context, actor models.Actor, eventID, linkID uuid.UUID) error
+	ListPersonal(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ParticipantLink, error)
+	CreatePersonal(
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateParticipantLinkRequest,
+	) (*models.ParticipantLink, error)
+	UpdatePersonal(
+		ctx context.Context, actor models.Actor, linkID uuid.UUID, req models.UpdateParticipantLinkRequest,
+	) (*models.ParticipantLink, error)
+	DeletePersonal(ctx context.Context, actor models.Actor, linkID uuid.UUID) error
+}
 
 type ResourceLinkController struct {
 	links   ResourceLinkService

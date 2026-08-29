@@ -128,15 +128,19 @@ func (s *ParticipantService) CopyFrom(ctx context.Context, actor models.Actor, e
 	return s.AddMany(ctx, actor, eventID, models.AddParticipantsRequest{Items: items})
 }
 
-func (s *ParticipantService) response(ctx context.Context, p *models.EventParticipant) (*models.ParticipantResponse, error) {
+func (s *ParticipantService) response(ctx context.Context, p *models.EventParticipant,
+) (*models.ParticipantResponse, error) {
 	user, err := s.users.GetByID(ctx, p.UserID)
 	if err != nil {
 		return nil, err
 	}
 	resp := &models.ParticipantResponse{
-		ID:                  p.ID,
-		EventID:             p.EventID,
-		User:                models.UserSummary{ID: user.ID, DisplayName: user.DisplayName, Email: user.Email, IsActive: user.IsActive},
+		ID:      p.ID,
+		EventID: p.EventID,
+		User: models.UserSummary{
+			ID: user.ID, DisplayName: user.DisplayName,
+			Email: user.Email, IsActive: user.IsActive,
+		},
 		TeamRole:            p.TeamRole,
 		ParticipationStatus: p.ParticipationStatus,
 		AssignmentVersion:   p.AssignmentVersion,

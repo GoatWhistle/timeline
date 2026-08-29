@@ -1,11 +1,15 @@
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
+import { useUpdateProfile } from '@/entities/user/profile.queries'
 import { AccountActionsCard } from '@/features/profile/account-actions-card/account-actions-card'
 import { EmailChangeCard } from '@/features/profile/email-change-card/email-change-card'
 import { NotificationChannelCard } from '@/features/profile/notification-channel-card/notification-channel-card'
 import { PersonalDataCard } from '@/features/profile/personal-data-card/personal-data-card'
 import type { MeResponse } from '@/shared/api/types.gen'
+import { SYSTEM_TIME_ZONE } from '@/shared/datetime/datetime'
 import { LanguageToggle } from '@/shared/ui/primitives/language-toggle'
 import { ThemeToggle } from '@/shared/ui/primitives/theme-toggle'
+import { TimezoneSelect } from '@/shared/ui/primitives/timezone-select/timezone-select'
 import type { SettingsSectionId } from './sections'
 
 function Row({ title, hint, control }: { title: string; hint: string; control: React.ReactNode }) {
@@ -20,8 +24,19 @@ function Row({ title, hint, control }: { title: string; hint: string; control: R
   )
 }
 
-export function AppearancePanel() {
+export function AppearancePanel({ user }: { user: MeResponse }) {
   const { t } = useTranslation()
+  const updateProfile = useUpdateProfile()
+
+  async function onChangeTimezone(value: string) {
+    try {
+      await updateProfile.mutateAsync({ timezone: value })
+      toast.success(t('timezone.updated'))
+    } catch {
+      toast.error(t('timezone.failed'))
+    }
+  }
+
   return (
     <div className="divide-y divide-border">
       <Row title={t('settings.theme')} hint={t('settings.themeHint')} control={<ThemeToggle />} />
@@ -30,12 +45,23 @@ export function AppearancePanel() {
         hint={t('settings.languageHint')}
         control={<LanguageToggle />}
       />
+      <Row
+        title={t('settings.timezone')}
+        hint={t('settings.timezoneHint')}
+        control={
+          <TimezoneSelect
+            value={user.timezone ?? SYSTEM_TIME_ZONE}
+            onChange={onChangeTimezone}
+            disabled={updateProfile.isPending}
+          />
+        }
+      />
     </div>
   )
 }
 
 export function SettingsPanel({ section, user }: { section: SettingsSectionId; user: MeResponse }) {
-  if (section === 'appearance') return <AppearancePanel />
+  if (section === 'appearance') return <AppearancePanel user={user} />
 
   if (section === 'notifications') {
     return (

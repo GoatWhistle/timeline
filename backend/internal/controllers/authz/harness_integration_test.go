@@ -83,6 +83,7 @@ func newStack(t *testing.T) *stack {
 	bookmarksRepo := personal.NewBookmarks(db)
 	templatesRepo := personal.NewTemplates(db)
 	historyRepo := personal.NewHistory(db)
+	retrosRepo := personal.NewRetrospectives(db)
 
 	hasher := services.NewPasswordHasher(cfg.Argon)
 	issuer := services.NewTokenIssuer(cfg.Auth)
@@ -91,6 +92,10 @@ func newStack(t *testing.T) *stack {
 	tg := telegram.New(cfg.Telegram)
 
 	auditSvc := services.NewAuditService(auditRepo)
+	personalSvc := services.NewPersonalService(db, tasksRepo, notesRepo, artifactsRepo,
+		outcomesRepo, bookmarksRepo, templatesRepo, historyRepo,
+		events, stages, participants, cfg.Personal)
+	personalSvc.WithRetrospectives(retrosRepo)
 	linksRepo := resourcelink.NewLinks(db)
 	userLinksRepo := resourcelink.NewPersonalLinks(db)
 	notifier := services.NewNotificationService(notifications, cfg)
@@ -126,14 +131,13 @@ func newStack(t *testing.T) *stack {
 		Audit:    auditSvc,
 		Ops:      services.NewOpsService(db, scheduleRepo, notifications, cfg),
 		Previews: scheduler,
-		Personal: services.NewPersonalService(db, tasksRepo, notesRepo, artifactsRepo,
-			outcomesRepo, bookmarksRepo, templatesRepo, historyRepo,
-			events, stages, participants, cfg.Personal),
+		Personal: personalSvc,
 		Links: services.NewResourceLinkService(db, linksRepo, userLinksRepo,
 			events, stages, participants, auditSvc, cfg.Links),
-		Feed:     feed,
-		Realtime: hub,
-		Sessions: auth,
+		Feed:          feed,
+		Notifications: notifier,
+		Realtime:      hub,
+		Sessions:      auth,
 
 		Authenticator:      auth,
 		Limiter:            limiter,

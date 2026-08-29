@@ -1,8 +1,8 @@
 {
-  "measuredAt": "2026-08-28",
+  "measuredAt": "2026-08-29",
   "tool": "golangci-lint v2.6",
   "config": "backend/.golangci.yml",
   "target": "make back-lint",
-  "total": 78,
+  "total": 21,
   "note": "Second layer of the ratchet: on a push to main the merge-base is empty, so --new-from-merge-base checks nothing and only this counter holds the line. Baseline is only lowered."
 }

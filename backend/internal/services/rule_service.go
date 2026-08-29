@@ -28,7 +28,8 @@ func NewRuleService(db *postgres.DB, rules *participation.Rules,
 		reconciler: reconciler, audit: audit, cfg: cfg}
 }
 
-func (s *RuleService) List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.NotificationRule, error) {
+func (s *RuleService) List(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+) ([]models.NotificationRule, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -37,6 +38,21 @@ func (s *RuleService) List(ctx context.Context, actor models.Actor, eventID uuid
 		return nil, notFoundRegistration(err)
 	}
 	return s.rules.ListByRegistration(ctx, registration.ID)
+}
+
+func (s *RuleService) resolveSlot(ctx context.Context, registrationID uuid.UUID, requested *int) (int, error) {
+	if requested == nil {
+		return s.rules.NextFreeSlot(ctx, registrationID, s.cfg.Notify.MaxRulesPerReg)
+	}
+	slot := *requested
+	if slot < 1 || slot > s.cfg.Notify.MaxRulesPerReg {
+		return 0, models.NewValidation("invalid slot number",
+			models.FieldError{
+				Field:   "slot_no",
+				Message: "allowed values range from 1 to " + itoa(s.cfg.Notify.MaxRulesPerReg),
+			})
+	}
+	return slot, nil
 }
 
 func (s *RuleService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
@@ -63,18 +79,9 @@ func (s *RuleService) Create(ctx context.Context, actor models.Actor, eventID uu
 			return notFoundRegistration(err)
 		}
 
-		slot := 0
-		if req.SlotNo != nil {
-			slot = *req.SlotNo
-			if slot < 1 || slot > s.cfg.Notify.MaxRulesPerReg {
-				return models.NewValidation("invalid slot number",
-					models.FieldError{Field: "slot_no", Message: "allowed values range from 1 to " + itoa(s.cfg.Notify.MaxRulesPerReg)})
-			}
-		} else {
-			slot, err = s.rules.NextFreeSlot(ctx, registration.ID, s.cfg.Notify.MaxRulesPerReg)
-			if err != nil {
-				return err
-			}
+		slot, err := s.resolveSlot(ctx, registration.ID, req.SlotNo)
+		if err != nil {
+			return err
 		}
 
 		created, err = s.rules.Create(ctx, &models.NotificationRule{
@@ -88,14 +95,15 @@ func (s *RuleService) Create(ctx context.Context, actor models.Actor, eventID uu
 			return err
 		}
 
-		if _, err := s.registrations.BumpScheduleVersion(ctx, registration.ID); err != nil {
-			return err
-		}
-		if err := s.notifier.CancelForRegistration(ctx, registration.ID); err != nil {
+		if err := s.resetSchedule(ctx, registration.ID); err != nil {
 			return err
 		}
 		return s.audit.Record(ctx, actor, models.AuditRuleChange, models.EntityNotificationRule, created.ID, nil,
-			map[string]any{"offset_minutes": created.OffsetMinutes, "slot_no": created.SlotNo, "enabled": created.Enabled})
+			map[string]any{
+				"offset_minutes": created.OffsetMinutes,
+				"slot_no":        created.SlotNo,
+				"enabled":        created.Enabled,
+			})
 	})
 	if err != nil {
 		return nil, err
@@ -103,6 +111,26 @@ func (s *RuleService) Create(ctx context.Context, actor models.Actor, eventID uu
 
 	s.reconcile(ctx, eventID)
 	return created, nil
+}
+
+func ruleScheduleChanged(req models.UpdateRuleRequest, before *models.NotificationRule) bool {
+	return (req.OffsetMinutes != nil && *req.OffsetMinutes != before.OffsetMinutes) ||
+		(req.Enabled != nil && *req.Enabled != before.Enabled)
+}
+
+func ruleAuditState(rule *models.NotificationRule) map[string]any {
+	return map[string]any{
+		"offset_minutes":   rule.OffsetMinutes,
+		"enabled":          rule.Enabled,
+		"channel_override": rule.ChannelOverride,
+	}
+}
+
+func (s *RuleService) resetSchedule(ctx context.Context, registrationID uuid.UUID) error {
+	if _, err := s.registrations.BumpScheduleVersion(ctx, registrationID); err != nil {
+		return err
+	}
+	return s.notifier.CancelForRegistration(ctx, registrationID)
 }
 
 func (s *RuleService) Update(ctx context.Context, actor models.Actor, ruleID uuid.UUID,
@@ -141,21 +169,13 @@ func (s *RuleService) Update(ctx context.Context, actor models.Actor, ruleID uui
 			return err
 		}
 
-		scheduleChanged := (req.OffsetMinutes != nil && *req.OffsetMinutes != before.OffsetMinutes) ||
-			(req.Enabled != nil && *req.Enabled != before.Enabled)
-		if scheduleChanged {
-			if _, err := s.registrations.BumpScheduleVersion(ctx, reg.ID); err != nil {
-				return err
-			}
-			if err := s.notifier.CancelForRegistration(ctx, reg.ID); err != nil {
+		if ruleScheduleChanged(req, before) {
+			if err := s.resetSchedule(ctx, reg.ID); err != nil {
 				return err
 			}
 		}
 		return s.audit.Record(ctx, actor, models.AuditRuleChange, models.EntityNotificationRule, ruleID,
-			map[string]any{"offset_minutes": before.OffsetMinutes, "enabled": before.Enabled,
-				"channel_override": before.ChannelOverride},
-			map[string]any{"offset_minutes": updated.OffsetMinutes, "enabled": updated.Enabled,
-				"channel_override": updated.ChannelOverride})
+			ruleAuditState(before), ruleAuditState(updated))
 	})
 	if err != nil {
 		return nil, err

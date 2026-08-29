@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/GoatWhistle/timeline/internal/locale"
@@ -94,6 +95,19 @@ func parseLocale(field, value string) (string, error) {
 	return normalized, nil
 }
 
+func parseTimezone(field, value string) (string, error) {
+	normalized := strings.TrimSpace(value)
+	if normalized == "" || len(normalized) > 64 {
+		return "", models.NewValidation("unsupported time zone",
+			models.FieldError{Field: field, Message: "an IANA time zone identifier is required"})
+	}
+	if _, err := time.LoadLocation(normalized); err != nil {
+		return "", models.NewValidation("unsupported time zone",
+			models.FieldError{Field: field, Message: "an IANA time zone identifier is required"})
+	}
+	return normalized, nil
+}
+
 func profilePatch(req models.UpdateProfileRequest) (models.ProfilePatch, error) {
 	var patch models.ProfilePatch
 	if req.DisplayName != nil {
@@ -131,6 +145,13 @@ func profilePatch(req models.UpdateProfileRequest) (models.ProfilePatch, error) 
 			return patch, err
 		}
 		patch.Locale = &value
+	}
+	if req.Timezone != nil {
+		value, err := parseTimezone("timezone", *req.Timezone)
+		if err != nil {
+			return patch, err
+		}
+		patch.Timezone = &value
 	}
 	return patch, nil
 }

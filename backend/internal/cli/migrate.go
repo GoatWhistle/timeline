@@ -25,67 +25,67 @@ func newMigrateCmd() *cobra.Command {
 		Long:  "Apply and roll back schema migrations. The migration source is embedded in the binary.",
 	}
 	cmd.AddCommand(
-		&cobra.Command{
-			Use:   "up",
-			Short: "Apply all pending migrations",
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return withMigrator(func(m *migrate.Migrate) error {
-					return report(m.Up())
-				})
-			},
-		},
-		&cobra.Command{
-			Use:   "down",
-			Short: "Roll back a single migration",
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return withMigrator(func(m *migrate.Migrate) error {
-					return report(m.Steps(-1))
-				})
-			},
-		},
-		&cobra.Command{
-			Use:   "drop",
-			Short: "Roll back all migrations",
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return withMigrator(func(m *migrate.Migrate) error {
-					return report(m.Down())
-				})
-			},
-		},
-		&cobra.Command{
-			Use:   "version",
-			Short: "Show the current schema version",
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return withMigrator(func(m *migrate.Migrate) error {
-					version, dirty, err := m.Version()
-					if errors.Is(err, migrate.ErrNilVersion) {
-						cmd.Println("schema is empty")
-						return nil
-					}
-					if err != nil {
-						return err
-					}
-					cmd.Printf("version %d, dirty=%t\n", version, dirty)
-					return nil
-				})
-			},
-		},
-		&cobra.Command{
-			Use:   "force <version>",
-			Short: "Force the schema version after manual intervention",
-			Args:  cobra.ExactArgs(1),
-			RunE: func(cmd *cobra.Command, args []string) error {
-				version, err := strconv.Atoi(args[0])
-				if err != nil {
-					return fmt.Errorf("version must be a number: %w", err)
-				}
-				return withMigrator(func(m *migrate.Migrate) error {
-					return m.Force(version)
-				})
-			},
-		},
+		migrateStep("up", "Apply all pending migrations", func(m *migrate.Migrate) error {
+			return report(m.Up())
+		}),
+		migrateStep("down", "Roll back a single migration", func(m *migrate.Migrate) error {
+			return report(m.Steps(-1))
+		}),
+		migrateStep("drop", "Roll back all migrations", func(m *migrate.Migrate) error {
+			return report(m.Down())
+		}),
+		migrateVersionCmd(),
+		migrateForceCmd(),
 	)
 	return cmd
+}
+
+func migrateStep(use, short string, run func(*migrate.Migrate) error) *cobra.Command {
+	return &cobra.Command{
+		Use:   use,
+		Short: short,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return withMigrator(run)
+		},
+	}
+}
+
+func migrateVersionCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Show the current schema version",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return withMigrator(func(m *migrate.Migrate) error {
+				version, dirty, err := m.Version()
+				if errors.Is(err, migrate.ErrNilVersion) {
+					cmd.Println("schema is empty")
+					return nil
+				}
+				if err != nil {
+					return err
+				}
+				cmd.Printf("version %d, dirty=%t\n", version, dirty)
+				return nil
+			})
+		},
+	}
+}
+
+func migrateForceCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "force <version>",
+		Short: "Force the schema version after manual intervention",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			version, err := strconv.Atoi(args[0])
+			if err != nil {
+				return fmt.Errorf("version must be a number: %w", err)
+			}
+			return withMigrator(func(m *migrate.Migrate) error {
+				return m.Force(version)
+			})
+		},
+	}
 }
 
 func withMigrator(fn func(*migrate.Migrate) error) error {

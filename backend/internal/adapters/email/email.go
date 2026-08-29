@@ -55,6 +55,13 @@ func (s *smtpSender) Send(ctx context.Context, msg models.OutboundMessage) error
 		}
 	}()
 
+	if err := s.negotiate(client); err != nil {
+		return err
+	}
+	return s.transmit(client, msg)
+}
+
+func (s *smtpSender) negotiate(client *smtp.Client) error {
 	if s.cfg.StartTLS {
 		if ok, _ := client.Extension("STARTTLS"); ok {
 			if err := client.StartTLS(&tls.Config{ServerName: s.cfg.Host, MinVersion: tls.VersionTLS12}); err != nil {
@@ -62,12 +69,17 @@ func (s *smtpSender) Send(ctx context.Context, msg models.OutboundMessage) error
 			}
 		}
 	}
-	if s.cfg.Username != "" {
-		auth := smtp.PlainAuth("", s.cfg.Username, s.cfg.Password, s.cfg.Host)
-		if err := client.Auth(auth); err != nil {
-			return classify(err, "SMTP authentication rejected")
-		}
+	if s.cfg.Username == "" {
+		return nil
 	}
+	auth := smtp.PlainAuth("", s.cfg.Username, s.cfg.Password, s.cfg.Host)
+	if err := client.Auth(auth); err != nil {
+		return classify(err, "SMTP authentication rejected")
+	}
+	return nil
+}
+
+func (s *smtpSender) transmit(client *smtp.Client, msg models.OutboundMessage) error {
 	if err := client.Mail(s.cfg.From); err != nil {
 		return classify(err, "sender rejected")
 	}

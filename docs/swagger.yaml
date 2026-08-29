@@ -1049,6 +1049,9 @@ definitions:
         type: boolean
       telegram_username:
         type: string
+      timezone:
+        example: Europe/Moscow
+        type: string
       updated_at:
         type: string
     type: object
@@ -1096,6 +1099,58 @@ definitions:
       items:
         items:
           $ref: '#/definitions/models.MyEventItem'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PageMeta'
+    type: object
+  models.NotificationHistoryItem:
+    properties:
+      channel:
+        allOf:
+        - $ref: '#/definitions/models.Channel'
+        enum:
+        - TELEGRAM
+        - EMAIL
+      created_at:
+        type: string
+      event_title:
+        example: Demo Day
+        type: string
+      id:
+        type: string
+      preview:
+        example: The registration deadline is approaching
+        type: string
+      redacted:
+        example: false
+        type: boolean
+      scheduled_at:
+        type: string
+      sent_at:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.NotificationStatus'
+        enum:
+        - PENDING
+        - PROCESSING
+        - SENT
+        - FAILED
+        - CANCELLED
+        - UNDELIVERABLE
+      type:
+        allOf:
+        - $ref: '#/definitions/models.NotificationType'
+        enum:
+        - REGISTRATION_REQUIRED
+        - REGISTRATION_REMINDER
+        - REGISTRATION_OVERDUE
+    type: object
+  models.NotificationHistoryResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.NotificationHistoryItem'
         type: array
       meta:
         $ref: '#/definitions/models.PageMeta'
@@ -1361,6 +1416,21 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.UserSummary'
+    type: object
+  models.ParticipantRetrospective:
+    properties:
+      created_at:
+        type: string
+      event_id:
+        type: string
+      next_time:
+        type: string
+      updated_at:
+        type: string
+      went_badly:
+        type: string
+      went_well:
+        type: string
     type: object
   models.ParticipantSelfResponse:
     properties:
@@ -1734,6 +1804,15 @@ definitions:
         example: Smart city
         type: string
     type: object
+  models.SaveRetrospectiveRequest:
+    properties:
+      next_time:
+        type: string
+      went_badly:
+        type: string
+      went_well:
+        type: string
+    type: object
   models.ScheduleItem:
     properties:
       end_at:
@@ -2104,6 +2183,9 @@ definitions:
         type: string
       telegram_username:
         example: '@ivan'
+        type: string
+      timezone:
+        example: Asia/Tokyo
         type: string
     type: object
   models.UpdateRegistrationRequest:
@@ -5587,6 +5669,128 @@ paths:
       summary: Record an own outcome
       tags:
       - personal
+  /me/events/{id}/retrospective:
+    delete:
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: the retrospective is deleted
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Delete an own retrospective
+      tags:
+      - personal
+    get:
+      description: |-
+        Three free-text fields the participant fills in after the event: what went well,
+        what did not, and what to do differently next time. A personal record in every
+        sense of specification 5.4 — only the owner reads it, an administrator has no
+        privilege here, and a foreign record answers 404 rather than 403.
+
+        An absent retrospective is returned as an empty one rather than a 404: the screen
+        that offers to write it must not have to distinguish "nothing yet" from an error.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantRetrospective'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: the event is not visible to the caller
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own retrospective for an event
+      tags:
+      - personal
+    put:
+      consumes:
+      - application/json
+      description: |-
+        Stores the caller's retrospective for the event. Every field is optional on its
+        own, but a retrospective whose three fields are all blank is equivalent to an
+        absent one and deletes the record — the same rule as the note in specification
+        5.4.3, so that a list of events with retrospectives does not fill with blanks.
+
+        The retrospective is a personal record: it never becomes a queued notification
+        and never reaches the audit log. Its reminder arrives as a system event on the
+        bus of specification 9.9, two days after the event ends.
+      parameters:
+      - description: Event identifier
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Retrospective
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SaveRetrospectiveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParticipantRetrospective'
+        "400":
+          description: a field is too long
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Save an own retrospective
+      tags:
+      - personal
   /me/events/{id}/tasks:
     get:
       description: |-
@@ -5853,6 +6057,52 @@ paths:
       summary: Change an own link
       tags:
       - personal
+  /me/notifications:
+    get:
+      description: |-
+        What the system sent the caller and when: date, type, channel and a short
+        preview. Read-only and scoped to the caller by recipient — an administrator
+        reading this endpoint sees their own notifications, not anyone else's.
+
+        The preview is a short excerpt, never the whole payload. Specification 4 clears
+        payload_json after 90 days while the row itself must survive for deduplication,
+        so an older entry returns no preview and no event title and is marked redacted.
+        The screen is required to render that state rather than treat it as an error.
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 50
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NotificationHistoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own notification history
+      tags:
+      - notifications
   /me/schedule:
     get:
       description: |-

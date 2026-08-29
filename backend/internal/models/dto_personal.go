@@ -113,3 +113,9 @@ type HistoryResponse struct {
 	Items []HistoryItem `json:"items"`
 	Meta  PageMeta      `json:"meta"`
 }
+
+type SaveRetrospectiveRequest struct {
+	WentWell  *string `json:"went_well,omitempty"`
+	WentBadly *string `json:"went_badly,omitempty"`
+	NextTime  *string `json:"next_time,omitempty"`
+}

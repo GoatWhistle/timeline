@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,10 +25,12 @@ func NewNotificationService(repo *notification.Notifications, cfg *config.Config
 }
 
 func PrimaryKey(participantID uuid.UUID, assignmentVersion, activationVersion, contentVersion int) string {
-	return fmt.Sprintf("required:%s:av%d:rv%d:cv%d", participantID, assignmentVersion, activationVersion, contentVersion)
+	return fmt.Sprintf("required:%s:av%d:rv%d:cv%d",
+		participantID, assignmentVersion, activationVersion, contentVersion)
 }
 
-func RuleKey(kind models.NotificationType, statusID, ruleID uuid.UUID, scheduleVersion, todoCycle, contentVersion int) string {
+func RuleKey(kind models.NotificationType, statusID, ruleID uuid.UUID, scheduleVersion, todoCycle, contentVersion int,
+) string {
 	prefix := "reminder"
 	if kind == models.NotificationOverdue {
 		prefix = "overdue"
@@ -35,7 +38,8 @@ func RuleKey(kind models.NotificationType, statusID, ruleID uuid.UUID, scheduleV
 	return fmt.Sprintf("%s:%s:%s:sv%d:tc%d:cv%d", prefix, statusID, ruleID, scheduleVersion, todoCycle, contentVersion)
 }
 
-func ChooseChannel(channels models.RecipientChannels, override *models.Channel, exclude []models.Channel) (models.Channel, bool) {
+func ChooseChannel(channels models.RecipientChannels, override *models.Channel, exclude []models.Channel,
+) (models.Channel, bool) {
 	available := func(ch models.Channel) bool {
 		for _, failed := range exclude {
 			if failed == ch {
@@ -59,7 +63,8 @@ func ChooseChannel(channels models.RecipientChannels, override *models.Channel, 
 	return "", false
 }
 
-func (s *NotificationService) CreatePrimary(ctx context.Context, c models.ReconcileCandidate) (*models.Notification, bool, error) {
+func (s *NotificationService) CreatePrimary(ctx context.Context, c models.ReconcileCandidate,
+) (*models.Notification, bool, error) {
 	channel, ok := ChooseChannel(c.RecipientChannels, nil, nil)
 	if !ok {
 		channel = models.ChannelEmail
@@ -72,11 +77,12 @@ func (s *NotificationService) CreatePrimary(ctx context.Context, c models.Reconc
 		AssignmentVersion:          &c.AssignmentVersion,
 		ActivationVersion:          &c.ActivationVersion,
 		NotificationContentVersion: c.ContentVersion,
-		LogicalKey:                 PrimaryKey(c.ParticipantID, c.AssignmentVersion, c.ActivationVersion, c.ContentVersion),
-		RequestedChannel:           channel,
-		ScheduledAt:                now,
-		NextAttemptAt:              &now,
-		Payload:                    s.payload(models.NotificationRequired, c),
+		LogicalKey: PrimaryKey(
+			c.ParticipantID, c.AssignmentVersion, c.ActivationVersion, c.ContentVersion),
+		RequestedChannel: channel,
+		ScheduledAt:      now,
+		NextAttemptAt:    &now,
+		Payload:          s.payload(models.NotificationRequired, c),
 	}
 	return s.repo.Insert(ctx, notification)
 }
@@ -98,35 +104,50 @@ func (s *NotificationService) CreateForRule(ctx context.Context, c models.Reconc
 		ScheduleVersion:            &c.ScheduleVersion,
 		TodoCycle:                  &c.TodoCycle,
 		NotificationContentVersion: c.ContentVersion,
-		LogicalKey:                 RuleKey(kind, c.StatusID, rule.ID, c.ScheduleVersion, c.TodoCycle, c.ContentVersion),
-		RequestedChannel:           channel,
-		ScheduledAt:                scheduledAt,
-		NextAttemptAt:              &now,
-		Payload:                    s.payload(kind, c),
+		LogicalKey: RuleKey(
+			kind, c.StatusID, rule.ID, c.ScheduleVersion, c.TodoCycle, c.ContentVersion),
+		RequestedChannel: channel,
+		ScheduledAt:      scheduledAt,
+		NextAttemptAt:    &now,
+		Payload:          s.payload(kind, c),
 	}
 	return s.repo.Insert(ctx, notification)
 }
 
-func (s *NotificationService) Render(kind models.NotificationType, c models.ReconcileCandidate) *models.NotificationPayload {
+func (s *NotificationService) Render(kind models.NotificationType, c models.ReconcileCandidate,
+) *models.NotificationPayload {
 	return s.payload(kind, c)
 }
 
-func (s *NotificationService) payload(kind models.NotificationType, c models.ReconcileCandidate) *models.NotificationPayload {
-	local := c.DeadlineAt.In(s.cfg.App.SystemTZ)
-	localText := local.Format("02.01.2006 15:04")
+func (s *NotificationService) payload(kind models.NotificationType, c models.ReconcileCandidate,
+) *models.NotificationPayload {
+	zone, zoneID := s.recipientZone(c.RecipientTimezone)
+	localText := c.DeadlineAt.In(zone).Format("02.01.2006 15:04")
 	lang := locale.Normalize(c.RecipientLocale)
-	subject, body := renderTemplate(lang, kind, c.EventTitle, c.RegistrationURL, localText, s.cfg.App.SystemTZID)
+	subject, body := renderTemplate(lang, kind, c.EventTitle, c.RegistrationURL, localText, zoneID)
 	return &models.NotificationPayload{
 		EventTitle:      c.EventTitle,
 		RegistrationURL: c.RegistrationURL,
 		DeadlineUTC:     c.DeadlineAt.UTC(),
 		DeadlineLocal:   localText,
-		TimezoneID:      s.cfg.App.SystemTZID,
+		TimezoneID:      zoneID,
 		Type:            string(kind),
 		Language:        lang,
 		Subject:         subject,
 		Body:            body,
 	}
+}
+
+func (s *NotificationService) recipientZone(id string) (*time.Location, string) {
+	trimmed := strings.TrimSpace(id)
+	if trimmed == "" {
+		return s.cfg.App.SystemTZ, s.cfg.App.SystemTZID
+	}
+	zone, err := time.LoadLocation(trimmed)
+	if err != nil {
+		return s.cfg.App.SystemTZ, s.cfg.App.SystemTZID
+	}
+	return zone, trimmed
 }
 
 func renderTemplate(lang string, kind models.NotificationType,

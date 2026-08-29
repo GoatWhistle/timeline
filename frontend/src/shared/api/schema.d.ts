@@ -5614,6 +5614,203 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/events/{id}/retrospective": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own retrospective for an event
+         * @description Three free-text fields the participant fills in after the event: what went well,
+         *     what did not, and what to do differently next time. A personal record in every
+         *     sense of specification 5.4 — only the owner reads it, an administrator has no
+         *     privilege here, and a foreign record answers 404 rather than 403.
+         *
+         *     An absent retrospective is returned as an empty one rather than a 404: the screen
+         *     that offers to write it must not have to distinguish "nothing yet" from an error.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantRetrospective"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description the event is not visible to the caller */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Save an own retrospective
+         * @description Stores the caller's retrospective for the event. Every field is optional on its
+         *     own, but a retrospective whose three fields are all blank is equivalent to an
+         *     absent one and deletes the record — the same rule as the note in specification
+         *     5.4.3, so that a list of events with retrospectives does not fill with blanks.
+         *
+         *     The retrospective is a personal record: it never becomes a queued notification
+         *     and never reaches the audit log. Its reminder arrives as a system event on the
+         *     bus of specification 9.9, two days after the event ends.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Retrospective */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["models.SaveRetrospectiveRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ParticipantRetrospective"];
+                    };
+                };
+                /** @description a field is too long */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Delete an own retrospective */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the retrospective is deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/events/{id}/tasks": {
         parameters: {
             query?: never;
@@ -6061,6 +6258,84 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/me/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own notification history
+         * @description What the system sent the caller and when: date, type, channel and a short
+         *     preview. Read-only and scoped to the caller by recipient — an administrator
+         *     reading this endpoint sees their own notifications, not anyone else's.
+         *
+         *     The preview is a short excerpt, never the whole payload. Specification 4 clears
+         *     payload_json after 90 days while the row itself must survive for deduplication,
+         *     so an older entry returns no preview and no event title and is marked redacted.
+         *     The screen is required to render that state rather than treat it as an error.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Page size */
+                    page_size?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.NotificationHistoryResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/me/schedule": {
@@ -7321,6 +7596,8 @@ export interface components {
             /** @example false */
             telegram_linked: boolean;
             telegram_username?: string;
+            /** @example Europe/Moscow */
+            timezone: string;
             /** Format: date-time */
             updated_at: string;
         };
@@ -7348,6 +7625,28 @@ export interface components {
         };
         "models.MyEventPage": {
             items: components["schemas"]["models.MyEventItem"][];
+            meta: components["schemas"]["models.PageMeta"];
+        };
+        "models.NotificationHistoryItem": {
+            channel: components["schemas"]["models.Channel"];
+            /** Format: date-time */
+            created_at: string;
+            /** @example Demo Day */
+            event_title: string;
+            id: string;
+            /** @example The registration deadline is approaching */
+            preview: string;
+            /** @example false */
+            redacted: boolean;
+            /** Format: date-time */
+            scheduled_at: string;
+            /** Format: date-time */
+            sent_at: string;
+            status: components["schemas"]["models.NotificationStatus"];
+            type: components["schemas"]["models.NotificationType"];
+        };
+        "models.NotificationHistoryResponse": {
+            items: components["schemas"]["models.NotificationHistoryItem"][];
             meta: components["schemas"]["models.PageMeta"];
         };
         "models.NotificationPreviewResponse": {
@@ -7480,6 +7779,16 @@ export interface components {
             /** @example Developer */
             team_role: string;
             user: components["schemas"]["models.UserSummary"];
+        };
+        "models.ParticipantRetrospective": {
+            /** Format: date-time */
+            created_at: string;
+            event_id: string;
+            next_time: string;
+            /** Format: date-time */
+            updated_at: string;
+            went_badly: string;
+            went_well: string;
         };
         "models.ParticipantSelfResponse": {
             /** Format: date-time */
@@ -7675,6 +7984,11 @@ export interface components {
             prize?: string;
             /** @example Smart city */
             track?: string;
+        };
+        "models.SaveRetrospectiveRequest": {
+            next_time?: string;
+            went_badly?: string;
+            went_well?: string;
         };
         "models.ScheduleItem": {
             /** Format: date-time */
@@ -7879,6 +8193,8 @@ export interface components {
             preferred_channel?: "TELEGRAM" | "EMAIL";
             /** @example @ivan */
             telegram_username?: string;
+            /** @example Asia/Tokyo */
+            timezone?: string;
         };
         "models.UpdateRegistrationRequest": {
             /** Format: date-time */

@@ -16,6 +16,7 @@ import { BurningRow } from './ui/burning-row/burning-row'
 import { BurningSkeleton } from './ui/burning-skeleton/burning-skeleton'
 import { BurningSummaryStrip } from './ui/burning-summary/burning-summary'
 import { BurningToolbar } from './ui/burning-toolbar/burning-toolbar'
+import { OverlapNotice } from './ui/overlap-notice/overlap-notice'
 
 const PAGE_SIZE = 100
 
@@ -53,6 +54,8 @@ export function BurningPage() {
           </header>
 
           <BurningSummaryStrip summary={summary} />
+
+          <OverlapNotice items={items} />
 
           <BurningToolbar
             filters={filters}

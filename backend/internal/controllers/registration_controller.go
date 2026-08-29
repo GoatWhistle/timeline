@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -12,14 +13,25 @@ import (
 
 type RegistrationController struct {
 	registrations RegistrationService
-	statuses      StatusService
-	rules         RuleService
 	pageDef       int
 	pageMax       int
 }
 
-func NewRegistrationController(reg RegistrationService, st StatusService, rules RuleService, pageDef, pageMax int) *RegistrationController {
-	return &RegistrationController{registrations: reg, statuses: st, rules: rules, pageDef: pageDef, pageMax: pageMax}
+func NewRegistrationController(reg RegistrationService, pageDef, pageMax int) *RegistrationController {
+	return &RegistrationController{registrations: reg, pageDef: pageDef, pageMax: pageMax}
+}
+
+type RegistrationService interface {
+	Get(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*models.Registration, error)
+	Create(
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateRegistrationRequest,
+	) (*models.Registration, error)
+	Update(
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.UpdateRegistrationRequest,
+	) (*models.Registration, error)
+	SetState(
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, state models.RegistrationState,
+	) (*models.Registration, error)
 }
 
 // @Summary	Event registration
@@ -159,280 +171,4 @@ func (c *RegistrationController) setState(w http.ResponseWriter, r *http.Request
 		return
 	}
 	httpx.JSON(w, http.StatusOK, registrationResponse(reg))
-}
-
-// @Summary	Participant registration statuses
-// @Tags		registration
-// @Produce	json
-// @Security	CookieAuth
-// @Param		id			path		string	true	"Event identifier"	format(uuid)
-// @Param		page		query		int		false	"Page number"		default(1)
-// @Param		page_size	query		int		false	"Page size"			default(50)
-// @Success	200			{object}	models.RegistrationStatusPage
-// @Failure	403			{object}	models.ErrorResponse
-// @Failure	404			{object}	models.ErrorResponse
-// @Router		/admin/events/{id}/registration-statuses [get]
-func (c *RegistrationController) ListStatuses(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	items, total, err := c.statuses.List(r.Context(), middleware.ActorFrom(r), id, page)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusOK, models.RegistrationStatusPage{Items: items, Meta: httpx.Meta(page, total)})
-}
-
-// @Summary		Mark registration as completed
-// @Description	Participant self-report: moves their own TODO status to DONE. Available with an active
-// @Description	registration, an assigned participation and a non-archived event. The system does not verify the external site.
-// @Tags			registration
-// @Produce		json
-// @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
-// @Success		200	{object}	models.RegistrationStatusResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
-// @Failure		409	{object}	models.ErrorResponse	"invalid state transition"
-// @Router			/events/{id}/registration/done [post]
-func (c *RegistrationController) MarkDone(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	st, err := c.statuses.MarkDone(r.Context(), middleware.ActorFrom(r), id)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusOK, st)
-}
-
-// @Summary		Administrative status transition
-// @Description	Allowed transitions: TODO to DONE, DONE to TODO, TODO/DONE to NOT_REQUIRED,
-// @Description	NOT_REQUIRED to TODO. Entering TODO increments todo_cycle and clears registered_at.
-// @Tags			registration
-// @Accept			json
-// @Produce		json
-// @Security		CookieAuth
-// @Param			id		path		string							true	"Status identifier"	format(uuid)
-// @Param			request	body		models.AdminChangeStatusRequest	true	"New status"
-// @Success		200		{object}	models.RegistrationStatusResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse
-// @Router			/admin/registration-statuses/{id} [patch]
-func (c *RegistrationController) AdminChangeStatus(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	var req models.AdminChangeStatusRequest
-	if err := httpx.Decode(r, &req); err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	st, err := c.statuses.AdminChange(r.Context(), middleware.ActorFrom(r), id, req)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusOK, st)
-}
-
-// @Summary		Bulk status assignment
-// @Description	Only TODO and NOT_REQUIRED are accepted. The result is returned per participant.
-// @Tags			registration
-// @Accept			json
-// @Produce		json
-// @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"	format(uuid)
-// @Param			request	body		models.BatchSetStatusRequest	true	"Participants and target status"
-// @Success		200		{object}	models.BatchResult
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Router			/admin/events/{id}/registration-statuses/batch-set [post]
-func (c *RegistrationController) BatchSetStatus(w http.ResponseWriter, r *http.Request) {
-	id, req, ok := c.batchInput(w, r)
-	if !ok {
-		return
-	}
-	res, err := c.statuses.BatchSet(r.Context(), middleware.ActorFrom(r), id, req)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusOK, res)
-}
-
-// @Summary		Preview a bulk status assignment
-// @Description	Returns the number of records to be changed and skipped without modifying data.
-// @Tags			registration
-// @Accept			json
-// @Produce		json
-// @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"	format(uuid)
-// @Param			request	body		models.BatchSetStatusRequest	true	"Participants and target status"
-// @Success		200		{object}	models.PreviewResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Router			/admin/events/{id}/registration-statuses/batch-set/preview [post]
-func (c *RegistrationController) BatchSetStatusPreview(w http.ResponseWriter, r *http.Request) {
-	id, req, ok := c.batchInput(w, r)
-	if !ok {
-		return
-	}
-	res, err := c.statuses.BatchSetPreview(r.Context(), middleware.ActorFrom(r), id, req)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusOK, res)
-}
-
-func (c *RegistrationController) batchInput(w http.ResponseWriter, r *http.Request) (id uuid.UUID, req models.BatchSetStatusRequest, ok bool) {
-	parsed, err := httpx.PathUUID(r, "id")
-	if err != nil {
-		httpx.Error(w, r, err)
-		return id, req, false
-	}
-	if err := httpx.Decode(r, &req); err != nil {
-		httpx.Error(w, r, err)
-		return id, req, false
-	}
-	return parsed, req, true
-}
-
-// @Summary	Reminder rules
-// @Tags		rules
-// @Produce	json
-// @Security	CookieAuth
-// @Param		id	path		string	true	"Event identifier"	format(uuid)
-// @Success	200	{array}		models.NotificationRuleResponse
-// @Failure	403	{object}	models.ErrorResponse
-// @Failure	404	{object}	models.ErrorResponse
-// @Router		/admin/events/{id}/registration/rules [get]
-func (c *RegistrationController) ListRules(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	items, err := c.rules.List(r.Context(), middleware.ActorFrom(r), id)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	out := make([]models.NotificationRuleResponse, 0, len(items))
-	for i := range items {
-		out = append(out, ruleResponse(&items[i]))
-	}
-	httpx.JSON(w, http.StatusOK, out)
-}
-
-// @Summary		Create a reminder rule
-// @Description	The sign of offset_minutes selects the type: a positive value is a reminder before the deadline,
-// @Description	zero fires at the deadline, and a negative value is an overdue notification.
-// @Description	A registration accepts at most 10 rules.
-// @Tags			rules
-// @Accept			json
-// @Produce		json
-// @Security		CookieAuth
-// @Param			id		path		string						true	"Event identifier"	format(uuid)
-// @Param			request	body		models.CreateRuleRequest	true	"Rule parameters"
-// @Success		201		{object}	models.NotificationRuleResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"a rule with this offset already exists or the slot limit is reached"
-// @Router			/admin/events/{id}/registration/rules [post]
-func (c *RegistrationController) CreateRule(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	var req models.CreateRuleRequest
-	if err := httpx.Decode(r, &req); err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	rule, err := c.rules.Create(r.Context(), middleware.ActorFrom(r), id, req)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusCreated, ruleResponse(rule))
-}
-
-// @Summary		Update a reminder rule
-// @Description	Changing schedule fields increments schedule_version once per transaction
-// @Description	and triggers notification reconciliation.
-// @Tags			rules
-// @Accept			json
-// @Produce		json
-// @Security		CookieAuth
-// @Param			id		path		string						true	"Rule identifier"	format(uuid)
-// @Param			request	body		models.UpdateRuleRequest	true	"Mutable fields"
-// @Success		200		{object}	models.NotificationRuleResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse
-// @Router			/admin/registration-rules/{id} [patch]
-func (c *RegistrationController) UpdateRule(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	var req models.UpdateRuleRequest
-	if err := httpx.Decode(r, &req); err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	rule, err := c.rules.Update(r.Context(), middleware.ActorFrom(r), id, req)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusOK, ruleResponse(rule))
-}
-
-// @Summary		Disable a reminder rule
-// @Description	The rule is set to enabled=false; the row is preserved so that the occupied slot
-// @Description	and offset stay reserved.
-// @Tags			rules
-// @Produce		json
-// @Security		CookieAuth
-// @Param			id	path	string	true	"Rule identifier"	format(uuid)
-// @Success		204	"the rule is disabled"
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
-// @Router			/admin/registration-rules/{id} [delete]
-func (c *RegistrationController) DisableRule(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	if err := c.rules.Disable(r.Context(), middleware.ActorFrom(r), id); err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.NoContent(w)
 }

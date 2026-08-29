@@ -25,6 +25,7 @@ type Deps struct {
 	Previews      PreviewService
 	Personal      PersonalService
 	Feed          SystemEventService
+	Notifications NotificationHistoryService
 	Realtime      RealtimeHub
 	Sessions      SessionChecker
 	Links         ResourceLinkService

@@ -16,13 +16,13 @@ type Users struct{ db *postgres.DB }
 func NewUsers(db *postgres.DB) *Users { return &Users{db: db} }
 
 const userColumns = `id, display_name, email, pending_email, password_hash, email_verified_at,
-	telegram_username, telegram_chat_id, preferred_channel, locale, is_admin, is_active,
+	telegram_username, telegram_chat_id, preferred_channel, locale, timezone, is_admin, is_active,
 	deleted_at, created_at, updated_at`
 
 func scanUser(row pgx.Row) (*models.User, error) {
 	var u models.User
 	err := row.Scan(&u.ID, &u.DisplayName, &u.Email, &u.PendingEmail, &u.PasswordHash, &u.EmailVerifiedAt,
-		&u.TelegramUsername, &u.TelegramChatID, &u.PreferredChannel, &u.Locale, &u.IsAdmin, &u.IsActive,
+		&u.TelegramUsername, &u.TelegramChatID, &u.PreferredChannel, &u.Locale, &u.Timezone, &u.IsAdmin, &u.IsActive,
 		&u.DeletedAt, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -71,11 +71,12 @@ func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p models.Profil
 			display_name = COALESCE($2, display_name),
 			telegram_username = CASE WHEN $4 THEN NULL ELSE COALESCE($3, telegram_username) END,
 			preferred_channel = CASE WHEN $6 THEN NULL ELSE COALESCE($5, preferred_channel) END,
-			locale = COALESCE($7, locale)
+			locale = COALESCE($7, locale),
+			timezone = COALESCE($8, timezone)
 		WHERE id = $1
 		RETURNING `+userColumns,
 		id, p.DisplayName, p.TelegramUsername, p.ClearTelegramUsername,
-		p.PreferredChannel, p.ClearPreferredChannel, p.Locale))
+		p.PreferredChannel, p.ClearPreferredChannel, p.Locale, p.Timezone))
 }
 
 func (r *Users) SetPassword(ctx context.Context, id uuid.UUID, hash string) error {

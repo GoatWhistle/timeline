@@ -1,13 +1,24 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type SystemEventService interface {
+	List(
+		ctx context.Context, actor models.Actor, unreadOnly bool, page models.Page,
+	) ([]models.SystemEventResponse, int64, error)
+	UnreadCount(ctx context.Context, actor models.Actor) (int64, error)
+	MarkRead(ctx context.Context, actor models.Actor, ids []uuid.UUID) (int64, error)
+}
 
 type SystemEventController struct {
 	svc     SystemEventService

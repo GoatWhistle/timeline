@@ -48,26 +48,30 @@ func (s *StageService) List(ctx context.Context, actor models.Actor,
 	return items, event, nil
 }
 
-func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.CreateStageRequest) (*models.Stage, *models.Event, error) {
-	if !actor.IsAdmin {
-		return nil, nil, models.NewForbidden("the operation is restricted to administrators")
-	}
+type stageDraft struct {
+	name      string
+	url       *string
+	sortOrder int
+	place     stagePlace
+}
+
+func validateStageDraft(req models.CreateStageRequest) (stageDraft, error) {
+	var out stageDraft
 	name, err := validateText("name", req.Name, 1, 120)
 	if err != nil {
-		return nil, nil, err
+		return out, err
 	}
 	if !req.Type.Valid() {
-		return nil, nil, models.NewValidation("invalid stage type",
+		return out, models.NewValidation("invalid stage type",
 			models.FieldError{Field: "type", Message: "value is not allowed"})
 	}
 	if !req.EndAt.After(req.StartAt) {
-		return nil, nil, models.NewValidation("stage end must be later than its start",
+		return out, models.NewValidation("stage end must be later than its start",
 			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
 	}
 	url, err := optionalURL("url", req.URL)
 	if err != nil {
-		return nil, nil, err
+		return out, err
 	}
 	sortOrder := 0
 	if req.SortOrder != nil {
@@ -76,8 +80,21 @@ func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID u
 	place, err := resolveStagePlace(req.Format, false, req.CountryCode, req.City,
 		req.Venue, req.OnlineURL, stagePlace{})
 	if err != nil {
+		return out, err
+	}
+	return stageDraft{name: name, url: url, sortOrder: sortOrder, place: place}, nil
+}
+
+func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+	req models.CreateStageRequest) (*models.Stage, *models.Event, error) {
+	if !actor.IsAdmin {
+		return nil, nil, models.NewForbidden("the operation is restricted to administrators")
+	}
+	draft, err := validateStageDraft(req)
+	if err != nil {
 		return nil, nil, err
 	}
+	name, url, sortOrder, place := draft.name, draft.url, draft.sortOrder, draft.place
 
 	event, err := s.events.GetByID(ctx, eventID)
 	if err != nil {
@@ -109,7 +126,12 @@ func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID u
 			return err
 		}
 		return s.audit.Record(ctx, actor, models.AuditStageCreate, models.EntityStage, created.ID, nil,
-			map[string]any{"name": created.Name, "type": created.Type, "start_at": created.StartAt, "end_at": created.EndAt})
+			map[string]any{
+				"name":     created.Name,
+				"type":     created.Type,
+				"start_at": created.StartAt,
+				"end_at":   created.EndAt,
+			})
 	})
 	if err != nil {
 		return nil, nil, err
@@ -117,35 +139,59 @@ func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID u
 	return created, event, nil
 }
 
-func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.UUID,
-	req models.UpdateStageRequest) (*models.Stage, *models.Event, error) {
-	if !actor.IsAdmin {
-		return nil, nil, models.NewForbidden("the operation is restricted to administrators")
-	}
+func validateStagePatch(req models.UpdateStageRequest) (models.UpdateStageRequest, error) {
 	if req.Name != nil {
 		name, err := validateText("name", *req.Name, 1, 120)
 		if err != nil {
-			return nil, nil, err
+			return req, err
 		}
 		req.Name = &name
 	}
 	if req.Type != nil && !req.Type.Valid() {
-		return nil, nil, models.NewValidation("invalid stage type",
+		return req, models.NewValidation("invalid stage type",
 			models.FieldError{Field: "type", Message: "value is not allowed"})
 	}
 	if req.URL != nil && *req.URL != "" {
 		url, err := validateURL("url", *req.URL)
 		if err != nil {
-			return nil, nil, err
+			return req, err
 		}
 		req.URL = &url
+	}
+	return req, nil
+}
+
+func checkStageWindow(before *models.Stage, req models.UpdateStageRequest) error {
+	start := before.StartAt
+	if req.StartAt != nil {
+		start = req.StartAt.UTC()
+	}
+	end := before.EndAt
+	if req.EndAt != nil {
+		end = req.EndAt.UTC()
+	}
+	if !end.After(start) {
+		return models.NewValidation("stage end must be later than its start",
+			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
+	}
+	return nil
+}
+
+func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.UUID,
+	req models.UpdateStageRequest) (*models.Stage, *models.Event, error) {
+	if !actor.IsAdmin {
+		return nil, nil, models.NewForbidden("the operation is restricted to administrators")
+	}
+	req, err := validateStagePatch(req)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	var (
 		updated *models.Stage
 		event   *models.Event
 	)
-	err := s.db.WithTx(ctx, func(ctx context.Context) error {
+	err = s.db.WithTx(ctx, func(ctx context.Context) error {
 		before, err := s.stages.GetByID(ctx, id)
 		if err != nil {
 			return err
@@ -154,17 +200,8 @@ func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.U
 		if err != nil {
 			return err
 		}
-		start := before.StartAt
-		if req.StartAt != nil {
-			start = req.StartAt.UTC()
-		}
-		end := before.EndAt
-		if req.EndAt != nil {
-			end = req.EndAt.UTC()
-		}
-		if !end.After(start) {
-			return models.NewValidation("stage end must be later than its start",
-				models.FieldError{Field: "end_at", Message: "must be later than start_at"})
+		if err := checkStageWindow(before, req); err != nil {
+			return err
 		}
 
 		place, err := resolveStagePlace(req.Format, req.ClearFormat, req.CountryCode, req.City,

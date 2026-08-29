@@ -9,6 +9,12 @@ func mountRealtime(mux *http.ServeMux, rt *routes, api string, deps Deps) {
 	mux.Handle("GET "+api+"/me/events-feed/unread-count", rt.authd(feedC.UnreadCount))
 	mux.Handle("POST "+api+"/me/events-feed/read", rt.authd(feedC.MarkRead))
 
+	if deps.Notifications != nil {
+		historyC := NewNotificationHistoryController(deps.Notifications, deps.Limiter,
+			deps.FeedRate, deps.FeedRateWindow, deps.PageDefault, deps.PageMax)
+		mux.Handle("GET "+api+"/me/notifications", rt.authd(historyC.List))
+	}
+
 	if deps.Realtime == nil || deps.Sessions == nil {
 		return
 	}

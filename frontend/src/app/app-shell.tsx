@@ -7,6 +7,7 @@ import { VerificationBanner } from '@/features/auth/verification-banner/verifica
 import { ConnectionBanner } from '@/features/connection-banner/connection-banner'
 import { SettingsOverlay } from '@/features/settings-overlay/settings-overlay'
 import { useSession } from '@/shared/api/session'
+import { useProfileTimezone } from '@/shared/datetime/use-profile-timezone'
 import { useProfileLocale } from '@/shared/i18n/use-profile-locale'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { useSidebar } from '@/shared/ui/layout/sidebar/use-sidebar'
@@ -32,6 +33,7 @@ export function AppShell() {
   const { t } = useTranslation()
   const sidebar = useSidebar()
   useProfileLocale()
+  useProfileTimezone()
 
   return (
     <div className="relative flex h-screen overflow-hidden">

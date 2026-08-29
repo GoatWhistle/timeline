@@ -70,7 +70,7 @@ export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME CON
 	docker-psql dev dev-down dev-restart dev-logs \
 	install types types-check typecheck lint format test test-contract e2e verify build \
 	cyrillic baseline-cyrillic lint-baseline baseline-lint \
-	back-fmt back-vet back-test back-test-integration back-build back-cover back-docs clean
+	back-fmt back-vet back-test back-test-integration back-build back-cover back-cover-integration back-docs clean
 
 .DEFAULT_GOAL := help
 
@@ -215,8 +215,20 @@ back-test-integration: ## Database constraint tests against a temporary PostgreS
 		$(GO_IMAGE) go test -tags=integration ./... ; \
 		status=$$? ; docker stop timeline-test-pg >/dev/null 2>&1 ; exit $$status
 
-back-cover: ## Backend coverage with a summary line
+back-cover: ## Backend coverage of the unit tests alone
 	@$(GO_RUN) "go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out | tail -1"
+
+# The suites that carry the backend - authorization, section 16 transitions and
+# AC-NOTIF-01..19 - are all behind the `integration` build tag and need a
+# database, so a plain `go test` cannot see them. Measuring coverage without the
+# tag reports a couple of per cent and hides the real level; -coverpkg spreads
+# the measurement across every internal package rather than only the one under
+# test.
+back-cover-integration: ## Backend coverage including the integration suites
+	@docker rm -f timeline-cover-pg >/dev/null 2>&1 || true
+	@docker run -d --rm --name timeline-cover-pg 		-e POSTGRES_PASSWORD=test -e POSTGRES_USER=test -e POSTGRES_DB=test 		-p 55434:5432 postgres:16-alpine >/dev/null
+	@sleep 8
+	@MSYS_NO_PATHCONV=1 docker run --rm --network host 		-v "$(CURDIR)/$(BACKEND):/src" -v "$(GO_CACHE):/go/pkg/mod" -w /src 		-e DATABASE_URL="postgres://test:test@127.0.0.1:55434/test?sslmode=disable" 		$(GO_IMAGE) sh -c "go test -tags=integration -coverpkg=./internal/... 			-coverprofile=coverage-integration.out ./... >/dev/null && 			go tool cover -func=coverage-integration.out | tail -1" ; 		status=$$? ; docker stop timeline-cover-pg >/dev/null 2>&1 ; exit $$status
 
 back-docs: ## Rebuild the OpenAPI specification and publish it to docs/
 	@cd $(BACKEND) && $(MAKE) --no-print-directory docs
@@ -265,5 +277,5 @@ verify: ## Full check of both parts: contract, types, linter, tests, build
 
 clean: ## Stop containers, remove volumes and build artifacts
 	@$(COMPOSE_DEV) down -v --remove-orphans 2>/dev/null || true
-	@rm -rf $(FRONTEND)/dist $(FRONTEND)/coverage $(BACKEND)/bin $(BACKEND)/coverage.out
+	@rm -rf $(FRONTEND)/dist $(FRONTEND)/coverage $(BACKEND)/bin $(BACKEND)/coverage.out $(BACKEND)/coverage-integration.out
 	@echo "cleaned"

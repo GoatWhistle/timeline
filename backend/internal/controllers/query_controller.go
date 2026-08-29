@@ -1,13 +1,31 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type QueryService interface {
+	MyEvents(
+		ctx context.Context, actor models.Actor, filter models.MyEventFilter, page models.Page,
+	) ([]models.MyEventItem, int64, error)
+	EventCard(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*models.EventCard, error)
+	MySchedule(ctx context.Context, actor models.Actor, filter models.ScheduleFilter) (*models.ScheduleResponse, error)
+	AdminSchedule(
+		ctx context.Context, actor models.Actor, filter models.ScheduleFilter,
+	) (*models.ScheduleResponse, error)
+	Upcoming(
+		ctx context.Context, actor models.Actor, within time.Duration, page models.Page,
+	) ([]models.DeadlineItem, int64, error)
+	Overdue(ctx context.Context, actor models.Actor, page models.Page) ([]models.DeadlineItem, int64, error)
+}
 
 type QueryController struct {
 	svc     QueryService

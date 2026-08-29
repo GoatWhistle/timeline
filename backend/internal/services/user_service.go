@@ -24,7 +24,8 @@ func NewUserService(db *postgres.DB, users *identity.Users,
 	return &UserService{db: db, users: users, sessions: sessions, notifier: notifier, audit: audit}
 }
 
-func (s *UserService) Search(ctx context.Context, actor models.Actor, query string, page models.Page) ([]models.UserSummary, int64, error) {
+func (s *UserService) Search(ctx context.Context, actor models.Actor, query string, page models.Page,
+) ([]models.UserSummary, int64, error) {
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("user search is restricted to administrators")
 	}

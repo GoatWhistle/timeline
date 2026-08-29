@@ -315,5 +315,12 @@
     "personalTitle": "My links",
     "personalEmpty": "No links of your own yet",
     "personalHint": "Only you can see these links"
+  },
+  "overlap": {
+    "label": "Observation:",
+    "events_one": "{{count}} pair of events overlaps in time.",
+    "events_other": "{{count}} pairs of events overlap in time.",
+    "deadlines_one": "{{count}} day carries more than one deadline.",
+    "deadlines_other": "{{count}} days carry more than one deadline."
   }
 }

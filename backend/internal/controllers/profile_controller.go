@@ -1,12 +1,25 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
+	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type ProfileService interface {
+	Get(ctx context.Context, userID uuid.UUID) (*models.User, error)
+	Update(ctx context.Context, actor models.Actor, req models.UpdateProfileRequest) (*models.User, error)
+	StartTelegramLink(ctx context.Context, actor models.Actor) (string, time.Time, error)
+	UnlinkTelegram(ctx context.Context, actor models.Actor) error
+	RequestEmailChange(ctx context.Context, actor models.Actor, req models.ChangeEmailRequest) error
+	Deactivate(ctx context.Context, actor models.Actor) error
+}
 
 type ProfileController struct {
 	svc     ProfileService
@@ -113,7 +126,9 @@ func (c *ProfileController) ChangeEmail(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusAccepted, models.MessageResponse{Message: "a confirmation message has been sent to the new address"})
+	httpx.JSON(w, http.StatusAccepted, models.MessageResponse{
+		Message: "a confirmation message has been sent to the new address",
+	})
 }
 
 // @Summary		Deactivate your own account

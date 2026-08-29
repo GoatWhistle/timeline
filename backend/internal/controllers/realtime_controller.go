@@ -1,16 +1,28 @@
 package controllers
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/coder/websocket"
 
+	"github.com/google/uuid"
+
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type RealtimeHub interface {
+	Subscribe(userID, sessionID uuid.UUID, isAdmin bool) (models.RealtimeSubscription, error)
+	Unsubscribe(sub models.RealtimeSubscription)
+}
+
+type SessionChecker interface {
+	EnsureLive(ctx context.Context, userID, sessionID uuid.UUID) error
+}
 
 type RealtimeController struct {
 	hub      RealtimeHub

@@ -91,7 +91,9 @@ func (s *SchedulerService) ReconcileEvent(ctx context.Context, eventID uuid.UUID
 	}
 }
 
-func (s *SchedulerService) processBatch(ctx context.Context, candidates []models.ReconcileCandidate, result *ReconcileResult) error {
+func (s *SchedulerService) processBatch(ctx context.Context, candidates []models.ReconcileCandidate,
+	result *ReconcileResult,
+) error {
 	if len(candidates) == 0 {
 		return nil
 	}

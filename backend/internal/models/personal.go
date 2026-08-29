@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -103,4 +104,37 @@ type ChecklistTemplateItem struct {
 	SlotNo           int    `json:"slot_no" example:"1"`
 	TitleKey         string `json:"title_key" example:"task.read_rules"`
 	DueOffsetMinutes *int   `json:"due_offset_minutes,omitempty" example:"-10080"`
+}
+
+type ParticipantRetrospective struct {
+	EventID   uuid.UUID  `json:"event_id"`
+	WentWell  *string    `json:"went_well,omitempty"`
+	WentBadly *string    `json:"went_badly,omitempty"`
+	NextTime  *string    `json:"next_time,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
+func (r ParticipantRetrospective) Empty() bool {
+	return blankText(r.WentWell) && blankText(r.WentBadly) && blankText(r.NextTime)
+}
+
+func blankText(value *string) bool {
+	return value == nil || strings.TrimSpace(*value) == ""
+}
+
+type DueTaskCandidate struct {
+	TaskID     uuid.UUID
+	UserID     uuid.UUID
+	EventID    uuid.UUID
+	Title      string
+	DueAt      time.Time
+	EventTitle string
+}
+
+type DueRetrospectiveCandidate struct {
+	EventID    uuid.UUID
+	UserID     uuid.UUID
+	EventTitle string
+	EndAt      time.Time
 }

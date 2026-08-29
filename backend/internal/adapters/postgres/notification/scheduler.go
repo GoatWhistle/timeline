@@ -29,7 +29,7 @@ const reconcileSelect = `
 	       r.id, r.url, r.deadline_at, r.schedule_version, r.activation_version, r.notification_content_version,
 	       p.id, p.assignment_version,
 	       s.id, s.todo_cycle,
-	       u.id, u.locale, u.telegram_chat_id IS NOT NULL, u.email_verified_at IS NOT NULL, u.preferred_channel
+	       u.id, u.locale, u.timezone, u.telegram_chat_id IS NOT NULL, u.email_verified_at IS NOT NULL, u.preferred_channel
 	FROM registration_statuses s
 	JOIN registrations r ON r.id = s.registration_id
 	JOIN events h ON h.id = s.event_id
@@ -55,7 +55,7 @@ func (r *Scheduler) Candidates(ctx context.Context, after uuid.UUID, limit int) 
 			&c.ActivationVersion, &c.ContentVersion,
 			&c.ParticipantID, &c.AssignmentVersion,
 			&c.StatusID, &c.TodoCycle,
-			&c.RecipientID, &c.RecipientLocale, &c.RecipientChannels.TelegramLinked, &c.RecipientChannels.EmailVerified,
+			&c.RecipientID, &c.RecipientLocale, &c.RecipientTimezone, &c.RecipientChannels.TelegramLinked, &c.RecipientChannels.EmailVerified,
 			&c.RecipientChannels.PreferredChannel); err != nil {
 			return nil, mapError(err)
 		}
@@ -73,7 +73,7 @@ func (r *Scheduler) CandidateByStatus(ctx context.Context, statusID uuid.UUID) (
 			&c.ActivationVersion, &c.ContentVersion,
 			&c.ParticipantID, &c.AssignmentVersion,
 			&c.StatusID, &c.TodoCycle,
-			&c.RecipientID, &c.RecipientLocale, &c.RecipientChannels.TelegramLinked, &c.RecipientChannels.EmailVerified,
+			&c.RecipientID, &c.RecipientLocale, &c.RecipientTimezone, &c.RecipientChannels.TelegramLinked, &c.RecipientChannels.EmailVerified,
 			&c.RecipientChannels.PreferredChannel)
 	if err != nil {
 		return nil, mapError(err)

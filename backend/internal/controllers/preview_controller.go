@@ -1,13 +1,22 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type PreviewService interface {
+	PreviewNotification(
+		ctx context.Context, actor models.Actor, statusID uuid.UUID, ruleID *uuid.UUID,
+	) (*models.NotificationPreviewResponse, error)
+}
 
 type PreviewController struct {
 	svc     PreviewService

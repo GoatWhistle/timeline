@@ -1,12 +1,21 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
+
+	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type UserService interface {
+	Search(ctx context.Context, actor models.Actor, query string, page models.Page) ([]models.UserSummary, int64, error)
+	SetActive(ctx context.Context, actor models.Actor, userID uuid.UUID, active bool) error
+	Delete(ctx context.Context, actor models.Actor, userID uuid.UUID) error
+}
 
 type UserController struct {
 	svc      UserService

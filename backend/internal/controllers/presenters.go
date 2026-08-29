@@ -17,6 +17,7 @@ func meResponse(u *models.User) models.MeResponse {
 		TelegramLinked:   u.TelegramLinked(),
 		PreferredChannel: u.PreferredChannel,
 		Locale:           u.Locale,
+		Timezone:         u.Timezone,
 		IsAdmin:          u.IsAdmin,
 		IsActive:         u.IsActive,
 		CreatedAt:        u.CreatedAt,

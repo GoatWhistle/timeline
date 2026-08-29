@@ -36,7 +36,8 @@ func NewEventService(db *postgres.DB, events *event.Events,
 	}
 }
 
-func (s *EventService) Create(ctx context.Context, actor models.Actor, req models.CreateEventRequest) (*models.Event, error) {
+func (s *EventService) Create(ctx context.Context, actor models.Actor, req models.CreateEventRequest,
+) (*models.Event, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("creating an event is restricted to administrators")
 	}
@@ -115,7 +116,8 @@ func (s *EventService) List(ctx context.Context, actor models.Actor, filter mode
 	return s.events.List(ctx, filter, page, s.now())
 }
 
-func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.UUID, req models.UpdateEventRequest) (*models.Event, error) {
+func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.UUID, req models.UpdateEventRequest,
+) (*models.Event, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("editing an event is restricted to administrators")
 	}

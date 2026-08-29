@@ -43,7 +43,8 @@ func (s *ProfileService) Get(ctx context.Context, userID uuid.UUID) (*models.Use
 	return s.users.GetByID(ctx, userID)
 }
 
-func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req models.UpdateProfileRequest) (*models.User, error) {
+func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req models.UpdateProfileRequest,
+) (*models.User, error) {
 	patch, err := profilePatch(req)
 	if err != nil {
 		return nil, err
@@ -95,7 +96,8 @@ func (s *ProfileService) StartTelegramLink(ctx context.Context, actor models.Act
 	return s.telegram.DeepLink(secret), expires, nil
 }
 
-func (s *ProfileService) CompleteTelegramLink(ctx context.Context, token, chatID string, username *string) (*models.User, error) {
+func (s *ProfileService) CompleteTelegramLink(ctx context.Context, token, chatID string, username *string,
+) (*models.User, error) {
 	var user *models.User
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		record, err := s.tokens.Consume(ctx, HashSecret(token), models.PurposeTelegramLink, s.now())
@@ -130,7 +132,8 @@ func (s *ProfileService) UnlinkTelegram(ctx context.Context, actor models.Actor)
 	})
 }
 
-func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Actor, req models.ChangeEmailRequest) error {
+func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Actor, req models.ChangeEmailRequest,
+) error {
 	newEmail, err := validateEmail("new_email", req.NewEmail)
 	if err != nil {
 		return err

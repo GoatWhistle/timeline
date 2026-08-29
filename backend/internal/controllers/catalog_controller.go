@@ -1,14 +1,26 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type CatalogService interface {
+	List(
+		ctx context.Context, actor models.Actor, filter models.CatalogFilter, page models.Page,
+	) ([]models.CatalogEvent, int64, error)
+	Join(
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.JoinEventRequest,
+	) (*models.EventParticipant, error)
+}
 
 type CatalogController struct {
 	catalog CatalogService

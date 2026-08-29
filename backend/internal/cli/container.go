@@ -45,6 +45,8 @@ type container struct {
 		bookmarks     *personal.Bookmarks
 		templates     *personal.Templates
 		history       *personal.History
+		retros        *personal.Retrospectives
+		reminders     *personal.Reminders
 		links         *resourcelink.Links
 		userLinks     *resourcelink.PersonalLinks
 		queries       *query.Timeline
@@ -77,20 +79,12 @@ type container struct {
 	delivery      *services.DeliveryService
 	ops           *services.OpsService
 	feed          *services.SystemEventService
+	reminders     *services.PersonalReminderService
 	hub           *services.RealtimeHub
 }
 
-func newContainer(ctx context.Context) (*container, error) {
-	cfg, err := loadConfig()
-	if err != nil {
-		return nil, err
-	}
-	db, err := postgres.Connect(ctx, cfg.DB)
-	if err != nil {
-		return nil, err
-	}
-
-	c := &container{cfg: cfg, db: db}
+func (c *container) wireRepositories() {
+	db := c.db
 	c.repos.users = identity.NewUsers(db)
 	c.repos.sessions = identity.NewSessions(db)
 	c.repos.tokens = identity.NewTokens(db)
@@ -111,11 +105,27 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.repos.bookmarks = personal.NewBookmarks(db)
 	c.repos.templates = personal.NewTemplates(db)
 	c.repos.history = personal.NewHistory(db)
+	c.repos.retros = personal.NewRetrospectives(db)
+	c.repos.reminders = personal.NewReminders(db)
 	c.repos.links = resourcelink.NewLinks(db)
 	c.repos.userLinks = resourcelink.NewPersonalLinks(db)
 	c.repos.queries = query.NewTimeline(db)
 	c.repos.feed = systemevent.NewEvents(db)
 	c.repos.audit = audit.NewAudit(db)
+}
+
+func newContainer(ctx context.Context) (*container, error) {
+	cfg, err := loadConfig()
+	if err != nil {
+		return nil, err
+	}
+	db, err := postgres.Connect(ctx, cfg.DB)
+	if err != nil {
+		return nil, err
+	}
+
+	c := &container{cfg: cfg, db: db}
+	c.wireRepositories()
 
 	c.telegram = telegram.New(cfg.Telegram)
 	c.email = email.New(cfg.Email)
@@ -159,11 +169,17 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.ops = services.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
 	c.feed = services.NewSystemEventService(db, c.repos.feed)
 	c.hub = services.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
+	c.wireRealtime()
+	return c, nil
+}
+
+func (c *container) wireRealtime() {
 	c.delivery.WithEvents(c.feed)
+	c.personal.WithRetrospectives(c.repos.retros)
+	c.reminders = services.NewPersonalReminderService(c.repos.reminders, c.feed, c.cfg.Personal)
 	c.auth.WithRealtime(c.hub)
 	c.users.WithRealtime(c.hub)
 	c.profile.WithRealtime(c.hub)
-	return c, nil
 }
 
 func (c *container) Close() { c.db.Close() }

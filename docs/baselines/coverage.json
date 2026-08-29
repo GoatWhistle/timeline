@@ -1,5 +1,5 @@
 {
-  "measuredAt": "2026-08-27",
+  "measuredAt": "2026-08-29",
   "frontend": {
     "tool": "vitest --coverage (provider v8)",
     "config": "frontend/vitest.config.ts",
@@ -8,38 +8,43 @@
       "tests/**",
       "**/index.ts"
     ],
-    "testFiles": 5,
-    "tests": 70,
+    "testFiles": 59,
+    "tests": 698,
     "thresholds": {
-      "lines": 16.74,
-      "statements": 16.31,
-      "functions": 10.5,
-      "branches": 11.39
+      "lines": 38.97,
+      "statements": 39.58,
+      "functions": 27.52,
+      "branches": 39.75
     },
     "absolute": {
       "lines": {
-        "covered": 204,
-        "total": 1218
+        "covered": 1246,
+        "total": 3197
       },
       "statements": {
-        "covered": 216,
-        "total": 1324
+        "covered": 1434,
+        "total": 3623
       },
       "functions": {
-        "covered": 60,
-        "total": 571
+        "covered": 344,
+        "total": 1250
       },
       "branches": {
-        "covered": 94,
-        "total": 825
+        "covered": 875,
+        "total": 2201
       }
     },
-    "note": "The threshold equals the level reached and never drops. When coverage grows, the threshold is raised by the same change."
+    "note": "The threshold equals the level reached and never drops. When coverage grows, the threshold is raised by the same change. Proven to bite: raising the statements threshold above the measured level fails the run with 'does not meet global threshold'."
   },
   "backend": {
-    "tool": "go test -coverprofile",
-    "target": "make back-cover",
-    "threshold": 0.7,
-    "note": "Measured in the golang:1.25-alpine container (no Go on the machine, see GO_RUN in the Makefile). Tests exist only in adapters/ratelimit, one package out of fourteen. The threshold equals the level reached and never drops."
+    "tool": "go test -tags=integration -coverpkg=./internal/... -coverprofile",
+    "target": "make back-cover-integration",
+    "threshold": 55.5,
+    "unitOnly": {
+      "target": "make back-cover",
+      "level": 2.4,
+      "note": "Coverage of the tests that need no database. Kept as a separate figure because it is not the level the backend is actually tested to."
+    },
+    "note": "Measured in the golang:1.25-alpine container (no Go on the machine, see GO_RUN in the Makefile). The earlier 0.7% baseline measured `go test` without -tags=integration, so it could not see the suites that carry the backend - authorization and IDOR, the section 16 transitions and AC-NOTIF-01..19 - all of which are behind the integration build tag and need a database. The 55.5% figure is the same suites measured with the tag and with -coverpkg spread across every internal package. The threshold equals the level reached and never drops."
   }
 }

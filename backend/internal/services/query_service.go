@@ -86,12 +86,21 @@ func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
 		card.Stages = append(card.Stages, stageView(&stages[i], event))
 	}
 
-	registration, err := s.registrations.GetByEvent(ctx, eventID)
+	if err := s.attachRegistration(ctx, card, event, participant); err != nil {
+		return nil, err
+	}
+	return card, nil
+}
+
+func (s *QueryService) attachRegistration(ctx context.Context, card *models.EventCard,
+	event *models.Event, participant *models.EventParticipant,
+) error {
+	registration, err := s.registrations.GetByEvent(ctx, event.ID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return card, nil
+			return nil
 		}
-		return nil, err
+		return err
 	}
 	card.Registration = &models.RegistrationPublic{
 		URL:         registration.URL,
@@ -103,9 +112,9 @@ func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
 	status, err := s.statuses.GetByParticipant(ctx, registration.ID, participant.ID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return card, nil
+			return nil
 		}
-		return nil, err
+		return err
 	}
 	card.RegistrationStatus = &models.RegistrationStatusShort{
 		ID:           status.ID,
@@ -115,7 +124,7 @@ func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
 		Note:         status.Note,
 	}
 	card.CanMarkDone = !event.Archived() && registration.Active() && status.Status == models.StatusTODO
-	return card, nil
+	return nil
 }
 
 func (s *QueryService) MySchedule(ctx context.Context, actor models.Actor,

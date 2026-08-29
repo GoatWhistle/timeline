@@ -39,6 +39,8 @@ const (
 	EventQueueAgeHigh              SystemEventType = "QUEUE_AGE_HIGH"
 	EventQueueAgeNormal            SystemEventType = "QUEUE_AGE_NORMAL"
 	EventRegistrationReminder      SystemEventType = "REGISTRATION_REMINDER"
+	EventPersonalTaskDue           SystemEventType = "PERSONAL_TASK_DUE"
+	EventPersonalRetrospectiveDue  SystemEventType = "PERSONAL_RETROSPECTIVE_DUE"
 )
 
 type SystemEvent struct {

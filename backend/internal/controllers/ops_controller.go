@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"crypto/subtle"
 	"net/http"
 	"time"
@@ -9,6 +10,14 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type OpsService interface {
+	Ready(ctx context.Context) error
+	Heartbeat(ctx context.Context) (*models.WorkerHeartbeatResponse, error)
+	Queue(
+		ctx context.Context, actor models.Actor, scope string, page models.Page,
+	) ([]models.QueueEntryResponse, int64, error)
+}
 
 type OpsController struct {
 	svc          OpsService

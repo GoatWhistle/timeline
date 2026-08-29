@@ -27,6 +27,7 @@ var tables = []string{
 	"system_events",
 	"observed_states",
 	"event_bookmarks",
+	"participant_retrospectives",
 	"participant_outcomes",
 	"participant_artifacts",
 	"participant_notes",

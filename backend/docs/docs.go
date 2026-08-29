@@ -4806,6 +4806,172 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/events/{id}/retrospective": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Three free-text fields the participant fills in after the event: what went well,\nwhat did not, and what to do differently next time. A personal record in every\nsense of specification 5.4 — only the owner reads it, an administrator has no\nprivilege here, and a foreign record answers 404 rather than 403.\n\nAn absent retrospective is returned as an empty one rather than a 404: the screen\nthat offers to write it must not have to distinguish \"nothing yet\" from an error.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "personal"
+                ],
+                "summary": "Own retrospective for an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ParticipantRetrospective"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "the event is not visible to the caller",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Stores the caller's retrospective for the event. Every field is optional on its\nown, but a retrospective whose three fields are all blank is equivalent to an\nabsent one and deletes the record — the same rule as the note in specification\n5.4.3, so that a list of events with retrospectives does not fill with blanks.\n\nThe retrospective is a personal record: it never becomes a queued notification\nand never reaches the audit log. Its reminder arrives as a system event on the\nbus of specification 9.9, two days after the event ends.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "personal"
+                ],
+                "summary": "Save an own retrospective",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Retrospective",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SaveRetrospectiveRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ParticipantRetrospective"
+                        }
+                    },
+                    "400": {
+                        "description": "a field is too long",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "tags": [
+                    "personal"
+                ],
+                "summary": "Delete an own retrospective",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "the retrospective is deleted"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me/events/{id}/tasks": {
             "get": {
                 "security": [
@@ -5170,6 +5336,65 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/notifications": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "What the system sent the caller and when: date, type, channel and a short\npreview. Read-only and scoped to the caller by recipient — an administrator\nreading this endpoint sees their own notifications, not anyone else's.\n\nThe preview is a short excerpt, never the whole payload. Specification 4 clears\npayload_json after 90 days while the row itself must survive for deduplication,\nso an older entry returns no preview and no event title and is marked redacted.\nThe screen is required to render that state rather than treat it as an error.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Own notification history",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NotificationHistoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -7219,6 +7444,10 @@ const docTemplate = `{
                 "telegram_username": {
                     "type": "string"
                 },
+                "timezone": {
+                    "type": "string",
+                    "example": "Europe/Moscow"
+                },
                 "updated_at": {
                     "type": "string"
                 }
@@ -7290,6 +7519,87 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.MyEventItem"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/models.PageMeta"
+                }
+            }
+        },
+        "models.NotificationHistoryItem": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "enum": [
+                        "TELEGRAM",
+                        "EMAIL"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Channel"
+                        }
+                    ]
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "event_title": {
+                    "type": "string",
+                    "example": "Demo Day"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "preview": {
+                    "type": "string",
+                    "example": "The registration deadline is approaching"
+                },
+                "redacted": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "scheduled_at": {
+                    "type": "string"
+                },
+                "sent_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "PENDING",
+                        "PROCESSING",
+                        "SENT",
+                        "FAILED",
+                        "CANCELLED",
+                        "UNDELIVERABLE"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.NotificationStatus"
+                        }
+                    ]
+                },
+                "type": {
+                    "enum": [
+                        "REGISTRATION_REQUIRED",
+                        "REGISTRATION_REMINDER",
+                        "REGISTRATION_OVERDUE"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.NotificationType"
+                        }
+                    ]
+                }
+            }
+        },
+        "models.NotificationHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.NotificationHistoryItem"
                     }
                 },
                 "meta": {
@@ -7680,6 +7990,29 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/models.UserSummary"
+                }
+            }
+        },
+        "models.ParticipantRetrospective": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "next_time": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "went_badly": {
+                    "type": "string"
+                },
+                "went_well": {
+                    "type": "string"
                 }
             }
         },
@@ -8248,6 +8581,20 @@ const docTemplate = `{
                 }
             }
         },
+        "models.SaveRetrospectiveRequest": {
+            "type": "object",
+            "properties": {
+                "next_time": {
+                    "type": "string"
+                },
+                "went_badly": {
+                    "type": "string"
+                },
+                "went_well": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ScheduleItem": {
             "type": "object",
             "properties": {
@@ -8791,6 +9138,10 @@ const docTemplate = `{
                 "telegram_username": {
                     "type": "string",
                     "example": "@ivan"
+                },
+                "timezone": {
+                    "type": "string",
+                    "example": "Asia/Tokyo"
                 }
             }
         },

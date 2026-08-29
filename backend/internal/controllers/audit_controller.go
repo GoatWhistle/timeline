@@ -1,12 +1,19 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type AuditService interface {
+	List(
+		ctx context.Context, actor models.Actor, filter models.AuditFilter, page models.Page,
+	) ([]models.AuditResponse, int64, error)
+}
 
 type AuditController struct {
 	svc     AuditService

@@ -94,6 +94,7 @@ func newRouter(c *container) http.Handler {
 		Personal:      c.personal,
 		Links:         c.links,
 		Feed:          c.feed,
+		Notifications: c.notifier,
 
 		Authenticator: c.auth,
 		Metrics:       promhttp.Handler(),

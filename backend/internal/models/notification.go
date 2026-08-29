@@ -94,6 +94,7 @@ type ReconcileCandidate struct {
 	TodoCycle         int
 	RecipientID       uuid.UUID
 	RecipientLocale   string
+	RecipientTimezone string
 	RecipientChannels RecipientChannels
 }
 

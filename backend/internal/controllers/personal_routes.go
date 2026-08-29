@@ -22,4 +22,7 @@ func mountPersonal(mux *http.ServeMux, rt *routes, api string, c *PersonalContro
 	mux.Handle("PUT "+api+"/me/bookmarks/{id}", rt.authd(c.AddBookmark))
 	mux.Handle("DELETE "+api+"/me/bookmarks/{id}", rt.authd(c.RemoveBookmark))
 	mux.Handle("GET "+api+"/me/history", rt.authd(c.History))
+	mux.Handle("GET "+api+"/me/events/{id}/retrospective", rt.authd(c.GetRetrospective))
+	mux.Handle("PUT "+api+"/me/events/{id}/retrospective", rt.authd(c.SaveRetrospective))
+	mux.Handle("DELETE "+api+"/me/events/{id}/retrospective", rt.authd(c.DeleteRetrospective))
 }

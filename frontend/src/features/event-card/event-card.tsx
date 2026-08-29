@@ -15,6 +15,7 @@ import { PageHeader } from '@/shared/ui/layout/page-header'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { DeadlineTime } from '@/shared/ui/primitives/deadline-time/deadline-time'
 import { Dot } from '@/shared/ui/primitives/dot'
 import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
 import { EventPlaceSummary } from './event-place-summary'
@@ -136,7 +137,7 @@ function EventCardBody({
                 <div className="text-sm">
                   <p className="text-muted-foreground">{t('card.deadline')}</p>
                   <p className="font-medium">
-                    {formatDateTime(registration.deadline_at)}
+                    <DeadlineTime iso={registration.deadline_at} />
                     {registration.deadline_at && (
                       <span className="ml-2 text-muted-foreground">
                         ({formatRelative(registration.deadline_at)})

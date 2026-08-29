@@ -1,13 +1,26 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+type InviteService interface {
+	Create(ctx context.Context, actor models.Actor, email string) (*models.Invite, string, error)
+	List(ctx context.Context, actor models.Actor, page models.Page) ([]models.Invite, int64, error)
+	Revoke(ctx context.Context, actor models.Actor, id uuid.UUID) error
+	Preview(ctx context.Context, token string) (*models.InvitePreview, error)
+	Accept(
+		ctx context.Context, req models.AcceptInviteRequest, meta models.SessionMeta,
+	) (*models.User, *models.TokenPair, error)
+}
 
 type InviteController struct {
 	svc       InviteService
@@ -18,8 +31,13 @@ type InviteController struct {
 	pageMax   int
 }
 
-func NewInviteController(svc InviteService, cookies CookieOptions, publicURL string, csrfTTL time.Duration, pageDef, pageMax int) *InviteController {
-	return &InviteController{svc: svc, cookies: cookies, publicURL: publicURL, csrfTTL: csrfTTL, pageDef: pageDef, pageMax: pageMax}
+func NewInviteController(svc InviteService, cookies CookieOptions, publicURL string,
+	csrfTTL time.Duration, pageDef, pageMax int,
+) *InviteController {
+	return &InviteController{
+		svc: svc, cookies: cookies, publicURL: publicURL,
+		csrfTTL: csrfTTL, pageDef: pageDef, pageMax: pageMax,
+	}
 }
 
 // @Summary		Create an invite

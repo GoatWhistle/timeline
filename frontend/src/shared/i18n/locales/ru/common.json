@@ -326,9 +326,35 @@
     "sectionProfile": "Профиль",
     "sectionAppearance": "Внешний вид",
     "sectionNotifications": "Уведомления",
-    "sectionDanger": "Аккаунт"
+    "sectionDanger": "Аккаунт",
+    "timezone": "Часовой пояс",
+    "timezoneHint": "В этом поясе показываются все даты и сроки. Хранится всё в UTC."
   },
   "realtime": {
     "offline": "Нет связи с сервером — данные обновляются реже"
+  },
+  "timezone": {
+    "legend": "Выбор часового пояса",
+    "placeholder": "Выберите пояс",
+    "systemNote": "По системному времени: {{time}}",
+    "updated": "Часовой пояс сохранён",
+    "failed": "Не удалось сохранить часовой пояс"
+  },
+  "countdown": {
+    "days_one": "{{count}} день",
+    "days_few": "{{count}} дня",
+    "days_many": "{{count}} дней",
+    "hours_one": "{{count}} час",
+    "hours_few": "{{count}} часа",
+    "hours_many": "{{count}} часов",
+    "minutes_one": "{{count}} минута",
+    "minutes_few": "{{count}} минуты",
+    "minutes_many": "{{count}} минут",
+    "seconds_one": "{{count}} секунда",
+    "seconds_few": "{{count}} секунды",
+    "seconds_many": "{{count}} секунд",
+    "left": "осталось {{amount}}",
+    "past": "срок прошёл",
+    "label": "До срока"
   }
 }
