@@ -1,0 +1,41 @@
+{
+  "form": {
+    "title": "Title",
+    "start": "Start",
+    "end": "End",
+    "organizer": "Organizer",
+    "website": "Website",
+    "description": "Description",
+    "adminNotes": "Administrator notes",
+    "adminNotesHint": "Visible to administrators only",
+    "httpsOnly": "https only",
+    "titleRequired": "Enter a title",
+    "startRequired": "Enter a start date",
+    "endRequired": "Enter an end date",
+    "endAfterStart": "The end must be later than the start",
+    "urlHttps": "The link must start with https://",
+    "kind": "Kind",
+    "origin": "Scope",
+    "originHint": "Where the event comes from, not where it is held",
+    "originValue": {
+      "RU": "Russia",
+      "WORLD": "World"
+    }
+  },
+  "clone": {
+    "title": "Clone the event",
+    "copySuffix": "(copy)",
+    "newTitle": "Title of the copy",
+    "newStart": "New start date",
+    "startHint": "Stage dates move by the same number of days.",
+    "withStages": "Copy the stages",
+    "noShift": "Dates stay unchanged.",
+    "shiftSummary": "Shift by {{days}} days. New end date: {{end}}.",
+    "submit": "Clone",
+    "done": "Event cloned",
+    "doneHint_one": "{{count}} stage moved by {{days}} days",
+    "doneHint_other": "{{count}} stages moved by {{days}} days",
+    "failed": "Could not clone the event",
+    "action": "Clone"
+  }
+}

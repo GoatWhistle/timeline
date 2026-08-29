@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/GoatWhistle/timeline/internal/services"
+	svcshared "github.com/GoatWhistle/timeline/internal/services/shared"
 )
 
 func TestOnlyTheHashOfTheTokenIsStored(t *testing.T) {
@@ -29,7 +29,7 @@ func TestOnlyTheHashOfTheTokenIsStored(t *testing.T) {
 	if strings.Contains(hash, secret) || strings.Contains(secret, hash) {
 		t.Fatalf("the stored value %q is derived from the token by more than hashing", hash)
 	}
-	if want := services.HashSecret(secret); hash != want {
+	if want := svcshared.HashSecret(secret); hash != want {
 		t.Fatalf("the stored value is %q, expected the SHA-256 hash %q", hash, want)
 	}
 
@@ -83,7 +83,7 @@ func TestFeedRateLimitAppliesWithoutAnAccountContext(t *testing.T) {
 		t.Fatalf("the refusal carried the code %q instead of rate_limited: %s", code, blocked.Body)
 	}
 
-	other, err := services.NewSecret()
+	other, err := svcshared.NewSecret()
 	if err != nil {
 		t.Fatalf("generating a second secret: %v", err)
 	}

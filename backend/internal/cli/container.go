@@ -17,7 +17,13 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/ratelimit"
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
 	"github.com/GoatWhistle/timeline/internal/config"
-	"github.com/GoatWhistle/timeline/internal/services"
+	svcauth "github.com/GoatWhistle/timeline/internal/services/auth"
+	svcevent "github.com/GoatWhistle/timeline/internal/services/event"
+	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
+	svcparticipation "github.com/GoatWhistle/timeline/internal/services/participation"
+	svcpersonal "github.com/GoatWhistle/timeline/internal/services/personal"
+	svcrealtime "github.com/GoatWhistle/timeline/internal/services/realtime"
+	svcshared "github.com/GoatWhistle/timeline/internal/services/shared"
 )
 
 type container struct {
@@ -58,33 +64,33 @@ type container struct {
 
 	telegram telegram.Sender
 	email    email.Sender
-	hasher   *services.PasswordHasher
+	hasher   *svcshared.PasswordHasher
 	limiter  *ratelimit.Limiter
 
-	auth          *services.AuthService
-	invites       *services.InviteService
-	profile       *services.ProfileService
-	users         *services.UserService
-	events        *services.EventService
-	catalog       *services.CatalogService
-	stages        *services.StageService
-	participants  *services.ParticipantService
-	registrations *services.RegistrationService
-	statuses      *services.StatusService
-	rules         *services.RuleService
-	queries       *services.QueryService
-	audit         *services.AuditService
-	personal      *services.PersonalService
-	links         *services.ResourceLinkService
-	notifier      *services.NotificationService
-	scheduler     *services.SchedulerService
-	delivery      *services.DeliveryService
-	ops           *services.OpsService
-	feed          *services.SystemEventService
-	calendar      *services.CalendarFeedService
-	reminders     *services.PersonalReminderService
-	digest        *services.DigestService
-	hub           *services.RealtimeHub
+	auth          *svcauth.AuthService
+	invites       *svcauth.InviteService
+	profile       *svcauth.ProfileService
+	users         *svcauth.UserService
+	events        *svcevent.EventService
+	catalog       *svcevent.CatalogService
+	stages        *svcevent.StageService
+	participants  *svcparticipation.ParticipantService
+	registrations *svcparticipation.RegistrationService
+	statuses      *svcparticipation.StatusService
+	rules         *svcparticipation.RuleService
+	queries       *svcevent.QueryService
+	audit         *svcshared.AuditService
+	personal      *svcpersonal.PersonalService
+	links         *svcevent.ResourceLinkService
+	notifier      *svcnotification.NotificationService
+	scheduler     *svcnotification.SchedulerService
+	delivery      *svcnotification.DeliveryService
+	ops           *svcnotification.OpsService
+	feed          *svcrealtime.SystemEventService
+	calendar      *svcauth.CalendarFeedService
+	reminders     *svcpersonal.PersonalReminderService
+	digest        *svcnotification.DigestService
+	hub           *svcrealtime.RealtimeHub
 }
 
 func (c *container) wireRepositories() {
@@ -135,47 +141,48 @@ func newContainer(ctx context.Context) (*container, error) {
 
 	c.telegram = telegram.New(cfg.Telegram)
 	c.email = email.New(cfg.Email)
-	c.hasher = services.NewPasswordHasher(cfg.Argon)
+	c.hasher = svcshared.NewPasswordHasher(cfg.Argon)
 	c.limiter = ratelimit.New()
 	limiter := c.limiter
-	issuer := services.NewTokenIssuer(cfg.Auth)
-	mailer := services.NewMailer(c.email, cfg.App.PublicURL)
+	issuer := svcshared.NewTokenIssuer(cfg.Auth)
+	mailer := svcshared.NewMailer(c.email, cfg.App.PublicURL)
 
-	c.audit = services.NewAuditService(c.repos.audit)
-	c.notifier = services.NewNotificationService(c.repos.notifications, cfg)
-	c.scheduler = services.NewSchedulerService(db, c.repos.scheduler, c.repos.rules, c.notifier, cfg)
+	c.audit = svcshared.NewAuditService(c.repos.audit)
+	c.notifier = svcnotification.NewNotificationService(c.repos.notifications, cfg)
+	c.scheduler = svcnotification.NewSchedulerService(db, c.repos.scheduler, c.repos.rules, c.notifier, cfg)
 
-	c.auth = services.NewAuthService(db, c.repos.users, c.repos.sessions, c.repos.tokens, c.repos.invites,
+	c.auth = svcauth.NewAuthService(db, c.repos.users, c.repos.sessions, c.repos.tokens, c.repos.invites,
 		c.notifier, c.audit, c.hasher, issuer, mailer, limiter, cfg)
-	c.invites = services.NewInviteService(db, c.repos.invites, c.repos.users, c.auth, c.audit, mailer, limiter, cfg)
-	c.profile = services.NewProfileService(db, c.repos.users, c.repos.tokens, c.repos.sessions,
+	c.invites = svcauth.NewInviteService(db, c.repos.invites, c.repos.users, c.auth, c.audit, mailer, limiter, cfg)
+	c.profile = svcauth.NewProfileService(db, c.repos.users, c.repos.tokens, c.repos.sessions,
 		c.notifier, c.audit, c.hasher, mailer, c.telegram, cfg)
-	c.users = services.NewUserService(db, c.repos.users, c.repos.sessions, c.notifier, c.audit)
-	c.events = services.NewEventService(db, c.repos.events, c.repos.registrations,
+	c.users = svcauth.NewUserService(db, c.repos.users, c.repos.sessions, c.notifier, c.audit)
+	c.events = svcevent.NewEventService(db, c.repos.events, c.repos.registrations,
 		c.notifier, c.scheduler, c.audit)
-	c.stages = services.NewStageService(db, c.repos.stages, c.repos.events, c.repos.participants, c.audit)
-	c.participants = services.NewParticipantService(db, c.repos.participants, c.repos.events,
+	c.stages = svcevent.NewStageService(db, c.repos.stages, c.repos.events, c.repos.participants, c.audit)
+	c.participants = svcparticipation.NewParticipantService(db, c.repos.participants, c.repos.events,
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
-	c.registrations = services.NewRegistrationService(db, c.repos.registrations, c.repos.events,
+	c.registrations = svcparticipation.NewRegistrationService(db, c.repos.registrations, c.repos.events,
 		c.repos.participants, c.repos.statuses, c.repos.users, c.notifier, c.scheduler, c.audit)
-	c.statuses = services.NewStatusService(db, c.repos.statuses, c.repos.registrations, c.repos.participants,
+	c.statuses = svcparticipation.NewStatusService(db, c.repos.statuses, c.repos.registrations, c.repos.participants,
 		c.repos.events, c.repos.users, c.notifier, c.scheduler, c.audit)
-	c.rules = services.NewRuleService(db, c.repos.rules, c.repos.registrations, c.notifier, c.scheduler, c.audit, cfg)
-	c.catalog = services.NewCatalogService(db, c.repos.catalog, c.repos.events, c.repos.participants,
+	c.rules = svcparticipation.NewRuleService(db, c.repos.rules, c.repos.registrations,
+		c.notifier, c.scheduler, c.audit, cfg)
+	c.catalog = svcevent.NewCatalogService(db, c.repos.catalog, c.repos.events, c.repos.participants,
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
-	c.queries = services.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
+	c.queries = svcevent.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
 		c.repos.participants, c.repos.registrations, c.repos.statuses)
-	c.delivery = services.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
+	c.delivery = svcnotification.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
 		c.repos.rules, c.repos.audit, c.telegram, c.email, cfg)
-	c.personal = services.NewPersonalService(db, c.repos.tasks, c.repos.notes, c.repos.artifacts,
+	c.personal = svcpersonal.NewPersonalService(db, c.repos.tasks, c.repos.notes, c.repos.artifacts,
 		c.repos.outcomes, c.repos.bookmarks, c.repos.templates, c.repos.history,
 		c.repos.events, c.repos.stages, c.repos.participants, cfg.Personal)
-	c.links = services.NewResourceLinkService(db, c.repos.links, c.repos.userLinks,
+	c.links = svcevent.NewResourceLinkService(db, c.repos.links, c.repos.userLinks,
 		c.repos.events, c.repos.stages, c.repos.participants, c.audit, cfg.Links)
-	c.ops = services.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
-	c.feed = services.NewSystemEventService(db, c.repos.feed)
-	c.hub = services.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
-	c.calendar = services.NewCalendarFeedService(db, c.repos.calendarFeeds, c.repos.users,
+	c.ops = svcnotification.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
+	c.feed = svcrealtime.NewSystemEventService(db, c.repos.feed)
+	c.hub = svcrealtime.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
+	c.calendar = svcauth.NewCalendarFeedService(db, c.repos.calendarFeeds, c.repos.users,
 		c.repos.queries, c.audit, cfg.App.PublicURL)
 	c.wireRealtime()
 	return c, nil
@@ -184,8 +191,8 @@ func newContainer(ctx context.Context) (*container, error) {
 func (c *container) wireRealtime() {
 	c.delivery.WithEvents(c.feed)
 	c.personal.WithRetrospectives(c.repos.retros)
-	c.reminders = services.NewPersonalReminderService(c.repos.reminders, c.feed, c.cfg.Personal)
-	c.digest = services.NewDigestService(c.repos.digests, c.feed, c.cfg.Digest, c.cfg.App)
+	c.reminders = svcpersonal.NewPersonalReminderService(c.repos.reminders, c.feed, c.cfg.Personal)
+	c.digest = svcnotification.NewDigestService(c.repos.digests, c.feed, c.cfg.Digest, c.cfg.App)
 	c.auth.WithRealtime(c.hub)
 	c.users.WithRealtime(c.hub)
 	c.profile.WithRealtime(c.hub)

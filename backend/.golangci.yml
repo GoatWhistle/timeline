@@ -189,14 +189,14 @@ linters:
           - gocyclo
           - lll
 
-      - path: internal/controllers/auth_controller\.go
+      - path: internal/controllers/auth/auth\.go
         linters:
           - dupl
           - funlen
           - gocyclo
           - lll
 
-      - path: internal/controllers/event_controller\.go
+      - path: internal/controllers/event/event\.go
         linters:
           - dupl
           - funlen
@@ -206,50 +206,80 @@ linters:
       # swag annotations align into columns, and the widest DTO name pushes
       # the padded rows past 120 characters. The annotation is the source of
       # the API contract, so it is not wrapped.
-      - path: internal/controllers/resource_link_controller\.go
+      - path: internal/controllers/event/link\.go
         linters:
           - lll
 
-      - path: internal/controllers/participant_link_controller\.go
+      - path: internal/controllers/event/link_personal\.go
         linters:
           - lll
 
-      - path: internal/controllers/registration_controller\.go
+      - path: internal/controllers/event/catalog\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/event/query\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/notification/rule\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/participation/participant\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/participation/status\.go
+        linters:
+          - lll
+
+      # enums tags on DTO fields: the tag lists the domain values verbatim and
+      # a wrapped tag is not a tag any more.
+      - path: internal/models/dto_event\.go
+        linters:
+          - lll
+
+      - path: internal/models/dto_notification\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/participation/registration\.go
         linters:
           - dupl
           - funlen
           - gocyclo
           - lll
 
-      - path: internal/services/event_service\.go
+      - path: internal/services/event/event_service\.go
         linters:
           - dupl
           - funlen
           - gocyclo
           - lll
 
-      - path: internal/services/participant_service\.go
+      - path: internal/services/participation/participant_service\.go
         linters:
           - dupl
           - funlen
           - gocyclo
           - lll
 
-      - path: internal/services/profile_service\.go
+      - path: internal/services/auth/profile_service\.go
         linters:
           - dupl
           - funlen
           - gocyclo
           - lll
 
-      - path: internal/services/registration_service\.go
+      - path: internal/services/participation/registration_service\.go
         linters:
           - dupl
           - funlen
           - gocyclo
           - lll
 
-      - path: internal/services/status_service\.go
+      - path: internal/services/participation/status_service\.go
         linters:
           - dupl
           - funlen

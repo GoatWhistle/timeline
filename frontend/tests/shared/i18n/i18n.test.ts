@@ -1,30 +1,16 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { afterAll, describe, expect, it } from 'vitest'
-import { i18n, resources } from '@/shared/i18n/config'
+import {
+  declaredFiles,
+  dictionaries,
+  dictionaryFiles,
+  keyPaths,
+  leaves,
+  type Tree,
+} from '@tests/support/dictionaries'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { ensureLocale, i18n, i18nReady, NAMESPACES } from '@/shared/i18n/config'
 import { LOCALES } from '@/shared/i18n/locale'
-
-type Tree = { [key: string]: string | Tree }
-
-function keyPaths(tree: Tree, prefix = ''): string[] {
-  const out: string[] = []
-  for (const [key, value] of Object.entries(tree)) {
-    const path = prefix ? `${prefix}.${key}` : key
-    if (typeof value === 'string') out.push(path)
-    else out.push(...keyPaths(value, path))
-  }
-  return out
-}
-
-function leaves(tree: Tree, prefix = ''): [string, string][] {
-  const out: [string, string][] = []
-  for (const [key, value] of Object.entries(tree)) {
-    const path = prefix ? `${prefix}.${key}` : key
-    if (typeof value === 'string') out.push([path, value])
-    else out.push(...leaves(value, path))
-  }
-  return out
-}
 
 const PLURAL_SUFFIX = /_(zero|one|two|few|many|other)$/
 
@@ -32,24 +18,28 @@ function pluralBase(path: string): string {
   return path.replace(PLURAL_SUFFIX, '')
 }
 
+beforeAll(async () => {
+  await i18nReady
+  for (const locale of LOCALES) await ensureLocale(locale)
+})
+
 afterAll(async () => {
   await i18n.changeLanguage('ru')
 })
 
 describe('i18n dictionaries', () => {
   it('cover the same keys in both languages', () => {
-    for (const ns of Object.keys(resources.ru) as (keyof typeof resources.ru)[]) {
-      const ru = new Set(keyPaths(resources.ru[ns] as Tree).map(pluralBase))
-      const en = new Set(keyPaths(resources.en[ns] as Tree).map(pluralBase))
+    for (const ns of NAMESPACES) {
+      const ru = new Set(keyPaths(dictionaries.ru[ns]).map(pluralBase))
+      const en = new Set(keyPaths(dictionaries.en[ns]).map(pluralBase))
       expect([...ru].sort(), `namespace ${ns}`).toEqual([...en].sort())
     }
   })
 
   it('leave no message empty', () => {
     for (const locale of LOCALES) {
-      for (const ns of Object.keys(resources[locale])) {
-        const tree = resources[locale][ns as keyof (typeof resources)[typeof locale]] as Tree
-        for (const [path, value] of leaves(tree)) {
+      for (const ns of NAMESPACES) {
+        for (const [path, value] of leaves(dictionaries[locale][ns])) {
           expect(value, `${locale}/${ns}:${path}`).not.toHaveLength(0)
         }
       }
@@ -104,7 +94,7 @@ function sourceFiles(dir: string): string[] {
 }
 
 function resolves(locale: 'ru' | 'en', namespace: string, key: string): boolean {
-  const tree = (resources[locale] as Record<string, Tree>)[namespace]
+  const tree = (dictionaries[locale] as Record<string, Tree | undefined>)[namespace]
   if (!tree) return false
   return PLURAL_SUFFIXES.some((suffix) => {
     const node = (key + suffix)
@@ -148,5 +138,54 @@ describe('every key the code asks for exists', () => {
       }
     }
     expect([...new Set(unresolved)]).toEqual([])
+  })
+})
+
+describe('dictionary files', () => {
+  it('split both languages the same way, file for file', () => {
+    expect(dictionaryFiles.ru).toEqual(dictionaryFiles.en)
+  })
+
+  it('declare every file that exists on disk and no more', () => {
+    expect(declaredFiles).toEqual(dictionaryFiles.ru)
+  })
+
+  it('keep every file small enough to stay readable', () => {
+    for (const file of declaredFiles) {
+      for (const locale of LOCALES) {
+        const lines = readFileSync(
+          join(SOURCE_ROOT, 'shared', 'i18n', 'locales', locale, `${file}.json`),
+          'utf8',
+        ).split('\n').length
+        expect(lines, `${locale}/${file}.json`).toBeLessThanOrEqual(250)
+      }
+    }
+  })
+})
+
+describe('lazy locale loading', () => {
+  it('serves the active language and pulls the other in on demand', async () => {
+    await ensureLocale('ru')
+    await i18n.changeLanguage('ru')
+    expect(i18n.t('event:state.ACTIVE')).toBe('Идёт')
+    expect(i18n.t('action.save')).not.toBe('action.save')
+
+    await ensureLocale('en')
+    await i18n.changeLanguage('en')
+    expect(i18n.t('event:state.ACTIVE')).toBe('Active')
+    expect(i18n.t('action.save')).not.toBe('action.save')
+
+    await ensureLocale('ru')
+    await i18n.changeLanguage('ru')
+    expect(i18n.t('event:state.ACTIVE')).toBe('Идёт')
+  })
+
+  it('exposes every namespace after a locale is loaded', async () => {
+    for (const locale of LOCALES) {
+      await ensureLocale(locale)
+      for (const ns of NAMESPACES) {
+        expect(i18n.hasResourceBundle(locale, ns), `${locale}/${ns}`).toBe(true)
+      }
+    }
   })
 })

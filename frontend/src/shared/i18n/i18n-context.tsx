@@ -1,7 +1,7 @@
 import type * as React from 'react'
 import { createContext, use, useCallback, useEffect, useMemo, useState } from 'react'
 import { I18nextProvider, useTranslation } from 'react-i18next'
-import { i18n } from './config'
+import { ensureLocale, i18n, i18nReady } from './config'
 import { type Locale, resolveLocale, writeStoredLocale } from './locale'
 
 type LocaleContextValue = {
@@ -13,19 +13,38 @@ const LocaleContext = createContext<LocaleContextValue | null>(null)
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => resolveLocale())
+  const [ready, setReady] = useState(() => i18n.isInitialized)
+
+  useEffect(() => {
+    let active = true
+    void i18nReady.then(() => {
+      if (active) setReady(true)
+    })
+    return () => {
+      active = false
+    }
+  }, [])
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next)
     writeStoredLocale(next)
-    void i18n.changeLanguage(next)
   }, [])
 
   useEffect(() => {
-    if (i18n.language !== locale) void i18n.changeLanguage(locale)
     document.documentElement.lang = locale
+    if (i18n.language === locale) return
+    let active = true
+    void ensureLocale(locale).then(() => {
+      if (active) void i18n.changeLanguage(locale)
+    })
+    return () => {
+      active = false
+    }
   }, [locale])
 
   const value = useMemo(() => ({ locale, setLocale }), [locale, setLocale])
+
+  if (!ready) return null
 
   return (
     <I18nextProvider i18n={i18n}>

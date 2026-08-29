@@ -70,6 +70,7 @@ export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME CON
 	docker-psql dev dev-down dev-restart dev-logs \
 	install types types-check typecheck lint format test test-contract e2e verify build \
 	cyrillic baseline-cyrillic lint-baseline baseline-lint \
+	package-size baseline-package-size \
 	back-fmt back-vet back-test back-test-integration back-build back-cover back-cover-integration back-docs clean
 
 .DEFAULT_GOAL := help
@@ -243,6 +244,9 @@ back-docs: ## Rebuild the OpenAPI specification and publish it to docs/
 file-length: ## 250-line limit for hand-written code (ratchet)
 	@bash scripts/check-file-length.sh
 
+package-size: ## File-count limit per package (ratchet)
+	@bash scripts/check-package-size.sh
+
 cyrillic: ## Code language is English, Cyrillic only in dictionaries (ratchet)
 	@bash scripts/check-cyrillic.sh
 
@@ -254,6 +258,9 @@ lint-baseline: ## Total golangci-lint issues against the baseline (ratchet)
 
 baseline-file-length: ## Rewrite the line-limit baseline
 	@bash scripts/check-file-length.sh --update
+
+baseline-package-size: ## Rewrite the package file-count baseline
+	@bash scripts/check-package-size.sh --update
 
 baseline-cyrillic: ## Rewrite the Cyrillic check baseline
 	@bash scripts/check-cyrillic.sh --update
@@ -267,6 +274,7 @@ baseline-lint: ## Rewrite the golangci-lint issue baseline
 # --- Checks and cleanup -----------------------------------------------------
 
 verify: ## Full check of both parts: contract, types, linter, tests, build
+	@$(MAKE) --no-print-directory package-size
 	@$(MAKE) --no-print-directory file-length
 	@$(MAKE) --no-print-directory cyrillic
 	@cd $(FRONTEND) && npm run verify

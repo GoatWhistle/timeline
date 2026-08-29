@@ -1,5 +1,12 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { afterEach, beforeAll } from 'vitest'
+import { i18nReady, loadLocale } from '@/shared/i18n/config'
+import { LOCALES } from '@/shared/i18n/locale'
+
+beforeAll(async () => {
+  await i18nReady
+  await Promise.all(LOCALES.map((locale) => loadLocale(locale)))
+})
 
 afterEach(cleanup)

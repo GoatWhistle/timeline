@@ -4,38 +4,45 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/auth"
+	"github.com/GoatWhistle/timeline/internal/controllers/event"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
+	"github.com/GoatWhistle/timeline/internal/controllers/notification"
+	"github.com/GoatWhistle/timeline/internal/controllers/participation"
+	"github.com/GoatWhistle/timeline/internal/controllers/personal"
+	"github.com/GoatWhistle/timeline/internal/controllers/realtime"
+	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 )
 
 type Deps struct {
-	Auth          AuthService
-	Invites       InviteService
-	Profile       ProfileService
-	Users         UserService
-	Events        EventService
-	Catalog       CatalogService
-	Stages        StageService
-	Participants  ParticipantService
-	Registrations RegistrationService
-	Statuses      StatusService
-	Rules         RuleService
-	Queries       QueryService
-	Audit         AuditService
-	Ops           OpsService
-	Previews      PreviewService
-	Personal      PersonalService
-	Feed          SystemEventService
-	Notifications NotificationHistoryService
-	Realtime      RealtimeHub
-	Sessions      SessionChecker
-	Links         ResourceLinkService
-	CalendarFeeds CalendarFeedService
+	Auth          auth.AuthService
+	Invites       auth.InviteService
+	Profile       auth.ProfileService
+	Users         auth.UserService
+	Events        event.EventService
+	Catalog       event.CatalogService
+	Stages        event.StageService
+	Participants  participation.ParticipantService
+	Registrations participation.RegistrationService
+	Statuses      participation.StatusService
+	Rules         notification.RuleService
+	Queries       event.QueryService
+	Audit         notification.AuditService
+	Ops           notification.OpsService
+	Previews      notification.PreviewService
+	Personal      personal.PersonalService
+	Feed          realtime.SystemEventService
+	Notifications notification.NotificationHistoryService
+	Realtime      realtime.RealtimeHub
+	Sessions      realtime.SessionChecker
+	Links         event.ResourceLinkService
+	CalendarFeeds realtime.CalendarFeedService
 
 	Authenticator middleware.Authenticator
 	Metrics       http.Handler
 	SwaggerUI     http.Handler
 
-	Limiter            Limiter
+	Limiter            shared.Limiter
 	CatalogRate        int
 	CatalogRateWindow  time.Duration
 	SessionRate        int
@@ -60,7 +67,7 @@ type Deps struct {
 	LinkRate           int
 	LinkRateWindow     time.Duration
 
-	Cookies      CookieOptions
+	Cookies      shared.CookieOptions
 	PublicURL    string
 	CORSOrigins  []string
 	MetricsToken string

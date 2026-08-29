@@ -1,8 +1,8 @@
 # Baseline for the 250-line limit check (scripts/check-file-length.sh).
 # Format: <lines> <path>. Only updated downwards.
 351 backend/internal/adapters/postgres/constraints_integration_test.go
-279 backend/internal/controllers/auth_controller.go
-326 backend/internal/controllers/event_controller.go
-438 backend/internal/controllers/registration_controller.go
-267 backend/internal/services/registration_service.go
-278 backend/internal/services/status_service.go
+280 backend/internal/controllers/auth/auth.go
+327 backend/internal/controllers/event/event.go
+263 backend/internal/services/participation/registration_service.go
+257 backend/internal/services/participation/status_service.go
+255 backend/internal/services/shared/validate.go

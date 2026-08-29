@@ -1,22 +1,6 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import { DEFAULT_LOCALE, LOCALES, resolveLocale } from './locale'
-import enAuth from './locales/en/auth.json'
-import enCommon from './locales/en/common.json'
-import enErrors from './locales/en/errors.json'
-import enEvent from './locales/en/event.json'
-import enNotification from './locales/en/notification.json'
-import enOps from './locales/en/ops.json'
-import enPersonal from './locales/en/personal.json'
-import enRegistration from './locales/en/registration.json'
-import ruAuth from './locales/ru/auth.json'
-import ruCommon from './locales/ru/common.json'
-import ruErrors from './locales/ru/errors.json'
-import ruEvent from './locales/ru/event.json'
-import ruNotification from './locales/ru/notification.json'
-import ruOps from './locales/ru/ops.json'
-import ruPersonal from './locales/ru/personal.json'
-import ruRegistration from './locales/ru/registration.json'
+import { LOCALES, type Locale, resolveLocale } from './locale'
 
 export const NAMESPACES = [
   'common',
@@ -29,40 +13,74 @@ export const NAMESPACES = [
   'ops',
 ] as const
 
-export const resources = {
-  ru: {
-    common: ruCommon,
-    event: ruEvent,
-    registration: ruRegistration,
-    notification: ruNotification,
-    auth: ruAuth,
-    errors: ruErrors,
-    personal: ruPersonal,
-    ops: ruOps,
-  },
-  en: {
-    common: enCommon,
-    event: enEvent,
-    registration: enRegistration,
-    notification: enNotification,
-    auth: enAuth,
-    errors: enErrors,
-    personal: enPersonal,
-    ops: enOps,
-  },
-} as const
+export type Namespace = (typeof NAMESPACES)[number]
 
-if (!i18n.isInitialized) {
-  void i18n.use(initReactI18next).init({
-    resources,
-    lng: resolveLocale(),
-    fallbackLng: DEFAULT_LOCALE,
-    supportedLngs: LOCALES,
-    defaultNS: 'common',
-    ns: NAMESPACES,
-    interpolation: { escapeValue: false },
-    returnNull: false,
-  })
+export const BUNDLES: Record<Namespace, readonly string[]> = {
+  common: ['shell', 'action', 'format', 'admin', 'account', 'schedule'],
+  event: ['event', 'event-form', 'event-list', 'event-card', 'event-schedule'],
+  registration: ['registration'],
+  notification: ['notification'],
+  auth: ['auth'],
+  errors: ['errors'],
+  personal: ['personal'],
+  ops: ['ops'],
+}
+
+const modules = import.meta.glob('./locales/*/*.json', { import: 'default' }) as Record<
+  string,
+  () => Promise<Record<string, unknown>>
+>
+
+const pending = new Map<Locale, Promise<void>>()
+
+function fetchLocale(locale: Locale): Promise<void> {
+  const jobs: Promise<void>[] = []
+  for (const namespace of NAMESPACES) {
+    for (const file of BUNDLES[namespace]) {
+      const loader = modules[`./locales/${locale}/${file}.json`]
+      if (!loader) continue
+      jobs.push(
+        loader().then((tree) => {
+          i18n.addResourceBundle(locale, namespace, tree, true, true)
+        }),
+      )
+    }
+  }
+  return Promise.all(jobs).then(() => undefined)
+}
+
+export function loadLocale(locale: Locale): Promise<void> {
+  const existing = pending.get(locale)
+  if (existing) return existing
+  const job = fetchLocale(locale)
+  pending.set(locale, job)
+  return job
+}
+
+const initialLocale = resolveLocale()
+
+export const i18nReady: Promise<void> = (
+  i18n.isInitialized
+    ? Promise.resolve()
+    : i18n
+        .use(initReactI18next)
+        .init({
+          resources: {},
+          lng: initialLocale,
+          fallbackLng: false,
+          supportedLngs: LOCALES,
+          defaultNS: 'common',
+          ns: NAMESPACES,
+          interpolation: { escapeValue: false },
+          returnNull: false,
+          partialBundledLanguages: true,
+        })
+        .then(() => undefined)
+).then(() => loadLocale(initialLocale))
+
+export async function ensureLocale(locale: Locale): Promise<void> {
+  await i18nReady
+  await loadLocale(locale)
 }
 
 export { i18n }

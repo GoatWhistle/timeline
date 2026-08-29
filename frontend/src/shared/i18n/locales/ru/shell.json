@@ -1,0 +1,67 @@
+{
+  "app": {
+    "name": "Timeline",
+    "skipToContent": "Перейти к содержимому",
+    "mainNav": "Основная навигация",
+    "sectionParticipant": "Участник",
+    "sectionAdmin": "Администрирование",
+    "collapseSidebar": "Свернуть боковую панель",
+    "expandSidebar": "Развернуть боковую панель"
+  },
+  "nav": {
+    "burning": "Что горит",
+    "myEvents": "Мои события",
+    "catalog": "Каталог",
+    "schedule": "Шкала",
+    "profile": "Профиль",
+    "adminEvents": "События",
+    "adminSchedule": "Шкала",
+    "adminDeadlines": "Дедлайны",
+    "adminUsers": "Пользователи",
+    "adminInvites": "Приглашения",
+    "adminAudit": "Аудит",
+    "adminOps": "Состояние очереди",
+    "settings": "Настройки"
+  },
+  "page": {
+    "notFoundTitle": "Страница не найдена",
+    "notFoundHint": "Проверьте адрес или вернитесь на главную.",
+    "forbiddenTitle": "Доступ запрещён",
+    "forbiddenHint": "Раздел доступен только администратору системы."
+  },
+  "pane": {
+    "details": "Детали",
+    "close": "Закрыть детали"
+  },
+  "palette": {
+    "title": "Палитра команд",
+    "placeholder": "Введите команду или название страницы",
+    "empty": "Ничего не найдено",
+    "goto": "Перейти"
+  },
+  "views": {
+    "legend": "Виды",
+    "all": "Все",
+    "upcoming": "Предстоящие",
+    "active": "Идут сейчас",
+    "deadlines": "Ближайшие дедлайны",
+    "archived": "В архиве"
+  },
+  "theme": {
+    "legend": "Оформление",
+    "light": "Светлая тема",
+    "dark": "Тёмная тема",
+    "system": "Системная тема"
+  },
+  "language": {
+    "legend": "Язык",
+    "label": "Язык интерфейса",
+    "ru": "Русский",
+    "en": "English"
+  },
+  "link": {
+    "external": "Внешняя ссылка",
+    "insecure": "Не HTTPS",
+    "insecureHint": "Адрес открывается по незащищённому протоколу. Ссылка работает, но данные передаются в открытом виде."
+  }
+}

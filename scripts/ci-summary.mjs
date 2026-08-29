@@ -37,6 +37,8 @@ const rows = [
   ['Branches', percent(coverage?.total, 'branches')],
   ['Bundle, gzip', kilobytes(built?.total?.gzip)],
   ['Bundle baseline, gzip', kilobytes(baseline?.total?.gzip)],
+  ['Initial download, gzip', kilobytes(built?.initial?.gzip)],
+  ['Initial download baseline, gzip', kilobytes(baseline?.initial?.gzip)],
 ]
 
 const summary = table('Frontend', rows)

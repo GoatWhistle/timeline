@@ -3,7 +3,13 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/auth"
+	"github.com/GoatWhistle/timeline/internal/controllers/event"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
+	"github.com/GoatWhistle/timeline/internal/controllers/notification"
+	"github.com/GoatWhistle/timeline/internal/controllers/participation"
+	"github.com/GoatWhistle/timeline/internal/controllers/personal"
+	"github.com/GoatWhistle/timeline/internal/controllers/realtime"
 )
 
 // @title			Timeline API
@@ -64,31 +70,31 @@ import (
 // @tag.name					ops
 // @tag.description			Service probes and metrics
 func NewRouter(deps Deps) http.Handler {
-	authC := NewAuthController(deps.Auth, deps.Cookies, deps.CSRFTTL)
-	inviteC := NewInviteController(deps.Invites, deps.Cookies, deps.PublicURL,
+	authC := auth.NewController(deps.Auth, deps.Cookies, deps.CSRFTTL)
+	inviteC := auth.NewInviteController(deps.Invites, deps.Cookies, deps.PublicURL,
 		deps.CSRFTTL, deps.PageDefault, deps.PageMax)
-	profileC := NewProfileController(deps.Profile, deps.Cookies, deps.Limiter,
+	profileC := auth.NewProfileController(deps.Profile, deps.Cookies, deps.Limiter,
 		deps.ProfileRate, deps.ProfileRateWindow)
-	userC := NewUserController(deps.Users, deps.UserPageSize, deps.PageMax)
-	eventC := NewEventController(deps.Events, deps.Stages, deps.PageDefault, deps.PageMax)
-	catalogC := NewCatalogController(deps.Catalog, deps.Limiter, deps.CatalogRate,
+	userC := auth.NewUserController(deps.Users, deps.UserPageSize, deps.PageMax)
+	eventC := event.NewController(deps.Events, deps.Stages, deps.PageDefault, deps.PageMax)
+	catalogC := event.NewCatalogController(deps.Catalog, deps.Limiter, deps.CatalogRate,
 		deps.CatalogRateWindow, deps.PageDefault, deps.PageMax)
-	sessionC := NewSessionController(deps.Auth, deps.Cookies, deps.Limiter,
+	sessionC := auth.NewSessionController(deps.Auth, deps.Cookies, deps.Limiter,
 		deps.SessionRate, deps.SessionRateWindow)
-	partC := NewParticipantController(deps.Participants, deps.PageDefault, deps.PageMax)
-	regC := NewRegistrationController(deps.Registrations, deps.PageDefault, deps.PageMax)
-	statusC := NewRegistrationStatusController(deps.Statuses, deps.PageDefault, deps.PageMax)
-	ruleC := NewNotificationRuleController(deps.Rules)
-	queryC := NewQueryController(deps.Queries, deps.PageDefault, deps.PageMax)
-	auditC := NewAuditController(deps.Audit, deps.PageDefault, deps.PageMax)
-	opsC := NewOpsController(deps.Ops, deps.MetricsToken, deps.Metrics, deps.Limiter,
+	partC := participation.NewController(deps.Participants, deps.PageDefault, deps.PageMax)
+	regC := participation.NewRegistrationController(deps.Registrations, deps.PageDefault, deps.PageMax)
+	statusC := participation.NewRegistrationStatusController(deps.Statuses, deps.PageDefault, deps.PageMax)
+	ruleC := notification.NewNotificationRuleController(deps.Rules)
+	queryC := event.NewQueryController(deps.Queries, deps.PageDefault, deps.PageMax)
+	auditC := notification.NewAuditController(deps.Audit, deps.PageDefault, deps.PageMax)
+	opsC := notification.NewOpsController(deps.Ops, deps.MetricsToken, deps.Metrics, deps.Limiter,
 		deps.QueueRate, deps.QueueRateWindow, deps.PageDefault, deps.PageMax)
-	previewC := NewPreviewController(deps.Previews, deps.Limiter, deps.PreviewRate, deps.PreviewRateWindow)
-	personalC := NewPersonalController(deps.Personal, deps.Limiter, deps.PersonalRate,
+	previewC := notification.NewPreviewController(deps.Previews, deps.Limiter, deps.PreviewRate, deps.PreviewRateWindow)
+	personalC := personal.NewController(deps.Personal, deps.Limiter, deps.PersonalRate,
 		deps.PersonalRateWindow, deps.PageDefault, deps.PageMax)
-	linkC := NewResourceLinkController(deps.Links, deps.Limiter, deps.LinkRate,
+	linkC := event.NewResourceLinkController(deps.Links, deps.Limiter, deps.LinkRate,
 		deps.LinkRateWindow)
-	calendarC := NewCalendarFeedController(deps.CalendarFeeds, deps.Limiter,
+	calendarC := realtime.NewCalendarFeedController(deps.CalendarFeeds, deps.Limiter,
 		deps.CalendarRate, deps.CalendarRateWindow, deps.ICSRate, deps.ICSRateWindow)
 
 	rt := &routes{authn: deps.Authenticator}

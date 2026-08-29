@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/services"
+	svcshared "github.com/GoatWhistle/timeline/internal/services/shared"
 )
 
 func (s *stack) liveSessions(t *testing.T, userID uuid.UUID) int {
@@ -88,7 +88,7 @@ func TestReplayedRefreshTokenTerminatesTheSessionChain(t *testing.T) {
 	requireStatus(t, replay.post("/auth/refresh", nil), http.StatusUnauthorized,
 		"replaying a retired refresh token")
 
-	if live := s.liveSessionsInChain(t, services.HashSecret(retired)); live != 0 {
+	if live := s.liveSessionsInChain(t, svcshared.HashSecret(retired)); live != 0 {
 		t.Fatalf("replaying a retired refresh token left %d live session(s) in the chain: "+
 			"the chain-termination required by specification section 3 did not persist", live)
 	}

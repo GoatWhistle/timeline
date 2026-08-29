@@ -1,0 +1,38 @@
+{
+  "duration": {
+    "atDeadline": "at the deadline",
+    "days": "{{count}}d",
+    "hours": "{{count}}h",
+    "minutes": "{{count}}m",
+    "before": "{{amount}} before the deadline",
+    "after": "{{amount}} after the deadline"
+  },
+  "when": {
+    "today": "Today, {{time}}",
+    "tomorrow": "Tomorrow, {{time}}",
+    "yesterday": "Yesterday, {{time}}"
+  },
+  "timezone": {
+    "legend": "Time zone selection",
+    "placeholder": "Select a zone",
+    "systemNote": "System time: {{time}}",
+    "updated": "The time zone is saved",
+    "failed": "The time zone could not be saved"
+  },
+  "countdown": {
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "hours_one": "{{count}} hour",
+    "hours_other": "{{count}} hours",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "seconds_one": "{{count}} second",
+    "seconds_other": "{{count}} seconds",
+    "left": "{{amount}} left",
+    "past": "the deadline has passed",
+    "label": "Time remaining"
+  },
+  "realtime": {
+    "offline": "No live connection — data refreshes less often"
+  }
+}

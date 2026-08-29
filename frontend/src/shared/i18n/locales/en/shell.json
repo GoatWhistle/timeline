@@ -1,0 +1,67 @@
+{
+  "app": {
+    "name": "Timeline",
+    "skipToContent": "Skip to content",
+    "mainNav": "Main navigation",
+    "sectionParticipant": "Participant",
+    "sectionAdmin": "Administration",
+    "collapseSidebar": "Collapse the sidebar",
+    "expandSidebar": "Expand the sidebar"
+  },
+  "nav": {
+    "burning": "What is burning",
+    "myEvents": "My events",
+    "catalog": "Catalog",
+    "schedule": "Schedule",
+    "profile": "Profile",
+    "adminEvents": "Events",
+    "adminSchedule": "Schedule",
+    "adminDeadlines": "Deadlines",
+    "adminUsers": "Users",
+    "adminInvites": "Invites",
+    "adminAudit": "Audit",
+    "adminOps": "Queue state",
+    "settings": "Settings"
+  },
+  "page": {
+    "notFoundTitle": "Page not found",
+    "notFoundHint": "Check the address or go back home.",
+    "forbiddenTitle": "Access denied",
+    "forbiddenHint": "This section is available to system administrators only."
+  },
+  "pane": {
+    "details": "Details",
+    "close": "Close details"
+  },
+  "palette": {
+    "title": "Command palette",
+    "placeholder": "Type a command or a page name",
+    "empty": "Nothing found",
+    "goto": "Go to"
+  },
+  "views": {
+    "legend": "Views",
+    "all": "All",
+    "upcoming": "Upcoming",
+    "active": "Active",
+    "deadlines": "Nearest deadlines",
+    "archived": "Archived"
+  },
+  "theme": {
+    "legend": "Appearance",
+    "light": "Light theme",
+    "dark": "Dark theme",
+    "system": "System theme"
+  },
+  "language": {
+    "legend": "Language",
+    "label": "Interface language",
+    "ru": "Русский",
+    "en": "English"
+  },
+  "link": {
+    "external": "External link",
+    "insecure": "Not HTTPS",
+    "insecureHint": "This address opens over an unencrypted protocol. The link still works, but data travels in the clear."
+  }
+}

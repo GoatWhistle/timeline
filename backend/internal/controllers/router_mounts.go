@@ -1,9 +1,16 @@
 package controllers
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/auth"
+	"github.com/GoatWhistle/timeline/internal/controllers/event"
+	"github.com/GoatWhistle/timeline/internal/controllers/notification"
+	"github.com/GoatWhistle/timeline/internal/controllers/participation"
+)
 
 func mountAuth(mux *http.ServeMux, rt *routes, api string,
-	authC *AuthController, inviteC *InviteController,
+	authC *auth.Controller, inviteC *auth.InviteController,
 ) {
 	mux.Handle("POST "+api+"/auth/register", http.HandlerFunc(authC.Register))
 	mux.Handle("POST "+api+"/auth/login", http.HandlerFunc(authC.Login))
@@ -22,8 +29,8 @@ func mountAuth(mux *http.ServeMux, rt *routes, api string,
 }
 
 func mountMe(mux *http.ServeMux, rt *routes, api string,
-	profileC *ProfileController, sessionC *SessionController, queryC *QueryController,
-	catalogC *CatalogController, eventC *EventController, statusC *RegistrationStatusController,
+	profileC *auth.ProfileController, sessionC *auth.SessionController, queryC *event.QueryController,
+	catalogC *event.CatalogController, eventC *event.Controller, statusC *participation.RegistrationStatusController,
 ) {
 	mux.Handle("GET "+api+"/me", rt.authd(profileC.Get))
 	mux.Handle("PATCH "+api+"/me", rt.authd(profileC.Update))
@@ -44,7 +51,7 @@ func mountMe(mux *http.ServeMux, rt *routes, api string,
 }
 
 func mountAdminIdentity(mux *http.ServeMux, rt *routes, api string,
-	userC *UserController, inviteC *InviteController, eventC *EventController,
+	userC *auth.UserController, inviteC *auth.InviteController, eventC *event.Controller,
 ) {
 	mux.Handle("GET "+api+"/admin/users", rt.admin(userC.Search))
 	mux.Handle("POST "+api+"/admin/users/{id}/deactivate", rt.admin(userC.Deactivate))
@@ -66,9 +73,9 @@ func mountAdminIdentity(mux *http.ServeMux, rt *routes, api string,
 }
 
 func mountAdminRegistration(mux *http.ServeMux, rt *routes, api string,
-	partC *ParticipantController, regC *RegistrationController,
-	statusC *RegistrationStatusController, ruleC *NotificationRuleController,
-	previewC *PreviewController,
+	partC *participation.Controller, regC *participation.RegistrationController,
+	statusC *participation.RegistrationStatusController, ruleC *notification.NotificationRuleController,
+	previewC *notification.PreviewController,
 ) {
 	mux.Handle("GET "+api+"/admin/events/{id}/participants", rt.admin(partC.List))
 	mux.Handle("POST "+api+"/admin/events/{id}/participants/batch-add", rt.admin(partC.AddMany))
@@ -96,7 +103,7 @@ func mountAdminRegistration(mux *http.ServeMux, rt *routes, api string,
 }
 
 func mountAdminQueries(mux *http.ServeMux, rt *routes, api string,
-	queryC *QueryController, auditC *AuditController, opsC *OpsController,
+	queryC *event.QueryController, auditC *notification.AuditController, opsC *notification.OpsController,
 ) {
 	mux.Handle("GET "+api+"/admin/schedule", rt.admin(queryC.AdminSchedule))
 	mux.Handle("GET "+api+"/admin/queries/upcoming", rt.admin(queryC.Upcoming))

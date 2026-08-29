@@ -3,6 +3,6 @@
   "tool": "golangci-lint v2.6",
   "config": "backend/.golangci.yml",
   "target": "make back-lint",
-  "total": 21,
-  "note": "Second layer of the ratchet: on a push to main the merge-base is empty, so --new-from-merge-base checks nothing and only this counter holds the line. Baseline is only lowered."
+  "total": 0,
+  "note": "Second layer of the ratchet: on a push to main the merge-base is empty, so --new-from-merge-base checks nothing and only this counter holds the line. Baseline is only lowered. Reached zero after the package split: the path-based exclusions were rewritten to the new locations, and what remains under lll is swag annotations and enums tags, which are the API contract and cannot be wrapped."
 }

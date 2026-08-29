@@ -1,0 +1,60 @@
+{
+  "action": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "retry": "Retry",
+    "back": "Back",
+    "forward": "Next",
+    "logout": "Sign out",
+    "home": "Go home",
+    "reset": "Reset",
+    "apply": "Apply",
+    "copy": "Copy",
+    "undo": "Undo"
+  },
+  "state": {
+    "loading": "Loading",
+    "loadingPage": "Loading page",
+    "loadFailed": "Failed to load data",
+    "requestId": "Request id: {{id}}",
+    "empty": "Nothing here yet",
+    "saving": "Saving",
+    "dash": "—"
+  },
+  "batch": {
+    "succeeded": "Succeeded: {{count}}",
+    "skipped": "skipped: {{count}}",
+    "failed": "failed: {{count}}",
+    "noDescription": "no description",
+    "processed_one": "{{count}} record processed",
+    "processed_other": "{{count}} records processed",
+    "resultTitle": "Operation result",
+    "unknownRow": "Unknown record",
+    "retryFailed_one": "Retry {{count}} failed",
+    "retryFailed_other": "Retry {{count}} failed",
+    "status": {
+      "ok": "succeeded",
+      "skipped": "skipped",
+      "error": "failed"
+    }
+  },
+  "pagination": {
+    "label": "Pagination",
+    "summary": "Page {{page}} of {{pages}} · {{total}} total"
+  },
+  "validation": {
+    "invalidValue": "Invalid value",
+    "linkTooLong": "The address is too long",
+    "linkScheme": "This address cannot be opened in a browser",
+    "bioTooLong": "The text is too long"
+  },
+  "password": {
+    "show": "Show password",
+    "hide": "Hide password"
+  }
+}

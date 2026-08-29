@@ -24,7 +24,13 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/controllers"
-	"github.com/GoatWhistle/timeline/internal/services"
+	svcauth "github.com/GoatWhistle/timeline/internal/services/auth"
+	svcevent "github.com/GoatWhistle/timeline/internal/services/event"
+	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
+	svcparticipation "github.com/GoatWhistle/timeline/internal/services/participation"
+	svcpersonal "github.com/GoatWhistle/timeline/internal/services/personal"
+	svcrealtime "github.com/GoatWhistle/timeline/internal/services/realtime"
+	svcshared "github.com/GoatWhistle/timeline/internal/services/shared"
 	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
@@ -35,10 +41,10 @@ type stack struct {
 	users    *identity.Users
 	sessions *identity.Sessions
 	events   *event.Events
-	feed     *services.SystemEventService
+	feed     *svcrealtime.SystemEventService
 	feedRepo *systemevent.Events
 	calendar *identity.CalendarFeeds
-	hub      *services.RealtimeHub
+	hub      *svcrealtime.RealtimeHub
 }
 
 func newStack(t *testing.T) *stack {
@@ -89,28 +95,28 @@ func newStack(t *testing.T) *stack {
 	retrosRepo := personal.NewRetrospectives(db)
 	calendarRepo := identity.NewCalendarFeeds(db)
 
-	hasher := services.NewPasswordHasher(cfg.Argon)
-	issuer := services.NewTokenIssuer(cfg.Auth)
+	hasher := svcshared.NewPasswordHasher(cfg.Argon)
+	issuer := svcshared.NewTokenIssuer(cfg.Auth)
 	limiter := ratelimit.New()
-	mailer := services.NewMailer(email.New(cfg.Email), cfg.App.PublicURL)
+	mailer := svcshared.NewMailer(email.New(cfg.Email), cfg.App.PublicURL)
 	tg := telegram.New(cfg.Telegram)
 
-	auditSvc := services.NewAuditService(auditRepo)
-	personalSvc := services.NewPersonalService(db, tasksRepo, notesRepo, artifactsRepo,
+	auditSvc := svcshared.NewAuditService(auditRepo)
+	personalSvc := svcpersonal.NewPersonalService(db, tasksRepo, notesRepo, artifactsRepo,
 		outcomesRepo, bookmarksRepo, templatesRepo, historyRepo,
 		events, stages, participants, cfg.Personal)
 	personalSvc.WithRetrospectives(retrosRepo)
 	linksRepo := resourcelink.NewLinks(db)
 	userLinksRepo := resourcelink.NewPersonalLinks(db)
-	notifier := services.NewNotificationService(notifications, cfg)
-	scheduler := services.NewSchedulerService(db, scheduleRepo, rules, notifier, cfg)
-	auth := services.NewAuthService(db, users, sessions, tokens, invites,
+	notifier := svcnotification.NewNotificationService(notifications, cfg)
+	scheduler := svcnotification.NewSchedulerService(db, scheduleRepo, rules, notifier, cfg)
+	auth := svcauth.NewAuthService(db, users, sessions, tokens, invites,
 		notifier, auditSvc, hasher, issuer, mailer, limiter, cfg)
-	feed := services.NewSystemEventService(db, feedRepo)
-	hub := services.NewRealtimeHub(feedRepo, cfg.Realtime.MaxPerUser)
-	profileSvc := services.NewProfileService(db, users, tokens, sessions,
+	feed := svcrealtime.NewSystemEventService(db, feedRepo)
+	hub := svcrealtime.NewRealtimeHub(feedRepo, cfg.Realtime.MaxPerUser)
+	profileSvc := svcauth.NewProfileService(db, users, tokens, sessions,
 		notifier, auditSvc, hasher, mailer, tg, cfg)
-	userSvc := services.NewUserService(db, users, sessions, notifier, auditSvc)
+	userSvc := svcauth.NewUserService(db, users, sessions, notifier, auditSvc)
 	auth.WithRealtime(hub)
 	profileSvc.WithRealtime(hub)
 	userSvc.WithRealtime(hub)
@@ -119,29 +125,29 @@ func newStack(t *testing.T) *stack {
 
 	deps := controllers.Deps{
 		Auth:    auth,
-		Invites: services.NewInviteService(db, invites, users, auth, auditSvc, mailer, limiter, cfg),
+		Invites: svcauth.NewInviteService(db, invites, users, auth, auditSvc, mailer, limiter, cfg),
 		Profile: profileSvc,
 		Users:   userSvc,
-		Events:  services.NewEventService(db, events, registrations, notifier, scheduler, auditSvc),
-		Catalog: services.NewCatalogService(db, catalogRepo, events, participants,
+		Events:  svcevent.NewEventService(db, events, registrations, notifier, scheduler, auditSvc),
+		Catalog: svcevent.NewCatalogService(db, catalogRepo, events, participants,
 			registrations, statuses, users, notifier, auditSvc),
-		Stages: services.NewStageService(db, stages, events, participants, auditSvc),
-		Participants: services.NewParticipantService(db, participants, events,
+		Stages: svcevent.NewStageService(db, stages, events, participants, auditSvc),
+		Participants: svcparticipation.NewParticipantService(db, participants, events,
 			registrations, statuses, users, notifier, auditSvc),
-		Registrations: services.NewRegistrationService(db, registrations, events,
+		Registrations: svcparticipation.NewRegistrationService(db, registrations, events,
 			participants, statuses, users, notifier, scheduler, auditSvc),
-		Statuses: services.NewStatusService(db, statuses, registrations, participants,
+		Statuses: svcparticipation.NewStatusService(db, statuses, registrations, participants,
 			events, users, notifier, scheduler, auditSvc),
-		Rules:    services.NewRuleService(db, rules, registrations, notifier, scheduler, auditSvc, cfg),
-		Queries:  services.NewQueryService(queries, events, stages, participants, registrations, statuses),
+		Rules:    svcparticipation.NewRuleService(db, rules, registrations, notifier, scheduler, auditSvc, cfg),
+		Queries:  svcevent.NewQueryService(queries, events, stages, participants, registrations, statuses),
 		Audit:    auditSvc,
-		Ops:      services.NewOpsService(db, scheduleRepo, notifications, cfg),
+		Ops:      svcnotification.NewOpsService(db, scheduleRepo, notifications, cfg),
 		Previews: scheduler,
 		Personal: personalSvc,
-		Links: services.NewResourceLinkService(db, linksRepo, userLinksRepo,
+		Links: svcevent.NewResourceLinkService(db, linksRepo, userLinksRepo,
 			events, stages, participants, auditSvc, cfg.Links),
 		Feed: feed,
-		CalendarFeeds: services.NewCalendarFeedService(db, calendarRepo, users,
+		CalendarFeeds: svcauth.NewCalendarFeedService(db, calendarRepo, users,
 			queries, auditSvc, cfg.App.PublicURL),
 		Notifications: notifier,
 		Realtime:      hub,

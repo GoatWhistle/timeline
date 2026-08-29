@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services"
+	svcrealtime "github.com/GoatWhistle/timeline/internal/services/realtime"
 )
 
 type feedPage struct {
@@ -25,7 +25,7 @@ type feedPage struct {
 	} `json:"meta"`
 }
 
-func (s *stack) emit(t *testing.T, req services.EmitRequest) *models.SystemEvent {
+func (s *stack) emit(t *testing.T, req svcrealtime.EmitRequest) *models.SystemEvent {
 	t.Helper()
 	stored, err := s.feed.Emit(context.Background(), req)
 	if err != nil {
@@ -39,7 +39,7 @@ func TestFeedNeverShowsAnotherPersonsEvents(t *testing.T) {
 	owner := s.register(t, "feed-owner@example.com")
 	stranger := s.register(t, "feed-stranger@example.com")
 
-	personal := s.emit(t, services.EmitRequest{
+	personal := s.emit(t, svcrealtime.EmitRequest{
 		Type:     models.EventRegistrationReminder,
 		Severity: models.SeverityInfo,
 		Audience: models.AudienceUser,
@@ -76,7 +76,7 @@ func TestFeedKeepsAdminEventsFromMembers(t *testing.T) {
 	member := s.register(t, "feed-member@example.com")
 
 	failure := uuid.New()
-	stored := s.emit(t, services.EmitRequest{
+	stored := s.emit(t, svcrealtime.EmitRequest{
 		Type:        models.EventNotificationFailed,
 		Severity:    models.SeverityWarning,
 		Audience:    models.AudienceAdmin,
@@ -113,7 +113,7 @@ func TestMarkReadIgnoresInvisibleIdentifiers(t *testing.T) {
 	owner := s.register(t, "read-owner@example.com")
 	stranger := s.register(t, "read-stranger@example.com")
 
-	hidden := s.emit(t, services.EmitRequest{
+	hidden := s.emit(t, svcrealtime.EmitRequest{
 		Type:     models.EventRegistrationReminder,
 		Severity: models.SeverityInfo,
 		Audience: models.AudienceUser,
@@ -142,7 +142,7 @@ func TestUnreadCountFallsAfterMarkingRead(t *testing.T) {
 	s := newStack(t)
 	owner := s.register(t, "unread-owner@example.com")
 	for i := 0; i < 3; i++ {
-		s.emit(t, services.EmitRequest{
+		s.emit(t, svcrealtime.EmitRequest{
 			Type:     models.EventRegistrationReminder,
 			Severity: models.SeverityInfo,
 			Audience: models.AudienceUser,

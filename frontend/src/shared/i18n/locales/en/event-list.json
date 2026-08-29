@@ -1,0 +1,74 @@
+{
+  "list": {
+    "adminTitle": "Events",
+    "adminDescription": "Creation, publishing and archiving",
+    "create": "Create",
+    "searchAria": "Search by title or organizer",
+    "searchPlaceholder": "Search",
+    "stateAria": "State",
+    "allStates": "All states",
+    "showArchived": "Show archived",
+    "emptyTitle": "No events found",
+    "emptyHint": "Change the filters or create a new one",
+    "columnTitle": "Title",
+    "columnOrganizer": "Organizer",
+    "columnPeriod": "Period",
+    "columnState": "State",
+    "newTitle": "New event",
+    "created": "Event created",
+    "createdHint": "It is not published yet",
+    "myTitle": "My events",
+    "myDescription": "Events you are assigned to",
+    "myEmpty": "You have no assigned events yet",
+    "teamRole": "Team role:",
+    "nextStage": "Next stage: {{name}} ·",
+    "registrationDeadline": "Registration deadline {{relative}}"
+  },
+  "catalog": {
+    "title": "Catalog",
+    "joined": "You take part",
+    "empty": "No events found",
+    "emptyHint": "Change the filters or the scope",
+    "scopeAria": "Scope",
+    "kindAria": "Event kind",
+    "layoutAria": "Layout",
+    "scope": {
+      "all": "All",
+      "russia": "Russia",
+      "world": "World"
+    },
+    "kind": {
+      "all": "All",
+      "hackathons": "Hackathons",
+      "meetups": "Meetups"
+    },
+    "kindLabel": {
+      "HACKATHON": "Hackathon",
+      "MEETUP": "Meetup"
+    },
+    "layout": {
+      "list": "List",
+      "grid": "Tiles"
+    },
+    "views": {
+      "all": "All events",
+      "upcoming": "Upcoming",
+      "active": "Active",
+      "offline": "In person",
+      "meetups": "Meetups"
+    },
+    "join": {
+      "action": "Take part",
+      "title": "Take part in the event",
+      "hint": "State the function you take in the team. The organiser sees it in the roster.",
+      "meetupHint": "A meetup has no team roles, so the field may be left empty.",
+      "roleOptional": "Optional for a meetup",
+      "roleRequired": "State your team role",
+      "submit": "Take part",
+      "cancel": "Cancel",
+      "done": "You are signed up",
+      "failed": "Could not sign up",
+      "finished": "The event has finished: only an administrator can add a participant now."
+    }
+  }
+}

@@ -42,6 +42,9 @@ jobs:
       - name: 250-line limit for hand-written code
         run: bash scripts/check-file-length.sh
 
+      - name: File-count limit per package
+        run: bash scripts/check-package-size.sh
+
       - name: Code language is English
         run: bash scripts/check-cyrillic.sh
 
