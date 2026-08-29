@@ -7,7 +7,7 @@ import (
 )
 
 type CatalogEvent struct {
-	ID              uuid.UUID      `json:"id"`
+	ID              string         `json:"id" example:"ev_gma9hq8a96q5"`
 	Title           string         `json:"title" example:"National event"`
 	Description     *string        `json:"description,omitempty"`
 	Organizer       *string        `json:"organizer,omitempty" example:"Organising committee"`
@@ -30,7 +30,7 @@ type CatalogEvent struct {
 }
 
 type CatalogPlace struct {
-	ID      uuid.UUID `json:"id"`
+	ID      string    `json:"id" example:"st_42ej2s5gh7e8"`
 	Name    string    `json:"name" example:"Final"`
 	Type    StageType `json:"type"`
 	StartAt time.Time `json:"start_at"`
@@ -55,7 +55,7 @@ type CatalogFilter struct {
 
 type ParticipantSelfResponse struct {
 	ID                  uuid.UUID           `json:"id"`
-	EventID             uuid.UUID           `json:"event_id"`
+	EventID             string              `json:"event_id" example:"ev_gma9hq8a96q5"`
 	TeamRole            *string             `json:"team_role,omitempty" example:"Backend developer"`
 	ParticipationStatus ParticipationStatus `json:"participation_status" enums:"ASSIGNED,REMOVED"`
 	AssignedAt          time.Time           `json:"assigned_at"`

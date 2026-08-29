@@ -251,7 +251,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -299,7 +299,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -367,7 +367,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -419,7 +419,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -512,7 +512,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -577,7 +577,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -704,7 +704,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -756,7 +756,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -804,7 +804,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -873,7 +873,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -940,7 +940,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -1004,7 +1004,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -1069,7 +1069,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -1131,7 +1131,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -1184,7 +1184,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -1236,7 +1236,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -1287,7 +1287,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -1344,7 +1344,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Overlapping stages and stages outside the event period are allowed. A stage produces no notifications.",
+                "description": "Overlapping stages and stages outside the event period are allowed.\nA stage produces no notifications.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1358,7 +1358,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -1951,7 +1950,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "rs_42ej2s5gh7",
                         "description": "Status identifier",
                         "name": "id",
                         "in": "path",
@@ -2019,7 +2018,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "rs_42ej2s5gh7",
                         "description": "Registration status",
                         "name": "id",
                         "in": "path",
@@ -2160,7 +2159,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "st_42ej2s5gh7",
                         "description": "Stage identifier",
                         "name": "id",
                         "in": "path",
@@ -2204,7 +2203,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
                         "description": "Stage identifier",
                         "name": "id",
                         "in": "path",
@@ -3041,7 +3039,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -3097,7 +3095,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -3171,7 +3169,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -3225,7 +3223,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -3305,7 +3303,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -3370,7 +3368,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -3452,7 +3450,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -3511,7 +3509,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -3917,7 +3915,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -3961,7 +3959,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -4505,7 +4503,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -4559,7 +4557,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -4633,7 +4630,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -4687,7 +4684,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -4761,7 +4758,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -4815,7 +4812,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -4883,7 +4879,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -4937,7 +4933,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -4999,7 +4994,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -5049,7 +5044,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -5103,7 +5098,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -5165,7 +5159,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -5215,7 +5209,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "ev_3k7d8gb9be",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -5269,7 +5263,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -5346,7 +5339,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
                         "description": "Event identifier",
                         "name": "id",
                         "in": "path",
@@ -7014,7 +7006,8 @@ const docTemplate = `{
                     ]
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "joined": {
                     "type": "boolean",
@@ -7114,7 +7107,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
                 },
                 "name": {
                     "type": "string",
@@ -7564,7 +7558,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "event_title": {
                     "type": "string"
@@ -7802,7 +7797,8 @@ const docTemplate = `{
                     ]
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "kind": {
                     "enum": [
@@ -7937,7 +7933,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "joined": {
                     "type": "boolean",
@@ -8231,7 +8228,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "next_stage": {
                     "$ref": "#/definitions/models.StageShort"
@@ -8554,7 +8552,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
                     "type": "string"
@@ -8601,7 +8600,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
                     "type": "string"
@@ -8650,7 +8650,8 @@ const docTemplate = `{
                     "example": "Draft notes in Markdown"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "updated_at": {
                     "type": "string"
@@ -8664,7 +8665,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "note": {
                     "type": "string"
@@ -8724,7 +8726,8 @@ const docTemplate = `{
                     "example": 1
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
                     "type": "string"
@@ -8762,7 +8765,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "next_time": {
                     "type": "string"
@@ -8785,7 +8789,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
                     "type": "string"
@@ -8820,7 +8825,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
                     "type": "string"
@@ -8833,7 +8839,8 @@ const docTemplate = `{
                     "example": 0
                 },
                 "stage_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
                 },
                 "title": {
                     "type": "string",
@@ -9196,7 +9203,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
                     "type": "string"
@@ -9258,10 +9266,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "rs_42ej2s5gh7e8"
                 },
                 "last_change_source": {
                     "enum": [
@@ -9318,7 +9328,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "rs_42ej2s5gh7e8"
                 },
                 "note": {
                     "type": "string"
@@ -9399,7 +9410,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
                     "type": "string"
@@ -9421,7 +9433,8 @@ const docTemplate = `{
                     "example": 0
                 },
                 "stage_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
                 },
                 "title": {
                     "type": "string",
@@ -9510,7 +9523,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
                 },
                 "name": {
                     "type": "string",
@@ -9560,7 +9574,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "registration_deadline": {
                     "type": "string"
@@ -9664,7 +9679,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "format": {
                     "enum": [
@@ -9679,7 +9695,8 @@ const docTemplate = `{
                     ]
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
                 },
                 "name": {
                     "type": "string",
@@ -9736,7 +9753,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
                 },
                 "name": {
                     "type": "string",

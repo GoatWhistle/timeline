@@ -43,7 +43,7 @@ func scheduleQuery(filter models.ScheduleFilter, forUserID *uuid.UUID) (string, 
 		mineSelect = "mine.team_role, mine.status_id, mine.status, mine.todo_cycle, mine.registered_at"
 		mineJoin = `
 		LEFT JOIN LATERAL (
-			SELECT p.team_role, s.id AS status_id, s.status, s.todo_cycle, s.registered_at
+			SELECT p.team_role, s.display_id AS status_id, s.status, s.todo_cycle, s.registered_at
 			FROM event_participants p
 			LEFT JOIN registration_statuses s ON s.participant_id = p.id
 			WHERE p.event_id = h.id AND p.user_id = $` + itoa(len(args)) + `
@@ -52,7 +52,7 @@ func scheduleQuery(filter models.ScheduleFilter, forUserID *uuid.UUID) (string, 
 	}
 
 	return `
-		SELECT h.id, h.title, h.start_at, h.end_at, h.published_at, h.archived_at,
+		SELECT h.id, h.display_id, h.title, h.start_at, h.end_at, h.published_at, h.archived_at,
 		       h.format, h.country_code, h.city,
 		       (SELECT r.deadline_at FROM registrations r WHERE r.event_id = h.id AND r.state = 'ACTIVE'),
 		       ` + mineSelect + `
@@ -79,12 +79,13 @@ func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilte
 			publishedAt *time.Time
 			archivedAt  *time.Time
 			event       models.Event
-			statusID    *uuid.UUID
+			statusID    *string
 			statusValue *models.RegistrationStatusValue
 			todoCycle   *int
 			registered  *time.Time
 		)
-		if err := rows.Scan(&row.EventID, &row.Title, &row.StartAt, &row.EndAt, &publishedAt, &archivedAt,
+		if err := rows.Scan(&row.EventUUID, &row.EventID, &row.Title, &row.StartAt, &row.EndAt,
+			&publishedAt, &archivedAt,
 			&event.Format, &event.CountryCode, &event.City, &row.RegistrationDeadline,
 			&row.TeamRole, &statusID, &statusValue, &todoCycle, &registered); err != nil {
 			return nil, mapError(err)
@@ -102,7 +103,7 @@ func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilte
 		}
 		row.Stages = []models.ScheduleItem{}
 		result = append(result, row)
-		ids = append(ids, row.EventID)
+		ids = append(ids, row.EventUUID)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, mapError(err)
@@ -113,11 +114,11 @@ func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilte
 		return nil, err
 	}
 	for i := range result {
-		items := stages[result[i].EventID]
+		items := stages[ids[i]]
 		result[i].EffectiveFormat = models.DeriveEventFormat(&events[i], items)
 		for j := range items {
 			result[i].Stages = append(result[i].Stages, models.ScheduleItem{
-				ID: items[j].ID, Name: items[j].Name, Type: items[j].Type,
+				ID: items[j].DisplayID, StageUUID: items[j].ID, Name: items[j].Name, Type: items[j].Type,
 				StartAt: items[j].StartAt, EndAt: items[j].EndAt,
 				Place: items[j].ResolvePlace(&events[i]),
 			})
@@ -133,7 +134,7 @@ func (r *Timeline) scheduleStages(ctx context.Context,
 		return result, nil
 	}
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT event_id, id, name, type, start_at, end_at,
+		SELECT event_id, id, display_id, name, type, start_at, end_at,
 		       format, country_code, city, venue, online_url
 		FROM stages WHERE event_id = ANY($1)
 		ORDER BY sort_order, start_at`, ids)
@@ -144,7 +145,7 @@ func (r *Timeline) scheduleStages(ctx context.Context,
 
 	for rows.Next() {
 		var stage models.Stage
-		if err := rows.Scan(&stage.EventID, &stage.ID, &stage.Name, &stage.Type,
+		if err := rows.Scan(&stage.EventID, &stage.ID, &stage.DisplayID, &stage.Name, &stage.Type,
 			&stage.StartAt, &stage.EndAt, &stage.Format, &stage.CountryCode,
 			&stage.City, &stage.Venue, &stage.OnlineURL); err != nil {
 			return nil, mapError(err)

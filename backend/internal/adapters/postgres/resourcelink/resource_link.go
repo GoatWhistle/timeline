@@ -14,12 +14,16 @@ type Links struct{ db *postgres.DB }
 
 func NewLinks(db *postgres.DB) *Links { return &Links{db: db} }
 
-const linkColumns = `id, event_id, stage_id, kind, url, title, is_pinned,
+const linkColumns = `id, event_id,
+	(SELECT e.display_id FROM events e WHERE e.id = event_id),
+	stage_id,
+	(SELECT st.display_id FROM stages st WHERE st.id = stage_id),
+	kind, url, title, is_pinned,
 	sort_order, created_at, updated_at`
 
 func scanLink(row pgx.Row) (*models.ResourceLink, error) {
 	var l models.ResourceLink
-	err := row.Scan(&l.ID, &l.EventID, &l.StageID, &l.Kind, &l.URL, &l.Title,
+	err := row.Scan(&l.ID, &l.EventID, &l.EventDisplayID, &l.StageID, &l.StageDisplayID, &l.Kind, &l.URL, &l.Title,
 		&l.IsPinned, &l.SortOrder, &l.CreatedAt, &l.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -76,7 +80,7 @@ func collect(rows pgx.Rows) ([]models.ResourceLink, error) {
 	items := make([]models.ResourceLink, 0, 16)
 	for rows.Next() {
 		var l models.ResourceLink
-		if err := rows.Scan(&l.ID, &l.EventID, &l.StageID, &l.Kind, &l.URL, &l.Title,
+		if err := rows.Scan(&l.ID, &l.EventID, &l.EventDisplayID, &l.StageID, &l.Kind, &l.URL, &l.Title,
 			&l.IsPinned, &l.SortOrder, &l.CreatedAt, &l.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

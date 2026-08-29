@@ -113,7 +113,7 @@ func newStack(t *testing.T) *stack {
 	linksRepo := resourcelink.NewLinks(db)
 	userLinksRepo := resourcelink.NewPersonalLinks(db)
 	notifier := svcnotification.NewNotificationService(notifications, cfg)
-	scheduler := svcscheduler.NewSchedulerService(db, scheduleRepo, rules, notifier, cfg)
+	scheduler := svcscheduler.NewSchedulerService(db, scheduleRepo, rules, statuses, notifier, cfg)
 	auth := svcauth.NewAuthService(db, users, sessions, tokens, invites,
 		notifier, auditSvc, hasher, issuer, mailer, limiter, cfg)
 	feed := svcrealtime.NewSystemEventService(db, feedRepo)
@@ -142,7 +142,7 @@ func newStack(t *testing.T) *stack {
 			participants, statuses, users, notifier, scheduler, auditSvc),
 		Statuses: svcparticipation.NewStatusService(db, statuses, registrations, participants,
 			events, users, notifier, scheduler, auditSvc),
-		Rules:    svcparticipation.NewRuleService(db, rules, registrations, notifier, scheduler, auditSvc, cfg),
+		Rules:    svcparticipation.NewRuleService(db, rules, events, registrations, notifier, scheduler, auditSvc, cfg),
 		Queries:  svcevent.NewQueryService(queries, events, stages, participants, registrations, statuses),
 		Audit:    auditSvc,
 		Ops:      svcdelivery.NewOpsService(db, scheduleRepo, notifications, cfg),

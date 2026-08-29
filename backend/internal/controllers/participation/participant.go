@@ -22,7 +22,7 @@ func NewController(svc ParticipantService, pageDef, pageMax int) *Controller {
 // @Tags		participants
 // @Produce	json
 // @Security	CookieAuth
-// @Param		id					path		string	true	"Event identifier"	format(uuid)
+// @Param		id					path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param		team_role			query		string	false	"Filter by participant role"
 // @Param		registration_status	query		string	false	"Filter by registration status"	Enums(TODO,DONE,NOT_REQUIRED)
 // @Param		include_removed		query		bool	false	"Include participants removed from the roster"
@@ -34,7 +34,7 @@ func NewController(svc ParticipantService, pageDef, pageMax int) *Controller {
 // @Failure	404					{object}	models.ErrorResponse
 // @Router		/admin/events/{id}/participants [get]
 func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.svc.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -71,7 +71,7 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"	format(uuid)
+// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		models.AddParticipantsRequest	true	"List of users and their roles"
 // @Success		200		{object}	models.BatchResult
 // @Failure		400		{object}	models.ErrorResponse
@@ -79,7 +79,7 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 // @Failure		404		{object}	models.ErrorResponse
 // @Router			/admin/events/{id}/participants/batch-add [post]
 func (c *Controller) AddMany(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.svc.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -103,7 +103,7 @@ func (c *Controller) AddMany(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	format(uuid)
+// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		models.RemoveParticipantsRequest	true	"Participant identifiers"
 // @Success		200		{object}	models.BatchResult
 // @Failure		400		{object}	models.ErrorResponse
@@ -111,7 +111,7 @@ func (c *Controller) AddMany(w http.ResponseWriter, r *http.Request) {
 // @Failure		404		{object}	models.ErrorResponse
 // @Router			/admin/events/{id}/participants/batch-remove [post]
 func (c *Controller) RemoveMany(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.svc.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -145,7 +145,7 @@ func (c *Controller) RemoveMany(w http.ResponseWriter, r *http.Request) {
 // @Failure		404		{object}	models.ErrorResponse
 // @Router			/admin/events/{id}/participants/copy-from [post]
 func (c *Controller) CopyFrom(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.svc.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

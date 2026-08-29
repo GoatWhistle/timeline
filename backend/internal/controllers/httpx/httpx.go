@@ -1,6 +1,7 @@
 package httpx
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -137,6 +138,21 @@ func PathUUID(r *http.Request, name string) (uuid.UUID, error) {
 	id, err := uuid.Parse(raw)
 	if err != nil {
 		return uuid.Nil, models.NewValidationf("parameter %s must be a UUID", name)
+	}
+	return id, nil
+}
+
+type DisplayResolver func(ctx context.Context, displayID string) (uuid.UUID, error)
+
+func PathDisplayID(r *http.Request, name string, kind models.DisplayKind,
+	resolve DisplayResolver) (uuid.UUID, error) {
+	parsed, err := models.ParseDisplayID(kind, r.PathValue(name))
+	if err != nil {
+		return uuid.Nil, err
+	}
+	id, err := resolve(r.Context(), parsed.Value)
+	if err != nil {
+		return uuid.Nil, err
 	}
 	return id, nil
 }

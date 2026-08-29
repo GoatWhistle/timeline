@@ -19,7 +19,7 @@ import (
 // @Tags			personal
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.ParticipantRetrospective
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse	"the event is not visible to the caller"
@@ -29,7 +29,7 @@ func (c *Controller) GetRetrospective(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.retrospective.get") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -55,7 +55,7 @@ func (c *Controller) GetRetrospective(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"	format(uuid)
+// @Param			id		path		string							true	"Event identifier"
 // @Param			request	body		models.SaveRetrospectiveRequest	true	"Retrospective"
 // @Success		200		{object}	models.ParticipantRetrospective
 // @Failure		400		{object}	models.ErrorResponse	"a field is too long"
@@ -67,7 +67,7 @@ func (c *Controller) SaveRetrospective(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.retrospective.save") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -88,7 +88,7 @@ func (c *Controller) SaveRetrospective(w http.ResponseWriter, r *http.Request) {
 // @Summary	Delete an own retrospective
 // @Tags		personal
 // @Security	CookieAuth
-// @Param		id	path	string	true	"Event identifier"	format(uuid)
+// @Param		id	path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success	204	"the retrospective is deleted"
 // @Failure	401	{object}	models.ErrorResponse
 // @Failure	404	{object}	models.ErrorResponse
@@ -98,7 +98,7 @@ func (c *Controller) DeleteRetrospective(w http.ResponseWriter, r *http.Request)
 	if !c.guard(w, r, "personal.retrospective.delete") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

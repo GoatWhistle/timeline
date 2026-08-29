@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
@@ -17,6 +18,7 @@ import (
 type RuleService struct {
 	db            *postgres.DB
 	rules         *participation.Rules
+	events        *event.Events
 	registrations *participation.Registrations
 	notifier      Notifier
 	reconciler    Reconciler
@@ -24,10 +26,10 @@ type RuleService struct {
 	cfg           *config.Config
 }
 
-func NewRuleService(db *postgres.DB, rules *participation.Rules,
+func NewRuleService(db *postgres.DB, rules *participation.Rules, events *event.Events,
 	registrations *participation.Registrations, notifier Notifier,
 	reconciler Reconciler, audit *audit.AuditService, cfg *config.Config) *RuleService {
-	return &RuleService{db: db, rules: rules, registrations: registrations, notifier: notifier,
+	return &RuleService{db: db, rules: rules, events: events, registrations: registrations, notifier: notifier,
 		reconciler: reconciler, audit: audit, cfg: cfg}
 }
 

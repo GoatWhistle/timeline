@@ -137,7 +137,7 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 		SELECT p.id, p.event_id, p.team_role, p.participation_status, p.assignment_version,
 		       p.assigned_at, p.removed_at,
 		       u.id, u.first_name, u.middle_name, u.last_name, u.nickname, u.email, u.is_active,
-		       s.id, s.status, s.todo_cycle, s.registered_at, s.note `+from+where+`
+		       s.display_id, s.status, s.todo_cycle, s.registered_at, s.note `+from+where+`
 		ORDER BY lower(u.last_name), lower(u.first_name)
 		LIMIT $`+itoa(len(args)-1)+` OFFSET $`+itoa(len(args)), args...)
 	if err != nil {
@@ -149,7 +149,7 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 	for rows.Next() {
 		var (
 			item         models.ParticipantResponse
-			statusID     *uuid.UUID
+			statusID     *string
 			statusValue  *models.RegistrationStatusValue
 			todoCycle    *int
 			registeredAt *time.Time

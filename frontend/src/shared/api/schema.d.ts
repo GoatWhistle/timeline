@@ -198,7 +198,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -250,7 +253,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -329,7 +335,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -406,7 +415,10 @@ export interface paths {
                 };
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -470,7 +482,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -544,7 +559,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -695,7 +713,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -759,7 +780,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -808,7 +832,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -881,7 +908,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -960,7 +990,10 @@ export interface paths {
                 };
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -1022,7 +1055,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -1091,7 +1127,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -1160,7 +1199,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -1230,7 +1272,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -1294,7 +1339,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -1342,7 +1390,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -1418,7 +1469,8 @@ export interface paths {
         put?: never;
         /**
          * Create a stage
-         * @description Overlapping stages and stages outside the event period are allowed. A stage produces no notifications.
+         * @description Overlapping stages and stages outside the event period are allowed.
+         *     A stage produces no notifications.
          */
         post: {
             parameters: {
@@ -2114,7 +2166,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Status identifier */
+                    /**
+                     * @description Status identifier
+                     * @example rs_42ej2s5gh7
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2214,7 +2269,10 @@ export interface paths {
                 };
                 header?: never;
                 path: {
-                    /** @description Registration status */
+                    /**
+                     * @description Registration status
+                     * @example rs_42ej2s5gh7
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2369,7 +2427,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Stage identifier */
+                    /**
+                     * @description Stage identifier
+                     * @example st_42ej2s5gh7
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3480,7 +3541,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3554,7 +3618,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3656,7 +3723,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3717,7 +3787,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3819,7 +3892,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                     /** @description Link identifier */
                     linkId: string;
@@ -3885,7 +3961,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                     /** @description Link identifier */
                     linkId: string;
@@ -3976,7 +4055,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -4052,7 +4134,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -4570,7 +4655,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -4620,7 +4708,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -5370,7 +5461,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -5521,7 +5615,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -5578,7 +5675,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -5673,7 +5773,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -5813,7 +5916,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -5939,7 +6045,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -6009,7 +6118,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -6136,7 +6248,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -6205,7 +6320,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event identifier */
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -8148,6 +8266,7 @@ export interface components {
             /** Format: date-time */
             end_at: string;
             format: components["schemas"]["models.EventFormat"];
+            /** @example ev_gma9hq8a96q5 */
             id: string;
             /** @example false */
             joined: boolean;
@@ -8179,6 +8298,7 @@ export interface components {
         "models.CatalogPlace": {
             /** Format: date-time */
             end_at: string;
+            /** @example st_42ej2s5gh7e8 */
             id: string;
             /** @example Final */
             name: string;
@@ -8351,6 +8471,7 @@ export interface components {
         "models.DeadlineItem": {
             /** Format: date-time */
             deadline_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             event_title: string;
             /** @example 120 */
@@ -8416,6 +8537,7 @@ export interface components {
             /** Format: date-time */
             end_at: string;
             format: components["schemas"]["models.EventFormat"];
+            /** @example ev_gma9hq8a96q5 */
             id: string;
             kind: components["schemas"]["models.EventKind"];
             notes?: string;
@@ -8460,6 +8582,7 @@ export interface components {
             artifacts: components["schemas"]["models.ParticipantArtifact"][];
             /** Format: date-time */
             end_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             /** @example true */
             joined: boolean;
@@ -8574,6 +8697,7 @@ export interface components {
         "models.MyEventItem": {
             /** Format: date-time */
             end_at: string;
+            /** @example ev_gma9hq8a96q5 */
             id: string;
             next_stage?: components["schemas"]["models.StageShort"];
             organizer?: string;
@@ -8673,6 +8797,7 @@ export interface components {
         "models.ParticipantArtifact": {
             /** Format: date-time */
             created_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             id: string;
             kind: components["schemas"]["models.ArtifactKind"];
@@ -8690,6 +8815,7 @@ export interface components {
         "models.ParticipantLink": {
             /** Format: date-time */
             created_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             id: string;
             kind: components["schemas"]["models.LinkKind"];
@@ -8708,6 +8834,7 @@ export interface components {
         "models.ParticipantNote": {
             /** @example Draft notes in Markdown */
             body: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             /** Format: date-time */
             updated_at: string;
@@ -8715,6 +8842,7 @@ export interface components {
         "models.ParticipantOutcome": {
             /** Format: date-time */
             created_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             note: string;
             outcome: components["schemas"]["models.Outcome"];
@@ -8736,6 +8864,7 @@ export interface components {
             assigned_at: string;
             /** @example 1 */
             assignment_version: number;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             id: string;
             participation_status: components["schemas"]["models.ParticipationStatus"];
@@ -8749,6 +8878,7 @@ export interface components {
         "models.ParticipantRetrospective": {
             /** Format: date-time */
             created_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             next_time: string;
             /** Format: date-time */
@@ -8759,6 +8889,7 @@ export interface components {
         "models.ParticipantSelfResponse": {
             /** Format: date-time */
             assigned_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             id: string;
             participation_status: components["schemas"]["models.ParticipationStatus"];
@@ -8772,11 +8903,13 @@ export interface components {
             done_at: string;
             /** Format: date-time */
             due_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             id: string;
             notes: string;
             /** @example 0 */
             sort_order: number;
+            /** @example st_42ej2s5gh7e8 */
             stage_id: string;
             /** @example Record the demo video */
             title: string;
@@ -8923,6 +9056,7 @@ export interface components {
             /** Format: date-time */
             deadline_at?: string;
             description?: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             id: string;
             /** @example 1 */
@@ -8942,7 +9076,9 @@ export interface components {
             meta: components["schemas"]["models.PageMeta"];
         };
         "models.RegistrationStatusResponse": {
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
+            /** @example rs_42ej2s5gh7e8 */
             id: string;
             last_change_source: components["schemas"]["models.ChangeSource"];
             last_changed_by_user_id?: string;
@@ -8959,6 +9095,7 @@ export interface components {
             user: components["schemas"]["models.UserSummary"];
         };
         "models.RegistrationStatusShort": {
+            /** @example rs_42ej2s5gh7e8 */
             id: string;
             note?: string;
             /** Format: date-time */
@@ -8984,6 +9121,7 @@ export interface components {
         "models.ResourceLink": {
             /** Format: date-time */
             created_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             id: string;
             /** @example false */
@@ -8991,6 +9129,7 @@ export interface components {
             kind: components["schemas"]["models.LinkKind"];
             /** @example 0 */
             sort_order: number;
+            /** @example st_42ej2s5gh7e8 */
             stage_id: string;
             /** @example Rules and code of conduct */
             title: string;
@@ -9024,6 +9163,7 @@ export interface components {
         "models.ScheduleItem": {
             /** Format: date-time */
             end_at: string;
+            /** @example st_42ej2s5gh7e8 */
             id: string;
             /** @example Call for applications */
             name: string;
@@ -9040,6 +9180,7 @@ export interface components {
             effective_format: components["schemas"]["models.EventFormat"];
             /** Format: date-time */
             end_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             /** Format: date-time */
             registration_deadline?: string;
@@ -9086,8 +9227,10 @@ export interface components {
             description?: string;
             /** Format: date-time */
             end_at: string;
+            /** @example ev_gma9hq8a96q5 */
             event_id: string;
             format?: components["schemas"]["models.EventFormat"];
+            /** @example st_42ej2s5gh7e8 */
             id: string;
             /** @example Call for applications */
             name: string;
@@ -9109,6 +9252,7 @@ export interface components {
         "models.StageShort": {
             /** Format: date-time */
             end_at: string;
+            /** @example st_42ej2s5gh7e8 */
             id: string;
             /** @example Call for applications */
             name: string;

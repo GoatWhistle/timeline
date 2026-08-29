@@ -18,37 +18,40 @@ const historyFrom = `FROM events e
 	WHERE p.participation_status = 'ASSIGNED' AND e.archived_at IS NULL`
 
 func (r *History) List(ctx context.Context, userID uuid.UUID,
-	page models.Page) ([]models.HistoryItem, int64, error) {
+	page models.Page) ([]models.HistoryItem, []uuid.UUID, int64, error) {
 	args := []any{userID}
 
 	var total int64
 	if err := r.db.Q(ctx).QueryRow(ctx,
 		`SELECT count(*) `+historyFrom, args...).Scan(&total); err != nil {
-		return nil, 0, mapError(err)
+		return nil, nil, 0, mapError(err)
 	}
 
 	args = append(args, page.Limit(), page.Offset())
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT e.id, e.title, e.kind, e.start_at, e.end_at, p.team_role `+historyFrom+`
+		SELECT e.id, e.display_id, e.title, e.kind, e.start_at, e.end_at, p.team_role `+historyFrom+`
 		ORDER BY e.start_at DESC
 		LIMIT $`+itoa(len(args)-1)+` OFFSET $`+itoa(len(args)), args...)
 	if err != nil {
-		return nil, 0, mapError(err)
+		return nil, nil, 0, mapError(err)
 	}
 	defer rows.Close()
 
 	items := make([]models.HistoryItem, 0, page.Limit())
+	ids := make([]uuid.UUID, 0, page.Limit())
 	for rows.Next() {
 		var item models.HistoryItem
-		if err := rows.Scan(&item.EventID, &item.Title, &item.Kind,
+		var rawID uuid.UUID
+		if err := rows.Scan(&rawID, &item.EventID, &item.Title, &item.Kind,
 			&item.StartAt, &item.EndAt, &item.TeamRole); err != nil {
-			return nil, 0, mapError(err)
+			return nil, nil, 0, mapError(err)
 		}
 		item.Joined = true
 		item.Artifacts = []models.ParticipantArtifact{}
 		items = append(items, item)
+		ids = append(ids, rawID)
 	}
-	return items, total, mapError(rows.Err())
+	return items, ids, total, mapError(rows.Err())
 }
 
 func (r *History) TaskCounts(ctx context.Context, userID uuid.UUID,

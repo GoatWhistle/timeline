@@ -34,27 +34,30 @@ func (k LinkKind) Valid() bool {
 }
 
 type ResourceLink struct {
-	ID        uuid.UUID  `json:"id"`
-	EventID   uuid.UUID  `json:"event_id"`
-	StageID   *uuid.UUID `json:"stage_id,omitempty"`
-	Kind      LinkKind   `json:"kind" example:"RULES"`
-	URL       string     `json:"url" example:"https://example.org/rules"`
-	Title     *string    `json:"title,omitempty" example:"Rules and code of conduct"`
-	IsPinned  bool       `json:"is_pinned" example:"false"`
-	SortOrder int        `json:"sort_order" example:"0"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
+	ID             uuid.UUID  `json:"id"`
+	EventID        uuid.UUID  `json:"-"`
+	EventDisplayID string     `json:"event_id" example:"ev_gma9hq8a96q5"`
+	StageID        *uuid.UUID `json:"-"`
+	StageDisplayID *string    `json:"stage_id,omitempty" example:"st_42ej2s5gh7e8"`
+	Kind           LinkKind   `json:"kind" example:"RULES"`
+	URL            string     `json:"url" example:"https://example.org/rules"`
+	Title          *string    `json:"title,omitempty" example:"Rules and code of conduct"`
+	IsPinned       bool       `json:"is_pinned" example:"false"`
+	SortOrder      int        `json:"sort_order" example:"0"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
 }
 
 type ParticipantLink struct {
-	ID        uuid.UUID `json:"id"`
-	EventID   uuid.UUID `json:"event_id"`
-	Kind      LinkKind  `json:"kind" example:"OTHER"`
-	URL       string    `json:"url" example:"https://example.org/my-notes"`
-	Title     *string   `json:"title,omitempty" example:"My scratch notes"`
-	SortOrder int       `json:"sort_order" example:"0"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID             uuid.UUID `json:"id"`
+	EventID        uuid.UUID `json:"-"`
+	EventDisplayID string    `json:"event_id" example:"ev_gma9hq8a96q5"`
+	Kind           LinkKind  `json:"kind" example:"OTHER"`
+	URL            string    `json:"url" example:"https://example.org/my-notes"`
+	Title          *string   `json:"title,omitempty" example:"My scratch notes"`
+	SortOrder      int       `json:"sort_order" example:"0"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 const ProfileLinkMaxPerUser = 10

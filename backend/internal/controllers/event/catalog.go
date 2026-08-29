@@ -15,6 +15,7 @@ import (
 )
 
 type CatalogService interface {
+	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(
 		ctx context.Context, actor models.Actor, filter models.CatalogFilter, page models.Page,
 	) ([]models.CatalogEvent, int64, error)
@@ -121,7 +122,7 @@ func (c *CatalogController) List(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string					true	"Event identifier"	format(uuid)
+// @Param			id		path		string					true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		models.JoinEventRequest	true	"Own team role"
 // @Success		201		{object}	models.ParticipantSelfResponse
 // @Failure		400		{object}	models.ErrorResponse	"a hackathon requires a team role"
@@ -135,7 +136,7 @@ func (c *CatalogController) Join(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, models.NewRateLimited("too many join attempts"))
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.catalog.ResolveDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -152,7 +153,7 @@ func (c *CatalogController) Join(w http.ResponseWriter, r *http.Request) {
 	}
 	httpx.JSON(w, http.StatusCreated, models.ParticipantSelfResponse{
 		ID:                  p.ID,
-		EventID:             p.EventID,
+		EventID:             r.PathValue("id"),
 		TeamRole:            p.TeamRole,
 		ParticipationStatus: p.ParticipationStatus,
 		AssignedAt:          p.AssignedAt,

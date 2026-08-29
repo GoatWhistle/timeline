@@ -295,6 +295,7 @@ definitions:
         - OFFLINE
         - HYBRID
       id:
+        example: ev_gma9hq8a96q5
         type: string
       joined:
         example: false
@@ -360,6 +361,7 @@ definitions:
       end_at:
         type: string
       id:
+        example: st_42ej2s5gh7e8
         type: string
       name:
         example: Final
@@ -667,6 +669,7 @@ definitions:
       deadline_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       event_title:
         type: string
@@ -832,6 +835,7 @@ definitions:
         - OFFLINE
         - HYBRID
       id:
+        example: ev_gma9hq8a96q5
         type: string
       kind:
         allOf:
@@ -924,6 +928,7 @@ definitions:
       end_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       joined:
         example: true
@@ -1131,6 +1136,7 @@ definitions:
       end_at:
         type: string
       id:
+        example: ev_gma9hq8a96q5
         type: string
       next_stage:
         $ref: '#/definitions/models.StageShort'
@@ -1350,6 +1356,7 @@ definitions:
       created_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       id:
         type: string
@@ -1382,6 +1389,7 @@ definitions:
       created_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       id:
         type: string
@@ -1414,6 +1422,7 @@ definitions:
         example: Draft notes in Markdown
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       updated_at:
         type: string
@@ -1423,6 +1432,7 @@ definitions:
       created_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       note:
         type: string
@@ -1463,6 +1473,7 @@ definitions:
         example: 1
         type: integer
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       id:
         type: string
@@ -1487,6 +1498,7 @@ definitions:
       created_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       next_time:
         type: string
@@ -1502,6 +1514,7 @@ definitions:
       assigned_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       id:
         type: string
@@ -1524,6 +1537,7 @@ definitions:
       due_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       id:
         type: string
@@ -1533,6 +1547,7 @@ definitions:
         example: 0
         type: integer
       stage_id:
+        example: st_42ej2s5gh7e8
         type: string
       title:
         example: Record the demo video
@@ -1779,6 +1794,7 @@ definitions:
       description:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       id:
         type: string
@@ -1820,8 +1836,10 @@ definitions:
   models.RegistrationStatusResponse:
     properties:
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       id:
+        example: rs_42ej2s5gh7e8
         type: string
       last_change_source:
         allOf:
@@ -1858,6 +1876,7 @@ definitions:
   models.RegistrationStatusShort:
     properties:
       id:
+        example: rs_42ej2s5gh7e8
         type: string
       note:
         type: string
@@ -1912,6 +1931,7 @@ definitions:
       created_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       id:
         type: string
@@ -1926,6 +1946,7 @@ definitions:
         example: 0
         type: integer
       stage_id:
+        example: st_42ej2s5gh7e8
         type: string
       title:
         example: Rules and code of conduct
@@ -1985,6 +2006,7 @@ definitions:
       end_at:
         type: string
       id:
+        example: st_42ej2s5gh7e8
         type: string
       name:
         example: Call for applications
@@ -2017,6 +2039,7 @@ definitions:
       end_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       registration_deadline:
         type: string
@@ -2087,6 +2110,7 @@ definitions:
       end_at:
         type: string
       event_id:
+        example: ev_gma9hq8a96q5
         type: string
       format:
         allOf:
@@ -2096,6 +2120,7 @@ definitions:
         - OFFLINE
         - HYBRID
       id:
+        example: st_42ej2s5gh7e8
         type: string
       name:
         example: Call for applications
@@ -2136,6 +2161,7 @@ definitions:
       end_at:
         type: string
       id:
+        example: st_42ej2s5gh7e8
         type: string
       name:
         example: Call for applications
@@ -2754,7 +2780,7 @@ paths:
       description: Administrative read, including notes.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -2788,7 +2814,7 @@ paths:
         deadline_at <= end_at is rejected.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -2833,7 +2859,7 @@ paths:
         and no new ones are created.'
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -2866,7 +2892,7 @@ paths:
     get:
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -2931,7 +2957,7 @@ paths:
         entry run in a single transaction per participant; the result is returned per entry.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -2974,7 +3000,7 @@ paths:
         Sent ones are preserved.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3061,7 +3087,7 @@ paths:
         notifications are created by reconciliation.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3094,7 +3120,7 @@ paths:
     get:
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3128,7 +3154,7 @@ paths:
         are created by reconciliation with a new logical key.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3177,7 +3203,7 @@ paths:
         the condition deadline_at <= event.end_at.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3220,7 +3246,7 @@ paths:
     get:
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3263,7 +3289,7 @@ paths:
         per participant.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3306,7 +3332,7 @@ paths:
         modifying data.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3347,7 +3373,7 @@ paths:
         stop being actionable.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3383,7 +3409,7 @@ paths:
         participants in TODO receive the primary notification again.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3416,7 +3442,7 @@ paths:
     get:
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3452,7 +3478,7 @@ paths:
         A registration accepts at most 10 rules.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -3496,11 +3522,11 @@ paths:
     post:
       consumes:
       - application/json
-      description: Overlapping stages and stages outside the event period are allowed.
+      description: |-
+        Overlapping stages and stages outside the event period are allowed.
         A stage produces no notifications.
       parameters:
       - description: Event identifier
-        format: uuid
         in: path
         name: id
         required: true
@@ -3898,7 +3924,7 @@ paths:
         NOT_REQUIRED to TODO. Entering TODO increments todo_cycle and clears registered_at.
       parameters:
       - description: Status identifier
-        format: uuid
+        example: rs_42ej2s5gh7
         in: path
         name: id
         required: true
@@ -3963,7 +3989,7 @@ paths:
         error of the preview: it is precisely what the administrator needs to see.
       parameters:
       - description: Registration status
-        format: uuid
+        example: rs_42ej2s5gh7
         in: path
         name: id
         required: true
@@ -4054,7 +4080,7 @@ paths:
     delete:
       parameters:
       - description: Stage identifier
-        format: uuid
+        example: st_42ej2s5gh7
         in: path
         name: id
         required: true
@@ -4082,7 +4108,6 @@ paths:
       - application/json
       parameters:
       - description: Stage identifier
-        format: uuid
         in: path
         name: id
         required: true
@@ -4677,7 +4702,7 @@ paths:
         deadline and link. Administrative notes are withheld from the participant.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -4717,7 +4742,7 @@ paths:
         participant after the fact.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -4778,7 +4803,7 @@ paths:
         but never blocks it.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -4820,7 +4845,7 @@ paths:
         here only displays that same value.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -4873,7 +4898,7 @@ paths:
         log.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -4918,7 +4943,7 @@ paths:
         rejected the same way as on creation.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -4974,7 +4999,7 @@ paths:
         registration, an assigned participation and a non-archived event. The system does not verify the external site.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -5013,7 +5038,7 @@ paths:
         to an administrator always.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -5281,7 +5306,7 @@ paths:
     delete:
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -5315,7 +5340,7 @@ paths:
         Bookmarking twice is not an error — the operation is idempotent.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -5718,7 +5743,7 @@ paths:
         here is a verified fact.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -5755,7 +5780,6 @@ paths:
         being a parseable address; schemes that execute in a browser are rejected.
       parameters:
       - description: Event identifier
-        format: uuid
         in: path
         name: id
         required: true
@@ -5809,7 +5833,7 @@ paths:
         Nobody else can read these links, an administrator included.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -5847,7 +5871,7 @@ paths:
         browser are rejected. HTTPS is not required.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -5901,7 +5925,7 @@ paths:
         administrator included.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -5939,7 +5963,6 @@ paths:
         events carrying notes never fills with empty entries.
       parameters:
       - description: Event identifier
-        format: uuid
         in: path
         name: id
         required: true
@@ -5982,7 +6005,7 @@ paths:
     delete:
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -6014,7 +6037,7 @@ paths:
         standing.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -6056,7 +6079,6 @@ paths:
         "took part" would contradict itself.
       parameters:
       - description: Event identifier
-        format: uuid
         in: path
         name: id
         required: true
@@ -6099,7 +6121,7 @@ paths:
     delete:
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -6135,7 +6157,7 @@ paths:
         that offers to write it must not have to distinguish "nothing yet" from an error.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -6178,7 +6200,6 @@ paths:
         bus of specification 9.9, two days after the event ends.
       parameters:
       - description: Event identifier
-        format: uuid
         in: path
         name: id
         required: true
@@ -6228,7 +6249,7 @@ paths:
         becomes a queued notification and never reaches the audit log.
       parameters:
       - description: Event identifier
-        format: uuid
+        example: ev_3k7d8gb9be
         in: path
         name: id
         required: true
@@ -6265,7 +6286,6 @@ paths:
         stage must belong to the same event.
       parameters:
       - description: Event identifier
-        format: uuid
         in: path
         name: id
         required: true
@@ -6322,7 +6342,6 @@ paths:
         line by line, so applying the same template twice changes nothing.
       parameters:
       - description: Event identifier
-        format: uuid
         in: path
         name: id
         required: true

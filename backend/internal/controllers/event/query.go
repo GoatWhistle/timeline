@@ -13,6 +13,7 @@ import (
 )
 
 type QueryService interface {
+	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	MyEvents(
 		ctx context.Context, actor models.Actor, filter models.MyEventFilter, page models.Page,
 	) ([]models.MyEventItem, int64, error)
@@ -77,14 +78,14 @@ func (c *QueryController) MyEvents(w http.ResponseWriter, r *http.Request) {
 // @Tags			queries
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.EventCard
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		403	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse
 // @Router			/events/{id} [get]
 func (c *QueryController) EventCard(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.svc.ResolveDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

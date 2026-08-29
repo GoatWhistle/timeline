@@ -18,7 +18,7 @@ import (
 // @Tags			personal
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.ParticipantNote
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse	"the event is not visible to the caller"
@@ -28,7 +28,7 @@ func (c *Controller) GetNote(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.note.get") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -49,7 +49,7 @@ func (c *Controller) GetNote(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string					true	"Event identifier"	format(uuid)
+// @Param			id		path		string					true	"Event identifier"
 // @Param			request	body		models.SaveNoteRequest	true	"Markdown source"
 // @Success		200		{object}	models.ParticipantNote
 // @Failure		400		{object}	models.ErrorResponse	"the note is too long"
@@ -61,7 +61,7 @@ func (c *Controller) SaveNote(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.note.save") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -89,7 +89,7 @@ func (c *Controller) SaveNote(w http.ResponseWriter, r *http.Request) {
 // @Tags			personal
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.ArtifactListResponse
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse
@@ -99,7 +99,7 @@ func (c *Controller) ListArtifacts(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.artifacts.list") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -119,7 +119,7 @@ func (c *Controller) ListArtifacts(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"	format(uuid)
+// @Param			id		path		string							true	"Event identifier"
 // @Param			request	body		models.CreateArtifactRequest	true	"Artifact"
 // @Success		201		{object}	models.ParticipantArtifact
 // @Failure		400		{object}	models.ErrorResponse
@@ -132,7 +132,7 @@ func (c *Controller) CreateArtifact(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.artifacts.create") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

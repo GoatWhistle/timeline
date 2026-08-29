@@ -33,7 +33,7 @@ describe('API client against the live API', () => {
     const rotated = document.cookie.match(/csrf_token=([^;]*)/)?.[1]
     expect(rotated).toBeTruthy()
 
-    const { response } = await api.PATCH('/me', { body: { display_name: 'Rotation Check' } })
+    const { response } = await api.PATCH('/me', { body: { first_name: 'Rotation', last_name: 'Check' } })
     expect(response.status).toBe(200)
   })
 

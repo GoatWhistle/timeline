@@ -8,7 +8,7 @@ import (
 
 type ParticipantResponse struct {
 	ID                  uuid.UUID                `json:"id"`
-	EventID             uuid.UUID                `json:"event_id"`
+	EventID             string                   `json:"event_id" example:"ev_gma9hq8a96q5"`
 	User                UserSummary              `json:"user"`
 	TeamRole            *string                  `json:"team_role,omitempty" example:"Developer"`
 	ParticipationStatus ParticipationStatus      `json:"participation_status" enums:"ASSIGNED,REMOVED"`
@@ -19,7 +19,7 @@ type ParticipantResponse struct {
 }
 
 type RegistrationStatusShort struct {
-	ID           uuid.UUID               `json:"id"`
+	ID           string                  `json:"id" example:"rs_42ej2s5gh7e8"`
 	Status       RegistrationStatusValue `json:"status" enums:"TODO,DONE,NOT_REQUIRED"`
 	TodoCycle    int                     `json:"todo_cycle" example:"1"`
 	RegisteredAt *time.Time              `json:"registered_at,omitempty"`

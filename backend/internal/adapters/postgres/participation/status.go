@@ -16,17 +16,30 @@ type Statuses struct{ db *postgres.DB }
 
 func NewStatuses(db *postgres.DB) *Statuses { return &Statuses{db: db} }
 
-const statusColumns = `id, event_id, registration_id, participant_id, status, todo_cycle,
+const statusColumns = `id, display_id, event_id, registration_id, participant_id, status, todo_cycle,
 	registered_at, last_change_source, last_changed_by_user_id, note, created_at, updated_at`
 
 func scanStatus(row pgx.Row) (*models.RegistrationStatus, error) {
 	var s models.RegistrationStatus
-	err := row.Scan(&s.ID, &s.EventID, &s.RegistrationID, &s.ParticipantID, &s.Status, &s.TodoCycle,
+	err := row.Scan(&s.ID, &s.DisplayID, &s.EventID, &s.RegistrationID, &s.ParticipantID, &s.Status, &s.TodoCycle,
 		&s.RegisteredAt, &s.LastChangeSource, &s.LastChangedByUserID, &s.Note, &s.CreatedAt, &s.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
 	}
 	return &s, nil
+}
+
+func (r *Statuses) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM registration_statuses WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("registration status not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *Statuses) EnsureForParticipant(ctx context.Context, eventID, registrationID, participantID uuid.UUID) (*models.RegistrationStatus, bool, error) {
@@ -87,10 +100,11 @@ func (r *Statuses) List(ctx context.Context, eventID uuid.UUID, page models.Page
 	}
 
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT s.id, s.event_id, s.registration_id, s.participant_id, s.status, s.todo_cycle,
+		SELECT s.id, s.display_id, e.display_id, s.registration_id, s.participant_id, s.status, s.todo_cycle,
 		       s.registered_at, s.last_change_source, s.last_changed_by_user_id, s.note, s.updated_at,
 		       u.id, u.first_name, u.middle_name, u.last_name, u.nickname, u.email, u.is_active
 		FROM registration_statuses s
+		JOIN events e ON e.id = s.event_id
 		JOIN event_participants p ON p.id = s.participant_id
 		JOIN users u ON u.id = p.user_id
 		WHERE s.event_id = $1
@@ -104,10 +118,11 @@ func (r *Statuses) List(ctx context.Context, eventID uuid.UUID, page models.Page
 	items := make([]models.RegistrationStatusResponse, 0, page.Limit())
 	for rows.Next() {
 		var (
-			item models.RegistrationStatusResponse
-			user models.UserSummary
+			item        models.RegistrationStatusResponse
+			user        models.UserSummary
+			rawStatusID uuid.UUID
 		)
-		if err := rows.Scan(&item.ID, &item.EventID, &item.RegistrationID, &item.ParticipantID,
+		if err := rows.Scan(&rawStatusID, &item.ID, &item.EventID, &item.RegistrationID, &item.ParticipantID,
 			&item.Status, &item.TodoCycle, &item.RegisteredAt, &item.LastChangeSource,
 			&item.LastChangedByUserID, &item.Note, &item.UpdatedAt,
 			&user.ID, &user.FirstName, &user.MiddleName, &user.LastName,

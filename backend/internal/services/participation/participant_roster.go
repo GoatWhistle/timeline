@@ -135,9 +135,13 @@ func (s *ParticipantService) response(ctx context.Context, p *models.EventPartic
 	if err != nil {
 		return nil, err
 	}
+	eventDisplayID, err := s.events.DisplayIDByID(ctx, p.EventID)
+	if err != nil {
+		return nil, err
+	}
 	resp := &models.ParticipantResponse{
 		ID:                  p.ID,
-		EventID:             p.EventID,
+		EventID:             eventDisplayID,
 		User:                userSummary(user),
 		TeamRole:            p.TeamRole,
 		ParticipationStatus: p.ParticipationStatus,
@@ -161,7 +165,7 @@ func (s *ParticipantService) response(ctx context.Context, p *models.EventPartic
 		return nil, err
 	}
 	resp.RegistrationStatus = &models.RegistrationStatusShort{
-		ID: status.ID, Status: status.Status, TodoCycle: status.TodoCycle,
+		ID: status.DisplayID, Status: status.Status, TodoCycle: status.TodoCycle,
 		RegisteredAt: status.RegisteredAt, Note: status.Note,
 	}
 	return resp, nil

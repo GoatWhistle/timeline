@@ -39,6 +39,10 @@ func NewEventService(db *postgres.DB, events *event.Events,
 	}
 }
 
+func (s *EventService) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.events.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *EventService) Create(ctx context.Context, actor models.Actor, req models.CreateEventRequest,
 ) (*models.Event, error) {
 	if !actor.IsAdmin {

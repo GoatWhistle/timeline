@@ -18,7 +18,7 @@ import (
 // @Tags			personal
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.ParticipantLinkListResponse
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse	"the event is not visible to the caller"
@@ -28,7 +28,7 @@ func (c *ResourceLinkController) ListPersonal(w http.ResponseWriter, r *http.Req
 	if !c.guard(w, r, "links.personal.list") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -49,7 +49,7 @@ func (c *ResourceLinkController) ListPersonal(w http.ResponseWriter, r *http.Req
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	format(uuid)
+// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		models.CreateParticipantLinkRequest	true	"Link"
 // @Success		201		{object}	models.ParticipantLink
 // @Failure		400		{object}	models.ErrorResponse
@@ -62,7 +62,7 @@ func (c *ResourceLinkController) CreatePersonal(w http.ResponseWriter, r *http.R
 	if !c.guard(w, r, "links.personal.create") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

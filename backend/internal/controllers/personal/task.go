@@ -53,7 +53,7 @@ func (c *Controller) guard(w http.ResponseWriter, r *http.Request, scope string)
 // @Tags			personal
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.TaskListResponse
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse	"the event is not visible to the caller"
@@ -63,7 +63,7 @@ func (c *Controller) ListTasks(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.tasks.list") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -83,7 +83,7 @@ func (c *Controller) ListTasks(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Event identifier"	format(uuid)
+// @Param			id		path		string						true	"Event identifier"
 // @Param			request	body		models.CreateTaskRequest	true	"Task"
 // @Success		201		{object}	models.ParticipantTask
 // @Failure		400		{object}	models.ErrorResponse	"the stage belongs to another event"
@@ -96,7 +96,7 @@ func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.tasks.create") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -217,7 +217,7 @@ func (c *Controller) ListTemplates(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Event identifier"	format(uuid)
+// @Param			id		path		string						true	"Event identifier"
 // @Param			request	body		models.ApplyTemplateRequest	true	"Template to apply"
 // @Success		200		{object}	models.BatchResult
 // @Failure		400		{object}	models.ErrorResponse
@@ -229,7 +229,7 @@ func (c *Controller) ApplyTemplate(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.templates.apply") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

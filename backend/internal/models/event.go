@@ -8,6 +8,7 @@ import (
 
 type Event struct {
 	ID            uuid.UUID   `json:"id"`
+	DisplayID     string      `json:"display_id"`
 	Title         string      `json:"title"`
 	Description   *string     `json:"description,omitempty"`
 	Organizer     *string     `json:"organizer,omitempty"`
@@ -53,6 +54,7 @@ func (h *Event) Schedulable() bool { return h.Published() && !h.Archived() }
 
 type Stage struct {
 	ID          uuid.UUID    `json:"id"`
+	DisplayID   string       `json:"display_id"`
 	EventID     uuid.UUID    `json:"event_id"`
 	Name        string       `json:"name"`
 	Type        StageType    `json:"type"`

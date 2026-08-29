@@ -9,6 +9,7 @@ import (
 )
 
 type PersonalService interface {
+	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	ListTasks(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ParticipantTask, error)
 	CreateTask(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateTaskRequest,

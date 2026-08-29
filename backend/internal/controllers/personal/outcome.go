@@ -15,7 +15,7 @@ import (
 // @Tags			personal
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.ParticipantOutcome
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse	"no outcome recorded yet"
@@ -25,7 +25,7 @@ func (c *Controller) GetOutcome(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.outcome.get") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -50,7 +50,7 @@ func (c *Controller) GetOutcome(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Event identifier"	format(uuid)
+// @Param			id		path		string						true	"Event identifier"
 // @Param			request	body		models.SaveOutcomeRequest	true	"Outcome"
 // @Success		200		{object}	models.ParticipantOutcome
 // @Failure		400		{object}	models.ErrorResponse	"a place requires a placing outcome"
@@ -62,7 +62,7 @@ func (c *Controller) SaveOutcome(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.outcome.save") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -83,7 +83,7 @@ func (c *Controller) SaveOutcome(w http.ResponseWriter, r *http.Request) {
 // @Summary	Delete an own outcome
 // @Tags		personal
 // @Security	CookieAuth
-// @Param		id	path	string	true	"Event identifier"	format(uuid)
+// @Param		id	path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success	204	"the outcome is deleted"
 // @Failure	401	{object}	models.ErrorResponse
 // @Failure	404	{object}	models.ErrorResponse
@@ -93,7 +93,7 @@ func (c *Controller) DeleteOutcome(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.outcome.delete") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -113,7 +113,7 @@ func (c *Controller) DeleteOutcome(w http.ResponseWriter, r *http.Request) {
 // @Description	Bookmarking twice is not an error — the operation is idempotent.
 // @Tags			personal
 // @Security		CookieAuth
-// @Param			id	path	string	true	"Event identifier"	format(uuid)
+// @Param			id	path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		204	"the event is bookmarked"
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse	"the event is not in the catalog"
@@ -138,7 +138,7 @@ func (c *Controller) AddBookmark(w http.ResponseWriter, r *http.Request) {
 // @Summary	Remove a bookmark
 // @Tags		personal
 // @Security	CookieAuth
-// @Param		id	path	string	true	"Event identifier"	format(uuid)
+// @Param		id	path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success	204	"the bookmark is removed"
 // @Failure	401	{object}	models.ErrorResponse
 // @Failure	404	{object}	models.ErrorResponse

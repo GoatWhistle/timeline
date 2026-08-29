@@ -22,6 +22,8 @@ func NewRegistrationStatusController(st StatusService, pageDef, pageMax int) *Re
 }
 
 type StatusService interface {
+	ResolveStatusDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, page models.Page,
 	) ([]models.RegistrationStatusResponse, int64, error)
@@ -41,7 +43,7 @@ type StatusService interface {
 // @Tags		registration
 // @Produce	json
 // @Security	CookieAuth
-// @Param		id			path		string	true	"Event identifier"	format(uuid)
+// @Param		id			path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param		page		query		int		false	"Page number"		default(1)
 // @Param		page_size	query		int		false	"Page size"			default(50)
 // @Success	200			{object}	models.RegistrationStatusPage
@@ -49,7 +51,7 @@ type StatusService interface {
 // @Failure	404			{object}	models.ErrorResponse
 // @Router		/admin/events/{id}/registration-statuses [get]
 func (c *RegistrationStatusController) ListStatuses(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.statuses.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -73,7 +75,7 @@ func (c *RegistrationStatusController) ListStatuses(w http.ResponseWriter, r *ht
 // @Tags			registration
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.RegistrationStatusResponse
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		403	{object}	models.ErrorResponse
@@ -81,7 +83,7 @@ func (c *RegistrationStatusController) ListStatuses(w http.ResponseWriter, r *ht
 // @Failure		409	{object}	models.ErrorResponse	"invalid state transition"
 // @Router			/events/{id}/registration/done [post]
 func (c *RegistrationStatusController) MarkDone(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.statuses.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -101,7 +103,7 @@ func (c *RegistrationStatusController) MarkDone(w http.ResponseWriter, r *http.R
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Status identifier"	format(uuid)
+// @Param			id		path		string							true	"Status identifier"	example(rs_42ej2s5gh7)
 // @Param			request	body		models.AdminChangeStatusRequest	true	"New status"
 // @Success		200		{object}	models.RegistrationStatusResponse
 // @Failure		400		{object}	models.ErrorResponse
@@ -110,7 +112,7 @@ func (c *RegistrationStatusController) MarkDone(w http.ResponseWriter, r *http.R
 // @Failure		409		{object}	models.ErrorResponse
 // @Router			/admin/registration-statuses/{id} [patch]
 func (c *RegistrationStatusController) AdminChangeStatus(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindRegistrationStatus, c.statuses.ResolveStatusDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -134,7 +136,7 @@ func (c *RegistrationStatusController) AdminChangeStatus(w http.ResponseWriter, 
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"	format(uuid)
+// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		models.BatchSetStatusRequest	true	"Participants and target status"
 // @Success		200		{object}	models.BatchResult
 // @Failure		400		{object}	models.ErrorResponse
@@ -160,7 +162,7 @@ func (c *RegistrationStatusController) BatchSetStatus(w http.ResponseWriter, r *
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"	format(uuid)
+// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		models.BatchSetStatusRequest	true	"Participants and target status"
 // @Success		200		{object}	models.PreviewResponse
 // @Failure		400		{object}	models.ErrorResponse
@@ -182,7 +184,7 @@ func (c *RegistrationStatusController) BatchSetStatusPreview(w http.ResponseWrit
 
 func (c *RegistrationStatusController) batchInput(w http.ResponseWriter, r *http.Request,
 ) (id uuid.UUID, req models.BatchSetStatusRequest, ok bool) {
-	parsed, err := httpx.PathUUID(r, "id")
+	parsed, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.statuses.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return id, req, false

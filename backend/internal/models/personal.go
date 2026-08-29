@@ -49,45 +49,50 @@ func (o Outcome) AllowsPlace() bool {
 }
 
 type ParticipantTask struct {
-	ID        uuid.UUID  `json:"id"`
-	EventID   uuid.UUID  `json:"event_id"`
-	StageID   *uuid.UUID `json:"stage_id,omitempty"`
-	Title     string     `json:"title" example:"Record the demo video"`
-	Notes     *string    `json:"notes,omitempty"`
-	DueAt     *time.Time `json:"due_at,omitempty"`
-	DoneAt    *time.Time `json:"done_at,omitempty"`
-	SortOrder int        `json:"sort_order" example:"0"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
+	ID             uuid.UUID  `json:"id"`
+	EventID        uuid.UUID  `json:"-"`
+	EventDisplayID string     `json:"event_id" example:"ev_gma9hq8a96q5"`
+	StageID        *uuid.UUID `json:"-"`
+	StageDisplayID *string    `json:"stage_id,omitempty" example:"st_42ej2s5gh7e8"`
+	Title          string     `json:"title" example:"Record the demo video"`
+	Notes          *string    `json:"notes,omitempty"`
+	DueAt          *time.Time `json:"due_at,omitempty"`
+	DoneAt         *time.Time `json:"done_at,omitempty"`
+	SortOrder      int        `json:"sort_order" example:"0"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
 }
 
 type ParticipantNote struct {
-	EventID   uuid.UUID  `json:"event_id"`
-	Body      string     `json:"body" example:"Draft notes in Markdown"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	EventID        uuid.UUID  `json:"-"`
+	EventDisplayID string     `json:"event_id" example:"ev_gma9hq8a96q5"`
+	Body           string     `json:"body" example:"Draft notes in Markdown"`
+	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
 
 type ParticipantArtifact struct {
-	ID          uuid.UUID    `json:"id"`
-	EventID     uuid.UUID    `json:"event_id"`
-	Kind        ArtifactKind `json:"kind" enums:"REPOSITORY,VIDEO,SLIDES,DEMO,SUBMISSION,OTHER"`
-	URL         string       `json:"url" example:"https://github.com/example/project"`
-	Title       *string      `json:"title,omitempty" example:"Project repository"`
-	SubmittedAt *time.Time   `json:"submitted_at,omitempty"`
-	SortOrder   int          `json:"sort_order" example:"0"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID             uuid.UUID    `json:"id"`
+	EventID        uuid.UUID    `json:"-"`
+	EventDisplayID string       `json:"event_id" example:"ev_gma9hq8a96q5"`
+	Kind           ArtifactKind `json:"kind" enums:"REPOSITORY,VIDEO,SLIDES,DEMO,SUBMISSION,OTHER"`
+	URL            string       `json:"url" example:"https://github.com/example/project"`
+	Title          *string      `json:"title,omitempty" example:"Project repository"`
+	SubmittedAt    *time.Time   `json:"submitted_at,omitempty"`
+	SortOrder      int          `json:"sort_order" example:"0"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
 }
 
 type ParticipantOutcome struct {
-	EventID   uuid.UUID `json:"event_id"`
-	Outcome   Outcome   `json:"outcome" enums:"PARTICIPATED,SHORTLISTED,WINNER,PRIZE"`
-	Place     *int      `json:"place,omitempty" example:"2"`
-	Prize     *string   `json:"prize,omitempty" example:"Jury award"`
-	Track     *string   `json:"track,omitempty" example:"Smart city"`
-	Note      *string   `json:"note,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	EventID        uuid.UUID `json:"-"`
+	EventDisplayID string    `json:"event_id" example:"ev_gma9hq8a96q5"`
+	Outcome        Outcome   `json:"outcome" enums:"PARTICIPATED,SHORTLISTED,WINNER,PRIZE"`
+	Place          *int      `json:"place,omitempty" example:"2"`
+	Prize          *string   `json:"prize,omitempty" example:"Jury award"`
+	Track          *string   `json:"track,omitempty" example:"Smart city"`
+	Note           *string   `json:"note,omitempty"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type EventBookmark struct {
@@ -107,12 +112,13 @@ type ChecklistTemplateItem struct {
 }
 
 type ParticipantRetrospective struct {
-	EventID   uuid.UUID  `json:"event_id"`
-	WentWell  *string    `json:"went_well,omitempty"`
-	WentBadly *string    `json:"went_badly,omitempty"`
-	NextTime  *string    `json:"next_time,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	EventID        uuid.UUID  `json:"-"`
+	EventDisplayID string     `json:"event_id" example:"ev_gma9hq8a96q5"`
+	WentWell       *string    `json:"went_well,omitempty"`
+	WentBadly      *string    `json:"went_badly,omitempty"`
+	NextTime       *string    `json:"next_time,omitempty"`
+	CreatedAt      *time.Time `json:"created_at,omitempty"`
+	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
 
 func (r ParticipantRetrospective) Empty() bool {

@@ -25,6 +25,7 @@ func (r *Registration) Active() bool { return r.State == RegistrationActive }
 
 type RegistrationStatus struct {
 	ID                  uuid.UUID               `json:"id"`
+	DisplayID           string                  `json:"display_id"`
 	EventID             uuid.UUID               `json:"event_id"`
 	RegistrationID      uuid.UUID               `json:"registration_id"`
 	ParticipantID       uuid.UUID               `json:"participant_id"`

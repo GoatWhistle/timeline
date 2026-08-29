@@ -1,6 +1,8 @@
 package models
 
 import (
+	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -52,4 +54,52 @@ type PreviewResponse struct {
 type TimeRange struct {
 	From time.Time `json:"from"`
 	To   time.Time `json:"to"`
+}
+
+type DisplayKind struct {
+	Prefix string
+	Entity string
+}
+
+var (
+	DisplayKindEvent              = DisplayKind{Prefix: "ev", Entity: "event"}
+	DisplayKindStage              = DisplayKind{Prefix: "st", Entity: "stage"}
+	DisplayKindRegistrationStatus = DisplayKind{Prefix: "rs", Entity: "registration status"}
+)
+
+const (
+	displayAlphabet  = "23456789abcdefghjkmnpqrstuvwxyz"
+	displaySuffixLen = 12
+)
+
+type DisplayID struct {
+	Kind  DisplayKind
+	Value string
+}
+
+func (d DisplayID) String() string { return d.Value }
+
+func (d DisplayID) MarshalJSON() ([]byte, error) { return json.Marshal(d.Value) }
+
+func NewDisplayID(kind DisplayKind, value string) DisplayID {
+	return DisplayID{Kind: kind, Value: value}
+}
+
+func ParseDisplayID(kind DisplayKind, raw string) (DisplayID, error) {
+	prefix := kind.Prefix + "_"
+	if !strings.HasPrefix(raw, prefix) {
+		return DisplayID{}, NewValidationf("%s identifier must start with %q", kind.Entity, prefix)
+	}
+	suffix := raw[len(prefix):]
+	if len(suffix) != displaySuffixLen {
+		return DisplayID{}, NewValidationf("%s identifier must be %d characters after %q",
+			kind.Entity, displaySuffixLen, prefix)
+	}
+	for _, r := range suffix {
+		if !strings.ContainsRune(displayAlphabet, r) {
+			return DisplayID{}, NewValidationf("%s identifier contains the unsupported character %q",
+				kind.Entity, string(r))
+		}
+	}
+	return DisplayID{Kind: kind, Value: raw}, nil
 }

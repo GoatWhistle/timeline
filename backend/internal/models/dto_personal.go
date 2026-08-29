@@ -96,7 +96,7 @@ type BookmarkListResponse struct {
 }
 
 type HistoryItem struct {
-	EventID    uuid.UUID             `json:"event_id"`
+	EventID    string                `json:"event_id" example:"ev_gma9hq8a96q5"`
 	Title      string                `json:"title" example:"National event"`
 	Kind       EventKind             `json:"kind" enums:"HACKATHON,MEETUP"`
 	StartAt    time.Time             `json:"start_at"`

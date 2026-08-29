@@ -7,7 +7,7 @@ import (
 )
 
 type MyEventItem struct {
-	ID                   uuid.UUID                `json:"id"`
+	ID                   string                   `json:"id" example:"ev_gma9hq8a96q5"`
 	Title                string                   `json:"title" example:"National event"`
 	Organizer            *string                  `json:"organizer,omitempty"`
 	StartAt              time.Time                `json:"start_at"`
@@ -21,7 +21,7 @@ type MyEventItem struct {
 }
 
 type StageShort struct {
-	ID      uuid.UUID `json:"id"`
+	ID      string    `json:"id" example:"st_42ej2s5gh7e8"`
 	Name    string    `json:"name" example:"Call for applications"`
 	Type    StageType `json:"type"`
 	StartAt time.Time `json:"start_at"`
@@ -51,16 +51,18 @@ type RegistrationPublic struct {
 }
 
 type ScheduleItem struct {
-	ID      uuid.UUID `json:"id"`
-	Name    string    `json:"name" example:"Call for applications"`
-	Type    StageType `json:"type"`
-	StartAt time.Time `json:"start_at"`
-	EndAt   time.Time `json:"end_at"`
-	Place   Place     `json:"place"`
+	ID        string    `json:"id" example:"st_42ej2s5gh7e8"`
+	StageUUID uuid.UUID `json:"-"`
+	Name      string    `json:"name" example:"Call for applications"`
+	Type      StageType `json:"type"`
+	StartAt   time.Time `json:"start_at"`
+	EndAt     time.Time `json:"end_at"`
+	Place     Place     `json:"place"`
 }
 
 type ScheduleRow struct {
-	EventID              uuid.UUID                `json:"event_id"`
+	EventID              string                   `json:"event_id" example:"ev_gma9hq8a96q5"`
+	EventUUID            uuid.UUID                `json:"-"`
 	Title                string                   `json:"title" example:"National event"`
 	State                EventState               `json:"state"`
 	StartAt              time.Time                `json:"start_at"`
@@ -78,7 +80,7 @@ type ScheduleResponse struct {
 }
 
 type DeadlineItem struct {
-	EventID        uuid.UUID               `json:"event_id"`
+	EventID        string                  `json:"event_id" example:"ev_gma9hq8a96q5"`
 	EventTitle     string                  `json:"event_title"`
 	ParticipantID  uuid.UUID               `json:"participant_id"`
 	User           UserSummary             `json:"user"`

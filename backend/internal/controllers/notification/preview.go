@@ -14,6 +14,7 @@ import (
 )
 
 type PreviewService interface {
+	ResolveStatusDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	PreviewNotification(
 		ctx context.Context, actor models.Actor, statusID uuid.UUID, ruleID *uuid.UUID,
 	) (*models.NotificationPreviewResponse, error)
@@ -56,7 +57,7 @@ func NewPreviewController(svc PreviewService, limiter shared.Limiter, limit int,
 // @Tags			rules
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string	true	"Registration status"	format(uuid)
+// @Param			id		path		string	true	"Registration status"	example(rs_42ej2s5gh7)
 // @Param			rule_id	query		string	false	"Rule to render"		format(uuid)
 // @Success		200		{object}	models.NotificationPreviewResponse
 // @Failure		400		{object}	models.ErrorResponse
@@ -71,7 +72,7 @@ func (c *PreviewController) Notification(w http.ResponseWriter, r *http.Request)
 		httpx.Error(w, r, models.NewRateLimited("too many preview requests, try again later"))
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindRegistrationStatus, c.svc.ResolveStatusDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

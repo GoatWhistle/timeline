@@ -14,6 +14,7 @@ import (
 )
 
 type ResourceLinkService interface {
+	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ResourceLink, error)
 	Create(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateResourceLinkRequest,
@@ -73,7 +74,7 @@ func (c *ResourceLinkController) guard(w http.ResponseWriter, r *http.Request, s
 // @Tags			events
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.ResourceLinkListResponse
 // @Failure		401	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse	"the event is not visible to the caller"
@@ -83,7 +84,7 @@ func (c *ResourceLinkController) List(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "links.list") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -108,7 +109,7 @@ func (c *ResourceLinkController) List(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	format(uuid)
+// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		models.CreateResourceLinkRequest	true	"Link"
 // @Success		201		{object}	models.ResourceLink
 // @Failure		400		{object}	models.ErrorResponse	"bad address, executable scheme or a foreign stage"
@@ -122,7 +123,7 @@ func (c *ResourceLinkController) Create(w http.ResponseWriter, r *http.Request) 
 	if !c.guard(w, r, "links.create") {
 		return
 	}
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -147,7 +148,7 @@ func (c *ResourceLinkController) Create(w http.ResponseWriter, r *http.Request) 
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	format(uuid)
+// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			linkId	path		string								true	"Link identifier"	format(uuid)
 // @Param			request	body		models.UpdateResourceLinkRequest	true	"Fields to change"
 // @Success		200		{object}	models.ResourceLink
@@ -161,7 +162,7 @@ func (c *ResourceLinkController) Update(w http.ResponseWriter, r *http.Request) 
 	if !c.guard(w, r, "links.update") {
 		return
 	}
-	eventID, err := httpx.PathUUID(r, "id")
+	eventID, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -189,7 +190,7 @@ func (c *ResourceLinkController) Update(w http.ResponseWriter, r *http.Request) 
 // @Tags			events
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path	string	true	"Event identifier"	format(uuid)
+// @Param			id		path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			linkId	path	string	true	"Link identifier"	format(uuid)
 // @Success		204		"the link is removed"
 // @Failure		401		{object}	models.ErrorResponse
@@ -201,7 +202,7 @@ func (c *ResourceLinkController) Delete(w http.ResponseWriter, r *http.Request) 
 	if !c.guard(w, r, "links.delete") {
 		return
 	}
-	eventID, err := httpx.PathUUID(r, "id")
+	eventID, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

@@ -9,6 +9,7 @@ import (
 )
 
 type EventService interface {
+	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	Create(ctx context.Context, actor models.Actor, req models.CreateEventRequest) (*models.Event, error)
 	Update(ctx context.Context, actor models.Actor, id uuid.UUID, req models.UpdateEventRequest) (*models.Event, error)
 	Get(ctx context.Context, actor models.Actor, id uuid.UUID) (*models.Event, error)
@@ -20,6 +21,7 @@ type EventService interface {
 }
 
 type StageService interface {
+	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.Stage, *models.Event, error)
 	Create(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateStageRequest,

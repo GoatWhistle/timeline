@@ -33,6 +33,10 @@ func NewQueryService(queries *query.Timeline, events *event.Events,
 	}
 }
 
+func (s *QueryService) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.events.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *QueryService) MyEvents(ctx context.Context, actor models.Actor, filter models.MyEventFilter,
 	page models.Page) ([]models.MyEventItem, int64, error) {
 	if actor.IsSystem() {
@@ -117,7 +121,7 @@ func (s *QueryService) attachRegistration(ctx context.Context, card *models.Even
 		return err
 	}
 	card.RegistrationStatus = &models.RegistrationStatusShort{
-		ID:           status.ID,
+		ID:           status.DisplayID,
 		Status:       status.Status,
 		TodoCycle:    status.TodoCycle,
 		RegisteredAt: status.RegisteredAt,
@@ -188,7 +192,7 @@ func (s *QueryService) RegistrationCoverage(ctx context.Context,
 
 func eventView(h *models.Event, stages []models.Stage, now time.Time) models.EventResponse {
 	return models.EventResponse{
-		ID:              h.ID,
+		ID:              h.DisplayID,
 		Title:           h.Title,
 		Description:     h.Description,
 		Organizer:       h.Organizer,
@@ -215,8 +219,8 @@ func eventView(h *models.Event, stages []models.Stage, now time.Time) models.Eve
 
 func stageView(s *models.Stage, event *models.Event) models.StageResponse {
 	return models.StageResponse{
-		ID:          s.ID,
-		EventID:     s.EventID,
+		ID:          s.DisplayID,
+		EventID:     event.DisplayID,
 		Name:        s.Name,
 		Type:        s.Type,
 		StartAt:     s.StartAt,

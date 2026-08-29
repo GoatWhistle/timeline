@@ -9,6 +9,7 @@ import (
 )
 
 type ParticipantService interface {
+	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, filter models.ParticipantFilter, page models.Page,
 	) ([]models.ParticipantResponse, int64, error)

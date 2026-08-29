@@ -43,7 +43,7 @@ func newRig(t *testing.T, w *world, telegram, email *recordingSender) *rig {
 	notifs := notification.NewNotifications(w.db)
 	scheduler := notification.NewScheduler(w.db)
 	notifier := svcnotification.NewNotificationService(notifs, w.cfg)
-	planner := svcscheduler.NewSchedulerService(w.db, scheduler, participation.NewRules(w.db), notifier, w.cfg)
+	planner := svcscheduler.NewSchedulerService(w.db, scheduler, participation.NewRules(w.db), participation.NewStatuses(w.db), notifier, w.cfg)
 	delivery := svcdelivery.NewDeliveryService(w.db, notifs, scheduler,
 		identity.NewUsers(w.db), participation.NewRules(w.db), audit.NewAudit(w.db),
 		telegram, email, w.cfg)

@@ -14,12 +14,16 @@ type Tasks struct{ db *postgres.DB }
 
 func NewTasks(db *postgres.DB) *Tasks { return &Tasks{db: db} }
 
-const taskColumns = `id, event_id, stage_id, title, notes, due_at, done_at,
+const taskColumns = `id, event_id,
+	(SELECT e.display_id FROM events e WHERE e.id = event_id),
+	stage_id,
+	(SELECT st.display_id FROM stages st WHERE st.id = stage_id),
+	title, notes, due_at, done_at,
 	sort_order, created_at, updated_at`
 
 func scanTask(row pgx.Row) (*models.ParticipantTask, error) {
 	var t models.ParticipantTask
-	err := row.Scan(&t.ID, &t.EventID, &t.StageID, &t.Title, &t.Notes,
+	err := row.Scan(&t.ID, &t.EventID, &t.EventDisplayID, &t.StageID, &t.StageDisplayID, &t.Title, &t.Notes,
 		&t.DueAt, &t.DoneAt, &t.SortOrder, &t.CreatedAt, &t.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -59,7 +63,7 @@ func (r *Tasks) ListByEvent(ctx context.Context, userID, eventID uuid.UUID) ([]m
 	items := make([]models.ParticipantTask, 0, 16)
 	for rows.Next() {
 		var t models.ParticipantTask
-		if err := rows.Scan(&t.ID, &t.EventID, &t.StageID, &t.Title, &t.Notes,
+		if err := rows.Scan(&t.ID, &t.EventID, &t.EventDisplayID, &t.StageID, &t.Title, &t.Notes,
 			&t.DueAt, &t.DoneAt, &t.SortOrder, &t.CreatedAt, &t.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

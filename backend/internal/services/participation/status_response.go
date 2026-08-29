@@ -8,9 +8,13 @@ import (
 
 func (s *StatusService) response(ctx context.Context, status *models.RegistrationStatus,
 ) (*models.RegistrationStatusResponse, error) {
+	eventDisplayID, err := s.events.DisplayIDByID(ctx, status.EventID)
+	if err != nil {
+		return nil, err
+	}
 	resp := &models.RegistrationStatusResponse{
-		ID:                  status.ID,
-		EventID:             status.EventID,
+		ID:                  status.DisplayID,
+		EventID:             eventDisplayID,
 		RegistrationID:      status.RegistrationID,
 		ParticipantID:       status.ParticipantID,
 		Status:              status.Status,

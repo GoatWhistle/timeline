@@ -28,6 +28,10 @@ func NewStageService(db *postgres.DB, stages *event.Stages,
 	return &StageService{db: db, stages: stages, events: events, participants: participants, audit: audit}
 }
 
+func (s *StageService) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.stages.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *StageService) List(ctx context.Context, actor models.Actor,
 	eventID uuid.UUID) ([]models.Stage, *models.Event, error) {
 	event, err := s.events.GetByID(ctx, eventID)

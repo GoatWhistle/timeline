@@ -42,6 +42,10 @@ func NewCatalogService(db *postgres.DB, catalog *query.Catalog,
 	}
 }
 
+func (s *CatalogService) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.events.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *CatalogService) List(ctx context.Context, actor models.Actor, filter models.CatalogFilter,
 	page models.Page) ([]models.CatalogEvent, int64, error) {
 	if actor.UserID == uuid.Nil {

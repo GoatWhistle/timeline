@@ -39,6 +39,10 @@ func NewResourceLinkService(db *postgres.DB, links *resourcelink.Links,
 	}
 }
 
+func (s *ResourceLinkService) ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.events.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *ResourceLinkService) List(ctx context.Context, actor models.Actor,
 	eventID uuid.UUID) ([]models.ResourceLink, error) {
 	if _, err := s.readableEvent(ctx, actor, eventID); err != nil {

@@ -61,10 +61,10 @@ func (r *Timeline) MyEvents(ctx context.Context, userID uuid.UUID, filter models
 
 	args = append(args, page.Limit(), page.Offset())
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT h.id, h.title, h.organizer, h.start_at, h.end_at, h.archived_at,
+		SELECT h.id, h.display_id, h.title, h.organizer, h.start_at, h.end_at, h.archived_at,
 		       p.team_role,
 		       r.url, r.deadline_at, r.state,
-		       s.id, s.status, s.todo_cycle, s.registered_at `+from+where+`
+		       s.display_id, s.status, s.todo_cycle, s.registered_at `+from+where+`
 		ORDER BY h.start_at DESC
 		LIMIT $`+itoa(len(args)-1)+` OFFSET $`+itoa(len(args)), args...)
 	if err != nil {
@@ -77,16 +77,17 @@ func (r *Timeline) MyEvents(ctx context.Context, userID uuid.UUID, filter models
 	for rows.Next() {
 		var (
 			item        models.MyEventItem
+			rawID       uuid.UUID
 			archivedAt  *time.Time
 			regURL      *string
 			regDeadline *time.Time
 			regState    *models.RegistrationState
-			statusID    *uuid.UUID
+			statusID    *string
 			statusValue *models.RegistrationStatusValue
 			todoCycle   *int
 			registered  *time.Time
 		)
-		if err := rows.Scan(&item.ID, &item.Title, &item.Organizer, &item.StartAt, &item.EndAt, &archivedAt,
+		if err := rows.Scan(&rawID, &item.ID, &item.Title, &item.Organizer, &item.StartAt, &item.EndAt, &archivedAt,
 			&item.TeamRole, &regURL, &regDeadline, &regState,
 			&statusID, &statusValue, &todoCycle, &registered); err != nil {
 			return nil, 0, mapError(err)
@@ -102,7 +103,7 @@ func (r *Timeline) MyEvents(ctx context.Context, userID uuid.UUID, filter models
 			}
 		}
 		items = append(items, item)
-		ids = append(ids, item.ID)
+		ids = append(ids, rawID)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, 0, mapError(err)
@@ -113,7 +114,7 @@ func (r *Timeline) MyEvents(ctx context.Context, userID uuid.UUID, filter models
 		return nil, 0, err
 	}
 	for i := range items {
-		if stage, ok := next[items[i].ID]; ok {
+		if stage, ok := next[ids[i]]; ok {
 			s := stage
 			items[i].NextStage = &s
 		}

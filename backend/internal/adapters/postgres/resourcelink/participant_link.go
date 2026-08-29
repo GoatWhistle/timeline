@@ -14,11 +14,13 @@ type PersonalLinks struct{ db *postgres.DB }
 
 func NewPersonalLinks(db *postgres.DB) *PersonalLinks { return &PersonalLinks{db: db} }
 
-const personalColumns = `id, event_id, kind, url, title, sort_order, created_at, updated_at`
+const personalColumns = `id, event_id,
+	(SELECT e.display_id FROM events e WHERE e.id = event_id),
+	kind, url, title, sort_order, created_at, updated_at`
 
 func scanPersonal(row pgx.Row) (*models.ParticipantLink, error) {
 	var l models.ParticipantLink
-	err := row.Scan(&l.ID, &l.EventID, &l.Kind, &l.URL, &l.Title,
+	err := row.Scan(&l.ID, &l.EventID, &l.EventDisplayID, &l.Kind, &l.URL, &l.Title,
 		&l.SortOrder, &l.CreatedAt, &l.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -56,7 +58,7 @@ func collectPersonal(rows pgx.Rows) ([]models.ParticipantLink, error) {
 	items := make([]models.ParticipantLink, 0, 8)
 	for rows.Next() {
 		var l models.ParticipantLink
-		if err := rows.Scan(&l.ID, &l.EventID, &l.Kind, &l.URL, &l.Title,
+		if err := rows.Scan(&l.ID, &l.EventID, &l.EventDisplayID, &l.Kind, &l.URL, &l.Title,
 			&l.SortOrder, &l.CreatedAt, &l.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

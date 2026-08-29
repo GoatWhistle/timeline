@@ -45,6 +45,10 @@ func NewPersonalService(db *postgres.DB, tasks *personal.Tasks, notes *personal.
 	}
 }
 
+func (s *PersonalService) ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.events.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *PersonalService) WithRetrospectives(retros *personal.Retrospectives) {
 	s.retros = retros
 }

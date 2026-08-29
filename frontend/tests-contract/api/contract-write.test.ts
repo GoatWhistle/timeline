@@ -46,7 +46,7 @@ describe('Contract compliance: writes', () => {
 
   it('PATCH /me', async () => {
     const { data, response } = await api.PATCH('/me', {
-      body: { display_name: 'Contract Administrator' },
+      body: { first_name: 'Contract', last_name: 'Administrator' },
     })
     expect(response.status).toBe(200)
     assertMatchesContract('/me', 'patch', 200, data)

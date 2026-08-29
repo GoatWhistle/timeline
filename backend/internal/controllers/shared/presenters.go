@@ -48,7 +48,7 @@ func EventResponse(h *models.Event, now time.Time, admin bool) models.EventRespo
 func EventResponseWithStages(h *models.Event, stages []models.Stage, now time.Time,
 	admin bool) models.EventResponse {
 	resp := models.EventResponse{
-		ID:              h.ID,
+		ID:              h.DisplayID,
 		Title:           h.Title,
 		Description:     h.Description,
 		Organizer:       h.Organizer,
@@ -79,8 +79,8 @@ func EventResponseWithStages(h *models.Event, stages []models.Stage, now time.Ti
 
 func StageResponse(s *models.Stage, event *models.Event) models.StageResponse {
 	return models.StageResponse{
-		ID:          s.ID,
-		EventID:     s.EventID,
+		ID:          s.DisplayID,
+		EventID:     event.DisplayID,
 		Name:        s.Name,
 		Type:        s.Type,
 		StartAt:     s.StartAt,
@@ -99,10 +99,10 @@ func StageResponse(s *models.Stage, event *models.Event) models.StageResponse {
 	}
 }
 
-func RegistrationResponse(r *models.Registration) models.RegistrationResponse {
+func RegistrationResponse(r *models.Registration, eventDisplayID string) models.RegistrationResponse {
 	return models.RegistrationResponse{
 		ID:                         r.ID,
-		EventID:                    r.EventID,
+		EventID:                    eventDisplayID,
 		URL:                        r.URL,
 		DeadlineAt:                 r.DeadlineAt,
 		Description:                r.Description,

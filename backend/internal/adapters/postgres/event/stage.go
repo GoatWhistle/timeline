@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -14,12 +15,12 @@ type Stages struct{ db *postgres.DB }
 
 func NewStages(db *postgres.DB) *Stages { return &Stages{db: db} }
 
-const stageColumns = `id, event_id, name, type, start_at, end_at, description, url,
+const stageColumns = `id, display_id, event_id, name, type, start_at, end_at, description, url,
 	format, country_code, city, venue, online_url, sort_order, created_at, updated_at`
 
 func scanStage(row pgx.Row) (*models.Stage, error) {
 	var s models.Stage
-	err := row.Scan(&s.ID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
+	err := row.Scan(&s.ID, &s.DisplayID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
 		&s.Description, &s.URL, &s.Format, &s.CountryCode, &s.City, &s.Venue, &s.OnlineURL,
 		&s.SortOrder, &s.CreatedAt, &s.UpdatedAt)
 	if err != nil {
@@ -36,6 +37,19 @@ func (r *Stages) Create(ctx context.Context, s *models.Stage) (*models.Stage, er
 		RETURNING `+stageColumns,
 		s.EventID, s.Name, s.Type, s.StartAt, s.EndAt, s.Description, s.URL,
 		s.Format, s.CountryCode, s.City, s.Venue, s.OnlineURL, s.SortOrder))
+}
+
+func (r *Stages) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM stages WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("stage not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
 }
 
 func (r *Stages) GetByID(ctx context.Context, id uuid.UUID) (*models.Stage, error) {
@@ -88,7 +102,7 @@ func (r *Stages) ListByEvent(ctx context.Context, eventID uuid.UUID) ([]models.S
 	items := make([]models.Stage, 0, 8)
 	for rows.Next() {
 		var s models.Stage
-		if err := rows.Scan(&s.ID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
+		if err := rows.Scan(&s.ID, &s.DisplayID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
 			&s.Description, &s.URL, &s.Format, &s.CountryCode, &s.City, &s.Venue, &s.OnlineURL,
 			&s.SortOrder, &s.CreatedAt, &s.UpdatedAt); err != nil {
 			return nil, mapError(err)
@@ -113,7 +127,7 @@ func (r *Stages) ListByEvents(ctx context.Context, ids []uuid.UUID) (map[uuid.UU
 
 	for rows.Next() {
 		var s models.Stage
-		if err := rows.Scan(&s.ID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
+		if err := rows.Scan(&s.ID, &s.DisplayID, &s.EventID, &s.Name, &s.Type, &s.StartAt, &s.EndAt,
 			&s.Description, &s.URL, &s.Format, &s.CountryCode, &s.City, &s.Venue, &s.OnlineURL,
 			&s.SortOrder, &s.CreatedAt, &s.UpdatedAt); err != nil {
 			return nil, mapError(err)

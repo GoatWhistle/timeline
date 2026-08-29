@@ -19,14 +19,17 @@ type SchedulerService struct {
 	db        *postgres.DB
 	scheduler *notification.Scheduler
 	rules     *participation.Rules
+	statuses  *participation.Statuses
 	notifier  *svcnotification.NotificationService
 	cfg       *config.Config
 	now       func() time.Time
 }
 
 func NewSchedulerService(db *postgres.DB, scheduler *notification.Scheduler,
-	rules *participation.Rules, notifier *svcnotification.NotificationService, cfg *config.Config) *SchedulerService {
-	return &SchedulerService{db: db, scheduler: scheduler, rules: rules, notifier: notifier, cfg: cfg,
+	rules *participation.Rules, statuses *participation.Statuses,
+	notifier *svcnotification.NotificationService, cfg *config.Config) *SchedulerService {
+	return &SchedulerService{db: db, scheduler: scheduler, rules: rules, statuses: statuses,
+		notifier: notifier, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() }}
 }
 
@@ -35,6 +38,10 @@ type ReconcileResult struct {
 	Primary  int
 	Reminder int
 	Overdue  int
+}
+
+func (s *SchedulerService) ResolveStatusDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.statuses.ResolveDisplayID(ctx, displayID)
 }
 
 func (s *SchedulerService) Run(ctx context.Context) (*ReconcileResult, error) {

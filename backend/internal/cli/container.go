@@ -155,10 +155,10 @@ func newContainer(ctx context.Context) (*container, error) {
 	limiter := c.limiter
 	issuer := crypto.NewTokenIssuer(cfg.Auth)
 	mailer := mail.NewMailer(c.email, cfg.App.PublicURL)
-
 	c.audit = sharedaudit.NewAuditService(c.repos.audit)
 	c.notifier = svcnotification.NewNotificationService(c.repos.notifications, cfg)
-	c.scheduler = svcscheduler.NewSchedulerService(db, c.repos.scheduler, c.repos.rules, c.notifier, cfg)
+	c.scheduler = svcscheduler.NewSchedulerService(db, c.repos.scheduler,
+		c.repos.rules, c.repos.statuses, c.notifier, cfg)
 
 	c.auth = svcauth.NewAuthService(db, c.repos.users, c.repos.sessions, c.repos.tokens, c.repos.invites,
 		c.notifier, c.audit, c.hasher, issuer, mailer, limiter, cfg)
@@ -176,7 +176,7 @@ func newContainer(ctx context.Context) (*container, error) {
 		c.repos.participants, c.repos.statuses, c.repos.users, c.notifier, c.scheduler, c.audit)
 	c.statuses = svcparticipation.NewStatusService(db, c.repos.statuses, c.repos.registrations, c.repos.participants,
 		c.repos.events, c.repos.users, c.notifier, c.scheduler, c.audit)
-	c.rules = svcparticipation.NewRuleService(db, c.repos.rules, c.repos.registrations,
+	c.rules = svcparticipation.NewRuleService(db, c.repos.rules, c.repos.events, c.repos.registrations,
 		c.notifier, c.scheduler, c.audit, cfg)
 	c.catalog = svcevent.NewCatalogService(db, c.repos.catalog, c.repos.events, c.repos.participants,
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)

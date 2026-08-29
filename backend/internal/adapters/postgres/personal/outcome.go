@@ -14,11 +14,13 @@ type Outcomes struct{ db *postgres.DB }
 
 func NewOutcomes(db *postgres.DB) *Outcomes { return &Outcomes{db: db} }
 
-const outcomeColumns = `event_id, outcome, place, prize, track, note, created_at, updated_at`
+const outcomeColumns = `event_id,
+	(SELECT e.display_id FROM events e WHERE e.id = event_id),
+	outcome, place, prize, track, note, created_at, updated_at`
 
 func scanOutcome(row pgx.Row) (*models.ParticipantOutcome, error) {
 	var o models.ParticipantOutcome
-	err := row.Scan(&o.EventID, &o.Outcome, &o.Place, &o.Prize, &o.Track,
+	err := row.Scan(&o.EventID, &o.EventDisplayID, &o.Outcome, &o.Place, &o.Prize, &o.Track,
 		&o.Note, &o.CreatedAt, &o.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -74,7 +76,7 @@ func (r *Outcomes) ListByEvents(ctx context.Context, userID uuid.UUID,
 
 	for rows.Next() {
 		var o models.ParticipantOutcome
-		if err := rows.Scan(&o.EventID, &o.Outcome, &o.Place, &o.Prize, &o.Track,
+		if err := rows.Scan(&o.EventID, &o.EventDisplayID, &o.Outcome, &o.Place, &o.Prize, &o.Track,
 			&o.Note, &o.CreatedAt, &o.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

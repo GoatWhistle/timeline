@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
@@ -16,12 +17,12 @@ type Events struct{ db *postgres.DB }
 
 func NewEvents(db *postgres.DB) *Events { return &Events{db: db} }
 
-const eventColumns = `id, title, description, organizer, website_url, notes,
+const eventColumns = `id, display_id, title, description, organizer, website_url, notes,
 	kind, format, origin, country_code, city, track, prize_pool, prize_currency, team_size_max,
 	start_at, end_at, published_at, archived_at, created_at, updated_at`
 
 func scanEventInto(row pgx.Row, h *models.Event) error {
-	return row.Scan(&h.ID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL, &h.Notes,
+	return row.Scan(&h.ID, &h.DisplayID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL, &h.Notes,
 		&h.Kind, &h.Format, &h.Origin, &h.CountryCode, &h.City,
 		&h.Track, &h.PrizePool, &h.PrizeCurrency, &h.TeamSizeMax,
 		&h.StartAt, &h.EndAt, &h.PublishedAt, &h.ArchivedAt, &h.CreatedAt, &h.UpdatedAt)
@@ -49,6 +50,28 @@ func (r *Events) Create(ctx context.Context, h *models.Event) (*models.Event, er
 
 func (r *Events) GetByID(ctx context.Context, id uuid.UUID) (*models.Event, error) {
 	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `SELECT `+eventColumns+` FROM events WHERE id = $1`, id))
+}
+
+func (r *Events) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT id FROM events WHERE display_id = $1`, displayID).Scan(&id)
+	if err != nil {
+		if errors.Is(mapError(err), models.ErrNotFound) {
+			return uuid.Nil, models.NewNotFound("event not found")
+		}
+		return uuid.Nil, mapError(err)
+	}
+	return id, nil
+}
+
+func (r *Events) DisplayIDByID(ctx context.Context, id uuid.UUID) (string, error) {
+	var displayID string
+	if err := r.db.Q(ctx).QueryRow(ctx,
+		`SELECT display_id FROM events WHERE id = $1`, id).Scan(&displayID); err != nil {
+		return "", mapError(err)
+	}
+	return displayID, nil
 }
 
 func (r *Events) GetForUpdate(ctx context.Context, id uuid.UUID) (*models.Event, error) {

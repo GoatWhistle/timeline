@@ -21,6 +21,7 @@ func NewNotificationRuleController(rules RuleService) *NotificationRuleControlle
 }
 
 type RuleService interface {
+	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.NotificationRule, error)
 	Create(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateRuleRequest,
@@ -35,13 +36,13 @@ type RuleService interface {
 // @Tags		rules
 // @Produce	json
 // @Security	CookieAuth
-// @Param		id	path		string	true	"Event identifier"	format(uuid)
+// @Param		id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success	200	{array}		models.NotificationRuleResponse
 // @Failure	403	{object}	models.ErrorResponse
 // @Failure	404	{object}	models.ErrorResponse
 // @Router		/admin/events/{id}/registration/rules [get]
 func (c *NotificationRuleController) ListRules(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.rules.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -66,7 +67,7 @@ func (c *NotificationRuleController) ListRules(w http.ResponseWriter, r *http.Re
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Event identifier"	format(uuid)
+// @Param			id		path		string						true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		models.CreateRuleRequest	true	"Rule parameters"
 // @Success		201		{object}	models.NotificationRuleResponse
 // @Failure		400		{object}	models.ErrorResponse
@@ -75,7 +76,7 @@ func (c *NotificationRuleController) ListRules(w http.ResponseWriter, r *http.Re
 // @Failure		409		{object}	models.ErrorResponse	"a rule with this offset already exists or the slot limit is reached"
 // @Router			/admin/events/{id}/registration/rules [post]
 func (c *NotificationRuleController) CreateRule(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.rules.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

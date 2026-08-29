@@ -8,7 +8,7 @@ import (
 
 type RegistrationResponse struct {
 	ID                         uuid.UUID         `json:"id"`
-	EventID                    uuid.UUID         `json:"event_id"`
+	EventID                    string            `json:"event_id" example:"ev_gma9hq8a96q5"`
 	URL                        string            `json:"url" example:"https://example.com/register"`
 	DeadlineAt                 time.Time         `json:"deadline_at"`
 	Description                *string           `json:"description,omitempty"`
@@ -33,8 +33,8 @@ type UpdateRegistrationRequest struct {
 }
 
 type RegistrationStatusResponse struct {
-	ID                  uuid.UUID               `json:"id"`
-	EventID             uuid.UUID               `json:"event_id"`
+	ID                  string                  `json:"id" example:"rs_42ej2s5gh7e8"`
+	EventID             string                  `json:"event_id" example:"ev_gma9hq8a96q5"`
 	RegistrationID      uuid.UUID               `json:"registration_id"`
 	ParticipantID       uuid.UUID               `json:"participant_id"`
 	User                *UserSummary            `json:"user,omitempty"`

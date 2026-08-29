@@ -14,12 +14,14 @@ type Artifacts struct{ db *postgres.DB }
 
 func NewArtifacts(db *postgres.DB) *Artifacts { return &Artifacts{db: db} }
 
-const artifactColumns = `id, event_id, kind, url, title, submitted_at,
+const artifactColumns = `id, event_id,
+	(SELECT e.display_id FROM events e WHERE e.id = event_id),
+	kind, url, title, submitted_at,
 	sort_order, created_at, updated_at`
 
 func scanArtifact(row pgx.Row) (*models.ParticipantArtifact, error) {
 	var a models.ParticipantArtifact
-	err := row.Scan(&a.ID, &a.EventID, &a.Kind, &a.URL, &a.Title,
+	err := row.Scan(&a.ID, &a.EventID, &a.EventDisplayID, &a.Kind, &a.URL, &a.Title,
 		&a.SubmittedAt, &a.SortOrder, &a.CreatedAt, &a.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -73,7 +75,7 @@ func collectArtifacts(rows pgx.Rows) ([]models.ParticipantArtifact, error) {
 	items := make([]models.ParticipantArtifact, 0, 16)
 	for rows.Next() {
 		var a models.ParticipantArtifact
-		if err := rows.Scan(&a.ID, &a.EventID, &a.Kind, &a.URL, &a.Title,
+		if err := rows.Scan(&a.ID, &a.EventID, &a.EventDisplayID, &a.Kind, &a.URL, &a.Title,
 			&a.SubmittedAt, &a.SortOrder, &a.CreatedAt, &a.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

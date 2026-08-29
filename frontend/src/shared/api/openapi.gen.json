@@ -285,13 +285,13 @@
         "summary": "The whole event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -341,13 +341,13 @@
         "summary": "Update an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -430,13 +430,13 @@
         "summary": "Archive an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -497,13 +497,13 @@
         "summary": "Event participant roster",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           },
           {
@@ -610,13 +610,13 @@
         "summary": "Bulk participant assignment",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -689,13 +689,13 @@
         "summary": "Bulk participant removal",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -847,13 +847,13 @@
         "summary": "Publish an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -914,13 +914,13 @@
         "summary": "Event registration",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -970,13 +970,13 @@
         "summary": "Create a registration",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -1057,13 +1057,13 @@
         "summary": "Update a registration",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -1145,13 +1145,13 @@
         "summary": "Participant registration statuses",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           },
           {
@@ -1221,13 +1221,13 @@
         "summary": "Bulk status assignment",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -1292,13 +1292,13 @@
         "summary": "Preview a bulk status assignment",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -1363,13 +1363,13 @@
         "summary": "Disable registration",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -1431,13 +1431,13 @@
         "summary": "Enable registration",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -1498,13 +1498,13 @@
         "summary": "Reminder rules",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -1557,13 +1557,13 @@
         "summary": "Create a reminder rule",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -1639,7 +1639,7 @@
             "CookieAuth": []
           }
         ],
-        "description": "Overlapping stages and stages outside the event period are allowed. A stage produces no notifications.",
+        "description": "Overlapping stages and stages outside the event period are allowed.\nA stage produces no notifications.",
         "tags": [
           "stages"
         ],
@@ -1651,8 +1651,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -2365,13 +2364,13 @@
         "summary": "Administrative status transition",
         "parameters": [
           {
+            "example": "rs_42ej2s5gh7",
             "description": "Status identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -2454,13 +2453,13 @@
         "summary": "Render a notification without sending it",
         "parameters": [
           {
+            "example": "rs_42ej2s5gh7",
             "description": "Registration status",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           },
           {
@@ -2639,13 +2638,13 @@
         "summary": "Delete a stage",
         "parameters": [
           {
+            "example": "st_42ej2s5gh7",
             "description": "Stage identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -2692,8 +2691,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -3649,13 +3647,13 @@
         "summary": "Assigned event card",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -3717,13 +3715,13 @@
         "summary": "Join an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -3816,13 +3814,13 @@
         "summary": "Resource links of an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -3882,13 +3880,13 @@
         "summary": "Add a resource link",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -3991,13 +3989,13 @@
         "summary": "Remove a resource link",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           },
           {
@@ -4070,13 +4068,13 @@
         "summary": "Change a resource link",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           },
           {
@@ -4179,13 +4177,13 @@
         "summary": "Mark registration as completed",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -4257,13 +4255,13 @@
         "summary": "Event stages",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -4755,13 +4753,13 @@
         "summary": "Bookmark an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -4813,13 +4811,13 @@
         "summary": "Remove a bookmark",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -5479,13 +5477,13 @@
         "summary": "Own submission artifacts",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -5550,8 +5548,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -5644,13 +5641,13 @@
         "summary": "Own links for an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -5710,13 +5707,13 @@
         "summary": "Add an own link",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -5809,13 +5806,13 @@
         "summary": "Own note for an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -5880,8 +5877,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -5964,13 +5960,13 @@
         "summary": "Own outcome for an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -6035,8 +6031,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -6116,13 +6111,13 @@
         "summary": "Delete an own outcome",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -6177,13 +6172,13 @@
         "summary": "Own retrospective for an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -6248,8 +6243,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -6329,13 +6323,13 @@
         "summary": "Delete an own retrospective",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -6390,13 +6384,13 @@
         "summary": "Own tasks for an event",
         "parameters": [
           {
+            "example": "ev_3k7d8gb9be",
             "description": "Event identifier",
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -6461,8 +6455,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -6560,8 +6553,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -8620,7 +8612,8 @@
             "$ref": "#/components/schemas/models.EventFormat"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "joined": {
             "type": "boolean",
@@ -8714,7 +8707,8 @@
             "format": "date-time"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "example": "st_42ej2s5gh7e8"
           },
           "name": {
             "type": "string",
@@ -9137,7 +9131,8 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "event_title": {
             "type": "string"
@@ -9380,7 +9375,8 @@
             "$ref": "#/components/schemas/models.EventFormat"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "kind": {
             "$ref": "#/components/schemas/models.EventKind"
@@ -9514,7 +9510,8 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "joined": {
             "type": "boolean",
@@ -9852,7 +9849,8 @@
             "format": "date-time"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "next_stage": {
             "$ref": "#/components/schemas/models.StageShort"
@@ -10180,7 +10178,8 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "id": {
             "type": "string"
@@ -10229,7 +10228,8 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "id": {
             "type": "string"
@@ -10287,7 +10287,8 @@
             "example": "Draft notes in Markdown"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "updated_at": {
             "type": "string",
@@ -10308,7 +10309,8 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "note": {
             "type": "string"
@@ -10374,7 +10376,8 @@
             "example": 1
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "id": {
             "type": "string"
@@ -10415,7 +10418,8 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "next_time": {
             "type": "string"
@@ -10448,7 +10452,8 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "id": {
             "type": "string"
@@ -10485,7 +10490,8 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "id": {
             "type": "string"
@@ -10498,7 +10504,8 @@
             "example": 0
           },
           "stage_id": {
-            "type": "string"
+            "type": "string",
+            "example": "st_42ej2s5gh7e8"
           },
           "title": {
             "type": "string",
@@ -10919,7 +10926,8 @@
             "type": "string"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "id": {
             "type": "string"
@@ -10989,10 +10997,12 @@
         "type": "object",
         "properties": {
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "example": "rs_42ej2s5gh7e8"
           },
           "last_change_source": {
             "$ref": "#/components/schemas/models.ChangeSource"
@@ -11044,7 +11054,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "example": "rs_42ej2s5gh7e8"
           },
           "note": {
             "type": "string"
@@ -11123,7 +11134,8 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "id": {
             "type": "string"
@@ -11140,7 +11152,8 @@
             "example": 0
           },
           "stage_id": {
-            "type": "string"
+            "type": "string",
+            "example": "st_42ej2s5gh7e8"
           },
           "title": {
             "type": "string",
@@ -11236,7 +11249,8 @@
             "format": "date-time"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "example": "st_42ej2s5gh7e8"
           },
           "name": {
             "type": "string",
@@ -11291,7 +11305,8 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "registration_deadline": {
             "type": "string",
@@ -11426,13 +11441,15 @@
             "format": "date-time"
           },
           "event_id": {
-            "type": "string"
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           },
           "format": {
             "$ref": "#/components/schemas/models.EventFormat"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "example": "st_42ej2s5gh7e8"
           },
           "name": {
             "type": "string",
@@ -11490,7 +11507,8 @@
             "format": "date-time"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "example": "st_42ej2s5gh7e8"
           },
           "name": {
             "type": "string",

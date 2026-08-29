@@ -2,12 +2,10 @@ package models
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type EventResponse struct {
-	ID          uuid.UUID   `json:"id"`
+	ID          string      `json:"id" example:"ev_gma9hq8a96q5"`
 	Title       string      `json:"title" example:"National event"`
 	Description *string     `json:"description,omitempty"`
 	Organizer   *string     `json:"organizer,omitempty" example:"Organising committee"`
@@ -82,8 +80,8 @@ type UpdateEventRequest struct {
 }
 
 type StageResponse struct {
-	ID          uuid.UUID    `json:"id"`
-	EventID     uuid.UUID    `json:"event_id"`
+	ID          string       `json:"id" example:"st_42ej2s5gh7e8"`
+	EventID     string       `json:"event_id" example:"ev_gma9hq8a96q5"`
 	Name        string       `json:"name" example:"Call for applications"`
 	Type        StageType    `json:"type" enums:"REGISTRATION,SELECTION,PARTICIPATION,CHECKPOINT,SUBMISSION,DEMO,RESULTS,OTHER"`
 	StartAt     time.Time    `json:"start_at"`

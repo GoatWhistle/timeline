@@ -15,7 +15,7 @@ type Catalog struct{ db *postgres.DB }
 
 func NewCatalog(db *postgres.DB) *Catalog { return &Catalog{db: db} }
 
-const catalogColumns = `e.id, e.title, e.description, e.organizer, e.website_url,
+const catalogColumns = `e.id, e.display_id, e.title, e.description, e.organizer, e.website_url,
 	e.kind, e.format, e.origin, e.country_code, e.city,
 	e.track, e.prize_pool, e.prize_currency, e.team_size_max, e.start_at, e.end_at,
 	(p.id IS NOT NULL) AS joined`
@@ -47,7 +47,8 @@ func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter models.Cata
 	ids := make([]uuid.UUID, 0, page.Limit())
 	for rows.Next() {
 		var c models.CatalogEvent
-		if err := rows.Scan(&c.ID, &c.Title, &c.Description, &c.Organizer, &c.WebsiteURL,
+		var rawID uuid.UUID
+		if err := rows.Scan(&rawID, &c.ID, &c.Title, &c.Description, &c.Organizer, &c.WebsiteURL,
 			&c.Kind, &c.Format, &c.Origin, &c.CountryCode, &c.City,
 			&c.Track, &c.PrizePool, &c.PrizeCurrency, &c.TeamSizeMax,
 			&c.StartAt, &c.EndAt, &c.Joined); err != nil {
@@ -57,7 +58,7 @@ func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter models.Cata
 		c.OfflineStages = []models.CatalogPlace{}
 		items = append(items, c)
 		events = append(events, models.Event{Format: c.Format, CountryCode: c.CountryCode, City: c.City})
-		ids = append(ids, c.ID)
+		ids = append(ids, rawID)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, 0, mapError(err)
@@ -74,7 +75,7 @@ func (r *Catalog) attachPlaces(ctx context.Context, items []models.CatalogEvent,
 		return nil
 	}
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT event_id, id, name, type, start_at, end_at,
+		SELECT event_id, id, display_id, name, type, start_at, end_at,
 		       format, country_code, city, venue, online_url
 		FROM stages WHERE event_id = ANY($1)
 		ORDER BY sort_order, start_at`, ids)
@@ -86,7 +87,7 @@ func (r *Catalog) attachPlaces(ctx context.Context, items []models.CatalogEvent,
 	byEvent := make(map[uuid.UUID][]models.Stage, len(ids))
 	for rows.Next() {
 		var stage models.Stage
-		if err := rows.Scan(&stage.EventID, &stage.ID, &stage.Name, &stage.Type,
+		if err := rows.Scan(&stage.EventID, &stage.ID, &stage.DisplayID, &stage.Name, &stage.Type,
 			&stage.StartAt, &stage.EndAt, &stage.Format, &stage.CountryCode,
 			&stage.City, &stage.Venue, &stage.OnlineURL); err != nil {
 			return mapError(err)
@@ -98,11 +99,11 @@ func (r *Catalog) attachPlaces(ctx context.Context, items []models.CatalogEvent,
 	}
 
 	for i := range items {
-		stages := byEvent[items[i].ID]
+		stages := byEvent[ids[i]]
 		items[i].EffectiveFormat = models.DeriveEventFormat(&events[i], stages)
 		for _, stage := range models.OfflineStages(&events[i], stages) {
 			items[i].OfflineStages = append(items[i].OfflineStages, models.CatalogPlace{
-				ID: stage.ID, Name: stage.Name, Type: stage.Type,
+				ID: stage.DisplayID, Name: stage.Name, Type: stage.Type,
 				StartAt: stage.StartAt, EndAt: stage.EndAt,
 				Place: stage.ResolvePlace(&events[i]),
 			})

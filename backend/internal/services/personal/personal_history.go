@@ -51,17 +51,12 @@ func (s *PersonalService) History(ctx context.Context, actor models.Actor,
 		return nil, 0, err
 	}
 
-	items, total, err := s.history.List(ctx, userID, page)
+	items, ids, total, err := s.history.List(ctx, userID, page)
 	if err != nil {
 		return nil, 0, err
 	}
 	if len(items) == 0 {
 		return items, total, nil
-	}
-
-	ids := make([]uuid.UUID, 0, len(items))
-	for _, item := range items {
-		ids = append(ids, item.EventID)
 	}
 
 	outcomes, err := s.outcomes.ListByEvents(ctx, userID, ids)
@@ -83,7 +78,7 @@ func (s *PersonalService) History(ctx context.Context, actor models.Actor,
 	}
 
 	for i := range items {
-		id := items[i].EventID
+		id := ids[i]
 		if outcome, ok := outcomes[id]; ok {
 			value := outcome
 			items[i].Outcome = &value

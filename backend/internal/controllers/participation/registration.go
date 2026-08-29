@@ -23,6 +23,7 @@ func NewRegistrationController(reg RegistrationService, pageDef, pageMax int) *R
 }
 
 type RegistrationService interface {
+	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	Get(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*models.Registration, error)
 	Create(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateRegistrationRequest,
@@ -39,13 +40,13 @@ type RegistrationService interface {
 // @Tags		registration
 // @Produce	json
 // @Security	CookieAuth
-// @Param		id	path		string	true	"Event identifier"	format(uuid)
+// @Param		id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success	200	{object}	models.RegistrationResponse
 // @Failure	403	{object}	models.ErrorResponse
 // @Failure	404	{object}	models.ErrorResponse
 // @Router		/admin/events/{id}/registration [get]
 func (c *RegistrationController) Get(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.registrations.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -55,7 +56,7 @@ func (c *RegistrationController) Get(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.RegistrationResponse(reg))
+	httpx.JSON(w, http.StatusOK, shared.RegistrationResponse(reg, r.PathValue("id")))
 }
 
 // @Summary		Create a registration
@@ -67,7 +68,7 @@ func (c *RegistrationController) Get(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	format(uuid)
+// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		models.CreateRegistrationRequest	true	"Link and deadline"
 // @Success		201		{object}	models.RegistrationResponse
 // @Failure		400		{object}	models.ErrorResponse
@@ -76,7 +77,7 @@ func (c *RegistrationController) Get(w http.ResponseWriter, r *http.Request) {
 // @Failure		409		{object}	models.ErrorResponse	"registration already exists or the deadline falls outside end_at"
 // @Router			/admin/events/{id}/registration [post]
 func (c *RegistrationController) Create(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.registrations.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -91,7 +92,7 @@ func (c *RegistrationController) Create(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusCreated, shared.RegistrationResponse(reg))
+	httpx.JSON(w, http.StatusCreated, shared.RegistrationResponse(reg, r.PathValue("id")))
 }
 
 // @Summary		Update a registration
@@ -102,7 +103,7 @@ func (c *RegistrationController) Create(w http.ResponseWriter, r *http.Request) 
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	format(uuid)
+// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		models.UpdateRegistrationRequest	true	"Mutable fields"
 // @Success		200		{object}	models.RegistrationResponse
 // @Failure		400		{object}	models.ErrorResponse
@@ -111,7 +112,7 @@ func (c *RegistrationController) Create(w http.ResponseWriter, r *http.Request) 
 // @Failure		409		{object}	models.ErrorResponse
 // @Router			/admin/events/{id}/registration [patch]
 func (c *RegistrationController) Update(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.registrations.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -126,7 +127,7 @@ func (c *RegistrationController) Update(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.RegistrationResponse(reg))
+	httpx.JSON(w, http.StatusOK, shared.RegistrationResponse(reg, r.PathValue("id")))
 }
 
 // @Summary		Enable registration
@@ -135,7 +136,7 @@ func (c *RegistrationController) Update(w http.ResponseWriter, r *http.Request) 
 // @Tags			registration
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.RegistrationResponse
 // @Failure		403	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse
@@ -150,7 +151,7 @@ func (c *RegistrationController) Enable(w http.ResponseWriter, r *http.Request) 
 // @Tags			registration
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id	path		string	true	"Event identifier"	format(uuid)
+// @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.RegistrationResponse
 // @Failure		403	{object}	models.ErrorResponse
 // @Failure		404	{object}	models.ErrorResponse
@@ -161,7 +162,7 @@ func (c *RegistrationController) Disable(w http.ResponseWriter, r *http.Request)
 }
 
 func (c *RegistrationController) setState(w http.ResponseWriter, r *http.Request, state models.RegistrationState) {
-	id, err := httpx.PathUUID(r, "id")
+	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.registrations.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -171,5 +172,5 @@ func (c *RegistrationController) setState(w http.ResponseWriter, r *http.Request
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.RegistrationResponse(reg))
+	httpx.JSON(w, http.StatusOK, shared.RegistrationResponse(reg, r.PathValue("id")))
 }
