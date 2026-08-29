@@ -30,6 +30,11 @@ export type KeyEventLike = {
 
 const ESCAPE = 'escape'
 const CHORD_TIMEOUT_MS = 1200
+const ALPHANUMERIC = /^[\p{Letter}\p{Number}]$/u
+
+export function isTypeAheadKey(pressed: string): boolean {
+  return ALPHANUMERIC.test(pressed)
+}
 
 export function normalizeKey(event: KeyEventLike): string {
   const parts: string[] = []
@@ -167,8 +172,8 @@ export class ShortcutRegistry {
     const pressed = normalizeKey(event)
     if (this.chord !== null && now - this.chordAt > CHORD_TIMEOUT_MS) this.chord = null
 
-    const plainKey = !pressed.includes('+') && pressed !== ESCAPE
-    const editable = isEditableTarget(target) || (plainKey && isInteractiveTarget(target))
+    const typeAhead = !pressed.includes('+') && isTypeAheadKey(pressed)
+    const editable = isEditableTarget(target) || (typeAhead && isInteractiveTarget(target))
     const found = resolveShortcut(this.stack, pressed, this.chord, editable)
 
     if (found) {

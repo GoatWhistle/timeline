@@ -9,6 +9,7 @@ export {
   isChordPrefix,
   isEditableTarget,
   isInteractiveTarget,
+  isTypeAheadKey,
   normalizeKey,
   resolveShortcut,
   type ShortcutDefinition,

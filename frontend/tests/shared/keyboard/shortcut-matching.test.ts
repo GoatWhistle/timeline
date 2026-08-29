@@ -96,6 +96,42 @@ describe('typing in an input', () => {
     expect(run).toHaveBeenCalledOnce()
   })
 
+  it('still fires the help sheet on ? from a focused button', () => {
+    const run = vi.fn()
+    const registry = new ShortcutRegistry()
+    registry.push({ id: 'app', mode: 'normal', shortcuts: [shortcut('help', ['?'], run)] })
+
+    registry.handle(press('?', { shiftKey: true }), { tagName: 'BUTTON', getAttribute: () => null })
+    expect(run).toHaveBeenCalledOnce()
+  })
+
+  it('still fires a punctuation shortcut from a focused link', () => {
+    const run = vi.fn()
+    const registry = new ShortcutRegistry()
+    registry.push({ id: 'list', mode: 'normal', shortcuts: [shortcut('search', ['/'], run)] })
+
+    registry.handle(press('/'), { tagName: 'A', getAttribute: () => null })
+    expect(run).toHaveBeenCalledOnce()
+  })
+
+  it('keeps punctuation out of shortcuts while a text field has focus', () => {
+    const run = vi.fn()
+    const registry = new ShortcutRegistry()
+    registry.push({ id: 'app', mode: 'normal', shortcuts: [shortcut('help', ['?'], run)] })
+
+    registry.handle(press('?', { shiftKey: true }), { tagName: 'INPUT' })
+    expect(run).not.toHaveBeenCalled()
+  })
+
+  it('yields a cyrillic letter to a focused button the same way as a latin one', () => {
+    const run = vi.fn()
+    const registry = new ShortcutRegistry()
+    registry.push({ id: 'list', mode: 'normal', shortcuts: [shortcut('next', ['о'], run)] })
+
+    registry.handle(press('о'), { tagName: 'BUTTON', getAttribute: () => null })
+    expect(run).not.toHaveBeenCalled()
+  })
+
   it('still fires escape from a focused button', () => {
     const run = vi.fn()
     const registry = new ShortcutRegistry()

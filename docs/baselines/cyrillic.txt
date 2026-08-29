@@ -11,4 +11,4 @@
 11 frontend/tests/features/burning/urgency-label.test.ts
 5 frontend/tests/shared/i18n/i18n.test.ts
 11 frontend/tests/shared/keyboard/layout-map.test.ts
-1 frontend/tests/shared/keyboard/shortcut-matching.test.ts
+3 frontend/tests/shared/keyboard/shortcut-matching.test.ts

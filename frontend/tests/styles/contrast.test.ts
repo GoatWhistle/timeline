@@ -51,6 +51,8 @@ const FILLED = [
 
 const UI_BOUNDARIES = ['border-strong', 'input', 'ring']
 
+const SCHEDULE_MARKS = ['border-strong', 'urgency-today']
+
 describe.each(THEMES)('token contrast, %s theme', (theme) => {
   const tokens = loadTheme(theme)
   const ratio = (a: string, b: string) =>
@@ -94,6 +96,21 @@ describe.each(THEMES)('token contrast, %s theme', (theme) => {
     'boundary %s on %s meets 3:1',
     (edge, bg) => {
       expect(ratio(edge, bg)).toBeGreaterThanOrEqual(UI_AA)
+    },
+  )
+
+  it.each(BODY_TEXT)('%s stays readable on the selected row fill', (fg) => {
+    expect(ratio(fg, 'accent-surface')).toBeGreaterThanOrEqual(TEXT_AA)
+  })
+
+  it.each(STAGES)('%s carries a stage label as text on surface-1 at 4.5:1', (stage) => {
+    expect(ratio(stage, 'surface-1')).toBeGreaterThanOrEqual(TEXT_AA)
+  })
+
+  it.each(SCHEDULE_MARKS.flatMap((mark) => SURFACES.map((bg) => [mark, bg] as const)))(
+    'schedule mark %s separates from %s at 3:1',
+    (mark, bg) => {
+      expect(ratio(mark, bg)).toBeGreaterThanOrEqual(UI_AA)
     },
   )
 })

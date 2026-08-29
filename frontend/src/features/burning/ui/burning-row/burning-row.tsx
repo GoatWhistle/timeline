@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { URGENCY_TEXT } from '@/entities/deadline/urgency/urgency'
 import { countdownLabel } from '@/entities/deadline/urgency/urgency-label'
 import { UrgencyIcon, UrgencyMark } from '@/entities/deadline/urgency/urgency-mark'
-import { EVENT_STATE_COLOR, EVENT_STATE_KEY } from '@/entities/event/event.labels'
+import { EventStateMark, EventStateText } from '@/entities/event/event-state-mark/event-state-mark'
 import type { BurningItem } from '@/features/burning/model/burning'
 import { formatDateRange } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -60,10 +60,7 @@ export function BurningRow({
           'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
         )}
       >
-        <span
-          aria-hidden="true"
-          className={cn('size-1.5 shrink-0 rounded-full', EVENT_STATE_COLOR[event.state])}
-        />
+        <EventStateMark state={event.state} labelled={false} />
 
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="truncate font-medium text-copy">{event.title}</span>
@@ -87,7 +84,7 @@ export function BurningRow({
           <UrgencyMark urgency={urgency} label={label} />
         </span>
 
-        <span className="sr-only">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>
+        <EventStateText state={event.state} />
       </button>
 
       <BurningActions item={item} />

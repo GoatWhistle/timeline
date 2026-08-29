@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import { matchesQuery } from '@/shared/keyboard/layout-map'
 import { useShortcutScope } from '@/shared/keyboard/shortcut-registry'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -26,6 +27,8 @@ export function CommandPalette({
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const listRef = useRef<HTMLDivElement>(null)
+  const chosen = useRef(false)
+  const returnFocus = useReturnFocus(open)
 
   const results = useMemo(() => {
     if (!query.trim()) return commands
@@ -36,6 +39,7 @@ export function CommandPalette({
 
   useEffect(() => {
     if (!open) setQuery('')
+    if (open) chosen.current = false
     setActive(0)
   }, [open])
 
@@ -44,6 +48,7 @@ export function CommandPalette({
   function choose(index: number) {
     const command = results[index]
     if (!command) return
+    chosen.current = true
     onOpenChange(false)
     command.run()
   }
@@ -63,7 +68,12 @@ export function CommandPalette({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="top-[20%] max-w-xl translate-y-0 gap-0 p-0">
+      <DialogContent
+        className="top-[20%] max-w-xl translate-y-0 gap-0 p-0"
+        onCloseAutoFocus={(event) => {
+          if (!chosen.current) returnFocus(event)
+        }}
+      >
         <DialogTitle className="sr-only">{t('palette.title')}</DialogTitle>
         <input
           autoFocus

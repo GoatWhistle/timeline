@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { resolveUrgency, URGENCY_KEY, URGENCY_TEXT } from '@/entities/deadline/urgency/urgency'
-import { EVENT_STATE_COLOR, EVENT_STATE_KEY } from '@/entities/event/event.labels'
+import { EventStateMark, EventStateText } from '@/entities/event/event-state-mark/event-state-mark'
 import type { EventState } from '@/shared/api/types.gen'
 import { formatDateRange, formatRelative } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -45,10 +45,7 @@ export function EventRow({
         selected ? 'bg-accent-surface' : 'hover:bg-surface-3',
       )}
     >
-      <span
-        aria-hidden="true"
-        className={cn('size-1.5 shrink-0 rounded-full', EVENT_STATE_COLOR[event.state])}
-      />
+      <EventStateMark state={event.state} labelled={false} />
 
       <span className="min-w-0 flex-1 truncate font-medium text-copy">{event.title}</span>
 
@@ -69,7 +66,7 @@ export function EventRow({
         </span>
       </span>
 
-      <span className="sr-only">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>
+      <EventStateText state={event.state} />
     </button>
   )
 }

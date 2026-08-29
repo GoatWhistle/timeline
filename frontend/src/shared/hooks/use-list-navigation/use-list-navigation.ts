@@ -66,6 +66,10 @@ export function useListNavigation({
   useEffect(() => {
     if (!selected) return
     const row = document.querySelector<HTMLElement>(`[data-event-row="${selected}"]`)
-    row?.scrollIntoView({ block: 'nearest' })
+    if (!row) return
+    row.scrollIntoView({ block: 'nearest' })
+    const active = document.activeElement
+    const inList = active instanceof HTMLElement && active.hasAttribute('data-event-row')
+    if (inList && active !== row) row.focus({ preventScroll: true })
   }, [selected])
 }

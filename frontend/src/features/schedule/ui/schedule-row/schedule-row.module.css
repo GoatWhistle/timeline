@@ -13,5 +13,5 @@
   left: 0;
   height: 3px;
   border-radius: var(--radius-pill);
-  background-color: var(--border);
+  background-color: var(--border-strong);
 }

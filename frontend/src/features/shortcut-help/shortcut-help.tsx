@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import {
   type ShortcutDefinition,
   type ShortcutGroup,
@@ -62,6 +63,7 @@ export function ShortcutHelp({
 }) {
   const { t } = useTranslation()
   const shortcuts = useShortcutList(HELP_SCOPE)
+  const returnFocus = useReturnFocus(open)
   useShortcutScope(HELP_SCOPE, [], { mode: 'exclusive', enabled: open })
 
   const grouped = GROUP_ORDER.map((group) => ({
@@ -73,7 +75,7 @@ export function ShortcutHelp({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg" onCloseAutoFocus={returnFocus}>
         <DialogHeader>
           <DialogTitle className="text-heading">{t('shortcuts.title')}</DialogTitle>
         </DialogHeader>
