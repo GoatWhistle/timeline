@@ -128,11 +128,12 @@ func newStack(t *testing.T) *stack {
 	profileSvc.WithCalendarFeeds(calendarRepo)
 
 	deps := controllers.Deps{
-		Auth:    auth,
-		Invites: svcauth.NewInviteService(db, invites, users, auth, auditSvc, mailer, limiter, cfg),
-		Profile: profileSvc,
-		Users:   userSvc,
-		Events:  svcevent.NewEventService(db, events, registrations, notifier, scheduler, auditSvc),
+		Auth:           auth,
+		Invites:        svcauth.NewInviteService(db, invites, users, auth, auditSvc, mailer, limiter, cfg),
+		Profile:        profileSvc,
+		PublicProfiles: profileSvc,
+		Users:          userSvc,
+		Events:         svcevent.NewEventService(db, events, registrations, notifier, scheduler, auditSvc),
 		Catalog: svcevent.NewCatalogService(db, catalogRepo, events, participants,
 			registrations, statuses, users, notifier, auditSvc),
 		Stages: svcevent.NewStageService(db, stages, events, participants, auditSvc),

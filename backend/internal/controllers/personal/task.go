@@ -84,7 +84,7 @@ func (c *Controller) ListTasks(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Event identifier"
+// @Param			id		path		string					true	"Event identifier"
 // @Param			request	body		dto.CreateTaskRequest	true	"Task"
 // @Success		201		{object}	models.ParticipantTask
 // @Failure		400		{object}	dto.ErrorResponse	"the stage belongs to another event"
@@ -129,7 +129,7 @@ func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Task identifier"	example(tk_42ej2s5gh7e8)
+// @Param			id		path		string					true	"Task identifier"	example(tk_42ej2s5gh7e8)
 // @Param			request	body		dto.UpdateTaskRequest	true	"Fields to change"
 // @Success		200		{object}	models.ParticipantTask
 // @Failure		400		{object}	dto.ErrorResponse

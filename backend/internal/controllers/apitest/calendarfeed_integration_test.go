@@ -8,8 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/google/uuid"
-
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 )
 
@@ -126,7 +124,7 @@ func TestDeactivatedOwnerGetsNotFoundRatherThanAnEmptyCalendar(t *testing.T) {
 	secret := s.session(t, f.member).issueFeed(t)
 	s.fetchFeed(t, secret, http.StatusOK)
 
-	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID.String()+"/deactivate", nil),
+	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the owner")
 
 	s.requireFeedNotFound(t, secret, "the feed of a deactivated account")
@@ -150,7 +148,7 @@ func TestUnknownRevokedAndDeactivatedAreIndistinguishable(t *testing.T) {
 	requireStatus(t, revokedOwner.delete("/me/calendar-feed"), http.StatusNoContent, "revoking the feed")
 
 	deactivated := s.session(t, f.outsider).issueFeed(t)
-	requireStatus(t, f.adminClient.post("/admin/users/"+f.outsider.ID.String()+"/deactivate", nil),
+	requireStatus(t, f.adminClient.post("/admin/users/"+f.outsider.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the outsider")
 
 	unknown, err := crypto.NewSecret()
@@ -184,21 +182,23 @@ func TestUnknownRevokedAndDeactivatedAreIndistinguishable(t *testing.T) {
 	}
 }
 
-func (s *stack) countActiveTokens(t *testing.T, userID uuid.UUID) int {
+func (s *stack) countActiveTokens(t *testing.T, userID string) int {
 	t.Helper()
 	var count int
 	if err := s.db.Pool().QueryRow(context.Background(),
-		`SELECT count(*) FROM calendar_feed_tokens WHERE user_id = $1 AND revoked_at IS NULL`,
+		`SELECT count(*) FROM calendar_feed_tokens
+		 WHERE user_id = (SELECT id FROM users WHERE display_id = $1) AND revoked_at IS NULL`,
 		userID).Scan(&count); err != nil {
 		t.Fatalf("counting active tokens: %v", err)
 	}
 	return count
 }
 
-func (s *stack) reviveToken(t *testing.T, userID uuid.UUID) {
+func (s *stack) reviveToken(t *testing.T, userID string) {
 	t.Helper()
 	if _, err := s.db.Pool().Exec(context.Background(),
-		`UPDATE calendar_feed_tokens SET revoked_at = NULL WHERE user_id = $1`, userID); err != nil {
+		`UPDATE calendar_feed_tokens SET revoked_at = NULL
+		 WHERE user_id = (SELECT id FROM users WHERE display_id = $1)`, userID); err != nil {
 		t.Fatalf("reviving the token: %v", err)
 	}
 }

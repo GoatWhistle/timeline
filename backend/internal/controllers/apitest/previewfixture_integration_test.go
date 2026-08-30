@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"testing"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 func (s *stack) countNotifications(t *testing.T) int {
@@ -31,18 +29,20 @@ func (s *stack) countAudit(t *testing.T) int {
 	return count
 }
 
-func (s *stack) setLocale(t *testing.T, userID uuid.UUID, value string) {
+func (s *stack) setLocale(t *testing.T, userID string, value string) {
 	t.Helper()
 	if _, err := s.db.Pool().Exec(context.Background(),
-		`UPDATE users SET locale = $2 WHERE id = $1`, userID, value); err != nil {
+		`UPDATE users SET locale = $2 WHERE display_id = $1`, userID, value); err != nil {
 		t.Fatalf("setting the locale of %s to %s: %v", userID, value, err)
 	}
 }
 
-func (s *stack) logicalKeys(t *testing.T, statusID uuid.UUID) []string {
+func (s *stack) logicalKeys(t *testing.T, statusID string) []string {
 	t.Helper()
 	rows, err := s.db.Pool().Query(context.Background(),
-		`SELECT logical_key FROM notifications WHERE registration_status_id = $1 ORDER BY logical_key`,
+		`SELECT logical_key FROM notifications
+		 WHERE registration_status_id = (SELECT id FROM registration_statuses WHERE display_id = $1)
+		 ORDER BY logical_key`,
 		statusID)
 	if err != nil {
 		t.Fatalf("reading the logical keys of %s: %v", statusID, err)
@@ -72,20 +72,20 @@ func contains(items []string, want string) bool {
 	return false
 }
 
-func (c *client) foreignRule(t *testing.T, eventID uuid.UUID) uuid.UUID {
+func (c *client) foreignRule(t *testing.T, eventID string) string {
 	t.Helper()
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
-	requireStatus(t, c.post("/admin/events/"+eventID.String()+"/registration",
+	requireStatus(t, c.post("/admin/events/"+eventID+"/registration",
 		map[string]any{
 			"url":         "https://example.com/other",
 			"deadline_at": start.Add(6 * time.Hour).Format(time.RFC3339),
 		}), http.StatusCreated, "creating the registration of the other event")
 
-	resp := c.post("/admin/events/"+eventID.String()+"/registration/rules",
+	resp := c.post("/admin/events/"+eventID+"/registration/rules",
 		map[string]any{"offset_minutes": 30})
 	requireStatus(t, resp, http.StatusCreated, "creating a rule on the other registration")
 	var rule struct {
-		ID uuid.UUID `json:"id"`
+		ID string `json:"id"`
 	}
 	resp.decode(t, &rule)
 	return rule.ID

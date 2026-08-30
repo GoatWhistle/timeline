@@ -69,7 +69,7 @@ func (c *RegistrationController) Get(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
+// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		dto.CreateRegistrationRequest	true	"Link and deadline"
 // @Success		201		{object}	dto.RegistrationResponse
 // @Failure		400		{object}	dto.ErrorResponse
@@ -104,7 +104,7 @@ func (c *RegistrationController) Create(w http.ResponseWriter, r *http.Request) 
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
+// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		dto.UpdateRegistrationRequest	true	"Mutable fields"
 // @Success		200		{object}	dto.RegistrationResponse
 // @Failure		400		{object}	dto.ErrorResponse

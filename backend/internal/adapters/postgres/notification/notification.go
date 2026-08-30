@@ -19,7 +19,7 @@ func NewNotifications(db *postgres.DB) *Notifications {
 	return &Notifications{db: db}
 }
 
-const notificationColumns = `id, notification_type, recipient_user_id, registration_status_id, rule_id,
+const notificationColumns = `id, display_id, notification_type, recipient_user_id, registration_status_id, rule_id,
 	schedule_version, todo_cycle, assignment_version, activation_version, notification_content_version,
 	logical_key, requested_channel, actual_channel, failed_channels, status, scheduled_at,
 	next_attempt_at, attempt_count, lease_expires_at, provider_call_started_at, payload_json,
@@ -31,7 +31,7 @@ func scanNotification(row pgx.Row) (*models.Notification, error) {
 		failed  []string
 		payload []byte
 	)
-	err := row.Scan(&n.ID, &n.NotificationType, &n.RecipientUserID, &n.RegistrationStatusID, &n.RuleID,
+	err := row.Scan(&n.ID, &n.DisplayID, &n.NotificationType, &n.RecipientUserID, &n.RegistrationStatusID, &n.RuleID,
 		&n.ScheduleVersion, &n.TodoCycle, &n.AssignmentVersion, &n.ActivationVersion, &n.NotificationContentVersion,
 		&n.LogicalKey, &n.RequestedChannel, &n.ActualChannel, &failed, &n.Status, &n.ScheduledAt,
 		&n.NextAttemptAt, &n.AttemptCount, &n.LeaseExpiresAt, &n.ProviderCallStartedAt, &payload,

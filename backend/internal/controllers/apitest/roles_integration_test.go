@@ -18,12 +18,12 @@ type adminRoute struct {
 }
 
 func adminRoutes(f fixture) []adminRoute {
-	event := f.eventID.String()
+	event := f.eventID
 	return []adminRoute{
 		{"user search", http.MethodGet, "/admin/users", nil},
-		{"user deactivation", http.MethodPost, "/admin/users/" + f.member.ID.String() + "/deactivate", nil},
-		{"user activation", http.MethodPost, "/admin/users/" + f.member.ID.String() + "/activate", nil},
-		{"user deletion", http.MethodDelete, "/admin/users/" + f.member.ID.String(), nil},
+		{"user deactivation", http.MethodPost, "/admin/users/" + f.member.ID + "/deactivate", nil},
+		{"user activation", http.MethodPost, "/admin/users/" + f.member.ID + "/activate", nil},
+		{"user deletion", http.MethodDelete, "/admin/users/" + f.member.ID, nil},
 		{"invite creation", http.MethodPost, "/admin/invites", map[string]any{"email": "target@example.com"}},
 		{"invite list", http.MethodGet, "/admin/invites", nil},
 		{"event list", http.MethodGet, "/admin/events", nil},
@@ -43,11 +43,11 @@ func adminRoutes(f fixture) []adminRoute {
 		}},
 		{"roster read", http.MethodGet, "/admin/events/" + event + "/participants", nil},
 		{"roster batch add", http.MethodPost, "/admin/events/" + event + "/participants/batch-add",
-			map[string]any{"items": []map[string]any{{"user_id": f.outsider.ID.String(), "team_role": "Intruder"}}}},
+			map[string]any{"items": []map[string]any{{"user_id": f.outsider.ID, "team_role": "Intruder"}}}},
 		{"roster batch remove", http.MethodPost, "/admin/events/" + event + "/participants/batch-remove",
-			map[string]any{"participant_ids": []string{f.memberPart.String()}}},
+			map[string]any{"participant_ids": []string{f.memberPart}}},
 		{"roster copy", http.MethodPost, "/admin/events/" + event + "/participants/copy-from",
-			map[string]any{"source_event_id": f.otherEvent.String()}},
+			map[string]any{"source_event_id": f.otherEvent}},
 		{"registration read", http.MethodGet, "/admin/events/" + event + "/registration", nil},
 		{"registration update", http.MethodPatch, "/admin/events/" + event + "/registration",
 			map[string]any{"url": "https://intruder.example.com"}},
@@ -55,13 +55,13 @@ func adminRoutes(f fixture) []adminRoute {
 		{"rule list", http.MethodGet, "/admin/events/" + event + "/registration/rules", nil},
 		{"rule creation", http.MethodPost, "/admin/events/" + event + "/registration/rules",
 			map[string]any{"offset_minutes": 30}},
-		{"rule disabling", http.MethodDelete, "/admin/registration-rules/" + f.regRuleID.String(), nil},
+		{"rule disabling", http.MethodDelete, "/admin/registration-rules/" + f.regRuleID, nil},
 		{"status list", http.MethodGet, "/admin/events/" + event + "/registration-statuses", nil},
 		{"status batch set", http.MethodPost, "/admin/events/" + event + "/registration-statuses/batch-set",
-			map[string]any{"participant_ids": []string{f.memberPart.String()}, "status": "DONE"}},
+			map[string]any{"participant_ids": []string{f.memberPart}, "status": "DONE"}},
 		{"status batch preview", http.MethodPost,
 			"/admin/events/" + event + "/registration-statuses/batch-set/preview",
-			map[string]any{"participant_ids": []string{f.memberPart.String()}, "status": "DONE"}},
+			map[string]any{"participant_ids": []string{f.memberPart}, "status": "DONE"}},
 		{"administrative schedule", http.MethodGet, "/admin/schedule", nil},
 		{"upcoming query", http.MethodGet, "/admin/queries/upcoming", nil},
 		{"overdue query", http.MethodGet, "/admin/queries/overdue", nil},
@@ -103,7 +103,7 @@ func TestAdministrativeStateSurvivesRefusedParticipantAttempts(t *testing.T) {
 		member.mutate(route.method, route.path, route.body)
 	}
 
-	event := f.adminClient.get("/admin/events/" + f.eventID.String())
+	event := f.adminClient.get("/admin/events/" + f.eventID)
 	requireStatus(t, event, http.StatusOK, "reading the event after the attempts")
 	if containsAll(string(event.Body), "Injected") {
 		t.Fatalf("a refused participant request modified the event: %s", event.Body)
@@ -112,9 +112,9 @@ func TestAdministrativeStateSurvivesRefusedParticipantAttempts(t *testing.T) {
 		t.Fatalf("the event title no longer matches the fixture: %s", event.Body)
 	}
 
-	roster := f.adminClient.get("/admin/events/" + f.eventID.String() + "/participants")
+	roster := f.adminClient.get("/admin/events/" + f.eventID + "/participants")
 	requireStatus(t, roster, http.StatusOK, "reading the roster after the attempts")
-	if containsAll(string(roster.Body), f.outsider.ID.String()) {
+	if containsAll(string(roster.Body), f.outsider.ID) {
 		t.Fatalf("a refused participant request added an outsider: %s", roster.Body)
 	}
 	if !containsAll(string(roster.Body), `"status":"TODO"`) {
@@ -123,7 +123,7 @@ func TestAdministrativeStateSurvivesRefusedParticipantAttempts(t *testing.T) {
 
 	users := f.adminClient.get("/admin/users")
 	requireStatus(t, users, http.StatusOK, "reading the account list after the attempts")
-	if !containsAll(string(users.Body), f.member.ID.String()) {
+	if !containsAll(string(users.Body), f.member.ID) {
 		t.Fatalf("a refused participant request deleted an account: %s", users.Body)
 	}
 }
@@ -134,10 +134,10 @@ func TestAdministrativeRoutesSucceedForAdministrator(t *testing.T) {
 
 	for _, route := range []adminRoute{
 		{"user search", http.MethodGet, "/admin/users", nil},
-		{"event read", http.MethodGet, "/admin/events/" + f.eventID.String(), nil},
-		{"roster read", http.MethodGet, "/admin/events/" + f.eventID.String() + "/participants", nil},
-		{"status list", http.MethodGet, "/admin/events/" + f.eventID.String() + "/registration-statuses", nil},
-		{"rule list", http.MethodGet, "/admin/events/" + f.eventID.String() + "/registration/rules", nil},
+		{"event read", http.MethodGet, "/admin/events/" + f.eventID, nil},
+		{"roster read", http.MethodGet, "/admin/events/" + f.eventID + "/participants", nil},
+		{"status list", http.MethodGet, "/admin/events/" + f.eventID + "/registration-statuses", nil},
+		{"rule list", http.MethodGet, "/admin/events/" + f.eventID + "/registration/rules", nil},
 		{"audit log", http.MethodGet, "/admin/audit", nil},
 		{"administrative schedule", http.MethodGet, "/admin/schedule", nil},
 	} {
@@ -146,11 +146,11 @@ func TestAdministrativeRoutesSucceedForAdministrator(t *testing.T) {
 		})
 	}
 
-	renamed := f.adminClient.patch("/admin/events/"+f.eventID.String(),
+	renamed := f.adminClient.patch("/admin/events/"+f.eventID,
 		map[string]any{"title": "Renamed by the administrator"})
 	requireStatus(t, renamed, http.StatusOK, "the administrator renames the event")
 
-	statusChange := f.adminClient.patch("/admin/registration-statuses/"+f.statusID.String(),
+	statusChange := f.adminClient.patch("/admin/registration-statuses/"+f.statusID,
 		map[string]any{"status": "NOT_REQUIRED"})
 	requireStatus(t, statusChange, http.StatusOK, "the administrator changes a status")
 }
@@ -165,7 +165,7 @@ func TestUnauthenticatedRequestsAreRejectedBeforeRoleChecks(t *testing.T) {
 		"/me/events",
 		"/me/schedule",
 		"/catalog",
-		"/events/" + f.eventID.String(),
+		"/events/" + f.eventID,
 		"/admin/users",
 		"/admin/events",
 		"/admin/audit",

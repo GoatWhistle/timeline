@@ -7,8 +7,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 func TestTaskRejectsStageOfAnotherEvent(t *testing.T) {
@@ -16,7 +14,7 @@ func TestTaskRejectsStageOfAnotherEvent(t *testing.T) {
 	f := s.seed(t)
 
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
-	stageResp := f.adminClient.post("/admin/events/"+f.otherEvent.String()+"/stages",
+	stageResp := f.adminClient.post("/admin/events/"+f.otherEvent+"/stages",
 		map[string]any{
 			"name":     "Foreign demo",
 			"type":     "DEMO",
@@ -25,20 +23,20 @@ func TestTaskRejectsStageOfAnotherEvent(t *testing.T) {
 		})
 	requireStatus(t, stageResp, http.StatusCreated, "creating a stage on the other event")
 	var stage struct {
-		ID uuid.UUID `json:"id"`
+		ID string `json:"id"`
 	}
 	stageResp.decode(t, &stage)
 
 	member := s.session(t, f.member)
-	resp := member.post("/me/events/"+f.eventID.String()+"/tasks", map[string]any{
+	resp := member.post("/me/events/"+f.eventID+"/tasks", map[string]any{
 		"title":    "Cross event task",
-		"stage_id": stage.ID.String(),
+		"stage_id": stage.ID,
 	})
 	if resp.Status != http.StatusBadRequest && resp.Status != http.StatusNotFound {
 		t.Fatalf("a stage of another event was accepted: status %d body %s", resp.Status, resp.Body)
 	}
 
-	list := member.get("/me/events/" + f.eventID.String() + "/tasks")
+	list := member.get("/me/events/" + f.eventID + "/tasks")
 	if strings.Contains(string(list.Body), "Cross event task") {
 		t.Fatalf("the rejected task was stored anyway: %s", list.Body)
 	}
@@ -52,10 +50,10 @@ func TestTaskOnInvisibleEventIsNotFound(t *testing.T) {
 		time.Now().UTC().Add(48*time.Hour).Truncate(time.Second))
 
 	member := s.session(t, f.member)
-	requireStatus(t, member.post("/me/events/"+unpublished.String()+"/tasks",
+	requireStatus(t, member.post("/me/events/"+unpublished+"/tasks",
 		map[string]any{"title": "Task on an invisible event"}),
 		http.StatusNotFound, "creating a task on an unpublished event")
-	requireStatus(t, member.get("/me/events/"+uuid.NewString()+"/tasks"),
+	requireStatus(t, member.get("/me/events/"+missingEventID+"/tasks"),
 		http.StatusNotFound, "listing tasks of a nonexistent event")
 }
 
@@ -64,25 +62,25 @@ func TestTaskCompletionIsReversible(t *testing.T) {
 	f := s.seed(t)
 	member := s.session(t, f.member)
 
-	created := member.post("/me/events/"+f.eventID.String()+"/tasks",
+	created := member.post("/me/events/"+f.eventID+"/tasks",
 		map[string]any{"title": "Install the toolchain"})
 	requireStatus(t, created, http.StatusCreated, "creating a task")
 	var task struct {
-		ID     uuid.UUID `json:"id"`
-		DoneAt *string   `json:"done_at"`
+		ID     string  `json:"id"`
+		DoneAt *string `json:"done_at"`
 	}
 	created.decode(t, &task)
 	if task.DoneAt != nil {
 		t.Fatalf("a fresh task is already marked done: %s", created.Body)
 	}
 
-	done := member.patch("/me/tasks/"+task.ID.String(), map[string]any{"done": true})
+	done := member.patch("/me/tasks/"+task.ID, map[string]any{"done": true})
 	requireStatus(t, done, http.StatusOK, "marking the task done")
 	if !strings.Contains(string(done.Body), `"done_at"`) {
 		t.Fatalf("marking done did not record the moment: %s", done.Body)
 	}
 
-	undone := member.patch("/me/tasks/"+task.ID.String(), map[string]any{"done": false})
+	undone := member.patch("/me/tasks/"+task.ID, map[string]any{"done": false})
 	requireStatus(t, undone, http.StatusOK, "marking the task undone")
 	if strings.Contains(string(undone.Body), `"done_at"`) {
 		t.Fatalf("marking undone left the completion moment behind: %s", undone.Body)
@@ -100,14 +98,14 @@ func TestTemplateAppliesOnceWithoutDuplicates(t *testing.T) {
 		t.Fatalf("the built-in templates are missing: %s", templates.Body)
 	}
 
-	first := member.post("/me/events/"+f.eventID.String()+"/tasks/apply-template",
+	first := member.post("/me/events/"+f.eventID+"/tasks/apply-template",
 		map[string]any{"template_id": "preparation"})
 	requireStatus(t, first, http.StatusOK, "applying a template")
 	if !containsAll(string(first.Body), `"succeeded":6`, `"skipped":0`) {
 		t.Fatalf("the first application did not create every item: %s", first.Body)
 	}
 
-	afterFirst := member.get("/me/events/" + f.eventID.String() + "/tasks")
+	afterFirst := member.get("/me/events/" + f.eventID + "/tasks")
 	var listed struct {
 		Items []struct {
 			DueAt *time.Time `json:"due_at"`
@@ -123,20 +121,20 @@ func TestTemplateAppliesOnceWithoutDuplicates(t *testing.T) {
 		}
 	}
 
-	second := member.post("/me/events/"+f.eventID.String()+"/tasks/apply-template",
+	second := member.post("/me/events/"+f.eventID+"/tasks/apply-template",
 		map[string]any{"template_id": "preparation"})
 	requireStatus(t, second, http.StatusOK, "applying the same template twice")
 	if !containsAll(string(second.Body), `"succeeded":0`, `"skipped":6`) {
 		t.Fatalf("re-applying a template duplicated tasks: %s", second.Body)
 	}
 
-	afterSecond := member.get("/me/events/" + f.eventID.String() + "/tasks")
+	afterSecond := member.get("/me/events/" + f.eventID + "/tasks")
 	afterSecond.decode(t, &listed)
 	if len(listed.Items) != 6 {
 		t.Fatalf("re-applying the template changed the task count to %d", len(listed.Items))
 	}
 
-	requireStatus(t, member.post("/me/events/"+f.eventID.String()+"/tasks/apply-template",
+	requireStatus(t, member.post("/me/events/"+f.eventID+"/tasks/apply-template",
 		map[string]any{"template_id": "no-such-template"}),
 		http.StatusNotFound, "applying an unknown template")
 }

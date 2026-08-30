@@ -24,6 +24,23 @@ func PathDisplayID(r *http.Request, name string, kind dto.DisplayKind,
 	return id, nil
 }
 
+func QueryDisplayID(r *http.Request, name string, kind dto.DisplayKind,
+	resolve DisplayResolver) (*uuid.UUID, error) {
+	raw := r.URL.Query().Get(name)
+	if raw == "" {
+		return nil, nil
+	}
+	parsed, err := dto.ParseDisplayID(kind, raw)
+	if err != nil {
+		return nil, err
+	}
+	id, err := resolve(r.Context(), parsed.Value)
+	if err != nil {
+		return nil, err
+	}
+	return &id, nil
+}
+
 func BodyDisplayID(ctx context.Context, raw *string, kind dto.DisplayKind,
 	resolve DisplayResolver) (*uuid.UUID, error) {
 	if raw == nil {

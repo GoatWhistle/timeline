@@ -2026,7 +2026,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "nr_42ej2s5gh7e8",
                         "description": "Rule to render",
                         "name": "rule_id",
                         "in": "query"
@@ -3158,7 +3158,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Every link attached to the event: rules, chat, submission form, dataset,\njudging criteria and the rest. Pinned links come first, then the explicit\nsort order.\n\nA link carrying stage_id belongs to that stage and is meant to surface while\nthe stage runs rather than for the whole event. The system never follows a\nlink: no title, favicon or availability is fetched from the address, so an\naddress supplied here can never make the server call out (plan IVa.4).\n\nThe scheme is not restricted to HTTPS (specification 5.1): a plain http\naddress, an internal host or a tg:// address is stored as given. Only schemes\nthat execute in the browser are rejected. The client marks a non-HTTPS link\nbut never blocks it.",
+                "description": "Every link attached to the event: rules, chat, submission form, dataset,\njudging criteria and the rest. Pinned links come first, then the explicit\nsort order.\n\nA link carrying stage_id belongs to that stage and is meant to surface while\nthe stage runs rather than for the whole event. The system never follows a\nlink: no title, favicon or availability is fetched from the address, so an\naddress supplied here can never make the server call out (plan IVa.4).\n\nThe scheme is not restricted to HTTPS (specification 5.1): a plain http\naddress, an internal host or a tg:// address is stored as given. The scheme\nmust be on the accepted list: http, https, ftp, ftps, mailto, tel, tg,\nmatrix, webcal, irc, ircs and xmpp. Anything else is rejected, so a scheme\nthat executes in the browser or hands the address to an operating system\nhandler can never be stored. The client marks a non-HTTPS link but never\nblocks it.",
                 "produces": [
                     "application/json"
                 ],
@@ -4543,7 +4543,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Records one artifact of the caller for the event. The link is only checked for\nbeing a parseable address; schemes that execute in a browser are rejected.",
+                "description": "Records one artifact of the caller for the event. The link is only checked for\nbeing a parseable address whose scheme is on the accepted list, so a scheme\nthat executes in a browser or reaches an operating system handler is rejected.",
                 "consumes": [
                     "application/json"
                 ],
@@ -4670,7 +4670,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Saves a private link of the caller for one event. The address is validated the\nsame way as everywhere else: it must parse, and schemes that execute in the\nbrowser are rejected. HTTPS is not required.",
+                "description": "Saves a private link of the caller for one event. The address is validated the\nsame way as everywhere else: it must parse, and the scheme must be on the\naccepted list, so a scheme that executes in the browser or hands the address\nto an operating system handler is rejected. HTTPS is not required.",
                 "consumes": [
                     "application/json"
                 ],
@@ -8335,7 +8335,8 @@ const docTemplate = `{
                     "example": "ev_gma9hq8a96q5"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "pa_42ej2s5gh7e8"
                 },
                 "participation_status": {
                     "enum": [
@@ -8385,7 +8386,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
                 },
                 "start_at": {
                     "type": "string"
@@ -8477,7 +8479,8 @@ const docTemplate = `{
                     }
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "nt_42ej2s5gh7e8"
                 },
                 "last_error": {
                     "type": "string",

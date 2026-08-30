@@ -50,9 +50,9 @@ func icsEnd(entry *models.CalendarEntry) time.Time {
 }
 
 func icsUID(entry *models.CalendarEntry) string {
-	id := entry.EventID.String()
+	id := entry.EventID
 	if entry.Kind == models.CalendarEntryStage {
-		id = entry.StageID.String()
+		id = entry.StageID
 	}
 	return strings.ToLower(string(entry.Kind)) + "-" + id + "@" + icsUIDDomain
 }
@@ -69,16 +69,18 @@ func escapeICSText(value string) string {
 	var out strings.Builder
 	out.Grow(len(value))
 	for _, r := range value {
-		switch r {
-		case '\\':
+		switch {
+		case r == '\\':
 			out.WriteString(`\\`)
-		case ';':
+		case r == ';':
 			out.WriteString(`\;`)
-		case ',':
+		case r == ',':
 			out.WriteString(`\,`)
-		case '\n':
+		case r == '\n':
 			out.WriteString(`\n`)
-		case '\r':
+		case r == '\t':
+			out.WriteRune(r)
+		case r < 0x20 || r == 0x7f:
 		default:
 			out.WriteRune(r)
 		}

@@ -69,7 +69,7 @@ func (c *NotificationRuleController) ListRules(w http.ResponseWriter, r *http.Re
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Event identifier"	example(ev_3k7d8gb9be)
+// @Param			id		path		string					true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		dto.CreateRuleRequest	true	"Rule parameters"
 // @Success		201		{object}	dto.NotificationRuleResponse
 // @Failure		400		{object}	dto.ErrorResponse
@@ -103,7 +103,7 @@ func (c *NotificationRuleController) CreateRule(w http.ResponseWriter, r *http.R
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Rule identifier"	example(nr_42ej2s5gh7e8)
+// @Param			id		path		string					true	"Rule identifier"	example(nr_42ej2s5gh7e8)
 // @Param			request	body		dto.UpdateRuleRequest	true	"Mutable fields"
 // @Success		200		{object}	dto.NotificationRuleResponse
 // @Failure		400		{object}	dto.ErrorResponse

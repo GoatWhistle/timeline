@@ -76,7 +76,7 @@ func (r *Users) PurgeReservations(ctx context.Context, now time.Time) (int64, er
 func (r *Users) PublicProfileEvents(ctx context.Context,
 	userID uuid.UUID) ([]dto.PublicProfileEvent, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT e.id, e.title, e.start_at, e.end_at
+		SELECT e.display_id, e.title, e.start_at, e.end_at
 		FROM event_participants p
 		JOIN events e ON e.id = p.event_id
 		WHERE p.user_id = $1

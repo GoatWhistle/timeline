@@ -2282,7 +2282,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description Rule to render */
+                    /**
+                     * @description Rule to render
+                     * @example nr_42ej2s5gh7e8
+                     */
                     rule_id?: string;
                 };
                 header?: never;
@@ -3741,9 +3744,12 @@ export interface paths {
          *     address supplied here can never make the server call out (plan IVa.4).
          *
          *     The scheme is not restricted to HTTPS (specification 5.1): a plain http
-         *     address, an internal host or a tg:// address is stored as given. Only schemes
-         *     that execute in the browser are rejected. The client marks a non-HTTPS link
-         *     but never blocks it.
+         *     address, an internal host or a tg:// address is stored as given. The scheme
+         *     must be on the accepted list: http, https, ftp, ftps, mailto, tel, tg,
+         *     matrix, webcal, irc, ircs and xmpp. Anything else is rejected, so a scheme
+         *     that executes in the browser or hands the address to an operating system
+         *     handler can never be stored. The client marks a non-HTTPS link but never
+         *     blocks it.
          */
         get: {
             parameters: {
@@ -5552,7 +5558,8 @@ export interface paths {
         /**
          * Add an own artifact
          * @description Records one artifact of the caller for the event. The link is only checked for
-         *     being a parseable address; schemes that execute in a browser are rejected.
+         *     being a parseable address whose scheme is on the accepted list, so a scheme
+         *     that executes in a browser or reaches an operating system handler is rejected.
          */
         post: {
             parameters: {
@@ -5706,8 +5713,9 @@ export interface paths {
         /**
          * Add an own link
          * @description Saves a private link of the caller for one event. The address is validated the
-         *     same way as everywhere else: it must parse, and schemes that execute in the
-         *     browser are rejected. HTTPS is not required.
+         *     same way as everywhere else: it must parse, and the scheme must be on the
+         *     accepted list, so a scheme that executes in the browser or hands the address
+         *     to an operating system handler is rejected. HTTPS is not required.
          */
         post: {
             parameters: {
@@ -8860,6 +8868,7 @@ export interface components {
             assigned_at: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
+            /** @example pa_42ej2s5gh7e8 */
             id: string;
             participation_status: components["schemas"]["models.ParticipationStatus"];
             /** @example Backend developer */
@@ -8877,6 +8886,7 @@ export interface components {
         "dto.PublicProfileEvent": {
             /** Format: date-time */
             end_at: string;
+            /** @example ev_gma9hq8a96q5 */
             id: string;
             /** Format: date-time */
             start_at: string;
@@ -8911,6 +8921,7 @@ export interface components {
             /** Format: date-time */
             created_at: string;
             failed_channels: components["schemas"]["models.Channel"][];
+            /** @example nt_42ej2s5gh7e8 */
             id: string;
             /** @example permanent provider error */
             last_error: string;

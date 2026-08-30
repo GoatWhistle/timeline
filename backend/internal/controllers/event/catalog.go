@@ -153,7 +153,7 @@ func (c *CatalogController) Join(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSON(w, http.StatusCreated, dto.ParticipantSelfResponse{
-		ID:                  p.ID,
+		ID:                  p.DisplayID,
 		EventID:             r.PathValue("id"),
 		TeamRole:            p.TeamRole,
 		ParticipationStatus: p.ParticipationStatus,

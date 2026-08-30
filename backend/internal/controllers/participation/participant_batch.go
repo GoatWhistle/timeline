@@ -16,7 +16,7 @@ import (
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
+// @Param			id		path		string						true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		dto.AddParticipantsRequest	true	"List of users and their roles"
 // @Success		200		{object}	dto.BatchResult
 // @Failure		400		{object}	dto.ErrorResponse
@@ -57,7 +57,7 @@ func (c *Controller) AddMany(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
+// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		dto.RemoveParticipantsRequest	true	"Participant identifiers"
 // @Success		200		{object}	dto.BatchResult
 // @Failure		400		{object}	dto.ErrorResponse
@@ -97,7 +97,7 @@ func (c *Controller) RemoveMany(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Target event identifier"	example(ev_3k7d8gb9be)
+// @Param			id		path		string						true	"Target event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		dto.CopyParticipantsRequest	true	"Source and role overrides"
 // @Success		200		{object}	dto.BatchResult
 // @Failure		400		{object}	dto.ErrorResponse

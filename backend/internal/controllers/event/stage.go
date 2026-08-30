@@ -44,7 +44,7 @@ func (c *Controller) ListStages(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Event identifier"
+// @Param			id		path		string					true	"Event identifier"
 // @Param			request	body		dto.CreateStageRequest	true	"Stage payload"
 // @Success		201		{object}	dto.StageResponse
 // @Failure		400		{object}	dto.ErrorResponse
@@ -75,7 +75,7 @@ func (c *Controller) CreateStage(w http.ResponseWriter, r *http.Request) {
 // @Accept		json
 // @Produce	json
 // @Security	CookieAuth
-// @Param		id		path		string						true	"Stage identifier"
+// @Param		id		path		string					true	"Stage identifier"
 // @Param		request	body		dto.UpdateStageRequest	true	"Mutable fields"
 // @Success	200		{object}	dto.StageResponse
 // @Failure	400		{object}	dto.ErrorResponse

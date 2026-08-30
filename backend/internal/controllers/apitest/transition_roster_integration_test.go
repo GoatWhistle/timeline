@@ -6,25 +6,23 @@ import (
 	"context"
 	"net/http"
 	"testing"
-
-	"github.com/google/uuid"
 )
 
-func (c *client) removeMany(t *testing.T, eventID uuid.UUID, ids ...uuid.UUID) response {
+func (c *client) removeMany(t *testing.T, eventID string, ids ...string) response {
 	t.Helper()
 	keys := make([]string, 0, len(ids))
 	for _, id := range ids {
-		keys = append(keys, id.String())
+		keys = append(keys, id)
 	}
-	return c.post("/admin/events/"+eventID.String()+"/participants/batch-remove",
+	return c.post("/admin/events/"+eventID+"/participants/batch-remove",
 		map[string]any{"participant_ids": keys})
 }
 
-func (s *stack) assignmentVersion(t *testing.T, participantID uuid.UUID) int {
+func (s *stack) assignmentVersion(t *testing.T, participantID string) int {
 	t.Helper()
 	var version int
 	if err := s.db.Pool().QueryRow(context.Background(),
-		`SELECT assignment_version FROM event_participants WHERE id = $1`, participantID).Scan(&version); err != nil {
+		`SELECT assignment_version FROM event_participants WHERE display_id = $1`, participantID).Scan(&version); err != nil {
 		t.Fatalf("reading the assignment version of %s: %v", participantID, err)
 	}
 	return version
@@ -75,14 +73,14 @@ func TestParticipantRemovedToAssignedBumpsTheAssignmentVersion(t *testing.T) {
 	before := s.assignmentVersion(t, f.memberPart)
 
 	member := s.session(t, f.member)
-	requireErrorCode(t, member.post("/admin/participants/"+f.memberPart.String()+"/reactivate",
+	requireErrorCode(t, member.post("/admin/participants/"+f.memberPart+"/reactivate",
 		map[string]any{"team_role": "Developer"}),
 		http.StatusForbidden, "forbidden", "a participant reactivating itself")
 	if state := s.participationStatus(t, f.memberPart); state != "REMOVED" {
 		t.Fatalf("the refused attempt moved the participant to %q", state)
 	}
 
-	requireStatus(t, f.adminClient.post("/admin/participants/"+f.memberPart.String()+"/reactivate",
+	requireStatus(t, f.adminClient.post("/admin/participants/"+f.memberPart+"/reactivate",
 		map[string]any{"team_role": "Developer"}), http.StatusOK, "reactivating the member")
 	if state := s.participationStatus(t, f.memberPart); state != "ASSIGNED" {
 		t.Fatalf("the participant is %q instead of ASSIGNED", state)
@@ -92,7 +90,7 @@ func TestParticipantRemovedToAssignedBumpsTheAssignmentVersion(t *testing.T) {
 		t.Fatalf("assignment_version went from %d to %d instead of +1", before, after)
 	}
 
-	requireErrorCode(t, f.adminClient.post("/admin/participants/"+f.memberPart.String()+"/reactivate",
+	requireErrorCode(t, f.adminClient.post("/admin/participants/"+f.memberPart+"/reactivate",
 		map[string]any{"team_role": "Developer"}),
 		http.StatusConflict, "already_assigned", "reactivating an already assigned participant")
 	if again := s.assignmentVersion(t, f.memberPart); again != after {
@@ -106,10 +104,10 @@ func TestReactivationIsRefusedForADeactivatedAccount(t *testing.T) {
 
 	requireStatus(t, f.adminClient.removeMany(t, f.eventID, f.memberPart),
 		http.StatusOK, "removing the member")
-	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID.String()+"/deactivate", nil),
+	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the member")
 
-	requireErrorCode(t, f.adminClient.post("/admin/participants/"+f.memberPart.String()+"/reactivate",
+	requireErrorCode(t, f.adminClient.post("/admin/participants/"+f.memberPart+"/reactivate",
 		map[string]any{"team_role": "Developer"}),
 		http.StatusConflict, "user_inactive", "reactivating a deactivated account")
 	if state := s.participationStatus(t, f.memberPart); state != "REMOVED" {

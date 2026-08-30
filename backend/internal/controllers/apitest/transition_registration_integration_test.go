@@ -16,13 +16,13 @@ func TestRegistrationActiveToDisabledCancelsAndKeepsStatuses(t *testing.T) {
 	cancelledBefore := s.notificationCount(t, f.eventID, "CANCELLED")
 
 	member := s.session(t, f.member)
-	requireErrorCode(t, member.post("/admin/events/"+f.eventID.String()+"/registration/disable", nil),
+	requireErrorCode(t, member.post("/admin/events/"+f.eventID+"/registration/disable", nil),
 		http.StatusForbidden, "forbidden", "a participant disabling the registration")
 	if state := f.adminClient.registrationState(t, f.eventID).State; state != "ACTIVE" {
 		t.Fatalf("the refused attempt moved the registration to %q", state)
 	}
 
-	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/disable", nil),
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID+"/registration/disable", nil),
 		http.StatusOK, "disabling the registration")
 	if state := f.adminClient.registrationState(t, f.eventID).State; state != "DISABLED" {
 		t.Fatalf("the registration is %q instead of DISABLED", state)
@@ -37,7 +37,7 @@ func TestRegistrationActiveToDisabledCancelsAndKeepsStatuses(t *testing.T) {
 		t.Fatalf("the cancelled count fell from %d to %d", cancelledBefore, cancelled)
 	}
 
-	requireErrorCode(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/disable", nil),
+	requireErrorCode(t, f.adminClient.post("/admin/events/"+f.eventID+"/registration/disable", nil),
 		http.StatusConflict, "invalid_state_transition", "disabling an already disabled registration")
 }
 
@@ -45,18 +45,18 @@ func TestRegistrationDisabledToActiveBumpsBothVersions(t *testing.T) {
 	s := newStack(t)
 	f := s.seed(t)
 
-	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/disable", nil),
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID+"/registration/disable", nil),
 		http.StatusOK, "disabling the registration")
 	before := f.adminClient.registrationState(t, f.eventID)
 
 	member := s.session(t, f.member)
-	requireErrorCode(t, member.post("/admin/events/"+f.eventID.String()+"/registration/enable", nil),
+	requireErrorCode(t, member.post("/admin/events/"+f.eventID+"/registration/enable", nil),
 		http.StatusForbidden, "forbidden", "a participant enabling the registration")
 	if state := f.adminClient.registrationState(t, f.eventID).State; state != "DISABLED" {
 		t.Fatalf("the refused attempt moved the registration to %q", state)
 	}
 
-	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/enable", nil),
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID+"/registration/enable", nil),
 		http.StatusOK, "enabling the registration")
 	after := f.adminClient.registrationState(t, f.eventID)
 	if after.State != "ACTIVE" {
@@ -74,7 +74,7 @@ func TestRegistrationDisabledToActiveBumpsBothVersions(t *testing.T) {
 		t.Fatalf("reactivation raised no primary notification for the TODO status")
 	}
 
-	requireErrorCode(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/enable", nil),
+	requireErrorCode(t, f.adminClient.post("/admin/events/"+f.eventID+"/registration/enable", nil),
 		http.StatusConflict, "invalid_state_transition", "enabling an already active registration")
 }
 
@@ -87,14 +87,14 @@ func TestRegistrationURLChangeBumpsTheContentVersionAndCancelsPending(t *testing
 	cancelledBefore := s.notificationCount(t, f.eventID, "CANCELLED")
 
 	member := s.session(t, f.member)
-	requireErrorCode(t, member.patch("/admin/events/"+f.eventID.String()+"/registration",
+	requireErrorCode(t, member.patch("/admin/events/"+f.eventID+"/registration",
 		map[string]any{"url": "https://example.com/moved"}),
 		http.StatusForbidden, "forbidden", "a participant rewriting the registration link")
 	if after := f.adminClient.registrationState(t, f.eventID); after.URL != before.URL {
 		t.Fatalf("the refused attempt rewrote the link to %q", after.URL)
 	}
 
-	requireStatus(t, f.adminClient.patch("/admin/events/"+f.eventID.String()+"/registration",
+	requireStatus(t, f.adminClient.patch("/admin/events/"+f.eventID+"/registration",
 		map[string]any{"url": "https://example.com/moved"}), http.StatusOK, "rewriting the registration link")
 	after := f.adminClient.registrationState(t, f.eventID)
 	if after.URL != "https://example.com/moved" {
@@ -118,7 +118,7 @@ func TestUnchangedRegistrationLinkLeavesEveryVersionAlone(t *testing.T) {
 	f := s.seed(t)
 
 	before := f.adminClient.registrationState(t, f.eventID)
-	requireStatus(t, f.adminClient.patch("/admin/events/"+f.eventID.String()+"/registration",
+	requireStatus(t, f.adminClient.patch("/admin/events/"+f.eventID+"/registration",
 		map[string]any{"url": before.URL}), http.StatusOK, "resending the same registration link")
 
 	after := f.adminClient.registrationState(t, f.eventID)
@@ -135,9 +135,9 @@ func TestRegistrationOfAnArchivedEventIsFrozen(t *testing.T) {
 	before := f.adminClient.registrationState(t, f.eventID)
 	requireStatus(t, f.adminClient.archive(t, f.eventID), http.StatusOK, "archiving the event")
 
-	requireErrorCode(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/disable", nil),
+	requireErrorCode(t, f.adminClient.post("/admin/events/"+f.eventID+"/registration/disable", nil),
 		http.StatusConflict, "invalid_state_transition", "disabling the registration of an archived event")
-	requireErrorCode(t, f.adminClient.patch("/admin/events/"+f.eventID.String()+"/registration",
+	requireErrorCode(t, f.adminClient.patch("/admin/events/"+f.eventID+"/registration",
 		map[string]any{"url": "https://example.com/after-archiving"}),
 		http.StatusConflict, "invalid_state_transition", "rewriting the link of an archived event")
 

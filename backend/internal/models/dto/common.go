@@ -2,9 +2,10 @@ package dto
 
 import (
 	"encoding/json"
-	"github.com/GoatWhistle/timeline/internal/models"
 	"strings"
 	"time"
+
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type ErrorBody struct {

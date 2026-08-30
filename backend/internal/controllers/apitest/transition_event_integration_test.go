@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"testing"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 func TestEventUnpublishedToPublishedIsAdminOnlyAndNotRepeatable(t *testing.T) {
@@ -25,13 +23,13 @@ func TestEventUnpublishedToPublishedIsAdminOnlyAndNotRepeatable(t *testing.T) {
 	}
 
 	member := s.session(t, f.member)
-	requireErrorCode(t, member.post("/admin/events/"+draft.String()+"/publish", nil),
+	requireErrorCode(t, member.post("/admin/events/"+draft+"/publish", nil),
 		http.StatusForbidden, "forbidden", "a participant publishing an event")
 	if state := f.adminClient.eventState(t, draft).State; state != "UNPUBLISHED" {
 		t.Fatalf("the refused attempt moved the event to %q", state)
 	}
 
-	requireStatus(t, f.adminClient.post("/admin/events/"+draft.String()+"/publish", nil),
+	requireStatus(t, f.adminClient.post("/admin/events/"+draft+"/publish", nil),
 		http.StatusOK, "publishing the draft")
 	published := f.adminClient.eventState(t, draft)
 	if published.PublishedAt == nil {
@@ -41,7 +39,7 @@ func TestEventUnpublishedToPublishedIsAdminOnlyAndNotRepeatable(t *testing.T) {
 		t.Fatalf("a published event is missing from the catalog")
 	}
 
-	requireErrorCode(t, f.adminClient.post("/admin/events/"+draft.String()+"/publish", nil),
+	requireErrorCode(t, f.adminClient.post("/admin/events/"+draft+"/publish", nil),
 		http.StatusConflict, "invalid_state_transition", "publishing an already published event")
 }
 
@@ -72,9 +70,9 @@ func TestEventArchivedIsTerminalAndCancelsPending(t *testing.T) {
 
 	requireErrorCode(t, f.adminClient.archive(t, f.eventID),
 		http.StatusConflict, "invalid_state_transition", "archiving an already archived event")
-	requireErrorCode(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/publish", nil),
+	requireErrorCode(t, f.adminClient.post("/admin/events/"+f.eventID+"/publish", nil),
 		http.StatusConflict, "invalid_state_transition", "publishing an archived event")
-	requireErrorCode(t, f.adminClient.patch("/admin/events/"+f.eventID.String(),
+	requireErrorCode(t, f.adminClient.patch("/admin/events/"+f.eventID,
 		map[string]any{"title": "Renamed after archiving"}),
 		http.StatusConflict, "invalid_state_transition", "editing an archived event")
 }
@@ -106,7 +104,7 @@ func TestEventEndChangeBumpsScheduleVersionAndCancelsPending(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parsing the event end: %v", err)
 	}
-	requireStatus(t, f.adminClient.patch("/admin/events/"+f.eventID.String(),
+	requireStatus(t, f.adminClient.patch("/admin/events/"+f.eventID,
 		map[string]any{"end_at": end.Add(24 * time.Hour).Format(time.RFC3339)}),
 		http.StatusOK, "moving the event end later")
 
@@ -133,7 +131,7 @@ func TestEventEndCannotMoveBeforeTheRegistrationDeadline(t *testing.T) {
 		t.Fatalf("parsing the registration deadline: %v", err)
 	}
 
-	resp := f.adminClient.patch("/admin/events/"+f.eventID.String(),
+	resp := f.adminClient.patch("/admin/events/"+f.eventID,
 		map[string]any{"end_at": deadline.Add(-time.Hour).Format(time.RFC3339)})
 	if resp.Status == http.StatusOK {
 		t.Fatalf("the event end moved before the registration deadline: %s", resp.Body)
@@ -148,7 +146,7 @@ func TestEventEndCannotMoveBeforeTheRegistrationDeadline(t *testing.T) {
 	}
 }
 
-func containsEvent(items []catalogItem, id uuid.UUID) bool {
+func containsEvent(items []catalogItem, id string) bool {
 	for _, item := range items {
 		if item.ID == id {
 			return true

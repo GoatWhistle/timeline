@@ -44,6 +44,10 @@ func (s *SchedulerService) ResolveStatusDisplayID(ctx context.Context, displayID
 	return s.statuses.ResolveDisplayID(ctx, displayID)
 }
 
+func (s *SchedulerService) ResolveRuleDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
+	return s.rules.ResolveDisplayID(ctx, displayID)
+}
+
 func (s *SchedulerService) Run(ctx context.Context) (*ReconcileResult, error) {
 	result := &ReconcileResult{}
 	cursor := uuid.Nil

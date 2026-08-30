@@ -45,7 +45,7 @@ func (c *PublicProfileController) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	nickname := r.PathValue("nickname")
-	if !models.NicknameFormatValid(nickname) {
+	if c.svc == nil || !models.NicknameFormatValid(nickname) {
 		httpx.Error(w, r, models.NewNotFound("profile not found"))
 		return
 	}

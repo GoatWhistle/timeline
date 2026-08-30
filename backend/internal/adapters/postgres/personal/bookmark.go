@@ -57,7 +57,7 @@ func (r *Bookmarks) IDs(ctx context.Context, userID uuid.UUID, eventIDs []uuid.U
 	return marked, mapError(rows.Err())
 }
 
-const bookmarkColumns = `e.id, e.title, e.description, e.organizer, e.website_url,
+const bookmarkColumns = `e.display_id, e.title, e.description, e.organizer, e.website_url,
 	e.kind, e.format, e.origin, e.country_code, e.city,
 	e.track, e.prize_pool, e.prize_currency, e.team_size_max, e.start_at, e.end_at,
 	(p.id IS NOT NULL) AS joined`

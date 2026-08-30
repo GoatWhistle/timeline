@@ -73,7 +73,7 @@ func TestCSRFGuardsEveryMutatingMethodAndNotReads(t *testing.T) {
 		path   string
 		body   any
 	}{
-		{"POST", http.MethodPost, "/events/" + f.eventID.String() + "/registration/done", nil},
+		{"POST", http.MethodPost, "/events/" + f.eventID + "/registration/done", nil},
 		{"PATCH", http.MethodPatch, "/me", map[string]any{"last_name": "Forged"}},
 		{"DELETE", http.MethodDelete, "/me/telegram", nil},
 	} {
@@ -83,7 +83,7 @@ func TestCSRFGuardsEveryMutatingMethodAndNotReads(t *testing.T) {
 		})
 	}
 
-	for _, path := range []string{"/me", "/me/events", "/catalog", "/events/" + f.eventID.String()} {
+	for _, path := range []string{"/me", "/me/events", "/catalog", "/events/" + f.eventID} {
 		t.Run("GET "+path, func(t *testing.T) {
 			requireStatus(t, member.get(path), http.StatusOK, "a read of "+path)
 		})

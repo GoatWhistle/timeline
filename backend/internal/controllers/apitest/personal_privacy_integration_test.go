@@ -22,33 +22,33 @@ func TestPersonalRecordsAreInvisibleToAnotherParticipant(t *testing.T) {
 	f.adminClient.assign(t, f.eventID, other.ID)
 	intruder := s.session(t, other)
 
-	tasks := intruder.get("/me/events/" + f.eventID.String() + "/tasks")
+	tasks := intruder.get("/me/events/" + f.eventID + "/tasks")
 	requireStatus(t, tasks, http.StatusOK, "another participant lists tasks")
-	if strings.Contains(string(tasks.Body), records.taskID.String()) {
+	if strings.Contains(string(tasks.Body), records.taskID) {
 		t.Fatalf("the task of another user leaked into the listing: %s", tasks.Body)
 	}
 	if !containsAll(string(tasks.Body), `"items":[]`) {
 		t.Fatalf("another participant sees a non-empty task list: %s", tasks.Body)
 	}
 
-	note := intruder.get("/me/events/" + f.eventID.String() + "/note")
+	note := intruder.get("/me/events/" + f.eventID + "/note")
 	requireStatus(t, note, http.StatusOK, "another participant reads the note")
 	if strings.Contains(string(note.Body), personalNoteBody) {
 		t.Fatalf("the private note of another user leaked: %s", note.Body)
 	}
 
-	artifacts := intruder.get("/me/events/" + f.eventID.String() + "/artifacts")
+	artifacts := intruder.get("/me/events/" + f.eventID + "/artifacts")
 	requireStatus(t, artifacts, http.StatusOK, "another participant lists artifacts")
-	if strings.Contains(string(artifacts.Body), records.artifactID.String()) {
+	if strings.Contains(string(artifacts.Body), records.artifactID) {
 		t.Fatalf("the artifact of another user leaked: %s", artifacts.Body)
 	}
 
-	outcome := intruder.get("/me/events/" + f.eventID.String() + "/outcome")
+	outcome := intruder.get("/me/events/" + f.eventID + "/outcome")
 	requireStatus(t, outcome, http.StatusNotFound, "another participant reads the outcome")
 
 	bookmarks := intruder.get("/me/bookmarks")
 	requireStatus(t, bookmarks, http.StatusOK, "another participant lists bookmarks")
-	if strings.Contains(string(bookmarks.Body), f.eventID.String()) {
+	if strings.Contains(string(bookmarks.Body), f.eventID) {
 		t.Fatalf("the bookmark of another user leaked: %s", bookmarks.Body)
 	}
 }
@@ -64,9 +64,9 @@ func TestForeignPersonalRecordAnswersNotFoundNotForbidden(t *testing.T) {
 	f.adminClient.assign(t, f.eventID, other.ID)
 	intruder := s.session(t, other)
 
-	foreignTask := intruder.patch("/me/tasks/"+records.taskID.String(),
+	foreignTask := intruder.patch("/me/tasks/"+records.taskID,
 		map[string]any{"title": "Taken over"})
-	missingTask := intruder.patch("/me/tasks/"+uuid.NewString(),
+	missingTask := intruder.patch("/me/tasks/"+missingTaskID,
 		map[string]any{"title": "Taken over"})
 	requireStatus(t, foreignTask, http.StatusNotFound, "patching a foreign task")
 	requireStatus(t, missingTask, http.StatusNotFound, "patching a missing task")
@@ -75,13 +75,13 @@ func TestForeignPersonalRecordAnswersNotFoundNotForbidden(t *testing.T) {
 			foreignTask.Body, missingTask.Body)
 	}
 
-	requireStatus(t, intruder.delete("/me/tasks/"+records.taskID.String()),
+	requireStatus(t, intruder.delete("/me/tasks/"+records.taskID),
 		http.StatusNotFound, "deleting a foreign task")
-	requireStatus(t, intruder.delete("/me/artifacts/"+records.artifactID.String()),
+	requireStatus(t, intruder.delete("/me/artifacts/"+records.artifactID),
 		http.StatusNotFound, "deleting a foreign artifact")
 
-	stillThere := owner.get("/me/events/" + f.eventID.String() + "/tasks")
-	if !strings.Contains(string(stillThere.Body), records.taskID.String()) {
+	stillThere := owner.get("/me/events/" + f.eventID + "/tasks")
+	if !strings.Contains(string(stillThere.Body), records.taskID) {
 		t.Fatalf("the owner lost their task to a foreign request: %s", stillThere.Body)
 	}
 }
@@ -93,23 +93,23 @@ func TestAdministratorHasNoPrivilegeInThePersonalLayer(t *testing.T) {
 	owner := s.session(t, f.member)
 	records := owner.seedPersonal(t, f.eventID)
 
-	tasks := f.adminClient.get("/me/events/" + f.eventID.String() + "/tasks")
+	tasks := f.adminClient.get("/me/events/" + f.eventID + "/tasks")
 	requireStatus(t, tasks, http.StatusOK, "the administrator lists tasks of an event")
-	if strings.Contains(string(tasks.Body), records.taskID.String()) {
+	if strings.Contains(string(tasks.Body), records.taskID) {
 		t.Fatalf("the administrator sees a participant task: %s", tasks.Body)
 	}
 
-	note := f.adminClient.get("/me/events/" + f.eventID.String() + "/note")
+	note := f.adminClient.get("/me/events/" + f.eventID + "/note")
 	if strings.Contains(string(note.Body), personalNoteBody) {
 		t.Fatalf("the administrator sees a private note: %s", note.Body)
 	}
 
-	requireStatus(t, f.adminClient.patch("/me/tasks/"+records.taskID.String(),
+	requireStatus(t, f.adminClient.patch("/me/tasks/"+records.taskID,
 		map[string]any{"done": true}), http.StatusNotFound,
 		"the administrator patches a participant task")
-	requireStatus(t, f.adminClient.delete("/me/tasks/"+records.taskID.String()),
+	requireStatus(t, f.adminClient.delete("/me/tasks/"+records.taskID),
 		http.StatusNotFound, "the administrator deletes a participant task")
-	requireStatus(t, f.adminClient.get("/me/events/"+f.eventID.String()+"/outcome"),
+	requireStatus(t, f.adminClient.get("/me/events/"+f.eventID+"/outcome"),
 		http.StatusNotFound, "the administrator reads a participant outcome")
 }
 
@@ -123,19 +123,19 @@ func TestPersonalRecordsReachNeitherAuditLogNorNotifications(t *testing.T) {
 	owner := s.session(t, f.member)
 	records := owner.seedPersonal(t, f.eventID)
 
-	requireStatus(t, owner.patch("/me/tasks/"+records.taskID.String(),
+	requireStatus(t, owner.patch("/me/tasks/"+records.taskID,
 		map[string]any{"done": true}), http.StatusOK, "marking the task done")
-	requireStatus(t, owner.patch("/me/tasks/"+records.taskID.String(),
+	requireStatus(t, owner.patch("/me/tasks/"+records.taskID,
 		map[string]any{"done": false}), http.StatusOK, "marking the task undone")
-	requireStatus(t, owner.delete("/me/tasks/"+records.taskID.String()),
+	requireStatus(t, owner.delete("/me/tasks/"+records.taskID),
 		http.StatusNoContent, "deleting the task")
-	requireStatus(t, owner.put("/me/events/"+f.eventID.String()+"/note",
+	requireStatus(t, owner.put("/me/events/"+f.eventID+"/note",
 		map[string]any{"body": ""}), http.StatusOK, "clearing the note")
-	requireStatus(t, owner.delete("/me/artifacts/"+records.artifactID.String()),
+	requireStatus(t, owner.delete("/me/artifacts/"+records.artifactID),
 		http.StatusNoContent, "deleting the artifact")
-	requireStatus(t, owner.delete("/me/events/"+f.eventID.String()+"/outcome"),
+	requireStatus(t, owner.delete("/me/events/"+f.eventID+"/outcome"),
 		http.StatusNoContent, "deleting the outcome")
-	requireStatus(t, owner.delete("/me/bookmarks/"+f.eventID.String()),
+	requireStatus(t, owner.delete("/me/bookmarks/"+f.eventID),
 		http.StatusNoContent, "removing the bookmark")
 
 	if after := s.countRows(t, "audit_log"); after != auditBefore {
@@ -175,4 +175,50 @@ func (s *stack) auditMentions(t *testing.T, needle string) bool {
 		t.Fatalf("searching the audit log: %v", err)
 	}
 	return total > 0
+}
+
+func TestPublicProfileShowsOnlyEventsTheOwnerAllowed(t *testing.T) {
+	s := newStack(t)
+	f := s.seed(t)
+
+	member := s.session(t, f.member)
+	requireStatus(t, member.patch("/me", map[string]any{
+		"nickname": "consent", "profile_public": true,
+	}), http.StatusOK, "opening the profile")
+
+	silent := s.anonymous(t, "/profiles/consent")
+	requireStatus(t, silent, http.StatusOK, "reading a profile that allowed nothing")
+	if strings.Contains(string(silent.Body), f.eventID) {
+		t.Fatalf("an event nobody allowed on the profile is published anyway: %s", silent.Body)
+	}
+	if !containsAll(string(silent.Body), `"events":[]`) {
+		t.Fatalf("the profile lists events without the owner's consent: %s", silent.Body)
+	}
+
+	s.showOnProfile(t, f.member.ID)
+	allowed := s.anonymous(t, "/profiles/consent")
+	requireStatus(t, allowed, http.StatusOK, "reading a profile after the owner allowed the event")
+	if !containsAll(string(allowed.Body), f.eventID) {
+		t.Fatalf("an allowed event is still hidden: %s", allowed.Body)
+	}
+}
+
+func TestPublicProfileHidesUnpublishedAndArchivedEvents(t *testing.T) {
+	s := newStack(t)
+	f := s.seed(t)
+
+	member := s.session(t, f.member)
+	requireStatus(t, member.patch("/me", map[string]any{
+		"nickname": "lifecycle", "profile_public": true,
+	}), http.StatusOK, "opening the profile")
+	s.showOnProfile(t, f.member.ID)
+
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID+"/archive", nil),
+		http.StatusOK, "archiving the event")
+
+	page := s.anonymous(t, "/profiles/lifecycle")
+	requireStatus(t, page, http.StatusOK, "reading the profile after the event was archived")
+	if strings.Contains(string(page.Body), f.eventID) {
+		t.Fatalf("an archived event stays on the public profile: %s", page.Body)
+	}
 }

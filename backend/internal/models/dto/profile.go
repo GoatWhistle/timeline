@@ -1,10 +1,9 @@
 package dto
 
 import (
-	"github.com/GoatWhistle/timeline/internal/models"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type MeResponse struct {
@@ -118,7 +117,7 @@ type PublicProfileResponse struct {
 }
 
 type PublicProfileEvent struct {
-	ID      uuid.UUID `json:"id"`
+	ID      string    `json:"id" example:"ev_gma9hq8a96q5"`
 	Title   string    `json:"title" example:"Timeline Hack"`
 	StartAt time.Time `json:"start_at"`
 	EndAt   time.Time `json:"end_at"`

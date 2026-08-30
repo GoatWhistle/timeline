@@ -12,15 +12,15 @@ import (
 )
 
 type joinedParticipant struct {
-	ID                  uuid.UUID `json:"id"`
-	EventID             uuid.UUID `json:"event_id"`
-	TeamRole            *string   `json:"team_role"`
-	ParticipationStatus string    `json:"participation_status"`
+	ID                  string  `json:"id"`
+	EventID             string  `json:"event_id"`
+	TeamRole            *string `json:"team_role"`
+	ParticipationStatus string  `json:"participation_status"`
 }
 
-func (c *client) join(t *testing.T, id uuid.UUID, body map[string]any) response {
+func (c *client) join(t *testing.T, id string, body map[string]any) response {
 	t.Helper()
-	return c.post("/events/"+id.String()+"/join", body)
+	return c.post("/events/"+id+"/join", body)
 }
 
 func TestSelfSignupCreatesAnAssignmentWithTheOwnRole(t *testing.T) {
@@ -50,9 +50,9 @@ func TestSelfSignupCreatesAnAssignmentWithTheOwnRole(t *testing.T) {
 		}
 	}
 
-	roster := f.adminClient.get("/admin/events/" + f.eventID.String() + "/participants")
+	roster := f.adminClient.get("/admin/events/" + f.eventID + "/participants")
 	requireStatus(t, roster, http.StatusOK, "listing the roster after a self-signup")
-	if !containsAll(string(roster.Body), f.outsider.ID.String(), "Designer") {
+	if !containsAll(string(roster.Body), f.outsider.ID, "Designer") {
 		t.Fatalf("the self-signed participant is missing from the roster: %s", roster.Body)
 	}
 
@@ -60,7 +60,8 @@ func TestSelfSignupCreatesAnAssignmentWithTheOwnRole(t *testing.T) {
 	if err := s.db.Pool().QueryRow(context.Background(), `
 		SELECT count(*) FROM registration_statuses rs
 		JOIN event_participants p ON p.id = rs.participant_id
-		WHERE p.user_id = $1 AND rs.status = 'TODO'`, f.outsider.ID).Scan(&todo); err != nil {
+		WHERE p.user_id = (SELECT id FROM users WHERE display_id = $1)
+			AND rs.status = 'TODO'`, f.outsider.ID).Scan(&todo); err != nil {
 		t.Fatalf("counting the registration statuses: %v", err)
 	}
 	if todo != 1 {
@@ -70,11 +71,12 @@ func TestSelfSignupCreatesAnAssignmentWithTheOwnRole(t *testing.T) {
 	var actor uuid.UUID
 	if err := s.db.Pool().QueryRow(context.Background(), `
 		SELECT actor_user_id FROM audit_log
-		WHERE entity_type = 'EVENT_PARTICIPANT' AND entity_id = $1
+		WHERE entity_type = 'EVENT_PARTICIPANT'
+			AND entity_id = (SELECT id FROM event_participants WHERE display_id = $1)
 		ORDER BY created_at DESC LIMIT 1`, created.ID).Scan(&actor); err != nil {
 		t.Fatalf("reading the audit record: %v", err)
 	}
-	if actor != f.outsider.ID {
+	if actor != s.userUUID(t, f.outsider.ID) {
 		t.Fatalf("the audit record names %s instead of the joining user %s", actor, f.outsider.ID)
 	}
 }
@@ -95,7 +97,9 @@ func TestSelfSignupTwiceConflictsAndCreatesNoSecondRow(t *testing.T) {
 
 	var rows int
 	if err := s.db.Pool().QueryRow(context.Background(),
-		`SELECT count(*) FROM event_participants WHERE event_id = $1 AND user_id = $2`,
+		`SELECT count(*) FROM event_participants
+		 WHERE event_id = (SELECT id FROM events WHERE display_id = $1)
+		   AND user_id = (SELECT id FROM users WHERE display_id = $2)`,
 		f.eventID, f.outsider.ID).Scan(&rows); err != nil {
 		t.Fatalf("counting the participant rows: %v", err)
 	}
@@ -120,7 +124,9 @@ func TestSelfSignupIntoAFinishedEventIsRefused(t *testing.T) {
 
 	var rows int
 	if err := s.db.Pool().QueryRow(context.Background(),
-		`SELECT count(*) FROM event_participants WHERE event_id = $1 AND user_id = $2`,
+		`SELECT count(*) FROM event_participants
+		 WHERE event_id = (SELECT id FROM events WHERE display_id = $1)
+		   AND user_id = (SELECT id FROM users WHERE display_id = $2)`,
 		finished, f.outsider.ID).Scan(&rows); err != nil {
 		t.Fatalf("counting the participant rows: %v", err)
 	}

@@ -207,10 +207,13 @@ func QueryTrimmed(r *http.Request, name string) string {
 
 func ClientIP(r *http.Request) string {
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		if idx := strings.IndexByte(xff, ','); idx > 0 {
-			return strings.TrimSpace(xff[:idx])
+		if idx := strings.LastIndexByte(xff, ','); idx >= 0 {
+			if last := strings.TrimSpace(xff[idx+1:]); last != "" {
+				return last
+			}
+		} else if single := strings.TrimSpace(xff); single != "" {
+			return single
 		}
-		return strings.TrimSpace(xff)
 	}
 	if r.RemoteAddr == "" {
 		return ""

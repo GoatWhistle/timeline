@@ -1,8 +1,9 @@
 package dto
 
 import (
-	"github.com/GoatWhistle/timeline/internal/models"
 	"time"
+
+	"github.com/GoatWhistle/timeline/internal/models"
 
 	"github.com/google/uuid"
 )
@@ -135,7 +136,7 @@ type WorkerHeartbeatResponse struct {
 }
 
 type QueueEntryResponse struct {
-	ID               uuid.UUID                 `json:"id"`
+	ID               string                    `json:"id" example:"nt_42ej2s5gh7e8"`
 	NotificationType models.NotificationType   `json:"notification_type"`
 	Status           models.NotificationStatus `json:"status"`
 	RequestedChannel models.Channel            `json:"requested_channel" enums:"TELEGRAM,EMAIL"`

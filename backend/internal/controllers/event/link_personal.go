@@ -43,8 +43,9 @@ func (c *ResourceLinkController) ListPersonal(w http.ResponseWriter, r *http.Req
 
 // @Summary		Add an own link
 // @Description	Saves a private link of the caller for one event. The address is validated the
-// @Description	same way as everywhere else: it must parse, and schemes that execute in the
-// @Description	browser are rejected. HTTPS is not required.
+// @Description	same way as everywhere else: it must parse, and the scheme must be on the
+// @Description	accepted list, so a scheme that executes in the browser or hands the address
+// @Description	to an operating system handler is rejected. HTTPS is not required.
 // @Tags			personal
 // @Accept			json
 // @Produce		json

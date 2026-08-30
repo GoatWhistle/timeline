@@ -74,9 +74,12 @@ func (c *ResourceLinkController) guard(w http.ResponseWriter, r *http.Request, s
 // @Description	address supplied here can never make the server call out (plan IVa.4).
 // @Description
 // @Description	The scheme is not restricted to HTTPS (specification 5.1): a plain http
-// @Description	address, an internal host or a tg:// address is stored as given. Only schemes
-// @Description	that execute in the browser are rejected. The client marks a non-HTTPS link
-// @Description	but never blocks it.
+// @Description	address, an internal host or a tg:// address is stored as given. The scheme
+// @Description	must be on the accepted list: http, https, ftp, ftps, mailto, tel, tg,
+// @Description	matrix, webcal, irc, ircs and xmpp. Anything else is rejected, so a scheme
+// @Description	that executes in the browser or hands the address to an operating system
+// @Description	handler can never be stored. The client marks a non-HTTPS link but never
+// @Description	blocks it.
 // @Tags			events
 // @Produce		json
 // @Security		CookieAuth
@@ -115,7 +118,7 @@ func (c *ResourceLinkController) List(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
+// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		dto.CreateResourceLinkRequest	true	"Link"
 // @Success		201		{object}	models.ResourceLink
 // @Failure		400		{object}	dto.ErrorResponse	"bad address, executable scheme or a foreign stage"
@@ -160,8 +163,8 @@ func (c *ResourceLinkController) Create(w http.ResponseWriter, r *http.Request) 
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			linkId	path		string								true	"Link identifier"	example(rl_42ej2s5gh7e8)
+// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
+// @Param			linkId	path		string							true	"Link identifier"	example(rl_42ej2s5gh7e8)
 // @Param			request	body		dto.UpdateResourceLinkRequest	true	"Fields to change"
 // @Success		200		{object}	models.ResourceLink
 // @Failure		400		{object}	dto.ErrorResponse

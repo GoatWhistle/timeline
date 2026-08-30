@@ -15,10 +15,10 @@ import (
 
 type feedPage struct {
 	Items []struct {
-		ID       uuid.UUID `json:"id"`
-		Type     string    `json:"type"`
-		Severity string    `json:"severity"`
-		Read     bool      `json:"read"`
+		ID       string `json:"id"`
+		Type     string `json:"type"`
+		Severity string `json:"severity"`
+		Read     bool   `json:"read"`
 	} `json:"items"`
 	Meta struct {
 		Total int64 `json:"total"`
@@ -39,11 +39,12 @@ func TestFeedNeverShowsAnotherPersonsEvents(t *testing.T) {
 	owner := s.register(t, "feed-owner@example.com")
 	stranger := s.register(t, "feed-stranger@example.com")
 
+	ownerUUID := s.userUUID(t, owner.ID)
 	personal := s.emit(t, svcrealtime.EmitRequest{
 		Type:     models.EventRegistrationReminder,
 		Severity: models.SeverityInfo,
 		Audience: models.AudienceUser,
-		UserID:   &owner.ID,
+		UserID:   &ownerUUID,
 		Payload:  map[string]any{"subject": "a deadline is close"},
 	})
 	if personal == nil {
@@ -55,7 +56,7 @@ func TestFeedNeverShowsAnotherPersonsEvents(t *testing.T) {
 	resp := ownerClient.get("/me/events-feed")
 	requireStatus(t, resp, http.StatusOK, "reading the owner feed")
 	resp.decode(t, &mine)
-	if mine.Meta.Total != 1 || len(mine.Items) != 1 || mine.Items[0].ID != personal.ID {
+	if mine.Meta.Total != 1 || len(mine.Items) != 1 || mine.Items[0].ID != personal.DisplayID {
 		t.Fatalf("the owner did not receive their own event: %s", resp.Body)
 	}
 
@@ -113,17 +114,18 @@ func TestMarkReadIgnoresInvisibleIdentifiers(t *testing.T) {
 	owner := s.register(t, "read-owner@example.com")
 	stranger := s.register(t, "read-stranger@example.com")
 
+	ownerUUID := s.userUUID(t, owner.ID)
 	hidden := s.emit(t, svcrealtime.EmitRequest{
 		Type:     models.EventRegistrationReminder,
 		Severity: models.SeverityInfo,
 		Audience: models.AudienceUser,
-		UserID:   &owner.ID,
+		UserID:   &ownerUUID,
 		Payload:  map[string]any{"subject": "a deadline is close"},
 	})
 
 	strangerClient := s.session(t, stranger)
 	resp := strangerClient.post("/me/events-feed/read",
-		map[string]any{"ids": []uuid.UUID{hidden.ID}})
+		map[string]any{"ids": []string{hidden.DisplayID}})
 	requireStatus(t, resp, http.StatusOK, "marking an invisible event read")
 
 	var counter struct {
@@ -141,12 +143,13 @@ func TestMarkReadIgnoresInvisibleIdentifiers(t *testing.T) {
 func TestUnreadCountFallsAfterMarkingRead(t *testing.T) {
 	s := newStack(t)
 	owner := s.register(t, "unread-owner@example.com")
+	ownerUUID := s.userUUID(t, owner.ID)
 	for i := 0; i < 3; i++ {
 		s.emit(t, svcrealtime.EmitRequest{
 			Type:     models.EventRegistrationReminder,
 			Severity: models.SeverityInfo,
 			Audience: models.AudienceUser,
-			UserID:   &owner.ID,
+			UserID:   &ownerUUID,
 			Payload:  map[string]any{"index": i},
 		})
 	}

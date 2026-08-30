@@ -6,19 +6,17 @@ import (
 	"net/http"
 	"testing"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type catalogItem struct {
-	ID              uuid.UUID `json:"id"`
-	Title           string    `json:"title"`
-	Kind            string    `json:"kind"`
-	Format          string    `json:"format"`
-	Origin          string    `json:"origin"`
-	EffectiveFormat string    `json:"effective_format"`
-	State           string    `json:"state"`
-	Joined          bool      `json:"joined"`
+	ID              string `json:"id"`
+	Title           string `json:"title"`
+	Kind            string `json:"kind"`
+	Format          string `json:"format"`
+	Origin          string `json:"origin"`
+	EffectiveFormat string `json:"effective_format"`
+	State           string `json:"state"`
+	Joined          bool   `json:"joined"`
 	OfflineStages   []struct {
 		Name  string `json:"name"`
 		Place struct {
@@ -52,10 +50,10 @@ func catalogTitles(items []catalogItem) map[string]catalogItem {
 	return out
 }
 
-func (c *client) setEventTaxonomy(t *testing.T, id uuid.UUID, patch map[string]any) {
+func (c *client) setEventTaxonomy(t *testing.T, id string, patch map[string]any) {
 	t.Helper()
-	requireStatus(t, c.patch("/admin/events/"+id.String(), patch),
-		http.StatusOK, "patching event "+id.String())
+	requireStatus(t, c.patch("/admin/events/"+id, patch),
+		http.StatusOK, "patching event "+id)
 }
 
 func TestCatalogShowsOnlyPublishedEventsWithoutNotes(t *testing.T) {
@@ -66,7 +64,7 @@ func TestCatalogShowsOnlyPublishedEventsWithoutNotes(t *testing.T) {
 	unpublished := f.adminClient.createEvent(t, "Unpublished draft", start)
 	archived := f.adminClient.createEvent(t, "Archived event", start)
 	f.adminClient.publish(t, archived)
-	requireStatus(t, f.adminClient.post("/admin/events/"+archived.String()+"/archive", nil),
+	requireStatus(t, f.adminClient.post("/admin/events/"+archived+"/archive", nil),
 		http.StatusOK, "archiving the event")
 
 	for _, reader := range []*client{s.session(t, f.outsider), f.adminClient} {
@@ -134,7 +132,7 @@ func TestCatalogOfflineFilterMatchesStagesNotOnlyTheEvent(t *testing.T) {
 
 	hybrid := f.adminClient.createEvent(t, "Online with an offline final", start)
 	f.adminClient.publish(t, hybrid)
-	requireStatus(t, f.adminClient.post("/admin/events/"+hybrid.String()+"/stages",
+	requireStatus(t, f.adminClient.post("/admin/events/"+hybrid+"/stages",
 		map[string]any{
 			"name":         "Final",
 			"type":         "DEMO",

@@ -5,18 +5,16 @@ package apitest_test
 import (
 	"net/http"
 	"testing"
-
-	"github.com/google/uuid"
 )
 
 type sessionItem struct {
-	ID         uuid.UUID `json:"id"`
-	UserAgent  *string   `json:"user_agent"`
-	IP         *string   `json:"ip"`
-	Current    bool      `json:"current"`
-	CreatedAt  string    `json:"created_at"`
-	LastUsedAt *string   `json:"last_used_at"`
-	ExpiresAt  string    `json:"expires_at"`
+	ID         string  `json:"id"`
+	UserAgent  *string `json:"user_agent"`
+	IP         *string `json:"ip"`
+	Current    bool    `json:"current"`
+	CreatedAt  string  `json:"created_at"`
+	LastUsedAt *string `json:"last_used_at"`
+	ExpiresAt  string  `json:"expires_at"`
 }
 
 func (c *client) sessions(t *testing.T) []sessionItem {
@@ -78,7 +76,7 @@ func TestSessionListNeverExposesAnotherAccountsDevices(t *testing.T) {
 	outsider := s.session(t, f.outsider)
 	admin := f.adminClient
 
-	memberIDs := make(map[uuid.UUID]bool)
+	memberIDs := make(map[string]bool)
 	for _, item := range member.sessions(t) {
 		memberIDs[item.ID] = true
 	}
@@ -110,7 +108,7 @@ func TestRevokingOneSessionLeavesTheOtherDevicesSignedIn(t *testing.T) {
 	drop := s.session(t, f.member)
 	doomed := currentSession(t, drop.sessions(t))
 
-	requireStatus(t, keep.delete("/me/sessions/"+doomed.ID.String()), http.StatusOK,
+	requireStatus(t, keep.delete("/me/sessions/"+doomed.ID), http.StatusOK,
 		"revoking the other device")
 
 	requireStatus(t, drop.post("/auth/refresh", nil), http.StatusUnauthorized,
@@ -134,7 +132,7 @@ func TestRevokingAnotherAccountsSessionIsNotFound(t *testing.T) {
 	victim := currentSession(t, member.sessions(t))
 
 	for name, attacker := range map[string]*client{"an outsider": outsider, "an administrator": f.adminClient} {
-		resp := attacker.delete("/me/sessions/" + victim.ID.String())
+		resp := attacker.delete("/me/sessions/" + victim.ID)
 		requireStatus(t, resp, http.StatusNotFound,
 			"revoking the member's session as "+name)
 		if code := resp.errorCode(t); code != "not_found" {
@@ -151,7 +149,7 @@ func TestRevokingAnUnknownSessionIsNotFound(t *testing.T) {
 	f := s.seed(t)
 	member := s.session(t, f.member)
 
-	requireStatus(t, member.delete("/me/sessions/"+uuid.NewString()), http.StatusNotFound,
+	requireStatus(t, member.delete("/me/sessions/"+missingSessID), http.StatusNotFound,
 		"revoking a session that does not exist")
 	requireStatus(t, member.delete("/me/sessions/not-a-uuid"), http.StatusBadRequest,
 		"revoking a session with a malformed identifier")
@@ -165,7 +163,7 @@ func TestRevokingTheCurrentSessionEndsItAndClearsTheCookies(t *testing.T) {
 	other := s.session(t, f.member)
 	own := currentSession(t, member.sessions(t))
 
-	requireStatus(t, member.delete("/me/sessions/"+own.ID.String()), http.StatusOK,
+	requireStatus(t, member.delete("/me/sessions/"+own.ID), http.StatusOK,
 		"revoking the caller's own session")
 	if left := member.cookie(refreshCookie); left != "" {
 		t.Fatalf("revoking the current session left the refresh cookie in place: %q", left)
@@ -185,7 +183,7 @@ func TestRevokingAnAlreadyRevokedSessionSucceeds(t *testing.T) {
 	drop := s.session(t, f.member)
 	doomed := currentSession(t, drop.sessions(t))
 
-	path := "/me/sessions/" + doomed.ID.String()
+	path := "/me/sessions/" + doomed.ID
 	requireStatus(t, keep.delete(path), http.StatusOK, "revoking the other device")
 	requireStatus(t, keep.delete(path), http.StatusOK, "revoking the same device again")
 }

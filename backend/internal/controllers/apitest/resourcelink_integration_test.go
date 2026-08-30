@@ -7,14 +7,12 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/google/uuid"
 )
 
-func (c *client) createStage(t *testing.T, eventID uuid.UUID, name string) uuid.UUID {
+func (c *client) createStage(t *testing.T, eventID string, name string) string {
 	t.Helper()
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
-	resp := c.post("/admin/events/"+eventID.String()+"/stages", map[string]any{
+	resp := c.post("/admin/events/"+eventID+"/stages", map[string]any{
 		"name":     name,
 		"type":     "SUBMISSION",
 		"start_at": start.Format(time.RFC3339),
@@ -22,15 +20,15 @@ func (c *client) createStage(t *testing.T, eventID uuid.UUID, name string) uuid.
 	})
 	requireStatus(t, resp, http.StatusCreated, "creating stage "+name)
 	var body struct {
-		ID uuid.UUID `json:"id"`
+		ID string `json:"id"`
 	}
 	resp.decode(t, &body)
 	return body.ID
 }
 
-func (c *client) createLink(t *testing.T, eventID uuid.UUID, payload map[string]any) response {
+func (c *client) createLink(t *testing.T, eventID string, payload map[string]any) response {
 	t.Helper()
-	return c.post("/events/"+eventID.String()+"/links", payload)
+	return c.post("/events/"+eventID+"/links", payload)
 }
 
 func TestResourceLinkRejectsStageOfAnotherEvent(t *testing.T) {
@@ -42,13 +40,13 @@ func TestResourceLinkRejectsStageOfAnotherEvent(t *testing.T) {
 	resp := f.adminClient.createLink(t, f.eventID, map[string]any{
 		"kind":     "SUBMISSION",
 		"url":      "https://example.org/submit",
-		"stage_id": foreignStage.String(),
+		"stage_id": foreignStage,
 	})
 	if resp.Status != http.StatusBadRequest && resp.Status != http.StatusNotFound {
 		t.Fatalf("a stage of another event was accepted: status %d body %s", resp.Status, resp.Body)
 	}
 
-	list := f.adminClient.get("/events/" + f.eventID.String() + "/links")
+	list := f.adminClient.get("/events/" + f.eventID + "/links")
 	requireStatus(t, list, http.StatusOK, "listing links")
 	if strings.Contains(string(list.Body), "example.org/submit") {
 		t.Fatalf("the rejected link was stored anyway: %s", list.Body)
@@ -68,12 +66,12 @@ func TestResourceLinkCannotBeMovedToAForeignStage(t *testing.T) {
 	created := f.adminClient.createLink(t, f.eventID, map[string]any{
 		"kind":     "SUBMISSION",
 		"url":      "https://example.org/submit",
-		"stage_id": ownStage.String(),
+		"stage_id": ownStage,
 	})
 	requireStatus(t, created, http.StatusCreated, "creating a stage link")
 	var link struct {
-		ID      uuid.UUID  `json:"id"`
-		StageID *uuid.UUID `json:"stage_id"`
+		ID      string  `json:"id"`
+		StageID *string `json:"stage_id"`
 	}
 	created.decode(t, &link)
 	if link.StageID == nil || *link.StageID != ownStage {
@@ -81,15 +79,15 @@ func TestResourceLinkCannotBeMovedToAForeignStage(t *testing.T) {
 	}
 
 	moved := f.adminClient.patch(
-		"/events/"+f.eventID.String()+"/links/"+link.ID.String(),
-		map[string]any{"stage_id": foreignStage.String()})
+		"/events/"+f.eventID+"/links/"+link.ID,
+		map[string]any{"stage_id": foreignStage})
 	if moved.Status != http.StatusBadRequest && moved.Status != http.StatusNotFound {
 		t.Fatalf("a link was moved to a stage of another event: status %d body %s",
 			moved.Status, moved.Body)
 	}
 
-	after := f.adminClient.get("/events/" + f.eventID.String() + "/links")
-	if strings.Contains(string(after.Body), foreignStage.String()) {
+	after := f.adminClient.get("/events/" + f.eventID + "/links")
+	if strings.Contains(string(after.Body), foreignStage) {
 		t.Fatalf("the link now points at a foreign stage: %s", after.Body)
 	}
 }
@@ -134,7 +132,7 @@ func TestResourceLinkAcceptsAnyNonExecutableScheme(t *testing.T) {
 		requireStatus(t, resp, http.StatusCreated, "storing "+good)
 	}
 
-	list := f.adminClient.get("/events/" + f.eventID.String() + "/links")
+	list := f.adminClient.get("/events/" + f.eventID + "/links")
 	if !containsAll(string(list.Body),
 		"http://example.org/rules", "tg://resolve?domain=hackathon_crew") {
 		t.Fatalf("a non-HTTPS address was not stored verbatim: %s", list.Body)
@@ -153,7 +151,7 @@ func TestResourceLinkPinnedComeFirst(t *testing.T) {
 		"is_pinned": true, "sort_order": 9,
 	}), http.StatusCreated, "creating a pinned link")
 
-	list := f.adminClient.get("/events/" + f.eventID.String() + "/links")
+	list := f.adminClient.get("/events/" + f.eventID + "/links")
 	requireStatus(t, list, http.StatusOK, "listing links")
 	body := string(list.Body)
 	if strings.Index(body, "example.org/rules") > strings.Index(body, "example.org/data") {
@@ -174,7 +172,7 @@ func TestResourceLinksAreAdministrative(t *testing.T) {
 		"kind": "RULES", "url": "https://example.org/rules",
 	}), http.StatusCreated, "an administrator creating an event link")
 
-	requireStatus(t, member.get("/events/"+f.eventID.String()+"/links"),
+	requireStatus(t, member.get("/events/"+f.eventID+"/links"),
 		http.StatusOK, "an assigned member reading event links")
 
 	outsider := s.session(t, f.outsider)

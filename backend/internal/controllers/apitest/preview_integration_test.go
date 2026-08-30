@@ -6,33 +6,31 @@ import (
 	"context"
 	"net/http"
 	"testing"
-
-	"github.com/google/uuid"
 )
 
 type previewBody struct {
-	Type            string     `json:"type"`
-	RuleID          *uuid.UUID `json:"rule_id"`
-	Language        string     `json:"language"`
-	Subject         string     `json:"subject"`
-	Body            string     `json:"body"`
-	Channel         *string    `json:"channel"`
-	ChannelReady    bool       `json:"channel_ready"`
-	EventTitle      string     `json:"event_title"`
-	RegistrationURL string     `json:"registration_url"`
-	DeadlineLocal   string     `json:"deadline_local"`
-	ScheduledAt     *string    `json:"scheduled_at"`
+	Type            string  `json:"type"`
+	RuleID          *string `json:"rule_id"`
+	Language        string  `json:"language"`
+	Subject         string  `json:"subject"`
+	Body            string  `json:"body"`
+	Channel         *string `json:"channel"`
+	ChannelReady    bool    `json:"channel_ready"`
+	EventTitle      string  `json:"event_title"`
+	RegistrationURL string  `json:"registration_url"`
+	DeadlineLocal   string  `json:"deadline_local"`
+	ScheduledAt     *string `json:"scheduled_at"`
 }
 
-func previewPath(statusID uuid.UUID, ruleID *uuid.UUID) string {
-	path := "/admin/registration-statuses/" + statusID.String() + "/notification-preview"
+func previewPath(statusID string, ruleID *string) string {
+	path := "/admin/registration-statuses/" + statusID + "/notification-preview"
 	if ruleID != nil {
-		path += "?rule_id=" + ruleID.String()
+		path += "?rule_id=" + *ruleID
 	}
 	return path
 }
 
-func (c *client) preview(t *testing.T, statusID uuid.UUID, ruleID *uuid.UUID) previewBody {
+func (c *client) preview(t *testing.T, statusID string, ruleID *string) previewBody {
 	t.Helper()
 	resp := c.get(previewPath(statusID, ruleID))
 	requireStatus(t, resp, http.StatusOK, "previewing a notification")
@@ -117,11 +115,11 @@ func TestNotificationPreviewFollowsTheRuleSign(t *testing.T) {
 	s := newStack(t)
 	f := s.seed(t)
 
-	resp := f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/rules",
+	resp := f.adminClient.post("/admin/events/"+f.eventID+"/registration/rules",
 		map[string]any{"offset_minutes": -120})
 	requireStatus(t, resp, http.StatusCreated, "creating an overdue rule")
 	var overdue struct {
-		ID uuid.UUID `json:"id"`
+		ID string `json:"id"`
 	}
 	resp.decode(t, &overdue)
 
@@ -163,10 +161,10 @@ func TestNotificationPreviewRefusesAForeignRuleAndAnUnknownStatus(t *testing.T) 
 	s := newStack(t)
 	f := s.seed(t)
 
-	requireStatus(t, f.adminClient.get(previewPath(uuid.New(), nil)), http.StatusNotFound,
+	requireStatus(t, f.adminClient.get(previewPath(missingStatusID, nil)), http.StatusNotFound,
 		"previewing a status that does not exist")
 
-	unknown := uuid.New()
+	unknown := missingRuleID
 	requireStatus(t, f.adminClient.get(previewPath(f.statusID, &unknown)), http.StatusNotFound,
 		"previewing with a rule that does not exist")
 
@@ -180,7 +178,7 @@ func TestNotificationPreviewRefusesAnArchivedEvent(t *testing.T) {
 	f := s.seed(t)
 
 	f.adminClient.preview(t, f.statusID, nil)
-	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/archive", nil),
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID+"/archive", nil),
 		http.StatusOK, "archiving the event")
 
 	requireStatus(t, f.adminClient.get(previewPath(f.statusID, nil)), http.StatusNotFound,
@@ -197,7 +195,7 @@ func TestNotificationPreviewReportsTheAbsenceOfAChannel(t *testing.T) {
 	}
 
 	if _, err := s.db.Pool().Exec(context.Background(),
-		`UPDATE users SET email_verified_at = now() WHERE id = $1`, f.member.ID); err != nil {
+		`UPDATE users SET email_verified_at = now() WHERE display_id = $1`, f.member.ID); err != nil {
 		t.Fatalf("verifying the email of %s: %v", f.member.ID, err)
 	}
 

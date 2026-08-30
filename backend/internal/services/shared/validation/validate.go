@@ -44,8 +44,26 @@ func ValidatePassword(value string, minLength int) error {
 	return nil
 }
 
+func StripControlChars(value string) string {
+	var out strings.Builder
+	out.Grow(len(value))
+	for _, r := range value {
+		switch {
+		case r == '\n' || r == '\t':
+			out.WriteRune(r)
+		case r == '\r':
+		case r < 0x20 || r == 0x7f:
+		case r >= 0x80 && r <= 0x9f:
+		case r == '\u2028' || r == '\u2029':
+		default:
+			out.WriteRune(r)
+		}
+	}
+	return out.String()
+}
+
 func ValidateText(field, value string, minLen, maxLen int) (string, error) {
-	trimmed := strings.TrimSpace(value)
+	trimmed := strings.TrimSpace(StripControlChars(value))
 	length := utf8.RuneCountInString(trimmed)
 	if length < minLen {
 		return "", models.NewValidation("field is required",
@@ -58,6 +76,19 @@ func ValidateText(field, value string, minLen, maxLen int) (string, error) {
 	return trimmed, nil
 }
 
+var allowedURLSchemes = map[string]struct{}{
+	"http":   {},
+	"https":  {},
+	"ftp":    {},
+	"ftps":   {},
+	"tg":     {},
+	"matrix": {},
+	"webcal": {},
+	"irc":    {},
+	"ircs":   {},
+	"xmpp":   {},
+}
+
 func ValidateURL(field, value string) (string, error) {
 	trimmed := strings.TrimSpace(value)
 	parsed, err := url.Parse(trimmed)
@@ -65,13 +96,9 @@ func ValidateURL(field, value string) (string, error) {
 		return "", models.NewValidation("the link is not a valid URL",
 			models.FieldError{Field: field, Message: "an absolute URL is required"})
 	}
-	switch strings.ToLower(parsed.Scheme) {
-	case "javascript", "data", "vbscript", "file":
+	if _, ok := allowedURLSchemes[strings.ToLower(parsed.Scheme)]; !ok {
 		return "", models.NewValidation("the link scheme is not allowed",
-			models.FieldError{Field: field, Message: "this scheme executes in the browser and is rejected"})
-	case "":
-		return "", models.NewValidation("the link is not a valid URL",
-			models.FieldError{Field: field, Message: "an absolute URL is required"})
+			models.FieldError{Field: field, Message: "this scheme is not on the accepted list"})
 	}
 	return trimmed, nil
 }

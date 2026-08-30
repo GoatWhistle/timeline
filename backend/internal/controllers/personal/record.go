@@ -49,7 +49,7 @@ func (c *Controller) GetNote(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string					true	"Event identifier"
+// @Param			id		path		string				true	"Event identifier"
 // @Param			request	body		dto.SaveNoteRequest	true	"Markdown source"
 // @Success		200		{object}	models.ParticipantNote
 // @Failure		400		{object}	dto.ErrorResponse	"the note is too long"
@@ -114,12 +114,13 @@ func (c *Controller) ListArtifacts(w http.ResponseWriter, r *http.Request) {
 
 // @Summary		Add an own artifact
 // @Description	Records one artifact of the caller for the event. The link is only checked for
-// @Description	being a parseable address; schemes that execute in a browser are rejected.
+// @Description	being a parseable address whose scheme is on the accepted list, so a scheme
+// @Description	that executes in a browser or reaches an operating system handler is rejected.
 // @Tags			personal
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"
+// @Param			id		path		string						true	"Event identifier"
 // @Param			request	body		dto.CreateArtifactRequest	true	"Artifact"
 // @Success		201		{object}	models.ParticipantArtifact
 // @Failure		400		{object}	dto.ErrorResponse
@@ -156,7 +157,7 @@ func (c *Controller) CreateArtifact(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Artifact identifier"	example(ar_42ej2s5gh7e8)
+// @Param			id		path		string						true	"Artifact identifier"	example(ar_42ej2s5gh7e8)
 // @Param			request	body		dto.UpdateArtifactRequest	true	"Fields to change"
 // @Success		200		{object}	models.ParticipantArtifact
 // @Failure		400		{object}	dto.ErrorResponse

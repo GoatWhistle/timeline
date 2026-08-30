@@ -16,6 +16,7 @@ import (
 
 type PreviewService interface {
 	ResolveStatusDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	ResolveRuleDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	PreviewNotification(
 		ctx context.Context, actor models.Actor, statusID uuid.UUID, ruleID *uuid.UUID,
 	) (*dto.NotificationPreviewResponse, error)
@@ -59,7 +60,7 @@ func NewPreviewController(svc PreviewService, limiter shared.Limiter, limit int,
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string	true	"Registration status"	example(rs_42ej2s5gh7)
-// @Param			rule_id	query		string	false	"Rule to render"		format(uuid)
+// @Param			rule_id	query		string	false	"Rule to render"		example(nr_42ej2s5gh7e8)
 // @Success		200		{object}	dto.NotificationPreviewResponse
 // @Failure		400		{object}	dto.ErrorResponse
 // @Failure		401		{object}	dto.ErrorResponse
@@ -78,7 +79,8 @@ func (c *PreviewController) Notification(w http.ResponseWriter, r *http.Request)
 		httpx.Error(w, r, err)
 		return
 	}
-	ruleID, err := httpx.QueryUUID(r, "rule_id")
+	ruleID, err := httpx.QueryDisplayID(r, "rule_id", dto.DisplayKindNotificationRule,
+		c.svc.ResolveRuleDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

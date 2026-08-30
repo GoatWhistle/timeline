@@ -50,7 +50,7 @@ func (c *Controller) GetOutcome(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Event identifier"
+// @Param			id		path		string					true	"Event identifier"
 // @Param			request	body		dto.SaveOutcomeRequest	true	"Outcome"
 // @Success		200		{object}	models.ParticipantOutcome
 // @Failure		400		{object}	dto.ErrorResponse	"a place requires a placing outcome"

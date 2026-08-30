@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
@@ -49,10 +50,13 @@ func (s *ProfileService) PublicProfile(ctx context.Context, nickname string,
 	var resp dto.PublicProfileResponse
 	user, err := s.users.GetByNickname(ctx, nickname)
 	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			return resp, publicProfileNotFound()
+		}
 		return resp, err
 	}
-	if !user.ProfilePublic || !user.IsActive {
-		return resp, models.NewNotFound("profile not found")
+	if !user.ProfilePublic || !user.IsActive || user.Nickname == nil {
+		return resp, publicProfileNotFound()
 	}
 	events, err := s.users.PublicProfileEvents(ctx, user.ID)
 	if err != nil {
@@ -68,4 +72,8 @@ func (s *ProfileService) PublicProfile(ctx context.Context, nickname string,
 		Bio:         user.Bio,
 		Events:      events,
 	}, nil
+}
+
+func publicProfileNotFound() error {
+	return models.NewNotFound("profile not found")
 }

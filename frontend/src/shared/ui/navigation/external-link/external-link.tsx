@@ -3,7 +3,7 @@ import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/tooltip'
-import { isInsecureLink } from './external-url'
+import { isInsecureLink, safeLinkHref } from './external-url'
 
 function InsecureLinkMark({ className }: { className?: string }) {
   const { t } = useTranslation('common')
@@ -36,7 +36,7 @@ export function ExternalLink({
   return (
     <a
       className={cn('inline-flex items-center gap-1', className)}
-      href={href}
+      href={safeLinkHref(href)}
       target="_blank"
       rel="noopener noreferrer"
       {...props}

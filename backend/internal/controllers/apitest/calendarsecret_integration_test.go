@@ -20,7 +20,8 @@ func TestOnlyTheHashOfTheTokenIsStored(t *testing.T) {
 
 	var hash string
 	if err := s.db.Pool().QueryRow(context.Background(),
-		`SELECT token_hash FROM calendar_feed_tokens WHERE user_id = $1 AND revoked_at IS NULL`,
+		`SELECT token_hash FROM calendar_feed_tokens
+		 WHERE user_id = (SELECT id FROM users WHERE display_id = $1) AND revoked_at IS NULL`,
 		f.member.ID).Scan(&hash); err != nil {
 		t.Fatalf("reading the stored token: %v", err)
 	}
@@ -100,21 +101,22 @@ func TestTheTokenStoreItselfHidesRevokedRows(t *testing.T) {
 	secret := s.session(t, f.member).issueFeed(t)
 	hash := crypto.HashSecret(secret)
 
+	memberUUID := s.userUUID(t, f.member.ID)
 	found, err := s.calendar.GetActiveByHash(ctx, hash)
 	if err != nil {
 		t.Fatalf("looking up a live token: %v", err)
 	}
-	if found.UserID != f.member.ID {
+	if found.UserID != memberUUID {
 		t.Fatalf("the lookup returned the token of %s instead of %s", found.UserID, f.member.ID)
 	}
 
-	if _, err := s.calendar.RevokeAllForUser(ctx, f.member.ID); err != nil {
+	if _, err := s.calendar.RevokeAllForUser(ctx, memberUUID); err != nil {
 		t.Fatalf("revoking the token: %v", err)
 	}
 	if _, err := s.calendar.GetActiveByHash(ctx, hash); !errors.Is(err, models.ErrNotFound) {
 		t.Fatalf("the store still resolves a revoked hash, error was %v", err)
 	}
-	if _, err := s.calendar.GetActiveByUser(ctx, f.member.ID); !errors.Is(err, models.ErrNotFound) {
+	if _, err := s.calendar.GetActiveByUser(ctx, memberUUID); !errors.Is(err, models.ErrNotFound) {
 		t.Fatalf("the store still reports a revoked token as the account's active one, error was %v", err)
 	}
 
@@ -134,15 +136,16 @@ func TestASecondActiveTokenCannotBeStored(t *testing.T) {
 	f := s.seed(t)
 	ctx := context.Background()
 
+	memberUUID := s.userUUID(t, f.member.ID)
 	s.session(t, f.member).issueFeed(t)
-	if _, err := s.calendar.Create(ctx, f.member.ID, strings.Repeat("f", 64)); err == nil {
+	if _, err := s.calendar.Create(ctx, memberUUID, strings.Repeat("f", 64)); err == nil {
 		t.Fatal("the store accepted a second active token for one account")
 	}
 
-	if _, err := s.calendar.RevokeAllForUser(ctx, f.member.ID); err != nil {
+	if _, err := s.calendar.RevokeAllForUser(ctx, memberUUID); err != nil {
 		t.Fatalf("revoking the token: %v", err)
 	}
-	if _, err := s.calendar.Create(ctx, f.member.ID, strings.Repeat("f", 64)); err != nil {
+	if _, err := s.calendar.Create(ctx, memberUUID, strings.Repeat("f", 64)); err != nil {
 		t.Fatalf("the store refused a replacement once the previous token was revoked: %v", err)
 	}
 }

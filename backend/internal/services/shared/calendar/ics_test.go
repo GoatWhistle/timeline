@@ -5,15 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 var (
 	icsStamp = time.Date(2026, 3, 1, 9, 30, 0, 0, time.UTC)
-	icsEvent = uuid.MustParse("7f2c1a90-1111-4b2c-8d3e-000000000001")
-	icsStage = uuid.MustParse("7f2c1a90-2222-4b2c-8d3e-000000000002")
+	icsEvent = "ev_gma9hq8a96q5"
+	icsStage = "st_42ej2s5gh7e8"
 )
 
 func sampleEntries() []models.CalendarEntry {
@@ -143,10 +141,10 @@ func TestEveryEventCarriesAStableUIDAndConsistentTimes(t *testing.T) {
 	if first[0]["UID"] == first[1]["UID"] {
 		t.Fatal("the event and its stage share one UID")
 	}
-	if want := "event-" + icsEvent.String() + "@timeline"; first[0]["UID"] != want {
+	if want := "event-" + icsEvent + "@timeline"; first[0]["UID"] != want {
 		t.Fatalf("the event UID is %q, expected %q", first[0]["UID"], want)
 	}
-	if want := "stage-" + icsStage.String() + "@timeline"; first[1]["UID"] != want {
+	if want := "stage-" + icsStage + "@timeline"; first[1]["UID"] != want {
 		t.Fatalf("the stage UID is %q, expected %q", first[1]["UID"], want)
 	}
 

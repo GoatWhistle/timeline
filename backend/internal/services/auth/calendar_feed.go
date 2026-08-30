@@ -187,7 +187,7 @@ func appendCalendarRow(entries []models.CalendarEntry,
 	row *dto.ScheduleRow) []models.CalendarEntry {
 	entries = append(entries, models.CalendarEntry{
 		Kind:     models.CalendarEntryEvent,
-		EventID:  row.EventUUID,
+		EventID:  row.EventID,
 		Summary:  row.Title,
 		StartAt:  row.StartAt,
 		EndAt:    row.EndAt,
@@ -197,8 +197,8 @@ func appendCalendarRow(entries []models.CalendarEntry,
 		stage := &row.Stages[j]
 		entries = append(entries, models.CalendarEntry{
 			Kind:     models.CalendarEntryStage,
-			EventID:  row.EventUUID,
-			StageID:  stage.StageUUID,
+			EventID:  row.EventID,
+			StageID:  stage.ID,
 			Summary:  row.Title + ": " + stage.Name,
 			StartAt:  stage.StartAt,
 			EndAt:    stage.EndAt,
@@ -208,7 +208,7 @@ func appendCalendarRow(entries []models.CalendarEntry,
 	if row.RegistrationDeadline != nil {
 		entries = append(entries, models.CalendarEntry{
 			Kind:    models.CalendarEntryRegistration,
-			EventID: row.EventUUID,
+			EventID: row.EventID,
 			Summary: row.Title + " - registration deadline",
 			StartAt: *row.RegistrationDeadline,
 			EndAt:   *row.RegistrationDeadline,

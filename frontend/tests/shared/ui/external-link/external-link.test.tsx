@@ -6,8 +6,10 @@ import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link
 import {
   isBrowserScheme,
   isInsecureLink,
+  isRenderableLink,
   linkHost,
   parseExternalUrl,
+  safeLinkHref,
 } from '@/shared/ui/navigation/external-link/external-url'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
 
@@ -84,5 +86,50 @@ describe('external link element', () => {
     const link = screen.getByRole('link', { name: /Open/ })
     expect(link).toHaveAttribute('href', 'tg://resolve?domain=team')
     expect(screen.queryByText(i18n.t('common:link.insecure'))).not.toBeInTheDocument()
+  })
+
+  it.each([
+    ['javascript', 'javascript:alert(1)'],
+    ['javascript with an authority', 'javascript://example.org/%0aalert(1)'],
+    ['livescript alias', 'livescript://example.org/%0aalert(1)'],
+    ['mocha alias', 'mocha://example.org/%0aalert(1)'],
+    ['data', 'data:text/html,<script>alert(1)</script>'],
+    ['vbscript', 'vbscript:msgbox(1)'],
+    ['file', 'file:///etc/passwd'],
+    ['ms-msdt operating system handler', 'ms-msdt://x'],
+    ['search-ms operating system handler', 'search-ms://query=x'],
+    ['chrome internals', 'chrome://settings'],
+    ['blob', 'blob:https://example.org/x'],
+  ])('never emits an href for %s', (_name, href) => {
+    const { container } = renderLink(href)
+    const anchor = container.querySelector('a')
+    expect(anchor).not.toBeNull()
+    expect(anchor?.hasAttribute('href')).toBe(false)
+    expect(screen.queryByRole('link')).toBeNull()
+  })
+})
+
+describe('renderable link scheme allowlist', () => {
+  it('keeps the address of a scheme on the list', () => {
+    expect(safeLinkHref('https://example.org/a')).toBe('https://example.org/a')
+    expect(safeLinkHref('mailto:crew@example.org')).toBe('mailto:crew@example.org')
+    expect(safeLinkHref('tg://resolve?domain=team')).toBe('tg://resolve?domain=team')
+  })
+
+  it('drops the address of a scheme off the list', () => {
+    expect(safeLinkHref('javascript://example.org/%0aalert(1)')).toBeUndefined()
+    expect(safeLinkHref('livescript://example.org/%0aalert(1)')).toBeUndefined()
+    expect(safeLinkHref('ms-msdt://x')).toBeUndefined()
+    expect(safeLinkHref('chrome://settings')).toBeUndefined()
+  })
+
+  it('drops text that is not an address at all', () => {
+    expect(safeLinkHref('see the chat')).toBeUndefined()
+    expect(safeLinkHref('   ')).toBeUndefined()
+  })
+
+  it('reports which schemes are renderable', () => {
+    expect(isRenderableLink('https://example.org')).toBe(true)
+    expect(isRenderableLink('javascript:alert(1)')).toBe(false)
   })
 })

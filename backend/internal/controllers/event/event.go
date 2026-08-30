@@ -146,7 +146,7 @@ func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string						true	"Event identifier"	example(ev_3k7d8gb9be)
+// @Param			id		path		string					true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		dto.UpdateEventRequest	true	"Mutable fields"
 // @Success		200		{object}	dto.EventResponse
 // @Failure		400		{object}	dto.ErrorResponse

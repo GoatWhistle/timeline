@@ -38,7 +38,7 @@ func TestNotificationHistoryShowsOnlyOwnNotifications(t *testing.T) {
 
 	if _, err := s.db.Pool().Exec(t.Context(), `
 		UPDATE notifications SET status = 'SENT', sent_at = now()
-		WHERE recipient_user_id = $1`, f.member.ID); err != nil {
+		WHERE recipient_user_id = (SELECT id FROM users WHERE display_id = $1)`, f.member.ID); err != nil {
 		t.Fatalf("marking notifications sent: %v", err)
 	}
 
@@ -80,7 +80,7 @@ func TestNotificationHistorySurvivesThePayloadPurge(t *testing.T) {
 	}
 
 	if _, err := s.db.Pool().Exec(t.Context(), `
-		UPDATE notifications SET payload_json = NULL WHERE recipient_user_id = $1`,
+		UPDATE notifications SET payload_json = NULL WHERE recipient_user_id = (SELECT id FROM users WHERE display_id = $1)`,
 		f.member.ID); err != nil {
 		t.Fatalf("clearing the payload: %v", err)
 	}

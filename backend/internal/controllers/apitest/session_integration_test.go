@@ -8,16 +8,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 )
 
-func (s *stack) liveSessions(t *testing.T, userID uuid.UUID) int {
+func (s *stack) liveSessions(t *testing.T, userID string) int {
 	t.Helper()
 	var count int
 	if err := s.db.Pool().QueryRow(context.Background(),
-		`SELECT count(*) FROM sessions WHERE user_id = $1 AND revoked_at IS NULL`, userID).
+		`SELECT count(*) FROM sessions WHERE user_id = (SELECT id FROM users WHERE display_id = $1)
+		   AND revoked_at IS NULL`, userID).
 		Scan(&count); err != nil {
 		t.Fatalf("counting the live sessions of %s: %v", userID, err)
 	}
@@ -37,11 +36,12 @@ func (s *stack) liveSessionsInChain(t *testing.T, refreshTokenHash string) int {
 	return count
 }
 
-func (s *stack) retiredSessions(t *testing.T, userID uuid.UUID) int {
+func (s *stack) retiredSessions(t *testing.T, userID string) int {
 	t.Helper()
 	var count int
 	if err := s.db.Pool().QueryRow(context.Background(),
-		`SELECT count(*) FROM sessions WHERE user_id = $1 AND revoked_at IS NOT NULL`, userID).
+		`SELECT count(*) FROM sessions WHERE user_id = (SELECT id FROM users WHERE display_id = $1)
+		   AND revoked_at IS NOT NULL`, userID).
 		Scan(&count); err != nil {
 		t.Fatalf("counting the retired sessions of %s: %v", userID, err)
 	}
@@ -138,7 +138,7 @@ func TestDeactivationEndsAccessImmediately(t *testing.T) {
 	member := s.session(t, f.member)
 	requireStatus(t, member.get("/me"), http.StatusOK, "the member reads their profile")
 
-	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID.String()+"/deactivate", nil),
+	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the member")
 
 	requireStatus(t, member.get("/me"), http.StatusForbidden,
@@ -162,7 +162,7 @@ func TestRevokedSessionEndsRefreshButNotTheLiveAccessToken(t *testing.T) {
 	}
 
 	if _, err := s.db.Pool().Exec(context.Background(),
-		`UPDATE sessions SET revoked_at = now() WHERE user_id = $1`, f.member.ID); err != nil {
+		`UPDATE sessions SET revoked_at = now() WHERE user_id = (SELECT id FROM users WHERE display_id = $1)`, f.member.ID); err != nil {
 		t.Fatalf("revoking the sessions of %s: %v", f.member.ID, err)
 	}
 
@@ -186,7 +186,7 @@ func TestDeletedAccountLosesAccessImmediately(t *testing.T) {
 	member := s.session(t, f.member)
 	requireStatus(t, member.get("/me"), http.StatusOK, "the member reads their profile")
 
-	requireStatus(t, f.adminClient.delete("/admin/users/"+f.member.ID.String()),
+	requireStatus(t, f.adminClient.delete("/admin/users/"+f.member.ID),
 		http.StatusOK, "deleting the member")
 
 	requireStatus(t, member.get("/me"), http.StatusForbidden,

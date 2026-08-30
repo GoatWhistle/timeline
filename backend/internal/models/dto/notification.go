@@ -1,8 +1,9 @@
 package dto
 
 import (
-	"github.com/GoatWhistle/timeline/internal/models"
 	"time"
+
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type NotificationHistoryItem struct {

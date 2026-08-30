@@ -27,8 +27,8 @@ const (
 
 type CalendarEntry struct {
 	Kind     CalendarEntryKind
-	EventID  uuid.UUID
-	StageID  uuid.UUID
+	EventID  string
+	StageID  string
 	Summary  string
 	Location string
 	StartAt  time.Time

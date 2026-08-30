@@ -70,7 +70,7 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Participant identifier"	example(pa_42ej2s5gh7e8)
+// @Param			id		path		string						true	"Participant identifier"	example(pa_42ej2s5gh7e8)
 // @Param			request	body		dto.UpdateTeamRoleRequest	true	"New role"
 // @Success		200		{object}	dto.ParticipantResponse
 // @Failure		400		{object}	dto.ErrorResponse
@@ -103,7 +103,7 @@ func (c *Controller) UpdateTeamRole(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Participant identifier"	example(pa_42ej2s5gh7e8)
+// @Param			id		path		string						true	"Participant identifier"	example(pa_42ej2s5gh7e8)
 // @Param			request	body		dto.UpdateTeamRoleRequest	true	"Participant role"
 // @Success		200		{object}	dto.ParticipantResponse
 // @Failure		400		{object}	dto.ErrorResponse

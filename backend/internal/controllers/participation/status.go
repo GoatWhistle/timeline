@@ -140,7 +140,7 @@ func (c *RegistrationStatusController) AdminChangeStatus(w http.ResponseWriter, 
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
+// @Param			id		path		string						true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		dto.BatchSetStatusRequest	true	"Participants and target status"
 // @Success		200		{object}	dto.BatchResult
 // @Failure		400		{object}	dto.ErrorResponse
@@ -172,7 +172,7 @@ func (c *RegistrationStatusController) BatchSetStatus(w http.ResponseWriter, r *
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
+// @Param			id		path		string						true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			request	body		dto.BatchSetStatusRequest	true	"Participants and target status"
 // @Success		200		{object}	dto.PreviewResponse
 // @Failure		400		{object}	dto.ErrorResponse

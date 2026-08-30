@@ -5,6 +5,7 @@ package apitest_test
 import (
 	"context"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -13,8 +14,16 @@ import (
 
 const password = "correct-horse-battery-staple"
 
+const (
+	missingEventID  = "ev_zzzzzzzzzzzz"
+	missingTaskID   = "tk_zzzzzzzzzzzz"
+	missingStatusID = "rs_zzzzzzzzzzzz"
+	missingRuleID   = "nr_zzzzzzzzzzzz"
+	missingSessID   = "se_zzzzzzzzzzzz"
+)
+
 type account struct {
-	ID    uuid.UUID
+	ID    string
 	Email string
 }
 
@@ -31,18 +40,42 @@ func (s *stack) register(t *testing.T, email string) account {
 
 	var body struct {
 		User struct {
-			ID uuid.UUID `json:"id"`
+			ID string `json:"id"`
 		} `json:"user"`
 	}
 	resp.decode(t, &body)
 	return account{ID: body.User.ID, Email: email}
 }
 
-func (s *stack) promote(t *testing.T, id uuid.UUID) {
+func (s *stack) promote(t *testing.T, id string) {
 	t.Helper()
 	if _, err := s.db.Pool().Exec(context.Background(),
-		`UPDATE users SET is_admin = true WHERE id = $1`, id); err != nil {
+		`UPDATE users SET is_admin = true WHERE display_id = $1`, id); err != nil {
 		t.Fatalf("promoting %s to administrator: %v", id, err)
+	}
+}
+
+func (s *stack) userUUID(t *testing.T, displayID string) uuid.UUID {
+	t.Helper()
+	var id uuid.UUID
+	if err := s.db.Pool().QueryRow(context.Background(),
+		`SELECT id FROM users WHERE display_id = $1`, displayID).Scan(&id); err != nil {
+		t.Fatalf("resolving the user %s: %v", displayID, err)
+	}
+	return id
+}
+
+func (s *stack) anonymous(t *testing.T, path string) response {
+	t.Helper()
+	return s.client(t).get(path)
+}
+
+func (s *stack) showOnProfile(t *testing.T, userID string) {
+	t.Helper()
+	if _, err := s.db.Pool().Exec(context.Background(),
+		`UPDATE event_participants SET show_on_profile = true
+		 WHERE user_id = (SELECT id FROM users WHERE display_id = $1)`, userID); err != nil {
+		t.Fatalf("allowing the events of %s on the profile: %v", userID, err)
 	}
 }
 
@@ -57,21 +90,22 @@ type fixture struct {
 	admin       account
 	member      account
 	outsider    account
-	eventID     uuid.UUID
-	otherEvent  uuid.UUID
-	memberPart  uuid.UUID
-	statusID    uuid.UUID
-	regRuleID   uuid.UUID
+	eventID     string
+	otherEvent  string
+	memberPart  string
+	statusID    string
+	regRuleID   string
 	adminClient *client
 }
 
 func (s *stack) seed(t *testing.T) fixture {
 	t.Helper()
 
-	admin := s.register(t, "admin-"+uuid.NewString()+"@example.com")
+	suffix := strings.ReplaceAll(uuid.NewString(), "-", "")
+	admin := s.register(t, "admin-"+suffix+"@example.com")
 	s.promote(t, admin.ID)
-	member := s.register(t, "member-"+uuid.NewString()+"@example.com")
-	outsider := s.register(t, "outsider-"+uuid.NewString()+"@example.com")
+	member := s.register(t, "member-"+suffix+"@example.com")
+	outsider := s.register(t, "outsider-"+suffix+"@example.com")
 
 	adminClient := s.session(t, admin)
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
@@ -82,17 +116,17 @@ func (s *stack) seed(t *testing.T) fixture {
 	adminClient.publish(t, otherEvent)
 
 	notes := "internal administrative note"
-	requireStatus(t, adminClient.patch("/admin/events/"+eventID.String(),
+	requireStatus(t, adminClient.patch("/admin/events/"+eventID,
 		map[string]any{"notes": notes}), http.StatusOK, "attaching notes")
 
-	requireStatus(t, adminClient.post("/admin/events/"+eventID.String()+"/registration",
+	requireStatus(t, adminClient.post("/admin/events/"+eventID+"/registration",
 		map[string]any{
 			"url":         "https://example.com/register",
 			"deadline_at": start.Add(12 * time.Hour).Format(time.RFC3339),
 		}), http.StatusCreated, "creating the registration")
 
-	addResp := adminClient.post("/admin/events/"+eventID.String()+"/participants/batch-add",
-		map[string]any{"items": []map[string]any{{"user_id": member.ID.String(), "team_role": "Developer"}}})
+	addResp := adminClient.post("/admin/events/"+eventID+"/participants/batch-add",
+		map[string]any{"items": []map[string]any{{"user_id": member.ID, "team_role": "Developer"}}})
 	requireStatus(t, addResp, http.StatusOK, "assigning the member")
 	if !containsAll(string(addResp.Body), `"succeeded":1`) {
 		t.Fatalf("assigning the member did not succeed: %s", addResp.Body)
@@ -100,11 +134,11 @@ func (s *stack) seed(t *testing.T) fixture {
 
 	memberPart, statusID := adminClient.rosterIDs(t, eventID, member.ID)
 
-	ruleResp := adminClient.post("/admin/events/"+eventID.String()+"/registration/rules",
+	ruleResp := adminClient.post("/admin/events/"+eventID+"/registration/rules",
 		map[string]any{"offset_minutes": 60})
 	requireStatus(t, ruleResp, http.StatusCreated, "creating a reminder rule")
 	var rule struct {
-		ID uuid.UUID `json:"id"`
+		ID string `json:"id"`
 	}
 	ruleResp.decode(t, &rule)
 
@@ -116,7 +150,7 @@ func (s *stack) seed(t *testing.T) fixture {
 	}
 }
 
-func (c *client) createEvent(t *testing.T, title string, start time.Time) uuid.UUID {
+func (c *client) createEvent(t *testing.T, title string, start time.Time) string {
 	t.Helper()
 	resp := c.post("/admin/events", map[string]any{
 		"title":    title,
@@ -125,30 +159,30 @@ func (c *client) createEvent(t *testing.T, title string, start time.Time) uuid.U
 	})
 	requireStatus(t, resp, http.StatusCreated, "creating event "+title)
 	var body struct {
-		ID uuid.UUID `json:"id"`
+		ID string `json:"id"`
 	}
 	resp.decode(t, &body)
 	return body.ID
 }
 
-func (c *client) publish(t *testing.T, id uuid.UUID) {
+func (c *client) publish(t *testing.T, id string) {
 	t.Helper()
-	requireStatus(t, c.post("/admin/events/"+id.String()+"/publish", nil),
-		http.StatusOK, "publishing "+id.String())
+	requireStatus(t, c.post("/admin/events/"+id+"/publish", nil),
+		http.StatusOK, "publishing "+id)
 }
 
-func (c *client) rosterIDs(t *testing.T, eventID, userID uuid.UUID) (uuid.UUID, uuid.UUID) {
+func (c *client) rosterIDs(t *testing.T, eventID, userID string) (string, string) {
 	t.Helper()
-	resp := c.get("/admin/events/" + eventID.String() + "/participants")
+	resp := c.get("/admin/events/" + eventID + "/participants")
 	requireStatus(t, resp, http.StatusOK, "listing participants")
 	var body struct {
 		Items []struct {
-			ID   uuid.UUID `json:"id"`
+			ID   string `json:"id"`
 			User struct {
-				ID uuid.UUID `json:"id"`
+				ID string `json:"id"`
 			} `json:"user"`
 			RegistrationStatus *struct {
-				ID uuid.UUID `json:"id"`
+				ID string `json:"id"`
 			} `json:"registration_status"`
 		} `json:"items"`
 	}
@@ -163,5 +197,5 @@ func (c *client) rosterIDs(t *testing.T, eventID, userID uuid.UUID) (uuid.UUID, 
 		return item.ID, item.RegistrationStatus.ID
 	}
 	t.Fatalf("user %s is not in the roster of %s: %s", userID, eventID, resp.Body)
-	return uuid.Nil, uuid.Nil
+	return "", ""
 }

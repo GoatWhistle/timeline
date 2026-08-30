@@ -47,7 +47,7 @@ func queueScope(scope string) (notification.QueueScope, error) {
 
 func queueEntry(n *models.Notification, s *OpsService) dto.QueueEntryResponse {
 	entry := dto.QueueEntryResponse{
-		ID:               n.ID,
+		ID:               n.DisplayID,
 		NotificationType: n.NotificationType,
 		Status:           n.Status,
 		RequestedChannel: n.RequestedChannel,

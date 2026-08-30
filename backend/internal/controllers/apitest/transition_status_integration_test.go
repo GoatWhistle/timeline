@@ -17,14 +17,14 @@ func TestStatusTodoToDoneBelongsToTheOwnerAndTheAdmin(t *testing.T) {
 	f.seedPending(t, s)
 
 	outsider := s.session(t, f.outsider)
-	requireErrorCode(t, outsider.post("/events/"+f.eventID.String()+"/registration/done", nil),
+	requireErrorCode(t, outsider.post("/events/"+f.eventID+"/registration/done", nil),
 		http.StatusNotFound, "not_found", "an unassigned user reporting a registration")
 	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
 		t.Fatalf("the refused attempt moved the status to %q", row.Status)
 	}
 
 	member := s.session(t, f.member)
-	requireStatus(t, member.post("/events/"+f.eventID.String()+"/registration/done", nil),
+	requireStatus(t, member.post("/events/"+f.eventID+"/registration/done", nil),
 		http.StatusOK, "the owner reporting a registration")
 
 	done := s.statusRow(t, f.statusID)
@@ -153,7 +153,7 @@ func TestOwnerReportIsRefusedFromNotRequired(t *testing.T) {
 	f.adminClient.forceStatus(t, f.statusID, "NOT_REQUIRED")
 
 	member := s.session(t, f.member)
-	requireErrorCode(t, member.post("/events/"+f.eventID.String()+"/registration/done", nil),
+	requireErrorCode(t, member.post("/events/"+f.eventID+"/registration/done", nil),
 		http.StatusConflict, "invalid_state_transition",
 		"an excused participant reporting a registration")
 	if row := s.statusRow(t, f.statusID); row.Status != "NOT_REQUIRED" {
@@ -165,21 +165,21 @@ func TestOwnerReportIsRefusedWhileTheRegistrationIsDisabledOrTheEventArchived(t 
 	s := newStack(t)
 	f := s.seed(t)
 
-	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/disable", nil),
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID+"/registration/disable", nil),
 		http.StatusOK, "disabling the registration")
 
 	member := s.session(t, f.member)
-	requireErrorCode(t, member.post("/events/"+f.eventID.String()+"/registration/done", nil),
+	requireErrorCode(t, member.post("/events/"+f.eventID+"/registration/done", nil),
 		http.StatusConflict, "invalid_state_transition", "reporting into a disabled registration")
 	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
 		t.Fatalf("the refused report moved the status to %q", row.Status)
 	}
 
-	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/registration/enable", nil),
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID+"/registration/enable", nil),
 		http.StatusOK, "enabling the registration again")
 	requireStatus(t, f.adminClient.archive(t, f.eventID), http.StatusOK, "archiving the event")
 
-	requireErrorCode(t, member.post("/events/"+f.eventID.String()+"/registration/done", nil),
+	requireErrorCode(t, member.post("/events/"+f.eventID+"/registration/done", nil),
 		http.StatusConflict, "invalid_state_transition", "reporting into an archived event")
 	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
 		t.Fatalf("the refused report moved the status to %q", row.Status)
@@ -190,12 +190,12 @@ func TestOwnerReportIsRefusedAfterRemovalFromTheRoster(t *testing.T) {
 	s := newStack(t)
 	f := s.seed(t)
 
-	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID.String()+"/participants/batch-remove",
-		map[string]any{"participant_ids": []string{f.memberPart.String()}}),
+	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID+"/participants/batch-remove",
+		map[string]any{"participant_ids": []string{f.memberPart}}),
 		http.StatusOK, "removing the member from the roster")
 
 	member := s.session(t, f.member)
-	requireErrorCode(t, member.post("/events/"+f.eventID.String()+"/registration/done", nil),
+	requireErrorCode(t, member.post("/events/"+f.eventID+"/registration/done", nil),
 		http.StatusNotFound, "not_found", "a removed participant reporting a registration")
 	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
 		t.Fatalf("the refused report moved the status to %q", row.Status)

@@ -1,10 +1,9 @@
 package dto
 
 import (
-	"github.com/GoatWhistle/timeline/internal/models"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 type CatalogEvent struct {
@@ -55,7 +54,7 @@ type CatalogFilter struct {
 }
 
 type ParticipantSelfResponse struct {
-	ID                  uuid.UUID                  `json:"id"`
+	ID                  string                     `json:"id" example:"pa_42ej2s5gh7e8"`
 	EventID             string                     `json:"event_id" example:"ev_gma9hq8a96q5"`
 	TeamRole            *string                    `json:"team_role,omitempty" example:"Backend developer"`
 	ParticipationStatus models.ParticipationStatus `json:"participation_status" enums:"ASSIGNED,REMOVED"`
