@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 func scheduleQuery(filter models.ScheduleFilter, forUserID *uuid.UUID) (string, []any) {
@@ -62,7 +63,7 @@ func scheduleQuery(filter models.ScheduleFilter, forUserID *uuid.UUID) (string, 
 }
 
 func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilter, forUserID *uuid.UUID,
-	now time.Time) ([]models.ScheduleRow, error) {
+	now time.Time) ([]dto.ScheduleRow, error) {
 	sql, args := scheduleQuery(filter, forUserID)
 	rows, err := r.db.Q(ctx).Query(ctx, sql, args...)
 	if err != nil {
@@ -70,12 +71,12 @@ func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilte
 	}
 	defer rows.Close()
 
-	result := make([]models.ScheduleRow, 0, 32)
+	result := make([]dto.ScheduleRow, 0, 32)
 	ids := make([]uuid.UUID, 0, 32)
 	events := make([]models.Event, 0, 32)
 	for rows.Next() {
 		var (
-			row         models.ScheduleRow
+			row         dto.ScheduleRow
 			publishedAt *time.Time
 			archivedAt  *time.Time
 			event       models.Event
@@ -91,7 +92,7 @@ func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilte
 			return nil, mapError(err)
 		}
 		if statusID != nil && statusValue != nil && todoCycle != nil {
-			row.RegistrationStatus = &models.RegistrationStatusShort{
+			row.RegistrationStatus = &dto.RegistrationStatusShort{
 				ID: *statusID, Status: *statusValue, TodoCycle: *todoCycle, RegisteredAt: registered,
 			}
 		}
@@ -101,7 +102,7 @@ func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilte
 		} else {
 			row.State = computeState(archivedAt, row.StartAt, row.EndAt, now)
 		}
-		row.Stages = []models.ScheduleItem{}
+		row.Stages = []dto.ScheduleItem{}
 		result = append(result, row)
 		ids = append(ids, row.EventUUID)
 	}
@@ -117,7 +118,7 @@ func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilte
 		items := stages[ids[i]]
 		result[i].EffectiveFormat = models.DeriveEventFormat(&events[i], items)
 		for j := range items {
-			result[i].Stages = append(result[i].Stages, models.ScheduleItem{
+			result[i].Stages = append(result[i].Stages, dto.ScheduleItem{
 				ID: items[j].DisplayID, StageUUID: items[j].ID, Name: items[j].Name, Type: items[j].Type,
 				StartAt: items[j].StartAt, EndAt: items[j].EndAt,
 				Place: items[j].ResolvePlace(&events[i]),

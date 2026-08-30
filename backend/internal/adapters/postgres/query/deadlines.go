@@ -8,11 +8,12 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 func (r *Timeline) nextStages(ctx context.Context, eventIDs []uuid.UUID,
-	now time.Time) (map[uuid.UUID]models.StageShort, error) {
-	result := make(map[uuid.UUID]models.StageShort, len(eventIDs))
+	now time.Time) (map[uuid.UUID]dto.StageShort, error) {
+	result := make(map[uuid.UUID]dto.StageShort, len(eventIDs))
 	if len(eventIDs) == 0 {
 		return result, nil
 	}
@@ -29,7 +30,7 @@ func (r *Timeline) nextStages(ctx context.Context, eventIDs []uuid.UUID,
 	for rows.Next() {
 		var (
 			eventID uuid.UUID
-			stage   models.StageShort
+			stage   dto.StageShort
 		)
 		if err := rows.Scan(&eventID, &stage.ID, &stage.Name, &stage.Type, &stage.StartAt, &stage.EndAt); err != nil {
 			return nil, mapError(err)
@@ -39,7 +40,7 @@ func (r *Timeline) nextStages(ctx context.Context, eventIDs []uuid.UUID,
 	return result, mapError(rows.Err())
 }
 
-func (r *Timeline) NextStage(ctx context.Context, eventID uuid.UUID, now time.Time) (*models.StageShort, error) {
+func (r *Timeline) NextStage(ctx context.Context, eventID uuid.UUID, now time.Time) (*dto.StageShort, error) {
 	stages, err := r.nextStages(ctx, []uuid.UUID{eventID}, now)
 	if err != nil {
 		return nil, err
@@ -51,7 +52,7 @@ func (r *Timeline) NextStage(ctx context.Context, eventID uuid.UUID, now time.Ti
 }
 
 func (r *Timeline) Deadlines(ctx context.Context, overdue bool, within time.Duration,
-	page models.Page, now time.Time) ([]models.DeadlineItem, int64, error) {
+	page models.Page, now time.Time) ([]dto.DeadlineItem, int64, error) {
 	condition := "r.deadline_at > $1 AND r.deadline_at <= $2"
 	args := []any{now, now.Add(within)}
 	if overdue {
@@ -89,9 +90,9 @@ func (r *Timeline) Deadlines(ctx context.Context, overdue bool, within time.Dura
 	}
 	defer rows.Close()
 
-	items := make([]models.DeadlineItem, 0, page.Limit())
+	items := make([]dto.DeadlineItem, 0, page.Limit())
 	for rows.Next() {
-		var item models.DeadlineItem
+		var item dto.DeadlineItem
 		if err := rows.Scan(&item.EventID, &item.EventTitle, &item.ParticipantID,
 			&item.User.ID, &item.User.FirstName, &item.User.MiddleName, &item.User.LastName,
 			&item.User.Nickname, &item.User.Email, &item.User.IsActive,

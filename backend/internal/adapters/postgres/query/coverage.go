@@ -3,11 +3,11 @@ package query
 import (
 	"context"
 
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
-func (r *Timeline) RegistrationCoverage(ctx context.Context) (models.RegistrationCoverage, error) {
-	var out models.RegistrationCoverage
+func (r *Timeline) RegistrationCoverage(ctx context.Context) (dto.RegistrationCoverage, error) {
+	var out dto.RegistrationCoverage
 	err := r.db.Q(ctx).QueryRow(ctx, `
 		SELECT count(DISTINCT s.event_id),
 		       count(*),

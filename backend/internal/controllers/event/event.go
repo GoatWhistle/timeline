@@ -11,6 +11,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Controller struct {
@@ -25,11 +26,11 @@ func NewController(h EventService, s StageService, pageDef, pageMax int) *Contro
 }
 
 func (c *Controller) eventID(r *http.Request, name string) (uuid.UUID, error) {
-	return httpx.PathDisplayID(r, name, models.DisplayKindEvent, c.events.ResolveDisplayID)
+	return httpx.PathDisplayID(r, name, dto.DisplayKindEvent, c.events.ResolveDisplayID)
 }
 
 func (c *Controller) stageID(r *http.Request, name string) (uuid.UUID, error) {
-	return httpx.PathDisplayID(r, name, models.DisplayKindStage, c.stages.ResolveDisplayID)
+	return httpx.PathDisplayID(r, name, dto.DisplayKindStage, c.stages.ResolveDisplayID)
 }
 
 // @Summary		Event list
@@ -42,8 +43,8 @@ func (c *Controller) stageID(r *http.Request, name string) (uuid.UUID, error) {
 // @Param			include_archived	query		bool	false	"Include archived records"
 // @Param			page				query		int		false	"Page number"	default(1)
 // @Param			page_size			query		int		false	"Page size"		default(50)
-// @Success		200					{object}	models.EventPage
-// @Failure		403					{object}	models.ErrorResponse
+// @Success		200					{object}	dto.EventPage
+// @Failure		403					{object}	dto.ErrorResponse
 // @Router			/admin/events [get]
 func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
@@ -67,11 +68,11 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	now := time.Now().UTC()
-	out := make([]models.EventResponse, 0, len(items))
+	out := make([]dto.EventResponse, 0, len(items))
 	for i := range items {
 		out = append(out, shared.EventResponse(&items[i], now, true))
 	}
-	httpx.JSON(w, http.StatusOK, models.EventPage{Items: out, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.EventPage{Items: out, Meta: httpx.Meta(page, total)})
 }
 
 func parseStates(raw string) []models.EventState {
@@ -94,13 +95,13 @@ func parseStates(raw string) []models.EventState {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			request	body		models.CreateEventRequest	true	"Event payload"
-// @Success		201		{object}	models.EventResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
+// @Param			request	body		dto.CreateEventRequest	true	"Event payload"
+// @Success		201		{object}	dto.EventResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
 // @Router			/admin/events [post]
 func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
-	var req models.CreateEventRequest
+	var req dto.CreateEventRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -119,9 +120,9 @@ func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success		200	{object}	models.EventResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.EventResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
 // @Router			/admin/events/{id} [get]
 func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
 	id, err := c.eventID(r, "id")
@@ -146,12 +147,12 @@ func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string						true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			request	body		models.UpdateEventRequest	true	"Mutable fields"
-// @Success		200		{object}	models.EventResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"the registration deadline falls outside end_at"
+// @Param			request	body		dto.UpdateEventRequest	true	"Mutable fields"
+// @Success		200		{object}	dto.EventResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"the registration deadline falls outside end_at"
 // @Router			/admin/events/{id} [patch]
 func (c *Controller) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := c.eventID(r, "id")
@@ -159,7 +160,7 @@ func (c *Controller) Update(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.UpdateEventRequest
+	var req dto.UpdateEventRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -179,10 +180,10 @@ func (c *Controller) Update(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success		200	{object}	models.EventResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
-// @Failure		409	{object}	models.ErrorResponse	"the event is already published or archived"
+// @Success		200	{object}	dto.EventResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
+// @Failure		409	{object}	dto.ErrorResponse	"the event is already published or archived"
 // @Router			/admin/events/{id}/publish [post]
 func (c *Controller) Publish(w http.ResponseWriter, r *http.Request) {
 	id, err := c.eventID(r, "id")
@@ -204,10 +205,10 @@ func (c *Controller) Publish(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success		200	{object}	models.EventResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
-// @Failure		409	{object}	models.ErrorResponse	"event is already archived"
+// @Success		200	{object}	dto.EventResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
+// @Failure		409	{object}	dto.ErrorResponse	"event is already archived"
 // @Router			/admin/events/{id}/archive [post]
 func (c *Controller) Archive(w http.ResponseWriter, r *http.Request) {
 	id, err := c.eventID(r, "id")

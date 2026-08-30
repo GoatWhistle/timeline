@@ -11,6 +11,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type ResourceLinkService interface {
@@ -20,20 +21,20 @@ type ResourceLinkService interface {
 	ResolvePersonalLinkDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ResourceLink, error)
 	Create(
-		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateResourceLinkRequest,
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.CreateResourceLinkRequest,
 		stageID *uuid.UUID,
 	) (*models.ResourceLink, error)
 	Update(
-		ctx context.Context, actor models.Actor, eventID, linkID uuid.UUID, req models.UpdateResourceLinkRequest,
+		ctx context.Context, actor models.Actor, eventID, linkID uuid.UUID, req dto.UpdateResourceLinkRequest,
 		stageID *uuid.UUID,
 	) (*models.ResourceLink, error)
 	Delete(ctx context.Context, actor models.Actor, eventID, linkID uuid.UUID) error
 	ListPersonal(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ParticipantLink, error)
 	CreatePersonal(
-		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateParticipantLinkRequest,
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.CreateParticipantLinkRequest,
 	) (*models.ParticipantLink, error)
 	UpdatePersonal(
-		ctx context.Context, actor models.Actor, linkID uuid.UUID, req models.UpdateParticipantLinkRequest,
+		ctx context.Context, actor models.Actor, linkID uuid.UUID, req dto.UpdateParticipantLinkRequest,
 	) (*models.ParticipantLink, error)
 	DeletePersonal(ctx context.Context, actor models.Actor, linkID uuid.UUID) error
 }
@@ -80,16 +81,16 @@ func (c *ResourceLinkController) guard(w http.ResponseWriter, r *http.Request, s
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success		200	{object}	models.ResourceLinkListResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse	"the event is not visible to the caller"
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.ResourceLinkListResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse	"the event is not visible to the caller"
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/events/{id}/links [get]
 func (c *ResourceLinkController) List(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "links.list") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -99,7 +100,7 @@ func (c *ResourceLinkController) List(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.ResourceLinkListResponse{Items: items})
+	httpx.JSON(w, http.StatusOK, dto.ResourceLinkListResponse{Items: items})
 }
 
 // @Summary		Add a resource link
@@ -115,31 +116,31 @@ func (c *ResourceLinkController) List(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			request	body		models.CreateResourceLinkRequest	true	"Link"
+// @Param			request	body		dto.CreateResourceLinkRequest	true	"Link"
 // @Success		201		{object}	models.ResourceLink
-// @Failure		400		{object}	models.ErrorResponse	"bad address, executable scheme or a foreign stage"
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse	"only an administrator edits event links"
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"the link limit for the event is reached"
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse	"bad address, executable scheme or a foreign stage"
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse	"only an administrator edits event links"
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"the link limit for the event is reached"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/events/{id}/links [post]
 func (c *ResourceLinkController) Create(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "links.create") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.CreateResourceLinkRequest
+	var req dto.CreateResourceLinkRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
 	stageID, err := httpx.BodyDisplayID(r.Context(), req.StageID,
-		models.DisplayKindStage, c.links.ResolveStageDisplayID)
+		dto.DisplayKindStage, c.links.ResolveStageDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -161,35 +162,35 @@ func (c *ResourceLinkController) Create(w http.ResponseWriter, r *http.Request) 
 // @Security		CookieAuth
 // @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			linkId	path		string								true	"Link identifier"	example(rl_42ej2s5gh7e8)
-// @Param			request	body		models.UpdateResourceLinkRequest	true	"Fields to change"
+// @Param			request	body		dto.UpdateResourceLinkRequest	true	"Fields to change"
 // @Success		200		{object}	models.ResourceLink
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/events/{id}/links/{linkId} [patch]
 func (c *ResourceLinkController) Update(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "links.update") {
 		return
 	}
-	eventID, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
+	eventID, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	linkID, err := httpx.PathDisplayID(r, "linkId", models.DisplayKindResourceLink, c.links.ResolveLinkDisplayID)
+	linkID, err := httpx.PathDisplayID(r, "linkId", dto.DisplayKindResourceLink, c.links.ResolveLinkDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.UpdateResourceLinkRequest
+	var req dto.UpdateResourceLinkRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
 	stageID, err := httpx.BodyDisplayID(r.Context(), req.StageID,
-		models.DisplayKindStage, c.links.ResolveStageDisplayID)
+		dto.DisplayKindStage, c.links.ResolveStageDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -210,21 +211,21 @@ func (c *ResourceLinkController) Update(w http.ResponseWriter, r *http.Request) 
 // @Param			id		path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param			linkId	path	string	true	"Link identifier"	example(rl_42ej2s5gh7e8)
 // @Success		204		"the link is removed"
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/events/{id}/links/{linkId} [delete]
 func (c *ResourceLinkController) Delete(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "links.delete") {
 		return
 	}
-	eventID, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
+	eventID, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	linkID, err := httpx.PathDisplayID(r, "linkId", models.DisplayKindResourceLink, c.links.ResolveLinkDisplayID)
+	linkID, err := httpx.PathDisplayID(r, "linkId", dto.DisplayKindResourceLink, c.links.ResolveLinkDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

@@ -11,6 +11,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/reconcile"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
@@ -38,7 +39,7 @@ func NewParticipantService(db *postgres.DB, participants *participation.Particip
 }
 
 func (s *ParticipantService) List(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	filter models.ParticipantFilter, page models.Page) ([]models.ParticipantResponse, int64, error) {
+	filter models.ParticipantFilter, page models.Page) ([]dto.ParticipantResponse, int64, error) {
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("the participant roster is restricted to administrators")
 	}
@@ -46,7 +47,7 @@ func (s *ParticipantService) List(ctx context.Context, actor models.Actor, event
 }
 
 func (s *ParticipantService) AddMany(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.AddParticipantsRequest, userIDs []uuid.UUID) (*models.BatchResult, error) {
+	req dto.AddParticipantsRequest, userIDs []uuid.UUID) (*dto.BatchResult, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -58,7 +59,7 @@ func (s *ParticipantService) AddMany(ctx context.Context, actor models.Actor, ev
 		return nil, err
 	}
 
-	result := &models.BatchResult{Results: make([]models.BatchItemResult, 0, len(req.Items))}
+	result := &dto.BatchResult{Results: make([]dto.BatchItemResult, 0, len(req.Items))}
 	for index, item := range req.Items {
 		participant, err := s.addOne(ctx, actor, eventID, event.Kind, item, userIDs[index])
 		result.Results = append(result.Results, batchItem(index, item.UserID, participant, err))
@@ -68,7 +69,7 @@ func (s *ParticipantService) AddMany(ctx context.Context, actor models.Actor, ev
 }
 
 func (s *ParticipantService) addOne(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	kind models.EventKind, item models.AddParticipantItem, userID uuid.UUID) (*models.EventParticipant, error) {
+	kind models.EventKind, item dto.AddParticipantItem, userID uuid.UUID) (*models.EventParticipant, error) {
 	teamRole, err := validation.ValidateTeamRole(kind, item.TeamRole)
 	if err != nil {
 		return nil, err
@@ -154,7 +155,7 @@ func (s *ParticipantService) ensureStatusAndNotification(ctx context.Context, ev
 }
 
 func (s *ParticipantService) RemoveMany(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.RemoveParticipantsRequest, participantIDs []uuid.UUID) (*models.BatchResult, error) {
+	req dto.RemoveParticipantsRequest, participantIDs []uuid.UUID) (*dto.BatchResult, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -162,7 +163,7 @@ func (s *ParticipantService) RemoveMany(ctx context.Context, actor models.Actor,
 		return nil, models.NewValidation("the participant list is empty")
 	}
 
-	result := &models.BatchResult{Results: make([]models.BatchItemResult, 0, len(participantIDs))}
+	result := &dto.BatchResult{Results: make([]dto.BatchItemResult, 0, len(participantIDs))}
 	for index, id := range participantIDs {
 		var participant *models.EventParticipant
 		err := s.db.WithTx(ctx, func(ctx context.Context) error {
@@ -193,8 +194,8 @@ func (s *ParticipantService) RemoveMany(ctx context.Context, actor models.Actor,
 	return result, nil
 }
 
-func batchItem(index int, key string, participant *models.EventParticipant, err error) models.BatchItemResult {
-	item := models.BatchItemResult{Index: index, Key: key}
+func batchItem(index int, key string, participant *models.EventParticipant, err error) dto.BatchItemResult {
+	item := dto.BatchItemResult{Index: index, Key: key}
 	if err == nil {
 		item.Status = "ok"
 		if participant != nil {
@@ -219,7 +220,7 @@ func batchItem(index int, key string, participant *models.EventParticipant, err 
 	return item
 }
 
-func countBatch(result *models.BatchResult, err error) {
+func countBatch(result *dto.BatchResult, err error) {
 	switch {
 	case err == nil:
 		result.Succeeded++

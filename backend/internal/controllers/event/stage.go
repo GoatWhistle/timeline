@@ -6,7 +6,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 // @Summary		Event stages
@@ -15,9 +15,9 @@ import (
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success		200	{array}		models.StageResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
+// @Success		200	{array}		dto.StageResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
 // @Router			/events/{id}/stages [get]
 func (c *Controller) ListStages(w http.ResponseWriter, r *http.Request) {
 	id, err := c.eventID(r, "id")
@@ -30,7 +30,7 @@ func (c *Controller) ListStages(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	out := make([]models.StageResponse, 0, len(items))
+	out := make([]dto.StageResponse, 0, len(items))
 	for i := range items {
 		out = append(out, shared.StageResponse(&items[i], event))
 	}
@@ -45,11 +45,11 @@ func (c *Controller) ListStages(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string						true	"Event identifier"
-// @Param			request	body		models.CreateStageRequest	true	"Stage payload"
-// @Success		201		{object}	models.StageResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
+// @Param			request	body		dto.CreateStageRequest	true	"Stage payload"
+// @Success		201		{object}	dto.StageResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
 // @Router			/admin/events/{id}/stages [post]
 func (c *Controller) CreateStage(w http.ResponseWriter, r *http.Request) {
 	id, err := c.eventID(r, "id")
@@ -57,7 +57,7 @@ func (c *Controller) CreateStage(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.CreateStageRequest
+	var req dto.CreateStageRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -76,11 +76,11 @@ func (c *Controller) CreateStage(w http.ResponseWriter, r *http.Request) {
 // @Produce	json
 // @Security	CookieAuth
 // @Param		id		path		string						true	"Stage identifier"
-// @Param		request	body		models.UpdateStageRequest	true	"Mutable fields"
-// @Success	200		{object}	models.StageResponse
-// @Failure	400		{object}	models.ErrorResponse
-// @Failure	403		{object}	models.ErrorResponse
-// @Failure	404		{object}	models.ErrorResponse
+// @Param		request	body		dto.UpdateStageRequest	true	"Mutable fields"
+// @Success	200		{object}	dto.StageResponse
+// @Failure	400		{object}	dto.ErrorResponse
+// @Failure	403		{object}	dto.ErrorResponse
+// @Failure	404		{object}	dto.ErrorResponse
 // @Router		/admin/stages/{id} [patch]
 func (c *Controller) UpdateStage(w http.ResponseWriter, r *http.Request) {
 	id, err := c.stageID(r, "id")
@@ -88,7 +88,7 @@ func (c *Controller) UpdateStage(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.UpdateStageRequest
+	var req dto.UpdateStageRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -107,8 +107,8 @@ func (c *Controller) UpdateStage(w http.ResponseWriter, r *http.Request) {
 // @Security	CookieAuth
 // @Param		id	path	string	true	"Stage identifier"	example(st_42ej2s5gh7)
 // @Success	204	"the stage is deleted"
-// @Failure	403	{object}	models.ErrorResponse
-// @Failure	404	{object}	models.ErrorResponse
+// @Failure	403	{object}	dto.ErrorResponse
+// @Failure	404	{object}	dto.ErrorResponse
 // @Router		/admin/stages/{id} [delete]
 func (c *Controller) DeleteStage(w http.ResponseWriter, r *http.Request) {
 	id, err := c.stageID(r, "id")

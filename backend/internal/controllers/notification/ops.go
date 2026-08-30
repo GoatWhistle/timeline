@@ -10,14 +10,15 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type OpsService interface {
 	Ready(ctx context.Context) error
-	Heartbeat(ctx context.Context) (*models.WorkerHeartbeatResponse, error)
+	Heartbeat(ctx context.Context) (*dto.WorkerHeartbeatResponse, error)
 	Queue(
 		ctx context.Context, actor models.Actor, scope string, page models.Page,
-	) ([]models.QueueEntryResponse, int64, error)
+	) ([]dto.QueueEntryResponse, int64, error)
 }
 
 type OpsController struct {
@@ -40,25 +41,25 @@ func NewOpsController(svc OpsService, metricsToken string, metrics http.Handler,
 // @Summary	Liveness probe
 // @Tags		ops
 // @Produce	json
-// @Success	200	{object}	models.HealthResponse
+// @Success	200	{object}	dto.HealthResponse
 // @Router		/healthz [get]
 func (c *OpsController) Health(w http.ResponseWriter, r *http.Request) {
-	httpx.JSON(w, http.StatusOK, models.HealthResponse{Status: "ok", Time: time.Now().UTC()})
+	httpx.JSON(w, http.StatusOK, dto.HealthResponse{Status: "ok", Time: time.Now().UTC()})
 }
 
 // @Summary		Readiness probe
 // @Description	Checks that the database is reachable.
 // @Tags			ops
 // @Produce		json
-// @Success		200	{object}	models.ReadyResponse
-// @Failure		503	{object}	models.ReadyResponse
+// @Success		200	{object}	dto.ReadyResponse
+// @Failure		503	{object}	dto.ReadyResponse
 // @Router			/readyz [get]
 func (c *OpsController) Ready(w http.ResponseWriter, r *http.Request) {
 	if err := c.svc.Ready(r.Context()); err != nil {
-		httpx.JSON(w, http.StatusServiceUnavailable, models.ReadyResponse{Status: "unavailable", Database: "error"})
+		httpx.JSON(w, http.StatusServiceUnavailable, dto.ReadyResponse{Status: "unavailable", Database: "error"})
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.ReadyResponse{Status: "ready", Database: "ok"})
+	httpx.JSON(w, http.StatusOK, dto.ReadyResponse{Status: "ready", Database: "ok"})
 }
 
 // @Summary		Background process status
@@ -66,8 +67,8 @@ func (c *OpsController) Ready(w http.ResponseWriter, r *http.Request) {
 // @Description	and the age of the oldest pending entry.
 // @Tags			ops
 // @Produce		json
-// @Success		200	{object}	models.WorkerHeartbeatResponse
-// @Failure		503	{object}	models.WorkerHeartbeatResponse
+// @Success		200	{object}	dto.WorkerHeartbeatResponse
+// @Failure		503	{object}	dto.WorkerHeartbeatResponse
 // @Router			/ops/worker-heartbeat [get]
 func (c *OpsController) Heartbeat(w http.ResponseWriter, r *http.Request) {
 	hb, err := c.svc.Heartbeat(r.Context())
@@ -88,7 +89,7 @@ func (c *OpsController) Heartbeat(w http.ResponseWriter, r *http.Request) {
 // @Tags			ops
 // @Produce		plain
 // @Success		200	{string}	string	"metrics in Prometheus format"
-// @Failure		401	{object}	models.ErrorResponse
+// @Failure		401	{object}	dto.ErrorResponse
 // @Router			/metrics [get]
 func (c *OpsController) Metrics(w http.ResponseWriter, r *http.Request) {
 	if c.metricsToken != "" {
@@ -124,11 +125,11 @@ func (c *OpsController) Metrics(w http.ResponseWriter, r *http.Request) {
 // @Param			scope		query		string	false	"Rows to return"	Enums(failures,stuck-leases)
 // @Param			page		query		int		false	"Page number, from 1"
 // @Param			page_size	query		int		false	"Page size"
-// @Success		200			{object}	models.QueueEntryPage
-// @Failure		400			{object}	models.ErrorResponse
-// @Failure		401			{object}	models.ErrorResponse
-// @Failure		403			{object}	models.ErrorResponse
-// @Failure		429			{object}	models.ErrorResponse
+// @Success		200			{object}	dto.QueueEntryPage
+// @Failure		400			{object}	dto.ErrorResponse
+// @Failure		401			{object}	dto.ErrorResponse
+// @Failure		403			{object}	dto.ErrorResponse
+// @Failure		429			{object}	dto.ErrorResponse
 // @Router			/ops/queue [get]
 func (c *OpsController) Queue(w http.ResponseWriter, r *http.Request) {
 	actor := middleware.ActorFrom(r)
@@ -146,5 +147,5 @@ func (c *OpsController) Queue(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.QueueEntryPage{Items: items, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.QueueEntryPage{Items: items, Meta: httpx.Meta(page, total)})
 }

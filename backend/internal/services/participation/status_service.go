@@ -2,7 +2,6 @@ package participation
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/reconcile"
 )
@@ -38,7 +38,7 @@ func NewStatusService(db *postgres.DB, statuses *participation.Statuses,
 }
 
 func (s *StatusService) List(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	page models.Page) ([]models.RegistrationStatusResponse, int64, error) {
+	page models.Page) ([]dto.RegistrationStatusResponse, int64, error) {
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -46,7 +46,7 @@ func (s *StatusService) List(ctx context.Context, actor models.Actor, eventID uu
 }
 
 func (s *StatusService) MarkDone(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-) (*models.RegistrationStatusResponse, error) {
+) (*dto.RegistrationStatusResponse, error) {
 	if actor.IsSystem() {
 		return nil, models.NewUnauthorized("authentication is required")
 	}
@@ -110,7 +110,7 @@ func (s *StatusService) MarkDone(ctx context.Context, actor models.Actor, eventI
 }
 
 func (s *StatusService) AdminChange(ctx context.Context, actor models.Actor, statusID uuid.UUID,
-	req models.AdminChangeStatusRequest) (*models.RegistrationStatusResponse, error) {
+	req dto.AdminChangeStatusRequest) (*dto.RegistrationStatusResponse, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -158,99 +158,4 @@ func (s *StatusService) AdminChange(ctx context.Context, actor models.Actor, sta
 		}
 	}
 	return s.response(ctx, updated)
-}
-
-func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.BatchSetStatusRequest, participantIDs []uuid.UUID) (*models.BatchResult, error) {
-	targets, err := s.batchTargets(ctx, actor, eventID, req, participantIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	result := &models.BatchResult{Results: make([]models.BatchItemResult, 0, len(participantIDs))}
-	for index, participantID := range participantIDs {
-		status, ok := targets[participantID]
-		if !ok {
-			result.Results = append(result.Results, models.BatchItemResult{
-				Index: index, Key: req.ParticipantIDs[index], Status: "error",
-				Code: "not_found", Message: "participant status not found",
-			})
-			result.Failed++
-			continue
-		}
-		_, err := s.AdminChange(ctx, actor, status.ID, models.AdminChangeStatusRequest{Status: req.Status, Note: req.Note})
-		item := models.BatchItemResult{Index: index, Key: req.ParticipantIDs[index]}
-		if err == nil {
-			item.ID = status.DisplayID
-			item.Status = "ok"
-		} else {
-			var domainErr *models.DomainError
-			if errors.As(err, &domainErr) {
-				item.Code = domainErr.Code
-				item.Message = domainErr.Message
-			} else {
-				item.Code = "internal_error"
-				item.Message = "internal error"
-			}
-			if errors.Is(err, models.ErrConflict) {
-				item.Status = "skipped"
-			} else {
-				item.Status = "error"
-			}
-		}
-		result.Results = append(result.Results, item)
-		countBatch(result, err)
-	}
-	return result, nil
-}
-
-func (s *StatusService) BatchSetPreview(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.BatchSetStatusRequest, participantIDs []uuid.UUID) (*models.PreviewResponse, error) {
-	targets, err := s.batchTargets(ctx, actor, eventID, req, participantIDs)
-	if err != nil {
-		return nil, err
-	}
-	preview := &models.PreviewResponse{}
-	for _, participantID := range participantIDs {
-		status, ok := targets[participantID]
-		if !ok || status.Status == req.Status {
-			preview.Skipped++
-			continue
-		}
-		preview.Affected++
-	}
-	return preview, nil
-}
-
-func (s *StatusService) batchTargets(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.BatchSetStatusRequest,
-	participantIDs []uuid.UUID) (map[uuid.UUID]*models.RegistrationStatus, error) {
-	if !actor.IsAdmin {
-		return nil, models.NewForbidden("the operation is restricted to administrators")
-	}
-	if len(req.ParticipantIDs) == 0 {
-		return nil, models.NewValidation("the participant list is empty")
-	}
-	if req.Status != models.StatusTODO && req.Status != models.StatusNotRequired {
-		return nil, models.NewValidation("bulk updates allow only TODO and NOT_REQUIRED",
-			models.FieldError{Field: "status", Message: "value is not allowed"})
-	}
-
-	registration, err := s.registrations.GetByEvent(ctx, eventID)
-	if err != nil {
-		return nil, notFoundRegistration(err)
-	}
-
-	targets := make(map[uuid.UUID]*models.RegistrationStatus, len(participantIDs))
-	for _, participantID := range participantIDs {
-		status, err := s.statuses.GetByParticipant(ctx, registration.ID, participantID)
-		if errors.Is(err, models.ErrNotFound) {
-			continue
-		}
-		if err != nil {
-			return nil, err
-		}
-		targets[participantID] = status
-	}
-	return targets, nil
 }

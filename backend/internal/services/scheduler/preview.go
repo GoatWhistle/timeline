@@ -7,11 +7,12 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 )
 
 func (s *SchedulerService) PreviewNotification(ctx context.Context, actor models.Actor,
-	statusID uuid.UUID, ruleID *uuid.UUID) (*models.NotificationPreviewResponse, error) {
+	statusID uuid.UUID, ruleID *uuid.UUID) (*dto.NotificationPreviewResponse, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -35,7 +36,7 @@ func (s *SchedulerService) PreviewNotification(ctx context.Context, actor models
 	}
 	payload := s.notifier.Render(kind, *candidate)
 
-	resp := &models.NotificationPreviewResponse{
+	resp := &dto.NotificationPreviewResponse{
 		Type:            kind,
 		Language:        payload.Language,
 		Subject:         payload.Subject,

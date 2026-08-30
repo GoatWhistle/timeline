@@ -10,6 +10,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
@@ -47,7 +48,7 @@ func (s *ProfileService) Get(ctx context.Context, userID uuid.UUID) (*models.Use
 	return s.users.GetByID(ctx, userID)
 }
 
-func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req models.UpdateProfileRequest,
+func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req dto.UpdateProfileRequest,
 ) (*models.User, error) {
 	patch, err := validation.ProfilePatch(req)
 	if err != nil {
@@ -133,7 +134,7 @@ func (s *ProfileService) UnlinkTelegram(ctx context.Context, actor models.Actor)
 	})
 }
 
-func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Actor, req models.ChangeEmailRequest,
+func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Actor, req dto.ChangeEmailRequest,
 ) error {
 	newEmail, err := validation.ValidateEmail("new_email", req.NewEmail)
 	if err != nil {

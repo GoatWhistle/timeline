@@ -8,6 +8,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Bookmarks struct{ db *postgres.DB }
@@ -68,7 +69,7 @@ const bookmarkFrom = `FROM event_bookmarks b
 	WHERE b.user_id = $1 AND e.published_at IS NOT NULL AND e.archived_at IS NULL`
 
 func (r *Bookmarks) List(ctx context.Context, userID uuid.UUID, page models.Page,
-	now time.Time) ([]models.CatalogEvent, int64, error) {
+	now time.Time) ([]dto.CatalogEvent, int64, error) {
 	args := []any{userID}
 
 	var total int64
@@ -86,9 +87,9 @@ func (r *Bookmarks) List(ctx context.Context, userID uuid.UUID, page models.Page
 	}
 	defer rows.Close()
 
-	items := make([]models.CatalogEvent, 0, page.Limit())
+	items := make([]dto.CatalogEvent, 0, page.Limit())
 	for rows.Next() {
-		var c models.CatalogEvent
+		var c dto.CatalogEvent
 		if err := rows.Scan(&c.ID, &c.Title, &c.Description, &c.Organizer, &c.WebsiteURL,
 			&c.Kind, &c.Format, &c.Origin, &c.CountryCode, &c.City,
 			&c.Track, &c.PrizePool, &c.PrizeCurrency, &c.TeamSizeMax,
@@ -97,7 +98,7 @@ func (r *Bookmarks) List(ctx context.Context, userID uuid.UUID, page models.Page
 		}
 		c.State = eventState(c.StartAt, c.EndAt, now)
 		c.EffectiveFormat = c.Format
-		c.OfflineStages = []models.CatalogPlace{}
+		c.OfflineStages = []dto.CatalogPlace{}
 		items = append(items, c)
 	}
 	return items, total, mapError(rows.Err())

@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
@@ -34,7 +35,7 @@ type registrationName struct {
 	last   string
 }
 
-func (s *AuthService) validateRegistration(req models.RegisterRequest) (string, registrationName, string, error) {
+func (s *AuthService) validateRegistration(req dto.RegisterRequest) (string, registrationName, string, error) {
 	var name registrationName
 	email, err := validation.ValidateEmail("email", req.Email)
 	if err != nil {
@@ -82,7 +83,7 @@ func (s *AuthService) issueVerification(ctx context.Context, userID uuid.UUID) (
 	return secret, nil
 }
 
-func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest,
+func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest,
 	meta models.SessionMeta) (*models.User, *models.TokenPair, error) {
 	email, name, hash, err := s.validateRegistration(req)
 	if err != nil {

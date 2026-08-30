@@ -1,6 +1,9 @@
-package models
+package dto
 
-import "github.com/google/uuid"
+import (
+	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/google/uuid"
+)
 
 type CreateResourceLinkRequest struct {
 	Kind      string  `json:"kind" example:"RULES"`
@@ -23,7 +26,7 @@ type UpdateResourceLinkRequest struct {
 }
 
 type ResourceLinkPatch struct {
-	Kind      *LinkKind
+	Kind      *models.LinkKind
 	URL       *string
 	Title     *string
 	TitleSet  bool
@@ -34,7 +37,7 @@ type ResourceLinkPatch struct {
 }
 
 type ResourceLinkListResponse struct {
-	Items []ResourceLink `json:"items"`
+	Items []models.ResourceLink `json:"items"`
 }
 
 type CreateParticipantLinkRequest struct {
@@ -53,7 +56,7 @@ type UpdateParticipantLinkRequest struct {
 }
 
 type ParticipantLinkPatch struct {
-	Kind      *LinkKind
+	Kind      *models.LinkKind
 	URL       *string
 	Title     *string
 	TitleSet  bool
@@ -61,7 +64,7 @@ type ParticipantLinkPatch struct {
 }
 
 type ParticipantLinkListResponse struct {
-	Items []ParticipantLink `json:"items"`
+	Items []models.ParticipantLink `json:"items"`
 }
 
 type CreateProfileLinkRequest struct {
@@ -86,5 +89,5 @@ type ProfileLinkPatch struct {
 }
 
 type ProfileLinkListResponse struct {
-	Items []ProfileLink `json:"items"`
+	Items []models.ProfileLink `json:"items"`
 }

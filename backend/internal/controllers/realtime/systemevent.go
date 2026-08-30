@@ -11,12 +11,13 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type SystemEventService interface {
 	List(
 		ctx context.Context, actor models.Actor, unreadOnly bool, page models.Page,
-	) ([]models.SystemEventResponse, int64, error)
+	) ([]dto.SystemEventResponse, int64, error)
 	UnreadCount(ctx context.Context, actor models.Actor) (int64, error)
 	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	MarkRead(ctx context.Context, actor models.Actor, ids []uuid.UUID) (int64, error)
@@ -59,10 +60,10 @@ func (c *SystemEventController) allow(w http.ResponseWriter, r *http.Request, ac
 // @Param			unread		query		bool	false	"Return only entries the caller has not read"
 // @Param			page		query		int		false	"Page number, from 1"
 // @Param			page_size	query		int		false	"Page size"
-// @Success		200			{object}	models.SystemEventPage
-// @Failure		400			{object}	models.ErrorResponse
-// @Failure		401			{object}	models.ErrorResponse
-// @Failure		429			{object}	models.ErrorResponse
+// @Success		200			{object}	dto.SystemEventPage
+// @Failure		400			{object}	dto.ErrorResponse
+// @Failure		401			{object}	dto.ErrorResponse
+// @Failure		429			{object}	dto.ErrorResponse
 // @Router			/me/events-feed [get]
 func (c *SystemEventController) List(w http.ResponseWriter, r *http.Request) {
 	actor := middleware.ActorFrom(r)
@@ -84,7 +85,7 @@ func (c *SystemEventController) List(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.SystemEventPage{Items: items, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.SystemEventPage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
 // @Summary		Unread event count
@@ -93,9 +94,9 @@ func (c *SystemEventController) List(w http.ResponseWriter, r *http.Request) {
 // @Tags			events-feed
 // @Produce		json
 // @Security		CookieAuth
-// @Success		200	{object}	models.UnreadCountResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.UnreadCountResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/events-feed/unread-count [get]
 func (c *SystemEventController) UnreadCount(w http.ResponseWriter, r *http.Request) {
 	actor := middleware.ActorFrom(r)
@@ -107,7 +108,7 @@ func (c *SystemEventController) UnreadCount(w http.ResponseWriter, r *http.Reque
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.UnreadCountResponse{Unread: count})
+	httpx.JSON(w, http.StatusOK, dto.UnreadCountResponse{Unread: count})
 }
 
 // @Summary		Mark events as read
@@ -118,24 +119,24 @@ func (c *SystemEventController) UnreadCount(w http.ResponseWriter, r *http.Reque
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			request	body		models.MarkReadRequest	true	"Identifiers to mark, empty for all"
-// @Success		200		{object}	models.UnreadCountResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Param			request	body		dto.MarkReadRequest	true	"Identifiers to mark, empty for all"
+// @Success		200		{object}	dto.UnreadCountResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/events-feed/read [post]
 func (c *SystemEventController) MarkRead(w http.ResponseWriter, r *http.Request) {
 	actor := middleware.ActorFrom(r)
 	if !c.allow(w, r, actor) {
 		return
 	}
-	var req models.MarkReadRequest
+	var req dto.MarkReadRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
 	ids, err := httpx.BodyDisplayIDs(r.Context(), req.IDs,
-		models.DisplayKindSystemEvent, c.svc.ResolveDisplayID)
+		dto.DisplayKindSystemEvent, c.svc.ResolveDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -149,5 +150,5 @@ func (c *SystemEventController) MarkRead(w http.ResponseWriter, r *http.Request)
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.UnreadCountResponse{Unread: count})
+	httpx.JSON(w, http.StatusOK, dto.UnreadCountResponse{Unread: count})
 }

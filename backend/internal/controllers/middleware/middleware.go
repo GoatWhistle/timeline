@@ -14,6 +14,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 const (
@@ -55,7 +56,7 @@ func Recover(next http.Handler) http.Handler {
 					"path", httpx.ScrubPath(r.URL.Path),
 					"request_id", httpx.RequestID(r),
 					"stack", string(debug.Stack()))
-				httpx.JSON(w, http.StatusInternalServerError, models.ErrorResponse{Error: models.ErrorBody{
+				httpx.JSON(w, http.StatusInternalServerError, dto.ErrorResponse{Error: dto.ErrorBody{
 					Code:      "internal_error",
 					Message:   "internal server error",
 					RequestID: httpx.RequestID(r),

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -18,8 +18,8 @@ func TestProfilePatchRejectsExecutableSchemesInEveryLinkField(t *testing.T) {
 		"vbscript:msgbox(1)",
 		"file:///etc/passwd",
 	}
-	fields := map[string]func(string) models.UpdateProfileRequest{
-		"avatar_url": func(v string) models.UpdateProfileRequest { return models.UpdateProfileRequest{AvatarURL: ptr(v)} },
+	fields := map[string]func(string) dto.UpdateProfileRequest{
+		"avatar_url": func(v string) dto.UpdateProfileRequest { return dto.UpdateProfileRequest{AvatarURL: ptr(v)} },
 	}
 
 	for field, build := range fields {
@@ -34,7 +34,7 @@ func TestProfilePatchRejectsExecutableSchemesInEveryLinkField(t *testing.T) {
 }
 
 func TestProfilePatchAcceptsOrdinaryAddresses(t *testing.T) {
-	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{
+	patch, err := validation.ProfilePatch(dto.UpdateProfileRequest{
 		AvatarURL: ptr("https://example.org/a.png"),
 	})
 	if err != nil {
@@ -49,7 +49,7 @@ func TestProfilePatchAcceptsOrdinaryAddresses(t *testing.T) {
 }
 
 func TestProfilePatchTreatsAnEmptyStringAsClearing(t *testing.T) {
-	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{
+	patch, err := validation.ProfilePatch(dto.UpdateProfileRequest{
 		AvatarURL: ptr(""),
 		Bio:       ptr(""),
 	})
@@ -65,7 +65,7 @@ func TestProfilePatchTreatsAnEmptyStringAsClearing(t *testing.T) {
 }
 
 func TestProfilePatchLeavesUnmentionedFieldsAlone(t *testing.T) {
-	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{FirstName: ptr("Ivan")})
+	patch, err := validation.ProfilePatch(dto.UpdateProfileRequest{FirstName: ptr("Ivan")})
 	if err != nil {
 		t.Fatalf("expected the request to be accepted, got %v", err)
 	}
@@ -78,12 +78,12 @@ func TestProfilePatchLeavesUnmentionedFieldsAlone(t *testing.T) {
 }
 
 func TestProfilePatchBoundsTheBioLength(t *testing.T) {
-	if _, err := validation.ProfilePatch(models.UpdateProfileRequest{
+	if _, err := validation.ProfilePatch(dto.UpdateProfileRequest{
 		Bio: ptr(strings.Repeat("a", 2001)),
 	}); err == nil {
 		t.Fatalf("a bio over 2000 characters was accepted")
 	}
-	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{
+	patch, err := validation.ProfilePatch(dto.UpdateProfileRequest{
 		Bio: ptr(strings.Repeat("a", 2000)),
 	})
 	if err != nil {
@@ -96,7 +96,7 @@ func TestProfilePatchBoundsTheBioLength(t *testing.T) {
 
 func TestProfilePatchKeepsBioTextVerbatim(t *testing.T) {
 	raw := "  I write <script>alert(1)</script> & \"quotes\"  "
-	patch, err := validation.ProfilePatch(models.UpdateProfileRequest{Bio: ptr(raw)})
+	patch, err := validation.ProfilePatch(dto.UpdateProfileRequest{Bio: ptr(raw)})
 	if err != nil {
 		t.Fatalf("expected the bio to be accepted, got %v", err)
 	}
@@ -166,7 +166,7 @@ func TestProfileLinkLabelTreatsBlankAsAbsent(t *testing.T) {
 }
 
 func TestProfileLinkPatchClearsTheLabelOnlyWhenAsked(t *testing.T) {
-	patch, err := validation.ProfileLinkPatch(models.UpdateProfileLinkRequest{ClearLabel: true})
+	patch, err := validation.ProfileLinkPatch(dto.UpdateProfileLinkRequest{ClearLabel: true})
 	if err != nil {
 		t.Fatalf("clearing the label failed: %v", err)
 	}
@@ -174,7 +174,7 @@ func TestProfileLinkPatchClearsTheLabelOnlyWhenAsked(t *testing.T) {
 		t.Fatalf("clear_label did not produce an empty label: %+v", patch)
 	}
 
-	patch, err = validation.ProfileLinkPatch(models.UpdateProfileLinkRequest{URL: ptr("https://github.com/ivan")})
+	patch, err = validation.ProfileLinkPatch(dto.UpdateProfileLinkRequest{URL: ptr("https://github.com/ivan")})
 	if err != nil {
 		t.Fatalf("updating only the address failed: %v", err)
 	}
@@ -184,7 +184,7 @@ func TestProfileLinkPatchClearsTheLabelOnlyWhenAsked(t *testing.T) {
 }
 
 func TestProfileLinkPatchRejectsAHostileURL(t *testing.T) {
-	if _, err := validation.ProfileLinkPatch(models.UpdateProfileLinkRequest{
+	if _, err := validation.ProfileLinkPatch(dto.UpdateProfileLinkRequest{
 		URL: ptr("javascript:alert(1)"),
 	}); err == nil {
 		t.Fatal("ProfileLinkPatch accepted an executable scheme")

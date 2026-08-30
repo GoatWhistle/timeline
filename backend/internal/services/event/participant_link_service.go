@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -21,7 +22,7 @@ func (s *ResourceLinkService) ListPersonal(ctx context.Context, actor models.Act
 }
 
 func (s *ResourceLinkService) CreatePersonal(ctx context.Context, actor models.Actor,
-	eventID uuid.UUID, req models.CreateParticipantLinkRequest) (*models.ParticipantLink, error) {
+	eventID uuid.UUID, req dto.CreateParticipantLinkRequest) (*models.ParticipantLink, error) {
 	if actor.UserID == uuid.Nil {
 		return nil, models.NewForbidden("the personal layer requires an authenticated user")
 	}
@@ -70,12 +71,12 @@ func (s *ResourceLinkService) CreatePersonal(ctx context.Context, actor models.A
 }
 
 func (s *ResourceLinkService) UpdatePersonal(ctx context.Context, actor models.Actor,
-	id uuid.UUID, req models.UpdateParticipantLinkRequest) (*models.ParticipantLink, error) {
+	id uuid.UUID, req dto.UpdateParticipantLinkRequest) (*models.ParticipantLink, error) {
 	if actor.UserID == uuid.Nil {
 		return nil, models.NewForbidden("the personal layer requires an authenticated user")
 	}
 
-	var patch models.ParticipantLinkPatch
+	var patch dto.ParticipantLinkPatch
 	if req.Kind != nil {
 		kind, err := parseLinkKind("kind", *req.Kind)
 		if err != nil {

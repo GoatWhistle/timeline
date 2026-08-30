@@ -9,11 +9,12 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type UserService interface {
 	ResolveUserDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
-	Search(ctx context.Context, actor models.Actor, query string, page models.Page) ([]models.UserSummary, int64, error)
+	Search(ctx context.Context, actor models.Actor, query string, page models.Page) ([]dto.UserSummary, int64, error)
 	SetActive(ctx context.Context, actor models.Actor, userID uuid.UUID, active bool) error
 	Delete(ctx context.Context, actor models.Actor, userID uuid.UUID) error
 }
@@ -37,8 +38,8 @@ func NewUserController(svc UserService, pageSize, pageMax int) *UserController {
 // @Param			query		query		string	false	"Search string"
 // @Param			page		query		int		false	"Page number"	default(1)
 // @Param			page_size	query		int		false	"Page size"		default(50)
-// @Success		200			{object}	models.UserPage
-// @Failure		403			{object}	models.ErrorResponse
+// @Success		200			{object}	dto.UserPage
+// @Failure		403			{object}	dto.ErrorResponse
 // @Router			/admin/users [get]
 func (c *UserController) Search(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageSize, c.pageMax)
@@ -51,7 +52,7 @@ func (c *UserController) Search(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.UserPage{Items: items, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.UserPage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
 // @Summary		Deactivate a user
@@ -60,9 +61,9 @@ func (c *UserController) Search(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"User identifier"	example(us_42ej2s5gh7e8)
-// @Success		200	{object}	models.MessageResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.MessageResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
 // @Router			/admin/users/{id}/deactivate [post]
 func (c *UserController) Deactivate(w http.ResponseWriter, r *http.Request) {
 	c.setActive(w, r, false)
@@ -74,16 +75,16 @@ func (c *UserController) Deactivate(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"User identifier"	example(us_42ej2s5gh7e8)
-// @Success		200	{object}	models.MessageResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.MessageResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
 // @Router			/admin/users/{id}/activate [post]
 func (c *UserController) Activate(w http.ResponseWriter, r *http.Request) {
 	c.setActive(w, r, true)
 }
 
 func (c *UserController) setActive(w http.ResponseWriter, r *http.Request, active bool) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindUser, c.svc.ResolveUserDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindUser, c.svc.ResolveUserDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -96,7 +97,7 @@ func (c *UserController) setActive(w http.ResponseWriter, r *http.Request, activ
 	if active {
 		msg = "the account has been activated"
 	}
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: msg})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: msg})
 }
 
 // @Summary		Irreversible user deletion
@@ -106,12 +107,12 @@ func (c *UserController) setActive(w http.ResponseWriter, r *http.Request, activ
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"User identifier"	example(us_42ej2s5gh7e8)
-// @Success		200	{object}	models.MessageResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.MessageResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
 // @Router			/admin/users/{id} [delete]
 func (c *UserController) Delete(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindUser, c.svc.ResolveUserDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindUser, c.svc.ResolveUserDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -120,5 +121,5 @@ func (c *UserController) Delete(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "the account has been deleted and anonymised"})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "the account has been deleted and anonymised"})
 }

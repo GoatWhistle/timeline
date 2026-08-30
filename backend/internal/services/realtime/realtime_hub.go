@@ -10,20 +10,21 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/systemevent"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Subscriber struct {
 	UserID    uuid.UUID
 	SessionID uuid.UUID
 	IsAdmin   bool
-	Out       chan models.RealtimeEnvelope
+	Out       chan dto.RealtimeEnvelope
 	closeOnce sync.Once
 	done      chan struct{}
 }
 
 func (s *Subscriber) Done() <-chan struct{} { return s.done }
 
-func (s *Subscriber) Messages() <-chan models.RealtimeEnvelope { return s.Out }
+func (s *Subscriber) Messages() <-chan dto.RealtimeEnvelope { return s.Out }
 
 func (s *Subscriber) Close() {
 	s.closeOnce.Do(func() { close(s.done) })
@@ -53,7 +54,7 @@ func NewRealtimeHub(events *systemevent.Events, maxPerUser int) *RealtimeHub {
 }
 
 func (h *RealtimeHub) Subscribe(userID, sessionID uuid.UUID,
-	isAdmin bool) (models.RealtimeSubscription, error) {
+	isAdmin bool) (dto.RealtimeSubscription, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	if h.perUser[userID] >= h.maxPerUser {
@@ -63,7 +64,7 @@ func (h *RealtimeHub) Subscribe(userID, sessionID uuid.UUID,
 		UserID:    userID,
 		SessionID: sessionID,
 		IsAdmin:   isAdmin,
-		Out:       make(chan models.RealtimeEnvelope, 32),
+		Out:       make(chan dto.RealtimeEnvelope, 32),
 		done:      make(chan struct{}),
 	}
 	h.subscribers[sub] = struct{}{}
@@ -72,7 +73,7 @@ func (h *RealtimeHub) Subscribe(userID, sessionID uuid.UUID,
 	return sub, nil
 }
 
-func (h *RealtimeHub) Unsubscribe(subscription models.RealtimeSubscription) {
+func (h *RealtimeHub) Unsubscribe(subscription dto.RealtimeSubscription) {
 	sub, ok := subscription.(*Subscriber)
 	if !ok {
 		return
@@ -116,7 +117,7 @@ func (h *RealtimeHub) drop(match func(*Subscriber) bool) int {
 	return len(victims)
 }
 
-func (h *RealtimeHub) Broadcast(env models.RealtimeEnvelope, match func(*Subscriber) bool) {
+func (h *RealtimeHub) Broadcast(env dto.RealtimeEnvelope, match func(*Subscriber) bool) {
 	h.mu.RLock()
 	targets := make([]*Subscriber, 0, len(h.subscribers))
 	for sub := range h.subscribers {

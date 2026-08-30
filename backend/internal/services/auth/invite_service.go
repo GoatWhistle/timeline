@@ -12,6 +12,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
@@ -128,7 +129,7 @@ func (s *InviteService) Revoke(ctx context.Context, actor models.Actor, id uuid.
 	})
 }
 
-func (s *InviteService) Preview(ctx context.Context, token string) (*models.InvitePreview, error) {
+func (s *InviteService) Preview(ctx context.Context, token string) (*dto.InvitePreview, error) {
 	invite, err := s.invites.GetByHash(ctx, crypto.HashSecret(token))
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
@@ -136,14 +137,14 @@ func (s *InviteService) Preview(ctx context.Context, token string) (*models.Invi
 		}
 		return nil, err
 	}
-	return &models.InvitePreview{
+	return &dto.InvitePreview{
 		Email:     invite.NormalizedEmail,
 		ExpiresAt: invite.ExpiresAt,
 		Valid:     invite.Usable(s.now()),
 	}, nil
 }
 
-func (s *InviteService) Accept(ctx context.Context, req models.AcceptInviteRequest, meta models.SessionMeta,
+func (s *InviteService) Accept(ctx context.Context, req dto.AcceptInviteRequest, meta models.SessionMeta,
 ) (*models.User, *models.TokenPair, error) {
 	invite, err := s.invites.GetByHash(ctx, crypto.HashSecret(req.Token))
 	if err != nil {
@@ -155,7 +156,7 @@ func (s *InviteService) Accept(ctx context.Context, req models.AcceptInviteReque
 	if !invite.Usable(s.now()) {
 		return nil, nil, models.NewConflict("invite_not_usable", "the invite has already been used, revoked or expired")
 	}
-	return s.auth.Register(ctx, models.RegisterRequest{
+	return s.auth.Register(ctx, dto.RegisterRequest{
 		FirstName:   req.FirstName,
 		MiddleName:  req.MiddleName,
 		LastName:    req.LastName,

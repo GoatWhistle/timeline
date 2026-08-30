@@ -8,6 +8,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type SessionController struct {
@@ -43,9 +44,9 @@ func (c *SessionController) allow(r *http.Request, scope string) bool {
 // @Tags			auth
 // @Produce		json
 // @Security		CookieAuth
-// @Success		200	{object}	models.SessionListResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.SessionListResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/sessions [get]
 func (c *SessionController) List(w http.ResponseWriter, r *http.Request) {
 	if !c.allow(r, "sessions-list") {
@@ -57,7 +58,7 @@ func (c *SessionController) List(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.SessionListResponse{Items: items})
+	httpx.JSON(w, http.StatusOK, dto.SessionListResponse{Items: items})
 }
 
 // @Summary		Terminate one own session
@@ -75,18 +76,18 @@ func (c *SessionController) List(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Session identifier"	example(se_42ej2s5gh7e8)
-// @Success		200	{object}	models.MessageResponse
-// @Failure		400	{object}	models.ErrorResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse	"the session does not exist or belongs to another account"
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.MessageResponse
+// @Failure		400	{object}	dto.ErrorResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse	"the session does not exist or belongs to another account"
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/sessions/{id} [delete]
 func (c *SessionController) Revoke(w http.ResponseWriter, r *http.Request) {
 	if !c.allow(r, "sessions-revoke") {
 		httpx.Error(w, r, models.NewRateLimited("too many session requests, try again later"))
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindSession, c.svc.ResolveSessionDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindSession, c.svc.ResolveSessionDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -99,5 +100,5 @@ func (c *SessionController) Revoke(w http.ResponseWriter, r *http.Request) {
 	if current {
 		c.cookies.Clear(w)
 	}
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "session terminated"})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "session terminated"})
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
@@ -61,7 +62,7 @@ type stageDraft struct {
 	place     stagePlace
 }
 
-func validateStageDraft(req models.CreateStageRequest) (stageDraft, error) {
+func validateStageDraft(req dto.CreateStageRequest) (stageDraft, error) {
 	var out stageDraft
 	name, err := validation.ValidateText("name", req.Name, 1, 120)
 	if err != nil {
@@ -92,7 +93,7 @@ func validateStageDraft(req models.CreateStageRequest) (stageDraft, error) {
 }
 
 func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.CreateStageRequest) (*models.Stage, *models.Event, error) {
+	req dto.CreateStageRequest) (*models.Stage, *models.Event, error) {
 	if !actor.IsAdmin {
 		return nil, nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -145,7 +146,7 @@ func (s *StageService) Create(ctx context.Context, actor models.Actor, eventID u
 	return created, event, nil
 }
 
-func validateStagePatch(req models.UpdateStageRequest) (models.UpdateStageRequest, error) {
+func validateStagePatch(req dto.UpdateStageRequest) (dto.UpdateStageRequest, error) {
 	if req.Name != nil {
 		name, err := validation.ValidateText("name", *req.Name, 1, 120)
 		if err != nil {
@@ -167,7 +168,7 @@ func validateStagePatch(req models.UpdateStageRequest) (models.UpdateStageReques
 	return req, nil
 }
 
-func checkStageWindow(before *models.Stage, req models.UpdateStageRequest) error {
+func checkStageWindow(before *models.Stage, req dto.UpdateStageRequest) error {
 	start := before.StartAt
 	if req.StartAt != nil {
 		start = req.StartAt.UTC()
@@ -184,7 +185,7 @@ func checkStageWindow(before *models.Stage, req models.UpdateStageRequest) error
 }
 
 func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.UUID,
-	req models.UpdateStageRequest) (*models.Stage, *models.Event, error) {
+	req dto.UpdateStageRequest) (*models.Stage, *models.Event, error) {
 	if !actor.IsAdmin {
 		return nil, nil, models.NewForbidden("the operation is restricted to administrators")
 	}

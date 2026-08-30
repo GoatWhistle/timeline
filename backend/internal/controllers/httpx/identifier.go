@@ -6,14 +6,14 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type DisplayResolver func(ctx context.Context, displayID string) (uuid.UUID, error)
 
-func PathDisplayID(r *http.Request, name string, kind models.DisplayKind,
+func PathDisplayID(r *http.Request, name string, kind dto.DisplayKind,
 	resolve DisplayResolver) (uuid.UUID, error) {
-	parsed, err := models.ParseDisplayID(kind, r.PathValue(name))
+	parsed, err := dto.ParseDisplayID(kind, r.PathValue(name))
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -24,12 +24,12 @@ func PathDisplayID(r *http.Request, name string, kind models.DisplayKind,
 	return id, nil
 }
 
-func BodyDisplayID(ctx context.Context, raw *string, kind models.DisplayKind,
+func BodyDisplayID(ctx context.Context, raw *string, kind dto.DisplayKind,
 	resolve DisplayResolver) (*uuid.UUID, error) {
 	if raw == nil {
 		return nil, nil
 	}
-	parsed, err := models.ParseDisplayID(kind, *raw)
+	parsed, err := dto.ParseDisplayID(kind, *raw)
 	if err != nil {
 		return nil, err
 	}
@@ -40,11 +40,11 @@ func BodyDisplayID(ctx context.Context, raw *string, kind models.DisplayKind,
 	return &id, nil
 }
 
-func BodyDisplayIDs(ctx context.Context, raw []string, kind models.DisplayKind,
+func BodyDisplayIDs(ctx context.Context, raw []string, kind dto.DisplayKind,
 	resolve DisplayResolver) ([]uuid.UUID, error) {
 	ids := make([]uuid.UUID, 0, len(raw))
 	for _, value := range raw {
-		parsed, err := models.ParseDisplayID(kind, value)
+		parsed, err := dto.ParseDisplayID(kind, value)
 		if err != nil {
 			return nil, err
 		}

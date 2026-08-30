@@ -13,6 +13,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/reconcile"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
@@ -46,8 +47,8 @@ func (s *CatalogService) ResolveDisplayID(ctx context.Context, displayID string)
 	return s.events.ResolveDisplayID(ctx, displayID)
 }
 
-func (s *CatalogService) List(ctx context.Context, actor models.Actor, filter models.CatalogFilter,
-	page models.Page) ([]models.CatalogEvent, int64, error) {
+func (s *CatalogService) List(ctx context.Context, actor models.Actor, filter dto.CatalogFilter,
+	page models.Page) ([]dto.CatalogEvent, int64, error) {
 	if actor.UserID == uuid.Nil {
 		return nil, 0, models.NewForbidden("the catalog is available to authenticated users only")
 	}
@@ -55,7 +56,7 @@ func (s *CatalogService) List(ctx context.Context, actor models.Actor, filter mo
 }
 
 func (s *CatalogService) Join(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.JoinEventRequest) (*models.EventParticipant, error) {
+	req dto.JoinEventRequest) (*models.EventParticipant, error) {
 	if actor.UserID == uuid.Nil {
 		return nil, models.NewForbidden("joining requires an authenticated user")
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 func (r *Users) GetByNickname(ctx context.Context, nickname string) (*models.User, error) {
@@ -73,7 +74,7 @@ func (r *Users) PurgeReservations(ctx context.Context, now time.Time) (int64, er
 }
 
 func (r *Users) PublicProfileEvents(ctx context.Context,
-	userID uuid.UUID) ([]models.PublicProfileEvent, error) {
+	userID uuid.UUID) ([]dto.PublicProfileEvent, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		SELECT e.id, e.title, e.start_at, e.end_at
 		FROM event_participants p
@@ -89,9 +90,9 @@ func (r *Users) PublicProfileEvents(ctx context.Context,
 	}
 	defer rows.Close()
 
-	items := make([]models.PublicProfileEvent, 0)
+	items := make([]dto.PublicProfileEvent, 0)
 	for rows.Next() {
-		var item models.PublicProfileEvent
+		var item dto.PublicProfileEvent
 		if err := rows.Scan(&item.ID, &item.Title, &item.StartAt, &item.EndAt); err != nil {
 			return nil, mapError(err)
 		}

@@ -5,10 +5,11 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 func (s *OpsService) Queue(ctx context.Context, actor models.Actor, scope string,
-	page models.Page) ([]models.QueueEntryResponse, int64, error) {
+	page models.Page) ([]dto.QueueEntryResponse, int64, error) {
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -27,7 +28,7 @@ func (s *OpsService) Queue(ctx context.Context, actor models.Actor, scope string
 		return nil, 0, err
 	}
 
-	items := make([]models.QueueEntryResponse, 0, len(entries))
+	items := make([]dto.QueueEntryResponse, 0, len(entries))
 	for i := range entries {
 		items = append(items, queueEntry(&entries[i], s))
 	}
@@ -44,8 +45,8 @@ func queueScope(scope string) (notification.QueueScope, error) {
 	return "", models.NewValidation("scope must be failures or stuck-leases")
 }
 
-func queueEntry(n *models.Notification, s *OpsService) models.QueueEntryResponse {
-	entry := models.QueueEntryResponse{
+func queueEntry(n *models.Notification, s *OpsService) dto.QueueEntryResponse {
+	entry := dto.QueueEntryResponse{
 		ID:               n.ID,
 		NotificationType: n.NotificationType,
 		Status:           n.Status,

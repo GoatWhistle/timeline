@@ -8,6 +8,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 )
 
@@ -31,7 +32,7 @@ func (s *UserService) ResolveUserDisplayID(ctx context.Context, displayID string
 }
 
 func (s *UserService) Search(ctx context.Context, actor models.Actor, query string, page models.Page,
-) ([]models.UserSummary, int64, error) {
+) ([]dto.UserSummary, int64, error) {
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("user search is restricted to administrators")
 	}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Timeline struct{ db *postgres.DB }
@@ -16,7 +17,7 @@ type Timeline struct{ db *postgres.DB }
 func NewTimeline(db *postgres.DB) *Timeline { return &Timeline{db: db} }
 
 func (r *Timeline) MyEvents(ctx context.Context, userID uuid.UUID, filter models.MyEventFilter,
-	page models.Page, now time.Time) ([]models.MyEventItem, int64, error) {
+	page models.Page, now time.Time) ([]dto.MyEventItem, int64, error) {
 	conds := []string{
 		"p.user_id = $1",
 		"p.participation_status = 'ASSIGNED'",
@@ -72,11 +73,11 @@ func (r *Timeline) MyEvents(ctx context.Context, userID uuid.UUID, filter models
 	}
 	defer rows.Close()
 
-	items := make([]models.MyEventItem, 0, page.Limit())
+	items := make([]dto.MyEventItem, 0, page.Limit())
 	ids := make([]uuid.UUID, 0, page.Limit())
 	for rows.Next() {
 		var (
-			item        models.MyEventItem
+			item        dto.MyEventItem
 			rawID       uuid.UUID
 			archivedAt  *time.Time
 			regURL      *string
@@ -98,7 +99,7 @@ func (r *Timeline) MyEvents(ctx context.Context, userID uuid.UUID, filter models
 			item.RegistrationDeadline = regDeadline
 		}
 		if statusID != nil && statusValue != nil && todoCycle != nil {
-			item.RegistrationStatus = &models.RegistrationStatusShort{
+			item.RegistrationStatus = &dto.RegistrationStatusShort{
 				ID: *statusID, Status: *statusValue, TodoCycle: *todoCycle, RegisteredAt: registered,
 			}
 		}

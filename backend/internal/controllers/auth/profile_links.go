@@ -11,18 +11,19 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type ProfileLinkService interface {
 	List(ctx context.Context, userID uuid.UUID) ([]models.ProfileLink, error)
 	Create(ctx context.Context, actor models.Actor,
-		req models.CreateProfileLinkRequest) (*models.ProfileLink, error)
+		req dto.CreateProfileLinkRequest) (*models.ProfileLink, error)
 	Update(ctx context.Context, actor models.Actor, id uuid.UUID,
-		req models.UpdateProfileLinkRequest) (*models.ProfileLink, error)
+		req dto.UpdateProfileLinkRequest) (*models.ProfileLink, error)
 	Delete(ctx context.Context, actor models.Actor, id uuid.UUID) error
 	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	Reorder(ctx context.Context, actor models.Actor,
-		req models.ReorderProfileLinksRequest, ids []uuid.UUID) ([]models.ProfileLink, error)
+		req dto.ReorderProfileLinksRequest, ids []uuid.UUID) ([]models.ProfileLink, error)
 }
 
 type ProfileLinkController struct {
@@ -56,9 +57,9 @@ func (c *ProfileLinkController) guard(w http.ResponseWriter, r *http.Request, sc
 // @Tags			profile
 // @Produce		json
 // @Security		CookieAuth
-// @Success		200	{object}	models.ProfileLinkListResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.ProfileLinkListResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/profile-links [get]
 func (c *ProfileLinkController) List(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "profile.links.list") {
@@ -69,7 +70,7 @@ func (c *ProfileLinkController) List(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.ProfileLinkListResponse{Items: items})
+	httpx.JSON(w, http.StatusOK, dto.ProfileLinkListResponse{Items: items})
 }
 
 // @Summary		Add a profile link
@@ -80,18 +81,18 @@ func (c *ProfileLinkController) List(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			request	body		models.CreateProfileLinkRequest	true	"Link"
+// @Param			request	body		dto.CreateProfileLinkRequest	true	"Link"
 // @Success		201		{object}	models.ProfileLink
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"the profile link limit is reached"
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"the profile link limit is reached"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/profile-links [post]
 func (c *ProfileLinkController) Create(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "profile.links.create") {
 		return
 	}
-	var req models.CreateProfileLinkRequest
+	var req dto.CreateProfileLinkRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -110,23 +111,23 @@ func (c *ProfileLinkController) Create(w http.ResponseWriter, r *http.Request) {
 // @Produce	json
 // @Security	CookieAuth
 // @Param		id		path		string							true	"Link identifier"	example(pf_42ej2s5gh7e8)
-// @Param		request	body		models.UpdateProfileLinkRequest	true	"Changed fields"
+// @Param		request	body		dto.UpdateProfileLinkRequest	true	"Changed fields"
 // @Success	200		{object}	models.ProfileLink
-// @Failure	400		{object}	models.ErrorResponse
-// @Failure	401		{object}	models.ErrorResponse
-// @Failure	404		{object}	models.ErrorResponse
-// @Failure	429		{object}	models.ErrorResponse
+// @Failure	400		{object}	dto.ErrorResponse
+// @Failure	401		{object}	dto.ErrorResponse
+// @Failure	404		{object}	dto.ErrorResponse
+// @Failure	429		{object}	dto.ErrorResponse
 // @Router		/me/profile-links/{id} [patch]
 func (c *ProfileLinkController) Update(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "profile.links.update") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindProfileLink, c.svc.ResolveDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindProfileLink, c.svc.ResolveDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.UpdateProfileLinkRequest
+	var req dto.UpdateProfileLinkRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -144,16 +145,16 @@ func (c *ProfileLinkController) Update(w http.ResponseWriter, r *http.Request) {
 // @Produce	json
 // @Security	CookieAuth
 // @Param		id	path		string	true	"Link identifier"	example(pf_42ej2s5gh7e8)
-// @Success	200	{object}	models.MessageResponse
-// @Failure	401	{object}	models.ErrorResponse
-// @Failure	404	{object}	models.ErrorResponse
-// @Failure	429	{object}	models.ErrorResponse
+// @Success	200	{object}	dto.MessageResponse
+// @Failure	401	{object}	dto.ErrorResponse
+// @Failure	404	{object}	dto.ErrorResponse
+// @Failure	429	{object}	dto.ErrorResponse
 // @Router		/me/profile-links/{id} [delete]
 func (c *ProfileLinkController) Delete(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "profile.links.delete") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindProfileLink, c.svc.ResolveDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindProfileLink, c.svc.ResolveDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -162,7 +163,7 @@ func (c *ProfileLinkController) Delete(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "the link is removed"})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "the link is removed"})
 }
 
 // @Summary		Reorder the profile links
@@ -172,24 +173,24 @@ func (c *ProfileLinkController) Delete(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			request	body		models.ReorderProfileLinksRequest	true	"Identifiers in display order"
-// @Success		200		{object}	models.ProfileLinkListResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Param			request	body		dto.ReorderProfileLinksRequest	true	"Identifiers in display order"
+// @Success		200		{object}	dto.ProfileLinkListResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/profile-links/order [put]
 func (c *ProfileLinkController) Reorder(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "profile.links.reorder") {
 		return
 	}
-	var req models.ReorderProfileLinksRequest
+	var req dto.ReorderProfileLinksRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
 	ids, err := httpx.BodyDisplayIDs(r.Context(), req.IDs,
-		models.DisplayKindProfileLink, c.svc.ResolveDisplayID)
+		dto.DisplayKindProfileLink, c.svc.ResolveDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -199,5 +200,5 @@ func (c *ProfileLinkController) Reorder(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.ProfileLinkListResponse{Items: items})
+	httpx.JSON(w, http.StatusOK, dto.ProfileLinkListResponse{Items: items})
 }

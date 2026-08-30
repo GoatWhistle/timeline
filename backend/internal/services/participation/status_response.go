@@ -4,10 +4,11 @@ import (
 	"context"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 func (s *StatusService) response(ctx context.Context, status *models.RegistrationStatus,
-) (*models.RegistrationStatusResponse, error) {
+) (*dto.RegistrationStatusResponse, error) {
 	eventDisplayID, err := s.events.DisplayIDByID(ctx, status.EventID)
 	if err != nil {
 		return nil, err
@@ -16,7 +17,7 @@ func (s *StatusService) response(ctx context.Context, status *models.Registratio
 	if err != nil {
 		return nil, err
 	}
-	resp := &models.RegistrationStatusResponse{
+	resp := &dto.RegistrationStatusResponse{
 		ID:               status.DisplayID,
 		EventID:          eventDisplayID,
 		RegistrationID:   registration.DisplayID,

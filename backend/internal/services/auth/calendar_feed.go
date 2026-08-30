@@ -12,6 +12,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/calendar"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
@@ -44,18 +45,18 @@ func NewCalendarFeedService(db *postgres.DB, feeds *identity.CalendarFeeds,
 }
 
 func (s *CalendarFeedService) Describe(ctx context.Context,
-	actor models.Actor) (*models.CalendarFeedResponse, error) {
+	actor models.Actor) (*dto.CalendarFeedResponse, error) {
 	if actor.IsSystem() {
 		return nil, models.NewUnauthorized("authentication is required")
 	}
 	token, err := s.feeds.GetActiveByUser(ctx, actor.UserID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
-			return &models.CalendarFeedResponse{Enabled: false}, nil
+			return &dto.CalendarFeedResponse{Enabled: false}, nil
 		}
 		return nil, err
 	}
-	return &models.CalendarFeedResponse{
+	return &dto.CalendarFeedResponse{
 		Enabled:    true,
 		CreatedAt:  &token.CreatedAt,
 		LastUsedAt: token.LastUsedAt,
@@ -63,11 +64,11 @@ func (s *CalendarFeedService) Describe(ctx context.Context,
 }
 
 func (s *CalendarFeedService) Issue(ctx context.Context, actor models.Actor,
-	rotate bool) (*models.CalendarFeedSecretResponse, error) {
+	rotate bool) (*dto.CalendarFeedSecretResponse, error) {
 	if actor.IsSystem() {
 		return nil, models.NewUnauthorized("authentication is required")
 	}
-	var result *models.CalendarFeedSecretResponse
+	var result *dto.CalendarFeedSecretResponse
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		_, err := s.feeds.GetActiveByUser(ctx, actor.UserID)
 		switch {
@@ -90,7 +91,7 @@ func (s *CalendarFeedService) Issue(ctx context.Context, actor models.Actor,
 		if err != nil {
 			return err
 		}
-		result = &models.CalendarFeedSecretResponse{
+		result = &dto.CalendarFeedSecretResponse{
 			URL:       s.feedURL(secret),
 			CreatedAt: token.CreatedAt,
 		}
@@ -183,7 +184,7 @@ func (s *CalendarFeedService) entries(ctx context.Context, userID uuid.UUID,
 }
 
 func appendCalendarRow(entries []models.CalendarEntry,
-	row *models.ScheduleRow) []models.CalendarEntry {
+	row *dto.ScheduleRow) []models.CalendarEntry {
 	entries = append(entries, models.CalendarEntry{
 		Kind:     models.CalendarEntryEvent,
 		EventID:  row.EventUUID,

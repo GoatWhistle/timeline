@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -31,7 +32,7 @@ func (s *PersonalService) GetNote(ctx context.Context, actor models.Actor,
 }
 
 func (s *PersonalService) SaveNote(ctx context.Context, actor models.Actor,
-	eventID uuid.UUID, req models.SaveNoteRequest) (*models.ParticipantNote, error) {
+	eventID uuid.UUID, req dto.SaveNoteRequest) (*models.ParticipantNote, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, err

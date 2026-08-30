@@ -10,6 +10,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type NotificationRuleController struct {
@@ -25,10 +26,10 @@ type RuleService interface {
 	ResolveRuleDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.NotificationRule, error)
 	Create(
-		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CreateRuleRequest,
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.CreateRuleRequest,
 	) (*models.NotificationRule, error)
 	Update(
-		ctx context.Context, actor models.Actor, ruleID uuid.UUID, req models.UpdateRuleRequest,
+		ctx context.Context, actor models.Actor, ruleID uuid.UUID, req dto.UpdateRuleRequest,
 	) (*models.NotificationRule, error)
 	Disable(ctx context.Context, actor models.Actor, ruleID uuid.UUID) error
 }
@@ -38,12 +39,12 @@ type RuleService interface {
 // @Produce	json
 // @Security	CookieAuth
 // @Param		id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success	200	{array}		models.NotificationRuleResponse
-// @Failure	403	{object}	models.ErrorResponse
-// @Failure	404	{object}	models.ErrorResponse
+// @Success	200	{array}		dto.NotificationRuleResponse
+// @Failure	403	{object}	dto.ErrorResponse
+// @Failure	404	{object}	dto.ErrorResponse
 // @Router		/admin/events/{id}/registration/rules [get]
 func (c *NotificationRuleController) ListRules(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.rules.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.rules.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -53,7 +54,7 @@ func (c *NotificationRuleController) ListRules(w http.ResponseWriter, r *http.Re
 		httpx.Error(w, r, err)
 		return
 	}
-	out := make([]models.NotificationRuleResponse, 0, len(items))
+	out := make([]dto.NotificationRuleResponse, 0, len(items))
 	for i := range items {
 		out = append(out, shared.RuleResponse(&items[i]))
 	}
@@ -69,20 +70,20 @@ func (c *NotificationRuleController) ListRules(w http.ResponseWriter, r *http.Re
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string						true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			request	body		models.CreateRuleRequest	true	"Rule parameters"
-// @Success		201		{object}	models.NotificationRuleResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"a rule with this offset already exists or the slot limit is reached"
+// @Param			request	body		dto.CreateRuleRequest	true	"Rule parameters"
+// @Success		201		{object}	dto.NotificationRuleResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"a rule with this offset already exists or the slot limit is reached"
 // @Router			/admin/events/{id}/registration/rules [post]
 func (c *NotificationRuleController) CreateRule(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.rules.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.rules.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.CreateRuleRequest
+	var req dto.CreateRuleRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -103,20 +104,20 @@ func (c *NotificationRuleController) CreateRule(w http.ResponseWriter, r *http.R
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string						true	"Rule identifier"	example(nr_42ej2s5gh7e8)
-// @Param			request	body		models.UpdateRuleRequest	true	"Mutable fields"
-// @Success		200		{object}	models.NotificationRuleResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse
+// @Param			request	body		dto.UpdateRuleRequest	true	"Mutable fields"
+// @Success		200		{object}	dto.NotificationRuleResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse
 // @Router			/admin/registration-rules/{id} [patch]
 func (c *NotificationRuleController) UpdateRule(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindNotificationRule, c.rules.ResolveRuleDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindNotificationRule, c.rules.ResolveRuleDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.UpdateRuleRequest
+	var req dto.UpdateRuleRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -137,11 +138,11 @@ func (c *NotificationRuleController) UpdateRule(w http.ResponseWriter, r *http.R
 // @Security		CookieAuth
 // @Param			id	path	string	true	"Rule identifier"	example(nr_42ej2s5gh7e8)
 // @Success		204	"the rule is disabled"
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
 // @Router			/admin/registration-rules/{id} [delete]
 func (c *NotificationRuleController) DisableRule(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindNotificationRule, c.rules.ResolveRuleDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindNotificationRule, c.rules.ResolveRuleDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

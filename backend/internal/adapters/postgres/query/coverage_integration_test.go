@@ -11,7 +11,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
@@ -153,7 +153,7 @@ func TestCoverageCountsEveryEventThatRequiresRegistration(t *testing.T) {
 	}
 }
 
-func coverage(t *testing.T, pool *pgxpool.Pool) models.RegistrationCoverage {
+func coverage(t *testing.T, pool *pgxpool.Pool) dto.RegistrationCoverage {
 	t.Helper()
 	got, err := query.NewTimeline(postgres.NewDB(pool)).RegistrationCoverage(context.Background())
 	if err != nil {

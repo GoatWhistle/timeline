@@ -9,11 +9,12 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type NotificationHistoryService interface {
 	History(ctx context.Context, actor models.Actor,
-		page models.Page) ([]models.NotificationHistoryItem, int64, error)
+		page models.Page) ([]dto.NotificationHistoryItem, int64, error)
 }
 
 type NotificationHistoryController struct {
@@ -59,10 +60,10 @@ func (c *NotificationHistoryController) guard(w http.ResponseWriter, r *http.Req
 // @Security		CookieAuth
 // @Param			page		query		int	false	"Page number"	default(1)
 // @Param			page_size	query		int	false	"Page size"		default(50)
-// @Success		200			{object}	models.NotificationHistoryResponse
-// @Failure		400			{object}	models.ErrorResponse
-// @Failure		401			{object}	models.ErrorResponse
-// @Failure		429			{object}	models.ErrorResponse
+// @Success		200			{object}	dto.NotificationHistoryResponse
+// @Failure		400			{object}	dto.ErrorResponse
+// @Failure		401			{object}	dto.ErrorResponse
+// @Failure		429			{object}	dto.ErrorResponse
 // @Router			/me/notifications [get]
 func (c *NotificationHistoryController) List(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r) {
@@ -78,7 +79,7 @@ func (c *NotificationHistoryController) List(w http.ResponseWriter, r *http.Requ
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.NotificationHistoryResponse{
+	httpx.JSON(w, http.StatusOK, dto.NotificationHistoryResponse{
 		Items: items, Meta: httpx.Meta(page, total),
 	})
 }

@@ -7,9 +7,10 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
-func (s *AuthService) ListSessions(ctx context.Context, actor models.Actor) ([]models.SessionResponse, error) {
+func (s *AuthService) ListSessions(ctx context.Context, actor models.Actor) ([]dto.SessionResponse, error) {
 	if actor.IsSystem() {
 		return nil, models.NewUnauthorized("authentication is required")
 	}
@@ -17,15 +18,15 @@ func (s *AuthService) ListSessions(ctx context.Context, actor models.Actor) ([]m
 	if err != nil {
 		return nil, err
 	}
-	items := make([]models.SessionResponse, 0, len(sessions))
+	items := make([]dto.SessionResponse, 0, len(sessions))
 	for i := range sessions {
 		items = append(items, sessionResponse(&sessions[i], actor.SessionID))
 	}
 	return items, nil
 }
 
-func sessionResponse(session *models.Session, current uuid.UUID) models.SessionResponse {
-	return models.SessionResponse{
+func sessionResponse(session *models.Session, current uuid.UUID) dto.SessionResponse {
+	return dto.SessionResponse{
 		ID:         session.DisplayID,
 		UserAgent:  session.UserAgent,
 		IP:         session.IP,

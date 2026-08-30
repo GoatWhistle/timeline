@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -96,8 +97,8 @@ func validateStagePlace(place stagePlace) error {
 	return nil
 }
 
-func stagePlacePatch(place stagePlace) models.StagePlacePatch {
-	return models.StagePlacePatch{
+func stagePlacePatch(place stagePlace) dto.StagePlacePatch {
+	return dto.StagePlacePatch{
 		FormatSet: true, Format: place.format,
 		CountryCode: place.countryCode, City: place.city,
 		VenueSet: true, Venue: place.venue,

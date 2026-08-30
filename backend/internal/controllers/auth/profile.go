@@ -11,17 +11,18 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type ProfileService interface {
 	Get(ctx context.Context, userID uuid.UUID) (*models.User, error)
-	Update(ctx context.Context, actor models.Actor, req models.UpdateProfileRequest) (*models.User, error)
+	Update(ctx context.Context, actor models.Actor, req dto.UpdateProfileRequest) (*models.User, error)
 	StartTelegramLink(ctx context.Context, actor models.Actor) (string, time.Time, error)
 	UnlinkTelegram(ctx context.Context, actor models.Actor) error
 	UpdateShortcuts(ctx context.Context, actor models.Actor,
-		req models.UpdateShortcutsRequest) (*models.User, error)
+		req dto.UpdateShortcutsRequest) (*models.User, error)
 	ResetShortcuts(ctx context.Context, actor models.Actor) (*models.User, error)
-	RequestEmailChange(ctx context.Context, actor models.Actor, req models.ChangeEmailRequest) error
+	RequestEmailChange(ctx context.Context, actor models.Actor, req dto.ChangeEmailRequest) error
 	Deactivate(ctx context.Context, actor models.Actor) error
 }
 
@@ -59,8 +60,8 @@ func (c *ProfileController) allowShortcuts(r *http.Request) bool {
 // @Tags		profile
 // @Produce	json
 // @Security	CookieAuth
-// @Success	200	{object}	models.MeResponse
-// @Failure	401	{object}	models.ErrorResponse
+// @Success	200	{object}	dto.MeResponse
+// @Failure	401	{object}	dto.ErrorResponse
 // @Router		/me [get]
 func (c *ProfileController) Get(w http.ResponseWriter, r *http.Request) {
 	user, err := c.svc.Get(r.Context(), middleware.ActorFrom(r).UserID)
@@ -77,18 +78,18 @@ func (c *ProfileController) Get(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			request	body		models.UpdateProfileRequest	true	"Mutable fields"
-// @Success		200		{object}	models.MeResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Param			request	body		dto.UpdateProfileRequest	true	"Mutable fields"
+// @Success		200		{object}	dto.MeResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me [patch]
 func (c *ProfileController) Update(w http.ResponseWriter, r *http.Request) {
 	if !c.allow(r) {
 		httpx.Error(w, r, models.NewRateLimited("too many profile updates, try again later"))
 		return
 	}
-	var req models.UpdateProfileRequest
+	var req dto.UpdateProfileRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -107,8 +108,8 @@ func (c *ProfileController) Update(w http.ResponseWriter, r *http.Request) {
 // @Tags			profile
 // @Produce		json
 // @Security		CookieAuth
-// @Success		200	{object}	models.TelegramLinkResponse
-// @Failure		401	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.TelegramLinkResponse
+// @Failure		401	{object}	dto.ErrorResponse
 // @Router			/me/telegram/link [post]
 func (c *ProfileController) TelegramLink(w http.ResponseWriter, r *http.Request) {
 	link, expires, err := c.svc.StartTelegramLink(r.Context(), middleware.ActorFrom(r))
@@ -116,22 +117,22 @@ func (c *ProfileController) TelegramLink(w http.ResponseWriter, r *http.Request)
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.TelegramLinkResponse{DeepLink: link, ExpiresAt: expires})
+	httpx.JSON(w, http.StatusOK, dto.TelegramLinkResponse{DeepLink: link, ExpiresAt: expires})
 }
 
 // @Summary	Unlink Telegram
 // @Tags		profile
 // @Produce	json
 // @Security	CookieAuth
-// @Success	200	{object}	models.MessageResponse
-// @Failure	401	{object}	models.ErrorResponse
+// @Success	200	{object}	dto.MessageResponse
+// @Failure	401	{object}	dto.ErrorResponse
 // @Router		/me/telegram [delete]
 func (c *ProfileController) TelegramUnlink(w http.ResponseWriter, r *http.Request) {
 	if err := c.svc.UnlinkTelegram(r.Context(), middleware.ActorFrom(r)); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "telegram link removed"})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "telegram link removed"})
 }
 
 // @Summary		Request an email change
@@ -140,14 +141,14 @@ func (c *ProfileController) TelegramUnlink(w http.ResponseWriter, r *http.Reques
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			request	body		models.ChangeEmailRequest	true	"New address and current password"
-// @Success		202		{object}	models.MessageResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"address is already taken"
+// @Param			request	body		dto.ChangeEmailRequest	true	"New address and current password"
+// @Success		202		{object}	dto.MessageResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"address is already taken"
 // @Router			/me/email-change [post]
 func (c *ProfileController) ChangeEmail(w http.ResponseWriter, r *http.Request) {
-	var req models.ChangeEmailRequest
+	var req dto.ChangeEmailRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -156,7 +157,7 @@ func (c *ProfileController) ChangeEmail(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusAccepted, models.MessageResponse{
+	httpx.JSON(w, http.StatusAccepted, dto.MessageResponse{
 		Message: "a confirmation message has been sent to the new address",
 	})
 }
@@ -167,8 +168,8 @@ func (c *ProfileController) ChangeEmail(w http.ResponseWriter, r *http.Request) 
 // @Tags			profile
 // @Produce		json
 // @Security		CookieAuth
-// @Success		200	{object}	models.MessageResponse
-// @Failure		401	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.MessageResponse
+// @Failure		401	{object}	dto.ErrorResponse
 // @Router			/me/deactivate [post]
 func (c *ProfileController) Deactivate(w http.ResponseWriter, r *http.Request) {
 	if err := c.svc.Deactivate(r.Context(), middleware.ActorFrom(r)); err != nil {
@@ -176,5 +177,5 @@ func (c *ProfileController) Deactivate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.cookies.Clear(w)
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "the account is deactivated"})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "the account is deactivated"})
 }

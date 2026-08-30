@@ -17,17 +17,6 @@ type CalendarFeedToken struct {
 
 func (t *CalendarFeedToken) Active() bool { return t.RevokedAt == nil }
 
-type CalendarFeedResponse struct {
-	Enabled    bool       `json:"enabled" example:"true"`
-	CreatedAt  *time.Time `json:"created_at,omitempty"`
-	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
-}
-
-type CalendarFeedSecretResponse struct {
-	URL       string    `json:"url" example:"https://timeline.example.com/api/v1/calendar/9Qk3.../feed.ics"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
 type CalendarEntryKind string
 
 const (

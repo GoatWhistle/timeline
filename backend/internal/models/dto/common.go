@@ -1,16 +1,17 @@
-package models
+package dto
 
 import (
 	"encoding/json"
+	"github.com/GoatWhistle/timeline/internal/models"
 	"strings"
 	"time"
 )
 
 type ErrorBody struct {
-	Code      string       `json:"code" example:"validation_failed"`
-	Message   string       `json:"message" example:"invalid request data"`
-	Fields    []FieldError `json:"fields,omitempty"`
-	RequestID string       `json:"request_id" example:"01HZY0Q2K7"`
+	Code      string              `json:"code" example:"validation_failed"`
+	Message   string              `json:"message" example:"invalid request data"`
+	Fields    []models.FieldError `json:"fields,omitempty"`
+	RequestID string              `json:"request_id" example:"01HZY0Q2K7"`
 }
 
 type ErrorResponse struct {
@@ -99,16 +100,16 @@ func NewDisplayID(kind DisplayKind, value string) DisplayID {
 func ParseDisplayID(kind DisplayKind, raw string) (DisplayID, error) {
 	prefix := kind.Prefix + "_"
 	if !strings.HasPrefix(raw, prefix) {
-		return DisplayID{}, NewValidationf("%s identifier must start with %q", kind.Entity, prefix)
+		return DisplayID{}, models.NewValidationf("%s identifier must start with %q", kind.Entity, prefix)
 	}
 	suffix := raw[len(prefix):]
 	if len(suffix) != displaySuffixLen {
-		return DisplayID{}, NewValidationf("%s identifier must be %d characters after %q",
+		return DisplayID{}, models.NewValidationf("%s identifier must be %d characters after %q",
 			kind.Entity, displaySuffixLen, prefix)
 	}
 	for _, r := range suffix {
 		if !strings.ContainsRune(displayAlphabet, r) {
-			return DisplayID{}, NewValidationf("%s identifier contains the unsupported character %q",
+			return DisplayID{}, models.NewValidationf("%s identifier contains the unsupported character %q",
 				kind.Entity, string(r))
 		}
 	}

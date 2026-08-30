@@ -252,11 +252,19 @@ linters:
 
       # enums tags on DTO fields: the tag lists the domain values verbatim and
       # a wrapped tag is not a tag any more.
-      - path: internal/models/dto_event\.go
+      - path: internal/models/dto/event\.go
         linters:
           - lll
 
-      - path: internal/models/dto_notification\.go
+      - path: internal/models/dto/notification\.go
+        linters:
+          - lll
+
+      - path: internal/models/dto/registration\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/auth/csrf\.go
         linters:
           - lll
 

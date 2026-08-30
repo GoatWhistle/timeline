@@ -8,13 +8,14 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 const audienceFilter = `(audience_kind = 'USER' AND audience_user_id = $1
 	OR audience_kind = 'ADMIN' AND $2)`
 
 func (r *Events) List(ctx context.Context, userID uuid.UUID, isAdmin bool,
-	unreadOnly bool, page models.Page) ([]models.SystemEventResponse, int64, error) {
+	unreadOnly bool, page models.Page) ([]dto.SystemEventResponse, int64, error) {
 	var total int64
 	err := r.db.Q(ctx).QueryRow(ctx, `
 		SELECT count(*) FROM system_events e
@@ -26,7 +27,7 @@ func (r *Events) List(ctx context.Context, userID uuid.UUID, isAdmin bool,
 		return nil, 0, mapError(err)
 	}
 	if total == 0 {
-		return []models.SystemEventResponse{}, 0, nil
+		return []dto.SystemEventResponse{}, 0, nil
 	}
 
 	rows, err := r.db.Q(ctx).Query(ctx, `
@@ -46,9 +47,9 @@ func (r *Events) List(ctx context.Context, userID uuid.UUID, isAdmin bool,
 	}
 	defer rows.Close()
 
-	items := make([]models.SystemEventResponse, 0, page.Size)
+	items := make([]dto.SystemEventResponse, 0, page.Size)
 	for rows.Next() {
-		var item models.SystemEventResponse
+		var item dto.SystemEventResponse
 		var raw []byte
 		if err := rows.Scan(&item.ID, &item.Type, &item.Severity, &item.SubjectType,
 			&raw, &item.Read, &item.CreatedAt); err != nil {

@@ -10,6 +10,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/reconcile"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
@@ -61,7 +62,7 @@ func (s *RuleService) resolveSlot(ctx context.Context, registrationID uuid.UUID,
 }
 
 func (s *RuleService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.CreateRuleRequest) (*models.NotificationRule, error) {
+	req dto.CreateRuleRequest) (*models.NotificationRule, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -118,7 +119,7 @@ func (s *RuleService) Create(ctx context.Context, actor models.Actor, eventID uu
 	return created, nil
 }
 
-func ruleScheduleChanged(req models.UpdateRuleRequest, before *models.NotificationRule) bool {
+func ruleScheduleChanged(req dto.UpdateRuleRequest, before *models.NotificationRule) bool {
 	return (req.OffsetMinutes != nil && *req.OffsetMinutes != before.OffsetMinutes) ||
 		(req.Enabled != nil && *req.Enabled != before.Enabled)
 }
@@ -139,7 +140,7 @@ func (s *RuleService) resetSchedule(ctx context.Context, registrationID uuid.UUI
 }
 
 func (s *RuleService) Update(ctx context.Context, actor models.Actor, ruleID uuid.UUID,
-	req models.UpdateRuleRequest) (*models.NotificationRule, error) {
+	req dto.UpdateRuleRequest) (*models.NotificationRule, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}

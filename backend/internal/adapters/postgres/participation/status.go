@@ -10,6 +10,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Statuses struct{ db *postgres.DB }
@@ -92,7 +93,7 @@ func (r *Statuses) SetStatus(ctx context.Context, id uuid.UUID, value models.Reg
 		RETURNING `+statusColumns, id, value, source, actor, note))
 }
 
-func (r *Statuses) List(ctx context.Context, eventID uuid.UUID, page models.Page) ([]models.RegistrationStatusResponse, int64, error) {
+func (r *Statuses) List(ctx context.Context, eventID uuid.UUID, page models.Page) ([]dto.RegistrationStatusResponse, int64, error) {
 	var total int64
 	if err := r.db.Q(ctx).QueryRow(ctx,
 		`SELECT count(*) FROM registration_statuses WHERE event_id = $1`, eventID).Scan(&total); err != nil {
@@ -118,11 +119,11 @@ func (r *Statuses) List(ctx context.Context, eventID uuid.UUID, page models.Page
 	}
 	defer rows.Close()
 
-	items := make([]models.RegistrationStatusResponse, 0, page.Limit())
+	items := make([]dto.RegistrationStatusResponse, 0, page.Limit())
 	for rows.Next() {
 		var (
-			item        models.RegistrationStatusResponse
-			user        models.UserSummary
+			item        dto.RegistrationStatusResponse
+			user        dto.UserSummary
 			rawStatusID uuid.UUID
 		)
 		if err := rows.Scan(&rawStatusID, &item.ID, &item.EventID, &item.RegistrationID, &item.ParticipantID,

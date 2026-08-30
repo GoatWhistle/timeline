@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -23,7 +24,7 @@ func (s *PersonalService) ListArtifacts(ctx context.Context, actor models.Actor,
 }
 
 func (s *PersonalService) CreateArtifact(ctx context.Context, actor models.Actor,
-	eventID uuid.UUID, req models.CreateArtifactRequest) (*models.ParticipantArtifact, error) {
+	eventID uuid.UUID, req dto.CreateArtifactRequest) (*models.ParticipantArtifact, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, err
@@ -74,7 +75,7 @@ func (s *PersonalService) CreateArtifact(ctx context.Context, actor models.Actor
 }
 
 func (s *PersonalService) UpdateArtifact(ctx context.Context, actor models.Actor,
-	artifactID uuid.UUID, req models.UpdateArtifactRequest) (*models.ParticipantArtifact, error) {
+	artifactID uuid.UUID, req dto.UpdateArtifactRequest) (*models.ParticipantArtifact, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, err
@@ -119,7 +120,7 @@ func (s *PersonalService) GetOutcome(ctx context.Context, actor models.Actor,
 }
 
 func (s *PersonalService) SaveOutcome(ctx context.Context, actor models.Actor,
-	eventID uuid.UUID, req models.SaveOutcomeRequest) (*models.ParticipantOutcome, error) {
+	eventID uuid.UUID, req dto.SaveOutcomeRequest) (*models.ParticipantOutcome, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, err
@@ -180,8 +181,8 @@ func (s *PersonalService) DeleteOutcome(ctx context.Context, actor models.Actor,
 	return validation.NotFoundOwned(s.outcomes.Delete(ctx, userID, eventID), "outcome")
 }
 
-func artifactPatch(req models.UpdateArtifactRequest) (models.ArtifactPatch, error) {
-	var patch models.ArtifactPatch
+func artifactPatch(req dto.UpdateArtifactRequest) (dto.ArtifactPatch, error) {
+	var patch dto.ArtifactPatch
 	if req.Kind != nil {
 		if !req.Kind.Valid() {
 			return patch, models.NewValidation("invalid artifact kind",

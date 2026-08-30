@@ -6,13 +6,14 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 const markReadBatchMax = 200
 
 func (s *SystemEventService) List(ctx context.Context, actor models.Actor, unreadOnly bool,
-	page models.Page) ([]models.SystemEventResponse, int64, error) {
+	page models.Page) ([]dto.SystemEventResponse, int64, error) {
 	if actor.IsSystem() {
 		return nil, 0, models.NewUnauthorized("authentication is required")
 	}

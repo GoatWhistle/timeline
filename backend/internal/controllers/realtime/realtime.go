@@ -14,11 +14,12 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type RealtimeHub interface {
-	Subscribe(userID, sessionID uuid.UUID, isAdmin bool) (models.RealtimeSubscription, error)
-	Unsubscribe(sub models.RealtimeSubscription)
+	Subscribe(userID, sessionID uuid.UUID, isAdmin bool) (dto.RealtimeSubscription, error)
+	Unsubscribe(sub dto.RealtimeSubscription)
 }
 
 type SessionChecker interface {
@@ -61,9 +62,9 @@ func NewController(hub RealtimeHub, sessions SessionChecker, origins []string,
 // @Tags			realtime
 // @Security		CookieAuth
 // @Success		101	{string}	string	"switching protocols"
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/realtime [get]
 func (c *Controller) Connect(w http.ResponseWriter, r *http.Request) {
 	if !OriginAllowed(r, c.origins) {

@@ -10,19 +10,20 @@ import (
 	"github.com/coder/websocket"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 const realtimeWriteTimeout = 10 * time.Second
 
 func (c *Controller) pump(ctx context.Context, conn *websocket.Conn,
-	sub models.RealtimeSubscription, actor models.Actor) {
+	sub dto.RealtimeSubscription, actor models.Actor) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	go drainClient(ctx, conn, cancel)
 
-	if !c.write(ctx, conn, models.RealtimeEnvelope{
-		Type: models.RealtimeEnvelopeHello, ServerTime: c.now()}) {
+	if !c.write(ctx, conn, dto.RealtimeEnvelope{
+		Type: dto.RealtimeEnvelopeHello, ServerTime: c.now()}) {
 		return
 	}
 
@@ -58,7 +59,7 @@ func (c *Controller) pump(ctx context.Context, conn *websocket.Conn,
 }
 
 func (c *Controller) write(ctx context.Context, conn *websocket.Conn,
-	env models.RealtimeEnvelope) bool {
+	env dto.RealtimeEnvelope) bool {
 	body, err := json.Marshal(env)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to encode a realtime envelope", "error", err)

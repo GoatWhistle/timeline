@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -31,7 +32,7 @@ func (s *PersonalService) GetRetrospective(ctx context.Context, actor models.Act
 }
 
 func (s *PersonalService) SaveRetrospective(ctx context.Context, actor models.Actor,
-	eventID uuid.UUID, req models.SaveRetrospectiveRequest) (*models.ParticipantRetrospective, error) {
+	eventID uuid.UUID, req dto.SaveRetrospectiveRequest) (*models.ParticipantRetrospective, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, err

@@ -12,15 +12,16 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type CatalogService interface {
 	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(
-		ctx context.Context, actor models.Actor, filter models.CatalogFilter, page models.Page,
-	) ([]models.CatalogEvent, int64, error)
+		ctx context.Context, actor models.Actor, filter dto.CatalogFilter, page models.Page,
+	) ([]dto.CatalogEvent, int64, error)
 	Join(
-		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.JoinEventRequest,
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.JoinEventRequest,
 	) (*models.EventParticipant, error)
 }
 
@@ -70,10 +71,10 @@ func (c *CatalogController) allow(r *http.Request, scope string) bool {
 // @Param			to			query		string	false	"Upper bound of the period"																																format(date-time)
 // @Param			page		query		int		false	"Page number"																																			default(1)
 // @Param			page_size	query		int		false	"Page size"																																				default(50)
-// @Success		200			{object}	models.CatalogPage
-// @Failure		400			{object}	models.ErrorResponse
-// @Failure		401			{object}	models.ErrorResponse
-// @Failure		429			{object}	models.ErrorResponse	"too many catalog requests"
+// @Success		200			{object}	dto.CatalogPage
+// @Failure		400			{object}	dto.ErrorResponse
+// @Failure		401			{object}	dto.ErrorResponse
+// @Failure		429			{object}	dto.ErrorResponse	"too many catalog requests"
 // @Router			/catalog [get]
 func (c *CatalogController) List(w http.ResponseWriter, r *http.Request) {
 	if !c.allow(r, "catalog.list") {
@@ -96,7 +97,7 @@ func (c *CatalogController) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filter := models.CatalogFilter{
+	filter := dto.CatalogFilter{
 		Search:  httpx.QueryTrimmed(r, "search"),
 		Origins: parseOrigins(httpx.QueryTrimmed(r, "origin")),
 		Formats: parseFormats(httpx.QueryTrimmed(r, "format")),
@@ -110,7 +111,7 @@ func (c *CatalogController) List(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.CatalogPage{Items: items, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.CatalogPage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
 // @Summary		Join an event
@@ -123,25 +124,25 @@ func (c *CatalogController) List(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string					true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			request	body		models.JoinEventRequest	true	"Own team role"
-// @Success		201		{object}	models.ParticipantSelfResponse
-// @Failure		400		{object}	models.ErrorResponse	"a hackathon requires a team role"
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"already a participant, or the event has finished"
-// @Failure		429		{object}	models.ErrorResponse	"too many join attempts"
+// @Param			request	body		dto.JoinEventRequest	true	"Own team role"
+// @Success		201		{object}	dto.ParticipantSelfResponse
+// @Failure		400		{object}	dto.ErrorResponse	"a hackathon requires a team role"
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"already a participant, or the event has finished"
+// @Failure		429		{object}	dto.ErrorResponse	"too many join attempts"
 // @Router			/events/{id}/join [post]
 func (c *CatalogController) Join(w http.ResponseWriter, r *http.Request) {
 	if !c.allow(r, "catalog.join") {
 		httpx.Error(w, r, models.NewRateLimited("too many join attempts"))
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.catalog.ResolveDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.catalog.ResolveDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.JoinEventRequest
+	var req dto.JoinEventRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -151,7 +152,7 @@ func (c *CatalogController) Join(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusCreated, models.ParticipantSelfResponse{
+	httpx.JSON(w, http.StatusCreated, dto.ParticipantSelfResponse{
 		ID:                  p.ID,
 		EventID:             r.PathValue("id"),
 		TeamRole:            p.TeamRole,

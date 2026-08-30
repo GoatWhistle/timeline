@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
-func MeResponse(u *models.User) models.MeResponse {
-	return models.MeResponse{
+func MeResponse(u *models.User) dto.MeResponse {
+	return dto.MeResponse{
 		ID:                u.DisplayID,
 		FirstName:         u.FirstName,
 		MiddleName:        u.MiddleName,
@@ -41,13 +42,13 @@ func Shortcuts(s models.Shortcuts) models.Shortcuts {
 	return s
 }
 
-func EventResponse(h *models.Event, now time.Time, admin bool) models.EventResponse {
+func EventResponse(h *models.Event, now time.Time, admin bool) dto.EventResponse {
 	return EventResponseWithStages(h, nil, now, admin)
 }
 
 func EventResponseWithStages(h *models.Event, stages []models.Stage, now time.Time,
-	admin bool) models.EventResponse {
-	resp := models.EventResponse{
+	admin bool) dto.EventResponse {
+	resp := dto.EventResponse{
 		ID:              h.DisplayID,
 		Title:           h.Title,
 		Description:     h.Description,
@@ -77,8 +78,8 @@ func EventResponseWithStages(h *models.Event, stages []models.Stage, now time.Ti
 	return resp
 }
 
-func StageResponse(s *models.Stage, event *models.Event) models.StageResponse {
-	return models.StageResponse{
+func StageResponse(s *models.Stage, event *models.Event) dto.StageResponse {
+	return dto.StageResponse{
 		ID:          s.DisplayID,
 		EventID:     event.DisplayID,
 		Name:        s.Name,
@@ -99,8 +100,8 @@ func StageResponse(s *models.Stage, event *models.Event) models.StageResponse {
 	}
 }
 
-func RegistrationResponse(r *models.Registration, eventDisplayID string) models.RegistrationResponse {
-	return models.RegistrationResponse{
+func RegistrationResponse(r *models.Registration, eventDisplayID string) dto.RegistrationResponse {
+	return dto.RegistrationResponse{
 		ID:                         r.DisplayID,
 		EventID:                    eventDisplayID,
 		URL:                        r.URL,
@@ -115,8 +116,8 @@ func RegistrationResponse(r *models.Registration, eventDisplayID string) models.
 	}
 }
 
-func RuleResponse(r *models.NotificationRule) models.NotificationRuleResponse {
-	return models.NotificationRuleResponse{
+func RuleResponse(r *models.NotificationRule) dto.NotificationRuleResponse {
+	return dto.NotificationRuleResponse{
 		ID:              r.DisplayID,
 		RegistrationID:  r.RegistrationDisplayID,
 		OffsetMinutes:   r.OffsetMinutes,
@@ -129,8 +130,8 @@ func RuleResponse(r *models.NotificationRule) models.NotificationRuleResponse {
 	}
 }
 
-func InviteResponse(i *models.Invite) models.InviteResponse {
-	return models.InviteResponse{
+func InviteResponse(i *models.Invite) dto.InviteResponse {
+	return dto.InviteResponse{
 		ID:              i.DisplayID,
 		Email:           i.NormalizedEmail,
 		CreatedByUserID: i.CreatedByUser,

@@ -9,6 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Artifacts struct{ db *postgres.DB }
@@ -99,7 +100,7 @@ func collectArtifacts(rows pgx.Rows) ([]models.ParticipantArtifact, error) {
 }
 
 func (r *Artifacts) Update(ctx context.Context, userID, id uuid.UUID,
-	patch models.ArtifactPatch) (*models.ParticipantArtifact, error) {
+	patch dto.ArtifactPatch) (*models.ParticipantArtifact, error) {
 	sets := make([]string, 0, 5)
 	args := []any{id, userID}
 

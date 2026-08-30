@@ -7,12 +7,13 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type AuditService interface {
 	List(
 		ctx context.Context, actor models.Actor, filter models.AuditFilter, page models.Page,
-	) ([]models.AuditResponse, int64, error)
+	) ([]dto.AuditResponse, int64, error)
 }
 
 type AuditController struct {
@@ -38,9 +39,9 @@ func NewAuditController(svc AuditService, pageDef, pageMax int) *AuditController
 // @Param			to				query		string	false	"End of the period, RFC3339"
 // @Param			page			query		int		false	"Page number"	default(1)
 // @Param			page_size		query		int		false	"Page size"		default(50)
-// @Success		200				{object}	models.AuditPage
-// @Failure		400				{object}	models.ErrorResponse
-// @Failure		403				{object}	models.ErrorResponse
+// @Success		200				{object}	dto.AuditPage
+// @Failure		400				{object}	dto.ErrorResponse
+// @Failure		403				{object}	dto.ErrorResponse
 // @Router			/admin/audit [get]
 func (c *AuditController) List(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
@@ -81,5 +82,5 @@ func (c *AuditController) List(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.AuditPage{Items: items, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.AuditPage{Items: items, Meta: httpx.Meta(page, total)})
 }

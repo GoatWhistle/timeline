@@ -11,6 +11,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type InviteService interface {
@@ -18,9 +19,9 @@ type InviteService interface {
 	Create(ctx context.Context, actor models.Actor, email string) (*models.Invite, string, error)
 	List(ctx context.Context, actor models.Actor, page models.Page) ([]models.Invite, int64, error)
 	Revoke(ctx context.Context, actor models.Actor, id uuid.UUID) error
-	Preview(ctx context.Context, token string) (*models.InvitePreview, error)
+	Preview(ctx context.Context, token string) (*dto.InvitePreview, error)
 	Accept(
-		ctx context.Context, req models.AcceptInviteRequest, meta models.SessionMeta,
+		ctx context.Context, req dto.AcceptInviteRequest, meta models.SessionMeta,
 	) (*models.User, *models.TokenPair, error)
 }
 
@@ -50,14 +51,14 @@ func NewInviteController(svc InviteService, cookies shared.CookieOptions, public
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			request	body		models.CreateInviteRequest	true	"Address of the invited person"
-// @Success		201		{object}	models.CreateInviteResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"a user with this email already exists"
+// @Param			request	body		dto.CreateInviteRequest	true	"Address of the invited person"
+// @Success		201		{object}	dto.CreateInviteResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"a user with this email already exists"
 // @Router			/admin/invites [post]
 func (c *InviteController) Create(w http.ResponseWriter, r *http.Request) {
-	var req models.CreateInviteRequest
+	var req dto.CreateInviteRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -67,7 +68,7 @@ func (c *InviteController) Create(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusCreated, models.CreateInviteResponse{
+	httpx.JSON(w, http.StatusCreated, dto.CreateInviteResponse{
 		Invite:     shared.InviteResponse(invite),
 		AcceptLink: c.publicURL + "/invite/" + token,
 	})
@@ -79,8 +80,8 @@ func (c *InviteController) Create(w http.ResponseWriter, r *http.Request) {
 // @Security	CookieAuth
 // @Param		page		query		int	false	"Page number"	default(1)
 // @Param		page_size	query		int	false	"Page size"		default(50)
-// @Success	200			{object}	models.InvitePage
-// @Failure	403			{object}	models.ErrorResponse
+// @Success	200			{object}	dto.InvitePage
+// @Failure	403			{object}	dto.ErrorResponse
 // @Router		/admin/invites [get]
 func (c *InviteController) List(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
@@ -93,11 +94,11 @@ func (c *InviteController) List(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	out := make([]models.InviteResponse, 0, len(items))
+	out := make([]dto.InviteResponse, 0, len(items))
 	for i := range items {
 		out = append(out, shared.InviteResponse(&items[i]))
 	}
-	httpx.JSON(w, http.StatusOK, models.InvitePage{Items: out, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.InvitePage{Items: out, Meta: httpx.Meta(page, total)})
 }
 
 // @Summary	Revoke an invite
@@ -105,12 +106,12 @@ func (c *InviteController) List(w http.ResponseWriter, r *http.Request) {
 // @Produce	json
 // @Security	CookieAuth
 // @Param		id	path		string	true	"Invite identifier"	example(in_42ej2s5gh7e8)
-// @Success	200	{object}	models.MessageResponse
-// @Failure	403	{object}	models.ErrorResponse
-// @Failure	404	{object}	models.ErrorResponse
+// @Success	200	{object}	dto.MessageResponse
+// @Failure	403	{object}	dto.ErrorResponse
+// @Failure	404	{object}	dto.ErrorResponse
 // @Router		/admin/invites/{id}/revoke [post]
 func (c *InviteController) Revoke(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindInvite, c.svc.ResolveInviteDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindInvite, c.svc.ResolveInviteDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -119,7 +120,7 @@ func (c *InviteController) Revoke(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "invite revoked"})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "invite revoked"})
 }
 
 // @Summary		Public invite preview
@@ -127,8 +128,8 @@ func (c *InviteController) Revoke(w http.ResponseWriter, r *http.Request) {
 // @Tags			invites
 // @Produce		json
 // @Param			token	path		string	true	"Invite token"
-// @Success		200		{object}	models.InvitePreview
-// @Failure		404		{object}	models.ErrorResponse
+// @Success		200		{object}	dto.InvitePreview
+// @Failure		404		{object}	dto.ErrorResponse
 // @Router			/invites/{token} [get]
 func (c *InviteController) Preview(w http.ResponseWriter, r *http.Request) {
 	preview, err := c.svc.Preview(r.Context(), r.PathValue("token"))
@@ -145,13 +146,13 @@ func (c *InviteController) Preview(w http.ResponseWriter, r *http.Request) {
 // @Tags			invites
 // @Accept			json
 // @Produce		json
-// @Param			request	body		models.AcceptInviteRequest	true	"Token and account data"
-// @Success		200		{object}	models.AuthResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse
+// @Param			request	body		dto.AcceptInviteRequest	true	"Token and account data"
+// @Success		200		{object}	dto.AuthResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse
 // @Router			/invites/accept [post]
 func (c *InviteController) Accept(w http.ResponseWriter, r *http.Request) {
-	var req models.AcceptInviteRequest
+	var req dto.AcceptInviteRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -163,7 +164,7 @@ func (c *InviteController) Accept(w http.ResponseWriter, r *http.Request) {
 	}
 	c.cookies.SetAuth(w, pair)
 	c.cookies.SetCSRF(w, randomToken(), time.Now().Add(c.csrfTTL))
-	httpx.JSON(w, http.StatusOK, models.AuthResponse{
+	httpx.JSON(w, http.StatusOK, dto.AuthResponse{
 		User:             shared.MeResponse(user),
 		AccessExpiresAt:  pair.AccessExpiresAt,
 		RefreshExpiresAt: pair.RefreshExpiresAt,

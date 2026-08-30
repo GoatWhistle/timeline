@@ -5,7 +5,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 // @Summary		Own note for an event
@@ -20,15 +20,15 @@ import (
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.ParticipantNote
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse	"the event is not visible to the caller"
-// @Failure		429	{object}	models.ErrorResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse	"the event is not visible to the caller"
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/note [get]
 func (c *Controller) GetNote(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.note.get") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -50,23 +50,23 @@ func (c *Controller) GetNote(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string					true	"Event identifier"
-// @Param			request	body		models.SaveNoteRequest	true	"Markdown source"
+// @Param			request	body		dto.SaveNoteRequest	true	"Markdown source"
 // @Success		200		{object}	models.ParticipantNote
-// @Failure		400		{object}	models.ErrorResponse	"the note is too long"
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse	"the note is too long"
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/note [put]
 func (c *Controller) SaveNote(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.note.save") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.SaveNoteRequest
+	var req dto.SaveNoteRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -90,16 +90,16 @@ func (c *Controller) SaveNote(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success		200	{object}	models.ArtifactListResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.ArtifactListResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/artifacts [get]
 func (c *Controller) ListArtifacts(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.artifacts.list") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -109,7 +109,7 @@ func (c *Controller) ListArtifacts(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.ArtifactListResponse{Items: items})
+	httpx.JSON(w, http.StatusOK, dto.ArtifactListResponse{Items: items})
 }
 
 // @Summary		Add an own artifact
@@ -120,24 +120,24 @@ func (c *Controller) ListArtifacts(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string							true	"Event identifier"
-// @Param			request	body		models.CreateArtifactRequest	true	"Artifact"
+// @Param			request	body		dto.CreateArtifactRequest	true	"Artifact"
 // @Success		201		{object}	models.ParticipantArtifact
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"the artifact limit for this event is reached"
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"the artifact limit for this event is reached"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/artifacts [post]
 func (c *Controller) CreateArtifact(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.artifacts.create") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.CreateArtifactRequest
+	var req dto.CreateArtifactRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -157,23 +157,23 @@ func (c *Controller) CreateArtifact(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string							true	"Artifact identifier"	example(ar_42ej2s5gh7e8)
-// @Param			request	body		models.UpdateArtifactRequest	true	"Fields to change"
+// @Param			request	body		dto.UpdateArtifactRequest	true	"Fields to change"
 // @Success		200		{object}	models.ParticipantArtifact
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse	"the artifact belongs to another user"
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse	"the artifact belongs to another user"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/artifacts/{id} [patch]
 func (c *Controller) UpdateArtifact(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.artifacts.update") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindArtifact, c.personal.ResolveArtifactDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindArtifact, c.personal.ResolveArtifactDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.UpdateArtifactRequest
+	var req dto.UpdateArtifactRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -191,15 +191,15 @@ func (c *Controller) UpdateArtifact(w http.ResponseWriter, r *http.Request) {
 // @Security	CookieAuth
 // @Param		id	path	string	true	"Artifact identifier"	example(ar_42ej2s5gh7e8)
 // @Success	204	"the artifact is deleted"
-// @Failure	401	{object}	models.ErrorResponse
-// @Failure	404	{object}	models.ErrorResponse
-// @Failure	429	{object}	models.ErrorResponse
+// @Failure	401	{object}	dto.ErrorResponse
+// @Failure	404	{object}	dto.ErrorResponse
+// @Failure	429	{object}	dto.ErrorResponse
 // @Router		/me/artifacts/{id} [delete]
 func (c *Controller) DeleteArtifact(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.artifacts.delete") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindArtifact, c.personal.ResolveArtifactDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindArtifact, c.personal.ResolveArtifactDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

@@ -5,7 +5,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 // @Summary		Own links for an event
@@ -19,16 +19,16 @@ import (
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success		200	{object}	models.ParticipantLinkListResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse	"the event is not visible to the caller"
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.ParticipantLinkListResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse	"the event is not visible to the caller"
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/links [get]
 func (c *ResourceLinkController) ListPersonal(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "links.personal.list") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -38,7 +38,7 @@ func (c *ResourceLinkController) ListPersonal(w http.ResponseWriter, r *http.Req
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.ParticipantLinkListResponse{Items: items})
+	httpx.JSON(w, http.StatusOK, dto.ParticipantLinkListResponse{Items: items})
 }
 
 // @Summary		Add an own link
@@ -50,24 +50,24 @@ func (c *ResourceLinkController) ListPersonal(w http.ResponseWriter, r *http.Req
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			request	body		models.CreateParticipantLinkRequest	true	"Link"
+// @Param			request	body		dto.CreateParticipantLinkRequest	true	"Link"
 // @Success		201		{object}	models.ParticipantLink
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"the personal link limit for the event is reached"
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"the personal link limit for the event is reached"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/links [post]
 func (c *ResourceLinkController) CreatePersonal(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "links.personal.create") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.links.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.links.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.CreateParticipantLinkRequest
+	var req dto.CreateParticipantLinkRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -88,24 +88,24 @@ func (c *ResourceLinkController) CreatePersonal(w http.ResponseWriter, r *http.R
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string								true	"Link identifier"	example(pl_42ej2s5gh7e8)
-// @Param			request	body		models.UpdateParticipantLinkRequest	true	"Fields to change"
+// @Param			request	body		dto.UpdateParticipantLinkRequest	true	"Fields to change"
 // @Success		200		{object}	models.ParticipantLink
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/links/{id} [patch]
 func (c *ResourceLinkController) UpdatePersonal(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "links.personal.update") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindParticipantLink,
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindParticipantLink,
 		c.links.ResolvePersonalLinkDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.UpdateParticipantLinkRequest
+	var req dto.UpdateParticipantLinkRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -126,15 +126,15 @@ func (c *ResourceLinkController) UpdatePersonal(w http.ResponseWriter, r *http.R
 // @Security		CookieAuth
 // @Param			id	path	string	true	"Link identifier"	example(pl_42ej2s5gh7e8)
 // @Success		204	"the link is removed"
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/links/{id} [delete]
 func (c *ResourceLinkController) DeletePersonal(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "links.personal.delete") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindParticipantLink,
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindParticipantLink,
 		c.links.ResolvePersonalLinkDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)

@@ -11,6 +11,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Events struct{ db *postgres.DB }
@@ -79,8 +80,8 @@ func (r *Events) GetForUpdate(ctx context.Context, id uuid.UUID) (*models.Event,
 		`SELECT `+eventColumns+` FROM events WHERE id = $1 FOR UPDATE`, id))
 }
 
-func (r *Events) Update(ctx context.Context, id uuid.UUID, req models.UpdateEventRequest,
-	place models.EventPlacePatch) (*models.Event, error) {
+func (r *Events) Update(ctx context.Context, id uuid.UUID, req dto.UpdateEventRequest,
+	place dto.EventPlacePatch) (*models.Event, error) {
 	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE events SET
 			title = COALESCE($2, title),

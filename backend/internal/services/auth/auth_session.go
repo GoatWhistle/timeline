@@ -7,11 +7,12 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
-func (s *AuthService) Login(ctx context.Context, req models.LoginRequest,
+func (s *AuthService) Login(ctx context.Context, req dto.LoginRequest,
 	meta models.SessionMeta) (*models.User, *models.TokenPair, error) {
 	email := validation.NormalizeEmail(req.Email)
 	key := meta.IP + "|" + email

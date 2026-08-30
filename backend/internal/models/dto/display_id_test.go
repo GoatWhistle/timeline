@@ -1,10 +1,12 @@
-package models
+package dto
 
 import (
 	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
+
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 func TestParseDisplayIDAcceptsAWellFormedIdentifier(t *testing.T) {
@@ -25,7 +27,7 @@ func TestParseDisplayIDRejectsAnotherKindsPrefix(t *testing.T) {
 	if err == nil {
 		t.Fatal("a stage identifier was accepted where an event was expected")
 	}
-	if !errors.Is(err, ErrValidation) {
+	if !errors.Is(err, models.ErrValidation) {
 		t.Fatalf("error = %v, want a validation error", err)
 	}
 	if !strings.Contains(err.Error(), "ev_") {

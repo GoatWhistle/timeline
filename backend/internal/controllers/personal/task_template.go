@@ -5,7 +5,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 // @Summary		Checklist templates
@@ -18,9 +18,9 @@ import (
 // @Tags			personal
 // @Produce		json
 // @Security		CookieAuth
-// @Success		200	{object}	models.TemplateListResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.TemplateListResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/checklist-templates [get]
 func (c *Controller) ListTemplates(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.templates.list") {
@@ -31,7 +31,7 @@ func (c *Controller) ListTemplates(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.TemplateListResponse{Items: items})
+	httpx.JSON(w, http.StatusOK, dto.TemplateListResponse{Items: items})
 }
 
 // @Summary		Apply a checklist template
@@ -47,23 +47,23 @@ func (c *Controller) ListTemplates(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string						true	"Event identifier"
-// @Param			request	body		models.ApplyTemplateRequest	true	"Template to apply"
-// @Success		200		{object}	models.BatchResult
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse	"unknown template or invisible event"
-// @Failure		429		{object}	models.ErrorResponse
+// @Param			request	body		dto.ApplyTemplateRequest	true	"Template to apply"
+// @Success		200		{object}	dto.BatchResult
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse	"unknown template or invisible event"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/tasks/apply-template [post]
 func (c *Controller) ApplyTemplate(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.templates.apply") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.ApplyTemplateRequest
+	var req dto.ApplyTemplateRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return

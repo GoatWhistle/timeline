@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -61,9 +62,9 @@ func (s *ResourceLinkService) checkStageOfEvent(ctx context.Context, eventID uui
 	return nil
 }
 
-func resourceLinkPatch(req models.UpdateResourceLinkRequest,
-	stageID *uuid.UUID) (models.ResourceLinkPatch, error) {
-	var patch models.ResourceLinkPatch
+func resourceLinkPatch(req dto.UpdateResourceLinkRequest,
+	stageID *uuid.UUID) (dto.ResourceLinkPatch, error) {
+	var patch dto.ResourceLinkPatch
 	if req.Kind != nil {
 		kind, err := parseLinkKind("kind", *req.Kind)
 		if err != nil {

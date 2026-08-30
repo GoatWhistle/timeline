@@ -8,6 +8,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Controller struct {
@@ -54,16 +55,16 @@ func (c *Controller) guard(w http.ResponseWriter, r *http.Request, scope string)
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success		200	{object}	models.TaskListResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse	"the event is not visible to the caller"
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.TaskListResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse	"the event is not visible to the caller"
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/tasks [get]
 func (c *Controller) ListTasks(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.tasks.list") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -73,7 +74,7 @@ func (c *Controller) ListTasks(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.TaskListResponse{Items: items})
+	httpx.JSON(w, http.StatusOK, dto.TaskListResponse{Items: items})
 }
 
 // @Summary		Create an own task
@@ -84,30 +85,30 @@ func (c *Controller) ListTasks(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string						true	"Event identifier"
-// @Param			request	body		models.CreateTaskRequest	true	"Task"
+// @Param			request	body		dto.CreateTaskRequest	true	"Task"
 // @Success		201		{object}	models.ParticipantTask
-// @Failure		400		{object}	models.ErrorResponse	"the stage belongs to another event"
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"the task limit for this event is reached"
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse	"the stage belongs to another event"
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"the task limit for this event is reached"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/tasks [post]
 func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.tasks.create") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.CreateTaskRequest
+	var req dto.CreateTaskRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
 	stageID, err := httpx.BodyDisplayID(r.Context(), req.StageID,
-		models.DisplayKindStage, c.personal.ResolveStageDisplayID)
+		dto.DisplayKindStage, c.personal.ResolveStageDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -129,29 +130,29 @@ func (c *Controller) CreateTask(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string						true	"Task identifier"	example(tk_42ej2s5gh7e8)
-// @Param			request	body		models.UpdateTaskRequest	true	"Fields to change"
+// @Param			request	body		dto.UpdateTaskRequest	true	"Fields to change"
 // @Success		200		{object}	models.ParticipantTask
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse	"the task belongs to another user"
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse	"the task belongs to another user"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/tasks/{id} [patch]
 func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.tasks.update") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindTask, c.personal.ResolveTaskDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindTask, c.personal.ResolveTaskDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.UpdateTaskRequest
+	var req dto.UpdateTaskRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
 	stageID, err := httpx.BodyDisplayID(r.Context(), req.StageID,
-		models.DisplayKindStage, c.personal.ResolveStageDisplayID)
+		dto.DisplayKindStage, c.personal.ResolveStageDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -171,15 +172,15 @@ func (c *Controller) UpdateTask(w http.ResponseWriter, r *http.Request) {
 // @Security		CookieAuth
 // @Param			id	path	string	true	"Task identifier"	example(tk_42ej2s5gh7e8)
 // @Success		204	"the task is deleted"
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/tasks/{id} [delete]
 func (c *Controller) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.tasks.delete") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindTask, c.personal.ResolveTaskDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindTask, c.personal.ResolveTaskDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

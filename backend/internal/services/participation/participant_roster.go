@@ -7,11 +7,12 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *ParticipantService) UpdateTeamRole(ctx context.Context, actor models.Actor, participantID uuid.UUID,
-	role *string) (*models.ParticipantResponse, error) {
+	role *string) (*dto.ParticipantResponse, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -44,7 +45,7 @@ func (s *ParticipantService) UpdateTeamRole(ctx context.Context, actor models.Ac
 }
 
 func (s *ParticipantService) Reactivate(ctx context.Context, actor models.Actor, participantID uuid.UUID,
-	role *string) (*models.ParticipantResponse, error) {
+	role *string) (*dto.ParticipantResponse, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -92,8 +93,8 @@ func (s *ParticipantService) Reactivate(ctx context.Context, actor models.Actor,
 }
 
 func (s *ParticipantService) CopyFrom(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.CopyParticipantsRequest, sourceEventID uuid.UUID,
-	overrideUserIDs []uuid.UUID) (*models.BatchResult, error) {
+	req dto.CopyParticipantsRequest, sourceEventID uuid.UUID,
+	overrideUserIDs []uuid.UUID) (*dto.BatchResult, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -116,7 +117,7 @@ func (s *ParticipantService) CopyFrom(ctx context.Context, actor models.Actor, e
 		overrides[overrideUserIDs[index]] = o.TeamRole
 	}
 
-	items := make([]models.AddParticipantItem, 0, len(source))
+	items := make([]dto.AddParticipantItem, 0, len(source))
 	userIDs := make([]uuid.UUID, 0, len(source))
 	for _, p := range source {
 		role := p.TeamRole
@@ -127,17 +128,17 @@ func (s *ParticipantService) CopyFrom(ctx context.Context, actor models.Actor, e
 		if err != nil {
 			return nil, err
 		}
-		items = append(items, models.AddParticipantItem{UserID: user.DisplayID, TeamRole: role})
+		items = append(items, dto.AddParticipantItem{UserID: user.DisplayID, TeamRole: role})
 		userIDs = append(userIDs, p.UserID)
 	}
 	if len(items) == 0 {
-		return &models.BatchResult{Results: []models.BatchItemResult{}}, nil
+		return &dto.BatchResult{Results: []dto.BatchItemResult{}}, nil
 	}
-	return s.AddMany(ctx, actor, eventID, models.AddParticipantsRequest{Items: items}, userIDs)
+	return s.AddMany(ctx, actor, eventID, dto.AddParticipantsRequest{Items: items}, userIDs)
 }
 
 func (s *ParticipantService) response(ctx context.Context, p *models.EventParticipant,
-) (*models.ParticipantResponse, error) {
+) (*dto.ParticipantResponse, error) {
 	user, err := s.users.GetByID(ctx, p.UserID)
 	if err != nil {
 		return nil, err
@@ -146,7 +147,7 @@ func (s *ParticipantService) response(ctx context.Context, p *models.EventPartic
 	if err != nil {
 		return nil, err
 	}
-	resp := &models.ParticipantResponse{
+	resp := &dto.ParticipantResponse{
 		ID:                  p.DisplayID,
 		EventID:             eventDisplayID,
 		User:                userSummary(user),
@@ -171,15 +172,15 @@ func (s *ParticipantService) response(ctx context.Context, p *models.EventPartic
 	if err != nil {
 		return nil, err
 	}
-	resp.RegistrationStatus = &models.RegistrationStatusShort{
+	resp.RegistrationStatus = &dto.RegistrationStatusShort{
 		ID: status.DisplayID, Status: status.Status, TodoCycle: status.TodoCycle,
 		RegisteredAt: status.RegisteredAt, Note: status.Note,
 	}
 	return resp, nil
 }
 
-func userSummary(user *models.User) models.UserSummary {
-	summary := models.UserSummary{
+func userSummary(user *models.User) dto.UserSummary {
+	summary := dto.UserSummary{
 		ID: user.DisplayID, FirstName: user.FirstName, MiddleName: user.MiddleName,
 		LastName: user.LastName, Nickname: user.Nickname,
 		Email: user.Email, IsActive: user.IsActive,

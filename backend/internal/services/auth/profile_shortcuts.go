@@ -4,11 +4,12 @@ import (
 	"context"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 func (s *ProfileService) UpdateShortcuts(ctx context.Context, actor models.Actor,
-	req models.UpdateShortcutsRequest) (*models.User, error) {
+	req dto.UpdateShortcutsRequest) (*models.User, error) {
 	cleaned, err := validation.Shortcuts(req.Shortcuts)
 	if err != nil {
 		return nil, err
@@ -34,5 +35,5 @@ func (s *ProfileService) UpdateShortcuts(ctx context.Context, actor models.Actor
 }
 
 func (s *ProfileService) ResetShortcuts(ctx context.Context, actor models.Actor) (*models.User, error) {
-	return s.UpdateShortcuts(ctx, actor, models.UpdateShortcutsRequest{Shortcuts: models.Shortcuts{}})
+	return s.UpdateShortcuts(ctx, actor, dto.UpdateShortcutsRequest{Shortcuts: models.Shortcuts{}})
 }

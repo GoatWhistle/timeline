@@ -17,7 +17,7 @@ const OUT_SPEC = resolve(root, 'src/shared/api/openapi.gen.json')
  * which without this patch would make every field optional.
  */
 const OPTIONAL = {
-  'models.AuditResponse': [
+  'dto.AuditResponse': [
     'actor_user_id',
     'actor_email',
     'before',
@@ -25,11 +25,11 @@ const OPTIONAL = {
     'entity_id',
     'request_id',
   ],
-  'models.BatchItemResult': ['id', 'key', 'code', 'message'],
-  'models.DeadlineItem': ['overdue_minutes'],
-  'models.ErrorBody': ['fields'],
-  'models.EventCard': ['next_stage', 'registration', 'registration_status', 'team_role'],
-  'models.EventResponse': [
+  'dto.BatchItemResult': ['id', 'key', 'code', 'message'],
+  'dto.DeadlineItem': ['overdue_minutes'],
+  'dto.ErrorBody': ['fields'],
+  'dto.EventCard': ['next_stage', 'registration', 'registration_status', 'team_role'],
+  'dto.EventResponse': [
     'description',
     'organizer',
     'website_url',
@@ -43,7 +43,7 @@ const OPTIONAL = {
     'prize_currency',
     'team_size_max',
   ],
-  'models.CatalogEvent': [
+  'dto.CatalogEvent': [
     'description',
     'organizer',
     'website_url',
@@ -54,11 +54,11 @@ const OPTIONAL = {
     'prize_currency',
     'team_size_max',
   ],
-  'models.CatalogPlace': [],
+  'dto.CatalogPlace': [],
   'models.Place': ['country_code', 'city', 'venue', 'online_url'],
-  'models.InvitePreview': ['email', 'expires_at'],
-  'models.InviteResponse': ['accepted_at', 'revoked_at'],
-  'models.MeResponse': [
+  'dto.InvitePreview': ['email', 'expires_at'],
+  'dto.InviteResponse': ['accepted_at', 'revoked_at'],
+  'dto.MeResponse': [
     'middle_name',
     'legacy_display_name',
     'nickname',
@@ -70,23 +70,23 @@ const OPTIONAL = {
     'github_url',
     'website_url',
   ],
-  'models.UserSummary': ['middle_name', 'nickname'],
-  'models.PublicProfileResponse': ['middle_name', 'avatar_url', 'bio'],
-  'models.MyEventItem': [
+  'dto.UserSummary': ['middle_name', 'nickname'],
+  'dto.PublicProfileResponse': ['middle_name', 'avatar_url', 'bio'],
+  'dto.MyEventItem': [
     'organizer',
     'next_stage',
     'registration_deadline',
     'registration_status',
     'registration_url',
   ],
-  'models.NotificationRuleResponse': ['channel_override'],
-  'models.ParticipantResponse': ['removed_at', 'registration_status'],
-  'models.RegistrationCoverage': ['share'],
-  'models.RegistrationPublic': ['description', 'deadline_at'],
-  'models.RegistrationResponse': ['description', 'deadline_at'],
-  'models.RegistrationStatusResponse': ['last_changed_by_user_id', 'note', 'registered_at'],
-  'models.RegistrationStatusShort': ['note', 'registered_at'],
-  'models.StageResponse': [
+  'dto.NotificationRuleResponse': ['channel_override'],
+  'dto.ParticipantResponse': ['removed_at', 'registration_status'],
+  'dto.RegistrationCoverage': ['share'],
+  'dto.RegistrationPublic': ['description', 'deadline_at'],
+  'dto.RegistrationResponse': ['description', 'deadline_at'],
+  'dto.RegistrationStatusResponse': ['last_changed_by_user_id', 'note', 'registered_at'],
+  'dto.RegistrationStatusShort': ['note', 'registered_at'],
+  'dto.StageResponse': [
     'description',
     'url',
     'format',
@@ -95,8 +95,8 @@ const OPTIONAL = {
     'venue',
     'online_url',
   ],
-  'models.ScheduleRow': ['registration_deadline', 'registration_status', 'team_role'],
-  'models.WorkerHeartbeatResponse': ['scheduler_last_run_at', 'worker_last_run_at'],
+  'dto.ScheduleRow': ['registration_deadline', 'registration_status', 'team_role'],
+  'dto.WorkerHeartbeatResponse': ['scheduler_last_run_at', 'worker_last_run_at'],
 }
 
 /** Field names that per the API conventions are an RFC 3339 instant. */
@@ -172,10 +172,13 @@ const outputs = []
 const schemaContent = banner + astToString(ast)
 outputs.push([OUT_SCHEMA, schemaContent])
 
-// Aliases without the `models.` prefix: components['schemas']['models.MeResponse'] -> MeResponse.
+// Aliases without the package prefix: components['schemas']['dto.MeResponse'] -> MeResponse.
+// Both prefixes are accepted because transport types live in models/dto while
+// domain types stay in models, and the client should not care which is which.
+const PREFIXES = ['models.', 'dto.']
 const aliases = Object.keys(schemas)
-  .filter((name) => name.startsWith('models.'))
-  .map((name) => [name.slice('models.'.length), name])
+  .filter((name) => PREFIXES.some((prefix) => name.startsWith(prefix)))
+  .map((name) => [name.slice(name.indexOf('.') + 1), name])
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([alias, name]) => `export type ${alias} = Schemas['${name}']`)
 

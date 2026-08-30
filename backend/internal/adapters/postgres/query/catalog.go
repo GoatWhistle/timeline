@@ -9,6 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Catalog struct{ db *postgres.DB }
@@ -24,8 +25,8 @@ const catalogFrom = `FROM events e
 	LEFT JOIN event_participants p
 		ON p.event_id = e.id AND p.user_id = $1 AND p.participation_status = 'ASSIGNED'`
 
-func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter models.CatalogFilter,
-	page models.Page, now time.Time) ([]models.CatalogEvent, int64, error) {
+func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter dto.CatalogFilter,
+	page models.Page, now time.Time) ([]dto.CatalogEvent, int64, error) {
 	where, args := catalogFilterSQL(viewer, filter, now)
 
 	var total int64
@@ -42,11 +43,11 @@ func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter models.Cata
 	}
 	defer rows.Close()
 
-	items := make([]models.CatalogEvent, 0, page.Limit())
+	items := make([]dto.CatalogEvent, 0, page.Limit())
 	events := make([]models.Event, 0, page.Limit())
 	ids := make([]uuid.UUID, 0, page.Limit())
 	for rows.Next() {
-		var c models.CatalogEvent
+		var c dto.CatalogEvent
 		var rawID uuid.UUID
 		if err := rows.Scan(&rawID, &c.ID, &c.Title, &c.Description, &c.Organizer, &c.WebsiteURL,
 			&c.Kind, &c.Format, &c.Origin, &c.CountryCode, &c.City,
@@ -55,7 +56,7 @@ func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter models.Cata
 			return nil, 0, mapError(err)
 		}
 		c.State = catalogState(c.StartAt, c.EndAt, now)
-		c.OfflineStages = []models.CatalogPlace{}
+		c.OfflineStages = []dto.CatalogPlace{}
 		items = append(items, c)
 		events = append(events, models.Event{Format: c.Format, CountryCode: c.CountryCode, City: c.City})
 		ids = append(ids, rawID)
@@ -69,7 +70,7 @@ func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter models.Cata
 	return items, total, nil
 }
 
-func (r *Catalog) attachPlaces(ctx context.Context, items []models.CatalogEvent,
+func (r *Catalog) attachPlaces(ctx context.Context, items []dto.CatalogEvent,
 	events []models.Event, ids []uuid.UUID) error {
 	if len(ids) == 0 {
 		return nil
@@ -102,7 +103,7 @@ func (r *Catalog) attachPlaces(ctx context.Context, items []models.CatalogEvent,
 		stages := byEvent[ids[i]]
 		items[i].EffectiveFormat = models.DeriveEventFormat(&events[i], stages)
 		for _, stage := range models.OfflineStages(&events[i], stages) {
-			items[i].OfflineStages = append(items[i].OfflineStages, models.CatalogPlace{
+			items[i].OfflineStages = append(items[i].OfflineStages, dto.CatalogPlace{
 				ID: stage.DisplayID, Name: stage.Name, Type: stage.Type,
 				StartAt: stage.StartAt, EndAt: stage.EndAt,
 				Place: stage.ResolvePlace(&events[i]),
@@ -123,7 +124,7 @@ func catalogState(start, end, now time.Time) models.EventState {
 	}
 }
 
-func catalogFilterSQL(viewer uuid.UUID, filter models.CatalogFilter, now time.Time) (string, []any) {
+func catalogFilterSQL(viewer uuid.UUID, filter dto.CatalogFilter, now time.Time) (string, []any) {
 	args := []any{viewer}
 	conds := []string{`e.published_at IS NOT NULL`, `e.archived_at IS NULL`}
 
@@ -145,7 +146,7 @@ func catalogFilterSQL(viewer uuid.UUID, filter models.CatalogFilter, now time.Ti
 	return "WHERE " + strings.Join(conds, " AND "), args
 }
 
-func appendCatalogTaxonomy(conds []string, args []any, filter models.CatalogFilter) ([]string, []any) {
+func appendCatalogTaxonomy(conds []string, args []any, filter dto.CatalogFilter) ([]string, []any) {
 	if len(filter.Origins) > 0 {
 		values := make([]string, 0, len(filter.Origins))
 		for _, o := range filter.Origins {

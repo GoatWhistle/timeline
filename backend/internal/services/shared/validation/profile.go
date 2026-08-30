@@ -6,10 +6,11 @@ import (
 	"unicode/utf8"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
-func ProfilePatch(req models.UpdateProfileRequest) (models.ProfilePatch, error) {
-	var patch models.ProfilePatch
+func ProfilePatch(req dto.UpdateProfileRequest) (dto.ProfilePatch, error) {
+	var patch dto.ProfilePatch
 	if err := profileName(req, &patch); err != nil {
 		return patch, err
 	}
@@ -75,7 +76,7 @@ func clearableURL(field string, raw *string, target **string, reset *bool) error
 	return nil
 }
 
-func profileLinks(req models.UpdateProfileRequest, patch *models.ProfilePatch) error {
+func profileLinks(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) error {
 	if err := clearableURL("avatar_url", req.AvatarURL,
 		&patch.AvatarURL, &patch.ClearAvatarURL); err != nil {
 		return err
@@ -95,7 +96,7 @@ func profileLinks(req models.UpdateProfileRequest, patch *models.ProfilePatch) e
 	return nil
 }
 
-func profileName(req models.UpdateProfileRequest, patch *models.ProfilePatch) error {
+func profileName(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) error {
 	if req.FirstName != nil {
 		value, err := ValidateText("first_name", *req.FirstName, models.NameMinLen, models.NameMaxLen)
 		if err != nil {
@@ -125,7 +126,7 @@ func profileName(req models.UpdateProfileRequest, patch *models.ProfilePatch) er
 	return profileNickname(req, patch)
 }
 
-func profileNickname(req models.UpdateProfileRequest, patch *models.ProfilePatch) error {
+func profileNickname(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) error {
 	if req.Nickname == nil {
 		return nil
 	}
@@ -199,8 +200,8 @@ func ProfileLinkLabel(raw *string) (*string, error) {
 	return &value, nil
 }
 
-func ProfileLinkPatch(req models.UpdateProfileLinkRequest) (models.ProfileLinkPatch, error) {
-	var patch models.ProfileLinkPatch
+func ProfileLinkPatch(req dto.UpdateProfileLinkRequest) (dto.ProfileLinkPatch, error) {
+	var patch dto.ProfileLinkPatch
 	if req.URL != nil {
 		value, err := ProfileLinkURL("url", *req.URL)
 		if err != nil {

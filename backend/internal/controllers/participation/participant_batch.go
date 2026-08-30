@@ -5,7 +5,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 // @Summary		Bulk participant assignment
@@ -17,19 +17,19 @@ import (
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			request	body		models.AddParticipantsRequest	true	"List of users and their roles"
-// @Success		200		{object}	models.BatchResult
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
+// @Param			request	body		dto.AddParticipantsRequest	true	"List of users and their roles"
+// @Success		200		{object}	dto.BatchResult
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
 // @Router			/admin/events/{id}/participants/batch-add [post]
 func (c *Controller) AddMany(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.svc.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.svc.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.AddParticipantsRequest
+	var req dto.AddParticipantsRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -38,7 +38,7 @@ func (c *Controller) AddMany(w http.ResponseWriter, r *http.Request) {
 	for _, item := range req.Items {
 		raw = append(raw, item.UserID)
 	}
-	userIDs, err := httpx.BodyDisplayIDs(r.Context(), raw, models.DisplayKindUser, c.svc.ResolveUserDisplayID)
+	userIDs, err := httpx.BodyDisplayIDs(r.Context(), raw, dto.DisplayKindUser, c.svc.ResolveUserDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -58,25 +58,25 @@ func (c *Controller) AddMany(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string								true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			request	body		models.RemoveParticipantsRequest	true	"Participant identifiers"
-// @Success		200		{object}	models.BatchResult
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
+// @Param			request	body		dto.RemoveParticipantsRequest	true	"Participant identifiers"
+// @Success		200		{object}	dto.BatchResult
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
 // @Router			/admin/events/{id}/participants/batch-remove [post]
 func (c *Controller) RemoveMany(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.svc.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.svc.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.RemoveParticipantsRequest
+	var req dto.RemoveParticipantsRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
 	participantIDs, err := httpx.BodyDisplayIDs(r.Context(), req.ParticipantIDs,
-		models.DisplayKindParticipant, c.svc.ResolveParticipantDisplayID)
+		dto.DisplayKindParticipant, c.svc.ResolveParticipantDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -98,25 +98,25 @@ func (c *Controller) RemoveMany(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string							true	"Target event identifier"	example(ev_3k7d8gb9be)
-// @Param			request	body		models.CopyParticipantsRequest	true	"Source and role overrides"
-// @Success		200		{object}	models.BatchResult
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
+// @Param			request	body		dto.CopyParticipantsRequest	true	"Source and role overrides"
+// @Success		200		{object}	dto.BatchResult
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
 // @Router			/admin/events/{id}/participants/copy-from [post]
 func (c *Controller) CopyFrom(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.svc.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.svc.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.CopyParticipantsRequest
+	var req dto.CopyParticipantsRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
 	sourceEventID, err := httpx.BodyDisplayID(r.Context(), &req.SourceEventID,
-		models.DisplayKindEvent, c.svc.ResolveEventDisplayID)
+		dto.DisplayKindEvent, c.svc.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -126,7 +126,7 @@ func (c *Controller) CopyFrom(w http.ResponseWriter, r *http.Request) {
 		raw = append(raw, o.UserID)
 	}
 	overrideUserIDs, err := httpx.BodyDisplayIDs(r.Context(), raw,
-		models.DisplayKindUser, c.svc.ResolveUserDisplayID)
+		dto.DisplayKindUser, c.svc.ResolveUserDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

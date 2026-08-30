@@ -9,11 +9,12 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type CalendarFeedService interface {
-	Describe(ctx context.Context, actor models.Actor) (*models.CalendarFeedResponse, error)
-	Issue(ctx context.Context, actor models.Actor, rotate bool) (*models.CalendarFeedSecretResponse, error)
+	Describe(ctx context.Context, actor models.Actor) (*dto.CalendarFeedResponse, error)
+	Issue(ctx context.Context, actor models.Actor, rotate bool) (*dto.CalendarFeedSecretResponse, error)
 	Revoke(ctx context.Context, actor models.Actor) error
 	Render(ctx context.Context, secret string) (string, error)
 }
@@ -59,9 +60,9 @@ func (c *CalendarFeedController) guard(w http.ResponseWriter, r *http.Request, s
 // @Tags			calendar
 // @Produce		json
 // @Security		CookieAuth
-// @Success		200	{object}	models.CalendarFeedResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.CalendarFeedResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/calendar-feed [get]
 func (c *CalendarFeedController) Describe(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "calendar.describe") {
@@ -90,10 +91,10 @@ func (c *CalendarFeedController) Describe(w http.ResponseWriter, r *http.Request
 // @Tags			calendar
 // @Produce		json
 // @Security		CookieAuth
-// @Success		201	{object}	models.CalendarFeedSecretResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		409	{object}	models.ErrorResponse	"a feed already exists; rotate it instead"
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		201	{object}	dto.CalendarFeedSecretResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		409	{object}	dto.ErrorResponse	"a feed already exists; rotate it instead"
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/calendar-feed [post]
 func (c *CalendarFeedController) Create(w http.ResponseWriter, r *http.Request) {
 	c.issue(w, r, false, http.StatusCreated)
@@ -110,9 +111,9 @@ func (c *CalendarFeedController) Create(w http.ResponseWriter, r *http.Request) 
 // @Tags			calendar
 // @Produce		json
 // @Security		CookieAuth
-// @Success		200	{object}	models.CalendarFeedSecretResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.CalendarFeedSecretResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/calendar-feed/rotate [post]
 func (c *CalendarFeedController) Rotate(w http.ResponseWriter, r *http.Request) {
 	c.issue(w, r, true, http.StatusOK)
@@ -142,8 +143,8 @@ func (c *CalendarFeedController) issue(w http.ResponseWriter, r *http.Request,
 // @Produce		json
 // @Security		CookieAuth
 // @Success		204	"the feed is revoked"
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		429	{object}	models.ErrorResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/calendar-feed [delete]
 func (c *CalendarFeedController) Revoke(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "calendar.revoke") {
@@ -182,8 +183,8 @@ func (c *CalendarFeedController) Revoke(w http.ResponseWriter, r *http.Request) 
 // @Produce		text/calendar
 // @Param			token	path		string					true	"Feed secret"
 // @Success		200		{string}	string					"iCalendar document"
-// @Failure		404		{object}	models.ErrorResponse	"unknown, revoked or malformed token"
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse	"unknown, revoked or malformed token"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/calendar/{token}/feed.ics [get]
 func (c *CalendarFeedController) Feed(w http.ResponseWriter, r *http.Request) {
 	token := r.PathValue("token")

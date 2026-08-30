@@ -11,6 +11,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type QueryService struct {
@@ -38,7 +39,7 @@ func (s *QueryService) ResolveDisplayID(ctx context.Context, displayID string) (
 }
 
 func (s *QueryService) MyEvents(ctx context.Context, actor models.Actor, filter models.MyEventFilter,
-	page models.Page) ([]models.MyEventItem, int64, error) {
+	page models.Page) ([]dto.MyEventItem, int64, error) {
 	if actor.IsSystem() {
 		return nil, 0, models.NewUnauthorized("authentication is required")
 	}
@@ -46,7 +47,7 @@ func (s *QueryService) MyEvents(ctx context.Context, actor models.Actor, filter 
 }
 
 func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
-	eventID uuid.UUID) (*models.EventCard, error) {
+	eventID uuid.UUID) (*dto.EventCard, error) {
 	if actor.IsSystem() {
 		return nil, models.NewUnauthorized("authentication is required")
 	}
@@ -80,10 +81,10 @@ func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
 		return nil, err
 	}
 
-	card := &models.EventCard{
+	card := &dto.EventCard{
 		Event:     eventView(event, stages, now),
 		TeamRole:  participant.TeamRole,
-		Stages:    make([]models.StageResponse, 0, len(stages)),
+		Stages:    make([]dto.StageResponse, 0, len(stages)),
 		NextStage: nextStage,
 	}
 	for i := range stages {
@@ -96,7 +97,7 @@ func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
 	return card, nil
 }
 
-func (s *QueryService) attachRegistration(ctx context.Context, card *models.EventCard,
+func (s *QueryService) attachRegistration(ctx context.Context, card *dto.EventCard,
 	event *models.Event, participant *models.EventParticipant,
 ) error {
 	registration, err := s.registrations.GetByEvent(ctx, event.ID)
@@ -106,7 +107,7 @@ func (s *QueryService) attachRegistration(ctx context.Context, card *models.Even
 		}
 		return err
 	}
-	card.Registration = &models.RegistrationPublic{
+	card.Registration = &dto.RegistrationPublic{
 		URL:         registration.URL,
 		DeadlineAt:  registration.DeadlineAt,
 		Description: registration.Description,
@@ -120,7 +121,7 @@ func (s *QueryService) attachRegistration(ctx context.Context, card *models.Even
 		}
 		return err
 	}
-	card.RegistrationStatus = &models.RegistrationStatusShort{
+	card.RegistrationStatus = &dto.RegistrationStatusShort{
 		ID:           status.DisplayID,
 		Status:       status.Status,
 		TodoCycle:    status.TodoCycle,
@@ -132,7 +133,7 @@ func (s *QueryService) attachRegistration(ctx context.Context, card *models.Even
 }
 
 func (s *QueryService) MySchedule(ctx context.Context, actor models.Actor,
-	filter models.ScheduleFilter) (*models.ScheduleResponse, error) {
+	filter models.ScheduleFilter) (*dto.ScheduleResponse, error) {
 	if actor.IsSystem() {
 		return nil, models.NewUnauthorized("authentication is required")
 	}
@@ -141,14 +142,14 @@ func (s *QueryService) MySchedule(ctx context.Context, actor models.Actor,
 	if err != nil {
 		return nil, err
 	}
-	return &models.ScheduleResponse{
-		Range: models.TimeRange{From: filter.From, To: filter.To},
+	return &dto.ScheduleResponse{
+		Range: dto.TimeRange{From: filter.From, To: filter.To},
 		Rows:  rows,
 	}, nil
 }
 
 func (s *QueryService) AdminSchedule(ctx context.Context, actor models.Actor,
-	filter models.ScheduleFilter) (*models.ScheduleResponse, error) {
+	filter models.ScheduleFilter) (*dto.ScheduleResponse, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -156,14 +157,14 @@ func (s *QueryService) AdminSchedule(ctx context.Context, actor models.Actor,
 	if err != nil {
 		return nil, err
 	}
-	return &models.ScheduleResponse{
-		Range: models.TimeRange{From: filter.From, To: filter.To},
+	return &dto.ScheduleResponse{
+		Range: dto.TimeRange{From: filter.From, To: filter.To},
 		Rows:  rows,
 	}, nil
 }
 
 func (s *QueryService) Upcoming(ctx context.Context, actor models.Actor, within time.Duration,
-	page models.Page) ([]models.DeadlineItem, int64, error) {
+	page models.Page) ([]dto.DeadlineItem, int64, error) {
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -171,7 +172,7 @@ func (s *QueryService) Upcoming(ctx context.Context, actor models.Actor, within 
 }
 
 func (s *QueryService) Overdue(ctx context.Context, actor models.Actor,
-	page models.Page) ([]models.DeadlineItem, int64, error) {
+	page models.Page) ([]dto.DeadlineItem, int64, error) {
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -179,7 +180,7 @@ func (s *QueryService) Overdue(ctx context.Context, actor models.Actor,
 }
 
 func (s *QueryService) RegistrationCoverage(ctx context.Context,
-	actor models.Actor) (*models.RegistrationCoverage, error) {
+	actor models.Actor) (*dto.RegistrationCoverage, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -190,8 +191,8 @@ func (s *QueryService) RegistrationCoverage(ctx context.Context,
 	return &coverage, nil
 }
 
-func eventView(h *models.Event, stages []models.Stage, now time.Time) models.EventResponse {
-	return models.EventResponse{
+func eventView(h *models.Event, stages []models.Stage, now time.Time) dto.EventResponse {
+	return dto.EventResponse{
 		ID:              h.DisplayID,
 		Title:           h.Title,
 		Description:     h.Description,
@@ -217,8 +218,8 @@ func eventView(h *models.Event, stages []models.Stage, now time.Time) models.Eve
 	}
 }
 
-func stageView(s *models.Stage, event *models.Event) models.StageResponse {
-	return models.StageResponse{
+func stageView(s *models.Stage, event *models.Event) dto.StageResponse {
+	return dto.StageResponse{
 		ID:          s.DisplayID,
 		EventID:     event.DisplayID,
 		Name:        s.Name,

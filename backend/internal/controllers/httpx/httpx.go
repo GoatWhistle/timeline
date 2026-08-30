@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 const MaxBodyBytes = 1 << 20
@@ -79,10 +80,10 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 	JSON(w, status, body)
 }
 
-func mapError(err error) (int, models.ErrorResponse) {
+func mapError(err error) (int, dto.ErrorResponse) {
 	var de *models.DomainError
 	if errors.As(err, &de) {
-		return statusFor(de.Base), models.ErrorResponse{Error: models.ErrorBody{
+		return statusFor(de.Base), dto.ErrorResponse{Error: dto.ErrorBody{
 			Code:    de.Code,
 			Message: de.Message,
 			Fields:  de.Fields,
@@ -128,8 +129,8 @@ func statusFor(base error) int {
 	return http.StatusInternalServerError
 }
 
-func simple(code, message string) models.ErrorResponse {
-	return models.ErrorResponse{Error: models.ErrorBody{Code: code, Message: message}}
+func simple(code, message string) dto.ErrorResponse {
+	return dto.ErrorResponse{Error: dto.ErrorBody{Code: code, Message: message}}
 }
 
 func ParsePage(r *http.Request, def, maxSize int) (models.Page, error) {
@@ -154,8 +155,8 @@ func ParsePage(r *http.Request, def, maxSize int) (models.Page, error) {
 	return p, nil
 }
 
-func Meta(p models.Page, total int64) models.PageMeta {
-	return models.PageMeta{
+func Meta(p models.Page, total int64) dto.PageMeta {
+	return dto.PageMeta{
 		Page:     p.Number,
 		PageSize: p.Size,
 		Total:    total,

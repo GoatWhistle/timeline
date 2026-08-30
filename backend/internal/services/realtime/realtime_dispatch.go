@@ -9,6 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/systemevent"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 func (h *RealtimeHub) dispatch(signal systemevent.Signal) {
@@ -21,7 +22,7 @@ func (h *RealtimeHub) dispatch(signal systemevent.Signal) {
 }
 
 func (h *RealtimeHub) dispatchInvalidation(signal systemevent.Signal) {
-	env := models.RealtimeEnvelope{Type: models.RealtimeEnvelopeInvalidate, Keys: signal.Keys}
+	env := dto.RealtimeEnvelope{Type: dto.RealtimeEnvelopeInvalidate, Keys: signal.Keys}
 	h.Broadcast(env, audienceMatch(signal.UserID, signal.Admin))
 }
 
@@ -35,7 +36,7 @@ func (h *RealtimeHub) dispatchEvent(id uuid.UUID) {
 		return
 	}
 	body := SystemEventResponse(stored, false)
-	env := models.RealtimeEnvelope{Type: models.RealtimeEnvelopeEvent, Event: &body}
+	env := dto.RealtimeEnvelope{Type: dto.RealtimeEnvelopeEvent, Event: &body}
 
 	if stored.Audience == models.AudienceUser && stored.UserID != nil {
 		h.Broadcast(env, audienceMatch(stored.UserID, false))
@@ -53,8 +54,8 @@ func audienceMatch(userID *uuid.UUID, admin bool) func(*Subscriber) bool {
 	}
 }
 
-func SystemEventResponse(e *models.SystemEvent, read bool) models.SystemEventResponse {
-	return models.SystemEventResponse{
+func SystemEventResponse(e *models.SystemEvent, read bool) dto.SystemEventResponse {
+	return dto.SystemEventResponse{
 		ID:          e.DisplayID,
 		Type:        string(e.Type),
 		Severity:    string(e.Severity),

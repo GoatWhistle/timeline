@@ -14,6 +14,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
@@ -60,7 +61,7 @@ func TestUpdateProfileStoresLocale(t *testing.T) {
 	}
 
 	english := "en"
-	updated, err := users.UpdateProfile(ctx, created.ID, models.ProfilePatch{Locale: &english})
+	updated, err := users.UpdateProfile(ctx, created.ID, dto.ProfilePatch{Locale: &english})
 	if err != nil {
 		t.Fatalf("updating profile: %v", err)
 	}
@@ -69,7 +70,7 @@ func TestUpdateProfileStoresLocale(t *testing.T) {
 	}
 
 	name := "Renamed"
-	kept, err := users.UpdateProfile(ctx, created.ID, models.ProfilePatch{FirstName: &name})
+	kept, err := users.UpdateProfile(ctx, created.ID, dto.ProfilePatch{FirstName: &name})
 	if err != nil {
 		t.Fatalf("updating profile without locale: %v", err)
 	}

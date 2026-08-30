@@ -11,13 +11,14 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type PreviewService interface {
 	ResolveStatusDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	PreviewNotification(
 		ctx context.Context, actor models.Actor, statusID uuid.UUID, ruleID *uuid.UUID,
-	) (*models.NotificationPreviewResponse, error)
+	) (*dto.NotificationPreviewResponse, error)
 }
 
 type PreviewController struct {
@@ -59,12 +60,12 @@ func NewPreviewController(svc PreviewService, limiter shared.Limiter, limit int,
 // @Security		CookieAuth
 // @Param			id		path		string	true	"Registration status"	example(rs_42ej2s5gh7)
 // @Param			rule_id	query		string	false	"Rule to render"		format(uuid)
-// @Success		200		{object}	models.NotificationPreviewResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse	"nothing to render, or a foreign rule"
-// @Failure		429		{object}	models.ErrorResponse
+// @Success		200		{object}	dto.NotificationPreviewResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse	"nothing to render, or a foreign rule"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/admin/registration-statuses/{id}/notification-preview [get]
 func (c *PreviewController) Notification(w http.ResponseWriter, r *http.Request) {
 	actor := middleware.ActorFrom(r)
@@ -72,7 +73,7 @@ func (c *PreviewController) Notification(w http.ResponseWriter, r *http.Request)
 		httpx.Error(w, r, models.NewRateLimited("too many preview requests, try again later"))
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindRegistrationStatus, c.svc.ResolveStatusDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindRegistrationStatus, c.svc.ResolveStatusDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

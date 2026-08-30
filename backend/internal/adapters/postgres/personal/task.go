@@ -9,6 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Tasks struct{ db *postgres.DB }
@@ -34,7 +35,7 @@ func scanTask(row pgx.Row) (*models.ParticipantTask, error) {
 }
 
 func (r *Tasks) Create(ctx context.Context, userID, eventID uuid.UUID,
-	req models.CreateTaskRequest, title string, sortOrder int) (*models.ParticipantTask, error) {
+	req dto.CreateTaskRequest, title string, sortOrder int) (*models.ParticipantTask, error) {
 	var stageEventID *uuid.UUID
 	if req.StageID != nil {
 		stageEventID = &eventID
@@ -89,7 +90,7 @@ func (r *Tasks) ListByEvent(ctx context.Context, userID, eventID uuid.UUID) ([]m
 }
 
 func (r *Tasks) Update(ctx context.Context, userID, id uuid.UUID,
-	patch models.TaskPatch, eventID uuid.UUID) (*models.ParticipantTask, error) {
+	patch dto.TaskPatch, eventID uuid.UUID) (*models.ParticipantTask, error) {
 	sets := make([]string, 0, 7)
 	args := []any{id, userID}
 

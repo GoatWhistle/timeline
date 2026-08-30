@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -36,7 +37,7 @@ func (s *PersonalService) RemoveBookmark(ctx context.Context, actor models.Actor
 }
 
 func (s *PersonalService) ListBookmarks(ctx context.Context, actor models.Actor,
-	page models.Page) ([]models.CatalogEvent, int64, error) {
+	page models.Page) ([]dto.CatalogEvent, int64, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, 0, err
@@ -45,7 +46,7 @@ func (s *PersonalService) ListBookmarks(ctx context.Context, actor models.Actor,
 }
 
 func (s *PersonalService) History(ctx context.Context, actor models.Actor,
-	page models.Page) ([]models.HistoryItem, int64, error) {
+	page models.Page) ([]dto.HistoryItem, int64, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, 0, err

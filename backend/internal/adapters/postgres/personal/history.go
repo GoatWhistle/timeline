@@ -7,6 +7,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type History struct{ db *postgres.DB }
@@ -18,7 +19,7 @@ const historyFrom = `FROM events e
 	WHERE p.participation_status = 'ASSIGNED' AND e.archived_at IS NULL`
 
 func (r *History) List(ctx context.Context, userID uuid.UUID,
-	page models.Page) ([]models.HistoryItem, []uuid.UUID, int64, error) {
+	page models.Page) ([]dto.HistoryItem, []uuid.UUID, int64, error) {
 	args := []any{userID}
 
 	var total int64
@@ -37,10 +38,10 @@ func (r *History) List(ctx context.Context, userID uuid.UUID,
 	}
 	defer rows.Close()
 
-	items := make([]models.HistoryItem, 0, page.Limit())
+	items := make([]dto.HistoryItem, 0, page.Limit())
 	ids := make([]uuid.UUID, 0, page.Limit())
 	for rows.Next() {
-		var item models.HistoryItem
+		var item dto.HistoryItem
 		var rawID uuid.UUID
 		if err := rows.Scan(&rawID, &item.EventID, &item.Title, &item.Kind,
 			&item.StartAt, &item.EndAt, &item.TeamRole); err != nil {

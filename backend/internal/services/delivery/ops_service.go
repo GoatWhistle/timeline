@@ -7,7 +7,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/config"
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type OpsService struct {
@@ -32,7 +32,7 @@ func (s *OpsService) Ready(ctx context.Context) error {
 	return s.db.Ping(ctx)
 }
 
-func (s *OpsService) Heartbeat(ctx context.Context) (*models.WorkerHeartbeatResponse, error) {
+func (s *OpsService) Heartbeat(ctx context.Context) (*dto.WorkerHeartbeatResponse, error) {
 	now := s.now()
 
 	hb, err := s.scheduler.Heartbeats(ctx)
@@ -44,7 +44,7 @@ func (s *OpsService) Heartbeat(ctx context.Context) (*models.WorkerHeartbeatResp
 		return nil, err
 	}
 
-	resp := &models.WorkerHeartbeatResponse{
+	resp := &dto.WorkerHeartbeatResponse{
 		SchedulerLastRunAt: hb.Scheduler,
 		WorkerLastRunAt:    hb.Worker,
 		PendingCount:       stats.Pending,

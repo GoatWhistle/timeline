@@ -6,12 +6,13 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 const historyPreviewLimit = 160
 
 func (r *Notifications) History(ctx context.Context, recipientID uuid.UUID,
-	page models.Page) ([]models.NotificationHistoryItem, int64, error) {
+	page models.Page) ([]dto.NotificationHistoryItem, int64, error) {
 	var total int64
 	err := r.db.Q(ctx).QueryRow(ctx,
 		`SELECT count(*) FROM notifications WHERE recipient_user_id = $1`, recipientID).Scan(&total)
@@ -19,7 +20,7 @@ func (r *Notifications) History(ctx context.Context, recipientID uuid.UUID,
 		return nil, 0, mapError(err)
 	}
 	if total == 0 {
-		return []models.NotificationHistoryItem{}, 0, nil
+		return []dto.NotificationHistoryItem{}, 0, nil
 	}
 
 	rows, err := r.db.Q(ctx).Query(ctx, `
@@ -39,9 +40,9 @@ func (r *Notifications) History(ctx context.Context, recipientID uuid.UUID,
 	}
 	defer rows.Close()
 
-	items := make([]models.NotificationHistoryItem, 0, page.Limit())
+	items := make([]dto.NotificationHistoryItem, 0, page.Limit())
 	for rows.Next() {
-		var item models.NotificationHistoryItem
+		var item dto.NotificationHistoryItem
 		if err := rows.Scan(&item.ID, &item.Type, &item.Status, &item.Channel,
 			&item.EventTitle, &item.Preview, &item.Redacted,
 			&item.ScheduledAt, &item.SentAt, &item.CreatedAt); err != nil {

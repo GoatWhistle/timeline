@@ -8,10 +8,11 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type PublicProfileService interface {
-	PublicProfile(ctx context.Context, nickname string) (models.PublicProfileResponse, error)
+	PublicProfile(ctx context.Context, nickname string) (dto.PublicProfileResponse, error)
 }
 
 type PublicProfileController struct {
@@ -34,9 +35,9 @@ func NewPublicProfileController(svc PublicProfileService, limiter shared.Limiter
 // @Tags			profile
 // @Produce		json
 // @Param			nickname	path		string	true	"Nickname without the @ sign"
-// @Success		200			{object}	models.PublicProfileResponse
-// @Failure		404			{object}	models.ErrorResponse
-// @Failure		429			{object}	models.ErrorResponse
+// @Success		200			{object}	dto.PublicProfileResponse
+// @Failure		404			{object}	dto.ErrorResponse
+// @Failure		429			{object}	dto.ErrorResponse
 // @Router			/profiles/{nickname} [get]
 func (c *PublicProfileController) Get(w http.ResponseWriter, r *http.Request) {
 	if !c.allow(r) {

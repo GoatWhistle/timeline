@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type ParticipantService interface {
@@ -14,23 +15,23 @@ type ParticipantService interface {
 	ResolveUserDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, filter models.ParticipantFilter, page models.Page,
-	) ([]models.ParticipantResponse, int64, error)
+	) ([]dto.ParticipantResponse, int64, error)
 	AddMany(
-		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.AddParticipantsRequest,
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.AddParticipantsRequest,
 		userIDs []uuid.UUID,
-	) (*models.BatchResult, error)
+	) (*dto.BatchResult, error)
 	RemoveMany(
-		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.RemoveParticipantsRequest,
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.RemoveParticipantsRequest,
 		participantIDs []uuid.UUID,
-	) (*models.BatchResult, error)
+	) (*dto.BatchResult, error)
 	UpdateTeamRole(
 		ctx context.Context, actor models.Actor, participantID uuid.UUID, role *string,
-	) (*models.ParticipantResponse, error)
+	) (*dto.ParticipantResponse, error)
 	Reactivate(
 		ctx context.Context, actor models.Actor, participantID uuid.UUID, role *string,
-	) (*models.ParticipantResponse, error)
+	) (*dto.ParticipantResponse, error)
 	CopyFrom(
-		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.CopyParticipantsRequest,
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.CopyParticipantsRequest,
 		sourceEventID uuid.UUID, overrideUserIDs []uuid.UUID,
-	) (*models.BatchResult, error)
+	) (*dto.BatchResult, error)
 }

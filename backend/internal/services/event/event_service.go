@@ -11,6 +11,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/reconcile"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
@@ -43,7 +44,7 @@ func (s *EventService) ResolveDisplayID(ctx context.Context, displayID string) (
 	return s.events.ResolveDisplayID(ctx, displayID)
 }
 
-func (s *EventService) Create(ctx context.Context, actor models.Actor, req models.CreateEventRequest,
+func (s *EventService) Create(ctx context.Context, actor models.Actor, req dto.CreateEventRequest,
 ) (*models.Event, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("creating an event is restricted to administrators")
@@ -123,7 +124,7 @@ func (s *EventService) List(ctx context.Context, actor models.Actor, filter mode
 	return s.events.List(ctx, filter, page, s.now())
 }
 
-func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.UUID, req models.UpdateEventRequest,
+func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.UUID, req dto.UpdateEventRequest,
 ) (*models.Event, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("editing an event is restricted to administrators")
@@ -192,7 +193,7 @@ func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.U
 			return err
 		}
 
-		updated, err = s.events.Update(ctx, id, req, models.EventPlacePatch{
+		updated, err = s.events.Update(ctx, id, req, dto.EventPlacePatch{
 			CountrySet: true, CountryCode: place.countryCode,
 			CitySet: true, City: place.city,
 		})

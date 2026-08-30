@@ -9,6 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Links struct{ db *postgres.DB }
@@ -106,7 +107,7 @@ func collect(rows pgx.Rows) ([]models.ResourceLink, error) {
 }
 
 func (r *Links) Update(ctx context.Context, eventID, id uuid.UUID,
-	patch models.ResourceLinkPatch) (*models.ResourceLink, error) {
+	patch dto.ResourceLinkPatch) (*models.ResourceLink, error) {
 	sets := make([]string, 0, 6)
 	args := []any{id, eventID}
 

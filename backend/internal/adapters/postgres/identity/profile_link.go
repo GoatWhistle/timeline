@@ -9,6 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type ProfileLinks struct{ db *postgres.DB }
@@ -86,7 +87,7 @@ func (r *ProfileLinks) GetOwned(ctx context.Context, userID, id uuid.UUID) (*mod
 }
 
 func (r *ProfileLinks) Update(ctx context.Context, userID, id uuid.UUID,
-	patch models.ProfileLinkPatch) (*models.ProfileLink, error) {
+	patch dto.ProfileLinkPatch) (*models.ProfileLink, error) {
 	if patch.URL == nil && !patch.LabelSet {
 		return r.GetOwned(ctx, userID, id)
 	}

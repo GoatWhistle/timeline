@@ -9,6 +9,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type RegistrationStatusController struct {
@@ -27,19 +28,19 @@ type StatusService interface {
 	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, page models.Page,
-	) ([]models.RegistrationStatusResponse, int64, error)
-	MarkDone(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*models.RegistrationStatusResponse, error)
+	) ([]dto.RegistrationStatusResponse, int64, error)
+	MarkDone(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*dto.RegistrationStatusResponse, error)
 	AdminChange(
-		ctx context.Context, actor models.Actor, statusID uuid.UUID, req models.AdminChangeStatusRequest,
-	) (*models.RegistrationStatusResponse, error)
+		ctx context.Context, actor models.Actor, statusID uuid.UUID, req dto.AdminChangeStatusRequest,
+	) (*dto.RegistrationStatusResponse, error)
 	BatchSet(
-		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.BatchSetStatusRequest,
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.BatchSetStatusRequest,
 		participantIDs []uuid.UUID,
-	) (*models.BatchResult, error)
+	) (*dto.BatchResult, error)
 	BatchSetPreview(
-		ctx context.Context, actor models.Actor, eventID uuid.UUID, req models.BatchSetStatusRequest,
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.BatchSetStatusRequest,
 		participantIDs []uuid.UUID,
-	) (*models.PreviewResponse, error)
+	) (*dto.PreviewResponse, error)
 }
 
 // @Summary	Participant registration statuses
@@ -49,12 +50,12 @@ type StatusService interface {
 // @Param		id			path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Param		page		query		int		false	"Page number"		default(1)
 // @Param		page_size	query		int		false	"Page size"			default(50)
-// @Success	200			{object}	models.RegistrationStatusPage
-// @Failure	403			{object}	models.ErrorResponse
-// @Failure	404			{object}	models.ErrorResponse
+// @Success	200			{object}	dto.RegistrationStatusPage
+// @Failure	403			{object}	dto.ErrorResponse
+// @Failure	404			{object}	dto.ErrorResponse
 // @Router		/admin/events/{id}/registration-statuses [get]
 func (c *RegistrationStatusController) ListStatuses(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.statuses.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.statuses.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -69,7 +70,7 @@ func (c *RegistrationStatusController) ListStatuses(w http.ResponseWriter, r *ht
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.RegistrationStatusPage{Items: items, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.RegistrationStatusPage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
 // @Summary		Mark registration as completed
@@ -79,14 +80,14 @@ func (c *RegistrationStatusController) ListStatuses(w http.ResponseWriter, r *ht
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success		200	{object}	models.RegistrationStatusResponse
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
-// @Failure		409	{object}	models.ErrorResponse	"invalid state transition"
+// @Success		200	{object}	dto.RegistrationStatusResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
+// @Failure		409	{object}	dto.ErrorResponse	"invalid state transition"
 // @Router			/events/{id}/registration/done [post]
 func (c *RegistrationStatusController) MarkDone(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.statuses.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.statuses.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -107,20 +108,20 @@ func (c *RegistrationStatusController) MarkDone(w http.ResponseWriter, r *http.R
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string							true	"Status identifier"	example(rs_42ej2s5gh7)
-// @Param			request	body		models.AdminChangeStatusRequest	true	"New status"
-// @Success		200		{object}	models.RegistrationStatusResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse
+// @Param			request	body		dto.AdminChangeStatusRequest	true	"New status"
+// @Success		200		{object}	dto.RegistrationStatusResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse
 // @Router			/admin/registration-statuses/{id} [patch]
 func (c *RegistrationStatusController) AdminChangeStatus(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindRegistrationStatus, c.statuses.ResolveStatusDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindRegistrationStatus, c.statuses.ResolveStatusDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.AdminChangeStatusRequest
+	var req dto.AdminChangeStatusRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -140,11 +141,11 @@ func (c *RegistrationStatusController) AdminChangeStatus(w http.ResponseWriter, 
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			request	body		models.BatchSetStatusRequest	true	"Participants and target status"
-// @Success		200		{object}	models.BatchResult
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
+// @Param			request	body		dto.BatchSetStatusRequest	true	"Participants and target status"
+// @Success		200		{object}	dto.BatchResult
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
 // @Router			/admin/events/{id}/registration-statuses/batch-set [post]
 func (c *RegistrationStatusController) BatchSetStatus(w http.ResponseWriter, r *http.Request) {
 	id, req, ok := c.batchInput(w, r)
@@ -152,7 +153,7 @@ func (c *RegistrationStatusController) BatchSetStatus(w http.ResponseWriter, r *
 		return
 	}
 	participantIDs, err := httpx.BodyDisplayIDs(r.Context(), req.ParticipantIDs,
-		models.DisplayKindParticipant, c.statuses.ResolveParticipantDisplayID)
+		dto.DisplayKindParticipant, c.statuses.ResolveParticipantDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -172,11 +173,11 @@ func (c *RegistrationStatusController) BatchSetStatus(w http.ResponseWriter, r *
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string							true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Param			request	body		models.BatchSetStatusRequest	true	"Participants and target status"
-// @Success		200		{object}	models.PreviewResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
+// @Param			request	body		dto.BatchSetStatusRequest	true	"Participants and target status"
+// @Success		200		{object}	dto.PreviewResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
 // @Router			/admin/events/{id}/registration-statuses/batch-set/preview [post]
 func (c *RegistrationStatusController) BatchSetStatusPreview(w http.ResponseWriter, r *http.Request) {
 	id, req, ok := c.batchInput(w, r)
@@ -184,7 +185,7 @@ func (c *RegistrationStatusController) BatchSetStatusPreview(w http.ResponseWrit
 		return
 	}
 	participantIDs, err := httpx.BodyDisplayIDs(r.Context(), req.ParticipantIDs,
-		models.DisplayKindParticipant, c.statuses.ResolveParticipantDisplayID)
+		dto.DisplayKindParticipant, c.statuses.ResolveParticipantDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -198,8 +199,8 @@ func (c *RegistrationStatusController) BatchSetStatusPreview(w http.ResponseWrit
 }
 
 func (c *RegistrationStatusController) batchInput(w http.ResponseWriter, r *http.Request,
-) (id uuid.UUID, req models.BatchSetStatusRequest, ok bool) {
-	parsed, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.statuses.ResolveEventDisplayID)
+) (id uuid.UUID, req dto.BatchSetStatusRequest, ok bool) {
+	parsed, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.statuses.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return id, req, false

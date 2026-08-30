@@ -7,6 +7,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Audit struct{ db *postgres.DB }
@@ -37,7 +38,7 @@ func marshalOrNil(value any) ([]byte, error) {
 }
 
 func (r *Audit) List(ctx context.Context, filter models.AuditFilter, page models.Page,
-) ([]models.AuditResponse, int64, error) {
+) ([]dto.AuditResponse, int64, error) {
 	conds := make([]string, 0, 6)
 	args := make([]any, 0, 6)
 
@@ -89,10 +90,10 @@ func (r *Audit) List(ctx context.Context, filter models.AuditFilter, page models
 	}
 	defer rows.Close()
 
-	items := make([]models.AuditResponse, 0, page.Limit())
+	items := make([]dto.AuditResponse, 0, page.Limit())
 	for rows.Next() {
 		var (
-			item   models.AuditResponse
+			item   dto.AuditResponse
 			before []byte
 			after  []byte
 		)

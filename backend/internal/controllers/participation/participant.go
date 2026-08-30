@@ -6,6 +6,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Controller struct {
@@ -29,12 +30,12 @@ func NewController(svc ParticipantService, pageDef, pageMax int) *Controller {
 // @Param		search				query		string	false	"Search by name and email"
 // @Param		page				query		int		false	"Page number"	default(1)
 // @Param		page_size			query		int		false	"Page size"		default(50)
-// @Success	200					{object}	models.ParticipantPage
-// @Failure	403					{object}	models.ErrorResponse
-// @Failure	404					{object}	models.ErrorResponse
+// @Success	200					{object}	dto.ParticipantPage
+// @Failure	403					{object}	dto.ErrorResponse
+// @Failure	404					{object}	dto.ErrorResponse
 // @Router		/admin/events/{id}/participants [get]
 func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.svc.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.svc.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -60,7 +61,7 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.ParticipantPage{Items: items, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.ParticipantPage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
 // @Summary		Update a participant role
@@ -70,19 +71,19 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string							true	"Participant identifier"	example(pa_42ej2s5gh7e8)
-// @Param			request	body		models.UpdateTeamRoleRequest	true	"New role"
-// @Success		200		{object}	models.ParticipantResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
+// @Param			request	body		dto.UpdateTeamRoleRequest	true	"New role"
+// @Success		200		{object}	dto.ParticipantResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
 // @Router			/admin/participants/{id}/team-role [patch]
 func (c *Controller) UpdateTeamRole(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindParticipant, c.svc.ResolveParticipantDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindParticipant, c.svc.ResolveParticipantDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.UpdateTeamRoleRequest
+	var req dto.UpdateTeamRoleRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -103,20 +104,20 @@ func (c *Controller) UpdateTeamRole(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string							true	"Participant identifier"	example(pa_42ej2s5gh7e8)
-// @Param			request	body		models.UpdateTeamRoleRequest	true	"Participant role"
-// @Success		200		{object}	models.ParticipantResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		403		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"the participant is already assigned"
+// @Param			request	body		dto.UpdateTeamRoleRequest	true	"Participant role"
+// @Success		200		{object}	dto.ParticipantResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		403		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"the participant is already assigned"
 // @Router			/admin/participants/{id}/reactivate [post]
 func (c *Controller) Reactivate(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindParticipant, c.svc.ResolveParticipantDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindParticipant, c.svc.ResolveParticipantDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.UpdateTeamRoleRequest
+	var req dto.UpdateTeamRoleRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return

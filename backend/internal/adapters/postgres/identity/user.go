@@ -11,6 +11,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Users struct{ db *postgres.DB }
@@ -82,7 +83,7 @@ func (r *Users) EmailTaken(ctx context.Context, email string, except uuid.UUID) 
 	return exists, nil
 }
 
-func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p models.ProfilePatch) (*models.User, error) {
+func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p dto.ProfilePatch) (*models.User, error) {
 	return scanUser(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE users SET
 			first_name = COALESCE($2, first_name),
@@ -180,7 +181,7 @@ func (r *Users) Anonymize(ctx context.Context, id uuid.UUID) error {
 		WHERE id = $1 AND deleted_at IS NULL`, id)
 }
 
-func (r *Users) Search(ctx context.Context, query string, page models.Page) ([]models.UserSummary, int64, error) {
+func (r *Users) Search(ctx context.Context, query string, page models.Page) ([]dto.UserSummary, int64, error) {
 	pattern := "%" + strings.ToLower(strings.TrimSpace(query)) + "%"
 	var total int64
 	err := r.db.Q(ctx).QueryRow(ctx, `
@@ -203,9 +204,9 @@ func (r *Users) Search(ctx context.Context, query string, page models.Page) ([]m
 	}
 	defer rows.Close()
 
-	items := make([]models.UserSummary, 0, page.Limit())
+	items := make([]dto.UserSummary, 0, page.Limit())
 	for rows.Next() {
-		var s models.UserSummary
+		var s dto.UserSummary
 		if err := rows.Scan(&s.ID, &s.FirstName, &s.MiddleName, &s.LastName,
 			&s.Nickname, &s.Email, &s.IsActive); err != nil {
 			return nil, 0, mapError(err)

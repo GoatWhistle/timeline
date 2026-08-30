@@ -9,6 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Stages struct{ db *postgres.DB }
@@ -56,8 +57,8 @@ func (r *Stages) GetByID(ctx context.Context, id uuid.UUID) (*models.Stage, erro
 	return scanStage(r.db.Q(ctx).QueryRow(ctx, `SELECT `+stageColumns+` FROM stages WHERE id = $1`, id))
 }
 
-func (r *Stages) Update(ctx context.Context, id uuid.UUID, req models.UpdateStageRequest,
-	place models.StagePlacePatch) (*models.Stage, error) {
+func (r *Stages) Update(ctx context.Context, id uuid.UUID, req dto.UpdateStageRequest,
+	place dto.StagePlacePatch) (*models.Stage, error) {
 	return scanStage(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE stages SET
 			name = COALESCE($2, name),

@@ -5,7 +5,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 // @Summary		Own retrospective for an event
@@ -21,15 +21,15 @@ import (
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.ParticipantRetrospective
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse	"the event is not visible to the caller"
-// @Failure		429	{object}	models.ErrorResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse	"the event is not visible to the caller"
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/retrospective [get]
 func (c *Controller) GetRetrospective(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.retrospective.get") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -56,23 +56,23 @@ func (c *Controller) GetRetrospective(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string							true	"Event identifier"
-// @Param			request	body		models.SaveRetrospectiveRequest	true	"Retrospective"
+// @Param			request	body		dto.SaveRetrospectiveRequest	true	"Retrospective"
 // @Success		200		{object}	models.ParticipantRetrospective
-// @Failure		400		{object}	models.ErrorResponse	"a field is too long"
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse	"a field is too long"
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/retrospective [put]
 func (c *Controller) SaveRetrospective(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.retrospective.save") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.SaveRetrospectiveRequest
+	var req dto.SaveRetrospectiveRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -90,15 +90,15 @@ func (c *Controller) SaveRetrospective(w http.ResponseWriter, r *http.Request) {
 // @Security	CookieAuth
 // @Param		id	path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success	204	"the retrospective is deleted"
-// @Failure	401	{object}	models.ErrorResponse
-// @Failure	404	{object}	models.ErrorResponse
-// @Failure	429	{object}	models.ErrorResponse
+// @Failure	401	{object}	dto.ErrorResponse
+// @Failure	404	{object}	dto.ErrorResponse
+// @Failure	429	{object}	dto.ErrorResponse
 // @Router		/me/events/{id}/retrospective [delete]
 func (c *Controller) DeleteRetrospective(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.retrospective.delete") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

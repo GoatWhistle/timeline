@@ -94,19 +94,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.AuditPage"
+                            "$ref": "#/definitions/dto.AuditPage"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -172,13 +172,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.EventPage"
+                            "$ref": "#/definitions/dto.EventPage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -207,7 +207,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateEventRequest"
+                            "$ref": "#/definitions/dto.CreateEventRequest"
                         }
                     }
                 ],
@@ -215,19 +215,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.EventResponse"
+                            "$ref": "#/definitions/dto.EventResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -262,19 +262,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.EventResponse"
+                            "$ref": "#/definitions/dto.EventResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -311,7 +311,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateEventRequest"
+                            "$ref": "#/definitions/dto.UpdateEventRequest"
                         }
                     }
                 ],
@@ -319,31 +319,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.EventResponse"
+                            "$ref": "#/definitions/dto.EventResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "the registration deadline falls outside end_at",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -378,25 +378,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.EventResponse"
+                            "$ref": "#/definitions/dto.EventResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "event is already archived",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -473,19 +473,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ParticipantPage"
+                            "$ref": "#/definitions/dto.ParticipantPage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -524,7 +524,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.AddParticipantsRequest"
+                            "$ref": "#/definitions/dto.AddParticipantsRequest"
                         }
                     }
                 ],
@@ -532,25 +532,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.BatchResult"
+                            "$ref": "#/definitions/dto.BatchResult"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -589,7 +589,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.RemoveParticipantsRequest"
+                            "$ref": "#/definitions/dto.RemoveParticipantsRequest"
                         }
                     }
                 ],
@@ -597,25 +597,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.BatchResult"
+                            "$ref": "#/definitions/dto.BatchResult"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -654,7 +654,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CopyParticipantsRequest"
+                            "$ref": "#/definitions/dto.CopyParticipantsRequest"
                         }
                     }
                 ],
@@ -662,25 +662,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.BatchResult"
+                            "$ref": "#/definitions/dto.BatchResult"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -715,25 +715,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.EventResponse"
+                            "$ref": "#/definitions/dto.EventResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "the event is already published or archived",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -767,19 +767,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.RegistrationResponse"
+                            "$ref": "#/definitions/dto.RegistrationResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -816,7 +816,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateRegistrationRequest"
+                            "$ref": "#/definitions/dto.CreateRegistrationRequest"
                         }
                     }
                 ],
@@ -824,31 +824,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.RegistrationResponse"
+                            "$ref": "#/definitions/dto.RegistrationResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "registration already exists or the deadline falls outside end_at",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -885,7 +885,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateRegistrationRequest"
+                            "$ref": "#/definitions/dto.UpdateRegistrationRequest"
                         }
                     }
                 ],
@@ -893,31 +893,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.RegistrationResponse"
+                            "$ref": "#/definitions/dto.RegistrationResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -965,19 +965,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.RegistrationStatusPage"
+                            "$ref": "#/definitions/dto.RegistrationStatusPage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1016,7 +1016,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.BatchSetStatusRequest"
+                            "$ref": "#/definitions/dto.BatchSetStatusRequest"
                         }
                     }
                 ],
@@ -1024,25 +1024,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.BatchResult"
+                            "$ref": "#/definitions/dto.BatchResult"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1081,7 +1081,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.BatchSetStatusRequest"
+                            "$ref": "#/definitions/dto.BatchSetStatusRequest"
                         }
                     }
                 ],
@@ -1089,25 +1089,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.PreviewResponse"
+                            "$ref": "#/definitions/dto.PreviewResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1142,25 +1142,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.RegistrationResponse"
+                            "$ref": "#/definitions/dto.RegistrationResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "registration is already disabled",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1195,25 +1195,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.RegistrationResponse"
+                            "$ref": "#/definitions/dto.RegistrationResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "registration is already active",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1249,20 +1249,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.NotificationRuleResponse"
+                                "$ref": "#/definitions/dto.NotificationRuleResponse"
                             }
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1299,7 +1299,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateRuleRequest"
+                            "$ref": "#/definitions/dto.CreateRuleRequest"
                         }
                     }
                 ],
@@ -1307,31 +1307,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.NotificationRuleResponse"
+                            "$ref": "#/definitions/dto.NotificationRuleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "a rule with this offset already exists or the slot limit is reached",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1369,7 +1369,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateStageRequest"
+                            "$ref": "#/definitions/dto.CreateStageRequest"
                         }
                     }
                 ],
@@ -1377,25 +1377,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.StageResponse"
+                            "$ref": "#/definitions/dto.StageResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1435,13 +1435,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.InvitePage"
+                            "$ref": "#/definitions/dto.InvitePage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1470,7 +1470,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateInviteRequest"
+                            "$ref": "#/definitions/dto.CreateInviteRequest"
                         }
                     }
                 ],
@@ -1478,25 +1478,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.CreateInviteResponse"
+                            "$ref": "#/definitions/dto.CreateInviteResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "a user with this email already exists",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1530,19 +1530,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1581,7 +1581,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateTeamRoleRequest"
+                            "$ref": "#/definitions/dto.UpdateTeamRoleRequest"
                         }
                     }
                 ],
@@ -1589,31 +1589,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ParticipantResponse"
+                            "$ref": "#/definitions/dto.ParticipantResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "the participant is already assigned",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1652,7 +1652,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateTeamRoleRequest"
+                            "$ref": "#/definitions/dto.UpdateTeamRoleRequest"
                         }
                     }
                 ],
@@ -1660,25 +1660,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ParticipantResponse"
+                            "$ref": "#/definitions/dto.ParticipantResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1719,13 +1719,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DeadlinePage"
+                            "$ref": "#/definitions/dto.DeadlinePage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1750,13 +1750,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.RegistrationCoverage"
+                            "$ref": "#/definitions/dto.RegistrationCoverage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1804,13 +1804,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DeadlinePage"
+                            "$ref": "#/definitions/dto.DeadlinePage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1848,13 +1848,13 @@ const docTemplate = `{
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1891,7 +1891,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateRuleRequest"
+                            "$ref": "#/definitions/dto.UpdateRuleRequest"
                         }
                     }
                 ],
@@ -1899,31 +1899,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.NotificationRuleResponse"
+                            "$ref": "#/definitions/dto.NotificationRuleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -1962,7 +1962,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.AdminChangeStatusRequest"
+                            "$ref": "#/definitions/dto.AdminChangeStatusRequest"
                         }
                     }
                 ],
@@ -1970,31 +1970,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.RegistrationStatusResponse"
+                            "$ref": "#/definitions/dto.RegistrationStatusResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2036,37 +2036,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.NotificationPreviewResponse"
+                            "$ref": "#/definitions/dto.NotificationPreviewResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "nothing to render, or a foreign rule",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2124,19 +2124,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ScheduleResponse"
+                            "$ref": "#/definitions/dto.ScheduleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2173,13 +2173,13 @@ const docTemplate = `{
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2214,7 +2214,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateStageRequest"
+                            "$ref": "#/definitions/dto.UpdateStageRequest"
                         }
                     }
                 ],
@@ -2222,25 +2222,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.StageResponse"
+                            "$ref": "#/definitions/dto.StageResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2287,13 +2287,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserPage"
+                            "$ref": "#/definitions/dto.UserPage"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2328,19 +2328,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2375,19 +2375,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2422,19 +2422,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2454,7 +2454,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.CSRFResponse"
+                            "$ref": "#/definitions/dto.CSRFResponse"
                         }
                     }
                 }
@@ -2480,7 +2480,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.TokenRequest"
+                            "$ref": "#/definitions/dto.TokenRequest"
                         }
                     }
                 ],
@@ -2488,19 +2488,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "address is already taken",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2526,7 +2526,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.LoginRequest"
+                            "$ref": "#/definitions/dto.LoginRequest"
                         }
                     }
                 ],
@@ -2534,25 +2534,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.AuthResponse"
+                            "$ref": "#/definitions/dto.AuthResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "invalid credentials or a deactivated account",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2572,7 +2572,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     }
                 }
@@ -2597,13 +2597,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2629,7 +2629,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.EmailRequest"
+                            "$ref": "#/definitions/dto.EmailRequest"
                         }
                     }
                 ],
@@ -2637,19 +2637,19 @@ const docTemplate = `{
                     "202": {
                         "description": "Accepted",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2675,7 +2675,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ResetPasswordRequest"
+                            "$ref": "#/definitions/dto.ResetPasswordRequest"
                         }
                     }
                 ],
@@ -2683,13 +2683,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2709,13 +2709,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.AuthResponse"
+                            "$ref": "#/definitions/dto.AuthResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2741,7 +2741,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.RegisterRequest"
+                            "$ref": "#/definitions/dto.RegisterRequest"
                         }
                     }
                 ],
@@ -2749,25 +2749,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.AuthResponse"
+                            "$ref": "#/definitions/dto.AuthResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "email is already taken",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2793,7 +2793,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.TokenRequest"
+                            "$ref": "#/definitions/dto.TokenRequest"
                         }
                     }
                 ],
@@ -2801,13 +2801,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "400": {
                         "description": "the token is invalid or has expired",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2833,7 +2833,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.EmailRequest"
+                            "$ref": "#/definitions/dto.EmailRequest"
                         }
                     }
                 ],
@@ -2841,19 +2841,19 @@ const docTemplate = `{
                     "202": {
                         "description": "Accepted",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2888,13 +2888,13 @@ const docTemplate = `{
                     "404": {
                         "description": "unknown, revoked or malformed token",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -2997,25 +2997,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.CatalogPage"
+                            "$ref": "#/definitions/dto.CatalogPage"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "too many catalog requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3050,25 +3050,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.EventCard"
+                            "$ref": "#/definitions/dto.EventCard"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3107,7 +3107,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.JoinEventRequest"
+                            "$ref": "#/definitions/dto.JoinEventRequest"
                         }
                     }
                 ],
@@ -3115,37 +3115,37 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.ParticipantSelfResponse"
+                            "$ref": "#/definitions/dto.ParticipantSelfResponse"
                         }
                     },
                     "400": {
                         "description": "a hackathon requires a team role",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "already a participant, or the event has finished",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "too many join attempts",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3180,25 +3180,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ResourceLinkListResponse"
+                            "$ref": "#/definitions/dto.ResourceLinkListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "the event is not visible to the caller",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3235,7 +3235,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateResourceLinkRequest"
+                            "$ref": "#/definitions/dto.CreateResourceLinkRequest"
                         }
                     }
                 ],
@@ -3249,37 +3249,37 @@ const docTemplate = `{
                     "400": {
                         "description": "bad address, executable scheme or a foreign stage",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "only an administrator edits event links",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "the link limit for the event is reached",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3325,25 +3325,25 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3388,7 +3388,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateResourceLinkRequest"
+                            "$ref": "#/definitions/dto.UpdateResourceLinkRequest"
                         }
                     }
                 ],
@@ -3402,31 +3402,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3461,31 +3461,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.RegistrationStatusResponse"
+                            "$ref": "#/definitions/dto.RegistrationStatusResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "invalid state transition",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3522,20 +3522,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.StageResponse"
+                                "$ref": "#/definitions/dto.StageResponse"
                             }
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3554,7 +3554,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HealthResponse"
+                            "$ref": "#/definitions/dto.HealthResponse"
                         }
                     }
                 }
@@ -3580,7 +3580,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.AcceptInviteRequest"
+                            "$ref": "#/definitions/dto.AcceptInviteRequest"
                         }
                     }
                 ],
@@ -3588,19 +3588,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.AuthResponse"
+                            "$ref": "#/definitions/dto.AuthResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3629,13 +3629,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.InvitePreview"
+                            "$ref": "#/definitions/dto.InvitePreview"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3659,13 +3659,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MeResponse"
+                            "$ref": "#/definitions/dto.MeResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3694,7 +3694,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateProfileRequest"
+                            "$ref": "#/definitions/dto.UpdateProfileRequest"
                         }
                     }
                 ],
@@ -3702,25 +3702,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MeResponse"
+                            "$ref": "#/definitions/dto.MeResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3754,19 +3754,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3803,7 +3803,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateArtifactRequest"
+                            "$ref": "#/definitions/dto.UpdateArtifactRequest"
                         }
                     }
                 ],
@@ -3817,25 +3817,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "the artifact belongs to another user",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3876,25 +3876,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.BookmarkListResponse"
+                            "$ref": "#/definitions/dto.BookmarkListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3929,19 +3929,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "the event is not in the catalog",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -3973,19 +3973,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4010,19 +4010,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.CalendarFeedResponse"
+                            "$ref": "#/definitions/dto.CalendarFeedResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4045,25 +4045,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.CalendarFeedSecretResponse"
+                            "$ref": "#/definitions/dto.CalendarFeedSecretResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "a feed already exists; rotate it instead",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4089,13 +4089,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4120,19 +4120,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.CalendarFeedSecretResponse"
+                            "$ref": "#/definitions/dto.CalendarFeedSecretResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4157,19 +4157,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.TemplateListResponse"
+                            "$ref": "#/definitions/dto.TemplateListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4194,13 +4194,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4231,7 +4231,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ChangeEmailRequest"
+                            "$ref": "#/definitions/dto.ChangeEmailRequest"
                         }
                     }
                 ],
@@ -4239,25 +4239,25 @@ const docTemplate = `{
                     "202": {
                         "description": "Accepted",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "address is already taken",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4316,13 +4316,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MyEventPage"
+                            "$ref": "#/definitions/dto.MyEventPage"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4367,25 +4367,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.SystemEventPage"
+                            "$ref": "#/definitions/dto.SystemEventPage"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4416,7 +4416,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.MarkReadRequest"
+                            "$ref": "#/definitions/dto.MarkReadRequest"
                         }
                     }
                 ],
@@ -4424,25 +4424,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UnreadCountResponse"
+                            "$ref": "#/definitions/dto.UnreadCountResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4467,19 +4467,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UnreadCountResponse"
+                            "$ref": "#/definitions/dto.UnreadCountResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4514,25 +4514,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ArtifactListResponse"
+                            "$ref": "#/definitions/dto.ArtifactListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4568,7 +4568,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateArtifactRequest"
+                            "$ref": "#/definitions/dto.CreateArtifactRequest"
                         }
                     }
                 ],
@@ -4582,31 +4582,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "the artifact limit for this event is reached",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4641,25 +4641,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ParticipantLinkListResponse"
+                            "$ref": "#/definitions/dto.ParticipantLinkListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "the event is not visible to the caller",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4696,7 +4696,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateParticipantLinkRequest"
+                            "$ref": "#/definitions/dto.CreateParticipantLinkRequest"
                         }
                     }
                 ],
@@ -4710,31 +4710,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "the personal link limit for the event is reached",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4775,19 +4775,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "the event is not visible to the caller",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4823,7 +4823,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SaveNoteRequest"
+                            "$ref": "#/definitions/dto.SaveNoteRequest"
                         }
                     }
                 ],
@@ -4837,25 +4837,25 @@ const docTemplate = `{
                     "400": {
                         "description": "the note is too long",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4896,19 +4896,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "no outcome recorded yet",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -4944,7 +4944,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SaveOutcomeRequest"
+                            "$ref": "#/definitions/dto.SaveOutcomeRequest"
                         }
                     }
                 ],
@@ -4958,25 +4958,25 @@ const docTemplate = `{
                     "400": {
                         "description": "a place requires a placing outcome",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5008,19 +5008,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5061,19 +5061,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "the event is not visible to the caller",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5109,7 +5109,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SaveRetrospectiveRequest"
+                            "$ref": "#/definitions/dto.SaveRetrospectiveRequest"
                         }
                     }
                 ],
@@ -5123,25 +5123,25 @@ const docTemplate = `{
                     "400": {
                         "description": "a field is too long",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5173,19 +5173,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5220,25 +5220,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.TaskListResponse"
+                            "$ref": "#/definitions/dto.TaskListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "the event is not visible to the caller",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5274,7 +5274,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateTaskRequest"
+                            "$ref": "#/definitions/dto.CreateTaskRequest"
                         }
                     }
                 ],
@@ -5288,31 +5288,31 @@ const docTemplate = `{
                     "400": {
                         "description": "the stage belongs to another event",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "the task limit for this event is reached",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5350,7 +5350,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ApplyTemplateRequest"
+                            "$ref": "#/definitions/dto.ApplyTemplateRequest"
                         }
                     }
                 ],
@@ -5358,31 +5358,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.BatchResult"
+                            "$ref": "#/definitions/dto.BatchResult"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "unknown template or invisible event",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5423,25 +5423,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HistoryResponse"
+                            "$ref": "#/definitions/dto.HistoryResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5479,19 +5479,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5528,7 +5528,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateParticipantLinkRequest"
+                            "$ref": "#/definitions/dto.UpdateParticipantLinkRequest"
                         }
                     }
                 ],
@@ -5542,25 +5542,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5601,25 +5601,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.NotificationHistoryResponse"
+                            "$ref": "#/definitions/dto.NotificationHistoryResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5644,19 +5644,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ProfileLinkListResponse"
+                            "$ref": "#/definitions/dto.ProfileLinkListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5685,7 +5685,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateProfileLinkRequest"
+                            "$ref": "#/definitions/dto.CreateProfileLinkRequest"
                         }
                     }
                 ],
@@ -5699,25 +5699,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "the profile link limit is reached",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5748,7 +5748,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ReorderProfileLinksRequest"
+                            "$ref": "#/definitions/dto.ReorderProfileLinksRequest"
                         }
                     }
                 ],
@@ -5756,31 +5756,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ProfileLinkListResponse"
+                            "$ref": "#/definitions/dto.ProfileLinkListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5814,25 +5814,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5868,7 +5868,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateProfileLinkRequest"
+                            "$ref": "#/definitions/dto.UpdateProfileLinkRequest"
                         }
                     }
                 ],
@@ -5882,25 +5882,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5939,19 +5939,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ScheduleResponse"
+                            "$ref": "#/definitions/dto.ScheduleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -5976,19 +5976,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.SessionListResponse"
+                            "$ref": "#/definitions/dto.SessionListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6023,31 +6023,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "the session does not exist or belongs to another account",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6072,13 +6072,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ShortcutsResponse"
+                            "$ref": "#/definitions/dto.ShortcutsResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6107,7 +6107,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateShortcutsRequest"
+                            "$ref": "#/definitions/dto.UpdateShortcutsRequest"
                         }
                     }
                 ],
@@ -6115,31 +6115,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ShortcutsResponse"
+                            "$ref": "#/definitions/dto.ShortcutsResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "the shortcut is taken or reserved",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6161,19 +6161,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ShortcutsResponse"
+                            "$ref": "#/definitions/dto.ShortcutsResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6208,19 +6208,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6257,7 +6257,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateTaskRequest"
+                            "$ref": "#/definitions/dto.UpdateTaskRequest"
                         }
                     }
                 ],
@@ -6271,25 +6271,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "the task belongs to another user",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6313,13 +6313,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6344,13 +6344,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.TelegramLinkResponse"
+                            "$ref": "#/definitions/dto.TelegramLinkResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6376,7 +6376,7 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6425,31 +6425,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.QueueEntryPage"
+                            "$ref": "#/definitions/dto.QueueEntryPage"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6469,13 +6469,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.WorkerHeartbeatResponse"
+                            "$ref": "#/definitions/dto.WorkerHeartbeatResponse"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/models.WorkerHeartbeatResponse"
+                            "$ref": "#/definitions/dto.WorkerHeartbeatResponse"
                         }
                     }
                 }
@@ -6504,19 +6504,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.PublicProfileResponse"
+                            "$ref": "#/definitions/dto.PublicProfileResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6536,13 +6536,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ReadyResponse"
+                            "$ref": "#/definitions/dto.ReadyResponse"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/models.ReadyResponse"
+                            "$ref": "#/definitions/dto.ReadyResponse"
                         }
                     }
                 }
@@ -6570,19 +6570,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -6590,7 +6590,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.AcceptInviteRequest": {
+        "dto.AcceptInviteRequest": {
             "type": "object",
             "properties": {
                 "first_name": {
@@ -6615,7 +6615,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.AddParticipantItem": {
+        "dto.AddParticipantItem": {
             "type": "object",
             "properties": {
                 "team_role": {
@@ -6628,18 +6628,18 @@ const docTemplate = `{
                 }
             }
         },
-        "models.AddParticipantsRequest": {
+        "dto.AddParticipantsRequest": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.AddParticipantItem"
+                        "$ref": "#/definitions/dto.AddParticipantItem"
                     }
                 }
             }
         },
-        "models.AdminChangeStatusRequest": {
+        "dto.AdminChangeStatusRequest": {
             "type": "object",
             "properties": {
                 "note": {
@@ -6659,7 +6659,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ApplyTemplateRequest": {
+        "dto.ApplyTemplateRequest": {
             "type": "object",
             "properties": {
                 "template_id": {
@@ -6668,26 +6668,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ArtifactKind": {
-            "type": "string",
-            "enum": [
-                "REPOSITORY",
-                "VIDEO",
-                "SLIDES",
-                "DEMO",
-                "SUBMISSION",
-                "OTHER"
-            ],
-            "x-enum-varnames": [
-                "ArtifactRepository",
-                "ArtifactVideo",
-                "ArtifactSlides",
-                "ArtifactDemo",
-                "ArtifactSubmission",
-                "ArtifactOther"
-            ]
-        },
-        "models.ArtifactListResponse": {
+        "dto.ArtifactListResponse": {
             "type": "object",
             "properties": {
                 "items": {
@@ -6698,84 +6679,21 @@ const docTemplate = `{
                 }
             }
         },
-        "models.AuditAction": {
-            "type": "string",
-            "enum": [
-                "USER_REGISTER",
-                "USER_DEACTIVATE",
-                "USER_ACTIVATE",
-                "USER_DELETE",
-                "USER_PROFILE_CHANGE",
-                "USER_ADMIN_FLAG_CHANGE",
-                "INVITE_CREATE",
-                "INVITE_REVOKE",
-                "INVITE_ACCEPT",
-                "EVENT_CREATE",
-                "EVENT_UPDATE",
-                "EVENT_PUBLISH",
-                "EVENT_ARCHIVE",
-                "STAGE_CREATE",
-                "STAGE_UPDATE",
-                "STAGE_DELETE",
-                "PARTICIPANT_ADD",
-                "PARTICIPANT_REMOVE",
-                "PARTICIPANT_REACTIVATE",
-                "TEAM_ROLE_CHANGE",
-                "REGISTRATION_CHANGE",
-                "STATUS_CHANGE",
-                "RULE_CHANGE",
-                "RESOURCE_LINK_CREATE",
-                "RESOURCE_LINK_UPDATE",
-                "RESOURCE_LINK_DELETE",
-                "CALENDAR_FEED_ISSUE",
-                "CALENDAR_FEED_REVOKE"
-            ],
-            "x-enum-varnames": [
-                "AuditUserRegister",
-                "AuditUserDeactivate",
-                "AuditUserActivate",
-                "AuditUserDelete",
-                "AuditUserProfileChange",
-                "AuditUserAdminFlagChange",
-                "AuditInviteCreate",
-                "AuditInviteRevoke",
-                "AuditInviteAccept",
-                "AuditEventCreate",
-                "AuditEventUpdate",
-                "AuditEventPublish",
-                "AuditEventArchive",
-                "AuditStageCreate",
-                "AuditStageUpdate",
-                "AuditStageDelete",
-                "AuditParticipantAdd",
-                "AuditParticipantRemove",
-                "AuditParticipantReactive",
-                "AuditTeamRoleChange",
-                "AuditRegistrationChange",
-                "AuditStatusChange",
-                "AuditRuleChange",
-                "AuditLinkCreate",
-                "AuditLinkUpdate",
-                "AuditLinkDelete",
-                "AuditCalendarFeedIssue",
-                "AuditCalendarFeedRevoke"
-            ]
-        },
-        "models.AuditPage": {
+        "dto.AuditPage": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.AuditResponse"
+                        "$ref": "#/definitions/dto.AuditResponse"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
+                    "$ref": "#/definitions/dto.PageMeta"
                 }
             }
         },
-        "models.AuditResponse": {
+        "dto.AuditResponse": {
             "type": "object",
             "properties": {
                 "action": {
@@ -6816,7 +6734,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.AuthResponse": {
+        "dto.AuthResponse": {
             "type": "object",
             "properties": {
                 "access_expires_at": {
@@ -6826,11 +6744,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/models.MeResponse"
+                    "$ref": "#/definitions/dto.MeResponse"
                 }
             }
         },
-        "models.BatchItemResult": {
+        "dto.BatchItemResult": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6864,7 +6782,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.BatchResult": {
+        "dto.BatchResult": {
             "type": "object",
             "properties": {
                 "failed": {
@@ -6874,7 +6792,7 @@ const docTemplate = `{
                 "results": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.BatchItemResult"
+                        "$ref": "#/definitions/dto.BatchItemResult"
                     }
                 },
                 "skipped": {
@@ -6887,7 +6805,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.BatchSetStatusRequest": {
+        "dto.BatchSetStatusRequest": {
             "type": "object",
             "properties": {
                 "note": {
@@ -6915,21 +6833,21 @@ const docTemplate = `{
                 }
             }
         },
-        "models.BookmarkListResponse": {
+        "dto.BookmarkListResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.CatalogEvent"
+                        "$ref": "#/definitions/dto.CatalogEvent"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
+                    "$ref": "#/definitions/dto.PageMeta"
                 }
             }
         },
-        "models.CSRFResponse": {
+        "dto.CSRFResponse": {
             "type": "object",
             "properties": {
                 "csrf_token": {
@@ -6942,7 +6860,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CalendarFeedResponse": {
+        "dto.CalendarFeedResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -6957,7 +6875,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CalendarFeedSecretResponse": {
+        "dto.CalendarFeedSecretResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -6969,7 +6887,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CatalogEvent": {
+        "dto.CatalogEvent": {
             "type": "object",
             "properties": {
                 "city": {
@@ -7032,7 +6950,7 @@ const docTemplate = `{
                 "offline_stages": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.CatalogPlace"
+                        "$ref": "#/definitions/dto.CatalogPlace"
                     }
                 },
                 "organizer": {
@@ -7091,21 +7009,21 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CatalogPage": {
+        "dto.CatalogPage": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.CatalogEvent"
+                        "$ref": "#/definitions/dto.CatalogEvent"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
+                    "$ref": "#/definitions/dto.PageMeta"
                 }
             }
         },
-        "models.CatalogPlace": {
+        "dto.CatalogPlace": {
             "type": "object",
             "properties": {
                 "end_at": {
@@ -7130,7 +7048,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ChangeEmailRequest": {
+        "dto.ChangeEmailRequest": {
             "type": "object",
             "properties": {
                 "new_email": {
@@ -7143,69 +7061,13 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ChangeSource": {
-            "type": "string",
-            "enum": [
-                "SYSTEM",
-                "USER",
-                "ADMIN"
-            ],
-            "x-enum-varnames": [
-                "SourceSystem",
-                "SourceUser",
-                "SourceAdmin"
-            ]
-        },
-        "models.Channel": {
-            "type": "string",
-            "enum": [
-                "TELEGRAM",
-                "EMAIL"
-            ],
-            "x-enum-varnames": [
-                "ChannelTelegram",
-                "ChannelEmail"
-            ]
-        },
-        "models.ChecklistTemplate": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "example": "preparation"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ChecklistTemplateItem"
-                    }
-                }
-            }
-        },
-        "models.ChecklistTemplateItem": {
-            "type": "object",
-            "properties": {
-                "due_offset_minutes": {
-                    "type": "integer",
-                    "example": -10080
-                },
-                "slot_no": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "title_key": {
-                    "type": "string",
-                    "example": "task.read_rules"
-                }
-            }
-        },
-        "models.CopyParticipantsRequest": {
+        "dto.CopyParticipantsRequest": {
             "type": "object",
             "properties": {
                 "overrides": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.CopyRoleOverride"
+                        "$ref": "#/definitions/dto.CopyRoleOverride"
                     }
                 },
                 "source_event_id": {
@@ -7214,7 +7076,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CopyRoleOverride": {
+        "dto.CopyRoleOverride": {
             "type": "object",
             "properties": {
                 "team_role": {
@@ -7227,7 +7089,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateArtifactRequest": {
+        "dto.CreateArtifactRequest": {
             "type": "object",
             "properties": {
                 "kind": {
@@ -7259,7 +7121,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateEventRequest": {
+        "dto.CreateEventRequest": {
             "type": "object",
             "properties": {
                 "city": {
@@ -7345,7 +7207,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateInviteRequest": {
+        "dto.CreateInviteRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -7354,7 +7216,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateInviteResponse": {
+        "dto.CreateInviteResponse": {
             "type": "object",
             "properties": {
                 "accept_link": {
@@ -7362,11 +7224,11 @@ const docTemplate = `{
                     "example": "https://tracker.local/invite/abc123"
                 },
                 "invite": {
-                    "$ref": "#/definitions/models.InviteResponse"
+                    "$ref": "#/definitions/dto.InviteResponse"
                 }
             }
         },
-        "models.CreateParticipantLinkRequest": {
+        "dto.CreateParticipantLinkRequest": {
             "type": "object",
             "properties": {
                 "kind": {
@@ -7387,7 +7249,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateProfileLinkRequest": {
+        "dto.CreateProfileLinkRequest": {
             "type": "object",
             "properties": {
                 "label": {
@@ -7400,7 +7262,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateRegistrationRequest": {
+        "dto.CreateRegistrationRequest": {
             "type": "object",
             "properties": {
                 "deadline_at": {
@@ -7415,7 +7277,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateResourceLinkRequest": {
+        "dto.CreateResourceLinkRequest": {
             "type": "object",
             "properties": {
                 "is_pinned": {
@@ -7444,7 +7306,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateRuleRequest": {
+        "dto.CreateRuleRequest": {
             "type": "object",
             "properties": {
                 "channel_override": {
@@ -7468,7 +7330,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateStageRequest": {
+        "dto.CreateStageRequest": {
             "type": "object",
             "properties": {
                 "city": {
@@ -7537,7 +7399,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateTaskRequest": {
+        "dto.CreateTaskRequest": {
             "type": "object",
             "properties": {
                 "due_at": {
@@ -7560,7 +7422,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.DeadlineItem": {
+        "dto.DeadlineItem": {
             "type": "object",
             "properties": {
                 "deadline_at": {
@@ -7593,25 +7455,25 @@ const docTemplate = `{
                     ]
                 },
                 "user": {
-                    "$ref": "#/definitions/models.UserSummary"
+                    "$ref": "#/definitions/dto.UserSummary"
                 }
             }
         },
-        "models.DeadlinePage": {
+        "dto.DeadlinePage": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.DeadlineItem"
+                        "$ref": "#/definitions/dto.DeadlineItem"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
+                    "$ref": "#/definitions/dto.PageMeta"
                 }
             }
         },
-        "models.EmailRequest": {
+        "dto.EmailRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -7620,34 +7482,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.EntityType": {
-            "type": "string",
-            "enum": [
-                "USER",
-                "INVITE",
-                "EVENT",
-                "STAGE",
-                "EVENT_PARTICIPANT",
-                "REGISTRATION",
-                "REGISTRATION_STATUS",
-                "NOTIFICATION_RULE",
-                "RESOURCE_LINK",
-                "CALENDAR_FEED"
-            ],
-            "x-enum-varnames": [
-                "EntityUser",
-                "EntityInvite",
-                "EntityEvent",
-                "EntityStage",
-                "EntityParticipant",
-                "EntityRegistration",
-                "EntityRegistrationStatus",
-                "EntityNotificationRule",
-                "EntityResourceLink",
-                "EntityCalendarFeed"
-            ]
-        },
-        "models.ErrorBody": {
+        "dto.ErrorBody": {
             "type": "object",
             "properties": {
                 "code": {
@@ -7670,15 +7505,15 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ErrorResponse": {
+        "dto.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
-                    "$ref": "#/definitions/models.ErrorBody"
+                    "$ref": "#/definitions/dto.ErrorBody"
                 }
             }
         },
-        "models.EventCard": {
+        "dto.EventCard": {
             "type": "object",
             "properties": {
                 "can_mark_done": {
@@ -7686,21 +7521,21 @@ const docTemplate = `{
                     "example": true
                 },
                 "event": {
-                    "$ref": "#/definitions/models.EventResponse"
+                    "$ref": "#/definitions/dto.EventResponse"
                 },
                 "next_stage": {
-                    "$ref": "#/definitions/models.StageShort"
+                    "$ref": "#/definitions/dto.StageShort"
                 },
                 "registration": {
-                    "$ref": "#/definitions/models.RegistrationPublic"
+                    "$ref": "#/definitions/dto.RegistrationPublic"
                 },
                 "registration_status": {
-                    "$ref": "#/definitions/models.RegistrationStatusShort"
+                    "$ref": "#/definitions/dto.RegistrationStatusShort"
                 },
                 "stages": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.StageResponse"
+                        "$ref": "#/definitions/dto.StageResponse"
                     }
                 },
                 "team_role": {
@@ -7709,56 +7544,21 @@ const docTemplate = `{
                 }
             }
         },
-        "models.EventFormat": {
-            "type": "string",
-            "enum": [
-                "ONLINE",
-                "OFFLINE",
-                "HYBRID"
-            ],
-            "x-enum-varnames": [
-                "FormatOnline",
-                "FormatOffline",
-                "FormatHybrid"
-            ]
-        },
-        "models.EventKind": {
-            "type": "string",
-            "enum": [
-                "HACKATHON",
-                "MEETUP"
-            ],
-            "x-enum-varnames": [
-                "EventKindHackathon",
-                "EventKindMeetup"
-            ]
-        },
-        "models.EventOrigin": {
-            "type": "string",
-            "enum": [
-                "RU",
-                "WORLD"
-            ],
-            "x-enum-varnames": [
-                "OriginRU",
-                "OriginWorld"
-            ]
-        },
-        "models.EventPage": {
+        "dto.EventPage": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.EventResponse"
+                        "$ref": "#/definitions/dto.EventResponse"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
+                    "$ref": "#/definitions/dto.PageMeta"
                 }
             }
         },
-        "models.EventResponse": {
+        "dto.EventResponse": {
             "type": "object",
             "properties": {
                 "archived_at": {
@@ -7887,37 +7687,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.EventState": {
-            "type": "string",
-            "enum": [
-                "UNPUBLISHED",
-                "UPCOMING",
-                "ACTIVE",
-                "FINISHED",
-                "ARCHIVED"
-            ],
-            "x-enum-varnames": [
-                "EventUnpublished",
-                "EventUpcoming",
-                "EventActive",
-                "EventFinished",
-                "EventArchived"
-            ]
-        },
-        "models.FieldError": {
-            "type": "object",
-            "properties": {
-                "field": {
-                    "type": "string",
-                    "example": "email"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "invalid address"
-                }
-            }
-        },
-        "models.HealthResponse": {
+        "dto.HealthResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -7929,7 +7699,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.HistoryItem": {
+        "dto.HistoryItem": {
             "type": "object",
             "properties": {
                 "artifacts": {
@@ -7984,35 +7754,35 @@ const docTemplate = `{
                 }
             }
         },
-        "models.HistoryResponse": {
+        "dto.HistoryResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.HistoryItem"
+                        "$ref": "#/definitions/dto.HistoryItem"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
+                    "$ref": "#/definitions/dto.PageMeta"
                 }
             }
         },
-        "models.InvitePage": {
+        "dto.InvitePage": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.InviteResponse"
+                        "$ref": "#/definitions/dto.InviteResponse"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
+                    "$ref": "#/definitions/dto.PageMeta"
                 }
             }
         },
-        "models.InvitePreview": {
+        "dto.InvitePreview": {
             "type": "object",
             "properties": {
                 "email": {
@@ -8028,7 +7798,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.InviteResponse": {
+        "dto.InviteResponse": {
             "type": "object",
             "properties": {
                 "accepted_at": {
@@ -8057,7 +7827,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.JoinEventRequest": {
+        "dto.JoinEventRequest": {
             "type": "object",
             "properties": {
                 "team_role": {
@@ -8066,38 +7836,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.LinkKind": {
-            "type": "string",
-            "enum": [
-                "WEBSITE",
-                "RULES",
-                "REGISTRATION",
-                "SUBMISSION",
-                "CHAT",
-                "DATASET",
-                "API_DOCS",
-                "JUDGING",
-                "MENTORS",
-                "RESULTS",
-                "SPONSOR",
-                "OTHER"
-            ],
-            "x-enum-varnames": [
-                "LinkWebsite",
-                "LinkRules",
-                "LinkRegistration",
-                "LinkSubmission",
-                "LinkChat",
-                "LinkDataset",
-                "LinkAPIDocs",
-                "LinkJudging",
-                "LinkMentors",
-                "LinkResults",
-                "LinkSponsor",
-                "LinkOther"
-            ]
-        },
-        "models.LoginRequest": {
+        "dto.LoginRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -8110,7 +7849,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.MarkReadRequest": {
+        "dto.MarkReadRequest": {
             "type": "object",
             "properties": {
                 "ids": {
@@ -8124,7 +7863,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.MeResponse": {
+        "dto.MeResponse": {
             "type": "object",
             "properties": {
                 "avatar_url": {
@@ -8227,7 +7966,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.MessageResponse": {
+        "dto.MessageResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -8236,7 +7975,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.MyEventItem": {
+        "dto.MyEventItem": {
             "type": "object",
             "properties": {
                 "end_at": {
@@ -8247,7 +7986,7 @@ const docTemplate = `{
                     "example": "ev_gma9hq8a96q5"
                 },
                 "next_stage": {
-                    "$ref": "#/definitions/models.StageShort"
+                    "$ref": "#/definitions/dto.StageShort"
                 },
                 "organizer": {
                     "type": "string"
@@ -8256,7 +7995,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "registration_status": {
-                    "$ref": "#/definitions/models.RegistrationStatusShort"
+                    "$ref": "#/definitions/dto.RegistrationStatusShort"
                 },
                 "registration_url": {
                     "type": "string"
@@ -8287,21 +8026,21 @@ const docTemplate = `{
                 }
             }
         },
-        "models.MyEventPage": {
+        "dto.MyEventPage": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.MyEventItem"
+                        "$ref": "#/definitions/dto.MyEventItem"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
+                    "$ref": "#/definitions/dto.PageMeta"
                 }
             }
         },
-        "models.NotificationHistoryItem": {
+        "dto.NotificationHistoryItem": {
             "type": "object",
             "properties": {
                 "channel": {
@@ -8369,21 +8108,21 @@ const docTemplate = `{
                 }
             }
         },
-        "models.NotificationHistoryResponse": {
+        "dto.NotificationHistoryResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.NotificationHistoryItem"
+                        "$ref": "#/definitions/dto.NotificationHistoryItem"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
+                    "$ref": "#/definitions/dto.PageMeta"
                 }
             }
         },
-        "models.NotificationPreviewResponse": {
+        "dto.NotificationPreviewResponse": {
             "type": "object",
             "properties": {
                 "body": {
@@ -8442,7 +8181,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.NotificationRuleResponse": {
+        "dto.NotificationRuleResponse": {
             "type": "object",
             "properties": {
                 "channel_override": {
@@ -8495,6 +8234,1780 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.PageMeta": {
+            "type": "object",
+            "properties": {
+                "has_next": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "page_size": {
+                    "type": "integer",
+                    "example": 50
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 137
+                }
+            }
+        },
+        "dto.ParticipantLinkListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ParticipantLink"
+                    }
+                }
+            }
+        },
+        "dto.ParticipantPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ParticipantResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/dto.PageMeta"
+                }
+            }
+        },
+        "dto.ParticipantResponse": {
+            "type": "object",
+            "properties": {
+                "assigned_at": {
+                    "type": "string"
+                },
+                "assignment_version": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "event_id": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "pa_42ej2s5gh7e8"
+                },
+                "participation_status": {
+                    "enum": [
+                        "ASSIGNED",
+                        "REMOVED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ParticipationStatus"
+                        }
+                    ]
+                },
+                "registration_status": {
+                    "$ref": "#/definitions/dto.RegistrationStatusShort"
+                },
+                "removed_at": {
+                    "type": "string"
+                },
+                "team_role": {
+                    "type": "string",
+                    "example": "Developer"
+                },
+                "user": {
+                    "$ref": "#/definitions/dto.UserSummary"
+                }
+            }
+        },
+        "dto.ParticipantSelfResponse": {
+            "type": "object",
+            "properties": {
+                "assigned_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "participation_status": {
+                    "enum": [
+                        "ASSIGNED",
+                        "REMOVED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ParticipationStatus"
+                        }
+                    ]
+                },
+                "team_role": {
+                    "type": "string",
+                    "example": "Backend developer"
+                }
+            }
+        },
+        "dto.PreviewResponse": {
+            "type": "object",
+            "properties": {
+                "affected": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "skipped": {
+                    "type": "integer",
+                    "example": 3
+                }
+            }
+        },
+        "dto.ProfileLinkListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ProfileLink"
+                    }
+                }
+            }
+        },
+        "dto.PublicProfileEvent": {
+            "type": "object",
+            "properties": {
+                "end_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Timeline Hack"
+                }
+            }
+        },
+        "dto.PublicProfileResponse": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://example.com/a.png"
+                },
+                "bio": {
+                    "type": "string",
+                    "example": "Backend developer"
+                },
+                "display_name": {
+                    "type": "string",
+                    "example": "John Smith"
+                },
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PublicProfileEvent"
+                    }
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "jsmith"
+                }
+            }
+        },
+        "dto.QueueEntryPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.QueueEntryResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/dto.PageMeta"
+                }
+            }
+        },
+        "dto.QueueEntryResponse": {
+            "type": "object",
+            "properties": {
+                "actual_channel": {
+                    "enum": [
+                        "TELEGRAM",
+                        "EMAIL"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Channel"
+                        }
+                    ]
+                },
+                "attempt_count": {
+                    "type": "integer",
+                    "example": 4
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "failed_channels": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Channel"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_error": {
+                    "type": "string",
+                    "example": "permanent provider error"
+                },
+                "lease_expires_at": {
+                    "type": "string"
+                },
+                "lease_overdue_seconds": {
+                    "type": "number",
+                    "example": 93.4
+                },
+                "notification_type": {
+                    "$ref": "#/definitions/models.NotificationType"
+                },
+                "requested_channel": {
+                    "enum": [
+                        "TELEGRAM",
+                        "EMAIL"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Channel"
+                        }
+                    ]
+                },
+                "scheduled_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.NotificationStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ReadyResponse": {
+            "type": "object",
+            "properties": {
+                "database": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ready"
+                }
+            }
+        },
+        "dto.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "ivan@example.com"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "invite_token": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "correct-horse-battery"
+                }
+            }
+        },
+        "dto.RegistrationCoverage": {
+            "type": "object",
+            "properties": {
+                "applicable": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "events_covered": {
+                    "type": "integer",
+                    "example": 4
+                },
+                "not_required": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "outstanding": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "self_reported_done": {
+                    "type": "integer",
+                    "example": 9
+                },
+                "share": {
+                    "type": "number",
+                    "example": 0.75
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 12
+                }
+            }
+        },
+        "dto.RegistrationPublic": {
+            "type": "object",
+            "properties": {
+                "deadline_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "state": {
+                    "enum": [
+                        "ACTIVE",
+                        "DISABLED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.RegistrationState"
+                        }
+                    ]
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.com/register"
+                }
+            }
+        },
+        "dto.RegistrationResponse": {
+            "type": "object",
+            "properties": {
+                "activation_version": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deadline_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "rg_42ej2s5gh7e8"
+                },
+                "notification_content_version": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "schedule_version": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "state": {
+                    "enum": [
+                        "ACTIVE",
+                        "DISABLED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.RegistrationState"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.com/register"
+                }
+            }
+        },
+        "dto.RegistrationStatusPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.RegistrationStatusResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/dto.PageMeta"
+                }
+            }
+        },
+        "dto.RegistrationStatusResponse": {
+            "type": "object",
+            "properties": {
+                "event_id": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "rs_42ej2s5gh7e8"
+                },
+                "last_change_source": {
+                    "enum": [
+                        "SYSTEM",
+                        "USER",
+                        "ADMIN"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ChangeSource"
+                        }
+                    ]
+                },
+                "last_changed_by_user_id": {
+                    "type": "string",
+                    "example": "us_42ej2s5gh7e8"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "participant_id": {
+                    "type": "string",
+                    "example": "pa_42ej2s5gh7e8"
+                },
+                "registered_at": {
+                    "type": "string"
+                },
+                "registration_id": {
+                    "type": "string",
+                    "example": "rg_42ej2s5gh7e8"
+                },
+                "status": {
+                    "enum": [
+                        "TODO",
+                        "DONE",
+                        "NOT_REQUIRED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.RegistrationStatusValue"
+                        }
+                    ]
+                },
+                "todo_cycle": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/dto.UserSummary"
+                }
+            }
+        },
+        "dto.RegistrationStatusShort": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "rs_42ej2s5gh7e8"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "registered_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "TODO",
+                        "DONE",
+                        "NOT_REQUIRED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.RegistrationStatusValue"
+                        }
+                    ]
+                },
+                "todo_cycle": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "dto.RemoveParticipantsRequest": {
+            "type": "object",
+            "properties": {
+                "participant_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "pa_42ej2s5gh7e8"
+                    ]
+                }
+            }
+        },
+        "dto.ReorderProfileLinksRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "pf_42ej2s5gh7e8"
+                    ]
+                }
+            }
+        },
+        "dto.ResetPasswordRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "new-correct-horse"
+                },
+                "token": {
+                    "type": "string",
+                    "example": "7f9c0f0e2f4b4a1d"
+                }
+            }
+        },
+        "dto.ResourceLinkListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ResourceLink"
+                    }
+                }
+            }
+        },
+        "dto.SaveNoteRequest": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string",
+                    "example": "Draft notes in Markdown"
+                }
+            }
+        },
+        "dto.SaveOutcomeRequest": {
+            "type": "object",
+            "properties": {
+                "note": {
+                    "type": "string"
+                },
+                "outcome": {
+                    "enum": [
+                        "PARTICIPATED",
+                        "SHORTLISTED",
+                        "WINNER",
+                        "PRIZE"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Outcome"
+                        }
+                    ]
+                },
+                "place": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "prize": {
+                    "type": "string",
+                    "example": "Jury award"
+                },
+                "track": {
+                    "type": "string",
+                    "example": "Smart city"
+                }
+            }
+        },
+        "dto.SaveRetrospectiveRequest": {
+            "type": "object",
+            "properties": {
+                "next_time": {
+                    "type": "string"
+                },
+                "went_badly": {
+                    "type": "string"
+                },
+                "went_well": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ScheduleItem": {
+            "type": "object",
+            "properties": {
+                "end_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Call for applications"
+                },
+                "place": {
+                    "$ref": "#/definitions/models.Place"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.StageType"
+                }
+            }
+        },
+        "dto.ScheduleResponse": {
+            "type": "object",
+            "properties": {
+                "range": {
+                    "$ref": "#/definitions/dto.TimeRange"
+                },
+                "rows": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ScheduleRow"
+                    }
+                }
+            }
+        },
+        "dto.ScheduleRow": {
+            "type": "object",
+            "properties": {
+                "effective_format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "registration_deadline": {
+                    "type": "string"
+                },
+                "registration_status": {
+                    "$ref": "#/definitions/dto.RegistrationStatusShort"
+                },
+                "stages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ScheduleItem"
+                    }
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "state": {
+                    "$ref": "#/definitions/models.EventState"
+                },
+                "team_role": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "National event"
+                }
+            }
+        },
+        "dto.SessionListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.SessionResponse"
+                    }
+                }
+            }
+        },
+        "dto.SessionResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "current": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "se_42ej2s5gh7e8"
+                },
+                "ip": {
+                    "type": "string",
+                    "example": "203.0.113.7"
+                },
+                "last_used_at": {
+                    "type": "string"
+                },
+                "user_agent": {
+                    "type": "string",
+                    "example": "Mozilla/5.0 (X11; Linux x86_64)"
+                }
+            }
+        },
+        "dto.ShortcutsResponse": {
+            "type": "object",
+            "properties": {
+                "shortcuts": {
+                    "$ref": "#/definitions/models.Shortcuts"
+                }
+            }
+        },
+        "dto.StageResponse": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Kazan"
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
+                "id": {
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Call for applications"
+                },
+                "online_url": {
+                    "type": "string",
+                    "example": "https://example.com/stream"
+                },
+                "place": {
+                    "$ref": "#/definitions/models.Place"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "REGISTRATION",
+                        "SELECTION",
+                        "PARTICIPATION",
+                        "CHECKPOINT",
+                        "SUBMISSION",
+                        "DEMO",
+                        "RESULTS",
+                        "OTHER"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.StageType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.com/stage"
+                },
+                "venue": {
+                    "type": "string",
+                    "example": "IT Park"
+                }
+            }
+        },
+        "dto.StageShort": {
+            "type": "object",
+            "properties": {
+                "end_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Call for applications"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.StageType"
+                }
+            }
+        },
+        "dto.SystemEventPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.SystemEventResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/dto.PageMeta"
+                }
+            }
+        },
+        "dto.SystemEventResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "sy_42ej2s5gh7e8"
+                },
+                "payload": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "read": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "severity": {
+                    "type": "string",
+                    "enum": [
+                        "INFO",
+                        "WARNING",
+                        "CRITICAL"
+                    ],
+                    "example": "WARNING"
+                },
+                "subject_type": {
+                    "type": "string",
+                    "example": "notification"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "NOTIFICATION_FAILED"
+                }
+            }
+        },
+        "dto.TaskListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ParticipantTask"
+                    }
+                }
+            }
+        },
+        "dto.TelegramLinkResponse": {
+            "type": "object",
+            "properties": {
+                "deep_link": {
+                    "type": "string",
+                    "example": "https://t.me/timeline_bot?start=abc123"
+                },
+                "expires_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TemplateListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ChecklistTemplate"
+                    }
+                }
+            }
+        },
+        "dto.TimeRange": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TokenRequest": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "7f9c0f0e2f4b4a1d"
+                }
+            }
+        },
+        "dto.UnreadCountResponse": {
+            "type": "object",
+            "properties": {
+                "unread": {
+                    "type": "integer",
+                    "example": 3
+                }
+            }
+        },
+        "dto.UpdateArtifactRequest": {
+            "type": "object",
+            "properties": {
+                "clear_title": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "kind": {
+                    "enum": [
+                        "REPOSITORY",
+                        "VIDEO",
+                        "SLIDES",
+                        "DEMO",
+                        "SUBMISSION",
+                        "OTHER"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ArtifactKind"
+                        }
+                    ]
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "submitted": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Project repository"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://github.com/example/project"
+                }
+            }
+        },
+        "dto.UpdateEventRequest": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Moscow"
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
+                "kind": {
+                    "enum": [
+                        "HACKATHON",
+                        "MEETUP"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventKind"
+                        }
+                    ]
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "organizer": {
+                    "type": "string"
+                },
+                "origin": {
+                    "enum": [
+                        "RU",
+                        "WORLD"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventOrigin"
+                        }
+                    ]
+                },
+                "prize_currency": {
+                    "type": "string",
+                    "example": "RUB"
+                },
+                "prize_pool": {
+                    "type": "string",
+                    "example": "500000.00"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "team_size_max": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "title": {
+                    "type": "string"
+                },
+                "track": {
+                    "type": "string",
+                    "example": "Smart city"
+                },
+                "website_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateParticipantLinkRequest": {
+            "type": "object",
+            "properties": {
+                "clear_title": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "kind": {
+                    "type": "string",
+                    "example": "OTHER"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "title": {
+                    "type": "string",
+                    "example": "My scratch notes"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.org/my-notes"
+                }
+            }
+        },
+        "dto.UpdateProfileLinkRequest": {
+            "type": "object",
+            "properties": {
+                "clear_label": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "label": {
+                    "type": "string",
+                    "example": "My repositories"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://github.com/ivan"
+                }
+            }
+        },
+        "dto.UpdateProfileRequest": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://example.com/a.png"
+                },
+                "bio": {
+                    "type": "string",
+                    "example": "Backend developer"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                },
+                "locale": {
+                    "type": "string",
+                    "enum": [
+                        "ru",
+                        "en"
+                    ],
+                    "example": "en"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "jsmith"
+                },
+                "preferred_channel": {
+                    "type": "string",
+                    "enum": [
+                        "TELEGRAM",
+                        "EMAIL"
+                    ]
+                },
+                "profile_public": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "telegram_username": {
+                    "type": "string",
+                    "example": "@ivan"
+                },
+                "timezone": {
+                    "type": "string",
+                    "example": "Asia/Tokyo"
+                }
+            }
+        },
+        "dto.UpdateRegistrationRequest": {
+            "type": "object",
+            "properties": {
+                "deadline_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateResourceLinkRequest": {
+            "type": "object",
+            "properties": {
+                "clear_stage": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "clear_title": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_pinned": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "kind": {
+                    "type": "string",
+                    "example": "RULES"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "stage_id": {
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Rules and code of conduct"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://example.org/rules"
+                }
+            }
+        },
+        "dto.UpdateRuleRequest": {
+            "type": "object",
+            "properties": {
+                "channel_override": {
+                    "type": "string",
+                    "enum": [
+                        "TELEGRAM",
+                        "EMAIL"
+                    ]
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "offset_minutes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.UpdateShortcutsRequest": {
+            "type": "object",
+            "properties": {
+                "shortcuts": {
+                    "$ref": "#/definitions/models.Shortcuts"
+                }
+            }
+        },
+        "dto.UpdateStageRequest": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Kazan"
+                },
+                "clear_format": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "RU"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "format": {
+                    "enum": [
+                        "ONLINE",
+                        "OFFLINE",
+                        "HYBRID"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventFormat"
+                        }
+                    ]
+                },
+                "name": {
+                    "type": "string"
+                },
+                "online_url": {
+                    "type": "string",
+                    "example": "https://example.com/stream"
+                },
+                "sort_order": {
+                    "type": "integer"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "REGISTRATION",
+                        "SELECTION",
+                        "PARTICIPATION",
+                        "CHECKPOINT",
+                        "SUBMISSION",
+                        "DEMO",
+                        "RESULTS",
+                        "OTHER"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.StageType"
+                        }
+                    ]
+                },
+                "url": {
+                    "type": "string"
+                },
+                "venue": {
+                    "type": "string",
+                    "example": "IT Park"
+                }
+            }
+        },
+        "dto.UpdateTaskRequest": {
+            "type": "object",
+            "properties": {
+                "clear_due_at": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "clear_stage": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "done": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "due_at": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "stage_id": {
+                    "type": "string",
+                    "example": "st_42ej2s5gh7e8"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Record the demo video"
+                }
+            }
+        },
+        "dto.UpdateTeamRoleRequest": {
+            "type": "object",
+            "properties": {
+                "team_role": {
+                    "type": "string",
+                    "example": "Captain"
+                }
+            }
+        },
+        "dto.UserPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.UserSummary"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/dto.PageMeta"
+                }
+            }
+        },
+        "dto.UserSummary": {
+            "type": "object",
+            "properties": {
+                "display_name": {
+                    "type": "string",
+                    "example": "John Smith"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "ivan@example.com"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "us_42ej2s5gh7e8"
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "jsmith"
+                }
+            }
+        },
+        "dto.WorkerHeartbeatResponse": {
+            "type": "object",
+            "properties": {
+                "failed_count": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "healthy": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "oldest_pending_age_seconds": {
+                    "type": "number",
+                    "example": 12.5
+                },
+                "pending_count": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "processing_count": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "scheduler_last_run_at": {
+                    "type": "string"
+                },
+                "undeliverable_count": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "worker_last_run_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ArtifactKind": {
+            "type": "string",
+            "enum": [
+                "REPOSITORY",
+                "VIDEO",
+                "SLIDES",
+                "DEMO",
+                "SUBMISSION",
+                "OTHER"
+            ],
+            "x-enum-varnames": [
+                "ArtifactRepository",
+                "ArtifactVideo",
+                "ArtifactSlides",
+                "ArtifactDemo",
+                "ArtifactSubmission",
+                "ArtifactOther"
+            ]
+        },
+        "models.AuditAction": {
+            "type": "string",
+            "enum": [
+                "USER_REGISTER",
+                "USER_DEACTIVATE",
+                "USER_ACTIVATE",
+                "USER_DELETE",
+                "USER_PROFILE_CHANGE",
+                "USER_ADMIN_FLAG_CHANGE",
+                "INVITE_CREATE",
+                "INVITE_REVOKE",
+                "INVITE_ACCEPT",
+                "EVENT_CREATE",
+                "EVENT_UPDATE",
+                "EVENT_PUBLISH",
+                "EVENT_ARCHIVE",
+                "STAGE_CREATE",
+                "STAGE_UPDATE",
+                "STAGE_DELETE",
+                "PARTICIPANT_ADD",
+                "PARTICIPANT_REMOVE",
+                "PARTICIPANT_REACTIVATE",
+                "TEAM_ROLE_CHANGE",
+                "REGISTRATION_CHANGE",
+                "STATUS_CHANGE",
+                "RULE_CHANGE",
+                "RESOURCE_LINK_CREATE",
+                "RESOURCE_LINK_UPDATE",
+                "RESOURCE_LINK_DELETE",
+                "CALENDAR_FEED_ISSUE",
+                "CALENDAR_FEED_REVOKE"
+            ],
+            "x-enum-varnames": [
+                "AuditUserRegister",
+                "AuditUserDeactivate",
+                "AuditUserActivate",
+                "AuditUserDelete",
+                "AuditUserProfileChange",
+                "AuditUserAdminFlagChange",
+                "AuditInviteCreate",
+                "AuditInviteRevoke",
+                "AuditInviteAccept",
+                "AuditEventCreate",
+                "AuditEventUpdate",
+                "AuditEventPublish",
+                "AuditEventArchive",
+                "AuditStageCreate",
+                "AuditStageUpdate",
+                "AuditStageDelete",
+                "AuditParticipantAdd",
+                "AuditParticipantRemove",
+                "AuditParticipantReactive",
+                "AuditTeamRoleChange",
+                "AuditRegistrationChange",
+                "AuditStatusChange",
+                "AuditRuleChange",
+                "AuditLinkCreate",
+                "AuditLinkUpdate",
+                "AuditLinkDelete",
+                "AuditCalendarFeedIssue",
+                "AuditCalendarFeedRevoke"
+            ]
+        },
+        "models.ChangeSource": {
+            "type": "string",
+            "enum": [
+                "SYSTEM",
+                "USER",
+                "ADMIN"
+            ],
+            "x-enum-varnames": [
+                "SourceSystem",
+                "SourceUser",
+                "SourceAdmin"
+            ]
+        },
+        "models.Channel": {
+            "type": "string",
+            "enum": [
+                "TELEGRAM",
+                "EMAIL"
+            ],
+            "x-enum-varnames": [
+                "ChannelTelegram",
+                "ChannelEmail"
+            ]
+        },
+        "models.ChecklistTemplate": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "preparation"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ChecklistTemplateItem"
+                    }
+                }
+            }
+        },
+        "models.ChecklistTemplateItem": {
+            "type": "object",
+            "properties": {
+                "due_offset_minutes": {
+                    "type": "integer",
+                    "example": -10080
+                },
+                "slot_no": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "title_key": {
+                    "type": "string",
+                    "example": "task.read_rules"
+                }
+            }
+        },
+        "models.EntityType": {
+            "type": "string",
+            "enum": [
+                "USER",
+                "INVITE",
+                "EVENT",
+                "STAGE",
+                "EVENT_PARTICIPANT",
+                "REGISTRATION",
+                "REGISTRATION_STATUS",
+                "NOTIFICATION_RULE",
+                "RESOURCE_LINK",
+                "CALENDAR_FEED"
+            ],
+            "x-enum-varnames": [
+                "EntityUser",
+                "EntityInvite",
+                "EntityEvent",
+                "EntityStage",
+                "EntityParticipant",
+                "EntityRegistration",
+                "EntityRegistrationStatus",
+                "EntityNotificationRule",
+                "EntityResourceLink",
+                "EntityCalendarFeed"
+            ]
+        },
+        "models.EventFormat": {
+            "type": "string",
+            "enum": [
+                "ONLINE",
+                "OFFLINE",
+                "HYBRID"
+            ],
+            "x-enum-varnames": [
+                "FormatOnline",
+                "FormatOffline",
+                "FormatHybrid"
+            ]
+        },
+        "models.EventKind": {
+            "type": "string",
+            "enum": [
+                "HACKATHON",
+                "MEETUP"
+            ],
+            "x-enum-varnames": [
+                "EventKindHackathon",
+                "EventKindMeetup"
+            ]
+        },
+        "models.EventOrigin": {
+            "type": "string",
+            "enum": [
+                "RU",
+                "WORLD"
+            ],
+            "x-enum-varnames": [
+                "OriginRU",
+                "OriginWorld"
+            ]
+        },
+        "models.EventState": {
+            "type": "string",
+            "enum": [
+                "UNPUBLISHED",
+                "UPCOMING",
+                "ACTIVE",
+                "FINISHED",
+                "ARCHIVED"
+            ],
+            "x-enum-varnames": [
+                "EventUnpublished",
+                "EventUpcoming",
+                "EventActive",
+                "EventFinished",
+                "EventArchived"
+            ]
+        },
+        "models.FieldError": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string",
+                    "example": "email"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "invalid address"
+                }
+            }
+        },
+        "models.LinkKind": {
+            "type": "string",
+            "enum": [
+                "WEBSITE",
+                "RULES",
+                "REGISTRATION",
+                "SUBMISSION",
+                "CHAT",
+                "DATASET",
+                "API_DOCS",
+                "JUDGING",
+                "MENTORS",
+                "RESULTS",
+                "SPONSOR",
+                "OTHER"
+            ],
+            "x-enum-varnames": [
+                "LinkWebsite",
+                "LinkRules",
+                "LinkRegistration",
+                "LinkSubmission",
+                "LinkChat",
+                "LinkDataset",
+                "LinkAPIDocs",
+                "LinkJudging",
+                "LinkMentors",
+                "LinkResults",
+                "LinkSponsor",
+                "LinkOther"
+            ]
+        },
         "models.NotificationStatus": {
             "type": "string",
             "enum": [
@@ -8541,27 +10054,6 @@ const docTemplate = `{
                 "OutcomeWinner",
                 "OutcomePrize"
             ]
-        },
-        "models.PageMeta": {
-            "type": "object",
-            "properties": {
-                "has_next": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "page": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "page_size": {
-                    "type": "integer",
-                    "example": 50
-                },
-                "total": {
-                    "type": "integer",
-                    "example": 137
-                }
-            }
         },
         "models.ParticipantArtifact": {
             "type": "object",
@@ -8651,17 +10143,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ParticipantLinkListResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ParticipantLink"
-                    }
-                }
-            }
-        },
         "models.ParticipantNote": {
             "type": "object",
             "properties": {
@@ -8721,64 +10202,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ParticipantPage": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ParticipantResponse"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
-                }
-            }
-        },
-        "models.ParticipantResponse": {
-            "type": "object",
-            "properties": {
-                "assigned_at": {
-                    "type": "string"
-                },
-                "assignment_version": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "event_id": {
-                    "type": "string",
-                    "example": "ev_gma9hq8a96q5"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "pa_42ej2s5gh7e8"
-                },
-                "participation_status": {
-                    "enum": [
-                        "ASSIGNED",
-                        "REMOVED"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.ParticipationStatus"
-                        }
-                    ]
-                },
-                "registration_status": {
-                    "$ref": "#/definitions/models.RegistrationStatusShort"
-                },
-                "removed_at": {
-                    "type": "string"
-                },
-                "team_role": {
-                    "type": "string",
-                    "example": "Developer"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.UserSummary"
-                }
-            }
-        },
         "models.ParticipantRetrospective": {
             "type": "object",
             "properties": {
@@ -8800,36 +10223,6 @@ const docTemplate = `{
                 },
                 "went_well": {
                     "type": "string"
-                }
-            }
-        },
-        "models.ParticipantSelfResponse": {
-            "type": "object",
-            "properties": {
-                "assigned_at": {
-                    "type": "string"
-                },
-                "event_id": {
-                    "type": "string",
-                    "example": "ev_gma9hq8a96q5"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "participation_status": {
-                    "enum": [
-                        "ASSIGNED",
-                        "REMOVED"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.ParticipationStatus"
-                        }
-                    ]
-                },
-                "team_role": {
-                    "type": "string",
-                    "example": "Backend developer"
                 }
             }
         },
@@ -8921,19 +10314,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.PreviewResponse": {
-            "type": "object",
-            "properties": {
-                "affected": {
-                    "type": "integer",
-                    "example": 12
-                },
-                "skipped": {
-                    "type": "integer",
-                    "example": 3
-                }
-            }
-        },
         "models.ProfileLink": {
             "type": "object",
             "properties": {
@@ -8961,306 +10341,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ProfileLinkListResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ProfileLink"
-                    }
-                }
-            }
-        },
-        "models.PublicProfileEvent": {
-            "type": "object",
-            "properties": {
-                "end_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "start_at": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Timeline Hack"
-                }
-            }
-        },
-        "models.PublicProfileResponse": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string",
-                    "example": "https://example.com/a.png"
-                },
-                "bio": {
-                    "type": "string",
-                    "example": "Backend developer"
-                },
-                "display_name": {
-                    "type": "string",
-                    "example": "John Smith"
-                },
-                "events": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.PublicProfileEvent"
-                    }
-                },
-                "first_name": {
-                    "type": "string",
-                    "example": "John"
-                },
-                "last_name": {
-                    "type": "string",
-                    "example": "Smith"
-                },
-                "middle_name": {
-                    "type": "string",
-                    "example": "Fitzgerald"
-                },
-                "nickname": {
-                    "type": "string",
-                    "example": "jsmith"
-                }
-            }
-        },
-        "models.QueueEntryPage": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.QueueEntryResponse"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
-                }
-            }
-        },
-        "models.QueueEntryResponse": {
-            "type": "object",
-            "properties": {
-                "actual_channel": {
-                    "enum": [
-                        "TELEGRAM",
-                        "EMAIL"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Channel"
-                        }
-                    ]
-                },
-                "attempt_count": {
-                    "type": "integer",
-                    "example": 4
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "failed_channels": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Channel"
-                    }
-                },
-                "id": {
-                    "type": "string"
-                },
-                "last_error": {
-                    "type": "string",
-                    "example": "permanent provider error"
-                },
-                "lease_expires_at": {
-                    "type": "string"
-                },
-                "lease_overdue_seconds": {
-                    "type": "number",
-                    "example": 93.4
-                },
-                "notification_type": {
-                    "$ref": "#/definitions/models.NotificationType"
-                },
-                "requested_channel": {
-                    "enum": [
-                        "TELEGRAM",
-                        "EMAIL"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Channel"
-                        }
-                    ]
-                },
-                "scheduled_at": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/models.NotificationStatus"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.ReadyResponse": {
-            "type": "object",
-            "properties": {
-                "database": {
-                    "type": "string",
-                    "example": "ok"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ready"
-                }
-            }
-        },
-        "models.RegisterRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "ivan@example.com"
-                },
-                "first_name": {
-                    "type": "string",
-                    "example": "John"
-                },
-                "invite_token": {
-                    "type": "string"
-                },
-                "last_name": {
-                    "type": "string",
-                    "example": "Smith"
-                },
-                "middle_name": {
-                    "type": "string",
-                    "example": "Fitzgerald"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "correct-horse-battery"
-                }
-            }
-        },
-        "models.RegistrationCoverage": {
-            "type": "object",
-            "properties": {
-                "applicable": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "events_covered": {
-                    "type": "integer",
-                    "example": 4
-                },
-                "not_required": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "outstanding": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "self_reported_done": {
-                    "type": "integer",
-                    "example": 9
-                },
-                "share": {
-                    "type": "number",
-                    "example": 0.75
-                },
-                "total": {
-                    "type": "integer",
-                    "example": 12
-                }
-            }
-        },
-        "models.RegistrationPublic": {
-            "type": "object",
-            "properties": {
-                "deadline_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "state": {
-                    "enum": [
-                        "ACTIVE",
-                        "DISABLED"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.RegistrationState"
-                        }
-                    ]
-                },
-                "url": {
-                    "type": "string",
-                    "example": "https://example.com/register"
-                }
-            }
-        },
-        "models.RegistrationResponse": {
-            "type": "object",
-            "properties": {
-                "activation_version": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "deadline_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "event_id": {
-                    "type": "string",
-                    "example": "ev_gma9hq8a96q5"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "rg_42ej2s5gh7e8"
-                },
-                "notification_content_version": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "schedule_version": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "state": {
-                    "enum": [
-                        "ACTIVE",
-                        "DISABLED"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.RegistrationState"
-                        }
-                    ]
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string",
-                    "example": "https://example.com/register"
-                }
-            }
-        },
         "models.RegistrationState": {
             "type": "string",
             "enum": [
@@ -9271,116 +10351,6 @@ const docTemplate = `{
                 "RegistrationActive",
                 "RegistrationDisabled"
             ]
-        },
-        "models.RegistrationStatusPage": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.RegistrationStatusResponse"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
-                }
-            }
-        },
-        "models.RegistrationStatusResponse": {
-            "type": "object",
-            "properties": {
-                "event_id": {
-                    "type": "string",
-                    "example": "ev_gma9hq8a96q5"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "rs_42ej2s5gh7e8"
-                },
-                "last_change_source": {
-                    "enum": [
-                        "SYSTEM",
-                        "USER",
-                        "ADMIN"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.ChangeSource"
-                        }
-                    ]
-                },
-                "last_changed_by_user_id": {
-                    "type": "string",
-                    "example": "us_42ej2s5gh7e8"
-                },
-                "note": {
-                    "type": "string"
-                },
-                "participant_id": {
-                    "type": "string",
-                    "example": "pa_42ej2s5gh7e8"
-                },
-                "registered_at": {
-                    "type": "string"
-                },
-                "registration_id": {
-                    "type": "string",
-                    "example": "rg_42ej2s5gh7e8"
-                },
-                "status": {
-                    "enum": [
-                        "TODO",
-                        "DONE",
-                        "NOT_REQUIRED"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.RegistrationStatusValue"
-                        }
-                    ]
-                },
-                "todo_cycle": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.UserSummary"
-                }
-            }
-        },
-        "models.RegistrationStatusShort": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "example": "rs_42ej2s5gh7e8"
-                },
-                "note": {
-                    "type": "string"
-                },
-                "registered_at": {
-                    "type": "string"
-                },
-                "status": {
-                    "enum": [
-                        "TODO",
-                        "DONE",
-                        "NOT_REQUIRED"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.RegistrationStatusValue"
-                        }
-                    ]
-                },
-                "todo_cycle": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
         },
         "models.RegistrationStatusValue": {
             "type": "string",
@@ -9394,47 +10364,6 @@ const docTemplate = `{
                 "StatusDONE",
                 "StatusNotRequired"
             ]
-        },
-        "models.RemoveParticipantsRequest": {
-            "type": "object",
-            "properties": {
-                "participant_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "pa_42ej2s5gh7e8"
-                    ]
-                }
-            }
-        },
-        "models.ReorderProfileLinksRequest": {
-            "type": "object",
-            "properties": {
-                "ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "pf_42ej2s5gh7e8"
-                    ]
-                }
-            }
-        },
-        "models.ResetPasswordRequest": {
-            "type": "object",
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "example": "new-correct-horse"
-                },
-                "token": {
-                    "type": "string",
-                    "example": "7f9c0f0e2f4b4a1d"
-                }
-            }
         },
         "models.ResourceLink": {
             "type": "object",
@@ -9483,324 +10412,10 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ResourceLinkListResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ResourceLink"
-                    }
-                }
-            }
-        },
-        "models.SaveNoteRequest": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "type": "string",
-                    "example": "Draft notes in Markdown"
-                }
-            }
-        },
-        "models.SaveOutcomeRequest": {
-            "type": "object",
-            "properties": {
-                "note": {
-                    "type": "string"
-                },
-                "outcome": {
-                    "enum": [
-                        "PARTICIPATED",
-                        "SHORTLISTED",
-                        "WINNER",
-                        "PRIZE"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Outcome"
-                        }
-                    ]
-                },
-                "place": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "prize": {
-                    "type": "string",
-                    "example": "Jury award"
-                },
-                "track": {
-                    "type": "string",
-                    "example": "Smart city"
-                }
-            }
-        },
-        "models.SaveRetrospectiveRequest": {
-            "type": "object",
-            "properties": {
-                "next_time": {
-                    "type": "string"
-                },
-                "went_badly": {
-                    "type": "string"
-                },
-                "went_well": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.ScheduleItem": {
-            "type": "object",
-            "properties": {
-                "end_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "st_42ej2s5gh7e8"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Call for applications"
-                },
-                "place": {
-                    "$ref": "#/definitions/models.Place"
-                },
-                "start_at": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/models.StageType"
-                }
-            }
-        },
-        "models.ScheduleResponse": {
-            "type": "object",
-            "properties": {
-                "range": {
-                    "$ref": "#/definitions/models.TimeRange"
-                },
-                "rows": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ScheduleRow"
-                    }
-                }
-            }
-        },
-        "models.ScheduleRow": {
-            "type": "object",
-            "properties": {
-                "effective_format": {
-                    "enum": [
-                        "ONLINE",
-                        "OFFLINE",
-                        "HYBRID"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.EventFormat"
-                        }
-                    ]
-                },
-                "end_at": {
-                    "type": "string"
-                },
-                "event_id": {
-                    "type": "string",
-                    "example": "ev_gma9hq8a96q5"
-                },
-                "registration_deadline": {
-                    "type": "string"
-                },
-                "registration_status": {
-                    "$ref": "#/definitions/models.RegistrationStatusShort"
-                },
-                "stages": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ScheduleItem"
-                    }
-                },
-                "start_at": {
-                    "type": "string"
-                },
-                "state": {
-                    "$ref": "#/definitions/models.EventState"
-                },
-                "team_role": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "National event"
-                }
-            }
-        },
-        "models.SessionListResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.SessionResponse"
-                    }
-                }
-            }
-        },
-        "models.SessionResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "current": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "expires_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "se_42ej2s5gh7e8"
-                },
-                "ip": {
-                    "type": "string",
-                    "example": "203.0.113.7"
-                },
-                "last_used_at": {
-                    "type": "string"
-                },
-                "user_agent": {
-                    "type": "string",
-                    "example": "Mozilla/5.0 (X11; Linux x86_64)"
-                }
-            }
-        },
         "models.Shortcuts": {
             "type": "object",
             "additionalProperties": {
                 "type": "string"
-            }
-        },
-        "models.ShortcutsResponse": {
-            "type": "object",
-            "properties": {
-                "shortcuts": {
-                    "$ref": "#/definitions/models.Shortcuts"
-                }
-            }
-        },
-        "models.StageResponse": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string",
-                    "example": "Kazan"
-                },
-                "country_code": {
-                    "type": "string",
-                    "example": "RU"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "end_at": {
-                    "type": "string"
-                },
-                "event_id": {
-                    "type": "string",
-                    "example": "ev_gma9hq8a96q5"
-                },
-                "format": {
-                    "enum": [
-                        "ONLINE",
-                        "OFFLINE",
-                        "HYBRID"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.EventFormat"
-                        }
-                    ]
-                },
-                "id": {
-                    "type": "string",
-                    "example": "st_42ej2s5gh7e8"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Call for applications"
-                },
-                "online_url": {
-                    "type": "string",
-                    "example": "https://example.com/stream"
-                },
-                "place": {
-                    "$ref": "#/definitions/models.Place"
-                },
-                "sort_order": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "start_at": {
-                    "type": "string"
-                },
-                "type": {
-                    "enum": [
-                        "REGISTRATION",
-                        "SELECTION",
-                        "PARTICIPATION",
-                        "CHECKPOINT",
-                        "SUBMISSION",
-                        "DEMO",
-                        "RESULTS",
-                        "OTHER"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.StageType"
-                        }
-                    ]
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string",
-                    "example": "https://example.com/stage"
-                },
-                "venue": {
-                    "type": "string",
-                    "example": "IT Park"
-                }
-            }
-        },
-        "models.StageShort": {
-            "type": "object",
-            "properties": {
-                "end_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "st_42ej2s5gh7e8"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Call for applications"
-                },
-                "start_at": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/models.StageType"
-                }
             }
         },
         "models.StageType": {
@@ -9825,621 +10440,6 @@ const docTemplate = `{
                 "StageResults",
                 "StageOther"
             ]
-        },
-        "models.SystemEventPage": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.SystemEventResponse"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
-                }
-            }
-        },
-        "models.SystemEventResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "sy_42ej2s5gh7e8"
-                },
-                "payload": {
-                    "type": "object",
-                    "additionalProperties": {}
-                },
-                "read": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "severity": {
-                    "type": "string",
-                    "enum": [
-                        "INFO",
-                        "WARNING",
-                        "CRITICAL"
-                    ],
-                    "example": "WARNING"
-                },
-                "subject_type": {
-                    "type": "string",
-                    "example": "notification"
-                },
-                "type": {
-                    "type": "string",
-                    "example": "NOTIFICATION_FAILED"
-                }
-            }
-        },
-        "models.TaskListResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ParticipantTask"
-                    }
-                }
-            }
-        },
-        "models.TelegramLinkResponse": {
-            "type": "object",
-            "properties": {
-                "deep_link": {
-                    "type": "string",
-                    "example": "https://t.me/timeline_bot?start=abc123"
-                },
-                "expires_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.TemplateListResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ChecklistTemplate"
-                    }
-                }
-            }
-        },
-        "models.TimeRange": {
-            "type": "object",
-            "properties": {
-                "from": {
-                    "type": "string"
-                },
-                "to": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.TokenRequest": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string",
-                    "example": "7f9c0f0e2f4b4a1d"
-                }
-            }
-        },
-        "models.UnreadCountResponse": {
-            "type": "object",
-            "properties": {
-                "unread": {
-                    "type": "integer",
-                    "example": 3
-                }
-            }
-        },
-        "models.UpdateArtifactRequest": {
-            "type": "object",
-            "properties": {
-                "clear_title": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "kind": {
-                    "enum": [
-                        "REPOSITORY",
-                        "VIDEO",
-                        "SLIDES",
-                        "DEMO",
-                        "SUBMISSION",
-                        "OTHER"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.ArtifactKind"
-                        }
-                    ]
-                },
-                "sort_order": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "submitted": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Project repository"
-                },
-                "url": {
-                    "type": "string",
-                    "example": "https://github.com/example/project"
-                }
-            }
-        },
-        "models.UpdateEventRequest": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string",
-                    "example": "Moscow"
-                },
-                "country_code": {
-                    "type": "string",
-                    "example": "RU"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "end_at": {
-                    "type": "string"
-                },
-                "format": {
-                    "enum": [
-                        "ONLINE",
-                        "OFFLINE",
-                        "HYBRID"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.EventFormat"
-                        }
-                    ]
-                },
-                "kind": {
-                    "enum": [
-                        "HACKATHON",
-                        "MEETUP"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.EventKind"
-                        }
-                    ]
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "organizer": {
-                    "type": "string"
-                },
-                "origin": {
-                    "enum": [
-                        "RU",
-                        "WORLD"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.EventOrigin"
-                        }
-                    ]
-                },
-                "prize_currency": {
-                    "type": "string",
-                    "example": "RUB"
-                },
-                "prize_pool": {
-                    "type": "string",
-                    "example": "500000.00"
-                },
-                "start_at": {
-                    "type": "string"
-                },
-                "team_size_max": {
-                    "type": "integer",
-                    "example": 5
-                },
-                "title": {
-                    "type": "string"
-                },
-                "track": {
-                    "type": "string",
-                    "example": "Smart city"
-                },
-                "website_url": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.UpdateParticipantLinkRequest": {
-            "type": "object",
-            "properties": {
-                "clear_title": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "kind": {
-                    "type": "string",
-                    "example": "OTHER"
-                },
-                "sort_order": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "title": {
-                    "type": "string",
-                    "example": "My scratch notes"
-                },
-                "url": {
-                    "type": "string",
-                    "example": "https://example.org/my-notes"
-                }
-            }
-        },
-        "models.UpdateProfileLinkRequest": {
-            "type": "object",
-            "properties": {
-                "clear_label": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "label": {
-                    "type": "string",
-                    "example": "My repositories"
-                },
-                "url": {
-                    "type": "string",
-                    "example": "https://github.com/ivan"
-                }
-            }
-        },
-        "models.UpdateProfileRequest": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string",
-                    "example": "https://example.com/a.png"
-                },
-                "bio": {
-                    "type": "string",
-                    "example": "Backend developer"
-                },
-                "first_name": {
-                    "type": "string",
-                    "example": "John"
-                },
-                "last_name": {
-                    "type": "string",
-                    "example": "Smith"
-                },
-                "locale": {
-                    "type": "string",
-                    "enum": [
-                        "ru",
-                        "en"
-                    ],
-                    "example": "en"
-                },
-                "middle_name": {
-                    "type": "string",
-                    "example": "Fitzgerald"
-                },
-                "nickname": {
-                    "type": "string",
-                    "example": "jsmith"
-                },
-                "preferred_channel": {
-                    "type": "string",
-                    "enum": [
-                        "TELEGRAM",
-                        "EMAIL"
-                    ]
-                },
-                "profile_public": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "telegram_username": {
-                    "type": "string",
-                    "example": "@ivan"
-                },
-                "timezone": {
-                    "type": "string",
-                    "example": "Asia/Tokyo"
-                }
-            }
-        },
-        "models.UpdateRegistrationRequest": {
-            "type": "object",
-            "properties": {
-                "deadline_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.UpdateResourceLinkRequest": {
-            "type": "object",
-            "properties": {
-                "clear_stage": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "clear_title": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "is_pinned": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "kind": {
-                    "type": "string",
-                    "example": "RULES"
-                },
-                "sort_order": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "stage_id": {
-                    "type": "string",
-                    "example": "st_42ej2s5gh7e8"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Rules and code of conduct"
-                },
-                "url": {
-                    "type": "string",
-                    "example": "https://example.org/rules"
-                }
-            }
-        },
-        "models.UpdateRuleRequest": {
-            "type": "object",
-            "properties": {
-                "channel_override": {
-                    "type": "string",
-                    "enum": [
-                        "TELEGRAM",
-                        "EMAIL"
-                    ]
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "offset_minutes": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.UpdateShortcutsRequest": {
-            "type": "object",
-            "properties": {
-                "shortcuts": {
-                    "$ref": "#/definitions/models.Shortcuts"
-                }
-            }
-        },
-        "models.UpdateStageRequest": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string",
-                    "example": "Kazan"
-                },
-                "clear_format": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "country_code": {
-                    "type": "string",
-                    "example": "RU"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "end_at": {
-                    "type": "string"
-                },
-                "format": {
-                    "enum": [
-                        "ONLINE",
-                        "OFFLINE",
-                        "HYBRID"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.EventFormat"
-                        }
-                    ]
-                },
-                "name": {
-                    "type": "string"
-                },
-                "online_url": {
-                    "type": "string",
-                    "example": "https://example.com/stream"
-                },
-                "sort_order": {
-                    "type": "integer"
-                },
-                "start_at": {
-                    "type": "string"
-                },
-                "type": {
-                    "enum": [
-                        "REGISTRATION",
-                        "SELECTION",
-                        "PARTICIPATION",
-                        "CHECKPOINT",
-                        "SUBMISSION",
-                        "DEMO",
-                        "RESULTS",
-                        "OTHER"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.StageType"
-                        }
-                    ]
-                },
-                "url": {
-                    "type": "string"
-                },
-                "venue": {
-                    "type": "string",
-                    "example": "IT Park"
-                }
-            }
-        },
-        "models.UpdateTaskRequest": {
-            "type": "object",
-            "properties": {
-                "clear_due_at": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "clear_stage": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "done": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "due_at": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "sort_order": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "stage_id": {
-                    "type": "string",
-                    "example": "st_42ej2s5gh7e8"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Record the demo video"
-                }
-            }
-        },
-        "models.UpdateTeamRoleRequest": {
-            "type": "object",
-            "properties": {
-                "team_role": {
-                    "type": "string",
-                    "example": "Captain"
-                }
-            }
-        },
-        "models.UserPage": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.UserSummary"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/models.PageMeta"
-                }
-            }
-        },
-        "models.UserSummary": {
-            "type": "object",
-            "properties": {
-                "display_name": {
-                    "type": "string",
-                    "example": "John Smith"
-                },
-                "email": {
-                    "type": "string",
-                    "example": "ivan@example.com"
-                },
-                "first_name": {
-                    "type": "string",
-                    "example": "John"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "us_42ej2s5gh7e8"
-                },
-                "is_active": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "last_name": {
-                    "type": "string",
-                    "example": "Smith"
-                },
-                "middle_name": {
-                    "type": "string",
-                    "example": "Fitzgerald"
-                },
-                "nickname": {
-                    "type": "string",
-                    "example": "jsmith"
-                }
-            }
-        },
-        "models.WorkerHeartbeatResponse": {
-            "type": "object",
-            "properties": {
-                "failed_count": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "healthy": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "oldest_pending_age_seconds": {
-                    "type": "number",
-                    "example": 12.5
-                },
-                "pending_count": {
-                    "type": "integer",
-                    "example": 3
-                },
-                "processing_count": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "scheduler_last_run_at": {
-                    "type": "string"
-                },
-                "undeliverable_count": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "worker_last_run_at": {
-                    "type": "string"
-                }
-            }
         }
     },
     "securityDefinitions": {

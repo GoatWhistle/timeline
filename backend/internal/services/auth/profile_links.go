@@ -8,6 +8,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -25,7 +26,7 @@ func (s *ProfileLinkService) List(ctx context.Context, userID uuid.UUID) ([]mode
 }
 
 func (s *ProfileLinkService) Create(ctx context.Context, actor models.Actor,
-	req models.CreateProfileLinkRequest) (*models.ProfileLink, error) {
+	req dto.CreateProfileLinkRequest) (*models.ProfileLink, error) {
 	url, err := validation.ProfileLinkURL("url", req.URL)
 	if err != nil {
 		return nil, err
@@ -55,7 +56,7 @@ func (s *ProfileLinkService) Create(ctx context.Context, actor models.Actor,
 }
 
 func (s *ProfileLinkService) Update(ctx context.Context, actor models.Actor, id uuid.UUID,
-	req models.UpdateProfileLinkRequest) (*models.ProfileLink, error) {
+	req dto.UpdateProfileLinkRequest) (*models.ProfileLink, error) {
 	patch, err := validation.ProfileLinkPatch(req)
 	if err != nil {
 		return nil, err
@@ -72,7 +73,7 @@ func (s *ProfileLinkService) ResolveDisplayID(ctx context.Context, displayID str
 }
 
 func (s *ProfileLinkService) Reorder(ctx context.Context, actor models.Actor,
-	req models.ReorderProfileLinksRequest, ids []uuid.UUID) ([]models.ProfileLink, error) {
+	req dto.ReorderProfileLinksRequest, ids []uuid.UUID) ([]models.ProfileLink, error) {
 	if len(req.IDs) == 0 {
 		return nil, models.NewValidation("the order is empty",
 			models.FieldError{Field: "ids", Message: "at least one identifier is required"})

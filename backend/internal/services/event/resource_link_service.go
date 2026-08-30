@@ -12,6 +12,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/resourcelink"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
@@ -65,7 +66,7 @@ func (s *ResourceLinkService) ResolveStageDisplayID(ctx context.Context, display
 }
 
 func (s *ResourceLinkService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req models.CreateResourceLinkRequest, stageID *uuid.UUID) (*models.ResourceLink, error) {
+	req dto.CreateResourceLinkRequest, stageID *uuid.UUID) (*models.ResourceLink, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -125,7 +126,7 @@ func (s *ResourceLinkService) Create(ctx context.Context, actor models.Actor, ev
 }
 
 func (s *ResourceLinkService) Update(ctx context.Context, actor models.Actor, eventID,
-	id uuid.UUID, req models.UpdateResourceLinkRequest, stageID *uuid.UUID) (*models.ResourceLink, error) {
+	id uuid.UUID, req dto.UpdateResourceLinkRequest, stageID *uuid.UUID) (*models.ResourceLink, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}

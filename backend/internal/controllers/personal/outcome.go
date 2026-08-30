@@ -5,7 +5,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 // @Summary		Own outcome for an event
@@ -17,15 +17,15 @@ import (
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		200	{object}	models.ParticipantOutcome
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse	"no outcome recorded yet"
-// @Failure		429	{object}	models.ErrorResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse	"no outcome recorded yet"
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/outcome [get]
 func (c *Controller) GetOutcome(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.outcome.get") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -51,23 +51,23 @@ func (c *Controller) GetOutcome(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string						true	"Event identifier"
-// @Param			request	body		models.SaveOutcomeRequest	true	"Outcome"
+// @Param			request	body		dto.SaveOutcomeRequest	true	"Outcome"
 // @Success		200		{object}	models.ParticipantOutcome
-// @Failure		400		{object}	models.ErrorResponse	"a place requires a placing outcome"
-// @Failure		401		{object}	models.ErrorResponse
-// @Failure		404		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Failure		400		{object}	dto.ErrorResponse	"a place requires a placing outcome"
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/events/{id}/outcome [put]
 func (c *Controller) SaveOutcome(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.outcome.save") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req models.SaveOutcomeRequest
+	var req dto.SaveOutcomeRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -85,15 +85,15 @@ func (c *Controller) SaveOutcome(w http.ResponseWriter, r *http.Request) {
 // @Security	CookieAuth
 // @Param		id	path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success	204	"the outcome is deleted"
-// @Failure	401	{object}	models.ErrorResponse
-// @Failure	404	{object}	models.ErrorResponse
-// @Failure	429	{object}	models.ErrorResponse
+// @Failure	401	{object}	dto.ErrorResponse
+// @Failure	404	{object}	dto.ErrorResponse
+// @Failure	429	{object}	dto.ErrorResponse
 // @Router		/me/events/{id}/outcome [delete]
 func (c *Controller) DeleteOutcome(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.outcome.delete") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -115,15 +115,15 @@ func (c *Controller) DeleteOutcome(w http.ResponseWriter, r *http.Request) {
 // @Security		CookieAuth
 // @Param			id	path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success		204	"the event is bookmarked"
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse	"the event is not in the catalog"
-// @Failure		429	{object}	models.ErrorResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse	"the event is not in the catalog"
+// @Failure		429	{object}	dto.ErrorResponse
 // @Router			/me/bookmarks/{id} [put]
 func (c *Controller) AddBookmark(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.bookmarks.add") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -140,15 +140,15 @@ func (c *Controller) AddBookmark(w http.ResponseWriter, r *http.Request) {
 // @Security	CookieAuth
 // @Param		id	path	string	true	"Event identifier"	example(ev_3k7d8gb9be)
 // @Success	204	"the bookmark is removed"
-// @Failure	401	{object}	models.ErrorResponse
-// @Failure	404	{object}	models.ErrorResponse
-// @Failure	429	{object}	models.ErrorResponse
+// @Failure	401	{object}	dto.ErrorResponse
+// @Failure	404	{object}	dto.ErrorResponse
+// @Failure	429	{object}	dto.ErrorResponse
 // @Router		/me/bookmarks/{id} [delete]
 func (c *Controller) RemoveBookmark(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.bookmarks.remove") {
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.personal.ResolveEventDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.personal.ResolveEventDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -168,10 +168,10 @@ func (c *Controller) RemoveBookmark(w http.ResponseWriter, r *http.Request) {
 // @Security		CookieAuth
 // @Param			page		query		int	false	"Page number"	default(1)
 // @Param			page_size	query		int	false	"Page size"		default(50)
-// @Success		200			{object}	models.BookmarkListResponse
-// @Failure		400			{object}	models.ErrorResponse
-// @Failure		401			{object}	models.ErrorResponse
-// @Failure		429			{object}	models.ErrorResponse
+// @Success		200			{object}	dto.BookmarkListResponse
+// @Failure		400			{object}	dto.ErrorResponse
+// @Failure		401			{object}	dto.ErrorResponse
+// @Failure		429			{object}	dto.ErrorResponse
 // @Router			/me/bookmarks [get]
 func (c *Controller) ListBookmarks(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.bookmarks.list") {
@@ -187,7 +187,7 @@ func (c *Controller) ListBookmarks(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.BookmarkListResponse{
+	httpx.JSON(w, http.StatusOK, dto.BookmarkListResponse{
 		Items: items, Meta: httpx.Meta(page, total),
 	})
 }
@@ -201,10 +201,10 @@ func (c *Controller) ListBookmarks(w http.ResponseWriter, r *http.Request) {
 // @Security		CookieAuth
 // @Param			page		query		int	false	"Page number"	default(1)
 // @Param			page_size	query		int	false	"Page size"		default(50)
-// @Success		200			{object}	models.HistoryResponse
-// @Failure		400			{object}	models.ErrorResponse
-// @Failure		401			{object}	models.ErrorResponse
-// @Failure		429			{object}	models.ErrorResponse
+// @Success		200			{object}	dto.HistoryResponse
+// @Failure		400			{object}	dto.ErrorResponse
+// @Failure		401			{object}	dto.ErrorResponse
+// @Failure		429			{object}	dto.ErrorResponse
 // @Router			/me/history [get]
 func (c *Controller) History(w http.ResponseWriter, r *http.Request) {
 	if !c.guard(w, r, "personal.history") {
@@ -220,7 +220,7 @@ func (c *Controller) History(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.HistoryResponse{
+	httpx.JSON(w, http.StatusOK, dto.HistoryResponse{
 		Items: items, Meta: httpx.Meta(page, total),
 	})
 }

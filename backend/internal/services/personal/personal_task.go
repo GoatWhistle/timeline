@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -24,7 +25,7 @@ func (s *PersonalService) ListTasks(ctx context.Context, actor models.Actor,
 }
 
 func (s *PersonalService) CreateTask(ctx context.Context, actor models.Actor,
-	eventID uuid.UUID, req models.CreateTaskRequest, stageID *uuid.UUID) (*models.ParticipantTask, error) {
+	eventID uuid.UUID, req dto.CreateTaskRequest, stageID *uuid.UUID) (*models.ParticipantTask, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, err
@@ -72,7 +73,7 @@ func (s *PersonalService) CreateTask(ctx context.Context, actor models.Actor,
 }
 
 func (s *PersonalService) UpdateTask(ctx context.Context, actor models.Actor,
-	taskID uuid.UUID, req models.UpdateTaskRequest, stageID *uuid.UUID) (*models.ParticipantTask, error) {
+	taskID uuid.UUID, req dto.UpdateTaskRequest, stageID *uuid.UUID) (*models.ParticipantTask, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, err
@@ -119,13 +120,13 @@ func (s *PersonalService) ListTemplates(ctx context.Context,
 }
 
 func (s *PersonalService) ApplyTemplate(ctx context.Context, actor models.Actor,
-	eventID uuid.UUID, req models.ApplyTemplateRequest) (*models.BatchResult, error) {
+	eventID uuid.UUID, req dto.ApplyTemplateRequest) (*dto.BatchResult, error) {
 	userID, err := s.owner(actor)
 	if err != nil {
 		return nil, err
 	}
 
-	result := &models.BatchResult{Results: make([]models.BatchItemResult, 0, 8)}
+	result := &dto.BatchResult{Results: make([]dto.BatchItemResult, 0, 8)}
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
 		ev, err := s.visibleEvent(ctx, userID, eventID)
 		if err != nil {
@@ -157,12 +158,12 @@ func (s *PersonalService) ApplyTemplate(ctx context.Context, actor models.Actor,
 
 func (s *PersonalService) applyItems(ctx context.Context, userID uuid.UUID, ev *models.Event,
 	template *models.ChecklistTemplate, existing map[string]bool, count, sortOrder int,
-	result *models.BatchResult) error {
+	result *dto.BatchResult) error {
 	for i, item := range template.Items {
 		key := strings.ToLower(strings.TrimSpace(item.TitleKey))
 		if existing[key] {
 			result.Skipped++
-			result.Results = append(result.Results, models.BatchItemResult{
+			result.Results = append(result.Results, dto.BatchItemResult{
 				Index: i, Key: item.TitleKey, Status: "skipped",
 				Code: "already_present", Message: "a task with this title already exists",
 			})
@@ -170,14 +171,14 @@ func (s *PersonalService) applyItems(ctx context.Context, userID uuid.UUID, ev *
 		}
 		if count >= s.limits.MaxTasksPerEvent {
 			result.Failed++
-			result.Results = append(result.Results, models.BatchItemResult{
+			result.Results = append(result.Results, dto.BatchItemResult{
 				Index: i, Key: item.TitleKey, Status: "error",
 				Code: "task_limit_reached", Message: "the personal task limit for this event is reached",
 			})
 			continue
 		}
 
-		req := models.CreateTaskRequest{Title: item.TitleKey, DueAt: templateDue(ev, item)}
+		req := dto.CreateTaskRequest{Title: item.TitleKey, DueAt: templateDue(ev, item)}
 		task, err := s.tasks.Create(ctx, userID, ev.ID, req, item.TitleKey, sortOrder)
 		if err != nil {
 			return err
@@ -186,7 +187,7 @@ func (s *PersonalService) applyItems(ctx context.Context, userID uuid.UUID, ev *
 		count++
 		sortOrder++
 		result.Succeeded++
-		result.Results = append(result.Results, models.BatchItemResult{
+		result.Results = append(result.Results, dto.BatchItemResult{
 			Index: i, Key: item.TitleKey, ID: task.DisplayID, Status: "ok",
 		})
 	}
@@ -201,8 +202,8 @@ func templateDue(ev *models.Event, item models.ChecklistTemplateItem) *time.Time
 	return &due
 }
 
-func taskPatch(req models.UpdateTaskRequest, stageID *uuid.UUID, maxNote int) (models.TaskPatch, error) {
-	var patch models.TaskPatch
+func taskPatch(req dto.UpdateTaskRequest, stageID *uuid.UUID, maxNote int) (dto.TaskPatch, error) {
+	var patch dto.TaskPatch
 	if req.Title != nil {
 		title, err := validation.ValidateText("title", *req.Title, 1, 200)
 		if err != nil {

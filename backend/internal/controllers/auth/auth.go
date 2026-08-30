@@ -10,6 +10,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Controller struct {
@@ -29,7 +30,7 @@ func sessionMeta(r *http.Request) models.SessionMeta {
 func (c *Controller) issue(w http.ResponseWriter, user *models.User, pair *models.TokenPair) {
 	c.cookies.SetAuth(w, pair)
 	c.cookies.SetCSRF(w, randomToken(), time.Now().Add(c.csrfTTL))
-	httpx.JSON(w, http.StatusOK, models.AuthResponse{
+	httpx.JSON(w, http.StatusOK, dto.AuthResponse{
 		User:             shared.MeResponse(user),
 		AccessExpiresAt:  pair.AccessExpiresAt,
 		RefreshExpiresAt: pair.RefreshExpiresAt,
@@ -51,14 +52,14 @@ func randomToken() string {
 // @Tags			auth
 // @Accept			json
 // @Produce		json
-// @Param			request	body		models.RegisterRequest	true	"Registration payload"
-// @Success		200		{object}	models.AuthResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"email is already taken"
-// @Failure		429		{object}	models.ErrorResponse
+// @Param			request	body		dto.RegisterRequest	true	"Registration payload"
+// @Success		200		{object}	dto.AuthResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"email is already taken"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/auth/register [post]
 func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
-	var req models.RegisterRequest
+	var req dto.RegisterRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -77,14 +78,14 @@ func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
 // @Tags			auth
 // @Accept			json
 // @Produce		json
-// @Param			request	body		models.LoginRequest	true	"Credentials"
-// @Success		200		{object}	models.AuthResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse	"invalid credentials or a deactivated account"
-// @Failure		429		{object}	models.ErrorResponse
+// @Param			request	body		dto.LoginRequest	true	"Credentials"
+// @Success		200		{object}	dto.AuthResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse	"invalid credentials or a deactivated account"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/auth/login [post]
 func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
-	var req models.LoginRequest
+	var req dto.LoginRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -101,8 +102,8 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 // @Description	Rotates the refresh token. Reusing a revoked token revokes the entire session chain.
 // @Tags			auth
 // @Produce		json
-// @Success		200	{object}	models.AuthResponse
-// @Failure		401	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.AuthResponse
+// @Failure		401	{object}	dto.ErrorResponse
 // @Router			/auth/refresh [post]
 func (c *Controller) Refresh(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(middleware.RefreshCookie)
@@ -123,7 +124,7 @@ func (c *Controller) Refresh(w http.ResponseWriter, r *http.Request) {
 // @Description	Revokes the refresh token of the current session and clears the cookies.
 // @Tags			auth
 // @Produce		json
-// @Success		200	{object}	models.MessageResponse
+// @Success		200	{object}	dto.MessageResponse
 // @Router			/auth/logout [post]
 func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) {
 	if cookie, err := r.Cookie(middleware.RefreshCookie); err == nil && cookie.Value != "" {
@@ -133,7 +134,7 @@ func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	c.cookies.Clear(w)
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "session terminated"})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "session terminated"})
 }
 
 // @Summary		Sign out of all sessions
@@ -141,8 +142,8 @@ func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) {
 // @Tags			auth
 // @Produce		json
 // @Security		CookieAuth
-// @Success		200	{object}	models.MessageResponse
-// @Failure		401	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.MessageResponse
+// @Failure		401	{object}	dto.ErrorResponse
 // @Router			/auth/logout-all [post]
 func (c *Controller) LogoutAll(w http.ResponseWriter, r *http.Request) {
 	if err := c.svc.LogoutAll(r.Context(), middleware.ActorFrom(r)); err != nil {
@@ -150,7 +151,7 @@ func (c *Controller) LogoutAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.cookies.Clear(w)
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "all sessions terminated"})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "all sessions terminated"})
 }
 
 // @Summary		Confirm an email address
@@ -158,12 +159,12 @@ func (c *Controller) LogoutAll(w http.ResponseWriter, r *http.Request) {
 // @Tags			auth
 // @Accept			json
 // @Produce		json
-// @Param			request	body		models.TokenRequest	true	"Confirmation token"
-// @Success		200		{object}	models.MessageResponse
-// @Failure		400		{object}	models.ErrorResponse	"the token is invalid or has expired"
+// @Param			request	body		dto.TokenRequest	true	"Confirmation token"
+// @Success		200		{object}	dto.MessageResponse
+// @Failure		400		{object}	dto.ErrorResponse	"the token is invalid or has expired"
 // @Router			/auth/verify-email [post]
 func (c *Controller) VerifyEmail(w http.ResponseWriter, r *http.Request) {
-	var req models.TokenRequest
+	var req dto.TokenRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -172,7 +173,7 @@ func (c *Controller) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "email confirmed"})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "email confirmed"})
 }
 
 // @Summary		Resend the confirmation email
@@ -180,13 +181,13 @@ func (c *Controller) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 // @Tags			auth
 // @Accept			json
 // @Produce		json
-// @Param			request	body		models.EmailRequest	true	"Email address"
-// @Success		202		{object}	models.MessageResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Param			request	body		dto.EmailRequest	true	"Email address"
+// @Success		202		{object}	dto.MessageResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/auth/verify-email/resend [post]
 func (c *Controller) ResendVerification(w http.ResponseWriter, r *http.Request) {
-	var req models.EmailRequest
+	var req dto.EmailRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -195,7 +196,7 @@ func (c *Controller) ResendVerification(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusAccepted, models.MessageResponse{Message: "if the address exists, a message has been sent"})
+	httpx.JSON(w, http.StatusAccepted, dto.MessageResponse{Message: "if the address exists, a message has been sent"})
 }
 
 // @Summary		Request a password reset
@@ -203,13 +204,13 @@ func (c *Controller) ResendVerification(w http.ResponseWriter, r *http.Request) 
 // @Tags			auth
 // @Accept			json
 // @Produce		json
-// @Param			request	body		models.EmailRequest	true	"Email address"
-// @Success		202		{object}	models.MessageResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		429		{object}	models.ErrorResponse
+// @Param			request	body		dto.EmailRequest	true	"Email address"
+// @Success		202		{object}	dto.MessageResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/auth/password/forgot [post]
 func (c *Controller) ForgotPassword(w http.ResponseWriter, r *http.Request) {
-	var req models.EmailRequest
+	var req dto.EmailRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -218,7 +219,7 @@ func (c *Controller) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusAccepted, models.MessageResponse{Message: "if the address exists, a message has been sent"})
+	httpx.JSON(w, http.StatusAccepted, dto.MessageResponse{Message: "if the address exists, a message has been sent"})
 }
 
 // @Summary		Set a new password
@@ -226,12 +227,12 @@ func (c *Controller) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 // @Tags			auth
 // @Accept			json
 // @Produce		json
-// @Param			request	body		models.ResetPasswordRequest	true	"Token and new password"
-// @Success		200		{object}	models.MessageResponse
-// @Failure		400		{object}	models.ErrorResponse
+// @Param			request	body		dto.ResetPasswordRequest	true	"Token and new password"
+// @Success		200		{object}	dto.MessageResponse
+// @Failure		400		{object}	dto.ErrorResponse
 // @Router			/auth/password/reset [post]
 func (c *Controller) ResetPassword(w http.ResponseWriter, r *http.Request) {
-	var req models.ResetPasswordRequest
+	var req dto.ResetPasswordRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -241,7 +242,7 @@ func (c *Controller) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.cookies.Clear(w)
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "password changed, sessions revoked"})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "password changed, sessions revoked"})
 }
 
 // @Summary		Confirm an email change
@@ -249,13 +250,13 @@ func (c *Controller) ResetPassword(w http.ResponseWriter, r *http.Request) {
 // @Tags			auth
 // @Accept			json
 // @Produce		json
-// @Param			request	body		models.TokenRequest	true	"Confirmation token"
-// @Success		200		{object}	models.MessageResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		409		{object}	models.ErrorResponse	"address is already taken"
+// @Param			request	body		dto.TokenRequest	true	"Confirmation token"
+// @Success		200		{object}	dto.MessageResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		409		{object}	dto.ErrorResponse	"address is already taken"
 // @Router			/auth/email-change/confirm [post]
 func (c *Controller) ConfirmEmailChange(w http.ResponseWriter, r *http.Request) {
-	var req models.TokenRequest
+	var req dto.TokenRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -264,17 +265,5 @@ func (c *Controller) ConfirmEmailChange(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.MessageResponse{Message: "email updated"})
-}
-
-// @Summary		Obtain a CSRF token
-// @Description	Issues the token in a cookie and in the response body. Every mutating request must send it in the X-CSRF-Token header.
-// @Tags			auth
-// @Produce		json
-// @Success		200	{object}	models.CSRFResponse
-// @Router			/auth/csrf [get]
-func (c *Controller) CSRF(w http.ResponseWriter, r *http.Request) {
-	token := randomToken()
-	c.cookies.SetCSRF(w, token, time.Now().Add(c.csrfTTL))
-	httpx.JSON(w, http.StatusOK, models.CSRFResponse{CSRFToken: token, HeaderName: middleware.CSRFHeader})
+	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "email updated"})
 }

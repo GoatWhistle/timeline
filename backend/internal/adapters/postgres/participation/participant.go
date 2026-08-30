@@ -12,6 +12,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Participants struct{ db *postgres.DB }
@@ -114,7 +115,7 @@ func (r *Participants) ListAssigned(ctx context.Context, eventID uuid.UUID) ([]m
 	return items, mapError(rows.Err())
 }
 
-func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter models.ParticipantFilter, page models.Page) ([]models.ParticipantResponse, int64, error) {
+func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter models.ParticipantFilter, page models.Page) ([]dto.ParticipantResponse, int64, error) {
 	conds := []string{"p.event_id = $1"}
 	args := []any{eventID}
 
@@ -160,10 +161,10 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 	}
 	defer rows.Close()
 
-	items := make([]models.ParticipantResponse, 0, page.Limit())
+	items := make([]dto.ParticipantResponse, 0, page.Limit())
 	for rows.Next() {
 		var (
-			item         models.ParticipantResponse
+			item         dto.ParticipantResponse
 			statusID     *string
 			statusValue  *models.RegistrationStatusValue
 			todoCycle    *int
@@ -178,7 +179,7 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 			return nil, 0, mapError(err)
 		}
 		if statusID != nil && statusValue != nil && todoCycle != nil {
-			item.RegistrationStatus = &models.RegistrationStatusShort{
+			item.RegistrationStatus = &dto.RegistrationStatusShort{
 				ID:           *statusID,
 				Status:       *statusValue,
 				TodoCycle:    *todoCycle,

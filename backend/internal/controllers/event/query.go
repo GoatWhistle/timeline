@@ -10,23 +10,24 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type QueryService interface {
 	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	MyEvents(
 		ctx context.Context, actor models.Actor, filter models.MyEventFilter, page models.Page,
-	) ([]models.MyEventItem, int64, error)
-	EventCard(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*models.EventCard, error)
-	MySchedule(ctx context.Context, actor models.Actor, filter models.ScheduleFilter) (*models.ScheduleResponse, error)
+	) ([]dto.MyEventItem, int64, error)
+	EventCard(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*dto.EventCard, error)
+	MySchedule(ctx context.Context, actor models.Actor, filter models.ScheduleFilter) (*dto.ScheduleResponse, error)
 	AdminSchedule(
 		ctx context.Context, actor models.Actor, filter models.ScheduleFilter,
-	) (*models.ScheduleResponse, error)
+	) (*dto.ScheduleResponse, error)
 	Upcoming(
 		ctx context.Context, actor models.Actor, within time.Duration, page models.Page,
-	) ([]models.DeadlineItem, int64, error)
-	Overdue(ctx context.Context, actor models.Actor, page models.Page) ([]models.DeadlineItem, int64, error)
-	RegistrationCoverage(ctx context.Context, actor models.Actor) (*models.RegistrationCoverage, error)
+	) ([]dto.DeadlineItem, int64, error)
+	Overdue(ctx context.Context, actor models.Actor, page models.Page) ([]dto.DeadlineItem, int64, error)
+	RegistrationCoverage(ctx context.Context, actor models.Actor) (*dto.RegistrationCoverage, error)
 }
 
 type QueryController struct {
@@ -49,8 +50,8 @@ func NewQueryController(svc QueryService, pageDef, pageMax int) *QueryController
 // @Param			state				query		string	false	"Comma-separated state filter"	Enums(UPCOMING,ACTIVE,FINISHED,ARCHIVED)
 // @Param			page				query		int		false	"Page number"					default(1)
 // @Param			page_size			query		int		false	"Page size"						default(50)
-// @Success		200					{object}	models.MyEventPage
-// @Failure		401					{object}	models.ErrorResponse
+// @Success		200					{object}	dto.MyEventPage
+// @Failure		401					{object}	dto.ErrorResponse
 // @Router			/me/events [get]
 func (c *QueryController) MyEvents(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
@@ -69,7 +70,7 @@ func (c *QueryController) MyEvents(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.MyEventPage{Items: items, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.MyEventPage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
 // @Summary		Assigned event card
@@ -79,13 +80,13 @@ func (c *QueryController) MyEvents(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id	path		string	true	"Event identifier"	example(ev_3k7d8gb9be)
-// @Success		200	{object}	models.EventCard
-// @Failure		401	{object}	models.ErrorResponse
-// @Failure		403	{object}	models.ErrorResponse
-// @Failure		404	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.EventCard
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		403	{object}	dto.ErrorResponse
+// @Failure		404	{object}	dto.ErrorResponse
 // @Router			/events/{id} [get]
 func (c *QueryController) EventCard(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", models.DisplayKindEvent, c.svc.ResolveDisplayID)
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.svc.ResolveDisplayID)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -108,9 +109,9 @@ func (c *QueryController) EventCard(w http.ResponseWriter, r *http.Request) {
 // @Security		CookieAuth
 // @Param			from	query		string	false	"Start of the period, RFC3339"
 // @Param			to		query		string	false	"End of the period, RFC3339"
-// @Success		200		{object}	models.ScheduleResponse
-// @Failure		400		{object}	models.ErrorResponse
-// @Failure		401		{object}	models.ErrorResponse
+// @Success		200		{object}	dto.ScheduleResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
 // @Router			/me/schedule [get]
 func (c *QueryController) MySchedule(w http.ResponseWriter, r *http.Request) {
 	filter, err := c.scheduleFilter(r)
@@ -136,9 +137,9 @@ func (c *QueryController) MySchedule(w http.ResponseWriter, r *http.Request) {
 // @Param			state				query		string	false	"Comma-separated state filter"
 // @Param			participant_user_id	query		string	false	"Filter by participant"	format(uuid)
 // @Param			include_archived	query		bool	false	"Include archived records"
-// @Success		200					{object}	models.ScheduleResponse
-// @Failure		400					{object}	models.ErrorResponse
-// @Failure		403					{object}	models.ErrorResponse
+// @Success		200					{object}	dto.ScheduleResponse
+// @Failure		400					{object}	dto.ErrorResponse
+// @Failure		403					{object}	dto.ErrorResponse
 // @Router			/admin/schedule [get]
 func (c *QueryController) AdminSchedule(w http.ResponseWriter, r *http.Request) {
 	filter, err := c.scheduleFilter(r)

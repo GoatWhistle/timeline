@@ -7,6 +7,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 // @Summary		Upcoming registration deadlines
@@ -17,8 +18,8 @@ import (
 // @Param			within_hours	query		int	false	"Window in hours"	default(72)
 // @Param			page			query		int	false	"Page number"		default(1)
 // @Param			page_size		query		int	false	"Page size"			default(50)
-// @Success		200				{object}	models.DeadlinePage
-// @Failure		403				{object}	models.ErrorResponse
+// @Success		200				{object}	dto.DeadlinePage
+// @Failure		403				{object}	dto.ErrorResponse
 // @Router			/admin/queries/upcoming [get]
 func (c *QueryController) Upcoming(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
@@ -40,7 +41,7 @@ func (c *QueryController) Upcoming(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.DeadlinePage{Items: items, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.DeadlinePage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
 // @Summary		Overdue registrations
@@ -50,8 +51,8 @@ func (c *QueryController) Upcoming(w http.ResponseWriter, r *http.Request) {
 // @Security		CookieAuth
 // @Param			page		query		int	false	"Page number"	default(1)
 // @Param			page_size	query		int	false	"Page size"		default(50)
-// @Success		200			{object}	models.DeadlinePage
-// @Failure		403			{object}	models.ErrorResponse
+// @Success		200			{object}	dto.DeadlinePage
+// @Failure		403			{object}	dto.ErrorResponse
 // @Router			/admin/queries/overdue [get]
 func (c *QueryController) Overdue(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
@@ -64,7 +65,7 @@ func (c *QueryController) Overdue(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, models.DeadlinePage{Items: items, Meta: httpx.Meta(page, total)})
+	httpx.JSON(w, http.StatusOK, dto.DeadlinePage{Items: items, Meta: httpx.Meta(page, total)})
 }
 
 // @Summary		Registration coverage
@@ -77,8 +78,8 @@ func (c *QueryController) Overdue(w http.ResponseWriter, r *http.Request) {
 // @Tags			queries
 // @Produce		json
 // @Security		CookieAuth
-// @Success		200	{object}	models.RegistrationCoverage
-// @Failure		403	{object}	models.ErrorResponse
+// @Success		200	{object}	dto.RegistrationCoverage
+// @Failure		403	{object}	dto.ErrorResponse
 // @Router			/admin/queries/registration-coverage [get]
 func (c *QueryController) RegistrationCoverage(w http.ResponseWriter, r *http.Request) {
 	coverage, err := c.svc.RegistrationCoverage(r.Context(), middleware.ActorFrom(r))

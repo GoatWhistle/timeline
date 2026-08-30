@@ -7,6 +7,7 @@ import (
 
 	auditrepo "github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type AuditService struct {
@@ -41,7 +42,7 @@ func (s *AuditService) Record(ctx context.Context, actor models.Actor, action mo
 }
 
 func (s *AuditService) List(ctx context.Context, actor models.Actor, filter models.AuditFilter,
-	page models.Page) ([]models.AuditResponse, int64, error) {
+	page models.Page) ([]dto.AuditResponse, int64, error) {
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("the audit log is restricted to administrators")
 	}

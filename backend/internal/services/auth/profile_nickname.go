@@ -4,10 +4,11 @@ import (
 	"context"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 func (s *ProfileService) checkNickname(ctx context.Context, actor models.Actor,
-	patch models.ProfilePatch) error {
+	patch dto.ProfilePatch) error {
 	if patch.Nickname == nil {
 		return nil
 	}
@@ -30,7 +31,7 @@ func (s *ProfileService) checkNickname(ctx context.Context, actor models.Actor,
 }
 
 func (s *ProfileService) holdPreviousNickname(ctx context.Context, before *models.User,
-	patch models.ProfilePatch) error {
+	patch dto.ProfilePatch) error {
 	if before.Nickname == nil {
 		return nil
 	}
@@ -44,8 +45,8 @@ func (s *ProfileService) holdPreviousNickname(ctx context.Context, before *model
 }
 
 func (s *ProfileService) PublicProfile(ctx context.Context, nickname string,
-) (models.PublicProfileResponse, error) {
-	var resp models.PublicProfileResponse
+) (dto.PublicProfileResponse, error) {
+	var resp dto.PublicProfileResponse
 	user, err := s.users.GetByNickname(ctx, nickname)
 	if err != nil {
 		return resp, err
@@ -57,7 +58,7 @@ func (s *ProfileService) PublicProfile(ctx context.Context, nickname string,
 	if err != nil {
 		return resp, err
 	}
-	return models.PublicProfileResponse{
+	return dto.PublicProfileResponse{
 		Nickname:    *user.Nickname,
 		FirstName:   user.FirstName,
 		MiddleName:  user.MiddleName,
