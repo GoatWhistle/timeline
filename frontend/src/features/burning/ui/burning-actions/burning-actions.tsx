@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useMarkRegistrationDone } from '@/entities/event/event.queries'
 import type { BurningItem } from '@/features/burning/model/burning'
+import { Spinner } from '@/shared/ui/data-display/spinner'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/tooltip'
 import { Button } from '@/shared/ui/primitives/button'
@@ -45,9 +46,14 @@ export function BurningActions({ item }: { item: BurningItem }) {
               size="sm"
               className="h-7 gap-1 px-2"
               disabled={markDone.isPending}
+              aria-busy={markDone.isPending || undefined}
               onClick={() => void onMark()}
             >
-              <Check className="size-3.5" aria-hidden="true" />
+              {markDone.isPending ? (
+                <Spinner className="size-3.5" label={t('burning.action.marking')} />
+              ) : (
+                <Check className="size-3.5" aria-hidden="true" />
+              )}
               <span className="text-caption">{t('burning.action.markShort')}</span>
             </Button>
           </TooltipTrigger>

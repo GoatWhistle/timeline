@@ -14,6 +14,7 @@ export function ProfileLinksList({ links }: { links: ProfileLink[] }) {
   const remove = useDeleteProfileLink()
   const listRef = useRef<HTMLOListElement>(null)
   const focusAfterMove = useRef<string | null>(null)
+  const [announcement, setAnnouncement] = useState('')
 
   const membership = links
     .map((link) => link.id)
@@ -56,6 +57,7 @@ export function ProfileLinksList({ links }: { links: ProfileLink[] }) {
     const link = order[from]
     if (link === undefined || to < 0 || to >= order.length) return
     focusAfterMove.current = link.id
+    setAnnouncement(t('profile.links.position', { current: to + 1, total: order.length }))
     persist(moveItem(order, from, to))
   }
 
@@ -69,30 +71,35 @@ export function ProfileLinksList({ links }: { links: ProfileLink[] }) {
   }
 
   return (
-    <ol ref={listRef} className="flex flex-col gap-2" aria-label={t('profile.links.listLabel')}>
-      {order.map((link, index) => (
-        <ProfileLinkRow
-          key={link.id}
-          link={link}
-          index={index}
-          total={order.length}
-          isDragged={dragIndex === index}
-          onMoveUp={() => move(index, index - 1)}
-          onMoveDown={() => move(index, index + 1)}
-          onRemove={() =>
-            remove.mutate(link.id, {
-              onError: () => toast.error(t('profile.links.removeFailed')),
-            })
-          }
-          onDragStart={() => setDragIndex(index)}
-          onDragEnter={() => {
-            if (dragIndex === null || dragIndex === index) return
-            setOrder(moveItem(order, dragIndex, index))
-            setDragIndex(index)
-          }}
-          onDragEnd={onDrop}
-        />
-      ))}
-    </ol>
+    <>
+      <p aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
+      <ol ref={listRef} className="flex flex-col gap-2" aria-label={t('profile.links.listLabel')}>
+        {order.map((link, index) => (
+          <ProfileLinkRow
+            key={link.id}
+            link={link}
+            index={index}
+            total={order.length}
+            isDragged={dragIndex === index}
+            onMoveUp={() => move(index, index - 1)}
+            onMoveDown={() => move(index, index + 1)}
+            onRemove={() =>
+              remove.mutate(link.id, {
+                onError: () => toast.error(t('profile.links.removeFailed')),
+              })
+            }
+            onDragStart={() => setDragIndex(index)}
+            onDragEnter={() => {
+              if (dragIndex === null || dragIndex === index) return
+              setOrder(moveItem(order, dragIndex, index))
+              setDragIndex(index)
+            }}
+            onDragEnd={onDrop}
+          />
+        ))}
+      </ol>
+    </>
   )
 }

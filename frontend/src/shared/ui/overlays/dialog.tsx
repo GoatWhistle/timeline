@@ -15,17 +15,31 @@ export function DialogContent({
 
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+      <DialogPrimitive.Overlay
+        className={cn(
+          'fixed inset-0 z-50 bg-black/50',
+          'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
+          'data-[state=open]:motion-safe:duration-base data-[state=open]:motion-safe:ease-out',
+          'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
+          'data-[state=closed]:motion-safe:duration-base-exit data-[state=closed]:motion-safe:ease-in',
+        )}
+      />
       <DialogPrimitive.Content
         className={cn(
           'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border bg-background p-6 shadow-lg',
           'max-h-[90vh] overflow-y-auto',
+          'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
+          'data-[state=open]:motion-safe:zoom-in-95 data-[state=open]:motion-safe:duration-base',
+          'data-[state=open]:motion-safe:ease-out',
+          'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
+          'data-[state=closed]:motion-safe:zoom-out-95 data-[state=closed]:motion-safe:duration-base-exit',
+          'data-[state=closed]:motion-safe:ease-in',
           className,
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 transition-opacity duration-instant ease-out hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
           <X className="size-4" />
           <span className="sr-only">{t('action.close')}</span>
         </DialogPrimitive.Close>

@@ -30,4 +30,11 @@
   html {
     scroll-behavior: auto !important;
   }
+
+  [data-busy-spin] {
+    animation-name: spin !important;
+    animation-duration: 1600ms !important;
+    animation-timing-function: var(--ease-linear) !important;
+    animation-iteration-count: infinite !important;
+  }
 }

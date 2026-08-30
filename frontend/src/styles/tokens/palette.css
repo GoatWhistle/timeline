@@ -5,11 +5,9 @@
   --linear-graphite: oklch(0.2645 0.0098 268.3);
   --linear-smoke: oklch(0.351 0.0081 255.5);
   --linear-steel: oklch(0.55 0.012 262);
-  --linear-ash: oklch(0.5092 0.0121 261.8);
   --linear-ash-lifted: oklch(0.56 0.0121 261.8);
   --linear-fog: oklch(0.6488 0.0146 262.4);
   --linear-mist: oklch(0.8744 0.0152 260.7);
-  --linear-bone: oklch(0.9222 0.0013 286.4);
   --linear-paper: oklch(1 0 0);
   --linear-acid-lime: oklch(0.9199 0.2009 114);
 
@@ -17,11 +15,9 @@
   --neutral-025: oklch(0.985 0.002 264);
   --neutral-050: oklch(0.968 0.003 264);
   --neutral-100: oklch(0.94 0.004 264);
-  --neutral-150: oklch(0.92 0.004 286.3);
   --neutral-300: oklch(0.83 0.006 286.3);
   --neutral-450: oklch(0.62 0.008 286);
   --neutral-550: oklch(0.52 0.014 286);
-  --neutral-700: oklch(0.45 0.016 285.9);
   --neutral-900: oklch(0.21 0.006 285.9);
 
   --brand-blue-500: oklch(0.45 0.19 264);

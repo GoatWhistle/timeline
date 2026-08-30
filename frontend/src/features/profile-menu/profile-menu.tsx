@@ -42,7 +42,7 @@ export function ProfileMenu({
       <DropdownMenu.Trigger
         className={cn(
           'flex w-full items-center gap-2.5 rounded-control p-2 text-left',
-          'transition-colors duration-instant hover:bg-surface-3',
+          'transition-colors duration-instant hover:bg-surface-2',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         )}
       >
@@ -68,7 +68,9 @@ export function ProfileMenu({
           className={cn(
             'z-50 min-w-56 rounded-control border border-border bg-popover p-1 shadow-lg',
             'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
+            'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
             'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
+            'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
           )}
         >
           <DropdownMenu.Item className={ITEM} onSelect={() => openSettings('profile')}>

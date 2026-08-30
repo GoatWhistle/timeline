@@ -45,7 +45,7 @@ export function AppSidebar({
       className={cn(
         'flex w-sidebar shrink-0 flex-col justify-between overflow-y-auto border-border border-r bg-card p-2',
         sidebar.visibility === 'peeking' &&
-          'absolute inset-y-0 left-0 z-40 shadow-lg motion-safe:animate-in motion-safe:slide-in-from-left-2 motion-safe:duration-panel',
+          'absolute inset-y-0 left-0 z-40 shadow-lg motion-safe:animate-in motion-safe:slide-in-from-left-2 motion-safe:duration-panel motion-safe:ease-out',
       )}
     >
       <nav aria-label={t('app.mainNav')} className="flex flex-col gap-3">
@@ -59,7 +59,7 @@ export function AppSidebar({
             data-sidebar-toggle
             className={cn(
               'flex size-6 shrink-0 items-center justify-center rounded-control text-muted-foreground',
-              'transition-colors duration-instant hover:bg-surface-3 hover:text-foreground',
+              'transition-colors duration-instant hover:bg-surface-2 hover:text-foreground',
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
             )}
           >

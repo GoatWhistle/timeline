@@ -40,7 +40,10 @@ export function SelectContent({
         position="popper"
         className={cn(
           'relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+          'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
+          'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
+          'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
+          'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
           className,
         )}
         {...props}

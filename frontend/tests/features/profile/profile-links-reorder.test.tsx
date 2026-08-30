@@ -116,6 +116,18 @@ describe('profile links reordering from the keyboard', () => {
     expect(names()[0]).toContain('Telegram')
   })
 
+  it('tells a screen reader where the row landed', async () => {
+    const { user } = renderWithProviders(<ProfileLinksList links={LINKS} />)
+    const live = document.querySelector('[aria-live="polite"]') as HTMLElement
+    expect(live).toBeTruthy()
+    expect(live.textContent).toBe('')
+
+    await user.click(screen.getByLabelText(i18n.t('profile.links.moveDown', { name: 'GitHub' })))
+    await waitFor(() =>
+      expect(live.textContent).toBe(i18n.t('profile.links.position', { current: 2, total: 3 })),
+    )
+  })
+
   it('moves a link up with the keyboard alone', async () => {
     const { user } = renderWithProviders(<ProfileLinksList links={LINKS} />)
     await user.click(screen.getByLabelText(i18n.t('profile.links.moveUp', { name: 'Telegram' })))

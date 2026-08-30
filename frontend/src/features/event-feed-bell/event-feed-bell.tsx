@@ -26,7 +26,7 @@ export function EventFeedBell() {
         aria-label={t('feed.open')}
         className={cn(
           'relative flex h-8 w-8 items-center justify-center rounded-control',
-          'transition-colors duration-instant hover:bg-surface-3',
+          'transition-colors duration-instant hover:bg-surface-2',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         )}
       >
@@ -43,6 +43,10 @@ export function EventFeedBell() {
           sideOffset={8}
           className={cn(
             'z-50 w-80 rounded-surface border border-border bg-surface-1 p-2 shadow-lg',
+            'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
+            'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
+            'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
+            'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
           )}
         >
           <div className={styles.header}>

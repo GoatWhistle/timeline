@@ -42,7 +42,7 @@ export function AppShell() {
     <div className="relative flex h-screen overflow-hidden">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:border focus:border-border-strong focus:bg-popover focus:px-3 focus:py-2 focus:text-copy focus:text-popover-foreground"
       >
         {t('app.skipToContent')}
       </a>
@@ -64,7 +64,7 @@ export function AppShell() {
             className={cn(
               'absolute top-2 left-2 z-30 flex size-7 items-center justify-center rounded-control',
               'border border-border bg-card text-muted-foreground shadow-sm',
-              'transition-colors duration-instant hover:bg-surface-3 hover:text-foreground',
+              'transition-colors duration-instant hover:bg-surface-2 hover:text-foreground',
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
             )}
           >

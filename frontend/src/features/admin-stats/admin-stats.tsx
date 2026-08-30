@@ -59,7 +59,7 @@ function Metric({
       aria-pressed={active}
       className={cn(
         shell,
-        'transition-colors duration-instant hover:bg-surface-3',
+        'transition-colors duration-instant hover:bg-surface-2',
         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
         active && 'bg-accent-surface',
       )}

@@ -11,17 +11,13 @@
   --leading-secondary: 18px;
   --leading-label: 16px;
 
-  --weight-regular: 400;
   --weight-medium: 500;
-  --weight-semibold: 600;
 
   --tracking-title: -0.012em;
   --tracking-section: -0.011em;
-  --tracking-body: 0em;
 
   --row-height: 36px;
   --row-height-roomy: 40px;
-  --grid-step: 4px;
 
   --pane-sidebar: 240px;
   --pane-detail: 380px;

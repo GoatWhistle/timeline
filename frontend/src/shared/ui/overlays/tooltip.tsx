@@ -31,7 +31,10 @@ export function TooltipContent({
         sideOffset={sideOffset}
         className={cn(
           'z-50 max-w-xs rounded-md border bg-popover px-2.5 py-1.5 text-caption text-popover-foreground shadow-md',
-          'data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0',
+          'data-[state=delayed-open]:motion-safe:animate-in data-[state=delayed-open]:motion-safe:fade-in-0',
+          'data-[state=delayed-open]:motion-safe:duration-fast data-[state=delayed-open]:motion-safe:ease-out',
+          'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
+          'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
           className,
         )}
         {...props}

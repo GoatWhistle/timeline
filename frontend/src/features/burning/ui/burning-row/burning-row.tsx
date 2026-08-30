@@ -33,7 +33,7 @@ function BurningRowView({
       className={cn(
         'flex h-row-roomy items-center gap-3 border-border/60 border-b pr-2 pl-0',
         'transition-colors duration-instant',
-        selected ? 'bg-accent-surface' : 'hover:bg-surface-3',
+        selected ? 'bg-accent-surface' : 'hover:bg-surface-2',
       )}
     >
       <span

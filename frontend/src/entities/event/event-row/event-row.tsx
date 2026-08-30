@@ -42,7 +42,7 @@ export function EventRow({
         'flex h-row w-full shrink-0 items-center gap-3 border-border/60 border-b px-3 text-left',
         'transition-colors duration-instant',
         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
-        selected ? 'bg-accent-surface' : 'hover:bg-surface-3',
+        selected ? 'bg-accent-surface' : 'hover:bg-surface-2',
       )}
     >
       <EventStateMark state={event.state} labelled={false} />

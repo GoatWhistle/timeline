@@ -35,7 +35,9 @@ export function SettingsOverlay() {
           className={cn(
             'fixed inset-0 z-50 bg-black/60',
             'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
+            'data-[state=open]:motion-safe:duration-base data-[state=open]:motion-safe:ease-out',
             'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
+            'data-[state=closed]:motion-safe:duration-base-exit data-[state=closed]:motion-safe:ease-in',
           )}
         />
         <DialogPrimitive.Content
@@ -45,7 +47,11 @@ export function SettingsOverlay() {
             'fixed inset-0 z-50 m-auto flex h-[min(90vh,44rem)] w-[min(92vw,64rem)] overflow-hidden',
             'rounded-surface border border-border bg-background shadow-lg',
             'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
+            'data-[state=open]:motion-safe:zoom-in-95 data-[state=open]:motion-safe:duration-base',
+            'data-[state=open]:motion-safe:ease-out',
             'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
+            'data-[state=closed]:motion-safe:zoom-out-95 data-[state=closed]:motion-safe:duration-base-exit',
+            'data-[state=closed]:motion-safe:ease-in',
           )}
         >
           <DialogPrimitive.Title className="sr-only">{t('settings.title')}</DialogPrimitive.Title>
@@ -68,7 +74,7 @@ export function SettingsOverlay() {
                   'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
                   section === id
                     ? 'bg-accent-surface font-medium text-accent-surface-foreground'
-                    : 'text-muted-foreground hover:bg-surface-3 hover:text-foreground',
+                    : 'text-muted-foreground hover:bg-surface-2 hover:text-foreground',
                 )}
               >
                 <Icon className="size-4 shrink-0" aria-hidden="true" />

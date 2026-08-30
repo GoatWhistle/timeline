@@ -94,7 +94,7 @@ export function ProfileLinksCard({ user }: { user: MeResponse }) {
         </form>
 
         <section className="flex flex-col gap-3">
-          <h3 className="font-medium text-sm">{t('profile.links.title')}</h3>
+          <h3 className="font-medium text-copy">{t('profile.links.title')}</h3>
           <p className="text-meta text-muted-foreground">{t('profile.links.hint')}</p>
           <ProfileLinksList links={items} />
           <AddProfileLink disabled={items.length >= LINK_LIMIT} />

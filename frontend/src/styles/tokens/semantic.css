@@ -28,7 +28,7 @@
 
   --accent: var(--brand-blue-500);
   --accent-foreground: var(--neutral-000);
-  --accent-surface: var(--surface-2);
+  --accent-surface: var(--surface-3);
   --accent-surface-foreground: var(--neutral-900);
   --highlight-fill: var(--linear-acid-lime);
   --highlight-fill-foreground: var(--neutral-900);
@@ -36,7 +36,7 @@
   --destructive: var(--hue-crimson-500);
   --destructive-foreground: var(--neutral-000);
 
-  --border: var(--neutral-150);
+  --border: var(--neutral-300);
   --border-strong: var(--neutral-450);
   --input: var(--neutral-450);
   --ring: var(--brand-blue-500);

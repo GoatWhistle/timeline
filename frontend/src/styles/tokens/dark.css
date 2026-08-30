@@ -24,7 +24,6 @@
 
   --accent: var(--linear-acid-lime);
   --accent-foreground: var(--linear-void);
-  --accent-surface: var(--surface-3);
   --accent-surface-foreground: var(--linear-paper);
   --highlight-fill: var(--linear-acid-lime);
   --highlight-fill-foreground: var(--linear-void);
@@ -32,7 +31,7 @@
   --destructive: var(--hue-crimson-300);
   --destructive-foreground: var(--linear-void);
 
-  --border: var(--linear-graphite);
+  --border: var(--linear-smoke);
   --border-strong: var(--linear-steel);
   --input: var(--linear-steel);
   --ring: var(--linear-acid-lime);

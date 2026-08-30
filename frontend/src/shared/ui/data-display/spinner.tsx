@@ -8,7 +8,11 @@ export function Spinner({ className, label }: { className?: string; label?: stri
 
   return (
     <span role="status" aria-live="polite" className={cn('inline-flex items-center gap-2')}>
-      <Loader2 className={cn('size-4 animate-spin', className)} aria-hidden="true" />
+      <Loader2
+        data-busy-spin
+        className={cn('size-4 animate-spin ease-linear', className)}
+        aria-hidden="true"
+      />
       <span className="sr-only">{text}</span>
     </span>
   )

@@ -1,4 +1,5 @@
 .banner {
+  animation: banner-enter var(--duration-base) var(--ease-out);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,4 +14,15 @@
 .icon {
   width: 0.875rem;
   height: 0.875rem;
+}
+
+@keyframes banner-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

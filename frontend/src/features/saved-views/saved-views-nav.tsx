@@ -33,7 +33,7 @@ export function SavedViewsNav({
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
               active
                 ? 'bg-accent-surface font-medium text-accent-surface-foreground'
-                : 'text-muted-foreground hover:bg-surface-3 hover:text-foreground',
+                : 'text-muted-foreground hover:bg-surface-2 hover:text-foreground',
             )}
           >
             {t(view.titleKey)}

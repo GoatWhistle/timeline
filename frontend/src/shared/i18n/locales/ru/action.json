@@ -33,6 +33,7 @@
     "retryFailed_one": "Повторить {{count}} неудавшуюся",
     "retryFailed_few": "Повторить {{count}} неудавшиеся",
     "retryFailed_many": "Повторить {{count}} неудавшихся",
+    "retrying": "Повторяем неудавшиеся записи",
     "status": {
       "ok": "успешно",
       "skipped": "пропущено",

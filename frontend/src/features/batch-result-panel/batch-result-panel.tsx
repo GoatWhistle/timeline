@@ -2,6 +2,7 @@ import { AlertCircle, CheckCircle2, MinusCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { BatchItemResult, BatchResult } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Button } from '@/shared/ui/primitives/button'
 
 export type BatchRowStatus = 'ok' | 'skipped' | 'error'
@@ -45,7 +46,16 @@ export function BatchResultPanel({
   const retryable = failedKeys(result)
 
   return (
-    <section aria-label={t('batch.resultTitle')} className="flex flex-col gap-2">
+    <section
+      aria-label={t('batch.resultTitle')}
+      role="status"
+      aria-live="polite"
+      className={cn(
+        'flex flex-col gap-2',
+        'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-top-1',
+        'motion-safe:duration-base motion-safe:ease-out',
+      )}
+    >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-meta">
         <span className="text-status-done">
           {t('batch.succeeded', { count: result.succeeded ?? 0 })}
@@ -92,8 +102,10 @@ export function BatchResultPanel({
             variant="outline"
             size="sm"
             disabled={isRetrying}
+            aria-busy={isRetrying || undefined}
             onClick={() => onRetryFailed(retryable)}
           >
+            {isRetrying && <Spinner className="size-3.5" label={t('batch.retrying')} />}
             {t('batch.retryFailed', { count: retryable.length })}
           </Button>
         </div>

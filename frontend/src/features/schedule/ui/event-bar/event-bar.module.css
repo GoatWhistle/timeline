@@ -42,7 +42,7 @@
 .bar[data-patterned="true"] {
   background-image: repeating-linear-gradient(
     45deg,
-    color-mix(in oklch, var(--neutral-900) 10%, transparent) 0 3px,
+    color-mix(in oklch, currentColor 18%, transparent) 0 3px,
     transparent 3px 7px
   );
 }

@@ -34,7 +34,7 @@ export function DetailPane({
       aria-labelledby={labelledBy}
       className={cn(
         'flex w-detail shrink-0 flex-col overflow-y-auto border-border border-l bg-card',
-        'motion-safe:animate-in motion-safe:slide-in-from-right-2 motion-safe:duration-panel',
+        'motion-safe:animate-in motion-safe:slide-in-from-right-2 motion-safe:duration-panel motion-safe:ease-out',
         className,
       )}
     >

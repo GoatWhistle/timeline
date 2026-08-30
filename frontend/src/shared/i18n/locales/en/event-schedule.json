@@ -87,6 +87,7 @@
     },
     "action": {
       "markShort": "Mark",
+      "marking": "Marking the registration",
       "openForm": "Open the registration form",
       "openSite": "Open the event site"
     },

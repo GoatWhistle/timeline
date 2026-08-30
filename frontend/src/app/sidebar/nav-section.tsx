@@ -59,7 +59,7 @@ export function NavSection({ title, items }: { title: string; items: NavItem[] }
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
               isActive
                 ? 'bg-accent-surface font-medium text-accent-surface-foreground'
-                : 'text-muted-foreground hover:bg-surface-3 hover:text-foreground',
+                : 'text-muted-foreground hover:bg-surface-2 hover:text-foreground',
             )
           }
         >
