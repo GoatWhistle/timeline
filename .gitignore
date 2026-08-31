@@ -1,22 +1,16 @@
-# The single ignore file of the monorepo (part VII.1 of the refactoring plan).
-# There are no nested .gitignore files in backend/ and frontend/; .dockerignore
-# stays separate - Docker reads only that one.
-
-# --- Local configuration -------------------------------------------------
-# make docker-up creates backend/.env from .env.example; it is not committed.
 .env
 .env.local
 .env.*.local
 
-# --- Backend -------------------------------------------------------------
 backend/bin/
 backend/tmp/
 *.test
 coverage.out
 coverage-integration.out
+cover-int.out
+*.out
 coverage.html
 
-# --- Frontend ------------------------------------------------------------
 frontend/node_modules/
 frontend/dist/
 frontend/coverage/
@@ -24,14 +18,11 @@ frontend/playwright-report/
 frontend/test-results/
 .playwright-mcp/
 
-# --- Housekeeping --------------------------------------------------------
 .DS_Store
 Thumbs.db
 
-# Claude Code checkpoint (in any subdirectory)
 **/.claude/RESUME.md
 
-# Screenshots and captured images: working artefacts of UI work, never indexed.
 screenshots/
 .playwright-mcp/
 *.png

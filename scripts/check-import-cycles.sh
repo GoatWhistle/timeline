@@ -1,26 +1,4 @@
 #!/usr/bin/env bash
-# Check for import cycles between the project's own packages (part XI of the
-# refactoring plan, item 215d).
-#
-# Why a separate check when the compiler already rejects cycles: the Go
-# compiler only rejects a cycle within one build. A cycle that runs through a
-# test file is legal for the compiler and still makes the architecture
-# unnavigable. That is exactly the shape the event <-> notification cycle had:
-# event -> notification in sources, notification -> event in a test, and
-# `go build` was green the whole time.
-#
-# So the graph is built from Imports and TestImports, and only over internal/
-# packages: a cycle through a third-party package is not something this
-# repository can fix.
-#
-# XTestImports are deliberately excluded. An external test package (package
-# foo_test) is compiled as its own package, so foo_test -> bar -> foo is a
-# chain, not a loop, and counting it would report cycles that do not exist.
-# TestImports are counted, because an in-package test is compiled into the
-# package itself: that is where a real cycle can hide from `go build`.
-#
-# The file-count and line-count ratchets do not catch this. A package can sit
-# well under every limit and still be knotted into a cycle.
 
 set -euo pipefail
 

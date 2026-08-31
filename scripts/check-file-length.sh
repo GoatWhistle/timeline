@@ -1,19 +1,4 @@
 #!/usr/bin/env bash
-# Check for the 250-line limit on hand-written code (part VII.3 of the
-# refactoring plan).
-#
-# The mechanism is a ratchet, not a hard threshold: at the time the check was
-# introduced, 25 files exceed the limit, and a hard failure would switch the
-# check off on the very first day. So the baseline is recorded in
-# docs/baselines/file-length.txt.
-# The check fails if:
-#   a) a file that is not in the baseline exceeded the limit;
-#   b) a file from the baseline has grown.
-# A file from the baseline may only shrink; on a decrease the baseline is
-# updated with `make baseline-file-length`.
-#
-# Does not apply to generated files (*.gen.*, schema.d.ts, swagger.*) or to SQL
-# migrations: a migration cannot be cut in half.
 
 set -euo pipefail
 
@@ -23,10 +8,6 @@ BASELINE="$ROOT/docs/baselines/file-length.txt"
 
 cd "$ROOT"
 
-# A file that is not in the index yet still has to obey the limit. `git
-# ls-files` alone lists only tracked paths, so a brand new file slipped past
-# this check until it was staged: the check reported success on a tree that
-# already broke the rule. Untracked but not ignored paths are listed too.
 tracked_and_new() {
   {
     git ls-files "$@"
@@ -41,9 +22,6 @@ current() {
     | grep -v 'swagger\.' \
     | grep -v '^backend/docs/' \
     | while read -r file; do
-        # git ls-files also lists what has already been moved in the working
-        # tree but has not reached the index yet: skip such a file rather than
-        # making noise.
         [ -f "$file" ] || continue
         lines=$(wc -l < "$file" | tr -d ' ')
         if [ "$lines" -gt "$LIMIT" ]; then

@@ -1,21 +1,7 @@
-# Timeline - monorepo commands.
-#
-# The application runs in containers only: Go, Node and PostgreSQL are not
-# needed on the machine, Docker is enough.
-#
-#   make docker-up   production mode: nginx with the frontend production build
-#   make dev         development mode: HMR for the frontend, `go run` for backend
-#
-# The check commands (lint, test, types, verify) require Node on the machine. Go
-# is optional: if it is missing, the backend checks run in a container.
-# CI runs these very same commands.
 
 FRONTEND := frontend
 BACKEND  := backend
 
-# Backend checks go through the local Go, and in its absence - in a container
-# with the same image as the build (deploy/backend.Dockerfile). The volume keeps
-# the module cache between runs, otherwise every run downloads dependencies anew.
 GO_IMAGE  := golang:1.25-alpine
 GO_CACHE  := timeline-go-mod
 HAVE_GO   := $(shell command -v go 2>/dev/null)
@@ -28,11 +14,17 @@ else
 GO_RUN := cd $(BACKEND) && sh -c
 endif
 
-# golangci-lint is not always installed: when the binary is missing, the official
-# image of the same version is used. The module cache is shared with GO_RUN. The
-# repository root is mounted into the container, not backend/: the
-# --new-from-merge-base ratchet needs .git, without it the linter silently falls
-# back to reporting every issue at once.
+SWAG_IMAGE := golang:1.25-alpine
+HAVE_SWAG  := $(shell command -v swag 2>/dev/null)
+
+ifeq ($(HAVE_SWAG),)
+SWAG_RUN := MSYS_NO_PATHCONV=1 docker run --rm -v "$(CURDIR)/$(BACKEND):/src" -v "$(GO_CACHE):/go/pkg/mod" -w /src -e PATH=/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin $(SWAG_IMAGE) sh -c
+SWAG_INSTALL := go install github.com/swaggo/swag/cmd/swag@latest &&
+else
+SWAG_RUN := cd $(BACKEND) && sh -c
+SWAG_INSTALL :=
+endif
+
 GOLANGCI_IMAGE := golangci/golangci-lint:v2.6-alpine
 HAVE_GOLANGCI  := $(shell command -v golangci-lint 2>/dev/null)
 
@@ -46,9 +38,7 @@ COMPOSE     := docker compose -f deploy/docker-compose.yml
 COMPOSE_DEV := $(COMPOSE) -f deploy/docker-compose.dev.yml
 COMPOSE_CONTRACT := docker compose -f deploy/docker-compose.contract.yml
 
-# Long-running services: the one-shot migrate and bootstrap are pulled in as
-# their dependencies, but --wait cannot be used to wait for them to finish.
-SERVICES := api web worker
+SERVICES := backend frontend worker
 
 WEB_PORT      ?= 5173
 API_PORT      ?= 8080
@@ -58,11 +48,8 @@ ADMIN_EMAIL    ?= admin@example.com
 ADMIN_PASSWORD ?= password123
 ADMIN_NAME     ?= Administrator
 
-# The contract suite runs against its own throwaway stack (deploy/docker-compose.contract.yml)
-# on a separate port, so a development stack may stay up at the same time.
 CONTRACT_API_PORT ?= 55480
 
-# docker compose reads these values from the environment (see deploy/docker-compose.yml).
 export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME CONTRACT_API_PORT
 
 .PHONY: help endpoints \
@@ -83,16 +70,14 @@ help: ## Show the list of commands
 	@echo ""
 	@echo "Override ports like this: make docker-up WEB_PORT=5199 API_PORT=8099 POSTGRES_PORT=5433"
 
-# --- Production mode --------------------------------------------------------
-
-docker-up: $(BACKEND)/.env ## Bring up the stack: database, migrations, API, worker and frontend
+docker-up: .env ## Bring up the stack: database, migrations, API, worker and frontend
 	@$(COMPOSE) up -d --build --wait $(SERVICES)
 	@$(MAKE) --no-print-directory endpoints
 
 docker-down: ## Stop the stack (the data volume is preserved)
 	@$(COMPOSE) down
 
-docker-build: $(BACKEND)/.env ## Rebuild the images without starting anything
+docker-build: .env ## Rebuild the images without starting anything
 	@$(COMPOSE) build
 
 docker-restart: ## Restart the stack
@@ -102,19 +87,13 @@ docker-restart: ## Restart the stack
 docker-status: ## Show container status
 	@$(COMPOSE) ps
 
-docker-logs: ## Follow container logs (make docker-logs S=api - a single one)
+docker-logs: ## Follow container logs (make docker-logs S=backend - a single one)
 	@$(COMPOSE) logs -f $(S)
 
 docker-psql: ## Open psql in the database container
 	@$(COMPOSE) exec postgres psql -U $${POSTGRES_USER:-timeline} -d $${POSTGRES_DB:-timeline}
 
-# --- Development mode -------------------------------------------------------
-#
-# The same stack, but the sources are mounted into the containers: the frontend
-# updates over HMR without a rebuild, the backend is recompiled by
-# `make dev-restart`.
-
-dev: $(BACKEND)/.env ## Bring up the stack in development mode: HMR and go run
+dev: .env ## Bring up the stack in development mode: HMR and go run
 	@$(COMPOSE_DEV) up -d --build --wait $(SERVICES)
 	@$(MAKE) --no-print-directory endpoints
 
@@ -122,10 +101,10 @@ dev-down: ## Stop the development mode stack
 	@$(COMPOSE_DEV) down
 
 dev-restart: ## Recompile and restart the backend
-	@$(COMPOSE_DEV) up -d --force-recreate --wait api worker
+	@$(COMPOSE_DEV) up -d --force-recreate --wait backend worker
 	@echo "backend restarted"
 
-dev-logs: ## Follow development mode logs (make dev-logs S=api - a single one)
+dev-logs: ## Follow development mode logs (make dev-logs S=backend - a single one)
 	@$(COMPOSE_DEV) logs -f $(S)
 
 endpoints:
@@ -134,13 +113,9 @@ endpoints:
 	@echo "API         -> http://localhost:$(API_PORT), Swagger UI /docs/"
 	@echo "login: $(ADMIN_EMAIL), password $(ADMIN_PASSWORD)"
 
-# Application configuration for the containers. Without the file, the defaults
-# from backend/internal/config apply (appendix C of the specification).
-$(BACKEND)/.env:
-	@cp $(BACKEND)/.env.example $(BACKEND)/.env
-	@echo "created $(BACKEND)/.env from .env.example"
-
-# --- Frontend ---------------------------------------------------------------
+.env:
+	@cp .env.example .env
+	@echo "created .env from .env.example"
 
 install: ## Install frontend dependencies for checks on the machine
 	@cd $(FRONTEND) && if [ -f package-lock.json ]; then npm ci; else npm install; fi
@@ -170,24 +145,19 @@ test: $(FRONTEND)/node_modules ## Run the frontend tests
 test-cover: $(FRONTEND)/node_modules ## Frontend tests with coverage and threshold checks
 	@cd $(FRONTEND) && npm run test:coverage
 
-# Contract tests run against a real API rather than mocks: the stack below is
-# brought up, the suite is run against it and the stack is torn down again. The
-# database lives in tmpfs and dies with the containers, so runs never share state.
 test-contract: $(FRONTEND)/node_modules ## Contract tests against a real API in a container
-	@$(COMPOSE_CONTRACT) up -d --build --wait api
+	@$(COMPOSE_CONTRACT) up -d --build --wait backend
 	@cd $(FRONTEND) && npm run test:contract ; 		status=$$? ; cd .. ; $(COMPOSE_CONTRACT) down -v --remove-orphans >/dev/null 2>&1 ; exit $$status
 
 e2e: $(FRONTEND)/node_modules ## Sign-in scenario in a real browser against a real API
-	@$(COMPOSE_CONTRACT) up -d --build --wait api
+	@$(COMPOSE_CONTRACT) up -d --build --wait backend
 	@cd $(FRONTEND) && npm run e2e ; 		status=$$? ; cd .. ; $(COMPOSE_CONTRACT) down -v --remove-orphans >/dev/null 2>&1 ; exit $$status
 
 build: $(FRONTEND)/node_modules ## Build the frontend production bundle on the machine
 	@cd $(FRONTEND) && npm run build
 
-# --- Backend ----------------------------------------------------------------
-
 back-fmt: ## Format the backend code
-	@cd $(BACKEND) && $(MAKE) --no-print-directory fmt
+	@$(GO_RUN) "gofmt -w $$(find . -name '*.go' -not -path './docs/*')"
 
 back-vet: ## Static analysis of the backend
 	@$(GO_RUN) "go vet ./..."
@@ -219,12 +189,6 @@ back-test-integration: ## Database constraint tests against a temporary PostgreS
 back-cover: ## Backend coverage of the unit tests alone
 	@$(GO_RUN) "go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out | tail -1"
 
-# The suites that carry the backend - authorization, section 16 transitions and
-# AC-NOTIF-01..19 - are all behind the `integration` build tag and need a
-# database, so a plain `go test` cannot see them. Measuring coverage without the
-# tag reports a couple of per cent and hides the real level; -coverpkg spreads
-# the measurement across every internal package rather than only the one under
-# test.
 back-cover-integration: ## Backend coverage including the integration suites
 	@docker rm -f timeline-cover-pg >/dev/null 2>&1 || true
 	@docker run -d --rm --name timeline-cover-pg 		-e POSTGRES_PASSWORD=test -e POSTGRES_USER=test -e POSTGRES_DB=test 		-p 55434:5432 postgres:16-alpine >/dev/null
@@ -232,14 +196,9 @@ back-cover-integration: ## Backend coverage including the integration suites
 	@MSYS_NO_PATHCONV=1 docker run --rm --network host 		-v "$(CURDIR)/$(BACKEND):/src" -v "$(GO_CACHE):/go/pkg/mod" -w /src 		-e DATABASE_URL="postgres://test:test@127.0.0.1:55434/test?sslmode=disable" 		$(GO_IMAGE) sh -c "go test -tags=integration -coverpkg=./internal/... 			-coverprofile=coverage-integration.out ./... >/dev/null && 			go tool cover -func=coverage-integration.out | tail -1" ; 		status=$$? ; docker stop timeline-cover-pg >/dev/null 2>&1 ; exit $$status
 
 back-docs: ## Rebuild the OpenAPI specification and publish it to docs/
-	@cd $(BACKEND) && $(MAKE) --no-print-directory docs
-
-# --- Baselines --------------------------------------------------------------
-#
-# Three checks work as a ratchet from a recorded level rather than from a hard
-# threshold: with 25 files over the limit and coverage around 11%, a hard
-# threshold would break CI on the very first day and would then be switched off.
-# The baselines live in docs/baselines/ and are only updated towards improvement.
+	@$(SWAG_RUN) "$(SWAG_INSTALL) swag init -g internal/controllers/router.go -o docs --parseInternal --outputTypes go,json,yaml && swag fmt -g internal/controllers/router.go"
+	@cp $(BACKEND)/docs/swagger.yaml $(BACKEND)/docs/swagger.json docs/
+	@echo "specification published to docs/"
 
 file-length: ## 250-line limit for hand-written code (ratchet)
 	@bash scripts/check-file-length.sh
@@ -273,8 +232,6 @@ baseline-bundle-size: build ## Rewrite the bundle size baseline
 
 baseline-lint: ## Rewrite the golangci-lint issue baseline
 	@bash scripts/check-lint-baseline.sh --update
-
-# --- Checks and cleanup -----------------------------------------------------
 
 verify: ## Full check of both parts: contract, types, linter, tests, build
 	@$(MAKE) --no-print-directory package-size

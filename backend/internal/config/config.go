@@ -27,6 +27,8 @@ type Config struct {
 type App struct {
 	Env        string
 	LogLevel   string
+	LogFormat  string
+	LogColor   string
 	SystemTZ   *time.Location
 	SystemTZID string
 	PublicURL  string
@@ -130,6 +132,8 @@ func Load() (*Config, error) {
 		App: App{
 			Env:        env("APP_ENV", "dev"),
 			LogLevel:   env("LOG_LEVEL", "info"),
+			LogFormat:  env("LOG_FORMAT", "pretty"),
+			LogColor:   env("LOG_COLOR", "auto"),
 			SystemTZ:   loc,
 			SystemTZID: tzID,
 			PublicURL:  strings.TrimRight(env("PUBLIC_URL", "http://localhost:5173"), "/"),

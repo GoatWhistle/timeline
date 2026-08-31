@@ -1,0 +1,53 @@
+.link {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  color: inherit;
+}
+
+.mark {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.link:hover .mark {
+  transform: scale(1.08);
+}
+
+.link:active .mark {
+  transform: scale(0.94);
+}
+
+.link[data-travelling='true'] .mark {
+  animation: travel var(--duration-slow) var(--ease-in-out);
+}
+
+@keyframes travel {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+  40% {
+    transform: translateX(3px) scale(1.12);
+  }
+  70% {
+    transform: translateX(-2px) scale(0.96);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark,
+  .link:hover .mark,
+  .link:active .mark {
+    transition: none;
+    transform: none;
+  }
+
+  .link[data-travelling='true'] .mark {
+    animation: none;
+  }
+}

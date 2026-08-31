@@ -1,14 +1,4 @@
 #!/usr/bin/env bash
-# Second layer of the golangci-lint ratchet (part V.1 of the refactoring plan).
-#
-# The main ratchet - `--new-from-merge-base=origin/main` - checks only what the
-# change itself introduced. It has a hole: on a push to main the comparison base
-# is empty and nothing gets checked. This script closes it with a counter: the
-# total number of issues must not exceed the baseline.
-#
-# Fails if the number of issues has grown. If it has dropped - prints the new
-# level: the baseline is lowered by hand, so that the decrease is deliberate and
-# shows up in the change review.
 
 set -euo pipefail
 

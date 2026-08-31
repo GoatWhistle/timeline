@@ -1,26 +1,6 @@
-# The full Timeline stack in Docker: PostgreSQL, migrations, the first
-# administrator, the HTTP API, the delivery worker and the built frontend behind nginx.
-#
-#   make docker-up                                    # from the repository root
-#   docker compose -f deploy/docker-compose.yml up -d --build
-#
-# After startup: the application on http://localhost:5173, the API on
-# http://localhost:8080, Swagger UI on http://localhost:8080/docs/.
-# The frontend reaches the API through nginx on its own origin (deploy/nginx.conf);
-# the direct API port is exposed only for debugging and Swagger UI.
-#
-# Application configuration is read from backend/.env - the same file as for a
-# local run; when it is absent the defaults from internal/config apply
-# (specification appendix C). The `environment` block overrides the file wherever
-# addresses inside the Docker network differ from local ones.
-#
-# Ports and credentials are overridden through the environment or deploy/.env:
-#   WEB_PORT=5199 API_PORT=8099 make docker-up
 
 name: timeline
 
-# Shared part of three services on one backend image: serve, worker and
-# the one-shot migrate/admin commands.
 x-backend: &backend
   build:
     context: ..
@@ -29,15 +9,15 @@ x-backend: &backend
       VERSION: ${VERSION:-0.8.0}
   image: timeline-backend:${VERSION:-0.8.0}
   env_file:
-    - path: ../backend/.env
+    - path: ../.env
       required: false
   environment:
     DATABASE_URL: postgres://${POSTGRES_USER:-timeline}:${POSTGRES_PASSWORD:-timeline}@postgres:5432/${POSTGRES_DB:-timeline}?sslmode=disable
     HTTP_ADDR: ":8080"
-    # Links in emails and invitations point to the frontend, not the API.
+    LOG_FORMAT: ${LOG_FORMAT:-json}
+    LOG_COLOR: ${LOG_COLOR:-auto}
     PUBLIC_URL: ${PUBLIC_URL:-http://localhost:${WEB_PORT:-5173}}
     CORS_ALLOWED_ORIGINS: ${PUBLIC_URL:-http://localhost:${WEB_PORT:-5173}}
-    # Only the `admin create` command reads these; other services ignore them.
     FIRST_ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
     FIRST_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password123}
     FIRST_ADMIN_NAME: ${ADMIN_NAME:-Administrator}
@@ -64,8 +44,7 @@ services:
     networks:
       - timeline
 
-  # One-shot command: applies migrations and exits.
-  migrate:
+  migrations:
     <<: *backend
     command: ["migrate", "up"]
     depends_on:
@@ -73,23 +52,19 @@ services:
         condition: service_healthy
     restart: "no"
 
-  # One-shot command: creates the first administrator if none exists yet.
-  # Re-running it for an existing address changes nothing.
   bootstrap:
     <<: *backend
     command: ["admin", "create"]
     depends_on:
-      migrate:
+      migrations:
         condition: service_completed_successfully
     restart: "no"
 
-  api:
+  backend:
     <<: *backend
     command: ["serve"]
     ports:
       - "${API_PORT:-8080}:8080"
-    # Through bootstrap rather than migrate directly: this way `up api` also pulls in
-    # administrator creation, and the API starts on a database ready for sign-in.
     depends_on:
       bootstrap:
         condition: service_completed_successfully
@@ -105,11 +80,11 @@ services:
     <<: *backend
     command: ["worker"]
     depends_on:
-      migrate:
+      migrations:
         condition: service_completed_successfully
     restart: unless-stopped
 
-  web:
+  frontend:
     build:
       context: ..
       dockerfile: deploy/frontend.Dockerfile
@@ -119,11 +94,9 @@ services:
     ports:
       - "${WEB_PORT:-5173}:8080"
     depends_on:
-      api:
+      backend:
         condition: service_healthy
     healthcheck:
-      # 127.0.0.1 rather than localhost: nginx listens on IPv4 only, while busybox
-      # wget tries ::1 first and gets refused.
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/nginx-health"]
       interval: 10s
       timeout: 5s

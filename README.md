@@ -75,8 +75,8 @@ forbidden: exchange goes through `shared` and the routes.
 
 Application configuration comes only from environment variables
 (`backend/internal/config`); the application does not read `.env` files.
-`backend/.env.example` is the full list of parameters; `make docker-up` creates
-`backend/.env` from it, which compose passes to the containers.
+`.env.example` in the repository root is the full list of parameters;
+`make docker-up` creates `.env` from it, which compose passes to the containers.
 
 There is a single ignore file in the repository - the root `.gitignore`.
 `.dockerignore` stays separate: it has a different job, the image build context,
@@ -228,23 +228,6 @@ dictionaries (`frontend/src/shared/i18n/locales/`,
 
 Commit messages are `type: description` in Russian (`feat`, `fix`, `docs`,
 `build`, `chore`, `refactor`, `test`).
-
-### Mass renames and `git blame`
-
-Repository-wide mechanical renames (the module path, symbol renames, a language
-sweep) produce commits that touch hundreds of files without changing behaviour.
-They drown out `git blame`. The hashes of such commits are listed in
-`.git-blame-ignore-revs`, one per line with a comment naming the change.
-
-To make `git blame` skip them locally, configure it once:
-
-```bash
-git config blame.ignoreRevsFile .git-blame-ignore-revs
-```
-
-GitHub applies the file automatically. When you land a mass-rename commit, add its
-hash to `.git-blame-ignore-revs` in a follow-up commit - the hash is not known until
-the rename is committed.
 
 ## Documentation
 

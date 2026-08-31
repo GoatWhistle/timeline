@@ -49,7 +49,7 @@ describe('device list', () => {
     const titles = screen.getAllByRole('listitem').map((item) => item.textContent ?? '')
     expect(titles[0]).toContain('Chrome')
     expect(titles[1]).toContain('Safari')
-    expect(screen.getByText('Это устройство')).toBeInTheDocument()
+    expect(screen.getByText(i18n.t('common:devices.current'))).toBeInTheDocument()
     expect(screen.getByText('2 активные сессии')).toBeInTheDocument()
   })
 
@@ -70,16 +70,20 @@ describe('device list', () => {
     const { queryClient } = renderWithProviders(<DeviceList />)
     queryClient.setQueryData(deviceSessionsQueryKey, listBody([]))
 
-    await waitFor(() => expect(screen.getByText('Других сессий нет')).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByText(i18n.t('common:devices.emptyTitle'))).toBeInTheDocument(),
+    )
   })
 
   it('marks the current session with an icon as well as a colour', async () => {
     const { container, queryClient } = renderWithProviders(<DeviceList />)
     queryClient.setQueryData(deviceSessionsQueryKey, listBody([CURRENT]))
 
-    await waitFor(() => expect(screen.getByText('Это устройство')).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByText(i18n.t('common:devices.current'))).toBeInTheDocument(),
+    )
 
-    const badge = screen.getByText('Это устройство').closest('span')
+    const badge = screen.getByText(i18n.t('common:devices.current')).closest('span')
     expect(badge?.querySelector('svg')).not.toBeNull()
     expect(container.querySelectorAll('svg').length).toBeGreaterThan(1)
   })

@@ -1,17 +1,11 @@
-# The image build context is the monorepo root (deploy/*.Dockerfile).
-# Everything that the build does not need or must not reach the image is
-# excluded.
-
 .git
 .github
 .run
 
-# Local secrets and overrides: the configuration is passed through the environment.
 **/.env
 **/.env.local
 **/.env.*.local
 
-# Build artifacts and caches - the images build them themselves.
 **/node_modules
 **/dist
 **/coverage

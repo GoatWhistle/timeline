@@ -67,8 +67,8 @@ describe('account against profile', () => {
   it('keeps the display name and the links in profile', () => {
     renderSection('profile')
 
-    expect(screen.getByLabelText('Имя')).toBeInTheDocument()
-    expect(screen.queryByLabelText(/Новый email/)).not.toBeInTheDocument()
+    expect(screen.getByLabelText(i18n.t('common:profile.name'))).toBeInTheDocument()
+    expect(screen.queryByLabelText(i18n.t('common:profile.newEmail'))).not.toBeInTheDocument()
     expect(screen.queryByText('member@example.com')).not.toBeInTheDocument()
   })
 
@@ -76,31 +76,39 @@ describe('account against profile', () => {
     renderSection('account')
 
     expect(screen.getByText('member@example.com')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Новый email/)).toBeInTheDocument()
+    expect(screen.getByLabelText(i18n.t('common:profile.newEmail'))).toBeInTheDocument()
   })
 
   it('keeps Telegram linking in account, not in notifications', () => {
     renderSection('account')
-    expect(screen.getByRole('button', { name: 'Привязать' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: i18n.t('common:account.telegramLink') }),
+    ).toBeInTheDocument()
   })
 
   it('leaves notifications with the channel preference only', () => {
     renderSection('notifications')
 
-    expect(screen.queryByRole('button', { name: 'Привязать' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: i18n.t('common:account.telegramLink') }),
+    ).not.toBeInTheDocument()
     expect(screen.queryByText('member@example.com')).not.toBeInTheDocument()
-    expect(screen.getByText('Предпочитаемый канал')).toBeInTheDocument()
+    expect(screen.getByText(i18n.t('notification:card.preferred'))).toBeInTheDocument()
   })
 
   it('does not repeat the display name in account', () => {
     renderSection('account')
-    expect(screen.queryByLabelText('Имя')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(i18n.t('common:profile.name'))).not.toBeInTheDocument()
   })
 
   it('leaves the danger zone with deactivation only', () => {
     renderSection('danger')
 
-    expect(screen.getByRole('button', { name: /Деактивировать/ })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Завершить все сессии/ })).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: i18n.t('common:profile.deactivate') }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: i18n.t('common:profile.logoutAll') }),
+    ).not.toBeInTheDocument()
   })
 })

@@ -1,22 +1,20 @@
-# Development mode: the same stack, but with sources mounted.
-# Layered on top of docker-compose.yml and never used on its own:
-#
-#   make dev
-#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml up -d --build
-#
-# Differences from production mode:
-#   * frontend - the Vite dev server with HMR instead of nginx with a built bundle;
-#   * backend - `go run` over the mounted code: recompilation on
-#     `make dev-restart`, no image rebuild needed.
-#
-# Go caches and the Vite build live in volumes: without them every run would
-# compile dependencies from scratch.
 
 services:
-  migrate:
+  postgres:
+    command:
+      - postgres
+      - -c
+      - "log_line_prefix=\e[2m%m\e[0m \e[2m[%p]\e[0m "
+      - -c
+      - log_timezone=UTC
+
+  migrations:
     build:
       target: dev
     command: ["go", "run", "./cmd/timeline", "migrate", "up"]
+    environment:
+      LOG_FORMAT: ${LOG_FORMAT:-pretty}
+      LOG_COLOR: ${LOG_COLOR:-always}
     volumes:
       - ../backend:/src
       - gomod:/go/pkg/mod
@@ -26,21 +24,26 @@ services:
     build:
       target: dev
     command: ["go", "run", "./cmd/timeline", "admin", "create"]
+    environment:
+      LOG_FORMAT: ${LOG_FORMAT:-pretty}
+      LOG_COLOR: ${LOG_COLOR:-always}
     volumes:
       - ../backend:/src
       - gomod:/go/pkg/mod
       - gocache:/root/.cache/go-build
 
-  api:
+  backend:
     build:
       target: dev
     command: ["go", "run", "./cmd/timeline", "serve"]
+    environment:
+      LOG_FORMAT: ${LOG_FORMAT:-pretty}
+      LOG_COLOR: ${LOG_COLOR:-always}
     volumes:
       - ../backend:/src
       - gomod:/go/pkg/mod
       - gocache:/root/.cache/go-build
     healthcheck:
-      # Compiling at startup takes noticeably longer than launching a binary.
       start_period: 120s
       interval: 5s
       retries: 30
@@ -49,26 +52,26 @@ services:
     build:
       target: dev
     command: ["go", "run", "./cmd/timeline", "worker"]
+    environment:
+      LOG_FORMAT: ${LOG_FORMAT:-pretty}
+      LOG_COLOR: ${LOG_COLOR:-always}
     volumes:
       - ../backend:/src
       - gomod:/go/pkg/mod
       - gocache:/root/.cache/go-build
 
-  web:
+  frontend:
     build:
       target: dev
       args:
-        # The production build argument is unused in the dev stage but must be
-        # declared: otherwise compose passes it to an image without such an ARG.
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
-      # The dev server proxies /api to the API container.
-      VITE_API_PROXY: http://api:8080
-    # !override is required: compose merges lists, and without it a second
-    # mapping to the same host port would be added on top of the production
-    # file's publication (nginx port 8080).
+      VITE_API_PROXY: http://backend:8080
+      LC_ALL: en_GB.UTF-8
+      TZ: UTC
+      FORCE_COLOR: "1"
     ports: !override
       - "${WEB_PORT:-5173}:5173"
     volumes:

@@ -1,25 +1,3 @@
-// Measurement of the frontend production bundle size (task 16 of the
-// refactoring plan). The baseline is needed by the "growth no more than a tenth"
-// rule: without it there is nothing to compare against. The result is written to
-// docs/baselines/bundle-size.json.
-//
-//   node scripts/bundle-size.mjs           compare against the baseline
-//   node scripts/bundle-size.mjs --update  rewrite the baseline
-//
-// Two figures are tracked, because they answer different questions and one
-// cannot stand in for the other:
-//
-//   total    every file in dist. Catches overall bloat, but it does not move
-//            when work only shifts weight out of the initial download: code
-//            splitting and lazy loading leave the sum roughly where it was, or
-//            raise it slightly through per-chunk gzip framing.
-//   initial  what a first-time visitor actually downloads. Locale bundles for
-//            the language the visitor is not using are excluded, since they are
-//            fetched on a language switch and never on load.
-//
-// Reporting only the total would have made lazy loading the dictionaries look
-// like a regression while every visitor started downloading less.
-
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -62,11 +40,6 @@ const localeRoot = join(root, 'frontend', 'src', 'shared', 'i18n', 'locales')
 const locales = readdirSync(localeRoot)
 const initialLocale = 'en'
 
-// Which dist chunk holds which dictionary is not a guess: the lazy loader is an
-// import.meta.glob, and the build emits its map verbatim, keyed by the source
-// path. Parsing that map is exact where heuristics are not. Content sniffing was
-// tried first and was wrong: the main chunk carries the date-fns Russian locale,
-// so "has Cyrillic" swallowed 159 KB of code that every visitor downloads.
 const globEntry = /\.\/locales\/([a-z-]+)\/([a-z0-9-]+)\.json["'`]\s*:\s*\(\)\s*=>[^`]*`\.\/([^`]+)`/g
 
 const dictionaryChunks = new Map()
@@ -94,9 +67,6 @@ if (dictionaryChunks.size !== expected) {
   process.exit(1)
 }
 
-// A chunk is deferred only when no locale the visitor loads on start references
-// it. Two locales can share one chunk when their dictionaries are byte
-// identical, and such a chunk stays in the initial download.
 const initialChunks = new Set(
   [...dictionaryChunks].filter(([key]) => key.startsWith(`${initialLocale}/`)).map(([, v]) => v),
 )
@@ -122,9 +92,6 @@ const report = {
   files,
 }
 
-// The measured report is left in dist so the CI summary can print what this run
-// actually built. Without it the summary read the baseline back and reported it
-// as the measurement, which always agreed with itself.
 writeFileSync(join(dist, reportName), `${JSON.stringify(report, null, 2)}
 `)
 

@@ -1,29 +1,4 @@
 #!/usr/bin/env bash
-# Check for the "code language is English" rule (part III2 of the refactoring
-# plan).
-#
-# Everything except the JSON localisation dictionaries and docs/ is written in
-# English: code, logs, names, error messages, migration texts. Russian lives in
-# exactly one place - the localisation files.
-#
-# The mechanism is a ratchet, not a hard threshold: the backend and the
-# migrations are already clean, but the frontend still holds hard-coded product
-# strings that are moved into dictionaries at stage 3 (task 48). A hard failure
-# would switch the check off on the very first day, so the baseline is recorded
-# in docs/baselines/cyrillic.txt.
-# The check fails if:
-#   a) Cyrillic appeared in a file that is not in the baseline;
-#   b) a file from the baseline gained more Cyrillic.
-# A file from the baseline may only get cleaner; on a decrease the baseline is
-# updated with `make baseline-cyrillic`.
-#
-# Legitimate Cyrillic, kept in the baseline: CLAUDE.md (owner-facing rules),
-# *.down.sql (a rollback must restore the previous state verbatim), tests that
-# assert Russian plural forms or Russian UI labels, and e2e specs that query by
-# visible text. Everything else must be English.
-#
-# Does not apply to generated files (*.gen.*, schema.d.ts, swagger.*) or to
-# backend/docs/: that is an OpenAPI dump, not hand-written code.
 
 set -euo pipefail
 
@@ -32,10 +7,6 @@ BASELINE="$ROOT/docs/baselines/cyrillic.txt"
 
 cd "$ROOT"
 
-# A file that is not in the index yet still has to obey the rule. git
-# ls-files alone lists only tracked paths, so Cyrillic in a brand new file
-# slipped past this check until it was staged. Untracked but not ignored
-# paths are listed too.
 tracked_and_new() {
   {
     git ls-files

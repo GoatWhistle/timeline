@@ -1,23 +1,4 @@
 #!/usr/bin/env bash
-# Check the file-count limit per package (part XI of the refactoring plan).
-#
-# A package that grows without bound stops being a boundary and becomes a
-# folder: internal/services had reached 79 files before it was split. The
-# 250-line limit alone does not catch this, because splitting a large file into
-# small ones inside the same package satisfies that limit while making the
-# package worse.
-#
-# The mechanism is the same ratchet as scripts/check-file-length.sh: the
-# baseline in docs/baselines/package-size.txt records what already exceeds the
-# limit, and the check fails if:
-#   a) a package that is not in the baseline exceeded the limit;
-#   b) a package from the baseline has grown.
-# A package from the baseline may only shrink; on a decrease the baseline is
-# updated with `make baseline-package-size`.
-#
-# Test files are counted separately from sources and against their own limit: a
-# thorough domain legitimately has more test files than sources, and a shared
-# count would push the project towards fewer tests.
 
 set -euo pipefail
 
@@ -28,10 +9,6 @@ BASELINE="$ROOT/docs/baselines/package-size.txt"
 
 cd "$ROOT"
 
-# A file that is not in the index yet still has to obey the limit. `git
-# ls-files` alone lists only tracked paths, so a brand new file slipped past
-# this check until it was staged: the check reported success on a tree that
-# already broke the rule. Untracked but not ignored paths are listed too.
 tracked_and_new() {
   {
     git ls-files "$@"

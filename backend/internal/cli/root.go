@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/GoatWhistle/timeline/internal/config"
+	"github.com/GoatWhistle/timeline/internal/observability/logger"
 )
 
 var Version = "0.8.0-dev"
@@ -63,15 +64,10 @@ func loadConfig() (*config.Config, error) {
 }
 
 func setupLogger(cfg *config.Config) {
-	level := slog.LevelInfo
-	switch cfg.App.LogLevel {
-	case "debug":
-		level = slog.LevelDebug
-	case "warn":
-		level = slog.LevelWarn
-	case "error":
-		level = slog.LevelError
-	}
-	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: level})
-	slog.SetDefault(slog.New(handler).With("service", "event-tracker", "env", cfg.App.Env))
+	base := logger.New(logger.Options{
+		Level:  logger.ParseLevel(cfg.App.LogLevel),
+		Format: cfg.App.LogFormat,
+		Color:  cfg.App.LogColor,
+	})
+	slog.SetDefault(base.With("service", "event-tracker", "env", cfg.App.Env))
 }

@@ -1,7 +1,5 @@
 name: Frontend CI
 
-# Frontend checks and repository-wide ratchets. The line-limit check covers both
-# parts of the monorepo, so the path filter here is wider than in backend.yml.
 on:
   push:
     branches: [main]
@@ -60,8 +58,6 @@ jobs:
         working-directory: frontend
         run: npm run test:coverage
 
-      # The contract tests replaced the MSW ones (part IIIa of the refactoring
-      # plan): they run against a real API raised by compose, not against mocks.
       - name: Contract tests against a real API
         run: make test-contract
 
@@ -79,8 +75,6 @@ jobs:
       - name: Bundle size against the baseline
         run: node scripts/bundle-size.mjs
 
-      # Writes coverage and bundle numbers into the run summary, so a failure
-      # is readable without opening the log.
       - name: Run summary
         if: always()
         run: node scripts/ci-summary.mjs

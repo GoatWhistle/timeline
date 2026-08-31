@@ -1,7 +1,5 @@
 name: Backend CI
 
-# The backend lives in a monorepo subdirectory, so all steps run from backend/
-# and the trigger is limited to changes in it and in the workflow itself.
 on:
   push:
     branches: [main]
@@ -43,7 +41,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          # --new-from-merge-base compares against origin/main: history is needed.
           fetch-depth: 0
 
       - uses: actions/setup-go@v6
@@ -65,14 +62,10 @@ jobs:
       - name: Static analysis
         run: go vet ./...
 
-      # A cycle that runs through a test file is legal for the compiler and
-      # still knots two packages together, so `go build` cannot be the check.
       - name: Import cycles
         working-directory: .
         run: bash scripts/check-import-cycles.sh
 
-      # Ratchet on a PR: an issue blocks the build only if introduced by the
-      # change itself. The existing debt does not break CI, but does not grow.
       - name: golangci-lint (PR changes)
         if: github.event_name == 'pull_request'
         uses: golangci/golangci-lint-action@v9
@@ -81,18 +74,12 @@ jobs:
           working-directory: backend
           args: --new-from-merge-base=origin/main --whole-files
 
-      # On a push to main the merge-base is empty and the previous step would
-      # check nothing. Second layer: the total number of issues against the
-      # baseline from docs/baselines/lint.json. The debt does not grow even on a
-      # direct push.
       - name: Install golangci-lint
         if: github.event_name != 'pull_request'
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
             | sh -s -- -b "$(go env GOPATH)/bin" v2.6.0
 
-      # The script lives at the repository root and walks down to backend/
-      # itself, so it must not inherit the backend working directory.
       - name: golangci-lint against the baseline
         if: github.event_name != 'pull_request'
         working-directory: .
@@ -101,10 +88,6 @@ jobs:
       - name: Unit tests with coverage
         run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
 
-      # The suites that carry the backend - authorization, section 16
-      # transitions and AC-NOTIF-01..19 - sit behind the `integration` tag, so
-      # they need their own profile. Reporting only the untagged number once
-      # made coverage look like 0.7% when it was in fact far higher.
       - name: Integration tests with coverage
         run: >-
           go test -tags=integration -race -count=1
@@ -151,17 +134,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      # ghcr.io rejects a tag with uppercase letters, and the repository is
-      # GoatWhistle/timeline, so the name is lowercased here rather than
-      # spelled out by hand.
       - name: Image name
         id: image
         run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/build-push-action@v6
         with:
-          # The build context is the monorepo root and the Dockerfile lives in
-          # deploy/, exactly as deploy/docker-compose.yml builds it.
           context: .
           file: deploy/backend.Dockerfile
           push: true

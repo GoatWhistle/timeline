@@ -111,14 +111,10 @@ function patchSchema(name, schema) {
   let enums = 0
 
   for (const [prop, value] of Object.entries(props)) {
-    // The contract does not mark up time: without format the client gets a bare string.
     if (isDateTime(prop) && value.type === 'string' && !value.format) {
       value.format = 'date-time'
       dates += 1
     }
-    // swaggo duplicates the enum next to $ref; collapse it into a plain
-    // reference, otherwise openapi-typescript emits an intersection of types
-    // instead of a union.
     if (Array.isArray(value.allOf) && value.allOf.length === 1 && value.allOf[0].$ref) {
       const ref = value.allOf[0].$ref
       const description = value.description
@@ -129,7 +125,6 @@ function patchSchema(name, schema) {
     }
   }
 
-  // Request bodies stay partial: a PATCH by its meaning sends a subset of fields.
   if (name.endsWith('Request') || schema.required) return { required: 0, dates, enums }
 
   const optional = new Set(OPTIONAL[name] ?? [])
@@ -172,9 +167,6 @@ const outputs = []
 const schemaContent = banner + astToString(ast)
 outputs.push([OUT_SCHEMA, schemaContent])
 
-// Aliases without the package prefix: components['schemas']['dto.MeResponse'] -> MeResponse.
-// Both prefixes are accepted because transport types live in models/dto while
-// domain types stay in models, and the client should not care which is which.
 const PREFIXES = ['models.', 'dto.']
 const aliases = Object.keys(schemas)
   .filter((name) => PREFIXES.some((prefix) => name.startsWith(prefix)))
@@ -198,8 +190,6 @@ outputs.push([
 openapi['x-generated-by'] = 'frontend/scripts/generate-api-types.mjs - do not edit by hand'
 outputs.push([OUT_SPEC, `${JSON.stringify(openapi, null, 2)}\n`])
 
-// --check does not write files but compares: this is how CI catches a contract
-// changed by the backend without regenerating the frontend types.
 if (CHECK_ONLY) {
   const stale = outputs
     .filter(([file, content]) => !existsSync(file) || readFileSync(file, 'utf8') !== content)

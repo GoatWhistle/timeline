@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -70,8 +71,8 @@ func createAdmin(ctx context.Context, email, password, name string) error {
 	firstName, lastName := splitAdminName(name)
 
 	if existing, err := c.repos.users.GetByEmail(ctx, email); err == nil {
-		fmt.Printf("user %s already exists (id %s, administrator: %t)\n",
-			existing.Email, existing.ID, existing.IsAdmin)
+		slog.Info("user already exists",
+			"email", existing.Email, "id", existing.DisplayID, "administrator", existing.IsAdmin)
 		return nil
 	} else if !errors.Is(err, models.ErrNotFound) {
 		return err
@@ -94,7 +95,7 @@ func createAdmin(ctx context.Context, email, password, name string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("administrator created: %s (id %s)\n", created.Email, created.ID)
+	slog.Info("administrator created", "email", created.Email, "id", created.DisplayID)
 	return nil
 }
 
