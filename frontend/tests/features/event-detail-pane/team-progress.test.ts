@@ -3,7 +3,7 @@ import {
   progressRatio,
   type StatusCarrier,
   teamProgress,
-} from '@/features/burning/model/team-progress'
+} from '@/features/event-detail-pane/team-progress/team-progress'
 
 function roster(...statuses: StatusCarrier['status'][]): StatusCarrier[] {
   return statuses.map((status) => ({ status }))

@@ -84,12 +84,3 @@ export function DeactivateAccountCard() {
     </>
   )
 }
-
-export function AccountActionsCard() {
-  return (
-    <>
-      <LogoutAllCard />
-      <DeactivateAccountCard />
-    </>
-  )
-}

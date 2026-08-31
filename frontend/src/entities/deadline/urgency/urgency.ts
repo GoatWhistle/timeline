@@ -30,25 +30,6 @@ export function resolveUrgency({ deadlineAt, status, now = new Date() }: Urgency
 
 export const URGENCY_ORDER: Urgency[] = ['overdue', 'today', 'soon', 'calm', 'done', 'waived']
 
-const RANK: Record<Urgency, number> = {
-  overdue: 0,
-  today: 1,
-  soon: 2,
-  calm: 3,
-  done: 4,
-  waived: 5,
-}
-
-export function urgencyRank(urgency: Urgency): number {
-  return RANK[urgency]
-}
-
-const PRESSING: Urgency[] = ['overdue', 'today', 'soon']
-
-export function isPressing(urgency: Urgency): boolean {
-  return PRESSING.includes(urgency)
-}
-
 export const URGENCY_TEXT: Record<Urgency, string> = {
   overdue: 'font-semibold text-urgency-overdue',
   today: 'font-semibold text-urgency-today',
@@ -65,16 +46,4 @@ export const URGENCY_KEY: Record<Urgency, string> = {
   calm: 'event:urgency.calm',
   done: 'event:urgency.done',
   waived: 'event:urgency.waived',
-}
-
-export function remainingDays(deadlineAt: string, now: Date = new Date()): number {
-  const deadline = parseISO(deadlineAt)
-  if (Number.isNaN(deadline.getTime())) return 0
-  return Math.ceil((deadline.getTime() - now.getTime()) / DAY_MS)
-}
-
-export function overdueDays(deadlineAt: string, now: Date = new Date()): number {
-  const deadline = parseISO(deadlineAt)
-  if (Number.isNaN(deadline.getTime())) return 0
-  return Math.max(1, Math.floor((now.getTime() - deadline.getTime()) / DAY_MS))
 }

@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import { api, unwrap } from '@/shared/api/client'
-import { teamProgress } from './model/team-progress'
+import { teamProgress } from './team-progress'
 
 const TEAM_PAGE_SIZE = 200
 const TEAM_STALE_MS = 5 * 60 * 1000

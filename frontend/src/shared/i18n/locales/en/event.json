@@ -28,12 +28,5 @@
     "coverageHint_one": "{{done}} of {{count}} participant marked themselves as registered; {{waived}} waived by an administrator, {{outstanding}} still to mark. The system checks nothing.",
     "coverageHint_other": "{{done}} of {{count}} participants marked themselves as registered; {{waived}} waived by an administrator, {{outstanding}} still to mark. The system checks nothing.",
     "coverageEmptyHint": "No published event requires registration, so there is no share to show."
-  },
-  "overlap": {
-    "label": "Observation:",
-    "events_one": "{{count}} pair of events overlaps in time.",
-    "events_other": "{{count}} pairs of events overlap in time.",
-    "deadlines_one": "{{count}} day carries more than one deadline.",
-    "deadlines_other": "{{count}} days carry more than one deadline."
   }
 }

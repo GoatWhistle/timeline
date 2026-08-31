@@ -30,7 +30,7 @@ export function EmailChangeConfirmPage() {
         </CardHeader>
         <CardContent>
           <Button asChild variant="outline">
-            <Link to="/profile">{t('emailChange.toProfile')}</Link>
+            <Link to="/?settings=account">{t('emailChange.toProfile')}</Link>
           </Button>
         </CardContent>
       </Card>
@@ -62,7 +62,7 @@ export function EmailChangeConfirmPage() {
         )}
 
         <Button asChild variant="outline">
-          <Link to="/profile">{t('emailChange.toProfile')}</Link>
+          <Link to="/?settings=account">{t('emailChange.toProfile')}</Link>
         </Button>
       </CardContent>
     </Card>

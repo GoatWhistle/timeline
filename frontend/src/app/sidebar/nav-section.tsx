@@ -4,11 +4,9 @@ import {
   CalendarRange,
   ClipboardList,
   Compass,
-  Flame,
   LayoutList,
   ScrollText,
   Send,
-  UserCog,
   Users,
 } from 'lucide-react'
 import type * as React from 'react'
@@ -23,11 +21,9 @@ export type NavItem = {
 }
 
 export const USER_NAV: NavItem[] = [
-  { to: '/', labelKey: 'nav.burning', icon: Flame },
-  { to: '/events', labelKey: 'nav.myEvents', icon: LayoutList },
+  { to: '/', labelKey: 'nav.myEvents', icon: LayoutList },
   { to: '/catalog', labelKey: 'nav.catalog', icon: Compass },
   { to: '/schedule', labelKey: 'nav.schedule', icon: CalendarRange },
-  { to: '/profile', labelKey: 'nav.profile', icon: UserCog },
 ]
 
 export const ADMIN_NAV: NavItem[] = [

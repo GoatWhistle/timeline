@@ -99,12 +99,6 @@ func (u *UserSummary) Fill(locale string) {
 	u.DisplayName = models.FormatListName(locale, u.FirstName, u.MiddleName, u.LastName)
 }
 
-func FillUserSummaries(items []UserSummary, locale string) {
-	for index := range items {
-		items[index].Fill(locale)
-	}
-}
-
 type PublicProfileResponse struct {
 	Nickname    string               `json:"nickname" example:"jsmith"`
 	FirstName   string               `json:"first_name" example:"John"`

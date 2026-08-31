@@ -9,11 +9,9 @@
     "expandSidebar": "Expand the sidebar"
   },
   "nav": {
-    "burning": "What is burning",
     "myEvents": "My events",
     "catalog": "Catalog",
     "schedule": "Schedule",
-    "profile": "Profile",
     "adminEvents": "Events",
     "adminSchedule": "Schedule",
     "adminDeadlines": "Deadlines",

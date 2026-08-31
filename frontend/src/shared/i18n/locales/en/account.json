@@ -1,7 +1,5 @@
 {
   "profile": {
-    "title": "Profile",
-    "description": "Personal data and notification settings",
     "personalTitle": "Personal data",
     "name": "Name",
     "saved": "Profile saved",

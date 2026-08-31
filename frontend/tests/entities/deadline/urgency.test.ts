@@ -1,13 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
-  isPressing,
-  overdueDays,
-  remainingDays,
   resolveUrgency,
   URGENCY_KEY,
   URGENCY_ORDER,
   URGENCY_TEXT,
-  urgencyRank,
 } from '@/entities/deadline/urgency/urgency'
 
 const NOW = new Date('2026-03-10T12:00:00Z')
@@ -58,21 +54,6 @@ describe('resolveUrgency', () => {
   })
 })
 
-describe('urgency ordering', () => {
-  it('ranks the pressing levels ahead of the settled ones', () => {
-    const ranks = URGENCY_ORDER.map(urgencyRank)
-    expect(ranks).toEqual([...ranks].sort((a, b) => a - b))
-    expect(urgencyRank('overdue')).toBeLessThan(urgencyRank('today'))
-    expect(urgencyRank('today')).toBeLessThan(urgencyRank('soon'))
-    expect(urgencyRank('soon')).toBeLessThan(urgencyRank('calm'))
-    expect(urgencyRank('done')).toBeLessThan(urgencyRank('waived'))
-  })
-
-  it('treats overdue, today and soon as pressing and the rest as settled', () => {
-    expect(URGENCY_ORDER.filter(isPressing)).toEqual(['overdue', 'today', 'soon'])
-  })
-})
-
 describe('urgency presentation tables', () => {
   it('covers every level with a class and a dictionary key', () => {
     for (const level of URGENCY_ORDER) {
@@ -89,17 +70,5 @@ describe('urgency presentation tables', () => {
   it('paints a waiver with its own neutral token rather than the done green', () => {
     expect(URGENCY_TEXT.waived).toContain('urgency-waived')
     expect(URGENCY_TEXT.waived).not.toContain('urgency-done')
-  })
-})
-
-describe('day arithmetic', () => {
-  it('rounds a remainder up to whole days', () => {
-    expect(remainingDays(at(DAY * 2 + HOUR), NOW)).toBe(3)
-    expect(remainingDays(at(DAY * 2), NOW)).toBe(2)
-  })
-
-  it('never reports an overdue deadline as zero days late', () => {
-    expect(overdueDays(at(-HOUR), NOW)).toBe(1)
-    expect(overdueDays(at(-DAY * 3 - HOUR), NOW)).toBe(3)
   })
 })

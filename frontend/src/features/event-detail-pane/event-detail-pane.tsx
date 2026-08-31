@@ -4,7 +4,6 @@ import { eventCardQuery } from '@/entities/event/event.queries'
 import { StatusWithHint } from '@/entities/registration/status-hint/status-hint'
 import { STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
 import { StageTypeMark } from '@/entities/stage/stage-type-mark/stage-type-mark'
-import { TeamProgressBar } from '@/features/burning/ui/team-progress/team-progress-bar'
 import { useSession } from '@/shared/api/session'
 import { formatDateRange } from '@/shared/datetime/datetime'
 import { ErrorState } from '@/shared/ui/data-display/error-state'
@@ -12,6 +11,7 @@ import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { SkeletonDetail, useLoadingIndicator } from '@/shared/ui/states'
 import { EventDetailView, SectionTitle } from './event-detail-view'
+import { TeamProgressBar } from './team-progress/team-progress-bar'
 
 export function EventDetailPane({ id, onClose }: { id: string; onClose: () => void }) {
   const { t } = useTranslation('event')

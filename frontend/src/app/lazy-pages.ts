@@ -28,9 +28,6 @@ export const EmailChangeConfirmPage = lazy(() =>
   })),
 )
 
-export const BurningPage = lazy(() =>
-  import('@/features/burning/burning-page').then((m) => ({ default: m.BurningPage })),
-)
 export const MyEventsPage = lazy(() =>
   import('@/features/event-list/my/event-list').then((m) => ({ default: m.MyEventsPage })),
 )
@@ -44,9 +41,6 @@ export const EventCardPage = lazy(() =>
 )
 export const MySchedulePage = lazy(() =>
   import('@/features/schedule/my/schedule').then((m) => ({ default: m.MySchedulePage })),
-)
-export const ProfilePage = lazy(() =>
-  import('@/features/profile/profile').then((m) => ({ default: m.ProfilePage })),
 )
 export const SettingsPage = lazy(() =>
   import('@/features/settings/settings').then((m) => ({ default: m.SettingsPage })),

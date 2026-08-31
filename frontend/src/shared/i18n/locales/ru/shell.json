@@ -9,11 +9,9 @@
     "expandSidebar": "Развернуть боковую панель"
   },
   "nav": {
-    "burning": "Что горит",
     "myEvents": "Мои события",
     "catalog": "Каталог",
     "schedule": "Шкала",
-    "profile": "Профиль",
     "adminEvents": "События",
     "adminSchedule": "Шкала",
     "adminDeadlines": "Дедлайны",

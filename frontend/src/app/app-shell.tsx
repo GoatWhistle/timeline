@@ -17,11 +17,9 @@ import { AppSidebar } from './sidebar/app-sidebar'
 import { useProfileLocale } from './use-profile-locale'
 
 const USER_TARGETS: GotoTarget[] = [
-  { id: 'burning', path: '/', key: 'h', titleKey: 'nav.burning' },
-  { id: 'events', path: '/events', key: 'e', titleKey: 'nav.myEvents' },
+  { id: 'events', path: '/', key: 'e', titleKey: 'nav.myEvents' },
   { id: 'catalog', path: '/catalog', key: 'c', titleKey: 'nav.catalog' },
   { id: 'schedule', path: '/schedule', key: 's', titleKey: 'nav.schedule' },
-  { id: 'profile', path: '/profile', key: 'p', titleKey: 'nav.profile' },
 ]
 
 const ADMIN_TARGETS: GotoTarget[] = [

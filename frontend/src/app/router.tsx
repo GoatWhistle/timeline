@@ -14,7 +14,6 @@ import {
   AdminOpsQueuePage,
   AdminSchedulePage,
   AdminUsersPage,
-  BurningPage,
   CatalogPage,
   EmailChangeConfirmPage,
   EventCardPage,
@@ -23,7 +22,6 @@ import {
   LoginPage,
   MyEventsPage,
   MySchedulePage,
-  ProfilePage,
   PublicProfilePage,
   RegisterPage,
   ResetPasswordPage,
@@ -66,7 +64,7 @@ export function AppRouter() {
 
         <Route element={<RequireAuth />}>
           <Route element={<AppShell />}>
-            <Route index element={<BurningPage />} />
+            <Route index element={<MyEventsPage />} />
             <Route path="/events" element={<MyEventsPage />} />
             <Route path="/catalog" element={<CatalogPage />} />
 
@@ -77,7 +75,7 @@ export function AppRouter() {
             <Route element={<ScrollPage />}>
               <Route path="/events/:id" element={<EventCardPage />} />
               <Route path="/schedule" element={<MySchedulePage />} />
-              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile" element={<Navigate to="/?settings=profile" replace />} />
               <Route path="/settings" element={<SettingsPage />} />
 
               <Route element={<RequireAdmin />}>

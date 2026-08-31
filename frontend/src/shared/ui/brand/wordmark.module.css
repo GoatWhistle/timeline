@@ -20,7 +20,7 @@
   transform: scale(0.94);
 }
 
-.link[data-travelling='true'] .mark {
+.link[data-travelling="true"] .mark {
   animation: travel var(--duration-slow) var(--ease-in-out);
 }
 
@@ -47,7 +47,7 @@
     transform: none;
   }
 
-  .link[data-travelling='true'] .mark {
+  .link[data-travelling="true"] .mark {
     animation: none;
   }
 }

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"sort"
 	"strings"
 	"time"
 
@@ -194,15 +193,6 @@ var reservedNicknames = map[string]bool{
 
 func NicknameReserved(nickname string) bool {
 	return reservedNicknames[NormalizeNickname(nickname)]
-}
-
-func ReservedNicknames() []string {
-	out := make([]string, 0, len(reservedNicknames))
-	for name := range reservedNicknames {
-		out = append(out, name)
-	}
-	sort.Strings(out)
-	return out
 }
 
 func NicknameFormatValid(nickname string) bool {

@@ -8,7 +8,6 @@
 1 frontend/src/shared/keyboard/layout-map/layout-map.ts
 2 frontend/tests/entities/user/avatar-identity.test.ts
 3 frontend/tests/features/admin-stats/coverage-metric.test.tsx
-11 frontend/tests/features/burning/urgency-label.test.ts
 2 frontend/tests/features/device-list/device-list.test.tsx
 7 frontend/tests/shared/i18n/i18n.test.ts
 11 frontend/tests/shared/keyboard/layout-map.test.ts
