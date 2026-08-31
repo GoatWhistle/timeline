@@ -39,5 +39,8 @@
   --border: var(--neutral-300);
   --border-strong: var(--neutral-450);
   --input: var(--neutral-450);
+  --scrollbar-thumb: var(--neutral-300);
+  --scrollbar-thumb-hover: var(--neutral-450);
+  --logo: var(--brand-amber-500);
   --ring: var(--brand-blue-500);
 }

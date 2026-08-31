@@ -20,7 +20,9 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 5173,
-      proxy: proxyTarget ? { '/api': { target: proxyTarget, changeOrigin: true } } : undefined,
+      proxy: proxyTarget
+        ? { '/api': { target: proxyTarget, changeOrigin: true, ws: true } }
+        : undefined,
     },
   }
 })

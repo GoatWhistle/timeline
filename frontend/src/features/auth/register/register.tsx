@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router'
 import { z } from 'zod'
 import { useRegister } from '@/entities/session/session.queries'
 import { applyServerErrors } from '@/shared/forms/server-errors'
+import { Wordmark } from '@/shared/ui/brand/wordmark'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
@@ -82,7 +83,10 @@ export function RegisterPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{t('register.title')}</CardTitle>
+        <div className="flex items-center justify-between gap-3">
+          <CardTitle>{t('register.title')}</CardTitle>
+          <Wordmark />
+        </div>
         <CardDescription>{t('register.description')}</CardDescription>
       </CardHeader>
       <CardContent>

@@ -10,6 +10,7 @@ import { SavedViewsNav } from '@/features/saved-views/saved-views-nav'
 import type { MeResponse } from '@/shared/api/types.gen'
 import { useLocale } from '@/shared/i18n/i18n-context'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { Wordmark } from '@/shared/ui/brand/wordmark'
 import type { SidebarState } from '@/shared/ui/layout/sidebar/use-sidebar'
 import { ADMIN_NAV, NavSection, USER_NAV } from './nav-section'
 
@@ -50,7 +51,7 @@ export function AppSidebar({
     >
       <nav aria-label={t('app.mainNav')} className="flex flex-col gap-3">
         <div className="flex items-center gap-2 px-3 py-2">
-          <p className="min-w-0 flex-1 truncate font-semibold text-heading">{t('app.name')}</p>
+          <Wordmark className="min-w-0 flex-1" />
           <button
             type="button"
             onClick={sidebar.toggle}

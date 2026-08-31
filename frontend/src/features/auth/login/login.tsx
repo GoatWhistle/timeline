@@ -5,11 +5,12 @@ import { Link, useLocation, useNavigate } from 'react-router'
 import { z } from 'zod'
 import { useLogin } from '@/entities/session/session.queries'
 import { isApiError } from '@/shared/api/errors'
+import { Wordmark } from '@/shared/ui/brand/wordmark'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { PasswordInput } from '@/shared/ui/forms/password-input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
 const schema = z.object({
@@ -57,8 +58,10 @@ export function LoginPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{t('login.title')}</CardTitle>
-        <CardDescription>{t('common:app.name')}</CardDescription>
+        <div className="flex items-center justify-between gap-3">
+          <CardTitle>{t('login.title')}</CardTitle>
+          <Wordmark />
+        </div>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>

@@ -30,6 +30,6 @@
     "seconds_other": "{{count}} seconds"
   },
   "realtime": {
-    "offline": "No live connection — data refreshes less often"
+    "offline": "No live connection, data refreshes less often"
   }
 }
