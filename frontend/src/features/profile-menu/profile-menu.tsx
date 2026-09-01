@@ -67,8 +67,11 @@ export function ProfileMenu({
           className={cn(
             'z-50 w-[calc(var(--pane-sidebar)-1.5rem)] rounded-control border border-border bg-popover p-1 shadow-lg',
             'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
+            'data-[state=open]:motion-safe:zoom-in-95',
+            'data-[side=top]:motion-safe:slide-in-from-bottom-2 data-[side=bottom]:motion-safe:slide-in-from-top-2',
             'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
             'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
+            'data-[state=closed]:motion-safe:zoom-out-95',
             'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
           )}
         >

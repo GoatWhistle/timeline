@@ -18,7 +18,7 @@ export function MySchedulePage() {
 
   return (
     <div>
-      <PageHeader title={t('schedule.title')} description={t('schedule.myDescription')} />
+      <PageHeader title={t('schedule.title')} />
 
       <QueryBoundary
         isPending={query.isPending}

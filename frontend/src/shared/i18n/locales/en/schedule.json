@@ -2,7 +2,6 @@
   "schedule": {
     "title": "Schedule",
     "adminDescription": "All published events",
-    "myDescription": "Assigned published events",
     "stateAria": "State",
     "allStates": "All states",
     "participantAria": "Participant",

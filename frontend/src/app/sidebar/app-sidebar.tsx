@@ -66,7 +66,12 @@ export function AppSidebar({
           </button>
         </div>
 
-        <NavSection items={inAdmin ? ADMIN_NAV : USER_NAV} />
+        <div
+          key={inAdmin ? 'admin' : 'user'}
+          className="motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-left-2 motion-safe:duration-base motion-safe:ease-out"
+        >
+          <NavSection items={inAdmin ? ADMIN_NAV : USER_NAV} />
+        </div>
       </nav>
 
       <div className="mt-6 flex flex-col gap-6 px-1 pb-2">

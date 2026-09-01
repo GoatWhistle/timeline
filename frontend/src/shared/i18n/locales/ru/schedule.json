@@ -2,7 +2,6 @@
   "schedule": {
     "title": "Шкала",
     "adminDescription": "Все опубликованные события",
-    "myDescription": "Назначенные опубликованные события",
     "stateAria": "Состояние",
     "allStates": "Все состояния",
     "participantAria": "Участник",
