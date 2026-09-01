@@ -4,13 +4,19 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
+import { isAcceptedProfileLink } from '@/features/profile/profile-links-card/links-schema'
+import { ProfileLinkPreview } from '@/features/profile/profile-links-card/profile-link-preview'
 import { applyServerErrors } from '@/shared/forms/server-errors'
+import { cn } from '@/shared/styling/class-names/class-names'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
+import { Textarea } from '@/shared/ui/forms/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
-const profileSchema = z.object({
+const BIO_MAX = 2000
+
+export const profileSchema = z.object({
   first_name: z
     .string()
     .trim()
@@ -22,6 +28,11 @@ const profileSchema = z.object({
     .trim()
     .min(1, 'auth:validation.lastNameMin')
     .max(80, 'auth:validation.nameMax'),
+  avatar_url: z
+    .string()
+    .max(2048, 'validation.linkTooLong')
+    .refine(isAcceptedProfileLink, 'validation.linkScheme'),
+  bio: z.string().max(BIO_MAX, 'validation.bioTooLong'),
 })
 type ProfileValues = z.infer<typeof profileSchema>
 
@@ -30,11 +41,15 @@ export function PersonalDataCard({
   middleName,
   lastName,
   legacyDisplayName,
+  avatarUrl,
+  bio,
 }: {
   firstName: string
   middleName?: string | null
   lastName: string
   legacyDisplayName?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
 }) {
   const { t } = useTranslation()
   const updateProfile = useUpdateProfile()
@@ -44,6 +59,8 @@ export function PersonalDataCard({
       first_name: firstName,
       middle_name: middleName ?? '',
       last_name: lastName,
+      avatar_url: avatarUrl ?? '',
+      bio: bio ?? '',
     },
   })
 
@@ -53,14 +70,23 @@ export function PersonalDataCard({
         first_name: values.first_name,
         middle_name: values.middle_name,
         last_name: values.last_name,
+        avatar_url: values.avatar_url,
+        bio: values.bio,
       })
       toast.success(t('profile.saved'))
     } catch (error) {
-      applyServerErrors(error, profileForm.setError, ['first_name', 'middle_name', 'last_name'])
+      applyServerErrors(error, profileForm.setError, [
+        'first_name',
+        'middle_name',
+        'last_name',
+        'avatar_url',
+        'bio',
+      ])
     }
   }
 
   const errors = profileForm.formState.errors
+  const bioLength = (profileForm.watch('bio') ?? '').length
 
   return (
     <Card>
@@ -80,7 +106,7 @@ export function PersonalDataCard({
           </div>
         ) : null}
         <form
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-3"
           onSubmit={profileForm.handleSubmit(onSaveProfile)}
           noValidate
         >
@@ -120,7 +146,47 @@ export function PersonalDataCard({
               {...profileForm.register('middle_name')}
             />
           </Field>
-          <div>
+          <Field
+            label={t('profile.avatar_url')}
+            htmlFor="avatar_url"
+            error={errors.avatar_url?.message}
+          >
+            <Input
+              id="avatar_url"
+              type="url"
+              inputMode="url"
+              autoComplete="off"
+              placeholder={t('profile.avatar_urlPlaceholder')}
+              aria-invalid={Boolean(errors.avatar_url)}
+              {...profileForm.register('avatar_url')}
+            />
+          </Field>
+          <ProfileLinkPreview href={profileForm.watch('avatar_url')} />
+
+          <Field label={t('profile.bio')} htmlFor="bio" error={errors.bio?.message}>
+            <div className="relative">
+              <Textarea
+                id="bio"
+                rows={4}
+                maxLength={BIO_MAX}
+                aria-invalid={Boolean(errors.bio)}
+                aria-describedby={errors.bio ? 'bio-error' : 'bio-count'}
+                className="pb-7"
+                {...profileForm.register('bio')}
+              />
+              <span
+                id="bio-count"
+                className={cn(
+                  'pointer-events-none absolute right-3 bottom-2 pl-2',
+                  'bg-card text-meta text-muted-foreground',
+                )}
+              >
+                {t('profile.bioCount', { current: bioLength, max: BIO_MAX })}
+              </span>
+            </div>
+          </Field>
+
+          <div className="flex justify-end">
             <Button type="submit" disabled={profileForm.formState.isSubmitting}>
               {t('action.save')}
             </Button>

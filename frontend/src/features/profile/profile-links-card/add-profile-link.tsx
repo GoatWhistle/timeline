@@ -77,7 +77,7 @@ export function AddProfileLink({ disabled }: { disabled: boolean }) {
         />
       </Field>
 
-      <div>
+      <div className="flex flex-col items-end">
         <Button type="submit" disabled={disabled || form.formState.isSubmitting}>
           {t('profile.links.add')}
         </Button>

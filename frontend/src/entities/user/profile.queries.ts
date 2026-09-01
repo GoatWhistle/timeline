@@ -5,6 +5,7 @@ import type {
   MeResponse,
   ProfileLink,
   TelegramLinkResponse,
+  UpdateProfileLinkRequest,
   UpdateProfileRequest,
 } from '@/shared/api/types.gen'
 
@@ -72,6 +73,12 @@ function useProfileLinksMutation<TVariables>(run: (variables: TVariables) => Pro
 export function useCreateProfileLink() {
   return useProfileLinksMutation<CreateProfileLinkRequest>((body) =>
     unwrap(api.POST('/me/profile-links', { body })),
+  )
+}
+
+export function useUpdateProfileLink() {
+  return useProfileLinksMutation<{ id: string; body: UpdateProfileLinkRequest }>(({ id, body }) =>
+    unwrap(api.PATCH('/me/profile-links/{id}', { params: { path: { id } }, body })),
   )
 }
 

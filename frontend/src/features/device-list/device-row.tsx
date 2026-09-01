@@ -46,10 +46,12 @@ export function DeviceRow({
           ) : null}
         </div>
 
+        {session.last_used_at ? (
+          <p className="mt-0.5 text-meta text-muted-foreground">
+            {t('devices.lastUsed', { when: formatRelative(session.last_used_at) })}
+          </p>
+        ) : null}
         <p className="mt-0.5 text-meta text-muted-foreground">
-          {t('devices.lastUsed', { when: formatRelative(session.last_used_at) })}
-        </p>
-        <p className="text-meta text-muted-foreground">
           {t('devices.createdAt', { when: formatDateTime(session.created_at) })}
           {session.ip ? ` · ${t('devices.address', { ip: session.ip })}` : ''}
         </p>

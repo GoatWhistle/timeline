@@ -14,28 +14,48 @@ export function LogoutAllCard() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const logoutAll = useLogoutAllSessions()
+  const [logoutAllOpen, setLogoutAllOpen] = useState(false)
+
+  async function onLogoutAll() {
+    try {
+      await logoutAll.mutateAsync()
+    } catch {
+      toast.error(t('profile.logoutAllFailed'))
+    }
+    resetCsrfToken()
+    queryClient.clear()
+    navigate('/login', { replace: true })
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('profile.logoutAllTitle')}</CardTitle>
-        <CardDescription>{t('profile.sessionsHint')}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Button
-          variant="outline"
-          disabled={logoutAll.isPending}
-          onClick={async () => {
-            await logoutAll.mutateAsync().catch(() => toast.error(t('profile.logoutAllFailed')))
-            resetCsrfToken()
-            queryClient.clear()
-            navigate('/login', { replace: true })
-          }}
-        >
-          {t('profile.logoutAll')}
-        </Button>
-      </CardContent>
-    </Card>
+    <>
+      <Card className="border-destructive/40">
+        <CardHeader>
+          <CardTitle>{t('profile.logoutAllTitle')}</CardTitle>
+          <CardDescription>{t('profile.sessionsHint')}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-end">
+          <Button
+            variant="destructive"
+            disabled={logoutAll.isPending}
+            onClick={() => setLogoutAllOpen(true)}
+          >
+            {t('profile.logoutAll')}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <ConfirmDialog
+        open={logoutAllOpen}
+        onOpenChange={setLogoutAllOpen}
+        title={t('profile.confirmLogoutAllTitle')}
+        description={t('profile.confirmLogoutAllHint')}
+        confirmLabel={t('profile.logoutAll')}
+        destructive
+        disabled={logoutAll.isPending}
+        onConfirm={onLogoutAll}
+      />
+    </>
   )
 }
 
@@ -64,7 +84,7 @@ export function DeactivateAccountCard() {
           <CardTitle>{t('profile.deactivateTitle')}</CardTitle>
           <CardDescription>{t('profile.deactivateHint')}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex justify-end">
           <Button variant="destructive" onClick={() => setDeactivateOpen(true)}>
             {t('profile.deactivate')}
           </Button>

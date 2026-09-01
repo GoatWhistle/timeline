@@ -9,6 +9,7 @@ type FieldProps = {
   htmlFor: string
   error?: string | undefined
   hint?: string | undefined
+  hideLabel?: boolean
   children: React.ReactNode
   className?: string
 }
@@ -28,7 +29,7 @@ function describe(
   })
 }
 
-export function Field({ label, htmlFor, error, hint, children, className }: FieldProps) {
+export function Field({ label, htmlFor, error, hint, hideLabel, children, className }: FieldProps) {
   const { t } = useTranslation()
   const errorId = `${htmlFor}-error`
   const hintId = `${htmlFor}-hint`
@@ -37,7 +38,9 @@ export function Field({ label, htmlFor, error, hint, children, className }: Fiel
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <Label htmlFor={htmlFor}>{label}</Label>
+      <Label htmlFor={htmlFor} className={hideLabel ? 'sr-only' : undefined}>
+        {label}
+      </Label>
       {describe(children, describedBy, message !== undefined && message !== '')}
       {hint && !message && (
         <p id={hintId} className="text-caption text-muted-foreground">

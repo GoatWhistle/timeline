@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, GripVertical, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, GripVertical, Pencil, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ProfileLink } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -14,6 +14,7 @@ export type ProfileLinkRowProps = {
   isDragged: boolean
   onMoveUp: () => void
   onMoveDown: () => void
+  onEdit: () => void
   onRemove: () => void
   onDragStart: () => void
   onDragEnter: () => void
@@ -27,6 +28,7 @@ export function ProfileLinkRow({
   isDragged,
   onMoveUp,
   onMoveDown,
+  onEdit,
   onRemove,
   onDragStart,
   onDragEnter,
@@ -84,6 +86,15 @@ export function ProfileLinkRow({
         aria-label={t('profile.links.moveDown', { name })}
       >
         <ChevronDown className="size-4" aria-hidden="true" />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={onEdit}
+        aria-label={t('profile.links.edit', { name })}
+      >
+        <Pencil className="size-4" aria-hidden="true" />
       </Button>
       <Button
         type="button"

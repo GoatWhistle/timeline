@@ -24,6 +24,14 @@ export function TelegramLinkCard({ user }: { user: MeResponse }) {
     }
   }
 
+  async function onUnlink() {
+    try {
+      await unlinkTelegram.mutateAsync()
+    } catch {
+      toast.error(t('account.telegramUnlinkFailed'))
+    }
+  }
+
   const linked = user.telegram_linked
 
   return (
@@ -49,11 +57,7 @@ export function TelegramLinkCard({ user }: { user: MeResponse }) {
           </div>
 
           {linked ? (
-            <Button
-              variant="outline"
-              onClick={() => unlinkTelegram.mutate()}
-              disabled={unlinkTelegram.isPending}
-            >
+            <Button variant="outline" onClick={onUnlink} disabled={unlinkTelegram.isPending}>
               {t('account.telegramUnlink')}
             </Button>
           ) : (

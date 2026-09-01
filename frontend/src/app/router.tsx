@@ -45,7 +45,7 @@ export function AppRouter() {
     <BrowserRouter>
       <UnauthenticatedRedirect />
       <Routes>
-        <Route path="/@:nickname" element={<PublicProfilePage />} />
+        <Route path="/:handle" element={<PublicProfilePage />} />
 
         <Route element={<AnonymousOnly />}>
           <Route element={<AuthLayout />}>

@@ -50,7 +50,7 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
           </p>
         )}
         <form
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-3"
           onSubmit={emailForm.handleSubmit(onChangeEmail)}
           noValidate
         >
@@ -83,7 +83,7 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
               {emailForm.formState.errors.root.message}
             </p>
           )}
-          <div>
+          <div className="flex justify-end">
             <Button type="submit" disabled={emailForm.formState.isSubmitting}>
               {t('profile.sendConfirmation')}
             </Button>

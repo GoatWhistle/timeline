@@ -2,29 +2,16 @@ import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
 import {
+  PersonalDataCard,
+  profileSchema,
+} from '@/features/profile/personal-data-card/personal-data-card'
+import {
   isAcceptedProfileLink,
-  linksSchema,
   newLinkSchema,
 } from '@/features/profile/profile-links-card/links-schema'
 import { ProfileLinkPreview } from '@/features/profile/profile-links-card/profile-link-preview'
-import { ProfileLinksCard } from '@/features/profile/profile-links-card/profile-links-card'
-import type { MeResponse } from '@/shared/api/types.gen'
 import { i18n } from '@/shared/i18n/config'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
-
-const BLANK_USER = {
-  id: '5f0d2b7a-0000-4000-8000-000000000001',
-  display_name: 'Ivan Petrov',
-  email: 'ivan@example.org',
-  email_verified: true,
-  telegram_linked: false,
-  locale: 'ru',
-  timezone: 'Europe/Moscow',
-  is_admin: false,
-  is_active: true,
-  created_at: '2026-01-01T00:00:00Z',
-  updated_at: '2026-01-01T00:00:00Z',
-} as MeResponse
 
 function renderPreview(href: string) {
   return renderWithProviders(
@@ -68,14 +55,17 @@ describe('profile link acceptance', () => {
   })
 })
 
-describe('profile links schema', () => {
+describe('profile schema', () => {
+  const NAMES = { first_name: 'Ivan', middle_name: '', last_name: 'Petrov' }
+
   it('rejects an executable address in the avatar field', () => {
-    const result = linksSchema.safeParse({ avatar_url: 'javascript:alert(1)', bio: '' })
+    const result = profileSchema.safeParse({ ...NAMES, avatar_url: 'javascript:alert(1)', bio: '' })
     expect(result.success).toBe(false)
   })
 
   it('accepts a filled-in profile', () => {
-    const result = linksSchema.safeParse({
+    const result = profileSchema.safeParse({
+      ...NAMES,
       avatar_url: 'https://example.org/a.png',
       bio: 'Backend developer',
     })
@@ -83,9 +73,9 @@ describe('profile links schema', () => {
   })
 
   it('bounds the bio at 2000 characters, matching the database constraint', () => {
-    const base = { avatar_url: '' }
-    expect(linksSchema.safeParse({ ...base, bio: 'a'.repeat(2000) }).success).toBe(true)
-    expect(linksSchema.safeParse({ ...base, bio: 'a'.repeat(2001) }).success).toBe(false)
+    const base = { ...NAMES, avatar_url: '' }
+    expect(profileSchema.safeParse({ ...base, bio: 'a'.repeat(2000) }).success).toBe(true)
+    expect(profileSchema.safeParse({ ...base, bio: 'a'.repeat(2001) }).success).toBe(false)
   })
 })
 
@@ -152,10 +142,21 @@ describe('profile link preview', () => {
   })
 })
 
-describe('bio handling in the card', () => {
+describe('bio and avatar handling in the personal data card', () => {
+  function renderCard(props: { bio?: string; avatarUrl?: string }) {
+    return renderWithProviders(
+      <PersonalDataCard
+        firstName="Ivan"
+        lastName="Petrov"
+        bio={props.bio}
+        avatarUrl={props.avatarUrl}
+      />,
+    )
+  }
+
   it('shows a bio containing markup as literal text in the editor', async () => {
     const bio = '<script>alert(1)</script> & "quotes"'
-    renderWithProviders(<ProfileLinksCard user={{ ...BLANK_USER, bio }} />)
+    renderCard({ bio })
 
     const field = await screen.findByLabelText(i18n.t('profile.bio'))
     expect((field as HTMLTextAreaElement).value).toBe(bio)
@@ -163,23 +164,17 @@ describe('bio handling in the card', () => {
   })
 
   it('offers no link preview for a bio, so its text can never become an anchor', () => {
-    renderWithProviders(
-      <ProfileLinksCard user={{ ...BLANK_USER, bio: 'see https://evil.example.org' }} />,
-    )
+    renderCard({ bio: 'see https://evil.example.org' })
     expect(screen.queryByRole('link')).toBeNull()
   })
 
   it('previews an avatar address the user has already saved', async () => {
-    renderWithProviders(
-      <ProfileLinksCard user={{ ...BLANK_USER, avatar_url: 'https://example.org/a.png' }} />,
-    )
+    renderCard({ avatarUrl: 'https://example.org/a.png' })
     expect(await screen.findByText('example.org')).toBeInTheDocument()
   })
 
   it('shows no preview for a saved address the browser cannot open', () => {
-    renderWithProviders(
-      <ProfileLinksCard user={{ ...BLANK_USER, avatar_url: 'javascript:alert(1)' }} />,
-    )
+    renderCard({ avatarUrl: 'javascript:alert(1)' })
     expect(screen.queryByRole('link')).toBeNull()
   })
 })

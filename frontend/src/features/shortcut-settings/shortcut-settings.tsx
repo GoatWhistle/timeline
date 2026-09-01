@@ -1,4 +1,3 @@
-import { Info } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -123,11 +122,6 @@ export function ShortcutSettings() {
           )}
         </CardContent>
       </Card>
-
-      <p className="flex items-start gap-2 text-meta text-muted-foreground">
-        <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        <span>{t('shortcuts.remapNote')}</span>
-      </p>
     </div>
   )
 }

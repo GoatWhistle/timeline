@@ -118,9 +118,11 @@ export function SettingsPanel({ section, user }: { section: SettingsSectionId; u
         middleName={user.middle_name}
         lastName={user.last_name ?? ''}
         legacyDisplayName={user.legacy_display_name}
+        avatarUrl={user.avatar_url}
+        bio={user.bio}
       />
       <NicknameCard nickname={user.nickname} profilePublic={user.profile_public} />
-      <ProfileLinksCard user={user} />
+      <ProfileLinksCard />
     </div>
   )
 }
