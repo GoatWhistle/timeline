@@ -37,14 +37,6 @@
     "empty": "Nothing found",
     "goto": "Go to"
   },
-  "views": {
-    "legend": "Views",
-    "all": "All",
-    "upcoming": "Upcoming",
-    "active": "Active",
-    "deadlines": "Nearest deadlines",
-    "archived": "Archived"
-  },
   "theme": {
     "legend": "Appearance",
     "light": "Light theme",

@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next'
 import type { CatalogParams } from '@/entities/catalog/catalog.queries'
 import { catalogQuery } from '@/entities/catalog/catalog.queries'
 import {
+  type CatalogFormatFilter,
   type CatalogKindFilter,
   type CatalogScope,
+  type CatalogStateFilter,
   resolveLayout,
 } from '@/entities/catalog/catalog.views'
 import { CatalogCard } from '@/entities/catalog/catalog-card'
@@ -80,10 +82,14 @@ export function CatalogPage() {
           search={filters.search}
           scope={filters.origin as CatalogScope}
           kind={filters.kind as CatalogKindFilter}
+          state={filters.state as CatalogStateFilter}
+          format={filters.format as CatalogFormatFilter}
           layout={layout}
           onSearch={(value) => setFilters({ search: value })}
           onScope={(value) => setFilters({ origin: value })}
           onKind={(value) => setFilters({ kind: value })}
+          onState={(value) => setFilters({ state: value })}
+          onFormat={(value) => setFilters({ format: value })}
           onLayout={(value) => setFilters({ layout: value }, { resetPage: false })}
         />
 

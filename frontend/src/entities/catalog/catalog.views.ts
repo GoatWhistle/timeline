@@ -1,5 +1,3 @@
-import type { SavedView } from '@/shared/navigation/saved-view'
-
 export const CATALOG_SCOPES = ['', 'RU', 'WORLD'] as const
 export type CatalogScope = (typeof CATALOG_SCOPES)[number]
 
@@ -18,23 +16,29 @@ export const CATALOG_KIND_KEY: Record<CatalogKindFilter, string> = {
   MEETUP: 'catalog.kind.meetups',
 }
 
+export const CATALOG_STATES = ['', 'UPCOMING', 'ACTIVE', 'FINISHED'] as const
+export type CatalogStateFilter = (typeof CATALOG_STATES)[number]
+
+export const CATALOG_STATE_KEY: Record<CatalogStateFilter, string> = {
+  '': 'catalog.state.all',
+  UPCOMING: 'catalog.state.upcoming',
+  ACTIVE: 'catalog.state.active',
+  FINISHED: 'catalog.state.finished',
+}
+
+export const CATALOG_FORMATS = ['', 'OFFLINE', 'ONLINE', 'HYBRID'] as const
+export type CatalogFormatFilter = (typeof CATALOG_FORMATS)[number]
+
+export const CATALOG_FORMAT_KEY: Record<CatalogFormatFilter, string> = {
+  '': 'catalog.format.all',
+  OFFLINE: 'catalog.format.offline',
+  ONLINE: 'catalog.format.online',
+  HYBRID: 'catalog.format.hybrid',
+}
+
 export const CATALOG_LAYOUTS = ['list', 'grid'] as const
 export type CatalogLayout = (typeof CATALOG_LAYOUTS)[number]
 
 export function resolveLayout(value: string): CatalogLayout {
   return value === 'grid' ? 'grid' : 'list'
 }
-
-export const CATALOG_VIEW_KEYS = ['state', 'format', 'kind'] as const
-
-export const CATALOG_VIEWS: SavedView[] = [
-  { id: 'catalog-all', titleKey: 'event:catalog.views.all', params: {} },
-  {
-    id: 'catalog-upcoming',
-    titleKey: 'event:catalog.views.upcoming',
-    params: { state: 'UPCOMING' },
-  },
-  { id: 'catalog-active', titleKey: 'event:catalog.views.active', params: { state: 'ACTIVE' } },
-  { id: 'catalog-offline', titleKey: 'event:catalog.views.offline', params: { format: 'OFFLINE' } },
-  { id: 'catalog-meetups', titleKey: 'event:catalog.views.meetups', params: { kind: 'MEETUP' } },
-]

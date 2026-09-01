@@ -1,13 +1,19 @@
 import { useTranslation } from 'react-i18next'
 import {
+  CATALOG_FORMAT_KEY,
+  CATALOG_FORMATS,
   CATALOG_KIND_KEY,
   CATALOG_KINDS,
   CATALOG_LAYOUTS,
   CATALOG_SCOPE_KEY,
   CATALOG_SCOPES,
+  CATALOG_STATE_KEY,
+  CATALOG_STATES,
+  type CatalogFormatFilter,
   type CatalogKindFilter,
   type CatalogLayout,
   type CatalogScope,
+  type CatalogStateFilter,
 } from '@/entities/catalog/catalog.views'
 import { Input } from '@/shared/ui/forms/input'
 import { Segmented } from '@/shared/ui/navigation/segmented'
@@ -16,19 +22,27 @@ export function CatalogToolbar({
   search,
   scope,
   kind,
+  state,
+  format,
   layout,
   onSearch,
   onScope,
   onKind,
+  onState,
+  onFormat,
   onLayout,
 }: {
   search: string
   scope: CatalogScope
   kind: CatalogKindFilter
+  state: CatalogStateFilter
+  format: CatalogFormatFilter
   layout: CatalogLayout
   onSearch: (value: string) => void
   onScope: (value: CatalogScope) => void
   onKind: (value: CatalogKindFilter) => void
+  onState: (value: CatalogStateFilter) => void
+  onFormat: (value: CatalogFormatFilter) => void
   onLayout: (value: CatalogLayout) => void
 }) {
   const { t } = useTranslation('event')
@@ -57,6 +71,20 @@ export function CatalogToolbar({
         value={kind}
         onChange={onKind}
         options={CATALOG_KINDS.map((value) => ({ value, label: t(CATALOG_KIND_KEY[value]) }))}
+      />
+
+      <Segmented
+        label={t('catalog.stateAria')}
+        value={state}
+        onChange={onState}
+        options={CATALOG_STATES.map((value) => ({ value, label: t(CATALOG_STATE_KEY[value]) }))}
+      />
+
+      <Segmented
+        label={t('catalog.formatAria')}
+        value={format}
+        onChange={onFormat}
+        options={CATALOG_FORMATS.map((value) => ({ value, label: t(CATALOG_FORMAT_KEY[value]) }))}
       />
 
       <Segmented

@@ -1,12 +1,9 @@
 import { PanelLeft, Shield, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
-import { CATALOG_VIEW_KEYS, CATALOG_VIEWS } from '@/entities/catalog/catalog.views'
 import { listName } from '@/entities/user/person-name/person-name'
 import { EventFeedBell } from '@/features/event-feed-bell/event-feed-bell'
 import { ProfileMenu } from '@/features/profile-menu/profile-menu'
-import { EVENT_VIEWS } from '@/features/saved-views/saved-views'
-import { SavedViewsNav } from '@/features/saved-views/saved-views-nav'
 import type { MeResponse } from '@/shared/api/types.gen'
 import { useLocale } from '@/shared/i18n/i18n-context'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -35,9 +32,6 @@ export function AppSidebar({
     : ''
 
   const inAdmin = location.pathname.startsWith('/admin')
-  const onCatalog = location.pathname === '/catalog'
-  const listPath = location.pathname.startsWith('/admin/events') ? '/admin/events' : '/events'
-  const showViews = location.pathname === '/events' || location.pathname === '/admin/events'
 
   return (
     <aside
@@ -70,10 +64,6 @@ export function AppSidebar({
         </div>
 
         <NavSection items={inAdmin ? ADMIN_NAV : USER_NAV} />
-        {showViews && <SavedViewsNav views={EVENT_VIEWS} basePath={listPath} />}
-        {onCatalog && (
-          <SavedViewsNav views={CATALOG_VIEWS} basePath="/catalog" keys={CATALOG_VIEW_KEYS} />
-        )}
       </nav>
 
       <div className="mt-6 flex flex-col gap-6 px-1 pb-2">

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { myEventsQuery } from '@/entities/event/event.queries'
 import { EventRow } from '@/entities/event/event-row/event-row'
 import { EventDetailPane } from '@/features/event-detail-pane/event-detail-pane'
@@ -10,17 +11,33 @@ import { Checkbox } from '@/shared/ui/forms/checkbox'
 import { Label } from '@/shared/ui/forms/label'
 import { DetailPane, ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
+import { Segmented } from '@/shared/ui/navigation/segmented'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
 
-const DEFAULTS = { archived: '', selected: '' }
+const MY_STATES = ['', 'UPCOMING', 'ACTIVE', 'FINISHED'] as const
+
+type MyState = (typeof MY_STATES)[number]
+
+function asState(value: string): MyState {
+  return MY_STATES.includes(value as MyState) ? (value as MyState) : ''
+}
+
+const DEFAULTS = { archived: '', state: '', selected: '' }
 
 export function MyEventsPage() {
   const { t } = useTranslation('event')
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const [page, setPage] = usePageParam()
   const includeArchived = filters.archived === '1'
+  const state = asState(filters.state)
 
-  const query = useQuery(myEventsQuery({ include_archived: includeArchived, page }))
+  const query = useQuery(
+    myEventsQuery({
+      include_archived: includeArchived,
+      ...(state === '' ? {} : { state }),
+      page,
+    }),
+  )
   const items = query.data?.items ?? []
   const selected = filters.selected || null
 
@@ -37,6 +54,16 @@ export function MyEventsPage() {
       <ListPane>
         <header className="flex items-center gap-3 border-border border-b px-4 py-3">
           <h1 className="font-semibold text-screen tracking-tight">{t('list.myTitle')}</h1>
+          <Segmented
+            label={t('list.stateAria')}
+            value={state}
+            onChange={(value) => setFilters({ state: value || undefined })}
+            options={MY_STATES.map((value) => ({
+              value,
+              label: value === '' ? t('list.allStates') : t(EVENT_STATE_KEY[value]),
+            }))}
+          />
+
           <div className="ml-auto flex items-center gap-2">
             <Checkbox
               id="include-archived"
