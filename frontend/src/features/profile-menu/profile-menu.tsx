@@ -65,7 +65,7 @@ export function ProfileMenu({
           align="start"
           sideOffset={6}
           className={cn(
-            'z-50 w-[var(--radix-dropdown-menu-trigger-width)] rounded-control border border-border bg-popover p-1 shadow-lg',
+            'z-50 w-[calc(var(--pane-sidebar)-1.5rem)] rounded-control border border-border bg-popover p-1 shadow-lg',
             'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
             'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
             'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
