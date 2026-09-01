@@ -81,6 +81,7 @@ var (
 	DisplayKindTeam               = DisplayKind{Prefix: "tm", Entity: "team"}
 	DisplayKindTeamMember         = DisplayKind{Prefix: "tb", Entity: "team member"}
 	DisplayKindTeamEventEntry     = DisplayKind{Prefix: "te", Entity: "team event entry"}
+	DisplayKindTeamJoinLink       = DisplayKind{Prefix: "tj", Entity: "team join link"}
 )
 
 const (

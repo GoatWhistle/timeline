@@ -850,6 +850,12 @@ definitions:
     type: object
   dto.InviteTeamMemberRequest:
     properties:
+      email:
+        example: ivan@example.com
+        type: string
+      nickname:
+        example: jsmith
+        type: string
       user_id:
         example: us_42ej2s5gh7e8
         type: string
@@ -1840,6 +1846,31 @@ definitions:
         example: 3
         type: integer
     type: object
+  dto.TeamJoinLinkResponse:
+    properties:
+      active:
+        example: true
+        type: boolean
+      expires_at:
+        type: string
+      id:
+        example: tj_42ej2s5gh7e8
+        type: string
+    type: object
+  dto.TeamJoinLinkSecretResponse:
+    properties:
+      expires_at:
+        type: string
+      id:
+        example: tj_42ej2s5gh7e8
+        type: string
+      token:
+        example: h9Qx1s3vT7c...
+        type: string
+      url:
+        example: https://timeline.example/teams/join/h9Qx1s3vT7c
+        type: string
+    type: object
   dto.TeamListResponse:
     properties:
       items:
@@ -2366,6 +2397,8 @@ definitions:
     - TEAM_EVENT_ENTER
     - TEAM_ROSTER_ADD
     - TEAM_ROSTER_REMOVE
+    - TEAM_LINK_ISSUE
+    - TEAM_LINK_REVOKE
     - REGISTRATION_CHANGE
     - STATUS_CHANGE
     - RULE_CHANGE
@@ -2404,6 +2437,8 @@ definitions:
     - AuditTeamEventEnter
     - AuditTeamRosterAdd
     - AuditTeamRosterRemove
+    - AuditTeamLinkIssue
+    - AuditTeamLinkRevoke
     - AuditRegistrationChange
     - AuditStatusChange
     - AuditRuleChange
@@ -2462,6 +2497,7 @@ definitions:
     - TEAM
     - TEAM_MEMBER
     - TEAM_EVENT_ENTRY
+    - TEAM_JOIN_LINK
     - REGISTRATION
     - REGISTRATION_STATUS
     - NOTIFICATION_RULE
@@ -2477,6 +2513,7 @@ definitions:
     - EntityTeam
     - EntityTeamMember
     - EntityTeamEventEntry
+    - EntityTeamJoinLink
     - EntityRegistration
     - EntityRegistrationStatus
     - EntityNotificationRule
@@ -7768,6 +7805,42 @@ paths:
       summary: Realtime channel
       tags:
       - realtime
+  /team-join/{token}:
+    post:
+      description: |-
+        Any signed-in account that holds the token joins the team as an active member. A
+        revoked, expired or unknown token answers 404 with the same body, so the address
+        discloses nothing about the team behind it.
+      parameters:
+      - description: Join token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamDetailResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Join a team through its link
+      tags:
+      - teams
   /teams:
     get:
       description: |-
@@ -8181,8 +8254,11 @@ paths:
       consumes:
       - application/json
       description: |-
-        Restricted to the team lead. The invitation lands in the INVITED state and the
-        invited user accepts it themselves.
+        Restricted to the team lead. The person is named by exactly one of `user_id`, `nickname`
+        and `email`, and must already have an account: a platform invitation to somebody who is
+        not registered yet is an administrator operation, so an address nobody uses answers 404
+        with the same body an unknown nickname gets. The invitation lands in the INVITED state
+        and the invited person accepts it themselves.
       parameters:
       - description: Team identifier
         example: tm_42ej2s5gh7e8
@@ -8190,7 +8266,7 @@ paths:
         name: id
         required: true
         type: string
-      - description: User to invite
+      - description: Person to invite, named one way
         in: body
         name: request
         required: true
@@ -8222,6 +8298,113 @@ paths:
       security:
       - CookieAuth: []
       summary: Invite a user into the team
+      tags:
+      - teams
+  /teams/{id}/join-link:
+    delete:
+      description: |-
+        Restricted to the team lead. The address stops working at once and the team is left
+        without a link until the lead issues a new one.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Revoke the join link
+      tags:
+      - teams
+    get:
+      description: |-
+        Restricted to the team lead. It reports whether a link is active and when it expires;
+        the token itself is issued once, at rotation, and is never returned again or written
+        to the log.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamJoinLinkResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: The team's join link
+      tags:
+      - teams
+    post:
+      description: |-
+        Restricted to the team lead. A team holds at most one usable link: rotating revokes
+        the previous one, so a leaked address stops working the moment a new one is issued.
+        The token is returned exactly once in this response and only its hash is stored.
+        Anyone signed in who opens the link joins the team as an active member immediately.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.TeamJoinLinkSecretResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Issue or rotate the join link
       tags:
       - teams
   /teams/{id}/members/{user_id}:

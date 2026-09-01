@@ -54,7 +54,7 @@ describe('the nickname field reads as the public profile address', () => {
 describe('each broken rule is named on its own', () => {
   it('picks the character rule only when a character is not permitted', () => {
     expect(nicknameProblem('ivan petrov')).toBe('auth:validation.nicknameChars')
-    expect(nicknameProblem('иван')).toBe('auth:validation.nicknameChars')
+    expect(nicknameProblem('\u0438\u0432\u0430\u043d')).toBe('auth:validation.nicknameChars')
     expect(nicknameProblem('ivan!')).toBe('auth:validation.nicknameChars')
   })
 

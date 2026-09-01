@@ -104,6 +104,7 @@ func NewStack(t *testing.T) *Stack {
 	teamMembersRepo := team.NewMembers(db)
 	teamEntriesRepo := team.NewEntries(db)
 	teamRostersRepo := team.NewRosters(db)
+	teamLinksRepo := team.NewJoinLinks(db)
 
 	hasher := crypto.NewPasswordHasher(cfg.Argon)
 	issuer := crypto.NewTokenIssuer(cfg.Auth)
@@ -161,8 +162,8 @@ func NewStack(t *testing.T) *Stack {
 		CalendarFeeds: svcauth.NewCalendarFeedService(db, calendarRepo, users,
 			queries, auditSvc, cfg.App.PublicURL),
 		Notifications: notifier,
-		Teams: svcteam.NewTeamService(db, teamsRepo, teamMembersRepo, teamEntriesRepo, teamRostersRepo,
-			events, participants, registrations, statuses, users, notifier, auditSvc),
+		Teams: svcteam.NewTeamService(db, teamsRepo, teamMembersRepo, teamEntriesRepo, teamRostersRepo, teamLinksRepo,
+			events, participants, registrations, statuses, users, notifier, auditSvc, cfg),
 		Realtime: hub,
 		Sessions: auth,
 

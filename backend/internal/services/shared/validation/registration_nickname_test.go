@@ -37,7 +37,7 @@ func TestRegistrationNicknameRefusesTheSameShapesTheClientRefuses(t *testing.T) 
 		{"a space", "ivan petrov"},
 		{"a dot", "ivan.petrov"},
 		{"an at sign", "ivan@petrov"},
-		{"non-latin letters", "иван"},
+		{"non-latin letters", "\u0438\u0432\u0430\u043d"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

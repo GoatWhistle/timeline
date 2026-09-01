@@ -26,6 +26,9 @@ import {
   RegisterPage,
   ResetPasswordPage,
   SettingsPage,
+  TeamDetailPage,
+  TeamJoinPage,
+  TeamsPage,
   VerifyEmailPage,
 } from './lazy-pages'
 import { ForbiddenPage } from './pages/forbidden-page'
@@ -89,6 +92,9 @@ export function AppRouter() {
               <Route path="/schedule" element={<MySchedulePage />} />
               <Route path="/profile" element={<Navigate to="/?settings=profile" replace />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/teams" element={<TeamsPage />} />
+              <Route path="/teams/:id" element={<TeamDetailPage />} />
+              <Route path="/team-join/:token" element={<TeamJoinPage />} />
 
               <Route element={<RequireAdmin />}>
                 <Route path="/admin/events/:id" element={<AdminEventPage />} />

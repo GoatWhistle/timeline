@@ -181,6 +181,34 @@ linters:
         linters:
           - lll
 
+      - path: internal/controllers/event/catalog_export\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/team/team\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/team/team_event\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/team/membership\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/team/roster\.go
+        linters:
+          - lll
+
+      - path: internal/controllers/team/join_link\.go
+        linters:
+          - lll
+
+      - path: internal/models/dto/team\.go
+        linters:
+          - lll
+
       - path: internal/controllers/event/query\.go
         linters:
           - lll

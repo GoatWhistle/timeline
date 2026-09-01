@@ -8572,6 +8572,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/team-join/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Join a team through its link
+         * @description Any signed-in account that holds the token joins the team as an active member. A
+         *     revoked, expired or unknown token answers 404 with the same body, so the address
+         *     discloses nothing about the team behind it.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Join token */
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamDetailResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/teams": {
         parameters: {
             query?: never;
@@ -9277,8 +9348,11 @@ export interface paths {
         put?: never;
         /**
          * Invite a user into the team
-         * @description Restricted to the team lead. The invitation lands in the INVITED state and the
-         *     invited user accepts it themselves.
+         * @description Restricted to the team lead. The person is named by exactly one of `user_id`, `nickname`
+         *     and `email`, and must already have an account: a platform invitation to somebody who is
+         *     not registered yet is an administrator operation, so an address nobody uses answers 404
+         *     with the same body an unknown nickname gets. The invitation lands in the INVITED state
+         *     and the invited person accepts it themselves.
          */
         post: {
             parameters: {
@@ -9293,7 +9367,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            /** @description User to invite */
+            /** @description Person to invite, named one way */
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["dto.InviteTeamMemberRequest"];
@@ -9348,6 +9422,194 @@ export interface paths {
             };
         };
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}/join-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The team's join link
+         * @description Restricted to the team lead. It reports whether a link is active and when it expires;
+         *     the token itself is issued once, at rotation, and is never returned again or written
+         *     to the log.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamJoinLinkResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Issue or rotate the join link
+         * @description Restricted to the team lead. A team holds at most one usable link: rotating revokes
+         *     the previous one, so a leaked address stops working the moment a new one is issued.
+         *     The token is returned exactly once in this response and only its hash is stored.
+         *     Anyone signed in who opens the link joins the team as an active member immediately.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamJoinLinkSecretResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Revoke the join link
+         * @description Restricted to the team lead. The address stops working at once and the team is left
+         *     without a link until the lead issues a new one.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -9693,7 +9955,7 @@ export interface components {
             /** @example 5 */
             team_size_max?: number;
             /** @example 3 */
-            team_size_min: number;
+            team_size_min?: number;
             /** @example National event */
             title: string;
             /** @example Smart city */
@@ -9955,7 +10217,7 @@ export interface components {
             /** @example 5 */
             team_size_max?: number;
             /** @example 3 */
-            team_size_min: number;
+            team_size_min?: number;
             /** @example National event */
             title: string;
             /** @example Smart city */
@@ -10025,6 +10287,10 @@ export interface components {
             revoked_at?: string;
         };
         "dto.InviteTeamMemberRequest": {
+            /** @example ivan@example.com */
+            email?: string;
+            /** @example jsmith */
+            nickname?: string;
             /** @example us_42ej2s5gh7e8 */
             user_id?: string;
         };
@@ -10598,9 +10864,27 @@ export interface components {
             /** @example tm_42ej2s5gh7e8 */
             team_id: string;
             /** @example 5 */
-            team_size_max: number;
+            team_size_max?: number;
             /** @example 3 */
-            team_size_min: number;
+            team_size_min?: number;
+        };
+        "dto.TeamJoinLinkResponse": {
+            /** @example true */
+            active: boolean;
+            /** Format: date-time */
+            expires_at?: string;
+            /** @example tj_42ej2s5gh7e8 */
+            id?: string;
+        };
+        "dto.TeamJoinLinkSecretResponse": {
+            /** Format: date-time */
+            expires_at: string;
+            /** @example tj_42ej2s5gh7e8 */
+            id: string;
+            /** @example h9Qx1s3vT7c... */
+            token: string;
+            /** @example https://timeline.example/teams/join/h9Qx1s3vT7c */
+            url: string;
         };
         "dto.TeamListResponse": {
             items: components["schemas"]["dto.TeamResponse"][];
@@ -10613,9 +10897,9 @@ export interface components {
             /** @example false */
             is_lead: boolean;
             /** Format: date-time */
-            joined_at: string;
+            joined_at?: string;
             /** Format: date-time */
-            left_at: string;
+            left_at?: string;
             state: components["schemas"]["models.TeamMemberState"];
             /** @example tm_42ej2s5gh7e8 */
             team_id: string;
@@ -10648,7 +10932,7 @@ export interface components {
             is_lead: boolean;
             /** @example tb_42ej2s5gh7e8 */
             member_id: string;
-            registration_status: components["schemas"]["models.RegistrationStatusValue"];
+            registration_status?: components["schemas"]["models.RegistrationStatusValue"];
             state: components["schemas"]["models.TeamMemberState"];
             user: components["schemas"]["dto.UserSummary"];
         };
@@ -10886,7 +11170,7 @@ export interface components {
         /** @enum {string} */
         "models.ArtifactKind": "REPOSITORY" | "VIDEO" | "SLIDES" | "DEMO" | "SUBMISSION" | "OTHER";
         /** @enum {string} */
-        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "CALENDAR_FEED_ISSUE" | "CALENDAR_FEED_REVOKE";
+        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "CALENDAR_FEED_ISSUE" | "CALENDAR_FEED_REVOKE";
         /** @enum {string} */
         "models.ChangeSource": "SYSTEM" | "USER" | "ADMIN";
         /** @enum {string} */
@@ -10905,7 +11189,7 @@ export interface components {
             title_key: string;
         };
         /** @enum {string} */
-        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "CALENDAR_FEED";
+        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "CALENDAR_FEED";
         /** @enum {string} */
         "models.EventFormat": "ONLINE" | "OFFLINE" | "HYBRID";
         /** @enum {string} */

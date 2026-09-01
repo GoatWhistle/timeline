@@ -45,7 +45,22 @@ type RenameTeamRequest struct {
 }
 
 type InviteTeamMemberRequest struct {
-	UserID string `json:"user_id" example:"us_42ej2s5gh7e8"`
+	UserID   *string `json:"user_id,omitempty" example:"us_42ej2s5gh7e8"`
+	Nickname *string `json:"nickname,omitempty" example:"jsmith"`
+	Email    *string `json:"email,omitempty" example:"ivan@example.com"`
+}
+
+type TeamJoinLinkResponse struct {
+	ID        string     `json:"id,omitempty" example:"tj_42ej2s5gh7e8"`
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	Active    bool       `json:"active" example:"true"`
+}
+
+type TeamJoinLinkSecretResponse struct {
+	ID        string    `json:"id" example:"tj_42ej2s5gh7e8"`
+	Token     string    `json:"token" example:"h9Qx1s3vT7c..."`
+	URL       string    `json:"url" example:"https://timeline.example/teams/join/h9Qx1s3vT7c"`
+	ExpiresAt time.Time `json:"expires_at"`
 }
 
 type EnterEventRequest struct {

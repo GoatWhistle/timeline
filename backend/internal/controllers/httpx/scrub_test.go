@@ -53,6 +53,16 @@ func TestScrubPathRemovesTheCalendarToken(t *testing.T) {
 			"/api/v1/calendar/calendar/feed.ics",
 			"/api/v1/calendar/[redacted]/feed.ics",
 		},
+		{
+			"the team join link",
+			"/api/v1/team-join/" + scrubSecret,
+			"/api/v1/team-join/[redacted]",
+		},
+		{
+			"the team listing carries no secret",
+			"/api/v1/teams",
+			"/api/v1/teams",
+		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

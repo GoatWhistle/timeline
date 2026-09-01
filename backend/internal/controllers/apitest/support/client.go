@@ -203,3 +203,11 @@ func ContainsAll(haystack string, needles ...string) bool {
 	}
 	return true
 }
+
+func RequireErrorCode(t *testing.T, resp Response, wantStatus int, wantCode, what string) {
+	t.Helper()
+	RequireStatus(t, resp, wantStatus, what)
+	if code := resp.ErrorCode(t); code != wantCode {
+		t.Fatalf("%s: expected error code %q, got %q, body %s", what, wantCode, code, resp.Body)
+	}
+}

@@ -45,6 +45,15 @@ export const MySchedulePage = lazy(() =>
 export const SettingsPage = lazy(() =>
   import('@/features/settings/settings').then((m) => ({ default: m.SettingsPage })),
 )
+export const TeamsPage = lazy(() =>
+  import('@/features/teams/teams').then((m) => ({ default: m.TeamsPage })),
+)
+export const TeamDetailPage = lazy(() =>
+  import('@/features/teams/team-detail').then((m) => ({ default: m.TeamDetailPage })),
+)
+export const TeamJoinPage = lazy(() =>
+  import('@/features/teams/team-join').then((m) => ({ default: m.TeamJoinPage })),
+)
 
 const adminBundle = () => import('./admin-routes')
 

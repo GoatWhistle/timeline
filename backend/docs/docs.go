@@ -6939,6 +6939,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/team-join/{token}": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Any signed-in account that holds the token joins the team as an active member. A\nrevoked, expired or unknown token answers 404 with the same body, so the address\ndiscloses nothing about the team behind it.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Join a team through its link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Join token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TeamDetailResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/teams": {
             "get": {
                 "security": [
@@ -7530,7 +7582,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Restricted to the team lead. The invitation lands in the INVITED state and the\ninvited user accepts it themselves.",
+                "description": "Restricted to the team lead. The person is named by exactly one of ` + "`" + `user_id` + "`" + `, ` + "`" + `nickname` + "`" + `\nand ` + "`" + `email` + "`" + `, and must already have an account: a platform invitation to somebody who is\nnot registered yet is an administrator operation, so an address nobody uses answers 404\nwith the same body an unknown nickname gets. The invitation lands in the INVITED state\nand the invited person accepts it themselves.",
                 "consumes": [
                     "application/json"
                 ],
@@ -7551,7 +7603,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "User to invite",
+                        "description": "Person to invite, named one way",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -7587,6 +7639,158 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{id}/join-link": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Restricted to the team lead. It reports whether a link is active and when it expires;\nthe token itself is issued once, at rotation, and is never returned again or written\nto the log.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "The team's join link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "tm_42ej2s5gh7e8",
+                        "description": "Team identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TeamJoinLinkResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Restricted to the team lead. A team holds at most one usable link: rotating revokes\nthe previous one, so a leaked address stops working the moment a new one is issued.\nThe token is returned exactly once in this response and only its hash is stored.\nAnyone signed in who opens the link joins the team as an active member immediately.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Issue or rotate the join link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "tm_42ej2s5gh7e8",
+                        "description": "Team identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TeamJoinLinkSecretResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Restricted to the team lead. The address stops working at once and the team is left\nwithout a link until the lead issues a new one.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Revoke the join link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "tm_42ej2s5gh7e8",
+                        "description": "Team identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -9026,6 +9230,14 @@ const docTemplate = `{
         "dto.InviteTeamMemberRequest": {
             "type": "object",
             "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "ivan@example.com"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "jsmith"
+                },
                 "user_id": {
                     "type": "string",
                     "example": "us_42ej2s5gh7e8"
@@ -10498,6 +10710,42 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.TeamJoinLinkResponse": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "tj_42ej2s5gh7e8"
+                }
+            }
+        },
+        "dto.TeamJoinLinkSecretResponse": {
+            "type": "object",
+            "properties": {
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "tj_42ej2s5gh7e8"
+                },
+                "token": {
+                    "type": "string",
+                    "example": "h9Qx1s3vT7c..."
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://timeline.example/teams/join/h9Qx1s3vT7c"
+                }
+            }
+        },
         "dto.TeamListResponse": {
             "type": "object",
             "properties": {
@@ -11249,6 +11497,8 @@ const docTemplate = `{
                 "TEAM_EVENT_ENTER",
                 "TEAM_ROSTER_ADD",
                 "TEAM_ROSTER_REMOVE",
+                "TEAM_LINK_ISSUE",
+                "TEAM_LINK_REVOKE",
                 "REGISTRATION_CHANGE",
                 "STATUS_CHANGE",
                 "RULE_CHANGE",
@@ -11287,6 +11537,8 @@ const docTemplate = `{
                 "AuditTeamEventEnter",
                 "AuditTeamRosterAdd",
                 "AuditTeamRosterRemove",
+                "AuditTeamLinkIssue",
+                "AuditTeamLinkRevoke",
                 "AuditRegistrationChange",
                 "AuditStatusChange",
                 "AuditRuleChange",
@@ -11364,6 +11616,7 @@ const docTemplate = `{
                 "TEAM",
                 "TEAM_MEMBER",
                 "TEAM_EVENT_ENTRY",
+                "TEAM_JOIN_LINK",
                 "REGISTRATION",
                 "REGISTRATION_STATUS",
                 "NOTIFICATION_RULE",
@@ -11379,6 +11632,7 @@ const docTemplate = `{
                 "EntityTeam",
                 "EntityTeamMember",
                 "EntityTeamEventEntry",
+                "EntityTeamJoinLink",
                 "EntityRegistration",
                 "EntityRegistrationStatus",
                 "EntityNotificationRule",

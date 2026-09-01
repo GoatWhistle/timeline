@@ -41,6 +41,7 @@ const OPTIONAL = {
     'track',
     'prize_pool',
     'prize_currency',
+    'team_size_min',
     'team_size_max',
   ],
   'dto.CatalogEvent': [
@@ -52,6 +53,7 @@ const OPTIONAL = {
     'track',
     'prize_pool',
     'prize_currency',
+    'team_size_min',
     'team_size_max',
   ],
   'dto.CatalogPlace': [],
@@ -96,6 +98,10 @@ const OPTIONAL = {
     'online_url',
   ],
   'dto.ScheduleRow': ['registration_deadline', 'registration_status', 'team_role'],
+  'dto.TeamMemberResponse': ['joined_at', 'left_at'],
+  'dto.TeamRosterMemberResponse': ['registration_status'],
+  'dto.TeamEventEntryResponse': ['team_size_min', 'team_size_max'],
+  'dto.TeamJoinLinkResponse': ['id', 'expires_at'],
   'dto.WorkerHeartbeatResponse': ['scheduler_last_run_at', 'worker_last_run_at'],
 }
 
