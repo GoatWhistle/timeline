@@ -55,7 +55,7 @@ func randomToken() string {
 // @Param			request	body		dto.RegisterRequest	true	"Registration payload"
 // @Success		200		{object}	dto.AuthResponse
 // @Failure		400		{object}	dto.ErrorResponse
-// @Failure		409		{object}	dto.ErrorResponse	"email is already taken"
+// @Failure		409		{object}	dto.ErrorResponse	"email or nickname is already taken"
 // @Failure		429		{object}	dto.ErrorResponse
 // @Router			/auth/register [post]
 func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {

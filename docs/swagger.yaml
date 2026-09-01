@@ -11,6 +11,9 @@ definitions:
       middle_name:
         example: Fitzgerald
         type: string
+      nickname:
+        example: jsmith
+        type: string
       password:
         example: correct-horse-battery
         type: string
@@ -265,6 +268,9 @@ definitions:
       team_size_max:
         example: 5
         type: integer
+      team_size_min:
+        example: 3
+        type: integer
       title:
         example: National event
         type: string
@@ -396,6 +402,9 @@ definitions:
         type: string
       team_size_max:
         example: 5
+        type: integer
+      team_size_min:
+        example: 3
         type: integer
       title:
         example: National event
@@ -556,6 +565,12 @@ definitions:
         example: Record the demo video
         type: string
     type: object
+  dto.CreateTeamRequest:
+    properties:
+      name:
+        example: Night shift
+        type: string
+    type: object
   dto.DeadlineItem:
     properties:
       deadline_at:
@@ -593,6 +608,12 @@ definitions:
     properties:
       email:
         example: ivan@example.com
+        type: string
+    type: object
+  dto.EnterEventRequest:
+    properties:
+      event_id:
+        example: ev_gma9hq8a96q5
         type: string
     type: object
   dto.ErrorBody:
@@ -718,6 +739,9 @@ definitions:
       team_size_max:
         example: 5
         type: integer
+      team_size_min:
+        example: 3
+        type: integer
       title:
         example: National event
         type: string
@@ -822,6 +846,12 @@ definitions:
         example: in_42ej2s5gh7e8
         type: string
       revoked_at:
+        type: string
+    type: object
+  dto.InviteTeamMemberRequest:
+    properties:
+      user_id:
+        example: us_42ej2s5gh7e8
         type: string
     type: object
   dto.JoinEventRequest:
@@ -1311,6 +1341,9 @@ definitions:
       middle_name:
         example: Fitzgerald
         type: string
+      nickname:
+        example: jsmith
+        type: string
       password:
         example: correct-horse-battery
         type: string
@@ -1470,6 +1503,12 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  dto.RenameTeamRequest:
+    properties:
+      name:
+        example: Day shift
+        type: string
     type: object
   dto.ReorderProfileLinksRequest:
     properties:
@@ -1746,6 +1785,151 @@ definitions:
           $ref: '#/definitions/models.ParticipantTask'
         type: array
     type: object
+  dto.TeamDetailResponse:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/dto.TeamMemberResponse'
+        type: array
+      team:
+        $ref: '#/definitions/dto.TeamResponse'
+    type: object
+  dto.TeamEventEntryListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.TeamEventEntryResponse'
+        type: array
+    type: object
+  dto.TeamEventEntryResponse:
+    properties:
+      assigned_members:
+        example: 4
+        type: integer
+      entered_at:
+        type: string
+      event_id:
+        example: ev_gma9hq8a96q5
+        type: string
+      event_title:
+        example: National hackathon
+        type: string
+      id:
+        example: te_42ej2s5gh7e8
+        type: string
+      registered:
+        example: true
+        type: boolean
+      registered_count:
+        example: 3
+        type: integer
+      roster:
+        items:
+          $ref: '#/definitions/dto.TeamRosterMemberResponse'
+        type: array
+      roster_size:
+        example: 4
+        type: integer
+      team_id:
+        example: tm_42ej2s5gh7e8
+        type: string
+      team_size_max:
+        example: 5
+        type: integer
+      team_size_min:
+        example: 3
+        type: integer
+    type: object
+  dto.TeamListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.TeamResponse'
+        type: array
+    type: object
+  dto.TeamMemberResponse:
+    properties:
+      id:
+        example: tb_42ej2s5gh7e8
+        type: string
+      invited_at:
+        type: string
+      is_lead:
+        example: false
+        type: boolean
+      joined_at:
+        type: string
+      left_at:
+        type: string
+      state:
+        allOf:
+        - $ref: '#/definitions/models.TeamMemberState'
+        enum:
+        - INVITED
+        - ACTIVE
+        - LEFT
+      team_id:
+        example: tm_42ej2s5gh7e8
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserSummary'
+    type: object
+  dto.TeamResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        example: tm_42ej2s5gh7e8
+        type: string
+      is_lead:
+        example: true
+        type: boolean
+      lead:
+        $ref: '#/definitions/dto.UserSummary'
+      my_state:
+        enum:
+        - INVITED
+        - ACTIVE
+        - LEFT
+        example: ACTIVE
+        type: string
+      name:
+        example: Night shift
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.TeamRosterMemberResponse:
+    properties:
+      assigned:
+        example: true
+        type: boolean
+      id:
+        example: tp_42ej2s5gh7e8
+        type: string
+      is_lead:
+        example: false
+        type: boolean
+      member_id:
+        example: tb_42ej2s5gh7e8
+        type: string
+      registration_status:
+        allOf:
+        - $ref: '#/definitions/models.RegistrationStatusValue'
+        enum:
+        - TODO
+        - DONE
+        - NOT_REQUIRED
+      state:
+        allOf:
+        - $ref: '#/definitions/models.TeamMemberState'
+        enum:
+        - INVITED
+        - ACTIVE
+        - LEFT
+      user:
+        $ref: '#/definitions/dto.UserSummary'
+    type: object
   dto.TelegramLinkResponse:
     properties:
       deep_link:
@@ -1853,6 +2037,9 @@ definitions:
         type: string
       team_size_max:
         example: 5
+        type: integer
+      team_size_min:
+        example: 3
         type: integer
       title:
         type: string
@@ -2171,6 +2358,14 @@ definitions:
     - PARTICIPANT_REMOVE
     - PARTICIPANT_REACTIVATE
     - TEAM_ROLE_CHANGE
+    - TEAM_CREATE
+    - TEAM_RENAME
+    - TEAM_INVITE
+    - TEAM_JOIN
+    - TEAM_LEAVE
+    - TEAM_EVENT_ENTER
+    - TEAM_ROSTER_ADD
+    - TEAM_ROSTER_REMOVE
     - REGISTRATION_CHANGE
     - STATUS_CHANGE
     - RULE_CHANGE
@@ -2201,6 +2396,14 @@ definitions:
     - AuditParticipantRemove
     - AuditParticipantReactive
     - AuditTeamRoleChange
+    - AuditTeamCreate
+    - AuditTeamRename
+    - AuditTeamInvite
+    - AuditTeamJoin
+    - AuditTeamLeave
+    - AuditTeamEventEnter
+    - AuditTeamRosterAdd
+    - AuditTeamRosterRemove
     - AuditRegistrationChange
     - AuditStatusChange
     - AuditRuleChange
@@ -2256,6 +2459,9 @@ definitions:
     - EVENT
     - STAGE
     - EVENT_PARTICIPANT
+    - TEAM
+    - TEAM_MEMBER
+    - TEAM_EVENT_ENTRY
     - REGISTRATION
     - REGISTRATION_STATUS
     - NOTIFICATION_RULE
@@ -2268,6 +2474,9 @@ definitions:
     - EntityEvent
     - EntityStage
     - EntityParticipant
+    - EntityTeam
+    - EntityTeamMember
+    - EntityTeamEventEntry
     - EntityRegistration
     - EntityRegistrationStatus
     - EntityNotificationRule
@@ -2658,6 +2867,16 @@ definitions:
     - StageDemo
     - StageResults
     - StageOther
+  models.TeamMemberState:
+    enum:
+    - INVITED
+    - ACTIVE
+    - LEFT
+    type: string
+    x-enum-varnames:
+    - TeamMemberInvited
+    - TeamMemberActive
+    - TeamMemberLeft
 host: localhost:8080
 info:
   contact:
@@ -4532,7 +4751,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
         "409":
-          description: email is already taken
+          description: email or nickname is already taken
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
         "429":
@@ -7549,6 +7768,566 @@ paths:
       summary: Realtime channel
       tags:
       - realtime
+  /teams:
+    get:
+      description: |-
+        Teams the caller leads or belongs to, including the ones they were invited into
+        and have not accepted yet. A team the caller left is not listed.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own teams
+      tags:
+      - teams
+    post:
+      consumes:
+      - application/json
+      description: The caller becomes the team lead and its first active member.
+      parameters:
+      - description: Team name
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTeamRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.TeamDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Create a team
+      tags:
+      - teams
+  /teams/{id}:
+    get:
+      description: |-
+        Visible to the members of the team alone. A team the caller does not belong to
+        answers 404: the existence of somebody else's team is not disclosed.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamDetailResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Team and its members
+      tags:
+      - teams
+    patch:
+      consumes:
+      - application/json
+      description: Restricted to the team lead. A member who is not the lead receives
+        403.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New name
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RenameTeamRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Rename a team
+      tags:
+      - teams
+  /teams/{id}/events:
+    get:
+      description: Every entry the team holds, each with its own roster and derived
+        standing.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamEventEntryListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Events a team entered
+      tags:
+      - teams
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Restricted to the team lead. Only a published, non-archived event of kind HACKATHON
+        accepts a team entry. The entry starts with an empty roster: the lead then draws a
+        lineup for this event from the team's active members, and the team's size limits
+        apply to that lineup, not to the whole team. Entering registers nobody: registration
+        stays the self-report of each member and the system never checks the external site.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event to enter
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EnterEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.TeamEventEntryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Enter a hackathon as a team
+      tags:
+      - teams
+  /teams/{id}/events/{event_id}:
+    get:
+      description: |-
+        `registered` is derived, never stored: the team counts as registered once the number
+        of roster members who reported their own registration reaches the event's
+        `team_size_min`. Team members outside this event's roster do not count towards it.
+        An event without `team_size_min` has no threshold and is never derived registered.
+        Every count is a self-report, not a verified fact.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event identifier
+        example: ev_gma9hq8a96q5
+        in: path
+        name: event_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamEventEntryResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Team standing on an event
+      tags:
+      - teams
+  /teams/{id}/events/{event_id}/roster/{user_id}:
+    delete:
+      description: |-
+        Restricted to the team lead. The member stays in the team; only this event's lineup
+        loses them. Their personal registration status on the event is left untouched.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event identifier
+        example: ev_gma9hq8a96q5
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: User identifier
+        example: us_42ej2s5gh7e8
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamEventEntryResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Take a team member off the event roster
+      tags:
+      - teams
+    put:
+      description: |-
+        Restricted to the team lead. The lineup for an event is drawn from the team's active
+        members and may be smaller than the team. The event's `team_size_max` caps the
+        lineup and a further addition is refused with `roster_full`; `team_size_min` is only
+        the threshold of the derived registered state and never blocks an addition, so an
+        under-filled lineup is allowed while it is being assembled.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event identifier
+        example: ev_gma9hq8a96q5
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: User identifier
+        example: us_42ej2s5gh7e8
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamEventEntryResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Put a team member on the event roster
+      tags:
+      - teams
+  /teams/{id}/events/{event_id}/roster/{user_id}/registration/done:
+    post:
+      description: |-
+        Restricted to the team lead, and only for a member on this event's own roster. It
+        writes the same personal registration status the member writes themselves, so the
+        value stays a self-report relayed by the lead rather than a verified fact; the audit
+        log records who marked whom.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event identifier
+        example: ev_gma9hq8a96q5
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: User identifier
+        example: us_42ej2s5gh7e8
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamEventEntryResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Mark a roster member as registered
+      tags:
+      - teams
+  /teams/{id}/invitations:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Restricted to the team lead. The invitation lands in the INVITED state and the
+        invited user accepts it themselves.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User to invite
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.InviteTeamMemberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Invite a user into the team
+      tags:
+      - teams
+  /teams/{id}/members/{user_id}:
+    delete:
+      description: Restricted to the team lead. The lead cannot remove themselves.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User identifier
+        example: us_42ej2s5gh7e8
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamDetailResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Remove a member from the team
+      tags:
+      - teams
+  /teams/{id}/membership:
+    delete:
+      description: The caller leaves the team themselves. The team lead cannot leave
+        their own team.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Leave a team
+      tags:
+      - teams
+    post:
+      description: |-
+        The invited user turns their own INVITED membership into ACTIVE. Accepting twice
+        is not an error.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamDetailResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Accept an invitation
+      tags:
+      - teams
 schemes:
 - http
 - https

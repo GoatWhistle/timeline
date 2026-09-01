@@ -3,15 +3,19 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useDeleteProfileLink, useReorderProfileLinks } from '@/entities/user/profile.queries'
 import type { ProfileLink } from '@/shared/api/types.gen'
-import { EditProfileLink } from './edit-profile-link'
 import { ProfileLinkRow } from './profile-link-row'
 import { moveItem } from './reorder'
 
-export function ProfileLinksList({ links }: { links: ProfileLink[] }) {
+export type ProfileLinksListProps = {
+  links: ProfileLink[]
+  editingId?: string | null
+  onEdit?: (id: string) => void
+}
+
+export function ProfileLinksList({ links, editingId = null, onEdit }: ProfileLinksListProps) {
   const { t } = useTranslation()
   const [order, setOrder] = useState(links)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
-  const [editingId, setEditingId] = useState<string | null>(null)
   const reorder = useReorderProfileLinks()
   const remove = useDeleteProfileLink()
   const listRef = useRef<HTMLOListElement>(null)
@@ -78,40 +82,31 @@ export function ProfileLinksList({ links }: { links: ProfileLink[] }) {
         {announcement}
       </p>
       <ol ref={listRef} className="flex flex-col gap-2" aria-label={t('profile.links.listLabel')}>
-        {order.map((link, index) =>
-          editingId === link.id ? (
-            <li key={link.id}>
-              <EditProfileLink
-                key={`${link.url}|${link.label ?? ''}`}
-                link={link}
-                onDone={() => setEditingId(null)}
-              />
-            </li>
-          ) : (
-            <ProfileLinkRow
-              key={link.id}
-              link={link}
-              index={index}
-              total={order.length}
-              isDragged={dragIndex === index}
-              onMoveUp={() => move(index, index - 1)}
-              onMoveDown={() => move(index, index + 1)}
-              onEdit={() => setEditingId(link.id)}
-              onRemove={() =>
-                remove.mutate(link.id, {
-                  onError: () => toast.error(t('profile.links.removeFailed')),
-                })
-              }
-              onDragStart={() => setDragIndex(index)}
-              onDragEnter={() => {
-                if (dragIndex === null || dragIndex === index) return
-                setOrder(moveItem(order, dragIndex, index))
-                setDragIndex(index)
-              }}
-              onDragEnd={onDrop}
-            />
-          ),
-        )}
+        {order.map((link, index) => (
+          <ProfileLinkRow
+            key={link.id}
+            link={link}
+            index={index}
+            total={order.length}
+            isDragged={dragIndex === index}
+            isEditing={editingId === link.id}
+            onMoveUp={() => move(index, index - 1)}
+            onMoveDown={() => move(index, index + 1)}
+            onEdit={() => onEdit?.(link.id)}
+            onRemove={() =>
+              remove.mutate(link.id, {
+                onError: () => toast.error(t('profile.links.removeFailed')),
+              })
+            }
+            onDragStart={() => setDragIndex(index)}
+            onDragEnter={() => {
+              if (dragIndex === null || dragIndex === index) return
+              setOrder(moveItem(order, dragIndex, index))
+              setDragIndex(index)
+            }}
+            onDragEnd={onDrop}
+          />
+        ))}
       </ol>
     </>
   )

@@ -19,13 +19,13 @@ type Events struct{ db *postgres.DB }
 func NewEvents(db *postgres.DB) *Events { return &Events{db: db} }
 
 const eventColumns = `id, display_id, title, description, organizer, website_url, notes,
-	kind, format, origin, country_code, city, track, prize_pool, prize_currency, team_size_max,
+	kind, format, origin, country_code, city, track, prize_pool, prize_currency, team_size_min, team_size_max,
 	start_at, end_at, published_at, archived_at, created_at, updated_at`
 
 func scanEventInto(row pgx.Row, h *models.Event) error {
 	return row.Scan(&h.ID, &h.DisplayID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL, &h.Notes,
 		&h.Kind, &h.Format, &h.Origin, &h.CountryCode, &h.City,
-		&h.Track, &h.PrizePool, &h.PrizeCurrency, &h.TeamSizeMax,
+		&h.Track, &h.PrizePool, &h.PrizeCurrency, &h.TeamSizeMin, &h.TeamSizeMax,
 		&h.StartAt, &h.EndAt, &h.PublishedAt, &h.ArchivedAt, &h.CreatedAt, &h.UpdatedAt)
 }
 
@@ -41,12 +41,12 @@ func (r *Events) Create(ctx context.Context, h *models.Event) (*models.Event, er
 	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
 		INSERT INTO events (title, description, organizer, website_url, notes,
 			kind, format, origin, country_code, city, track, prize_pool, prize_currency,
-			team_size_max, start_at, end_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+			team_size_min, team_size_max, start_at, end_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 		RETURNING `+eventColumns,
 		h.Title, h.Description, h.Organizer, h.WebsiteURL, h.Notes,
 		h.Kind, h.Format, h.Origin, h.CountryCode, h.City, h.Track, h.PrizePool,
-		h.PrizeCurrency, h.TeamSizeMax, h.StartAt, h.EndAt))
+		h.PrizeCurrency, h.TeamSizeMin, h.TeamSizeMax, h.StartAt, h.EndAt))
 }
 
 func (r *Events) GetByID(ctx context.Context, id uuid.UUID) (*models.Event, error) {
@@ -97,15 +97,16 @@ func (r *Events) Update(ctx context.Context, id uuid.UUID, req dto.UpdateEventRe
 			track = COALESCE($14, track),
 			prize_pool = COALESCE($15, prize_pool),
 			prize_currency = COALESCE($16, prize_currency),
-			team_size_max = COALESCE($17, team_size_max),
-			start_at = COALESCE($18, start_at),
-			end_at = COALESCE($19, end_at)
+			team_size_min = COALESCE($17, team_size_min),
+			team_size_max = COALESCE($18, team_size_max),
+			start_at = COALESCE($19, start_at),
+			end_at = COALESCE($20, end_at)
 		WHERE id = $1
 		RETURNING `+eventColumns,
 		id, req.Title, req.Description, req.Organizer, req.WebsiteURL, req.Notes,
 		req.Kind, req.Format, req.Origin,
 		place.CountrySet, place.CountryCode, place.CitySet, place.City,
-		req.Track, req.PrizePool, req.PrizeCurrency, req.TeamSizeMax,
+		req.Track, req.PrizePool, req.PrizeCurrency, req.TeamSizeMin, req.TeamSizeMax,
 		req.StartAt, req.EndAt))
 }
 

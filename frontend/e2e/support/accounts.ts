@@ -72,6 +72,7 @@ export async function createMember(): Promise<{ email: string; password: string;
     token,
     first_name: 'End',
     last_name: 'ToEnd',
+    nickname: `e2e${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
     password: MEMBER_PASSWORD,
   })
   if (accepted.status !== 200) throw new Error(`the invite was not accepted: ${accepted.status}`)

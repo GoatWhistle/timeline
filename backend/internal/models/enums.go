@@ -97,6 +97,14 @@ const (
 	ParticipationRemoved  ParticipationStatus = "REMOVED"
 )
 
+type TeamMemberState string
+
+const (
+	TeamMemberInvited TeamMemberState = "INVITED"
+	TeamMemberActive  TeamMemberState = "ACTIVE"
+	TeamMemberLeft    TeamMemberState = "LEFT"
+)
+
 type RegistrationState string
 
 const (
@@ -178,6 +186,14 @@ const (
 	AuditParticipantRemove   AuditAction = "PARTICIPANT_REMOVE"
 	AuditParticipantReactive AuditAction = "PARTICIPANT_REACTIVATE"
 	AuditTeamRoleChange      AuditAction = "TEAM_ROLE_CHANGE"
+	AuditTeamCreate          AuditAction = "TEAM_CREATE"
+	AuditTeamRename          AuditAction = "TEAM_RENAME"
+	AuditTeamInvite          AuditAction = "TEAM_INVITE"
+	AuditTeamJoin            AuditAction = "TEAM_JOIN"
+	AuditTeamLeave           AuditAction = "TEAM_LEAVE"
+	AuditTeamEventEnter      AuditAction = "TEAM_EVENT_ENTER"
+	AuditTeamRosterAdd       AuditAction = "TEAM_ROSTER_ADD"
+	AuditTeamRosterRemove    AuditAction = "TEAM_ROSTER_REMOVE"
 	AuditRegistrationChange  AuditAction = "REGISTRATION_CHANGE"
 	AuditStatusChange        AuditAction = "STATUS_CHANGE"
 	AuditRuleChange          AuditAction = "RULE_CHANGE"
@@ -196,6 +212,9 @@ const (
 	EntityEvent              EntityType = "EVENT"
 	EntityStage              EntityType = "STAGE"
 	EntityParticipant        EntityType = "EVENT_PARTICIPANT"
+	EntityTeam               EntityType = "TEAM"
+	EntityTeamMember         EntityType = "TEAM_MEMBER"
+	EntityTeamEventEntry     EntityType = "TEAM_EVENT_ENTRY"
 	EntityRegistration       EntityType = "REGISTRATION"
 	EntityRegistrationStatus EntityType = "REGISTRATION_STATUS"
 	EntityNotificationRule   EntityType = "NOTIFICATION_RULE"

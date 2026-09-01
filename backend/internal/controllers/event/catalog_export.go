@@ -17,7 +17,7 @@ const catalogExportFilename = "catalog.csv"
 var catalogExportHeader = []string{
 	"id", "title", "kind", "state", "format", "effective_format", "origin",
 	"country_code", "city", "start_at", "end_at", "organizer", "track",
-	"prize_pool", "prize_currency", "team_size_max", "website_url", "joined",
+	"prize_pool", "prize_currency", "team_size_min", "team_size_max", "website_url", "joined",
 }
 
 // @Summary		Export the catalog as CSV
@@ -115,6 +115,7 @@ func catalogExportRow(item dto.CatalogEvent) []string {
 		text(item.Track),
 		text(item.PrizePool),
 		text(item.PrizeCurrency),
+		number(item.TeamSizeMin),
 		number(item.TeamSizeMax),
 		text(item.WebsiteURL),
 		strconv.FormatBool(item.Joined),

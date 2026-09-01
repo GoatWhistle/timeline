@@ -30,14 +30,36 @@ func normalizeTrack(value *string) (*string, error) {
 	return &normalized, nil
 }
 
-func validateTeamSizeMax(value *int) error {
+func validateTeamSizeBound(field string, value *int) error {
 	if value == nil {
 		return nil
 	}
 	if *value < 1 || *value > teamSizeMaxLimit {
-		return models.NewValidation("invalid maximum team size",
-			models.FieldError{Field: "team_size_max",
+		return models.NewValidation("invalid team size",
+			models.FieldError{Field: field,
 				Message: "must be between 1 and " + strconv.Itoa(teamSizeMaxLimit)})
+	}
+	return nil
+}
+
+func coalesceSize(requested, current *int) *int {
+	if requested != nil {
+		return requested
+	}
+	return current
+}
+
+func validateTeamSize(minimum, maximum *int) error {
+	if err := validateTeamSizeBound("team_size_min", minimum); err != nil {
+		return err
+	}
+	if err := validateTeamSizeBound("team_size_max", maximum); err != nil {
+		return err
+	}
+	if minimum != nil && maximum != nil && *minimum > *maximum {
+		return models.NewValidation("the minimum team size exceeds the maximum",
+			models.FieldError{Field: "team_size_min",
+				Message: "must not be greater than team_size_max"})
 	}
 	return nil
 }

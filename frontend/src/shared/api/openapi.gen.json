@@ -3329,7 +3329,7 @@
             }
           },
           "409": {
-            "description": "email is already taken",
+            "description": "email or nickname is already taken",
             "content": {
               "application/json": {
                 "schema": {
@@ -8575,6 +8575,1021 @@
           }
         }
       }
+    },
+    "/teams": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Teams the caller leads or belongs to, including the ones they were invited into\nand have not accepted yet. A team the caller left is not listed.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Own teams",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The caller becomes the team lead and its first active member.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Create a team",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/dto.CreateTeamRequest"
+              }
+            }
+          },
+          "description": "Team name",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{id}": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Visible to the members of the team alone. A team the caller does not belong to\nanswers 404: the existence of somebody else's team is not disclosed.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Team and its members",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamDetailResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Restricted to the team lead. A member who is not the lead receives 403.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Rename a team",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/dto.RenameTeamRequest"
+              }
+            }
+          },
+          "description": "New name",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{id}/events": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Every entry the team holds, each with its own roster and derived standing.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Events a team entered",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamEventEntryListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Restricted to the team lead. Only a published, non-archived event of kind HACKATHON\naccepts a team entry. The entry starts with an empty roster: the lead then draws a\nlineup for this event from the team's active members, and the team's size limits\napply to that lineup, not to the whole team. Entering registers nobody: registration\nstays the self-report of each member and the system never checks the external site.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Enter a hackathon as a team",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/dto.EnterEventRequest"
+              }
+            }
+          },
+          "description": "Event to enter",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamEventEntryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{id}/events/{event_id}": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "`registered` is derived, never stored: the team counts as registered once the number\nof roster members who reported their own registration reaches the event's\n`team_size_min`. Team members outside this event's roster do not count towards it.\nAn event without `team_size_min` has no threshold and is never derived registered.\nEvery count is a self-report, not a verified fact.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Team standing on an event",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "ev_gma9hq8a96q5",
+            "description": "Event identifier",
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamEventEntryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{id}/events/{event_id}/roster/{user_id}": {
+      "put": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Restricted to the team lead. The lineup for an event is drawn from the team's active\nmembers and may be smaller than the team. The event's `team_size_max` caps the\nlineup and a further addition is refused with `roster_full`; `team_size_min` is only\nthe threshold of the derived registered state and never blocks an addition, so an\nunder-filled lineup is allowed while it is being assembled.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Put a team member on the event roster",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "ev_gma9hq8a96q5",
+            "description": "Event identifier",
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "us_42ej2s5gh7e8",
+            "description": "User identifier",
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamEventEntryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Restricted to the team lead. The member stays in the team; only this event's lineup\nloses them. Their personal registration status on the event is left untouched.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Take a team member off the event roster",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "ev_gma9hq8a96q5",
+            "description": "Event identifier",
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "us_42ej2s5gh7e8",
+            "description": "User identifier",
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamEventEntryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{id}/events/{event_id}/roster/{user_id}/registration/done": {
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Restricted to the team lead, and only for a member on this event's own roster. It\nwrites the same personal registration status the member writes themselves, so the\nvalue stays a self-report relayed by the lead rather than a verified fact; the audit\nlog records who marked whom.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Mark a roster member as registered",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "ev_gma9hq8a96q5",
+            "description": "Event identifier",
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "us_42ej2s5gh7e8",
+            "description": "User identifier",
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamEventEntryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{id}/invitations": {
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Restricted to the team lead. The invitation lands in the INVITED state and the\ninvited user accepts it themselves.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Invite a user into the team",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/dto.InviteTeamMemberRequest"
+              }
+            }
+          },
+          "description": "User to invite",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{id}/members/{user_id}": {
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Restricted to the team lead. The lead cannot remove themselves.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Remove a member from the team",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "us_42ej2s5gh7e8",
+            "description": "User identifier",
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamDetailResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{id}/membership": {
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The invited user turns their own INVITED membership into ACTIVE. Accepting twice\nis not an error.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Accept an invitation",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.TeamDetailResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The caller leaves the team themselves. The team lead cannot leave their own team.",
+        "tags": [
+          "teams"
+        ],
+        "summary": "Leave a team",
+        "parameters": [
+          {
+            "example": "tm_42ej2s5gh7e8",
+            "description": "Team identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "servers": [
@@ -8644,6 +9659,10 @@
           "middle_name": {
             "type": "string",
             "example": "Fitzgerald"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "jsmith"
           },
           "password": {
             "type": "string",
@@ -9022,6 +10041,10 @@
             "type": "integer",
             "example": 5
           },
+          "team_size_min": {
+            "type": "integer",
+            "example": 3
+          },
           "title": {
             "type": "string",
             "example": "National event"
@@ -9046,6 +10069,7 @@
           "origin",
           "start_at",
           "state",
+          "team_size_min",
           "title"
         ]
       },
@@ -9215,6 +10239,10 @@
           "team_size_max": {
             "type": "integer",
             "example": 5
+          },
+          "team_size_min": {
+            "type": "integer",
+            "example": 3
           },
           "title": {
             "type": "string",
@@ -9430,6 +10458,15 @@
           }
         }
       },
+      "dto.CreateTeamRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Night shift"
+          }
+        }
+      },
       "dto.DeadlineItem": {
         "type": "object",
         "properties": {
@@ -9491,6 +10528,15 @@
           "email": {
             "type": "string",
             "example": "ivan@example.com"
+          }
+        }
+      },
+      "dto.EnterEventRequest": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
           }
         }
       },
@@ -9659,6 +10705,10 @@
             "type": "integer",
             "example": 5
           },
+          "team_size_min": {
+            "type": "integer",
+            "example": 3
+          },
           "title": {
             "type": "string",
             "example": "National event"
@@ -9686,6 +10736,7 @@
           "origin",
           "start_at",
           "state",
+          "team_size_min",
           "title",
           "updated_at"
         ]
@@ -9864,6 +10915,15 @@
           "expires_at",
           "id"
         ]
+      },
+      "dto.InviteTeamMemberRequest": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "example": "us_42ej2s5gh7e8"
+          }
+        }
       },
       "dto.JoinEventRequest": {
         "type": "object",
@@ -10653,6 +11713,10 @@
             "type": "string",
             "example": "Fitzgerald"
           },
+          "nickname": {
+            "type": "string",
+            "example": "jsmith"
+          },
           "password": {
             "type": "string",
             "example": "correct-horse-battery"
@@ -10898,6 +11962,15 @@
             "example": [
               "pa_42ej2s5gh7e8"
             ]
+          }
+        }
+      },
+      "dto.RenameTeamRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Day shift"
           }
         }
       },
@@ -11356,6 +12429,251 @@
           "items"
         ]
       },
+      "dto.TeamDetailResponse": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/dto.TeamMemberResponse"
+            }
+          },
+          "team": {
+            "$ref": "#/components/schemas/dto.TeamResponse"
+          }
+        },
+        "required": [
+          "members",
+          "team"
+        ]
+      },
+      "dto.TeamEventEntryListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/dto.TeamEventEntryResponse"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "dto.TeamEventEntryResponse": {
+        "type": "object",
+        "properties": {
+          "assigned_members": {
+            "type": "integer",
+            "example": 4
+          },
+          "entered_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "event_id": {
+            "type": "string",
+            "example": "ev_gma9hq8a96q5"
+          },
+          "event_title": {
+            "type": "string",
+            "example": "National hackathon"
+          },
+          "id": {
+            "type": "string",
+            "example": "te_42ej2s5gh7e8"
+          },
+          "registered": {
+            "type": "boolean",
+            "example": true
+          },
+          "registered_count": {
+            "type": "integer",
+            "example": 3
+          },
+          "roster": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/dto.TeamRosterMemberResponse"
+            }
+          },
+          "roster_size": {
+            "type": "integer",
+            "example": 4
+          },
+          "team_id": {
+            "type": "string",
+            "example": "tm_42ej2s5gh7e8"
+          },
+          "team_size_max": {
+            "type": "integer",
+            "example": 5
+          },
+          "team_size_min": {
+            "type": "integer",
+            "example": 3
+          }
+        },
+        "required": [
+          "assigned_members",
+          "entered_at",
+          "event_id",
+          "event_title",
+          "id",
+          "registered",
+          "registered_count",
+          "roster",
+          "roster_size",
+          "team_id",
+          "team_size_max",
+          "team_size_min"
+        ]
+      },
+      "dto.TeamListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/dto.TeamResponse"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "dto.TeamMemberResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "tb_42ej2s5gh7e8"
+          },
+          "invited_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_lead": {
+            "type": "boolean",
+            "example": false
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "left_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "state": {
+            "$ref": "#/components/schemas/models.TeamMemberState"
+          },
+          "team_id": {
+            "type": "string",
+            "example": "tm_42ej2s5gh7e8"
+          },
+          "user": {
+            "$ref": "#/components/schemas/dto.UserSummary"
+          }
+        },
+        "required": [
+          "id",
+          "invited_at",
+          "is_lead",
+          "joined_at",
+          "left_at",
+          "state",
+          "team_id",
+          "user"
+        ]
+      },
+      "dto.TeamResponse": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "example": "tm_42ej2s5gh7e8"
+          },
+          "is_lead": {
+            "type": "boolean",
+            "example": true
+          },
+          "lead": {
+            "$ref": "#/components/schemas/dto.UserSummary"
+          },
+          "my_state": {
+            "type": "string",
+            "enum": [
+              "INVITED",
+              "ACTIVE",
+              "LEFT"
+            ],
+            "example": "ACTIVE"
+          },
+          "name": {
+            "type": "string",
+            "example": "Night shift"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "created_at",
+          "id",
+          "is_lead",
+          "lead",
+          "my_state",
+          "name",
+          "updated_at"
+        ]
+      },
+      "dto.TeamRosterMemberResponse": {
+        "type": "object",
+        "properties": {
+          "assigned": {
+            "type": "boolean",
+            "example": true
+          },
+          "id": {
+            "type": "string",
+            "example": "tp_42ej2s5gh7e8"
+          },
+          "is_lead": {
+            "type": "boolean",
+            "example": false
+          },
+          "member_id": {
+            "type": "string",
+            "example": "tb_42ej2s5gh7e8"
+          },
+          "registration_status": {
+            "$ref": "#/components/schemas/models.RegistrationStatusValue"
+          },
+          "state": {
+            "$ref": "#/components/schemas/models.TeamMemberState"
+          },
+          "user": {
+            "$ref": "#/components/schemas/dto.UserSummary"
+          }
+        },
+        "required": [
+          "assigned",
+          "id",
+          "is_lead",
+          "member_id",
+          "registration_status",
+          "state",
+          "user"
+        ]
+      },
       "dto.TelegramLinkResponse": {
         "type": "object",
         "properties": {
@@ -11501,6 +12819,10 @@
           "team_size_max": {
             "type": "integer",
             "example": 5
+          },
+          "team_size_min": {
+            "type": "integer",
+            "example": 3
           },
           "title": {
             "type": "string"
@@ -11945,6 +13267,14 @@
           "PARTICIPANT_REMOVE",
           "PARTICIPANT_REACTIVATE",
           "TEAM_ROLE_CHANGE",
+          "TEAM_CREATE",
+          "TEAM_RENAME",
+          "TEAM_INVITE",
+          "TEAM_JOIN",
+          "TEAM_LEAVE",
+          "TEAM_EVENT_ENTER",
+          "TEAM_ROSTER_ADD",
+          "TEAM_ROSTER_REMOVE",
           "REGISTRATION_CHANGE",
           "STATUS_CHANGE",
           "RULE_CHANGE",
@@ -11975,6 +13305,14 @@
           "AuditParticipantRemove",
           "AuditParticipantReactive",
           "AuditTeamRoleChange",
+          "AuditTeamCreate",
+          "AuditTeamRename",
+          "AuditTeamInvite",
+          "AuditTeamJoin",
+          "AuditTeamLeave",
+          "AuditTeamEventEnter",
+          "AuditTeamRosterAdd",
+          "AuditTeamRosterRemove",
           "AuditRegistrationChange",
           "AuditStatusChange",
           "AuditRuleChange",
@@ -12058,6 +13396,9 @@
           "EVENT",
           "STAGE",
           "EVENT_PARTICIPANT",
+          "TEAM",
+          "TEAM_MEMBER",
+          "TEAM_EVENT_ENTRY",
           "REGISTRATION",
           "REGISTRATION_STATUS",
           "NOTIFICATION_RULE",
@@ -12070,6 +13411,9 @@
           "EntityEvent",
           "EntityStage",
           "EntityParticipant",
+          "EntityTeam",
+          "EntityTeamMember",
+          "EntityTeamEventEntry",
           "EntityRegistration",
           "EntityRegistrationStatus",
           "EntityNotificationRule",
@@ -12665,6 +14009,19 @@
           "StageDemo",
           "StageResults",
           "StageOther"
+        ]
+      },
+      "models.TeamMemberState": {
+        "type": "string",
+        "enum": [
+          "INVITED",
+          "ACTIVE",
+          "LEFT"
+        ],
+        "x-enum-varnames": [
+          "TeamMemberInvited",
+          "TeamMemberActive",
+          "TeamMemberLeft"
         ]
       }
     }

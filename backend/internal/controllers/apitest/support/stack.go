@@ -20,6 +20,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/resourcelink"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/systemevent"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/team"
 	"github.com/GoatWhistle/timeline/internal/adapters/ratelimit"
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
 	"github.com/GoatWhistle/timeline/internal/config"
@@ -35,6 +36,7 @@ import (
 	sharedaudit "github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
+	svcteam "github.com/GoatWhistle/timeline/internal/services/team"
 	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
@@ -98,6 +100,10 @@ func NewStack(t *testing.T) *Stack {
 	historyRepo := personal.NewHistory(db)
 	retrosRepo := personal.NewRetrospectives(db)
 	calendarRepo := identity.NewCalendarFeeds(db)
+	teamsRepo := team.NewTeams(db)
+	teamMembersRepo := team.NewMembers(db)
+	teamEntriesRepo := team.NewEntries(db)
+	teamRostersRepo := team.NewRosters(db)
 
 	hasher := crypto.NewPasswordHasher(cfg.Argon)
 	issuer := crypto.NewTokenIssuer(cfg.Auth)
@@ -155,8 +161,10 @@ func NewStack(t *testing.T) *Stack {
 		CalendarFeeds: svcauth.NewCalendarFeedService(db, calendarRepo, users,
 			queries, auditSvc, cfg.App.PublicURL),
 		Notifications: notifier,
-		Realtime:      hub,
-		Sessions:      auth,
+		Teams: svcteam.NewTeamService(db, teamsRepo, teamMembersRepo, teamEntriesRepo, teamRostersRepo,
+			events, participants, registrations, statuses, users, notifier, auditSvc),
+		Realtime: hub,
+		Sessions: auth,
 
 		Authenticator:      auth,
 		Limiter:            limiter,

@@ -127,6 +127,7 @@ func newRouter(c *container) http.Handler {
 		Links:          c.links,
 		Feed:           c.feed,
 		CalendarFeeds:  c.calendar,
+		Teams:          c.teams,
 		Notifications:  c.notifier,
 
 		Authenticator: c.auth,

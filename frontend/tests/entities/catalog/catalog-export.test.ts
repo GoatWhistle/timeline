@@ -39,4 +39,15 @@ describe('exportSearch', () => {
   it('omits empty and undefined filters', () => {
     expect(exportSearch({ search: '', origin: undefined } as never)).toBe('')
   })
+
+  it('still carries the filters and the sort now that the toolbar has no search box', () => {
+    const search = new URLSearchParams(
+      exportSearch({ state: 'UPCOMING', format: 'ONLINE', sort: 'title', order: 'desc' }),
+    )
+    expect(search.has('search')).toBe(false)
+    expect(search.get('state')).toBe('UPCOMING')
+    expect(search.get('format')).toBe('ONLINE')
+    expect(search.get('sort')).toBe('title')
+    expect(search.get('order')).toBe('desc')
+  })
 })

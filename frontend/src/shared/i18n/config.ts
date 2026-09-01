@@ -10,6 +10,7 @@ export const NAMESPACES = [
   'auth',
   'errors',
   'ops',
+  'team',
 ] as const
 
 export type Namespace = (typeof NAMESPACES)[number]
@@ -22,6 +23,7 @@ export const BUNDLES: Record<Namespace, readonly string[]> = {
   auth: ['auth'],
   errors: ['errors'],
   ops: ['ops'],
+  team: ['team'],
 }
 
 const modules = import.meta.glob('./locales/*/*.json', { import: 'default' }) as Record<

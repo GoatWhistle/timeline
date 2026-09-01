@@ -22,6 +22,7 @@ type Event struct {
 	Track         *string     `json:"track,omitempty"`
 	PrizePool     *string     `json:"prize_pool,omitempty"`
 	PrizeCurrency *string     `json:"prize_currency,omitempty"`
+	TeamSizeMin   *int        `json:"team_size_min,omitempty"`
 	TeamSizeMax   *int        `json:"team_size_max,omitempty"`
 	StartAt       time.Time   `json:"start_at"`
 	EndAt         time.Time   `json:"end_at"`

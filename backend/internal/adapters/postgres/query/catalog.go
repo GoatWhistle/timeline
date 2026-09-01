@@ -18,7 +18,7 @@ func NewCatalog(db *postgres.DB) *Catalog { return &Catalog{db: db} }
 
 const catalogColumns = `e.id, e.display_id, e.title, e.description, e.organizer, e.website_url,
 	e.kind, e.format, e.origin, e.country_code, e.city,
-	e.track, e.prize_pool, e.prize_currency, e.team_size_max, e.start_at, e.end_at,
+	e.track, e.prize_pool, e.prize_currency, e.team_size_min, e.team_size_max, e.start_at, e.end_at,
 	(p.id IS NOT NULL) AS joined`
 
 const catalogFrom = `FROM events e
@@ -51,7 +51,7 @@ func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter dto.Catalog
 		var rawID uuid.UUID
 		if err := rows.Scan(&rawID, &c.ID, &c.Title, &c.Description, &c.Organizer, &c.WebsiteURL,
 			&c.Kind, &c.Format, &c.Origin, &c.CountryCode, &c.City,
-			&c.Track, &c.PrizePool, &c.PrizeCurrency, &c.TeamSizeMax,
+			&c.Track, &c.PrizePool, &c.PrizeCurrency, &c.TeamSizeMin, &c.TeamSizeMax,
 			&c.StartAt, &c.EndAt, &c.Joined); err != nil {
 			return nil, 0, mapError(err)
 		}

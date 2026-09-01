@@ -40,11 +40,11 @@ func scanUser(row pgx.Row) (*models.User, error) {
 
 func (r *Users) Create(ctx context.Context, u *models.User) (*models.User, error) {
 	return scanUser(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO users (first_name, middle_name, last_name, email, password_hash,
+		INSERT INTO users (first_name, middle_name, last_name, nickname, email, password_hash,
 			is_admin, is_active, email_verified_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING `+userColumns,
-		u.FirstName, u.MiddleName, u.LastName, u.Email, u.PasswordHash,
+		u.FirstName, u.MiddleName, u.LastName, u.Nickname, u.Email, u.PasswordHash,
 		u.IsAdmin, u.IsActive, u.EmailVerifiedAt))
 }
 

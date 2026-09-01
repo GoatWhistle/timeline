@@ -12,6 +12,7 @@ export type ProfileLinkRowProps = {
   index: number
   total: number
   isDragged: boolean
+  isEditing: boolean
   onMoveUp: () => void
   onMoveDown: () => void
   onEdit: () => void
@@ -26,6 +27,7 @@ export function ProfileLinkRow({
   index,
   total,
   isDragged,
+  isEditing,
   onMoveUp,
   onMoveDown,
   onEdit,
@@ -50,7 +52,9 @@ export function ProfileLinkRow({
       aria-label={`${name}, ${position}`}
       className={cn(
         'flex items-center gap-2 rounded-md border border-border bg-card p-2',
+        'motion-safe:transition-colors motion-safe:duration-base motion-safe:ease-out',
         isDragged && 'opacity-60 ring-1 ring-primary',
+        isEditing && 'border-primary bg-accent-surface',
       )}
     >
       <GripVertical
@@ -89,9 +93,10 @@ export function ProfileLinkRow({
       </Button>
       <Button
         type="button"
-        variant="ghost"
+        variant={isEditing ? 'secondary' : 'ghost'}
         size="icon"
         onClick={onEdit}
+        aria-pressed={isEditing}
         aria-label={t('profile.links.edit', { name })}
       >
         <Pencil className="size-4" aria-hidden="true" />

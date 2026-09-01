@@ -1,28 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
+import { nicknameProblem } from '@/shared/forms/nickname'
 import { applyServerErrors } from '@/shared/forms/server-errors'
-import { cn } from '@/shared/styling/class-names/class-names'
 import { Field } from '@/shared/ui/forms/field'
-import { Input } from '@/shared/ui/forms/input'
 import { Switch } from '@/shared/ui/forms/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
-
-const NICKNAME_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_-]{1,37}[A-Za-z0-9]$/
+import { NicknameLinkField, publicProfilePath } from './nickname-link-field'
 
 const nicknameSchema = z.object({
   nickname: z
     .string()
     .trim()
-    .refine(
-      (value) => value === '' || NICKNAME_PATTERN.test(value),
-      'auth:validation.nicknameFormat',
-    ),
+    .superRefine((value, ctx) => {
+      const problem = nicknameProblem(value)
+      if (problem !== null) ctx.addIssue({ code: 'custom', message: problem })
+    }),
 })
 type NicknameValues = z.infer<typeof nicknameSchema>
 
@@ -39,6 +36,9 @@ export function NicknameCard({
     resolver: zodResolver(nicknameSchema),
     values: { nickname: nickname ?? '' },
   })
+  const saved = nickname ?? ''
+  const invalid = Boolean(form.formState.errors.nickname)
+  const opens = saved !== '' && profilePublic
 
   async function onSave(values: NicknameValues) {
     try {
@@ -66,22 +66,21 @@ export function NicknameCard({
       <CardContent className="flex flex-col gap-6">
         <form className="flex flex-col gap-3" onSubmit={form.handleSubmit(onSave)} noValidate>
           <Field
-            label={t('profile.nickname')}
+            label={t('profile.nicknameLinkLabel')}
             htmlFor="nickname"
-            hideLabel
             error={form.formState.errors.nickname?.message}
           >
-            <Input
+            <NicknameLinkField
               id="nickname"
               autoComplete="username"
-              aria-invalid={Boolean(form.formState.errors.nickname)}
-              aria-describedby="nickname-hint"
+              spellCheck={false}
+              autoCapitalize="off"
+              placeholder={t('profile.nicknamePlaceholder')}
+              invalid={invalid}
+              openHref={opens ? publicProfilePath(saved) : undefined}
               {...form.register('nickname')}
             />
           </Field>
-          <p id="nickname-hint" className="text-caption text-muted-foreground">
-            {t('profile.nicknameHint')}
-          </p>
           <div className="flex justify-end">
             <Button type="submit" disabled={form.formState.isSubmitting}>
               {t('action.save')}
@@ -89,43 +88,22 @@ export function NicknameCard({
           </div>
         </form>
 
-        <div className="border-border border-t pt-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <p className="font-medium text-copy" id="profile-public-label">
-                {t('profile.visibilityLabel')}
-              </p>
-              <p className="mt-1 text-caption text-muted-foreground">
-                {nickname ? t('profile.visibilityHint') : t('profile.nicknameEmpty')}
-              </p>
-            </div>
-            <Switch
-              checked={profilePublic}
-              disabled={!nickname}
-              aria-labelledby="profile-public-label"
-              onCheckedChange={onToggleVisibility}
-            />
+        <div className="flex items-start justify-between gap-4 border-border border-t pt-4">
+          <div className="min-w-0">
+            <p className="font-medium text-copy" id="profile-public-label">
+              {t('profile.visibilityLabel')}
+            </p>
+            <p className="mt-1 text-caption text-muted-foreground" id="profile-public-hint">
+              {saved === '' ? t('profile.nicknameEmpty') : t('profile.visibilityHint')}
+            </p>
           </div>
-          {nickname && profilePublic ? (
-            <a
-              className={cn(
-                'mt-3 flex items-center justify-between gap-3 rounded-control border border-border',
-                'bg-surface-2 px-3 py-2 transition-colors duration-fast ease-out',
-                'hover:border-border-strong',
-                'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
-              )}
-              href={`/@${nickname}`}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={t('profile.publicProfileLink')}
-            >
-              <span className="min-w-0 truncate font-medium text-copy">/@{nickname}</span>
-              <ExternalLinkIcon
-                className="size-4 shrink-0 text-muted-foreground"
-                aria-hidden="true"
-              />
-            </a>
-          ) : null}
+          <Switch
+            checked={profilePublic}
+            disabled={saved === ''}
+            aria-labelledby="profile-public-label"
+            aria-describedby="profile-public-hint"
+            onCheckedChange={onToggleVisibility}
+          />
         </div>
       </CardContent>
     </Card>

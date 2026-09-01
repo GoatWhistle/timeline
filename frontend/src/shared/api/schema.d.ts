@@ -3251,7 +3251,7 @@ export interface paths {
                         "application/json": components["schemas"]["dto.ErrorResponse"];
                     };
                 };
-                /** @description email is already taken */
+                /** @description email or nickname is already taken */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -8572,6 +8572,982 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/teams": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own teams
+         * @description Teams the caller leads or belongs to, including the ones they were invited into
+         *     and have not accepted yet. A team the caller left is not listed.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a team
+         * @description The caller becomes the team lead and its first active member.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Team name */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.CreateTeamRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamDetailResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Team and its members
+         * @description Visible to the members of the team alone. A team the caller does not belong to
+         *     answers 404: the existence of somebody else's team is not disclosed.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamDetailResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Rename a team
+         * @description Restricted to the team lead. A member who is not the lead receives 403.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description New name */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.RenameTeamRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamDetailResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/teams/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Events a team entered
+         * @description Every entry the team holds, each with its own roster and derived standing.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamEventEntryListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Enter a hackathon as a team
+         * @description Restricted to the team lead. Only a published, non-archived event of kind HACKATHON
+         *     accepts a team entry. The entry starts with an empty roster: the lead then draws a
+         *     lineup for this event from the team's active members, and the team's size limits
+         *     apply to that lineup, not to the whole team. Entering registers nobody: registration
+         *     stays the self-report of each member and the system never checks the external site.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Event to enter */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.EnterEventRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamEventEntryResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}/events/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Team standing on an event
+         * @description `registered` is derived, never stored: the team counts as registered once the number
+         *     of roster members who reported their own registration reaches the event's
+         *     `team_size_min`. Team members outside this event's roster do not count towards it.
+         *     An event without `team_size_min` has no threshold and is never derived registered.
+         *     Every count is a self-report, not a verified fact.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_gma9hq8a96q5
+                     */
+                    event_id: string;
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamEventEntryResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}/events/{event_id}/roster/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put a team member on the event roster
+         * @description Restricted to the team lead. The lineup for an event is drawn from the team's active
+         *     members and may be smaller than the team. The event's `team_size_max` caps the
+         *     lineup and a further addition is refused with `roster_full`; `team_size_min` is only
+         *     the threshold of the derived registered state and never blocks an addition, so an
+         *     under-filled lineup is allowed while it is being assembled.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_gma9hq8a96q5
+                     */
+                    event_id: string;
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                    /**
+                     * @description User identifier
+                     * @example us_42ej2s5gh7e8
+                     */
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamEventEntryResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /**
+         * Take a team member off the event roster
+         * @description Restricted to the team lead. The member stays in the team; only this event's lineup
+         *     loses them. Their personal registration status on the event is left untouched.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_gma9hq8a96q5
+                     */
+                    event_id: string;
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                    /**
+                     * @description User identifier
+                     * @example us_42ej2s5gh7e8
+                     */
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamEventEntryResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}/events/{event_id}/roster/{user_id}/registration/done": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark a roster member as registered
+         * @description Restricted to the team lead, and only for a member on this event's own roster. It
+         *     writes the same personal registration status the member writes themselves, so the
+         *     value stays a self-report relayed by the lead rather than a verified fact; the audit
+         *     log records who marked whom.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_gma9hq8a96q5
+                     */
+                    event_id: string;
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                    /**
+                     * @description User identifier
+                     * @example us_42ej2s5gh7e8
+                     */
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamEventEntryResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invite a user into the team
+         * @description Restricted to the team lead. The invitation lands in the INVITED state and the
+         *     invited user accepts it themselves.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description User to invite */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.InviteTeamMemberRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamDetailResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}/members/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a member from the team
+         * @description Restricted to the team lead. The lead cannot remove themselves.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                    /**
+                     * @description User identifier
+                     * @example us_42ej2s5gh7e8
+                     */
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamDetailResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}/membership": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept an invitation
+         * @description The invited user turns their own INVITED membership into ACTIVE. Accepting twice
+         *     is not an error.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamDetailResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Leave a team
+         * @description The caller leaves the team themselves. The team lead cannot leave their own team.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -8583,6 +9559,8 @@ export interface components {
             last_name?: string;
             /** @example Fitzgerald */
             middle_name?: string;
+            /** @example jsmith */
+            nickname?: string;
             /** @example correct-horse-battery */
             password?: string;
             /** @example abc123 */
@@ -8714,6 +9692,8 @@ export interface components {
             state: components["schemas"]["models.EventState"];
             /** @example 5 */
             team_size_max?: number;
+            /** @example 3 */
+            team_size_min: number;
             /** @example National event */
             title: string;
             /** @example Smart city */
@@ -8784,6 +9764,8 @@ export interface components {
             start_at?: string;
             /** @example 5 */
             team_size_max?: number;
+            /** @example 3 */
+            team_size_min?: number;
             /** @example National event */
             title?: string;
             /** @example Smart city */
@@ -8879,6 +9861,10 @@ export interface components {
             /** @example Record the demo video */
             title?: string;
         };
+        "dto.CreateTeamRequest": {
+            /** @example Night shift */
+            name?: string;
+        };
         "dto.CSRFResponse": {
             /** @example 0f2a5c8d1b3e4f60 */
             csrf_token: string;
@@ -8904,6 +9890,10 @@ export interface components {
         "dto.EmailRequest": {
             /** @example ivan@example.com */
             email?: string;
+        };
+        "dto.EnterEventRequest": {
+            /** @example ev_gma9hq8a96q5 */
+            event_id?: string;
         };
         "dto.ErrorBody": {
             /** @example validation_failed */
@@ -8964,6 +9954,8 @@ export interface components {
             state: components["schemas"]["models.EventState"];
             /** @example 5 */
             team_size_max?: number;
+            /** @example 3 */
+            team_size_min: number;
             /** @example National event */
             title: string;
             /** @example Smart city */
@@ -9031,6 +10023,10 @@ export interface components {
             id: string;
             /** Format: date-time */
             revoked_at?: string;
+        };
+        "dto.InviteTeamMemberRequest": {
+            /** @example us_42ej2s5gh7e8 */
+            user_id?: string;
         };
         "dto.JoinEventRequest": {
             /** @example Backend developer */
@@ -9312,6 +10308,8 @@ export interface components {
             last_name?: string;
             /** @example Fitzgerald */
             middle_name?: string;
+            /** @example jsmith */
+            nickname?: string;
             /** @example correct-horse-battery */
             password?: string;
         };
@@ -9404,6 +10402,10 @@ export interface components {
              *     ]
              */
             participant_ids?: string[];
+        };
+        "dto.RenameTeamRequest": {
+            /** @example Day shift */
+            name?: string;
         };
         "dto.ReorderProfileLinksRequest": {
             /**
@@ -9568,6 +10570,88 @@ export interface components {
         "dto.TaskListResponse": {
             items: components["schemas"]["models.ParticipantTask"][];
         };
+        "dto.TeamDetailResponse": {
+            members: components["schemas"]["dto.TeamMemberResponse"][];
+            team: components["schemas"]["dto.TeamResponse"];
+        };
+        "dto.TeamEventEntryListResponse": {
+            items: components["schemas"]["dto.TeamEventEntryResponse"][];
+        };
+        "dto.TeamEventEntryResponse": {
+            /** @example 4 */
+            assigned_members: number;
+            /** Format: date-time */
+            entered_at: string;
+            /** @example ev_gma9hq8a96q5 */
+            event_id: string;
+            /** @example National hackathon */
+            event_title: string;
+            /** @example te_42ej2s5gh7e8 */
+            id: string;
+            /** @example true */
+            registered: boolean;
+            /** @example 3 */
+            registered_count: number;
+            roster: components["schemas"]["dto.TeamRosterMemberResponse"][];
+            /** @example 4 */
+            roster_size: number;
+            /** @example tm_42ej2s5gh7e8 */
+            team_id: string;
+            /** @example 5 */
+            team_size_max: number;
+            /** @example 3 */
+            team_size_min: number;
+        };
+        "dto.TeamListResponse": {
+            items: components["schemas"]["dto.TeamResponse"][];
+        };
+        "dto.TeamMemberResponse": {
+            /** @example tb_42ej2s5gh7e8 */
+            id: string;
+            /** Format: date-time */
+            invited_at: string;
+            /** @example false */
+            is_lead: boolean;
+            /** Format: date-time */
+            joined_at: string;
+            /** Format: date-time */
+            left_at: string;
+            state: components["schemas"]["models.TeamMemberState"];
+            /** @example tm_42ej2s5gh7e8 */
+            team_id: string;
+            user: components["schemas"]["dto.UserSummary"];
+        };
+        "dto.TeamResponse": {
+            /** Format: date-time */
+            created_at: string;
+            /** @example tm_42ej2s5gh7e8 */
+            id: string;
+            /** @example true */
+            is_lead: boolean;
+            lead: components["schemas"]["dto.UserSummary"];
+            /**
+             * @example ACTIVE
+             * @enum {string}
+             */
+            my_state: "INVITED" | "ACTIVE" | "LEFT";
+            /** @example Night shift */
+            name: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        "dto.TeamRosterMemberResponse": {
+            /** @example true */
+            assigned: boolean;
+            /** @example tp_42ej2s5gh7e8 */
+            id: string;
+            /** @example false */
+            is_lead: boolean;
+            /** @example tb_42ej2s5gh7e8 */
+            member_id: string;
+            registration_status: components["schemas"]["models.RegistrationStatusValue"];
+            state: components["schemas"]["models.TeamMemberState"];
+            user: components["schemas"]["dto.UserSummary"];
+        };
         "dto.TelegramLinkResponse": {
             /** @example https://t.me/timeline_bot?start=abc123 */
             deep_link: string;
@@ -9625,6 +10709,8 @@ export interface components {
             start_at?: string;
             /** @example 5 */
             team_size_max?: number;
+            /** @example 3 */
+            team_size_min?: number;
             title?: string;
             /** @example Smart city */
             track?: string;
@@ -9800,7 +10886,7 @@ export interface components {
         /** @enum {string} */
         "models.ArtifactKind": "REPOSITORY" | "VIDEO" | "SLIDES" | "DEMO" | "SUBMISSION" | "OTHER";
         /** @enum {string} */
-        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "CALENDAR_FEED_ISSUE" | "CALENDAR_FEED_REVOKE";
+        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "CALENDAR_FEED_ISSUE" | "CALENDAR_FEED_REVOKE";
         /** @enum {string} */
         "models.ChangeSource": "SYSTEM" | "USER" | "ADMIN";
         /** @enum {string} */
@@ -9819,7 +10905,7 @@ export interface components {
             title_key: string;
         };
         /** @enum {string} */
-        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "CALENDAR_FEED";
+        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "CALENDAR_FEED";
         /** @enum {string} */
         "models.EventFormat": "ONLINE" | "OFFLINE" | "HYBRID";
         /** @enum {string} */
@@ -9993,6 +11079,8 @@ export interface components {
         };
         /** @enum {string} */
         "models.StageType": "REGISTRATION" | "SELECTION" | "PARTICIPATION" | "CHECKPOINT" | "SUBMISSION" | "DEMO" | "RESULTS" | "OTHER";
+        /** @enum {string} */
+        "models.TeamMemberState": "INVITED" | "ACTIVE" | "LEFT";
     };
     responses: never;
     parameters: never;

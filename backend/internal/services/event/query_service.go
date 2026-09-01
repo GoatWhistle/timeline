@@ -207,6 +207,7 @@ func eventView(h *models.Event, stages []models.Stage, now time.Time) dto.EventR
 		Track:           h.Track,
 		PrizePool:       h.PrizePool,
 		PrizeCurrency:   h.PrizeCurrency,
+		TeamSizeMin:     h.TeamSizeMin,
 		TeamSizeMax:     h.TeamSizeMax,
 		StartAt:         h.StartAt,
 		EndAt:           h.EndAt,

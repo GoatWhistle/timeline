@@ -8,6 +8,7 @@ import {
   ScrollText,
   Send,
   Users,
+  UsersRound,
 } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -26,6 +27,7 @@ export const USER_NAV: NavItem[] = [
   { to: '/catalog', labelKey: 'nav.catalog', icon: Compass },
   { to: '/', labelKey: 'nav.myEvents', icon: LayoutList },
   { to: '/schedule', labelKey: 'nav.schedule', icon: CalendarRange },
+  { to: '/teams', labelKey: 'team:title', icon: UsersRound },
 ]
 
 export const ADMIN_NAV: NavItem[] = [

@@ -10,6 +10,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/participation"
 	"github.com/GoatWhistle/timeline/internal/controllers/personal"
 	"github.com/GoatWhistle/timeline/internal/controllers/realtime"
+	"github.com/GoatWhistle/timeline/internal/controllers/team"
 )
 
 // @title			Timeline API
@@ -67,6 +68,8 @@ import (
 // @tag.description			The WebSocket channel that tells a client what went stale
 // @tag.name					calendar
 // @tag.description			The participant's own schedule as an iCalendar feed served by a secret token
+// @tag.name					teams
+// @tag.description			Teams: a lead, their members and the hackathons a team entered
 // @tag.name					ops
 // @tag.description			Service probes and metrics
 func NewRouter(deps Deps) http.Handler {
@@ -100,6 +103,7 @@ func NewRouter(deps Deps) http.Handler {
 		deps.PersonalRateWindow, deps.PageDefault, deps.PageMax)
 	linkC := event.NewResourceLinkController(deps.Links, deps.Limiter, deps.LinkRate,
 		deps.LinkRateWindow)
+	teamC := team.NewController(deps.Teams)
 	calendarC := realtime.NewCalendarFeedController(deps.CalendarFeeds, deps.Limiter,
 		deps.CalendarRate, deps.CalendarRateWindow, deps.ICSRate, deps.ICSRateWindow)
 
@@ -111,6 +115,7 @@ func NewRouter(deps Deps) http.Handler {
 	mountPublicProfile(mux, api, publicProfileC)
 	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC, profileLinkC, avatarC)
 	mountPersonal(mux, rt, api, personalC)
+	mountTeams(mux, rt, api, teamC)
 	mountResourceLinks(mux, rt, api, linkC)
 	mountCalendarFeed(mux, rt, api, calendarC)
 	mountRealtime(mux, rt, api, deps)

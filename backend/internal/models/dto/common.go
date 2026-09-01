@@ -78,6 +78,9 @@ var (
 	DisplayKindSystemEvent        = DisplayKind{Prefix: "sy", Entity: "system event"}
 	DisplayKindRegistration       = DisplayKind{Prefix: "rg", Entity: "registration"}
 	DisplayKindNotification       = DisplayKind{Prefix: "nt", Entity: "notification"}
+	DisplayKindTeam               = DisplayKind{Prefix: "tm", Entity: "team"}
+	DisplayKindTeamMember         = DisplayKind{Prefix: "tb", Entity: "team member"}
+	DisplayKindTeamEventEntry     = DisplayKind{Prefix: "te", Entity: "team event entry"}
 )
 
 const (

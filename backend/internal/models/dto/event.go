@@ -23,6 +23,7 @@ type EventResponse struct {
 	Track           *string            `json:"track,omitempty" example:"Smart city"`
 	PrizePool       *string            `json:"prize_pool,omitempty" example:"500000.00"`
 	PrizeCurrency   *string            `json:"prize_currency,omitempty" example:"RUB"`
+	TeamSizeMin     *int               `json:"team_size_min,omitempty" example:"3"`
 	TeamSizeMax     *int               `json:"team_size_max,omitempty" example:"5"`
 
 	StartAt     time.Time         `json:"start_at"`
@@ -54,6 +55,7 @@ type CreateEventRequest struct {
 	Track         *string `json:"track,omitempty" example:"Smart city"`
 	PrizePool     *string `json:"prize_pool,omitempty" example:"500000.00"`
 	PrizeCurrency *string `json:"prize_currency,omitempty" example:"RUB"`
+	TeamSizeMin   *int    `json:"team_size_min,omitempty" example:"3"`
 	TeamSizeMax   *int    `json:"team_size_max,omitempty" example:"5"`
 
 	StartAt time.Time `json:"start_at"`
@@ -75,6 +77,7 @@ type UpdateEventRequest struct {
 	Track         *string `json:"track,omitempty" example:"Smart city"`
 	PrizePool     *string `json:"prize_pool,omitempty" example:"500000.00"`
 	PrizeCurrency *string `json:"prize_currency,omitempty" example:"RUB"`
+	TeamSizeMin   *int    `json:"team_size_min,omitempty" example:"3"`
 	TeamSizeMax   *int    `json:"team_size_max,omitempty" example:"5"`
 
 	StartAt *time.Time `json:"start_at,omitempty"`

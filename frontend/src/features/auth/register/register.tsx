@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { z } from 'zod'
 import { useRegister } from '@/entities/session/session.queries'
+import { nicknameProblem } from '@/shared/forms/nickname'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Wordmark } from '@/shared/ui/brand/wordmark'
 import { Spinner } from '@/shared/ui/data-display/spinner'
@@ -26,6 +27,14 @@ const schema = z
       .trim()
       .min(1, 'auth:validation.lastNameMin')
       .max(80, 'auth:validation.nameMax'),
+    nickname: z
+      .string()
+      .trim()
+      .min(1, 'auth:validation.nicknameRequired')
+      .superRefine((value, ctx) => {
+        const problem = nicknameProblem(value)
+        if (problem !== null) ctx.addIssue({ code: 'custom', message: problem })
+      }),
     email: z.email('auth:validation.email'),
     password: z.string().min(8, 'auth:validation.passwordMin'),
     password_repeat: z.string(),
@@ -53,6 +62,7 @@ export function RegisterPage() {
       first_name: '',
       middle_name: '',
       last_name: '',
+      nickname: '',
       email: '',
       password: '',
       password_repeat: '',
@@ -65,6 +75,7 @@ export function RegisterPage() {
         first_name: values.first_name,
         middle_name: values.middle_name?.trim() ? values.middle_name : undefined,
         last_name: values.last_name,
+        nickname: values.nickname,
         email: values.email,
         password: values.password,
       })
@@ -74,6 +85,7 @@ export function RegisterPage() {
         'first_name',
         'middle_name',
         'last_name',
+        'nickname',
         'email',
         'password',
       ])
@@ -116,6 +128,22 @@ export function RegisterPage() {
               autoComplete="family-name"
               aria-invalid={Boolean(errors.last_name)}
               {...register('last_name')}
+            />
+          </Field>
+
+          <Field
+            label={t('field.nickname')}
+            htmlFor="nickname"
+            required
+            error={errors.nickname?.message}
+          >
+            <Input
+              id="nickname"
+              autoComplete="username"
+              spellCheck={false}
+              autoCapitalize="off"
+              aria-invalid={Boolean(errors.nickname)}
+              {...register('nickname')}
             />
           </Field>
 

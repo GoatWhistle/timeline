@@ -15,20 +15,18 @@ import {
 } from '@/entities/catalog/catalog.views'
 import { CatalogCard } from '@/entities/catalog/catalog-card'
 import type { CatalogEvent } from '@/shared/api/types.gen'
-import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
-import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { DetailPane, ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
 import { CatalogDetail } from './catalog-detail'
-import type { CatalogFilterValues } from './catalog-filter-conditions'
+import { CatalogEmpty } from './catalog-empty'
+import { activeFilterCount, type CatalogFilterValues } from './catalog-filter-conditions'
 import { CatalogTable } from './catalog-table'
 import { CatalogToolbar } from './catalog-toolbar'
 
 const DEFAULTS = {
-  search: '',
   origin: '',
   kind: '',
   format: '',
@@ -69,7 +67,6 @@ export function CatalogPage() {
   const exportMutation = useCatalogExport()
   const { columns, toggle: toggleColumn, reset: resetColumns } = useCatalogColumns()
 
-  const search = useDebouncedValue(filters.search, 250)
   const layout = resolveLayout(filters.layout)
   const sort = resolveSort(filters.sort)
   const order = resolveOrder(filters.order)
@@ -79,7 +76,6 @@ export function CatalogPage() {
   ) as CatalogFilterValues
 
   const params: CatalogParams = {
-    search: search === '' ? undefined : search,
     origin: listParam<'origin'>(filters.origin),
     kind: listParam<'kind'>(filters.kind),
     format: listParam<'format'>(filters.format),
@@ -93,6 +89,7 @@ export function CatalogPage() {
   const query = useQuery(catalogQuery({ ...params, page }))
 
   const items = query.data?.items ?? []
+  const filtered = activeFilterCount(conditions) > 0
   const selected = filters.selected || null
   const selectedEvent = items.find((item) => item.id === selected) ?? null
 
@@ -131,7 +128,6 @@ export function CatalogPage() {
     <ThreePane>
       <ListPane>
         <CatalogToolbar
-          search={filters.search}
           layout={layout}
           sort={sort}
           order={order}
@@ -139,7 +135,6 @@ export function CatalogPage() {
           columns={columns}
           total={query.data?.meta.total}
           exporting={exportMutation.isPending}
-          onSearch={(value) => setFilters({ search: value })}
           onLayout={(value) => setFilters({ layout: value }, { resetPage: false })}
           onSort={changeSort}
           onOrder={(value: CatalogOrder) => setFilters({ order: value })}
@@ -160,9 +155,7 @@ export function CatalogPage() {
           skeleton={<SkeletonRows rows={8} />}
         >
           {items.length === 0 ? (
-            <div className="p-4">
-              <EmptyState title={t('catalog.empty')} description={t('catalog.emptyHint')} />
-            </div>
+            <CatalogEmpty filtered={filtered} onResetFilters={resetFilters} />
           ) : (
             <>
               {layout === 'table' ? (

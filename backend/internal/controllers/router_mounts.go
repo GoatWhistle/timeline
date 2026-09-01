@@ -7,6 +7,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/event"
 	"github.com/GoatWhistle/timeline/internal/controllers/notification"
 	"github.com/GoatWhistle/timeline/internal/controllers/participation"
+	"github.com/GoatWhistle/timeline/internal/controllers/team"
 )
 
 func mountAuth(mux *http.ServeMux, rt *routes, api string,
@@ -137,4 +138,23 @@ func mountAdminQueries(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("GET /healthz", http.HandlerFunc(opsC.Health))
 	mux.Handle("GET /readyz", http.HandlerFunc(opsC.Ready))
 	mux.Handle("GET /metrics", http.HandlerFunc(opsC.Metrics))
+}
+
+func mountTeams(mux *http.ServeMux, rt *routes, api string, c *team.Controller) {
+	mux.Handle("GET "+api+"/teams", rt.authd(c.List))
+	mux.Handle("POST "+api+"/teams", rt.authd(c.Create))
+	mux.Handle("GET "+api+"/teams/{id}", rt.authd(c.Get))
+	mux.Handle("PATCH "+api+"/teams/{id}", rt.authd(c.Rename))
+	mux.Handle("POST "+api+"/teams/{id}/invitations", rt.authd(c.Invite))
+	mux.Handle("POST "+api+"/teams/{id}/membership", rt.authd(c.Accept))
+	mux.Handle("DELETE "+api+"/teams/{id}/membership", rt.authd(c.Leave))
+	mux.Handle("DELETE "+api+"/teams/{id}/members/{user_id}", rt.authd(c.Remove))
+	mux.Handle("GET "+api+"/teams/{id}/events", rt.authd(c.ListEvents))
+	mux.Handle("POST "+api+"/teams/{id}/events", rt.authd(c.EnterEvent))
+	mux.Handle("GET "+api+"/teams/{id}/events/{event_id}", rt.authd(c.EventStanding))
+	mux.Handle("PUT "+api+"/teams/{id}/events/{event_id}/roster/{user_id}", rt.authd(c.AddToRoster))
+	mux.Handle("DELETE "+api+"/teams/{id}/events/{event_id}/roster/{user_id}",
+		rt.authd(c.RemoveFromRoster))
+	mux.Handle("POST "+api+"/teams/{id}/events/{event_id}/roster/{user_id}/registration/done",
+		rt.authd(c.MarkRosterMember))
 }

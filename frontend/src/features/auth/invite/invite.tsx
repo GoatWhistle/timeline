@@ -6,6 +6,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { z } from 'zod'
 import { useAcceptInvite, useInvitePreview } from '@/entities/session/session.queries'
 import { formatDateTime } from '@/shared/datetime/datetime'
+import { nicknameProblem } from '@/shared/forms/nickname'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
@@ -27,6 +28,14 @@ const schema = z
       .trim()
       .min(1, 'auth:validation.lastNameMin')
       .max(80, 'auth:validation.nameMax'),
+    nickname: z
+      .string()
+      .trim()
+      .min(1, 'auth:validation.nicknameRequired')
+      .superRefine((value, ctx) => {
+        const problem = nicknameProblem(value)
+        if (problem !== null) ctx.addIssue({ code: 'custom', message: problem })
+      }),
     password: z.string().min(8, 'auth:validation.passwordMin'),
     password_repeat: z.string(),
   })
@@ -55,6 +64,7 @@ export function InvitePage() {
       first_name: '',
       middle_name: '',
       last_name: '',
+      nickname: '',
       password: '',
       password_repeat: '',
     },
@@ -67,11 +77,18 @@ export function InvitePage() {
         first_name: values.first_name,
         middle_name: values.middle_name?.trim() ? values.middle_name : undefined,
         last_name: values.last_name,
+        nickname: values.nickname,
         password: values.password,
       })
       navigate('/', { replace: true })
     } catch (error) {
-      applyServerErrors(error, setError, ['first_name', 'middle_name', 'last_name', 'password'])
+      applyServerErrors(error, setError, [
+        'first_name',
+        'middle_name',
+        'last_name',
+        'nickname',
+        'password',
+      ])
     }
   }
 
@@ -138,6 +155,22 @@ export function InvitePage() {
               autoComplete="family-name"
               aria-invalid={Boolean(errors.last_name)}
               {...register('last_name')}
+            />
+          </Field>
+
+          <Field
+            label={t('field.nickname')}
+            htmlFor="nickname"
+            required
+            error={errors.nickname?.message}
+          >
+            <Input
+              id="nickname"
+              autoComplete="username"
+              spellCheck={false}
+              autoCapitalize="off"
+              aria-invalid={Boolean(errors.nickname)}
+              {...register('nickname')}
             />
           </Field>
           <Field

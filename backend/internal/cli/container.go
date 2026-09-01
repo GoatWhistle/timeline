@@ -14,6 +14,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/resourcelink"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/systemevent"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/team"
 	"github.com/GoatWhistle/timeline/internal/adapters/ratelimit"
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
 	"github.com/GoatWhistle/timeline/internal/config"
@@ -31,6 +32,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/services/shared/blobstore"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
+	svcteam "github.com/GoatWhistle/timeline/internal/services/team"
 )
 
 type container struct {
@@ -67,6 +69,10 @@ type container struct {
 		digests       *query.Digests
 		feed          *systemevent.Events
 		calendarFeeds *identity.CalendarFeeds
+		teams         *team.Teams
+		teamMembers   *team.Members
+		teamEntries   *team.Entries
+		teamRosters   *team.Rosters
 		audit         *audit.Audit
 	}
 
@@ -101,6 +107,7 @@ type container struct {
 	reminders     *svcreminder.Service
 	digest        *svcdigest.DigestService
 	hub           *svcrealtime.RealtimeHub
+	teams         *svcteam.TeamService
 }
 
 func (c *container) wireRepositories() {
@@ -134,6 +141,10 @@ func (c *container) wireRepositories() {
 	c.repos.digests = query.NewDigests(db)
 	c.repos.feed = systemevent.NewEvents(db)
 	c.repos.calendarFeeds = identity.NewCalendarFeeds(db)
+	c.repos.teams = team.NewTeams(db)
+	c.repos.teamMembers = team.NewMembers(db)
+	c.repos.teamEntries = team.NewEntries(db)
+	c.repos.teamRosters = team.NewRosters(db)
 	c.repos.audit = audit.NewAudit(db)
 }
 
@@ -201,6 +212,9 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.hub = svcrealtime.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
 	c.calendar = svcauth.NewCalendarFeedService(db, c.repos.calendarFeeds, c.repos.users,
 		c.repos.queries, c.audit, cfg.App.PublicURL)
+	c.teams = svcteam.NewTeamService(db, c.repos.teams, c.repos.teamMembers, c.repos.teamEntries, c.repos.teamRosters,
+		c.repos.events, c.repos.participants, c.repos.registrations, c.repos.statuses,
+		c.repos.users, c.notifier, c.audit)
 	c.wireRealtime()
 	return c, nil
 }

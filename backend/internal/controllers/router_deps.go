@@ -12,6 +12,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/personal"
 	"github.com/GoatWhistle/timeline/internal/controllers/realtime"
 	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/team"
 )
 
 type Deps struct {
@@ -39,6 +40,7 @@ type Deps struct {
 	Sessions      realtime.SessionChecker
 	Links         event.ResourceLinkService
 	CalendarFeeds realtime.CalendarFeedService
+	Teams         team.TeamService
 
 	Authenticator middleware.Authenticator
 	Metrics       http.Handler

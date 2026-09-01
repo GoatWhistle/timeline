@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	"github.com/google/uuid"
 
@@ -30,9 +32,10 @@ func (s *AuthService) usableInvite(ctx context.Context, token, email string) (*m
 }
 
 type registrationName struct {
-	first  string
-	middle *string
-	last   string
+	first    string
+	middle   *string
+	last     string
+	nickname *string
 }
 
 func (s *AuthService) validateRegistration(req dto.RegisterRequest) (string, registrationName, string, error) {
@@ -46,7 +49,11 @@ func (s *AuthService) validateRegistration(req dto.RegisterRequest) (string, reg
 	if err != nil {
 		return "", name, "", err
 	}
-	name = registrationName{first: first, middle: middle, last: last}
+	nickname, err := validation.RegistrationNickname(req.Nickname)
+	if err != nil {
+		return "", name, "", err
+	}
+	name = registrationName{first: first, middle: middle, last: last, nickname: nickname}
 	if err := validation.ValidatePassword(req.Password, s.cfg.Auth.MinPasswordLength); err != nil {
 		return "", name, "", err
 	}
@@ -108,6 +115,10 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest,
 			return models.NewConflict("email_taken", "a user with this email already exists")
 		}
 
+		if err := s.checkRegistrationNickname(ctx, name.nickname); err != nil {
+			return err
+		}
+
 		user, err = s.createUser(ctx, name, email, hash)
 		if err != nil {
 			return err
@@ -140,14 +151,50 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest,
 	return user, pair, nil
 }
 
+func (s *AuthService) checkRegistrationNickname(ctx context.Context, nickname *string) error {
+	if nickname == nil {
+		return nil
+	}
+	taken, err := s.users.NicknameTaken(ctx, *nickname, uuid.Nil)
+	if err != nil {
+		return err
+	}
+	if taken {
+		return models.NewConflict("nickname_taken", "this nickname is already taken")
+	}
+	held, err := s.users.NicknameHeld(ctx, *nickname, uuid.Nil, s.now())
+	if err != nil {
+		return err
+	}
+	if held {
+		return models.NewConflict("nickname_held",
+			"this nickname was released recently and is still reserved")
+	}
+	return nil
+}
+
 func (s *AuthService) createUser(ctx context.Context, name registrationName,
 	email, hash string) (*models.User, error) {
-	return s.users.Create(ctx, &models.User{
+	user, err := s.users.Create(ctx, &models.User{
 		FirstName:    name.first,
 		MiddleName:   name.middle,
 		LastName:     name.last,
+		Nickname:     name.nickname,
 		Email:        email,
 		PasswordHash: hash,
 		IsActive:     true,
 	})
+	if err != nil && name.nickname != nil && isNicknameConflict(err) {
+		return nil, models.NewConflict("nickname_taken", "this nickname is already taken")
+	}
+	return user, err
+}
+
+func isNicknameConflict(err error) bool {
+	var domain *models.DomainError
+	if !errors.As(err, &domain) {
+		return false
+	}
+	return domain.Code == "unique_violation" &&
+		strings.Contains(domain.Message, "users_nickname_key")
 }

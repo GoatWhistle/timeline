@@ -27,8 +27,13 @@
   "catalog": {
     "title": "Catalog",
     "joined": "You take part",
-    "empty": "No events found",
-    "emptyHint": "Change the filters or the scope",
+    "empty": {
+      "title": "The catalog is empty",
+      "hint": "There are no events yet. They will show up here once someone adds them.",
+      "filteredTitle": "Nothing matches these conditions",
+      "filteredHint": "No event fits the filters you picked. Loosen them or reset them.",
+      "reset": "Reset the filters"
+    },
     "layoutAria": "Layout",
     "scope": {
       "all": "All",

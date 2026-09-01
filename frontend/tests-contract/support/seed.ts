@@ -43,6 +43,7 @@ async function createUser(displayName: string): Promise<{ email: string; id: str
       token: tokenFrom(acceptLink),
       first_name: displayName,
       last_name: 'Contract',
+      nickname: `ct${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
       password: MEMBER_PASSWORD,
     },
   })

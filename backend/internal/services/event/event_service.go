@@ -73,7 +73,7 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req dto.C
 	if err != nil {
 		return nil, err
 	}
-	if err := validateTeamSizeMax(req.TeamSizeMax); err != nil {
+	if err := validateTeamSize(req.TeamSizeMin, req.TeamSizeMax); err != nil {
 		return nil, err
 	}
 
@@ -93,6 +93,7 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req dto.C
 			Track:         track,
 			PrizePool:     prize.pool,
 			PrizeCurrency: prize.currency,
+			TeamSizeMin:   req.TeamSizeMin,
 			TeamSizeMax:   req.TeamSizeMax,
 			StartAt:       req.StartAt.UTC(),
 			EndAt:         req.EndAt.UTC(),
@@ -189,7 +190,9 @@ func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.U
 			}
 			req.Track = track
 		}
-		if err := validateTeamSizeMax(req.TeamSizeMax); err != nil {
+		if err := validateTeamSize(
+			coalesceSize(req.TeamSizeMin, before.TeamSizeMin),
+			coalesceSize(req.TeamSizeMax, before.TeamSizeMax)); err != nil {
 			return err
 		}
 

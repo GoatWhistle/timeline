@@ -71,6 +71,7 @@ export function useAcceptInvite() {
       first_name: string
       middle_name?: string | undefined
       last_name: string
+      nickname?: string | undefined
       password: string
     }
   >({

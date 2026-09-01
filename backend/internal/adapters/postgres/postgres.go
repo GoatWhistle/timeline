@@ -134,6 +134,7 @@ func constraintMessage(name string) string {
 
 var constraintMessages = map[string]string{
 	"users_email_key":                       "a user with this email already exists",
+	"users_nickname_key":                    "this nickname is already taken",
 	"users_pending_email_key":               "this email is already awaiting confirmation",
 	"users_telegram_chat_id_key":            "this Telegram account is already linked",
 	"invites_one_pending_per_email_key":     "an active invite already exists for this address",

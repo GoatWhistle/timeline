@@ -156,5 +156,6 @@ type AcceptInviteRequest struct {
 	FirstName  string  `json:"first_name" example:"John"`
 	MiddleName *string `json:"middle_name,omitempty" example:"Fitzgerald"`
 	LastName   string  `json:"last_name" example:"Smith"`
+	Nickname   *string `json:"nickname,omitempty" example:"jsmith"`
 	Password   string  `json:"password" example:"correct-horse-battery"`
 }

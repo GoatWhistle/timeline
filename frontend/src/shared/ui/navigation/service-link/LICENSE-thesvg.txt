@@ -4,7 +4,7 @@ Source: theSVG - https://github.com/glincker/thesvg
 Retrieved: 2026-08-29, from public/icons/<slug>/mono.svg
 (LinkedIn has no mono variant and was taken from public/icons/linkedin/default.svg).
 
-Only the 34 marks the profile link list can display were taken into the
+Only the 66 marks the profile link list can display were taken into the
 repository, not the upstream set of 6500+ icons. Each mark was reduced to its
 single path and recoloured to currentColor so it follows the interface theme;
 the path geometry itself is unchanged.
@@ -22,7 +22,11 @@ Marks taken: GitHub, GitLab, Bitbucket, Gitea, SourceHut, Telegram, Discord,
 LinkedIn, X, Mastodon, Bluesky, YouTube, Twitch, Instagram, Facebook, Threads,
 Reddit, Medium, VK, Stack Overflow, LeetCode, Codeforces, Figma, Behance,
 Dribbble, Notion, npm, Vimeo, SoundCloud, Spotify, Boosty, Patreon, TikTok,
-HackerOne.
+HackerOne, Kaggle, Hugging Face, Devpost, Docker Hub, PyPI, crates.io,
+Go Packages, CodePen, DEV, Hashnode, Habr, Stepik, Coursera, ArtStation,
+itch.io, Steam, Google Scholar, ORCID, ResearchGate, Substack, Goodreads,
+Last.fm, Pinterest, WhatsApp, Signal, Matrix, Keybase, Codewars, HackerRank,
+Kickstarter, Hacker News, Product Hunt.
 
 Not taken: the upstream AWS Architecture icons, which carry a separate and more
 restrictive CC BY-ND 2.0 license. No icon in this file comes from that set.
