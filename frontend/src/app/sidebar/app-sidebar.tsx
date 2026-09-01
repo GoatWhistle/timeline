@@ -1,4 +1,4 @@
-import { ArrowLeft, PanelLeftClose, Shield } from 'lucide-react'
+import { PanelLeftClose, Shield, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
 import { CATALOG_VIEW_KEYS, CATALOG_VIEWS } from '@/entities/catalog/catalog.views'
@@ -51,7 +51,7 @@ export function AppSidebar({
       )}
     >
       <nav aria-label={t('app.mainNav')} className="flex flex-col gap-3">
-        <div className="flex items-center gap-2 px-3 py-2">
+        <div className="mb-3 flex items-center gap-2 px-3 py-2">
           <Wordmark to="/schedule" className="min-w-0 flex-1" />
           <button
             type="button"
@@ -74,42 +74,44 @@ export function AppSidebar({
         {onCatalog && (
           <SavedViewsNav views={CATALOG_VIEWS} basePath="/catalog" keys={CATALOG_VIEW_KEYS} />
         )}
+      </nav>
+
+      <div className="mt-6 flex flex-col gap-6 px-1 pb-2">
         {isAdmin && (
           <NavLink
             to={inAdmin ? '/' : '/admin/events'}
             className={cn(
-              'mt-2 flex h-row items-center gap-2 rounded-control px-3 text-copy',
+              'flex h-row items-center gap-2 rounded-control px-2 text-copy',
               'text-muted-foreground transition-colors duration-instant',
               'hover:bg-surface-2 hover:text-foreground',
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
             )}
           >
             {inAdmin ? (
-              <ArrowLeft className="size-4 shrink-0" aria-hidden="true" />
+              <User className="size-4 shrink-0" aria-hidden="true" />
             ) : (
               <Shield className="size-4 shrink-0" aria-hidden="true" />
             )}
-            <span className="truncate">{t(inAdmin ? 'nav.backToApp' : 'nav.adminPanel')}</span>
+            <span className="truncate">{t(inAdmin ? 'nav.userPanel' : 'nav.adminPanel')}</span>
           </NavLink>
         )}
-      </nav>
-
-      <div className="mt-6 border-border border-t px-1 pt-4 pb-2">
-        {user && (
-          <div className="flex items-center gap-1">
-            <div className="min-w-0 flex-1">
-              <ProfileMenu
-                userId={user.id}
-                displayName={displayedName}
-                firstName={user.first_name}
-                lastName={user.last_name}
-                email={user.email}
-                avatarUrl={user.avatar_url}
-              />
+        <div className="border-border border-t pt-4">
+          {user && (
+            <div className="flex items-center gap-1">
+              <div className="min-w-0 flex-1">
+                <ProfileMenu
+                  userId={user.id}
+                  displayName={displayedName}
+                  firstName={user.first_name}
+                  lastName={user.last_name}
+                  email={user.email}
+                  avatarUrl={user.avatar_url}
+                />
+              </div>
+              <EventFeedBell />
             </div>
-            <EventFeedBell />
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </aside>
   )

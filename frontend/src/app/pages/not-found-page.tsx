@@ -10,24 +10,10 @@ function NotFoundFigure({ label }: { label: string }) {
       aria-label={label}
       className="h-32 w-auto text-foreground"
     >
-      <text
-        x="2"
-        y="82"
-        fill="currentColor"
-        fontSize="96"
-        fontWeight="600"
-        letterSpacing="-4"
-      >
+      <text x="2" y="82" fill="currentColor" fontSize="96" fontWeight="600" letterSpacing="-4">
         4
       </text>
-      <text
-        x="146"
-        y="82"
-        fill="currentColor"
-        fontSize="96"
-        fontWeight="600"
-        letterSpacing="-4"
-      >
+      <text x="146" y="82" fill="currentColor" fontSize="96" fontWeight="600" letterSpacing="-4">
         4
       </text>
       <g className="text-logo" transform="translate(66 18)">

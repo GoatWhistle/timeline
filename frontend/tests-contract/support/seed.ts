@@ -39,7 +39,12 @@ async function createUser(displayName: string): Promise<{ email: string; id: str
   resetSession()
   resetCsrfToken()
   const accepted = await api.POST('/invites/accept', {
-    body: { token: tokenFrom(acceptLink), first_name: displayName, last_name: 'Contract', password: MEMBER_PASSWORD },
+    body: {
+      token: tokenFrom(acceptLink),
+      first_name: displayName,
+      last_name: 'Contract',
+      password: MEMBER_PASSWORD,
+    },
   })
   expect(accepted.response.status).toBe(200)
   const id = accepted.data?.user?.id

@@ -23,16 +23,13 @@ function unbrokenUrls(): Plugin {
           ['Network', urls.network],
         ] as const) {
           for (const url of list) {
-            server.config.logger.info(
-              `  ${DIM}${label.padEnd(7)}${RESET} ${CYAN}${url}${RESET}`,
-            )
+            server.config.logger.info(`  ${DIM}${label.padEnd(7)}${RESET} ${CYAN}${url}${RESET}`)
           }
         }
       }
     },
   }
 }
-
 
 export default defineConfig(({ mode }) => {
   const env = { ...loadEnv(mode, process.cwd(), 'VITE_'), ...process.env }

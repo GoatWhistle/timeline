@@ -1,5 +1,5 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import { ChevronsUpDown, LogOut, Settings } from 'lucide-react'
+import { LogOut, Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useLogout } from '@/entities/session/session.queries'
@@ -57,7 +57,6 @@ export function ProfileMenu({
           <span className="block truncate font-medium text-copy">{displayName}</span>
           <span className="block truncate text-caption text-muted-foreground">{email}</span>
         </span>
-        <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Portal>
@@ -66,7 +65,7 @@ export function ProfileMenu({
           align="start"
           sideOffset={6}
           className={cn(
-            'z-50 min-w-56 rounded-control border border-border bg-popover p-1 shadow-lg',
+            'z-50 w-[var(--radix-dropdown-menu-trigger-width)] rounded-control border border-border bg-popover p-1 shadow-lg',
             'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
             'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
             'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',

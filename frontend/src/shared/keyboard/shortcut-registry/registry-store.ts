@@ -20,6 +20,7 @@ export class ShortcutRegistry {
   private chord: string | null = null
   private chordAt = 0
   private listeners = new Set<() => void>()
+  private boundCache: ShortcutScope[] | null = null
 
   push(scope: ShortcutScope): () => void {
     this.stack = [...this.stack, scope]
@@ -39,13 +40,15 @@ export class ShortcutRegistry {
 
   private bound(): ShortcutScope[] {
     if (Object.keys(this.bindings).length === 0) return this.stack
-    return this.stack.map((scope) => ({
+    if (this.boundCache !== null) return this.boundCache
+    this.boundCache = this.stack.map((scope) => ({
       ...scope,
       shortcuts: scope.shortcuts.map((shortcut) => {
         const override = this.bindings[shortcut.id]
         return override === undefined ? shortcut : { ...shortcut, keys: [override] }
       }),
     }))
+    return this.boundCache
   }
 
   remove(id: string): void {
@@ -115,6 +118,7 @@ export class ShortcutRegistry {
   }
 
   private emit(): void {
+    this.boundCache = null
     for (const listener of this.listeners) listener()
   }
 }

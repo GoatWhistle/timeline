@@ -19,7 +19,7 @@
     "adminOps": "Queue state",
     "settings": "Settings",
     "adminPanel": "Admin panel",
-    "backToApp": "Back to app"
+    "userPanel": "User panel"
   },
   "page": {
     "notFoundTitle": "Page not found",
