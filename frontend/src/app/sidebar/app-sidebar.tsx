@@ -1,6 +1,6 @@
-import { PanelLeftClose } from 'lucide-react'
+import { ArrowLeft, PanelLeftClose, Shield } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router'
+import { NavLink, useLocation } from 'react-router'
 import { CATALOG_VIEW_KEYS, CATALOG_VIEWS } from '@/entities/catalog/catalog.views'
 import { listName } from '@/entities/user/person-name/person-name'
 import { EventFeedBell } from '@/features/event-feed-bell/event-feed-bell'
@@ -34,6 +34,7 @@ export function AppSidebar({
       )
     : ''
 
+  const inAdmin = location.pathname.startsWith('/admin')
   const onCatalog = location.pathname === '/catalog'
   const listPath = location.pathname.startsWith('/admin/events') ? '/admin/events' : '/events'
   const showViews = location.pathname === '/events' || location.pathname === '/admin/events'
@@ -68,12 +69,29 @@ export function AppSidebar({
           </button>
         </div>
 
-        <NavSection title={t('app.sectionParticipant')} items={USER_NAV} />
+        <NavSection items={inAdmin ? ADMIN_NAV : USER_NAV} />
         {showViews && <SavedViewsNav views={EVENT_VIEWS} basePath={listPath} />}
         {onCatalog && (
           <SavedViewsNav views={CATALOG_VIEWS} basePath="/catalog" keys={CATALOG_VIEW_KEYS} />
         )}
-        {isAdmin && <NavSection title={t('app.sectionAdmin')} items={ADMIN_NAV} />}
+        {isAdmin && (
+          <NavLink
+            to={inAdmin ? '/' : '/admin/events'}
+            className={cn(
+              'mt-2 flex h-row items-center gap-2 rounded-control px-3 text-copy',
+              'text-muted-foreground transition-colors duration-instant',
+              'hover:bg-surface-2 hover:text-foreground',
+              'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
+            )}
+          >
+            {inAdmin ? (
+              <ArrowLeft className="size-4 shrink-0" aria-hidden="true" />
+            ) : (
+              <Shield className="size-4 shrink-0" aria-hidden="true" />
+            )}
+            <span className="truncate">{t(inAdmin ? 'nav.backToApp' : 'nav.adminPanel')}</span>
+          </NavLink>
+        )}
       </nav>
 
       <div className="mt-6 border-border border-t px-1 pt-4 pb-2">

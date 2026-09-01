@@ -36,14 +36,16 @@ export const ADMIN_NAV: NavItem[] = [
   { to: '/admin/ops', labelKey: 'nav.adminOps', icon: Activity },
 ]
 
-export function NavSection({ title, items }: { title: string; items: NavItem[] }) {
+export function NavSection({ title, items }: { title?: string; items: NavItem[] }) {
   const { t } = useTranslation()
 
   return (
     <div className="flex flex-col gap-0.5">
-      <p className="px-3 py-1.5 font-medium text-caption text-muted-foreground uppercase tracking-wide">
-        {title}
-      </p>
+      {title !== undefined && (
+        <p className="px-3 py-1.5 font-medium text-caption text-muted-foreground uppercase tracking-wide">
+          {title}
+        </p>
+      )}
       {items.map(({ to, labelKey, icon: Icon }) => (
         <NavLink
           key={to}

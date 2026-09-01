@@ -3,8 +3,6 @@
     "name": "Timeline",
     "skipToContent": "Skip to content",
     "mainNav": "Main navigation",
-    "sectionParticipant": "Participant",
-    "sectionAdmin": "Administration",
     "collapseSidebar": "Collapse the sidebar",
     "expandSidebar": "Expand the sidebar"
   },
@@ -19,7 +17,9 @@
     "adminInvites": "Invites",
     "adminAudit": "Audit",
     "adminOps": "Queue state",
-    "settings": "Settings"
+    "settings": "Settings",
+    "adminPanel": "Admin panel",
+    "backToApp": "Back to app"
   },
   "page": {
     "notFoundTitle": "Page not found",

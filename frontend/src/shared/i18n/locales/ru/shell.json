@@ -3,8 +3,6 @@
     "name": "Timeline",
     "skipToContent": "Перейти к содержимому",
     "mainNav": "Основная навигация",
-    "sectionParticipant": "Участник",
-    "sectionAdmin": "Администрирование",
     "collapseSidebar": "Свернуть боковую панель",
     "expandSidebar": "Развернуть боковую панель"
   },
@@ -19,7 +17,9 @@
     "adminInvites": "Приглашения",
     "adminAudit": "Аудит",
     "adminOps": "Состояние очереди",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "adminPanel": "Администрирование",
+    "backToApp": "Вернуться в приложение"
   },
   "page": {
     "notFoundTitle": "Страница не найдена",
