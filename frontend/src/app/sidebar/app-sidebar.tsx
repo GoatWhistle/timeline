@@ -1,4 +1,4 @@
-import { PanelLeftClose, Shield, User } from 'lucide-react'
+import { PanelLeft, Shield, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
 import { CATALOG_VIEW_KEYS, CATALOG_VIEWS } from '@/entities/catalog/catalog.views'
@@ -65,7 +65,7 @@ export function AppSidebar({
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
             )}
           >
-            <PanelLeftClose className="size-4" aria-hidden="true" />
+            <PanelLeft className="size-4" aria-hidden="true" />
           </button>
         </div>
 

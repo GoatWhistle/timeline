@@ -1,4 +1,4 @@
-import { PanelLeftOpen } from 'lucide-react'
+import { PanelLeftDashed } from 'lucide-react'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet } from 'react-router'
@@ -49,7 +49,10 @@ export function AppShell() {
 
       <AppSidebar user={user} isAdmin={isAdmin} sidebar={sidebar} />
 
-      <main id="main" className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <main
+        id="main"
+        className={cn('flex min-w-0 flex-1 flex-col overflow-hidden', sidebar.collapsed && 'pl-10')}
+      >
         <VerificationBanner />
         <ConnectionBanner />
         {sidebar.collapsed && (
@@ -66,7 +69,7 @@ export function AppShell() {
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
             )}
           >
-            <PanelLeftOpen className="size-4" aria-hidden="true" />
+            <PanelLeftDashed className="size-4" aria-hidden="true" />
           </button>
         )}
         <Suspense fallback={<RouteFallback />}>
