@@ -2,7 +2,7 @@ import createClient, { type Middleware } from 'openapi-fetch'
 import { toApiError } from './errors'
 import type { paths } from './schema'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
 
 const NO_REFRESH = ['/auth/login', '/auth/refresh', '/auth/logout', '/auth/csrf']

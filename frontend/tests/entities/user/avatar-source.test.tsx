@@ -24,6 +24,21 @@ describe('avatar source acceptance', () => {
     expect(isDisplayableAvatar('mailto:crew@example.org')).toBe(false)
   })
 
+  it('accepts our own stored avatar path, which is relative and has no scheme', () => {
+    expect(isDisplayableAvatar('/api/v1/avatars/abc123.png')).toBe(true)
+    expect(isDisplayableAvatar('/api/v1/avatars/a-b_c.webp')).toBe(true)
+  })
+
+  it('refuses a protocol-relative address disguised as the stored path', () => {
+    expect(isDisplayableAvatar('/api/v1/avatars//evil.example.org/x.png')).toBe(false)
+    expect(isDisplayableAvatar('//evil.example.org/x.png')).toBe(false)
+  })
+
+  it('refuses a path that only resembles the stored prefix', () => {
+    expect(isDisplayableAvatar('/api/v1/avatarsx/a.png')).toBe(false)
+    expect(isDisplayableAvatar('api/v1/avatars/a.png')).toBe(false)
+  })
+
   it('refuses empty and absent values', () => {
     expect(isDisplayableAvatar('')).toBe(false)
     expect(isDisplayableAvatar('   ')).toBe(false)
@@ -57,6 +72,15 @@ describe('avatar rendering', () => {
     const image = document.querySelector('img')
     expect(image?.className).toContain('opacity-0')
     expect(image?.className).not.toContain('opacity-100')
+  })
+
+  it('renders the stored file, so an uploaded avatar survives a reload', () => {
+    renderWithProviders(
+      <UserAvatar seed={SEED} displayName="Ivan Petrov" avatarUrl="/api/v1/avatars/abc123.png" />,
+    )
+    const image = document.querySelector('img')
+    expect(image).not.toBeNull()
+    expect(image?.getAttribute('src')).toBe('/api/v1/avatars/abc123.png')
   })
 
   it('never puts an executable address into the image source', () => {

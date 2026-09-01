@@ -3382,6 +3382,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/avatars/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fetch a stored avatar
+         * @description Serves an uploaded avatar by its server-generated key. The key is opaque and
+         *     unguessable; no client-supplied path ever reaches the storage.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Storage key */
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "image/jpeg": components["schemas"]["dto.ErrorResponse"];
+                        "image/png": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/calendar/{token}/feed.ics": {
         parameters: {
             query?: never;
@@ -3489,6 +3540,8 @@ export interface paths {
                     from?: string;
                     /** @description Comma-separated kind filter */
                     kind?: "HACKATHON" | "MEETUP";
+                    /** @description Sort direction */
+                    order?: "asc" | "desc";
                     /** @description Comma-separated origin filter. Omit it for the All view: RU and WORLD cover every event. */
                     origin?: "RU" | "WORLD";
                     /** @description Page number */
@@ -3497,6 +3550,8 @@ export interface paths {
                     page_size?: number;
                     /** @description Search by title and organiser */
                     search?: string;
+                    /** @description Sort field */
+                    sort?: "start_at" | "end_at" | "title";
                     /** @description Comma-separated state filter */
                     state?: "UPCOMING" | "ACTIVE" | "FINISHED";
                     /** @description Upper bound of the period */
@@ -3542,6 +3597,101 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/catalog/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export the catalog as CSV
+         * @description The same events the catalog listing returns, under the same filters and the same
+         *     sort, streamed as CSV instead of paginated JSON. Only the fields the listing itself
+         *     exposes are written: the export carries no administrative notes.
+         *
+         *     Like the listing it requires a session and is counted against the catalog rate
+         *     limit of the account. Rows are streamed as they are read, so the response is not
+         *     built in memory.
+         *
+         *     The `joined` column repeats the participation the listing shows. It says whether
+         *     the account takes part in the event, not whether anyone registered on an external
+         *     site: the system never checks that.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Comma-separated format filter */
+                    format?: "ONLINE" | "OFFLINE" | "HYBRID";
+                    /** @description Lower bound of the period */
+                    from?: string;
+                    /** @description Comma-separated kind filter */
+                    kind?: "HACKATHON" | "MEETUP";
+                    /** @description Sort direction */
+                    order?: "asc" | "desc";
+                    /** @description Comma-separated origin filter */
+                    origin?: "RU" | "WORLD";
+                    /** @description Search by title and organiser */
+                    search?: string;
+                    /** @description Sort field */
+                    sort?: "start_at" | "end_at" | "title";
+                    /** @description Comma-separated state filter */
+                    state?: "UPCOMING" | "ACTIVE" | "FINISHED";
+                    /** @description Upper bound of the period */
+                    to?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description CSV payload */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description too many catalog requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
                     };
                 };
             };
@@ -4605,6 +4755,134 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/me/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload or replace your avatar
+         * @description Accepts a single image part named "file". The stored type is decided by the
+         *     file content, not by its name or declared type: only PNG, JPEG and WebP are kept.
+         *     A previously stored file is deleted once the new one is in place.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /**
+                         * Format: binary
+                         * @description Image file
+                         */
+                        file: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.MeResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Request Entity Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Remove your avatar
+         * @description Deletes the stored file and falls back to the initials rendered by the client.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.MeResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/me/bookmarks": {
@@ -7441,7 +7719,88 @@ export interface paths {
         };
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Name one own session
+         * @description Gives the session a label of the account holder's choosing, so a list of look-alike
+         *     browsers can be told apart. The label is free text of at most 64 characters and it
+         *     is stored as written: the server neither interprets it nor derives anything from it.
+         *
+         *     Sending clear_label drops a label set earlier and leaves the session unnamed. A
+         *     request that carries neither label nor clear_label changes nothing and is refused,
+         *     so an empty body cannot silently erase a name.
+         *
+         *     The session must belong to the caller. An identifier of somebody else's session is
+         *     answered with 404 rather than 403, exactly as termination is: the very existence of
+         *     another account's session must not be disclosed. Naming a session has no effect on
+         *     its lifetime — it neither extends nor shortens the refresh chain.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Session identifier
+                     * @example se_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Changed fields */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.UpdateSessionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.SessionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description the session does not exist or belongs to another account */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/me/shortcuts": {
@@ -8692,7 +9051,7 @@ export interface components {
             ids?: string[];
         };
         "dto.MeResponse": {
-            /** @example https://example.com/a.png */
+            /** @example /api/v1/avatars/ab12cd34.png */
             avatar_url?: string;
             /** @example Backend developer */
             bio?: string;
@@ -8894,7 +9253,7 @@ export interface components {
             title: string;
         };
         "dto.PublicProfileResponse": {
-            /** @example https://example.com/a.png */
+            /** @example /api/v1/avatars/ab12cd34.png */
             avatar_url?: string;
             /** @example Backend developer */
             bio?: string;
@@ -9129,6 +9488,8 @@ export interface components {
             id: string;
             /** @example 203.0.113.7 */
             ip: string;
+            /** @example Work laptop */
+            label: string;
             /** Format: date-time */
             last_used_at: string;
             /** @example Mozilla/5.0 (X11; Linux x86_64) */
@@ -9290,8 +9651,6 @@ export interface components {
             url?: string;
         };
         "dto.UpdateProfileRequest": {
-            /** @example https://example.com/a.png */
-            avatar_url?: string;
             /** @example Backend developer */
             bio?: string;
             /** @example John */
@@ -9345,6 +9704,12 @@ export interface components {
             channel_override?: "TELEGRAM" | "EMAIL";
             enabled?: boolean;
             offset_minutes?: number;
+        };
+        "dto.UpdateSessionRequest": {
+            /** @example false */
+            clear_label?: boolean;
+            /** @example Work laptop */
+            label?: string;
         };
         "dto.UpdateShortcutsRequest": {
             shortcuts?: components["schemas"]["models.Shortcuts"];

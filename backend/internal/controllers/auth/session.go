@@ -61,6 +61,54 @@ func (c *SessionController) List(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, dto.SessionListResponse{Items: items})
 }
 
+// @Summary		Name one own session
+// @Description	Gives the session a label of the account holder's choosing, so a list of look-alike
+// @Description	browsers can be told apart. The label is free text of at most 64 characters and it
+// @Description	is stored as written: the server neither interprets it nor derives anything from it.
+// @Description
+// @Description	Sending clear_label drops a label set earlier and leaves the session unnamed. A
+// @Description	request that carries neither label nor clear_label changes nothing and is refused,
+// @Description	so an empty body cannot silently erase a name.
+// @Description
+// @Description	The session must belong to the caller. An identifier of somebody else's session is
+// @Description	answered with 404 rather than 403, exactly as termination is: the very existence of
+// @Description	another account's session must not be disclosed. Naming a session has no effect on
+// @Description	its lifetime — it neither extends nor shortens the refresh chain.
+// @Tags			auth
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id		path		string						true	"Session identifier"	example(se_42ej2s5gh7e8)
+// @Param			request	body		dto.UpdateSessionRequest	true	"Changed fields"
+// @Success		200		{object}	dto.SessionResponse
+// @Failure		400		{object}	dto.ErrorResponse
+// @Failure		401		{object}	dto.ErrorResponse
+// @Failure		404		{object}	dto.ErrorResponse	"the session does not exist or belongs to another account"
+// @Failure		429		{object}	dto.ErrorResponse
+// @Router			/me/sessions/{id} [patch]
+func (c *SessionController) Rename(w http.ResponseWriter, r *http.Request) {
+	if !c.allow(r, "sessions-rename") {
+		httpx.Error(w, r, models.NewRateLimited("too many session requests, try again later"))
+		return
+	}
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindSession, c.svc.ResolveSessionDisplayID)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	var req dto.UpdateSessionRequest
+	if err := httpx.Decode(r, &req); err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	session, err := c.svc.RenameSession(r.Context(), middleware.ActorFrom(r), id, req)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, session)
+}
+
 // @Summary		Terminate one own session
 // @Description	Revokes the refresh token of a single session, leaving the other devices signed in.
 // @Description	Repeating the call on an already revoked or expired session succeeds as well.

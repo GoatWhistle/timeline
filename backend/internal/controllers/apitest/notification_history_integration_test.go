@@ -5,6 +5,8 @@ package apitest_test
 import (
 	"net/http"
 	"testing"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 type historyPage struct {
@@ -22,41 +24,41 @@ type historyPage struct {
 	} `json:"meta"`
 }
 
-func (c *client) notificationHistory(t *testing.T) historyPage {
+func notificationHistory(c *support.Client, t *testing.T) historyPage {
 	t.Helper()
-	resp := c.get("/me/notifications")
-	requireStatus(t, resp, http.StatusOK, "reading the notification history")
+	resp := c.Get("/me/notifications")
+	support.RequireStatus(t, resp, http.StatusOK, "reading the notification history")
 
 	var page historyPage
-	resp.decode(t, &page)
+	resp.Decode(t, &page)
 	return page
 }
 
 func TestNotificationHistoryShowsOnlyOwnNotifications(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	if _, err := s.db.Pool().Exec(t.Context(), `
+	if _, err := s.DB().Pool().Exec(t.Context(), `
 		UPDATE notifications SET status = 'SENT', sent_at = now()
-		WHERE recipient_user_id = (SELECT id FROM users WHERE display_id = $1)`, f.member.ID); err != nil {
+		WHERE recipient_user_id = (SELECT id FROM users WHERE display_id = $1)`, f.Member.ID); err != nil {
 		t.Fatalf("marking notifications sent: %v", err)
 	}
 
-	owner := s.session(t, f.member)
-	page := owner.notificationHistory(t)
+	owner := s.Session(t, f.Member)
+	page := notificationHistory(owner, t)
 	if page.Meta.Total == 0 {
 		t.Fatal("the recipient sees no notifications of their own")
 	}
 
-	outsider := s.session(t, f.outsider)
-	foreign := outsider.notificationHistory(t)
+	outsider := s.Session(t, f.Outsider)
+	foreign := notificationHistory(outsider, t)
 	if foreign.Meta.Total != 0 {
 		t.Fatalf("an unrelated user sees %d notifications addressed to someone else",
 			foreign.Meta.Total)
 	}
 
-	admin := s.session(t, f.admin)
-	adminPage := admin.notificationHistory(t)
+	admin := s.Session(t, f.Admin)
+	adminPage := notificationHistory(admin, t)
 	if adminPage.Meta.Total != 0 {
 		t.Fatalf("the administrator sees %d notifications of another recipient: "+
 			"the history is scoped by recipient, not by role", adminPage.Meta.Total)
@@ -64,11 +66,11 @@ func TestNotificationHistoryShowsOnlyOwnNotifications(t *testing.T) {
 }
 
 func TestNotificationHistorySurvivesThePayloadPurge(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	owner := s.session(t, f.member)
-	before := owner.notificationHistory(t)
+	owner := s.Session(t, f.Member)
+	before := notificationHistory(owner, t)
 	if before.Meta.Total == 0 {
 		t.Fatal("no notification to purge")
 	}
@@ -79,13 +81,13 @@ func TestNotificationHistorySurvivesThePayloadPurge(t *testing.T) {
 		t.Fatal("a fresh notification is reported as redacted")
 	}
 
-	if _, err := s.db.Pool().Exec(t.Context(), `
+	if _, err := s.DB().Pool().Exec(t.Context(), `
 		UPDATE notifications SET payload_json = NULL WHERE recipient_user_id = (SELECT id FROM users WHERE display_id = $1)`,
-		f.member.ID); err != nil {
+		f.Member.ID); err != nil {
 		t.Fatalf("clearing the payload: %v", err)
 	}
 
-	after := owner.notificationHistory(t)
+	after := notificationHistory(owner, t)
 	if after.Meta.Total != before.Meta.Total {
 		t.Fatalf("clearing the payload changed the row count from %d to %d: "+
 			"specification 4 keeps the row and clears only the payload",
@@ -104,15 +106,15 @@ func TestNotificationHistorySurvivesThePayloadPurge(t *testing.T) {
 }
 
 func TestNotificationHistoryNeverReturnsTheWholePayload(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	owner := s.session(t, f.member)
-	resp := owner.get("/me/notifications")
-	requireStatus(t, resp, http.StatusOK, "reading the notification history")
+	owner := s.Session(t, f.Member)
+	resp := owner.Get("/me/notifications")
+	support.RequireStatus(t, resp, http.StatusOK, "reading the notification history")
 
 	var raw map[string]any
-	resp.decode(t, &raw)
+	resp.Decode(t, &raw)
 	items, _ := raw["items"].([]any)
 	if len(items) == 0 {
 		t.Fatal("no notification to inspect")

@@ -6,22 +6,24 @@ import (
 	"context"
 	"net/http"
 	"testing"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
-func (c *client) removeMany(t *testing.T, eventID string, ids ...string) response {
+func removeMany(c *support.Client, t *testing.T, eventID string, ids ...string) support.Response {
 	t.Helper()
 	keys := make([]string, 0, len(ids))
 	for _, id := range ids {
 		keys = append(keys, id)
 	}
-	return c.post("/admin/events/"+eventID+"/participants/batch-remove",
+	return c.Post("/admin/events/"+eventID+"/participants/batch-remove",
 		map[string]any{"participant_ids": keys})
 }
 
-func (s *stack) assignmentVersion(t *testing.T, participantID string) int {
+func assignmentVersion(s *support.Stack, t *testing.T, participantID string) int {
 	t.Helper()
 	var version int
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT assignment_version FROM event_participants WHERE display_id = $1`, participantID).Scan(&version); err != nil {
 		t.Fatalf("reading the assignment version of %s: %v", participantID, err)
 	}
@@ -29,102 +31,102 @@ func (s *stack) assignmentVersion(t *testing.T, participantID string) int {
 }
 
 func TestParticipantAssignedToRemovedCancelsAndIsNotRepeatable(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
 	f.seedPending(t, s)
-	cancelledBefore := s.notificationCount(t, f.eventID, "CANCELLED")
+	cancelledBefore := notificationCount(s, t, f.EventID, "CANCELLED")
 
-	member := s.session(t, f.member)
-	requireErrorCode(t, member.removeMany(t, f.eventID, f.memberPart),
+	member := s.Session(t, f.Member)
+	requireErrorCode(t, removeMany(member, t, f.EventID, f.MemberPart),
 		http.StatusForbidden, "forbidden", "a participant removing itself from the roster")
-	if state := s.participationStatus(t, f.memberPart); state != "ASSIGNED" {
+	if state := participationStatus(s, t, f.MemberPart); state != "ASSIGNED" {
 		t.Fatalf("the refused attempt moved the participant to %q", state)
 	}
 
-	requireStatus(t, f.adminClient.removeMany(t, f.eventID, f.memberPart),
+	support.RequireStatus(t, removeMany(f.AdminClient, t, f.EventID, f.MemberPart),
 		http.StatusOK, "removing the member")
-	if state := s.participationStatus(t, f.memberPart); state != "REMOVED" {
+	if state := participationStatus(s, t, f.MemberPart); state != "REMOVED" {
 		t.Fatalf("the participant is %q instead of REMOVED", state)
 	}
-	if pending := s.pendingForStatus(t, f.statusID); pending != 0 {
+	if pending := pendingForStatus(s, t, f.StatusID); pending != 0 {
 		t.Fatalf("removal left %d pending notifications", pending)
 	}
-	if cancelled := s.notificationCount(t, f.eventID, "CANCELLED"); cancelled <= cancelledBefore {
+	if cancelled := notificationCount(s, t, f.EventID, "CANCELLED"); cancelled <= cancelledBefore {
 		t.Fatalf("removal cancelled nothing beyond the %d already cancelled", cancelledBefore)
 	}
-	if row := s.statusRow(t, f.statusID); row.Status != "TODO" {
+	if row := statusRow(s, t, f.StatusID); row.Status != "TODO" {
 		t.Fatalf("removal rewrote the registration status to %q", row.Status)
 	}
 
-	repeat := f.adminClient.removeMany(t, f.eventID, f.memberPart)
-	requireStatus(t, repeat, http.StatusOK, "removing an already removed participant")
-	if !containsAll(string(repeat.Body), `"already_removed"`, `"skipped"`) {
+	repeat := removeMany(f.AdminClient, t, f.EventID, f.MemberPart)
+	support.RequireStatus(t, repeat, http.StatusOK, "removing an already removed participant")
+	if !support.ContainsAll(string(repeat.Body), `"already_removed"`, `"skipped"`) {
 		t.Fatalf("a repeated removal is not reported as skipped: %s", repeat.Body)
 	}
 }
 
 func TestParticipantRemovedToAssignedBumpsTheAssignmentVersion(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	requireStatus(t, f.adminClient.removeMany(t, f.eventID, f.memberPart),
+	support.RequireStatus(t, removeMany(f.AdminClient, t, f.EventID, f.MemberPart),
 		http.StatusOK, "removing the member")
-	before := s.assignmentVersion(t, f.memberPart)
+	before := assignmentVersion(s, t, f.MemberPart)
 
-	member := s.session(t, f.member)
-	requireErrorCode(t, member.post("/admin/participants/"+f.memberPart+"/reactivate",
+	member := s.Session(t, f.Member)
+	requireErrorCode(t, member.Post("/admin/participants/"+f.MemberPart+"/reactivate",
 		map[string]any{"team_role": "Developer"}),
 		http.StatusForbidden, "forbidden", "a participant reactivating itself")
-	if state := s.participationStatus(t, f.memberPart); state != "REMOVED" {
+	if state := participationStatus(s, t, f.MemberPart); state != "REMOVED" {
 		t.Fatalf("the refused attempt moved the participant to %q", state)
 	}
 
-	requireStatus(t, f.adminClient.post("/admin/participants/"+f.memberPart+"/reactivate",
+	support.RequireStatus(t, f.AdminClient.Post("/admin/participants/"+f.MemberPart+"/reactivate",
 		map[string]any{"team_role": "Developer"}), http.StatusOK, "reactivating the member")
-	if state := s.participationStatus(t, f.memberPart); state != "ASSIGNED" {
+	if state := participationStatus(s, t, f.MemberPart); state != "ASSIGNED" {
 		t.Fatalf("the participant is %q instead of ASSIGNED", state)
 	}
-	after := s.assignmentVersion(t, f.memberPart)
+	after := assignmentVersion(s, t, f.MemberPart)
 	if after != before+1 {
 		t.Fatalf("assignment_version went from %d to %d instead of +1", before, after)
 	}
 
-	requireErrorCode(t, f.adminClient.post("/admin/participants/"+f.memberPart+"/reactivate",
+	requireErrorCode(t, f.AdminClient.Post("/admin/participants/"+f.MemberPart+"/reactivate",
 		map[string]any{"team_role": "Developer"}),
 		http.StatusConflict, "already_assigned", "reactivating an already assigned participant")
-	if again := s.assignmentVersion(t, f.memberPart); again != after {
+	if again := assignmentVersion(s, t, f.MemberPart); again != after {
 		t.Fatalf("the refused reactivation still bumped assignment_version to %d", again)
 	}
 }
 
 func TestReactivationIsRefusedForADeactivatedAccount(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	requireStatus(t, f.adminClient.removeMany(t, f.eventID, f.memberPart),
+	support.RequireStatus(t, removeMany(f.AdminClient, t, f.EventID, f.MemberPart),
 		http.StatusOK, "removing the member")
-	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID+"/deactivate", nil),
+	support.RequireStatus(t, f.AdminClient.Post("/admin/users/"+f.Member.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the member")
 
-	requireErrorCode(t, f.adminClient.post("/admin/participants/"+f.memberPart+"/reactivate",
+	requireErrorCode(t, f.AdminClient.Post("/admin/participants/"+f.MemberPart+"/reactivate",
 		map[string]any{"team_role": "Developer"}),
-		http.StatusConflict, "user_inactive", "reactivating a deactivated account")
-	if state := s.participationStatus(t, f.memberPart); state != "REMOVED" {
+		http.StatusConflict, "user_inactive", "reactivating a deactivated support.Account")
+	if state := participationStatus(s, t, f.MemberPart); state != "REMOVED" {
 		t.Fatalf("the refused reactivation moved the participant to %q", state)
 	}
 }
 
 func TestParticipantOfAForeignEventIsNotRemovable(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	resp := f.adminClient.removeMany(t, f.otherEvent, f.memberPart)
-	requireStatus(t, resp, http.StatusOK, "removing a foreign participant through another event")
-	if !containsAll(string(resp.Body), `"not_found"`) {
+	resp := removeMany(f.AdminClient, t, f.OtherEvent, f.MemberPart)
+	support.RequireStatus(t, resp, http.StatusOK, "removing a foreign participant through another event")
+	if !support.ContainsAll(string(resp.Body), `"not_found"`) {
 		t.Fatalf("a cross-event removal is not reported as not found: %s", resp.Body)
 	}
-	if state := s.participationStatus(t, f.memberPart); state != "ASSIGNED" {
+	if state := participationStatus(s, t, f.MemberPart); state != "ASSIGNED" {
 		t.Fatalf("a cross-event removal changed the participant to %q", state)
 	}
 }

@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"regexp"
 	"testing"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 var uuidShape = regexp.MustCompile(
@@ -19,76 +21,76 @@ func requireNoUUID(t *testing.T, body []byte, what string) {
 }
 
 func TestForeignEventIsHiddenFromOutsider(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
-	outsider := s.session(t, f.outsider)
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	outsider := s.Session(t, f.Outsider)
 
-	card := outsider.get("/events/" + f.eventID)
-	requireStatus(t, card, http.StatusNotFound, "reading a foreign event card")
+	card := outsider.Get("/events/" + f.EventID)
+	support.RequireStatus(t, card, http.StatusNotFound, "reading a foreign event card")
 
-	unknown := outsider.get("/events/" + missingEventID)
-	requireStatus(t, unknown, http.StatusNotFound, "reading a nonexistent event card")
+	unknown := outsider.Get("/events/" + support.MissingEventID)
+	support.RequireStatus(t, unknown, http.StatusNotFound, "reading a nonexistent event card")
 
-	if card.errorCode(t) != unknown.errorCode(t) {
+	if card.ErrorCode(t) != unknown.ErrorCode(t) {
 		t.Fatalf("a foreign event is distinguishable from a missing one: %s versus %s",
 			card.Body, unknown.Body)
 	}
 
-	stages := outsider.get("/events/" + f.eventID + "/stages")
-	requireStatus(t, stages, http.StatusNotFound, "reading foreign stages")
+	stages := outsider.Get("/events/" + f.EventID + "/stages")
+	support.RequireStatus(t, stages, http.StatusNotFound, "reading foreign stages")
 }
 
 func TestMarkDoneOnForeignEventIsRejected(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	member := s.session(t, f.member)
-	before := member.get("/events/" + f.eventID)
-	requireStatus(t, before, http.StatusOK, "the member reads their own card")
-	if !containsAll(string(before.Body), `"status":"TODO"`) {
+	member := s.Session(t, f.Member)
+	before := member.Get("/events/" + f.EventID)
+	support.RequireStatus(t, before, http.StatusOK, "the member reads their own card")
+	if !support.ContainsAll(string(before.Body), `"status":"TODO"`) {
 		t.Fatalf("the member status is not TODO before the attempt: %s", before.Body)
 	}
 
-	outsider := s.session(t, f.outsider)
-	resp := outsider.post("/events/"+f.eventID+"/registration/done", nil)
-	requireStatus(t, resp, http.StatusNotFound, "self-reporting on a foreign event")
+	outsider := s.Session(t, f.Outsider)
+	resp := outsider.Post("/events/"+f.EventID+"/registration/done", nil)
+	support.RequireStatus(t, resp, http.StatusNotFound, "self-reporting on a foreign event")
 
-	after := member.get("/events/" + f.eventID)
-	if !containsAll(string(after.Body), `"status":"TODO"`) {
+	after := member.Get("/events/" + f.EventID)
+	if !support.ContainsAll(string(after.Body), `"status":"TODO"`) {
 		t.Fatalf("the rejected foreign attempt changed the member status: %s", after.Body)
 	}
 
-	own := member.post("/events/"+f.eventID+"/registration/done", nil)
-	requireStatus(t, own, http.StatusOK, "the member self-reports on their own event")
-	if !containsAll(string(own.Body), `"status":"DONE"`) {
+	own := member.Post("/events/"+f.EventID+"/registration/done", nil)
+	support.RequireStatus(t, own, http.StatusOK, "the member self-reports on their own event")
+	if !support.ContainsAll(string(own.Body), `"status":"DONE"`) {
 		t.Fatalf("the member's own self-report did not take effect: %s", own.Body)
 	}
 }
 
 func TestAdminNotesAreInvisibleToParticipant(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	member := s.session(t, f.member)
-	card := member.get("/events/" + f.eventID)
-	requireStatus(t, card, http.StatusOK, "the member reads their own card")
-	requireNoBodyField(t, card, "notes", "the participant event card")
+	member := s.Session(t, f.Member)
+	card := member.Get("/events/" + f.EventID)
+	support.RequireStatus(t, card, http.StatusOK, "the member reads their own card")
+	support.RequireNoBodyField(t, card, "notes", "the participant event card")
 
-	catalog := member.get("/catalog")
-	requireStatus(t, catalog, http.StatusOK, "the member reads the catalog")
-	requireNoBodyField(t, catalog, "notes", "the catalog")
+	catalog := member.Get("/catalog")
+	support.RequireStatus(t, catalog, http.StatusOK, "the member reads the catalog")
+	support.RequireNoBodyField(t, catalog, "notes", "the catalog")
 
-	adminView := f.adminClient.get("/admin/events/" + f.eventID)
-	requireStatus(t, adminView, http.StatusOK, "the administrator reads the event")
-	if !containsAll(string(adminView.Body), "internal administrative note") {
+	adminView := f.AdminClient.Get("/admin/events/" + f.EventID)
+	support.RequireStatus(t, adminView, http.StatusOK, "the administrator reads the event")
+	if !support.ContainsAll(string(adminView.Body), "internal administrative note") {
 		t.Fatalf("the administrator cannot see the notes either: %s", adminView.Body)
 	}
 }
 
 func TestParticipantCannotReachForeignParticipantObjects(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
-	outsider := s.session(t, f.outsider)
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	outsider := s.Session(t, f.Outsider)
 
 	cases := []struct {
 		name   string
@@ -97,152 +99,152 @@ func TestParticipantCannotReachForeignParticipantObjects(t *testing.T) {
 		body   any
 	}{
 		{"team role of a foreign participant", http.MethodPatch,
-			"/admin/participants/" + f.memberPart + "/team-role",
+			"/admin/participants/" + f.MemberPart + "/team-role",
 			map[string]any{"team_role": "Hijacked"}},
 		{"reactivation of a foreign participant", http.MethodPost,
-			"/admin/participants/" + f.memberPart + "/reactivate", nil},
+			"/admin/participants/" + f.MemberPart + "/reactivate", nil},
 		{"status of a foreign participant", http.MethodPatch,
-			"/admin/registration-statuses/" + f.statusID,
+			"/admin/registration-statuses/" + f.StatusID,
 			map[string]any{"status": "DONE"}},
 		{"reminder rule of a foreign event", http.MethodPatch,
-			"/admin/registration-rules/" + f.regRuleID,
+			"/admin/registration-rules/" + f.RegRuleID,
 			map[string]any{"enabled": false}},
 		{"roster of a foreign event", http.MethodGet,
-			"/admin/events/" + f.eventID + "/participants", nil},
+			"/admin/events/" + f.EventID + "/participants", nil},
 		{"statuses of a foreign event", http.MethodGet,
-			"/admin/events/" + f.eventID + "/registration-statuses", nil},
+			"/admin/events/" + f.EventID + "/registration-statuses", nil},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			var resp response
+			var resp support.Response
 			if tc.method == http.MethodGet {
-				resp = outsider.get(tc.path)
+				resp = outsider.Get(tc.path)
 			} else {
-				resp = outsider.mutate(tc.method, tc.path, tc.body)
+				resp = outsider.Mutate(tc.method, tc.path, tc.body)
 			}
-			requireStatus(t, resp, http.StatusForbidden, tc.name)
+			support.RequireStatus(t, resp, http.StatusForbidden, tc.name)
 		})
 	}
 
-	roster := f.adminClient.get("/admin/events/" + f.eventID + "/participants")
-	requireStatus(t, roster, http.StatusOK, "the administrator reads the roster")
-	if !containsAll(string(roster.Body), `"team_role":"Developer"`) {
+	roster := f.AdminClient.Get("/admin/events/" + f.EventID + "/participants")
+	support.RequireStatus(t, roster, http.StatusOK, "the administrator reads the roster")
+	if !support.ContainsAll(string(roster.Body), `"team_role":"Developer"`) {
 		t.Fatalf("a rejected attempt altered the team role: %s", roster.Body)
 	}
-	if !containsAll(string(roster.Body), `"status":"TODO"`) {
+	if !support.ContainsAll(string(roster.Body), `"status":"TODO"`) {
 		t.Fatalf("a rejected attempt altered the registration status: %s", roster.Body)
 	}
 }
 
 func TestProfileEndpointsActOnlyOnTheCaller(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	member := s.session(t, f.member)
-	me := member.get("/me")
-	requireStatus(t, me, http.StatusOK, "the member reads their own profile")
-	if !containsAll(string(me.Body), f.member.ID) {
-		t.Fatalf("/me returned a different account: %s", me.Body)
+	member := s.Session(t, f.Member)
+	me := member.Get("/me")
+	support.RequireStatus(t, me, http.StatusOK, "the member reads their own profile")
+	if !support.ContainsAll(string(me.Body), f.Member.ID) {
+		t.Fatalf("/me returned a different support.Account: %s", me.Body)
 	}
 
-	renamed := member.patch("/me", map[string]any{"last_name": "Renamed"})
-	requireStatus(t, renamed, http.StatusOK, "the member renames themselves")
+	renamed := member.Patch("/me", map[string]any{"last_name": "Renamed"})
+	support.RequireStatus(t, renamed, http.StatusOK, "the member renames themselves")
 
-	outsider := s.session(t, f.outsider)
-	theirs := outsider.get("/me")
-	requireStatus(t, theirs, http.StatusOK, "the outsider reads their own profile")
-	if containsAll(string(theirs.Body), "Renamed") {
-		t.Fatalf("one account's rename reached another: %s", theirs.Body)
+	outsider := s.Session(t, f.Outsider)
+	theirs := outsider.Get("/me")
+	support.RequireStatus(t, theirs, http.StatusOK, "the outsider reads their own profile")
+	if support.ContainsAll(string(theirs.Body), "Renamed") {
+		t.Fatalf("one support.Account's rename reached another: %s", theirs.Body)
 	}
-	if !containsAll(string(theirs.Body), f.outsider.ID) {
-		t.Fatalf("/me returned a different account for the outsider: %s", theirs.Body)
+	if !support.ContainsAll(string(theirs.Body), f.Outsider.ID) {
+		t.Fatalf("/me returned a different support.Account for the outsider: %s", theirs.Body)
 	}
 
-	requireNoBodyField(t, me, "password_hash", "/me")
-	requireNoBodyField(t, me, "telegram_chat_id", "/me")
+	support.RequireNoBodyField(t, me, "password_hash", "/me")
+	support.RequireNoBodyField(t, me, "telegram_chat_id", "/me")
 }
 
 func TestPublicProfileNeverExposesAnInternalIdentifier(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	member := s.session(t, f.member)
-	requireStatus(t, member.patch("/me", map[string]any{
+	member := s.Session(t, f.Member)
+	support.RequireStatus(t, member.Patch("/me", map[string]any{
 		"nickname": "audited", "profile_public": true,
 	}), http.StatusOK, "opening the profile")
-	s.showOnProfile(t, f.member.ID)
+	s.ShowOnProfile(t, f.Member.ID)
 
-	page := s.anonymous(t, "/profiles/audited")
-	requireStatus(t, page, http.StatusOK, "reading an open profile without signing in")
-	if !containsAll(string(page.Body), f.eventID) {
+	page := s.Anonymous(t, "/profiles/audited")
+	support.RequireStatus(t, page, http.StatusOK, "reading an open profile without signing in")
+	if !support.ContainsAll(string(page.Body), f.EventID) {
 		t.Fatalf("the public profile does not carry the event display identifier: %s", page.Body)
 	}
 	requireNoUUID(t, page.Body, "the unauthenticated public profile")
 }
 
 func TestClosedProfileIsIndistinguishableFromAMissingOne(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	member := s.session(t, f.member)
-	requireStatus(t, member.patch("/me", map[string]any{"nickname": "closed"}),
+	member := s.Session(t, f.Member)
+	support.RequireStatus(t, member.Patch("/me", map[string]any{"nickname": "closed"}),
 		http.StatusOK, "claiming a nickname while staying private")
 
-	closed := s.anonymous(t, "/profiles/closed")
-	requireStatus(t, closed, http.StatusNotFound, "reading a profile its owner keeps closed")
+	closed := s.Anonymous(t, "/profiles/closed")
+	support.RequireStatus(t, closed, http.StatusNotFound, "reading a profile its owner keeps closed")
 
-	missing := s.anonymous(t, "/profiles/nobodyhere")
-	requireStatus(t, missing, http.StatusNotFound, "reading a nickname nobody claimed")
+	missing := s.Anonymous(t, "/profiles/nobodyhere")
+	support.RequireStatus(t, missing, http.StatusNotFound, "reading a nickname nobody claimed")
 
 	if stripRequestID(t, string(closed.Body)) != stripRequestID(t, string(missing.Body)) {
 		t.Fatalf("a closed profile answers %s while a missing one answers %s: "+
-			"the response tells an attacker the account exists", closed.Body, missing.Body)
+			"the support.Response tells an attacker the support.Account exists", closed.Body, missing.Body)
 	}
 }
 
 func TestCalendarFeedNeverExposesAnInternalIdentifier(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	secret := s.session(t, f.member).issueFeed(t)
-	body := s.fetchFeed(t, secret, http.StatusOK)
-	if !containsAll(body, "UID:event-"+f.eventID+"@timeline") {
+	secret := issueFeed(s.Session(t, f.Member), t)
+	body := fetchFeed(s, t, secret, http.StatusOK)
+	if !support.ContainsAll(body, "UID:event-"+f.EventID+"@timeline") {
 		t.Fatalf("the feed does not identify the event by its display identifier: %s", body)
 	}
 	requireNoUUID(t, []byte(body), "the unauthenticated calendar feed")
 }
 
 func TestOwnSurfacesNeverExposeAnInternalIdentifier(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	member := s.session(t, f.member)
-	requireStatus(t, member.mutate(http.MethodPut, "/me/bookmarks/"+f.eventID, nil),
+	member := s.Session(t, f.Member)
+	support.RequireStatus(t, member.Mutate(http.MethodPut, "/me/bookmarks/"+f.EventID, nil),
 		http.StatusNoContent, "bookmarking an event")
-	joined := member.post("/events/"+f.otherEvent+"/join", map[string]any{"team_role": "Developer"})
-	requireStatus(t, joined, http.StatusCreated, "joining the open event")
-	requireNoUUID(t, joined.Body, "the self-signup response")
+	joined := member.Post("/events/"+f.OtherEvent+"/join", map[string]any{"team_role": "Developer"})
+	support.RequireStatus(t, joined, http.StatusCreated, "joining the open event")
+	requireNoUUID(t, joined.Body, "the self-signup support.Response")
 
 	for _, path := range []string{"/me", "/me/bookmarks", "/me/events", "/me/history",
 		"/me/sessions", "/me/notifications", "/me/events-feed", "/catalog",
-		"/events/" + f.eventID, "/events/" + f.eventID + "/stages"} {
-		resp := member.get(path)
-		requireStatus(t, resp, http.StatusOK, "reading "+path)
+		"/events/" + f.EventID, "/events/" + f.EventID + "/stages"} {
+		resp := member.Get(path)
+		support.RequireStatus(t, resp, http.StatusOK, "reading "+path)
 		requireNoUUID(t, resp.Body, path)
 	}
 }
 
 func TestQueueDiagnosticsNameNotificationsByDisplayIdentifier(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	id := s.notificationOf(t, f.statusID)
-	s.markTerminal(t, id, "FAILED", "the provider call limit is exhausted")
+	id := notificationOf(s, t, f.StatusID)
+	markTerminal(s, t, id, "FAILED", "the provider call limit is exhausted")
 
-	resp := f.adminClient.get("/ops/queue?scope=failures")
-	requireStatus(t, resp, http.StatusOK, "reading the failure diagnostics")
-	if !containsAll(string(resp.Body), id) {
+	resp := f.AdminClient.Get("/ops/queue?scope=failures")
+	support.RequireStatus(t, resp, http.StatusOK, "reading the failure diagnostics")
+	if !support.ContainsAll(string(resp.Body), id) {
 		t.Fatalf("the diagnostics do not name the notification %s: %s", id, resp.Body)
 	}
 	requireNoUUID(t, resp.Body, "the queue diagnostics")

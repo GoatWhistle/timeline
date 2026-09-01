@@ -1,0 +1,106 @@
+import { describe, expect, it } from 'vitest'
+import {
+  clampRectTo,
+  fitWithin,
+  isUsableCrop,
+  MAX_EDIT_DIMENSION,
+  normaliseRect,
+  toHex,
+  toRgba,
+} from '@/features/profile/image-editor/editor-model'
+import { floodFill, pixelAt } from '@/features/profile/image-editor/flood-fill'
+
+describe('crop geometry', () => {
+  it('normalises a rectangle dragged in any direction', () => {
+    const upLeft = normaliseRect({ x: 40, y: 30 }, { x: 10, y: 5 })
+    expect(upLeft).toEqual({ x: 10, y: 5, width: 30, height: 25 })
+
+    const downRight = normaliseRect({ x: 10, y: 5 }, { x: 40, y: 30 })
+    expect(downRight).toEqual(upLeft)
+  })
+
+  it('keeps a crop inside the canvas even when the pointer leaves it', () => {
+    const clamped = clampRectTo({ x: -20, y: -10, width: 400, height: 400 }, 100, 50)
+    expect(clamped).toEqual({ x: 0, y: 0, width: 100, height: 50 })
+  })
+
+  it('rejects a crop with no area, which would produce an empty image', () => {
+    expect(isUsableCrop({ x: 0, y: 0, width: 0, height: 10 })).toBe(false)
+    expect(isUsableCrop({ x: 0, y: 0, width: 10, height: 0 })).toBe(false)
+    expect(isUsableCrop({ x: 0, y: 0, width: 1, height: 1 })).toBe(true)
+  })
+})
+
+describe('downscaling before editing', () => {
+  it('leaves an already small image untouched', () => {
+    expect(fitWithin(320, 200, MAX_EDIT_DIMENSION)).toEqual([320, 200])
+  })
+
+  it('scales the longest side down to the limit and keeps the aspect ratio', () => {
+    const [width, height] = fitWithin(4000, 2000, 1000)
+    expect(width).toBe(1000)
+    expect(height).toBe(500)
+  })
+
+  it('never collapses a very thin image to zero', () => {
+    const [width, height] = fitWithin(5000, 1, 1000)
+    expect(width).toBe(1000)
+    expect(height).toBeGreaterThanOrEqual(1)
+  })
+})
+
+describe('colour conversion', () => {
+  it('round-trips a hex colour through rgba', () => {
+    const [r, g, b, a] = toRgba('#3b82f6')
+    expect([r, g, b, a]).toEqual([59, 130, 246, 255])
+    expect(toHex(r, g, b)).toBe('#3b82f6')
+  })
+
+  it('expands the short hex form', () => {
+    expect(toRgba('#fff')).toEqual([255, 255, 255, 255])
+  })
+})
+
+function canvasData(width: number, height: number, fill: [number, number, number, number]) {
+  const data = new Uint8ClampedArray(width * height * 4)
+  for (let i = 0; i < data.length; i += 4) {
+    data[i] = fill[0]
+    data[i + 1] = fill[1]
+    data[i + 2] = fill[2]
+    data[i + 3] = fill[3]
+  }
+  return data
+}
+
+describe('flood fill', () => {
+  it('fills a uniform region and reports the change', () => {
+    const data = canvasData(4, 4, [255, 255, 255, 255])
+    expect(floodFill(data, 4, 4, 0, 0, '#ff0000')).toBe(true)
+    expect(pixelAt(data, 4, 3, 3)).toEqual([255, 0, 0, 255])
+  })
+
+  it('stops at a boundary of a different colour', () => {
+    const width = 3
+    const height = 1
+    const data = canvasData(width, height, [255, 255, 255, 255])
+    data[4] = 0
+    data[5] = 0
+    data[6] = 0
+
+    expect(floodFill(data, width, height, 0, 0, '#ff0000')).toBe(true)
+    expect(pixelAt(data, width, 0, 0)).toEqual([255, 0, 0, 255])
+    expect(pixelAt(data, width, 1, 0)).toEqual([0, 0, 0, 255])
+    expect(pixelAt(data, width, 2, 0)).toEqual([255, 255, 255, 255])
+  })
+
+  it('does nothing when the target already has the fill colour', () => {
+    const data = canvasData(2, 2, [255, 0, 0, 255])
+    expect(floodFill(data, 2, 2, 0, 0, '#ff0000')).toBe(false)
+  })
+
+  it('ignores a click outside the canvas instead of throwing', () => {
+    const data = canvasData(2, 2, [255, 255, 255, 255])
+    expect(floodFill(data, 2, 2, -1, 0, '#ff0000')).toBe(false)
+    expect(floodFill(data, 2, 2, 2, 0, '#ff0000')).toBe(false)
+  })
+})

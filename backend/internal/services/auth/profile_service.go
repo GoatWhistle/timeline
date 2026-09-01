@@ -29,6 +29,7 @@ type ProfileService struct {
 	mailer   *mail.Mailer
 	telegram mail.TelegramSender
 	realtime SessionDropper
+	avatars  AvatarPurger
 	cfg      *config.Config
 	now      func() time.Time
 }

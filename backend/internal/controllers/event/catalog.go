@@ -20,6 +20,10 @@ type CatalogService interface {
 	List(
 		ctx context.Context, actor models.Actor, filter dto.CatalogFilter, page models.Page,
 	) ([]dto.CatalogEvent, int64, error)
+	Stream(
+		ctx context.Context, actor models.Actor, filter dto.CatalogFilter,
+		fn func(dto.CatalogEvent) error,
+	) error
 	Join(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.JoinEventRequest,
 	) (*models.EventParticipant, error)
@@ -69,6 +73,8 @@ func (c *CatalogController) allow(r *http.Request, scope string) bool {
 // @Param			state		query		string	false	"Comma-separated state filter"																															Enums(UPCOMING,ACTIVE,FINISHED)
 // @Param			from		query		string	false	"Lower bound of the period"																																format(date-time)
 // @Param			to			query		string	false	"Upper bound of the period"																																format(date-time)
+// @Param			sort		query		string	false	"Sort field"																																			Enums(start_at,end_at,title)	default(start_at)
+// @Param			order		query		string	false	"Sort direction"																																		Enums(asc,desc)					default(asc)
 // @Param			page		query		int		false	"Page number"																																			default(1)
 // @Param			page_size	query		int		false	"Page size"																																				default(50)
 // @Success		200			{object}	dto.CatalogPage
@@ -86,25 +92,10 @@ func (c *CatalogController) List(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	from, err := httpx.QueryTime(r, "from")
+	filter, err := parseCatalogFilter(r)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
-	}
-	to, err := httpx.QueryTime(r, "to")
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-
-	filter := dto.CatalogFilter{
-		Search:  httpx.QueryTrimmed(r, "search"),
-		Origins: parseOrigins(httpx.QueryTrimmed(r, "origin")),
-		Formats: parseFormats(httpx.QueryTrimmed(r, "format")),
-		Kinds:   parseKinds(httpx.QueryTrimmed(r, "kind")),
-		States:  parseStates(httpx.QueryTrimmed(r, "state")),
-		From:    from,
-		To:      to,
 	}
 	items, total, err := c.catalog.List(r.Context(), middleware.ActorFrom(r), filter, page)
 	if err != nil {
@@ -159,6 +150,34 @@ func (c *CatalogController) Join(w http.ResponseWriter, r *http.Request) {
 		ParticipationStatus: p.ParticipationStatus,
 		AssignedAt:          p.AssignedAt,
 	})
+}
+
+func parseCatalogFilter(r *http.Request) (dto.CatalogFilter, error) {
+	from, err := httpx.QueryTime(r, "from")
+	if err != nil {
+		return dto.CatalogFilter{}, err
+	}
+	to, err := httpx.QueryTime(r, "to")
+	if err != nil {
+		return dto.CatalogFilter{}, err
+	}
+	sort, err := models.ParseCatalogSort(
+		strings.ToLower(httpx.QueryTrimmed(r, "sort")),
+		strings.ToLower(httpx.QueryTrimmed(r, "order")),
+	)
+	if err != nil {
+		return dto.CatalogFilter{}, err
+	}
+	return dto.CatalogFilter{
+		Search:  httpx.QueryTrimmed(r, "search"),
+		Origins: parseOrigins(httpx.QueryTrimmed(r, "origin")),
+		Formats: parseFormats(httpx.QueryTrimmed(r, "format")),
+		Kinds:   parseKinds(httpx.QueryTrimmed(r, "kind")),
+		States:  parseStates(httpx.QueryTrimmed(r, "state")),
+		From:    from,
+		To:      to,
+		Sort:    sort,
+	}, nil
 }
 
 func parseOrigins(raw string) []models.EventOrigin {

@@ -6,108 +6,110 @@ import (
 	"context"
 	"net/http"
 	"testing"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 func TestUserActiveToInactiveRevokesSessionsAndCancelsPending(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
 	f.seedPending(t, s)
-	cancelledBefore := s.notificationCount(t, f.eventID, "CANCELLED")
+	cancelledBefore := notificationCount(s, t, f.EventID, "CANCELLED")
 
-	member := s.session(t, f.member)
-	requireStatus(t, member.get("/me"), http.StatusOK, "the member reading its own profile")
+	member := s.Session(t, f.Member)
+	support.RequireStatus(t, member.Get("/me"), http.StatusOK, "the member reading its own profile")
 
-	outsider := s.session(t, f.outsider)
-	requireErrorCode(t, outsider.post("/admin/users/"+f.member.ID+"/deactivate", nil),
+	outsider := s.Session(t, f.Outsider)
+	requireErrorCode(t, outsider.Post("/admin/users/"+f.Member.ID+"/deactivate", nil),
 		http.StatusForbidden, "forbidden", "one participant deactivating another")
-	if !s.userIsActive(t, f.member.ID) {
-		t.Fatalf("the refused attempt deactivated the account")
+	if !userIsActive(s, t, f.Member.ID) {
+		t.Fatalf("the refused attempt deactivated the support.Account")
 	}
 
-	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID+"/deactivate", nil),
+	support.RequireStatus(t, f.AdminClient.Post("/admin/users/"+f.Member.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the member")
-	if s.userIsActive(t, f.member.ID) {
-		t.Fatalf("the account stayed active after deactivation")
+	if userIsActive(s, t, f.Member.ID) {
+		t.Fatalf("the support.Account stayed active after deactivation")
 	}
-	if pending := s.pendingForStatus(t, f.statusID); pending != 0 {
+	if pending := pendingForStatus(s, t, f.StatusID); pending != 0 {
 		t.Fatalf("deactivation left %d pending notifications", pending)
 	}
-	if cancelled := s.notificationCount(t, f.eventID, "CANCELLED"); cancelled <= cancelledBefore {
+	if cancelled := notificationCount(s, t, f.EventID, "CANCELLED"); cancelled <= cancelledBefore {
 		t.Fatalf("deactivation cancelled nothing beyond the %d already cancelled", cancelledBefore)
 	}
-	if chat := s.telegramBinding(t, f.member.ID); chat != nil {
+	if chat := telegramBinding(s, t, f.Member.ID); chat != nil {
 		t.Fatalf("deactivation kept the telegram binding %q", *chat)
 	}
-	if sessions := s.liveSessions(t, f.member.ID); sessions != 0 {
+	if sessions := liveSessions(s, t, f.Member.ID); sessions != 0 {
 		t.Fatalf("deactivation left %d live sessions", sessions)
 	}
 
-	requireErrorCode(t, member.post("/auth/refresh", nil),
-		http.StatusUnauthorized, "unauthorized", "a deactivated account renewing its session")
-	requireErrorCode(t, f.adminClient.post("/admin/users/"+f.member.ID+"/deactivate", nil),
-		http.StatusConflict, "already_inactive", "deactivating an already inactive account")
+	requireErrorCode(t, member.Post("/auth/refresh", nil),
+		http.StatusUnauthorized, "unauthorized", "a deactivated support.Account renewing its session")
+	requireErrorCode(t, f.AdminClient.Post("/admin/users/"+f.Member.ID+"/deactivate", nil),
+		http.StatusConflict, "already_inactive", "deactivating an already inactive support.Account")
 }
 
 func TestUserInactiveToActiveRestoresAccessWithoutResurrectingNotifications(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
 	f.seedPending(t, s)
-	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID+"/deactivate", nil),
+	support.RequireStatus(t, f.AdminClient.Post("/admin/users/"+f.Member.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the member")
-	cancelledBefore := s.notificationCount(t, f.eventID, "CANCELLED")
+	cancelledBefore := notificationCount(s, t, f.EventID, "CANCELLED")
 
-	outsider := s.session(t, f.outsider)
-	requireErrorCode(t, outsider.post("/admin/users/"+f.member.ID+"/activate", nil),
+	outsider := s.Session(t, f.Outsider)
+	requireErrorCode(t, outsider.Post("/admin/users/"+f.Member.ID+"/activate", nil),
 		http.StatusForbidden, "forbidden", "one participant reactivating another")
-	if s.userIsActive(t, f.member.ID) {
-		t.Fatalf("the refused attempt reactivated the account")
+	if userIsActive(s, t, f.Member.ID) {
+		t.Fatalf("the refused attempt reactivated the support.Account")
 	}
 
-	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID+"/activate", nil),
+	support.RequireStatus(t, f.AdminClient.Post("/admin/users/"+f.Member.ID+"/activate", nil),
 		http.StatusOK, "reactivating the member")
-	if !s.userIsActive(t, f.member.ID) {
-		t.Fatalf("the account stayed inactive after reactivation")
+	if !userIsActive(s, t, f.Member.ID) {
+		t.Fatalf("the support.Account stayed inactive after reactivation")
 	}
-	if cancelled := s.notificationCount(t, f.eventID, "CANCELLED"); cancelled != cancelledBefore {
+	if cancelled := notificationCount(s, t, f.EventID, "CANCELLED"); cancelled != cancelledBefore {
 		t.Fatalf("reactivation moved the cancelled count from %d to %d", cancelledBefore, cancelled)
 	}
-	if pending := s.pendingForStatus(t, f.statusID); pending != 0 {
+	if pending := pendingForStatus(s, t, f.StatusID); pending != 0 {
 		t.Fatalf("reactivation resurrected %d cancelled notifications", pending)
 	}
 
-	restored := s.session(t, f.member)
-	requireStatus(t, restored.get("/me"), http.StatusOK, "a restored account reading its profile")
+	restored := s.Session(t, f.Member)
+	support.RequireStatus(t, restored.Get("/me"), http.StatusOK, "a restored support.Account reading its profile")
 
-	requireErrorCode(t, f.adminClient.post("/admin/users/"+f.member.ID+"/activate", nil),
-		http.StatusConflict, "already_active", "reactivating an already active account")
+	requireErrorCode(t, f.AdminClient.Post("/admin/users/"+f.Member.ID+"/activate", nil),
+		http.StatusConflict, "already_active", "reactivating an already active support.Account")
 }
 
 func TestOwnDeactivationRequestEndsTheOwnSessionOnly(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	member := s.session(t, f.member)
-	requireStatus(t, member.post("/me/deactivate", nil), http.StatusOK, "the member deactivating itself")
-	if s.userIsActive(t, f.member.ID) {
-		t.Fatalf("the self-deactivation left the account active")
+	member := s.Session(t, f.Member)
+	support.RequireStatus(t, member.Post("/me/deactivate", nil), http.StatusOK, "the member deactivating itself")
+	if userIsActive(s, t, f.Member.ID) {
+		t.Fatalf("the self-deactivation left the support.Account active")
 	}
-	if resp := member.get("/me"); resp.Status != http.StatusUnauthorized && resp.Status != http.StatusForbidden {
-		t.Fatalf("a self-deactivated account still reads its profile: status %d body %s", resp.Status, resp.Body)
+	if resp := member.Get("/me"); resp.Status != http.StatusUnauthorized && resp.Status != http.StatusForbidden {
+		t.Fatalf("a self-deactivated support.Account still reads its profile: status %d body %s", resp.Status, resp.Body)
 	}
-	if live := s.liveSessions(t, f.member.ID); live != 0 {
+	if live := liveSessions(s, t, f.Member.ID); live != 0 {
 		t.Fatalf("the self-deactivation left %d live sessions", live)
 	}
-	if !s.userIsActive(t, f.admin.ID) {
-		t.Fatalf("the self-deactivation reached the administrator account")
+	if !userIsActive(s, t, f.Admin.ID) {
+		t.Fatalf("the self-deactivation reached the administrator support.Account")
 	}
 }
 
-func (s *stack) telegramBinding(t *testing.T, userID string) *string {
+func telegramBinding(s *support.Stack, t *testing.T, userID string) *string {
 	t.Helper()
 	var chat *string
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT telegram_chat_id FROM users WHERE display_id = $1`, userID).Scan(&chat); err != nil {
 		t.Fatalf("reading the telegram binding of %s: %v", userID, err)
 	}

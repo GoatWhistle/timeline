@@ -18,6 +18,7 @@ type Deps struct {
 	Auth          auth.AuthService
 	Invites       auth.InviteService
 	Profile       auth.ProfileService
+	Avatars       auth.AvatarService
 	ProfileLinks  auth.ProfileLinkService
 	Users         auth.UserService
 	Events        event.EventService
@@ -70,6 +71,7 @@ type Deps struct {
 	RealtimePing       time.Duration
 	LinkRate           int
 	LinkRateWindow     time.Duration
+	AvatarMaxBytes     int64
 
 	Cookies      shared.CookieOptions
 	PublicURL    string

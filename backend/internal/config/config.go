@@ -22,6 +22,7 @@ type Config struct {
 	Digest   Digest
 	Realtime Realtime
 	Links    ResourceLinks
+	Avatar   Avatar
 }
 
 type App struct {
@@ -220,6 +221,7 @@ func Load() (*Config, error) {
 		Personal: loadPersonal(),
 		Digest:   loadDigest(),
 		Links:    loadResourceLinks(),
+		Avatar:   loadAvatar(),
 		Realtime: loadRealtime(),
 	}
 
@@ -242,5 +244,5 @@ func (c *Config) validate() error {
 	if c.Notify.MaxProviderCalls < 1 {
 		return fmt.Errorf("NOTIFICATION_MAX_PROVIDER_CALLS must be at least 1")
 	}
-	return nil
+	return c.Avatar.validate()
 }

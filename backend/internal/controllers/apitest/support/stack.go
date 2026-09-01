@@ -1,6 +1,6 @@
 //go:build integration
 
-package apitest_test
+package support
 
 import (
 	"net/http"
@@ -38,7 +38,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
-type stack struct {
+type Stack struct {
 	server   *httptest.Server
 	db       *postgres.DB
 	cfg      *config.Config
@@ -51,7 +51,7 @@ type stack struct {
 	hub      *svcrealtime.RealtimeHub
 }
 
-func newStack(t *testing.T) *stack {
+func NewStack(t *testing.T) *Stack {
 	t.Helper()
 
 	pool := testsupport.Pool(t)
@@ -193,15 +193,35 @@ func newStack(t *testing.T) *stack {
 	server := httptest.NewServer(controllers.NewRouter(deps))
 	t.Cleanup(server.Close)
 
-	return &stack{
+	return &Stack{
 		server: server, db: db, cfg: cfg,
 		users: users, sessions: sessions, events: events,
 		feed: feed, feedRepo: feedRepo, hub: hub, calendar: calendarRepo,
 	}
 }
 
-func (s *stack) url(path string) string { return s.server.URL + "/api/v1" + path }
+func (s *Stack) URL(path string) string { return s.server.URL + "/api/v1" + path }
 
-func (s *stack) transport() http.RoundTripper { return s.server.Client().Transport }
+func (s *Stack) Transport() http.RoundTripper { return s.server.Client().Transport }
 
-func (s *stack) accessTTL() time.Duration { return s.cfg.Auth.AccessTTL }
+func (s *Stack) AccessTTL() time.Duration { return s.cfg.Auth.AccessTTL }
+
+func (s *Stack) DB() *postgres.DB { return s.db }
+
+func (s *Stack) Config() *config.Config { return s.cfg }
+
+func (s *Stack) Server() *httptest.Server { return s.server }
+
+func (s *Stack) Feed() *svcrealtime.SystemEventService { return s.feed }
+
+func (s *Stack) FeedRepo() *systemevent.Events { return s.feedRepo }
+
+func (s *Stack) Hub() *svcrealtime.RealtimeHub { return s.hub }
+
+func (s *Stack) Calendar() *identity.CalendarFeeds { return s.calendar }
+
+func (s *Stack) Users() *identity.Users { return s.users }
+
+func (s *Stack) Sessions() *identity.Sessions { return s.sessions }
+
+func (s *Stack) Events() *event.Events { return s.events }

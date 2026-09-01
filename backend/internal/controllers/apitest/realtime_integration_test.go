@@ -9,6 +9,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 func requireClosedByServer(t *testing.T, conn *websocket.Conn, within time.Duration) {
@@ -31,11 +33,11 @@ func requireClosedByServer(t *testing.T, conn *websocket.Conn, within time.Durat
 }
 
 func TestRealtimeDiesOnSessionRevocation(t *testing.T) {
-	s := newStack(t)
-	acc := s.register(t, "revoke-socket@example.com")
-	c := s.session(t, acc)
+	s := support.NewStack(t)
+	acc := s.Register(t, "revoke-socket@example.com")
+	c := s.Session(t, acc)
 
-	conn, _, err := dialRealtime(t, s, c, s.server.URL)
+	conn, _, err := dialRealtime(t, s, c, s.Server().URL)
 	if err != nil {
 		t.Fatalf("opening the socket: %v", err)
 	}
@@ -47,9 +49,9 @@ func TestRealtimeDiesOnSessionRevocation(t *testing.T) {
 			Current bool   `json:"current"`
 		} `json:"items"`
 	}
-	resp := c.get("/me/sessions")
-	requireStatus(t, resp, http.StatusOK, "listing own sessions")
-	resp.decode(t, &sessions)
+	resp := c.Get("/me/sessions")
+	support.RequireStatus(t, resp, http.StatusOK, "listing own sessions")
+	resp.Decode(t, &sessions)
 
 	var current string
 	for _, item := range sessions.Items {
@@ -61,7 +63,7 @@ func TestRealtimeDiesOnSessionRevocation(t *testing.T) {
 		t.Fatal("the session list did not mark a current session")
 	}
 
-	if resp := c.delete("/me/sessions/" + current); resp.Status != http.StatusNoContent &&
+	if resp := c.Delete("/me/sessions/" + current); resp.Status != http.StatusNoContent &&
 		resp.Status != http.StatusOK {
 		t.Fatalf("revoking the current session: status %d body %s", resp.Status, resp.Body)
 	}
@@ -70,63 +72,63 @@ func TestRealtimeDiesOnSessionRevocation(t *testing.T) {
 }
 
 func TestRealtimeDiesOnLogout(t *testing.T) {
-	s := newStack(t)
-	acc := s.register(t, "logout-socket@example.com")
-	c := s.session(t, acc)
+	s := support.NewStack(t)
+	acc := s.Register(t, "logout-socket@example.com")
+	c := s.Session(t, acc)
 
-	conn, _, err := dialRealtime(t, s, c, s.server.URL)
+	conn, _, err := dialRealtime(t, s, c, s.Server().URL)
 	if err != nil {
 		t.Fatalf("opening the socket: %v", err)
 	}
 	defer func() { _ = conn.CloseNow() }()
 
-	requireStatus(t, c.post("/auth/logout", nil), http.StatusOK, "signing out")
+	support.RequireStatus(t, c.Post("/auth/logout", nil), http.StatusOK, "signing out")
 
 	requireClosedByServer(t, conn, 5*time.Second)
 }
 
 func TestRealtimeDiesOnDeactivation(t *testing.T) {
-	s := newStack(t)
-	acc := s.register(t, "deactivate-socket@example.com")
-	c := s.session(t, acc)
+	s := support.NewStack(t)
+	acc := s.Register(t, "deactivate-socket@example.com")
+	c := s.Session(t, acc)
 
-	conn, _, err := dialRealtime(t, s, c, s.server.URL)
+	conn, _, err := dialRealtime(t, s, c, s.Server().URL)
 	if err != nil {
 		t.Fatalf("opening the socket: %v", err)
 	}
 	defer func() { _ = conn.CloseNow() }()
 
-	requireStatus(t, c.post("/me/deactivate", nil), http.StatusOK, "deactivating the account")
+	support.RequireStatus(t, c.Post("/me/deactivate", nil), http.StatusOK, "deactivating the support.Account")
 
 	requireClosedByServer(t, conn, 5*time.Second)
 }
 
-func wsURL(t *testing.T, s *stack) string {
+func wsURL(t *testing.T, s *support.Stack) string {
 	t.Helper()
-	return strings.Replace(s.url("/realtime"), "http://", "ws://", 1)
+	return strings.Replace(s.URL("/realtime"), "http://", "ws://", 1)
 }
 
-func dialRealtime(t *testing.T, s *stack, c *client, origin string) (*websocket.Conn, *http.Response, error) {
+func dialRealtime(t *testing.T, s *support.Stack, c *support.Client, origin string) (*websocket.Conn, *http.Response, error) {
 	t.Helper()
 	header := http.Header{}
 	if origin != "" {
 		header.Set("Origin", origin)
 	}
-	if token := c.cookie(accessCookie); token != "" {
-		header.Set("Cookie", accessCookie+"="+token)
+	if token := c.Cookie(support.AccessCookie); token != "" {
+		header.Set("Cookie", support.AccessCookie+"="+token)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	t.Cleanup(cancel)
 	return websocket.Dial(ctx, wsURL(t, s), &websocket.DialOptions{
-		HTTPClient: &http.Client{Transport: s.transport()},
+		HTTPClient: &http.Client{Transport: s.Transport()},
 		HTTPHeader: header,
 	})
 }
 
 func TestRealtimeRejectsForeignOrigin(t *testing.T) {
-	s := newStack(t)
-	acc := s.register(t, "origin-victim@example.com")
-	c := s.session(t, acc)
+	s := support.NewStack(t)
+	acc := s.Register(t, "origin-victim@example.com")
+	c := s.Session(t, acc)
 
 	conn, resp, err := dialRealtime(t, s, c, "https://evil.example.com")
 	if err == nil {
@@ -134,7 +136,7 @@ func TestRealtimeRejectsForeignOrigin(t *testing.T) {
 		t.Fatal("a socket was accepted with a foreign Origin: cross-site WebSocket hijacking is possible")
 	}
 	if resp == nil {
-		t.Fatalf("expected an HTTP response describing the refusal, got error %v", err)
+		t.Fatalf("expected an HTTP support.Response describing the refusal, got error %v", err)
 	}
 	if resp.StatusCode != http.StatusForbidden {
 		t.Fatalf("expected the foreign origin to be refused with 403, got %d", resp.StatusCode)
@@ -142,9 +144,9 @@ func TestRealtimeRejectsForeignOrigin(t *testing.T) {
 }
 
 func TestRealtimeRejectsMissingOrigin(t *testing.T) {
-	s := newStack(t)
-	acc := s.register(t, "origin-absent@example.com")
-	c := s.session(t, acc)
+	s := support.NewStack(t)
+	acc := s.Register(t, "origin-absent@example.com")
+	c := s.Session(t, acc)
 
 	conn, resp, err := dialRealtime(t, s, c, "")
 	if err == nil {
@@ -157,11 +159,11 @@ func TestRealtimeRejectsMissingOrigin(t *testing.T) {
 }
 
 func TestRealtimeAcceptsSameOrigin(t *testing.T) {
-	s := newStack(t)
-	acc := s.register(t, "origin-same@example.com")
-	c := s.session(t, acc)
+	s := support.NewStack(t)
+	acc := s.Register(t, "origin-same@example.com")
+	c := s.Session(t, acc)
 
-	conn, _, err := dialRealtime(t, s, c, s.server.URL)
+	conn, _, err := dialRealtime(t, s, c, s.Server().URL)
 	if err != nil {
 		t.Fatalf("the same-origin handshake was refused: %v", err)
 	}
@@ -179,10 +181,10 @@ func TestRealtimeAcceptsSameOrigin(t *testing.T) {
 }
 
 func TestRealtimeRefusesAnonymous(t *testing.T) {
-	s := newStack(t)
-	c := s.client(t)
+	s := support.NewStack(t)
+	c := s.Client(t)
 
-	conn, resp, err := dialRealtime(t, s, c, s.server.URL)
+	conn, resp, err := dialRealtime(t, s, c, s.Server().URL)
 	if err == nil {
 		_ = conn.CloseNow()
 		t.Fatal("an anonymous socket was accepted")

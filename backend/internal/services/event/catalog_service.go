@@ -55,6 +55,31 @@ func (s *CatalogService) List(ctx context.Context, actor models.Actor, filter dt
 	return s.catalog.List(ctx, actor.UserID, filter, page, s.now())
 }
 
+const catalogExportBatch = 500
+
+func (s *CatalogService) Stream(ctx context.Context, actor models.Actor, filter dto.CatalogFilter,
+	fn func(dto.CatalogEvent) error) error {
+	if actor.UserID == uuid.Nil {
+		return models.NewForbidden("the catalog is available to authenticated users only")
+	}
+	now := s.now()
+	for number := 1; ; number++ {
+		page := models.Page{Number: number, Size: catalogExportBatch}
+		items, _, err := s.catalog.List(ctx, actor.UserID, filter, page, now)
+		if err != nil {
+			return err
+		}
+		for _, item := range items {
+			if err := fn(item); err != nil {
+				return err
+			}
+		}
+		if len(items) < catalogExportBatch {
+			return nil
+		}
+	}
+}
+
 func (s *CatalogService) Join(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	req dto.JoinEventRequest) (*models.EventParticipant, error) {
 	if actor.UserID == uuid.Nil {

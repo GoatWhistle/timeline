@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 type joinedParticipant struct {
@@ -18,23 +20,23 @@ type joinedParticipant struct {
 	ParticipationStatus string  `json:"participation_status"`
 }
 
-func (c *client) join(t *testing.T, id string, body map[string]any) response {
+func join(c *support.Client, t *testing.T, id string, body map[string]any) support.Response {
 	t.Helper()
-	return c.post("/events/"+id+"/join", body)
+	return c.Post("/events/"+id+"/join", body)
 }
 
 func TestSelfSignupCreatesAnAssignmentWithTheOwnRole(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	joiner := s.session(t, f.outsider)
-	resp := joiner.join(t, f.eventID, map[string]any{"team_role": "Designer"})
-	requireStatus(t, resp, http.StatusCreated, "joining a published event")
+	joiner := s.Session(t, f.Outsider)
+	resp := join(joiner, t, f.EventID, map[string]any{"team_role": "Designer"})
+	support.RequireStatus(t, resp, http.StatusCreated, "joining a published event")
 
 	var created joinedParticipant
-	resp.decode(t, &created)
-	if created.EventID != f.eventID {
-		t.Fatalf("the participant belongs to %s instead of %s", created.EventID, f.eventID)
+	resp.Decode(t, &created)
+	if created.EventID != f.EventID {
+		t.Fatalf("the participant belongs to %s instead of %s", created.EventID, f.EventID)
 	}
 	if created.ParticipationStatus != "ASSIGNED" {
 		t.Fatalf("the participant is %q instead of ASSIGNED", created.ParticipationStatus)
@@ -43,25 +45,25 @@ func TestSelfSignupCreatesAnAssignmentWithTheOwnRole(t *testing.T) {
 		t.Fatalf("the stated role was not stored: %+v", created.TeamRole)
 	}
 
-	items := joiner.catalog(t, "page_size=100")
+	items := support.Catalog(t, joiner, "page_size=100")
 	for _, item := range items {
-		if item.ID == f.eventID && !item.Joined {
+		if item.ID == f.EventID && !item.Joined {
 			t.Fatalf("the catalog does not report the event as joined")
 		}
 	}
 
-	roster := f.adminClient.get("/admin/events/" + f.eventID + "/participants")
-	requireStatus(t, roster, http.StatusOK, "listing the roster after a self-signup")
-	if !containsAll(string(roster.Body), f.outsider.ID, "Designer") {
+	roster := f.AdminClient.Get("/admin/events/" + f.EventID + "/participants")
+	support.RequireStatus(t, roster, http.StatusOK, "listing the roster after a self-signup")
+	if !support.ContainsAll(string(roster.Body), f.Outsider.ID, "Designer") {
 		t.Fatalf("the self-signed participant is missing from the roster: %s", roster.Body)
 	}
 
 	var todo int
-	if err := s.db.Pool().QueryRow(context.Background(), `
+	if err := s.DB().Pool().QueryRow(context.Background(), `
 		SELECT count(*) FROM registration_statuses rs
 		JOIN event_participants p ON p.id = rs.participant_id
 		WHERE p.user_id = (SELECT id FROM users WHERE display_id = $1)
-			AND rs.status = 'TODO'`, f.outsider.ID).Scan(&todo); err != nil {
+			AND rs.status = 'TODO'`, f.Outsider.ID).Scan(&todo); err != nil {
 		t.Fatalf("counting the registration statuses: %v", err)
 	}
 	if todo != 1 {
@@ -69,38 +71,38 @@ func TestSelfSignupCreatesAnAssignmentWithTheOwnRole(t *testing.T) {
 	}
 
 	var actor uuid.UUID
-	if err := s.db.Pool().QueryRow(context.Background(), `
+	if err := s.DB().Pool().QueryRow(context.Background(), `
 		SELECT actor_user_id FROM audit_log
 		WHERE entity_type = 'EVENT_PARTICIPANT'
 			AND entity_id = (SELECT id FROM event_participants WHERE display_id = $1)
 		ORDER BY created_at DESC LIMIT 1`, created.ID).Scan(&actor); err != nil {
 		t.Fatalf("reading the audit record: %v", err)
 	}
-	if actor != s.userUUID(t, f.outsider.ID) {
-		t.Fatalf("the audit record names %s instead of the joining user %s", actor, f.outsider.ID)
+	if actor != s.UserUUID(t, f.Outsider.ID) {
+		t.Fatalf("the audit record names %s instead of the joining user %s", actor, f.Outsider.ID)
 	}
 }
 
 func TestSelfSignupTwiceConflictsAndCreatesNoSecondRow(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	joiner := s.session(t, f.outsider)
-	requireStatus(t, joiner.join(t, f.eventID, map[string]any{"team_role": "Designer"}),
+	joiner := s.Session(t, f.Outsider)
+	support.RequireStatus(t, join(joiner, t, f.EventID, map[string]any{"team_role": "Designer"}),
 		http.StatusCreated, "the first self-signup")
 
-	repeat := joiner.join(t, f.eventID, map[string]any{"team_role": "Designer"})
-	requireStatus(t, repeat, http.StatusConflict, "the repeated self-signup")
-	if code := repeat.errorCode(t); code != "already_assigned" {
+	repeat := join(joiner, t, f.EventID, map[string]any{"team_role": "Designer"})
+	support.RequireStatus(t, repeat, http.StatusConflict, "the repeated self-signup")
+	if code := repeat.ErrorCode(t); code != "already_assigned" {
 		t.Fatalf("the refusal carried the code %q instead of already_assigned: %s", code, repeat.Body)
 	}
 
 	var rows int
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT count(*) FROM event_participants
 		 WHERE event_id = (SELECT id FROM events WHERE display_id = $1)
 		   AND user_id = (SELECT id FROM users WHERE display_id = $2)`,
-		f.eventID, f.outsider.ID).Scan(&rows); err != nil {
+		f.EventID, f.Outsider.ID).Scan(&rows); err != nil {
 		t.Fatalf("counting the participant rows: %v", err)
 	}
 	if rows != 1 {
@@ -109,25 +111,25 @@ func TestSelfSignupTwiceConflictsAndCreatesNoSecondRow(t *testing.T) {
 }
 
 func TestSelfSignupIntoAFinishedEventIsRefused(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
 	past := time.Now().UTC().Add(-90 * 24 * time.Hour).Truncate(time.Second)
-	finished := f.adminClient.createEvent(t, "Finished event", past)
-	f.adminClient.publish(t, finished)
+	finished := f.AdminClient.CreateEvent(t, "Finished event", past)
+	f.AdminClient.Publish(t, finished)
 
-	joiner := s.session(t, f.outsider)
-	resp := joiner.join(t, finished, map[string]any{"team_role": "Designer"})
+	joiner := s.Session(t, f.Outsider)
+	resp := join(joiner, t, finished, map[string]any{"team_role": "Designer"})
 	if resp.Status == http.StatusCreated {
 		t.Fatalf("joining a finished event was accepted: %s", resp.Body)
 	}
 
 	var rows int
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT count(*) FROM event_participants
 		 WHERE event_id = (SELECT id FROM events WHERE display_id = $1)
 		   AND user_id = (SELECT id FROM users WHERE display_id = $2)`,
-		finished, f.outsider.ID).Scan(&rows); err != nil {
+		finished, f.Outsider.ID).Scan(&rows); err != nil {
 		t.Fatalf("counting the participant rows: %v", err)
 	}
 	if rows != 0 {
@@ -136,38 +138,38 @@ func TestSelfSignupIntoAFinishedEventIsRefused(t *testing.T) {
 }
 
 func TestSelfSignupIntoAnUnpublishedEventIsNotFound(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
 
-	draft := f.adminClient.createEvent(t, "Unpublished draft", start)
+	draft := f.AdminClient.CreateEvent(t, "Unpublished draft", start)
 
-	joiner := s.session(t, f.outsider)
-	requireStatus(t, joiner.join(t, draft, map[string]any{"team_role": "Designer"}),
+	joiner := s.Session(t, f.Outsider)
+	support.RequireStatus(t, join(joiner, t, draft, map[string]any{"team_role": "Designer"}),
 		http.StatusNotFound, "joining an unpublished event")
 }
 
 func TestTeamRoleIsRequiredForAHackathonAndOptionalForAMeetup(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
 
-	meetup := f.adminClient.createEvent(t, "Community meetup", start)
-	f.adminClient.setEventTaxonomy(t, meetup, map[string]any{"kind": "MEETUP"})
-	f.adminClient.publish(t, meetup)
+	meetup := f.AdminClient.CreateEvent(t, "Community meetup", start)
+	support.SetEventTaxonomy(t, f.AdminClient, meetup, map[string]any{"kind": "MEETUP"})
+	f.AdminClient.Publish(t, meetup)
 
-	joiner := s.session(t, f.outsider)
+	joiner := s.Session(t, f.Outsider)
 
-	withoutRole := joiner.join(t, f.eventID, map[string]any{})
-	requireStatus(t, withoutRole, http.StatusBadRequest, "joining a hackathon without a role")
-	if !containsAll(string(withoutRole.Body), "team_role") {
+	withoutRole := join(joiner, t, f.EventID, map[string]any{})
+	support.RequireStatus(t, withoutRole, http.StatusBadRequest, "joining a hackathon without a role")
+	if !support.ContainsAll(string(withoutRole.Body), "team_role") {
 		t.Fatalf("the refusal does not name the team_role field: %s", withoutRole.Body)
 	}
 
-	resp := joiner.join(t, meetup, map[string]any{})
-	requireStatus(t, resp, http.StatusCreated, "joining a meetup without a role")
+	resp := join(joiner, t, meetup, map[string]any{})
+	support.RequireStatus(t, resp, http.StatusCreated, "joining a meetup without a role")
 	var created joinedParticipant
-	resp.decode(t, &created)
+	resp.Decode(t, &created)
 	if created.TeamRole != nil {
 		t.Fatalf("a meetup assignment carries the role %q", *created.TeamRole)
 	}

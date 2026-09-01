@@ -6,6 +6,8 @@ import (
 	"context"
 	"net/http"
 	"testing"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 type transitionEvent struct {
@@ -34,66 +36,66 @@ type transitionStatus struct {
 	RegisteredAt *string `json:"registered_at"`
 }
 
-func requireErrorCode(t *testing.T, resp response, wantStatus int, wantCode, what string) {
+func requireErrorCode(t *testing.T, resp support.Response, wantStatus int, wantCode, what string) {
 	t.Helper()
-	requireStatus(t, resp, wantStatus, what)
-	if code := resp.errorCode(t); code != wantCode {
+	support.RequireStatus(t, resp, wantStatus, what)
+	if code := resp.ErrorCode(t); code != wantCode {
 		t.Fatalf("%s: expected error code %q, got %q, body %s", what, wantCode, code, resp.Body)
 	}
 }
 
-func (c *client) archive(t *testing.T, id string) response {
+func archive(c *support.Client, t *testing.T, id string) support.Response {
 	t.Helper()
-	return c.post("/admin/events/"+id+"/archive", nil)
+	return c.Post("/admin/events/"+id+"/archive", nil)
 }
 
-func (c *client) eventState(t *testing.T, id string) transitionEvent {
+func eventState(c *support.Client, t *testing.T, id string) transitionEvent {
 	t.Helper()
-	resp := c.get("/admin/events/" + id)
-	requireStatus(t, resp, http.StatusOK, "reading event "+id)
+	resp := c.Get("/admin/events/" + id)
+	support.RequireStatus(t, resp, http.StatusOK, "reading event "+id)
 	var body transitionEvent
-	resp.decode(t, &body)
+	resp.Decode(t, &body)
 	return body
 }
 
-func (c *client) registrationState(t *testing.T, eventID string) transitionRegistration {
+func registrationState(c *support.Client, t *testing.T, eventID string) transitionRegistration {
 	t.Helper()
-	resp := c.get("/admin/events/" + eventID + "/registration")
-	requireStatus(t, resp, http.StatusOK, "reading the registration of "+eventID)
+	resp := c.Get("/admin/events/" + eventID + "/registration")
+	support.RequireStatus(t, resp, http.StatusOK, "reading the registration of "+eventID)
 	var body transitionRegistration
-	resp.decode(t, &body)
+	resp.Decode(t, &body)
 	return body
 }
 
-func (c *client) setStatus(t *testing.T, statusID string, value string) response {
+func setStatus(c *support.Client, t *testing.T, statusID string, value string) support.Response {
 	t.Helper()
-	return c.patch("/admin/registration-statuses/"+statusID, map[string]any{"status": value})
+	return c.Patch("/admin/registration-statuses/"+statusID, map[string]any{"status": value})
 }
 
-func (c *client) forceStatus(t *testing.T, statusID string, value string) transitionStatus {
+func forceStatus(c *support.Client, t *testing.T, statusID string, value string) transitionStatus {
 	t.Helper()
-	resp := c.setStatus(t, statusID, value)
-	requireStatus(t, resp, http.StatusOK, "moving the status to "+value)
+	resp := setStatus(c, t, statusID, value)
+	support.RequireStatus(t, resp, http.StatusOK, "moving the status to "+value)
 	var body transitionStatus
-	resp.decode(t, &body)
+	resp.Decode(t, &body)
 	return body
 }
 
-func (s *stack) participationStatus(t *testing.T, participantID string) string {
+func participationStatus(s *support.Stack, t *testing.T, participantID string) string {
 	t.Helper()
 	var value string
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT participation_status FROM event_participants WHERE display_id = $1`, participantID).Scan(&value); err != nil {
 		t.Fatalf("reading the participation status of %s: %v", participantID, err)
 	}
 	return value
 }
 
-func (s *stack) statusRow(t *testing.T, statusID string) transitionStatus {
+func statusRow(s *support.Stack, t *testing.T, statusID string) transitionStatus {
 	t.Helper()
 	row := transitionStatus{ID: statusID}
 	var registeredAt *string
-	if err := s.db.Pool().QueryRow(context.Background(), `
+	if err := s.DB().Pool().QueryRow(context.Background(), `
 		SELECT status, todo_cycle, to_char(registered_at, 'YYYY-MM-DD"T"HH24:MI:SSZ')
 		FROM registration_statuses WHERE display_id = $1`, statusID).
 		Scan(&row.Status, &row.TodoCycle, &registeredAt); err != nil {
@@ -103,10 +105,10 @@ func (s *stack) statusRow(t *testing.T, statusID string) transitionStatus {
 	return row
 }
 
-func (s *stack) notificationCount(t *testing.T, eventID string, state string) int {
+func notificationCount(s *support.Stack, t *testing.T, eventID string, state string) int {
 	t.Helper()
 	var count int
-	if err := s.db.Pool().QueryRow(context.Background(), `
+	if err := s.DB().Pool().QueryRow(context.Background(), `
 		SELECT count(*) FROM notifications n
 		JOIN registration_statuses rs ON rs.id = n.registration_status_id
 		WHERE rs.event_id = (SELECT id FROM events WHERE display_id = $1)
@@ -116,21 +118,21 @@ func (s *stack) notificationCount(t *testing.T, eventID string, state string) in
 	return count
 }
 
-func (f fixture) seedPending(t *testing.T, s *stack) {
+func (f support.Fixture) seedPending(t *testing.T, s *support.Stack) {
 	t.Helper()
-	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID+"/registration/disable", nil),
+	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+f.EventID+"/registration/disable", nil),
 		http.StatusOK, "disabling the registration to clear the queue")
-	requireStatus(t, f.adminClient.post("/admin/events/"+f.eventID+"/registration/enable", nil),
+	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+f.EventID+"/registration/enable", nil),
 		http.StatusOK, "enabling the registration to raise a primary notification")
-	if pending := s.pendingForStatus(t, f.statusID); pending == 0 {
+	if pending := pendingForStatus(s, t, f.StatusID); pending == 0 {
 		t.Fatalf("reactivating the registration raised no pending notification")
 	}
 }
 
-func (s *stack) pendingForStatus(t *testing.T, statusID string) int {
+func pendingForStatus(s *support.Stack, t *testing.T, statusID string) int {
 	t.Helper()
 	var count int
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT count(*) FROM notifications
 		 WHERE registration_status_id = (SELECT id FROM registration_statuses WHERE display_id = $1)
 		   AND status = 'PENDING'`,
@@ -140,10 +142,10 @@ func (s *stack) pendingForStatus(t *testing.T, statusID string) int {
 	return count
 }
 
-func (s *stack) userIsActive(t *testing.T, userID string) bool {
+func userIsActive(s *support.Stack, t *testing.T, userID string) bool {
 	t.Helper()
 	var active bool
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT is_active FROM users WHERE display_id = $1`, userID).Scan(&active); err != nil {
 		t.Fatalf("reading the activity flag of %s: %v", userID, err)
 	}

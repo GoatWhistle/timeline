@@ -46,6 +46,7 @@ type SessionResponse struct {
 	ID         string     `json:"id" example:"se_42ej2s5gh7e8"`
 	UserAgent  *string    `json:"user_agent,omitempty" example:"Mozilla/5.0 (X11; Linux x86_64)"`
 	IP         *string    `json:"ip,omitempty" example:"203.0.113.7"`
+	Label      *string    `json:"label,omitempty" example:"Work laptop"`
 	Current    bool       `json:"current" example:"true"`
 	CreatedAt  time.Time  `json:"created_at"`
 	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
@@ -54,4 +55,14 @@ type SessionResponse struct {
 
 type SessionListResponse struct {
 	Items []SessionResponse `json:"items"`
+}
+
+type UpdateSessionRequest struct {
+	Label      *string `json:"label,omitempty" example:"Work laptop"`
+	ClearLabel bool    `json:"clear_label,omitempty" example:"false"`
+}
+
+type SessionPatch struct {
+	Label    *string
+	LabelSet bool
 }

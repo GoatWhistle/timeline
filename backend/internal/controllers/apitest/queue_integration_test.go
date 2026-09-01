@@ -6,6 +6,8 @@ import (
 	"context"
 	"net/http"
 	"testing"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 type queueEntry struct {
@@ -33,23 +35,23 @@ type queuePage struct {
 	Meta  queueMeta    `json:"meta"`
 }
 
-func (c *client) queue(t *testing.T, scope string) queuePage {
+func queue(c *support.Client, t *testing.T, scope string) queuePage {
 	t.Helper()
 	path := "/ops/queue"
 	if scope != "" {
 		path += "?scope=" + scope
 	}
-	resp := c.get(path)
-	requireStatus(t, resp, http.StatusOK, "reading the queue diagnostics")
+	resp := c.Get(path)
+	support.RequireStatus(t, resp, http.StatusOK, "reading the queue diagnostics")
 	var page queuePage
-	resp.decode(t, &page)
+	resp.Decode(t, &page)
 	return page
 }
 
-func (s *stack) notificationOf(t *testing.T, statusID string) string {
+func notificationOf(s *support.Stack, t *testing.T, statusID string) string {
 	t.Helper()
 	var id string
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT display_id FROM notifications
 		 WHERE registration_status_id = (SELECT id FROM registration_statuses WHERE display_id = $1)
 		 ORDER BY created_at LIMIT 1`,
@@ -59,9 +61,9 @@ func (s *stack) notificationOf(t *testing.T, statusID string) string {
 	return id
 }
 
-func (s *stack) markTerminal(t *testing.T, id string, status, reason string) {
+func markTerminal(s *support.Stack, t *testing.T, id string, status, reason string) {
 	t.Helper()
-	if _, err := s.db.Pool().Exec(context.Background(), `
+	if _, err := s.DB().Pool().Exec(context.Background(), `
 		UPDATE notifications SET
 			status = $2, last_error = $3, attempt_count = 4,
 			actual_channel = 'EMAIL', failed_channels = ARRAY['EMAIL']::text[],
@@ -71,9 +73,9 @@ func (s *stack) markTerminal(t *testing.T, id string, status, reason string) {
 	}
 }
 
-func (s *stack) expireLease(t *testing.T, id string) {
+func expireLease(s *support.Stack, t *testing.T, id string) {
 	t.Helper()
-	if _, err := s.db.Pool().Exec(context.Background(), `
+	if _, err := s.DB().Pool().Exec(context.Background(), `
 		UPDATE notifications SET
 			status = 'PROCESSING',
 			lease_expires_at = now() - interval '7 minutes',
@@ -83,10 +85,10 @@ func (s *stack) expireLease(t *testing.T, id string) {
 	}
 }
 
-func (s *stack) notificationStatus(t *testing.T, id string) string {
+func notificationStatus(s *support.Stack, t *testing.T, id string) string {
 	t.Helper()
 	var status string
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT status FROM notifications WHERE display_id = $1`, id).Scan(&status); err != nil {
 		t.Fatalf("reading the status of notification %s: %v", id, err)
 	}
@@ -94,13 +96,13 @@ func (s *stack) notificationStatus(t *testing.T, id string) string {
 }
 
 func TestQueueListsTerminalFailuresWithTheirReason(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	failed := s.notificationOf(t, f.statusID)
-	s.markTerminal(t, failed, "FAILED", "provider refused the message four times")
+	failed := notificationOf(s, t, f.StatusID)
+	markTerminal(s, t, failed, "FAILED", "provider refused the message four times")
 
-	page := f.adminClient.queue(t, "failures")
+	page := queue(f.AdminClient, t, "failures")
 	entry := findEntry(t, page, failed)
 
 	if entry.Status != "FAILED" {
@@ -115,26 +117,26 @@ func TestQueueListsTerminalFailuresWithTheirReason(t *testing.T) {
 }
 
 func TestQueueListsUndeliverableAlongsideFailed(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	id := s.notificationOf(t, f.statusID)
-	s.markTerminal(t, id, "UNDELIVERABLE", "no channel is available for the recipient")
+	id := notificationOf(s, t, f.StatusID)
+	markTerminal(s, t, id, "UNDELIVERABLE", "no channel is available for the recipient")
 
-	entry := findEntry(t, f.adminClient.queue(t, "failures"), id)
+	entry := findEntry(t, queue(f.AdminClient, t, "failures"), id)
 	if entry.Status != "UNDELIVERABLE" {
 		t.Fatalf("entry status = %q, want UNDELIVERABLE", entry.Status)
 	}
 }
 
 func TestQueueSeparatesStuckLeasesFromFailures(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	stuck := s.notificationOf(t, f.statusID)
-	s.expireLease(t, stuck)
+	stuck := notificationOf(s, t, f.StatusID)
+	expireLease(s, t, stuck)
 
-	leases := f.adminClient.queue(t, "stuck-leases")
+	leases := queue(f.AdminClient, t, "stuck-leases")
 	entry := findEntry(t, leases, stuck)
 	if entry.Status != "PROCESSING" {
 		t.Fatalf("a stuck lease came back with status %q", entry.Status)
@@ -146,7 +148,7 @@ func TestQueueSeparatesStuckLeasesFromFailures(t *testing.T) {
 		t.Fatalf("a lease overdue by minutes reported lease_overdue_seconds %v", entry.LeaseOverdueS)
 	}
 
-	for _, item := range f.adminClient.queue(t, "failures").Items {
+	for _, item := range queue(f.AdminClient, t, "failures").Items {
 		if item.ID == stuck {
 			t.Fatal("a stuck lease was reported among the terminal failures")
 		}
@@ -154,70 +156,70 @@ func TestQueueSeparatesStuckLeasesFromFailures(t *testing.T) {
 }
 
 func TestQueueLeavesTheStuckLeaseAloneAndDoesNotRecoverIt(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	stuck := s.notificationOf(t, f.statusID)
-	s.expireLease(t, stuck)
+	stuck := notificationOf(s, t, f.StatusID)
+	expireLease(s, t, stuck)
 
-	f.adminClient.queue(t, "stuck-leases")
-	f.adminClient.queue(t, "stuck-leases")
+	queue(f.AdminClient, t, "stuck-leases")
+	queue(f.AdminClient, t, "stuck-leases")
 
-	if status := s.notificationStatus(t, stuck); status != "PROCESSING" {
+	if status := notificationStatus(s, t, stuck); status != "PROCESSING" {
 		t.Fatalf("reading the diagnostics moved the entry to %q: the endpoint reports, "+
 			"the recovery task of specification section 9.4.9 recovers", status)
 	}
-	if len(f.adminClient.queue(t, "stuck-leases").Items) == 0 {
+	if len(queue(f.AdminClient, t, "stuck-leases").Items) == 0 {
 		t.Fatal("the stuck lease vanished from the diagnostics after being read")
 	}
 }
 
 func TestQueueNeverExposesPayloadOrRecipient(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	id := s.notificationOf(t, f.statusID)
-	s.markTerminal(t, id, "FAILED", "provider rejected the address")
+	id := notificationOf(s, t, f.StatusID)
+	markTerminal(s, t, id, "FAILED", "provider rejected the address")
 
-	resp := f.adminClient.get("/ops/queue?scope=failures")
-	requireStatus(t, resp, http.StatusOK, "reading the queue diagnostics")
+	resp := f.AdminClient.Get("/ops/queue?scope=failures")
+	support.RequireStatus(t, resp, http.StatusOK, "reading the queue diagnostics")
 	for _, field := range []string{"payload", "payload_json", "recipient_user_id", "registration_status_id"} {
-		requireNoBodyField(t, resp, field, "the queue diagnostics")
+		support.RequireNoBodyField(t, resp, field, "the queue diagnostics")
 	}
 }
 
 func TestQueueIsAdminOnly(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	for name, acc := range map[string]account{"a member": f.member, "an outsider": f.outsider} {
-		requireStatus(t, s.session(t, acc).get("/ops/queue"), http.StatusForbidden,
+	for name, acc := range map[string]support.Account{"a member": f.Member, "an outsider": f.Outsider} {
+		support.RequireStatus(t, s.Session(t, acc).Get("/ops/queue"), http.StatusForbidden,
 			"reading the queue diagnostics as "+name)
 	}
-	requireStatus(t, s.client(t).get("/ops/queue"), http.StatusUnauthorized,
+	support.RequireStatus(t, s.Client(t).Get("/ops/queue"), http.StatusUnauthorized,
 		"reading the queue diagnostics without signing in")
 }
 
 func TestQueueRejectsAnUnknownScope(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	resp := f.adminClient.get("/ops/queue?scope=everything")
-	requireStatus(t, resp, http.StatusBadRequest, "reading the queue with an unknown scope")
-	if code := resp.errorCode(t); code != "validation_failed" {
+	resp := f.AdminClient.Get("/ops/queue?scope=everything")
+	support.RequireStatus(t, resp, http.StatusBadRequest, "reading the queue with an unknown scope")
+	if code := resp.ErrorCode(t); code != "validation_failed" {
 		t.Fatalf("an unknown scope produced code %q, want validation_failed", code)
 	}
 }
 
 func TestQueueDefaultsToFailuresAndPaginates(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	id := s.notificationOf(t, f.statusID)
-	s.markTerminal(t, id, "FAILED", "provider refused the message")
+	id := notificationOf(s, t, f.StatusID)
+	markTerminal(s, t, id, "FAILED", "provider refused the message")
 
-	implicit := f.adminClient.queue(t, "")
-	explicit := f.adminClient.queue(t, "failures")
+	implicit := queue(f.AdminClient, t, "")
+	explicit := queue(f.AdminClient, t, "failures")
 	if len(implicit.Items) != len(explicit.Items) {
 		t.Fatalf("the default scope returned %d rows against %d for failures",
 			len(implicit.Items), len(explicit.Items))

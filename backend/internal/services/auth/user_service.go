@@ -20,6 +20,7 @@ type UserService struct {
 	audit    *audit.AuditService
 	feeds    *identity.CalendarFeeds
 	realtime SessionDropper
+	avatars  AvatarPurger
 }
 
 func NewUserService(db *postgres.DB, users *identity.Users,
@@ -98,6 +99,9 @@ func (s *UserService) Delete(ctx context.Context, actor models.Actor, userID uui
 		}
 		if err := s.users.Anonymize(ctx, userID); err != nil {
 			return err
+		}
+		if s.avatars != nil {
+			s.avatars.DeleteForUser(ctx, userID, user.AvatarURL)
 		}
 		if err := s.audit.Record(ctx, actor, models.AuditUserDelete, models.EntityUser, userID,
 			map[string]any{"email": user.Email, "display_name": user.DisplayName(user.Locale)},

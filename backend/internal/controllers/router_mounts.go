@@ -35,9 +35,12 @@ func mountPublicProfile(mux *http.ServeMux, api string, c *auth.PublicProfileCon
 func mountMe(mux *http.ServeMux, rt *routes, api string,
 	profileC *auth.ProfileController, sessionC *auth.SessionController, queryC *event.QueryController,
 	catalogC *event.CatalogController, eventC *event.Controller, statusC *participation.RegistrationStatusController,
-	profileLinkC *auth.ProfileLinkController,
+	profileLinkC *auth.ProfileLinkController, avatarC *auth.AvatarController,
 ) {
 	mux.Handle("GET "+api+"/me", rt.authd(profileC.Get))
+	mux.Handle("POST "+api+"/me/avatar", rt.authd(avatarC.Upload))
+	mux.Handle("DELETE "+api+"/me/avatar", rt.authd(avatarC.Remove))
+	mux.Handle("GET "+api+"/avatars/{key}", rt.authd(avatarC.Serve))
 	mux.Handle("PATCH "+api+"/me", rt.authd(profileC.Update))
 	mux.Handle("GET "+api+"/me/shortcuts", rt.authd(profileC.Shortcuts))
 	mux.Handle("PUT "+api+"/me/shortcuts", rt.authd(profileC.UpdateShortcuts))
@@ -52,11 +55,13 @@ func mountMe(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("PATCH "+api+"/me/profile-links/{id}", rt.authd(profileLinkC.Update))
 	mux.Handle("DELETE "+api+"/me/profile-links/{id}", rt.authd(profileLinkC.Delete))
 	mux.Handle("GET "+api+"/me/sessions", rt.authd(sessionC.List))
+	mux.Handle("PATCH "+api+"/me/sessions/{id}", rt.authd(sessionC.Rename))
 	mux.Handle("DELETE "+api+"/me/sessions/{id}", rt.authd(sessionC.Revoke))
 
 	mux.Handle("GET "+api+"/me/events", rt.authd(queryC.MyEvents))
 	mux.Handle("GET "+api+"/me/schedule", rt.authd(queryC.MySchedule))
 	mux.Handle("GET "+api+"/catalog", rt.authd(catalogC.List))
+	mux.Handle("GET "+api+"/catalog/export", rt.authd(catalogC.Export))
 	mux.Handle("POST "+api+"/events/{id}/join", rt.authd(catalogC.Join))
 	mux.Handle("GET "+api+"/events/{id}", rt.authd(queryC.EventCard))
 	mux.Handle("GET "+api+"/events/{id}/stages", rt.authd(eventC.ListStages))

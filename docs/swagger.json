@@ -2857,6 +2857,39 @@
                 }
             }
         },
+        "/avatars/{key}": {
+            "get": {
+                "description": "Serves an uploaded avatar by its server-generated key. The key is opaque and\nunguessable; no client-supplied path ever reaches the storage.",
+                "produces": [
+                    "image/png",
+                    "image/jpeg"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Fetch a stored avatar",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Storage key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/calendar/{token}/feed.ics": {
             "get": {
                 "description": "Returns the owner's schedule as an iCalendar document (RFC 5545) with the\nmedia type text/calendar. This is the only unauthenticated endpoint in the\nsystem that returns personal data, and everything about it follows from that\n(specification 5.6).\n\nThe token in the path is the whole credential: there is no session, no cookie\nand no CSRF check, because a calendar client sends none of them. The address is\nfetched by Google, Apple or Microsoft servers rather than by the owner's\ndevice, so it cannot be bound to a device or an address range.\n\nThe content is exactly what the owner sees in GET /me/schedule: their assigned\npublished events, the stages of those events and the registration deadline.\nNo other participant, no administrative field and nothing from the personal\nlayer appears here — widening the feed would be a privilege escalation through\na channel that has no authentication.\n\nAn unknown, malformed or revoked token answers 404, and so does the feed of a\ndeactivated account. A revoked token and one that never existed are\ndeliberately indistinguishable: 403 would confirm that the address was once\nreal. Rate limiting is keyed on the presented token, since there is no account\ncontext until the token has been resolved.",
@@ -2977,6 +3010,29 @@
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "start_at",
+                            "end_at",
+                            "title"
+                        ],
+                        "type": "string",
+                        "default": "start_at",
+                        "description": "Sort field",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "asc",
+                        "description": "Sort direction",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "default": 1,
                         "description": "Page number",
@@ -2996,6 +3052,136 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.CatalogPage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "too many catalog requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/catalog/export": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The same events the catalog listing returns, under the same filters and the same\nsort, streamed as CSV instead of paginated JSON. Only the fields the listing itself\nexposes are written: the export carries no administrative notes.\n\nLike the listing it requires a session and is counted against the catalog rate\nlimit of the account. Rows are streamed as they are read, so the response is not\nbuilt in memory.\n\nThe `joined` column repeats the participation the listing shows. It says whether\nthe account takes part in the event, not whether anyone registered on an external\nsite: the system never checks that.",
+                "produces": [
+                    "text/csv"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "Export the catalog as CSV",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search by title and organiser",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "RU",
+                            "WORLD"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated origin filter",
+                        "name": "origin",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "ONLINE",
+                            "OFFLINE",
+                            "HYBRID"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated format filter",
+                        "name": "format",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "HACKATHON",
+                            "MEETUP"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated kind filter",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "UPCOMING",
+                            "ACTIVE",
+                            "FINISHED"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated state filter",
+                        "name": "state",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Lower bound of the period",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Upper bound of the period",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "start_at",
+                            "end_at",
+                            "title"
+                        ],
+                        "type": "string",
+                        "default": "start_at",
+                        "description": "Sort field",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "asc",
+                        "description": "Sort direction",
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "CSV payload",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -3832,6 +4018,102 @@
                     },
                     "429": {
                         "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/avatar": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Accepts a single image part named \"file\". The stored type is decided by the\nfile content, not by its name or declared type: only PNG, JPEG and WebP are kept.\nA previously stored file is deleted once the new one is in place.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Upload or replace your avatar",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Image file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Deletes the stored file and falls back to the initials rendered by the client.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Remove your avatar",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MeResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -6049,6 +6331,75 @@
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Gives the session a label of the account holder's choosing, so a list of look-alike\nbrowsers can be told apart. The label is free text of at most 64 characters and it\nis stored as written: the server neither interprets it nor derives anything from it.\n\nSending clear_label drops a label set earlier and leaves the session unnamed. A\nrequest that carries neither label nor clear_label changes nothing and is refused,\nso an empty body cannot silently erase a name.\n\nThe session must belong to the caller. An identifier of somebody else's session is\nanswered with 404 rather than 403, exactly as termination is: the very existence of\nanother account's session must not be disclosed. Naming a session has no effect on\nits lifetime — it neither extends nor shortens the refresh chain.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Name one own session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "se_42ej2s5gh7e8",
+                        "description": "Session identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Changed fields",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateSessionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SessionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "the session does not exist or belongs to another account",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/me/shortcuts": {
@@ -7866,7 +8217,7 @@
             "properties": {
                 "avatar_url": {
                     "type": "string",
-                    "example": "https://example.com/a.png"
+                    "example": "/api/v1/avatars/ab12cd34.png"
                 },
                 "bio": {
                     "type": "string",
@@ -8401,7 +8752,7 @@
             "properties": {
                 "avatar_url": {
                     "type": "string",
-                    "example": "https://example.com/a.png"
+                    "example": "/api/v1/avatars/ab12cd34.png"
                 },
                 "bio": {
                     "type": "string",
@@ -9006,6 +9357,10 @@
                     "type": "string",
                     "example": "203.0.113.7"
                 },
+                "label": {
+                    "type": "string",
+                    "example": "Work laptop"
+                },
                 "last_used_at": {
                     "type": "string"
                 },
@@ -9416,10 +9771,6 @@
         "dto.UpdateProfileRequest": {
             "type": "object",
             "properties": {
-                "avatar_url": {
-                    "type": "string",
-                    "example": "https://example.com/a.png"
-                },
                 "bio": {
                     "type": "string",
                     "example": "Backend developer"
@@ -9535,6 +9886,19 @@
                 },
                 "offset_minutes": {
                     "type": "integer"
+                }
+            }
+        },
+        "dto.UpdateSessionRequest": {
+            "type": "object",
+            "properties": {
+                "clear_label": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "label": {
+                    "type": "string",
+                    "example": "Work laptop"
                 }
             }
         },

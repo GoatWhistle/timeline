@@ -1,6 +1,6 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/shared/api/session'
 import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
@@ -19,10 +19,6 @@ export function SettingsOverlay() {
   const activeRef = useRef<HTMLButtonElement>(null)
   const { containerRef, box } = useSlidingIndicator<HTMLDivElement>(section, 'y', open)
   const returnFocus = useReturnFocus(open)
-
-  useEffect(() => {
-    if (open) activeRef.current?.focus()
-  }, [open])
 
   if (!user) return null
 
@@ -45,6 +41,10 @@ export function SettingsOverlay() {
         />
         <DialogPrimitive.Content
           aria-label={t('settings.title')}
+          onOpenAutoFocus={(event) => {
+            event.preventDefault()
+            activeRef.current?.focus()
+          }}
           onCloseAutoFocus={returnFocus}
           className={cn(
             'fixed inset-0 z-50 m-auto flex h-[min(90vh,44rem)] w-[min(92vw,64rem)] overflow-hidden',

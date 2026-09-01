@@ -51,6 +51,7 @@ type CatalogFilter struct {
 	States  []models.EventState
 	From    *time.Time
 	To      *time.Time
+	Sort    models.CatalogSort
 }
 
 type ParticipantSelfResponse struct {

@@ -851,7 +851,7 @@ definitions:
   dto.MeResponse:
     properties:
       avatar_url:
-        example: https://example.com/a.png
+        example: /api/v1/avatars/ab12cd34.png
         type: string
       bio:
         example: Backend developer
@@ -1209,7 +1209,7 @@ definitions:
   dto.PublicProfileResponse:
     properties:
       avatar_url:
-        example: https://example.com/a.png
+        example: /api/v1/avatars/ab12cd34.png
         type: string
       bio:
         example: Backend developer
@@ -1613,6 +1613,9 @@ definitions:
       ip:
         example: 203.0.113.7
         type: string
+      label:
+        example: Work laptop
+        type: string
       last_used_at:
         type: string
       user_agent:
@@ -1891,9 +1894,6 @@ definitions:
     type: object
   dto.UpdateProfileRequest:
     properties:
-      avatar_url:
-        example: https://example.com/a.png
-        type: string
       bio:
         example: Backend developer
         type: string
@@ -1977,6 +1977,15 @@ definitions:
         type: boolean
       offset_minutes:
         type: integer
+    type: object
+  dto.UpdateSessionRequest:
+    properties:
+      clear_label:
+        example: false
+        type: boolean
+      label:
+        example: Work laptop
+        type: string
     type: object
   dto.UpdateShortcutsRequest:
     properties:
@@ -4590,6 +4599,30 @@ paths:
       summary: Resend the confirmation email
       tags:
       - auth
+  /avatars/{key}:
+    get:
+      description: |-
+        Serves an uploaded avatar by its server-generated key. The key is opaque and
+        unguessable; no client-supplied path ever reaches the storage.
+      parameters:
+      - description: Storage key
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - image/png
+      - image/jpeg
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Fetch a stored avatar
+      tags:
+      - profile
   /calendar/{token}/feed.ics:
     get:
       description: |-
@@ -4697,6 +4730,23 @@ paths:
         in: query
         name: to
         type: string
+      - default: start_at
+        description: Sort field
+        enum:
+        - start_at
+        - end_at
+        - title
+        in: query
+        name: sort
+        type: string
+      - default: asc
+        description: Sort direction
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
       - default: 1
         description: Page number
         in: query
@@ -4729,6 +4779,106 @@ paths:
       security:
       - CookieAuth: []
       summary: Event catalog
+      tags:
+      - catalog
+  /catalog/export:
+    get:
+      description: |-
+        The same events the catalog listing returns, under the same filters and the same
+        sort, streamed as CSV instead of paginated JSON. Only the fields the listing itself
+        exposes are written: the export carries no administrative notes.
+
+        Like the listing it requires a session and is counted against the catalog rate
+        limit of the account. Rows are streamed as they are read, so the response is not
+        built in memory.
+
+        The `joined` column repeats the participation the listing shows. It says whether
+        the account takes part in the event, not whether anyone registered on an external
+        site: the system never checks that.
+      parameters:
+      - description: Search by title and organiser
+        in: query
+        name: search
+        type: string
+      - description: Comma-separated origin filter
+        enum:
+        - RU
+        - WORLD
+        in: query
+        name: origin
+        type: string
+      - description: Comma-separated format filter
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
+        in: query
+        name: format
+        type: string
+      - description: Comma-separated kind filter
+        enum:
+        - HACKATHON
+        - MEETUP
+        in: query
+        name: kind
+        type: string
+      - description: Comma-separated state filter
+        enum:
+        - UPCOMING
+        - ACTIVE
+        - FINISHED
+        in: query
+        name: state
+        type: string
+      - description: Lower bound of the period
+        format: date-time
+        in: query
+        name: from
+        type: string
+      - description: Upper bound of the period
+        format: date-time
+        in: query
+        name: to
+        type: string
+      - default: start_at
+        description: Sort field
+        enum:
+        - start_at
+        - end_at
+        - title
+        in: query
+        name: sort
+        type: string
+      - default: asc
+        description: Sort direction
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: CSV payload
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "429":
+          description: too many catalog requests
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Export the catalog as CSV
       tags:
       - catalog
   /events/{id}:
@@ -5301,6 +5451,71 @@ paths:
       summary: Update an own artifact
       tags:
       - personal
+  /me/avatar:
+    delete:
+      description: Deletes the stored file and falls back to the initials rendered
+        by the client.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Remove your avatar
+      tags:
+      - profile
+    post:
+      consumes:
+      - multipart/form-data
+      description: |-
+        Accepts a single image part named "file". The stored type is decided by the
+        file content, not by its name or declared type: only PNG, JPEG and WebP are kept.
+        A previously stored file is deleted once the new one is in place.
+      parameters:
+      - description: Image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Upload or replace your avatar
+      tags:
+      - profile
   /me/bookmarks:
     get:
       description: |-
@@ -6890,6 +7105,63 @@ paths:
       security:
       - CookieAuth: []
       summary: Terminate one own session
+      tags:
+      - auth
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Gives the session a label of the account holder's choosing, so a list of look-alike
+        browsers can be told apart. The label is free text of at most 64 characters and it
+        is stored as written: the server neither interprets it nor derives anything from it.
+
+        Sending clear_label drops a label set earlier and leaves the session unnamed. A
+        request that carries neither label nor clear_label changes nothing and is refused,
+        so an empty body cannot silently erase a name.
+
+        The session must belong to the caller. An identifier of somebody else's session is
+        answered with 404 rather than 403, exactly as termination is: the very existence of
+        another account's session must not be disclosed. Naming a session has no effect on
+        its lifetime — it neither extends nor shortens the refresh chain.
+      parameters:
+      - description: Session identifier
+        example: se_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Changed fields
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSessionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SessionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: the session does not exist or belongs to another account
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Name one own session
       tags:
       - auth
   /me/shortcuts:

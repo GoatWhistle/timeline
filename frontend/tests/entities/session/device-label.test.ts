@@ -80,6 +80,7 @@ describe('sortSessions', () => {
       current: false,
       expires_at: '2026-09-01T00:00:00Z',
       ip: '203.0.113.7',
+      label: '',
       last_used_at: '2026-08-01T00:00:00Z',
       user_agent: CHROME_WINDOWS,
       ...patch,

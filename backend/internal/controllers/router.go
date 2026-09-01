@@ -85,6 +85,8 @@ func NewRouter(deps Deps) http.Handler {
 		deps.SessionRate, deps.SessionRateWindow)
 	profileLinkC := auth.NewProfileLinkController(deps.ProfileLinks, deps.Limiter,
 		deps.ProfileRate, deps.ProfileRateWindow)
+	avatarC := auth.NewAvatarController(deps.Avatars, deps.Limiter,
+		deps.ProfileRate, deps.ProfileRateWindow, deps.AvatarMaxBytes)
 	partC := participation.NewController(deps.Participants, deps.PageDefault, deps.PageMax)
 	regC := participation.NewRegistrationController(deps.Registrations, deps.PageDefault, deps.PageMax)
 	statusC := participation.NewRegistrationStatusController(deps.Statuses, deps.PageDefault, deps.PageMax)
@@ -107,7 +109,7 @@ func NewRouter(deps Deps) http.Handler {
 
 	mountAuth(mux, rt, api, authC, inviteC)
 	mountPublicProfile(mux, api, publicProfileC)
-	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC, profileLinkC)
+	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC, profileLinkC, avatarC)
 	mountPersonal(mux, rt, api, personalC)
 	mountResourceLinks(mux, rt, api, linkC)
 	mountCalendarFeed(mux, rt, api, calendarC)

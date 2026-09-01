@@ -108,6 +108,7 @@ func newRouter(c *container) http.Handler {
 		Auth:           c.auth,
 		Invites:        c.invites,
 		Profile:        c.profile,
+		Avatars:        c.avatars,
 		ProfileLinks:   c.profileLinks,
 		PublicProfiles: c.profile,
 		Users:          c.users,
@@ -131,14 +132,15 @@ func newRouter(c *container) http.Handler {
 		Authenticator: c.auth,
 		Metrics:       promhttp.Handler(),
 
-		Cookies:      controllers.CookieOptions{Domain: c.cfg.HTTP.CookieDomain, Secure: c.cfg.HTTP.CookieSecure},
-		PublicURL:    c.cfg.App.PublicURL,
-		CORSOrigins:  c.cfg.HTTP.CORSOrigins,
-		MetricsToken: c.cfg.Ops.MetricsToken,
-		PageDefault:  c.cfg.Ops.PageSizeDef,
-		PageMax:      c.cfg.Ops.PageSizeMax,
-		UserPageSize: c.cfg.Ops.UserSearchPageSize,
-		CSRFTTL:      c.cfg.Auth.RefreshTTL,
+		Cookies:        controllers.CookieOptions{Domain: c.cfg.HTTP.CookieDomain, Secure: c.cfg.HTTP.CookieSecure},
+		PublicURL:      c.cfg.App.PublicURL,
+		CORSOrigins:    c.cfg.HTTP.CORSOrigins,
+		MetricsToken:   c.cfg.Ops.MetricsToken,
+		PageDefault:    c.cfg.Ops.PageSizeDef,
+		PageMax:        c.cfg.Ops.PageSizeMax,
+		UserPageSize:   c.cfg.Ops.UserSearchPageSize,
+		CSRFTTL:        c.cfg.Auth.RefreshTTL,
+		AvatarMaxBytes: c.cfg.Avatar.MaxBytes,
 	}
 	applyRateLimits(&deps, c)
 	if c.cfg.Realtime.Enabled {

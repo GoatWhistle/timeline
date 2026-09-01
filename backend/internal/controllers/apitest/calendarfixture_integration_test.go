@@ -13,6 +13,8 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 type logSink struct {
@@ -42,16 +44,16 @@ func captureLogs(t *testing.T) *logSink {
 }
 
 func TestTheTokenNeverReachesTheApplicationLog(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
-	secret := s.session(t, f.member).issueFeed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	secret := issueFeed(s.Session(t, f.Member), t)
 
 	sink := captureLogs(t)
-	s.fetchFeed(t, secret, http.StatusOK)
-	revoked := s.session(t, f.member)
-	requireStatus(t, revoked.delete("/me/calendar-feed"), http.StatusNoContent, "revoking the feed")
-	s.requireFeedNotFound(t, secret, "a revoked token")
-	requireStatus(t, s.rawFeed(t, "clearly-not-a-real-calendar-token"), http.StatusNotFound,
+	fetchFeed(s, t, secret, http.StatusOK)
+	revoked := s.Session(t, f.Member)
+	support.RequireStatus(t, revoked.Delete("/me/calendar-feed"), http.StatusNoContent, "revoking the feed")
+	requireFeedNotFound(s, t, secret, "a revoked token")
+	support.RequireStatus(t, rawFeed(s, t, "clearly-not-a-real-calendar-token"), http.StatusNotFound,
 		"an unknown token")
 
 	logs := sink.String()
@@ -95,19 +97,19 @@ func TestAPanicOnTheFeedRouteStillRedactsTheToken(t *testing.T) {
 	}
 }
 
-func (c *client) issueFeed(t *testing.T) string {
+func issueFeed(c *support.Client, t *testing.T) string {
 	t.Helper()
-	resp := c.post("/me/calendar-feed", nil)
-	requireStatus(t, resp, http.StatusCreated, "issuing a calendar feed")
+	resp := c.Post("/me/calendar-feed", nil)
+	support.RequireStatus(t, resp, http.StatusCreated, "issuing a calendar feed")
 	return secretFromResponse(t, resp)
 }
 
-func secretFromResponse(t *testing.T, resp response) string {
+func secretFromResponse(t *testing.T, resp support.Response) string {
 	t.Helper()
 	var body struct {
 		URL string `json:"url"`
 	}
-	resp.decode(t, &body)
+	resp.Decode(t, &body)
 	const prefix, suffix = "/api/v1/calendar/", "/feed.ics"
 	start := strings.Index(body.URL, prefix)
 	if start < 0 || !strings.HasSuffix(body.URL, suffix) {
@@ -120,22 +122,22 @@ func secretFromResponse(t *testing.T, resp response) string {
 	return secret
 }
 
-func describeEnabled(t *testing.T, resp response) bool {
+func describeEnabled(t *testing.T, resp support.Response) bool {
 	t.Helper()
 	var body struct {
 		Enabled bool `json:"enabled"`
 	}
-	resp.decode(t, &body)
+	resp.Decode(t, &body)
 	return body.Enabled
 }
 
-func (s *stack) rawFeed(t *testing.T, secret string) response {
+func rawFeed(s *support.Stack, t *testing.T, secret string) support.Response {
 	t.Helper()
-	req, err := http.NewRequest(http.MethodGet, s.url("/calendar/"+secret+"/feed.ics"), nil)
+	req, err := http.NewRequest(http.MethodGet, s.URL("/calendar/"+secret+"/feed.ics"), nil)
 	if err != nil {
 		t.Fatalf("building the feed request: %v", err)
 	}
-	resp, err := s.server.Client().Do(req)
+	resp, err := s.Server().Client().Do(req)
 	if err != nil {
 		t.Fatalf("fetching the feed: %v", err)
 	}
@@ -147,20 +149,20 @@ func (s *stack) rawFeed(t *testing.T, secret string) response {
 	if len(resp.Cookies()) != 0 {
 		t.Fatalf("the unauthenticated feed set cookies: %v", resp.Cookies())
 	}
-	return response{Status: resp.StatusCode, Body: payload}
+	return support.Response{Status: resp.StatusCode, Body: payload}
 }
 
-func (s *stack) fetchFeed(t *testing.T, secret string, want int) string {
+func fetchFeed(s *support.Stack, t *testing.T, secret string, want int) string {
 	t.Helper()
-	resp := s.rawFeed(t, secret)
-	requireStatus(t, resp, want, "fetching the calendar feed")
+	resp := rawFeed(s, t, secret)
+	support.RequireStatus(t, resp, want, "fetching the calendar feed")
 	return string(resp.Body)
 }
 
-func (s *stack) requireFeedNotFound(t *testing.T, secret, what string) {
+func requireFeedNotFound(s *support.Stack, t *testing.T, secret, what string) {
 	t.Helper()
-	resp := s.rawFeed(t, secret)
-	requireStatus(t, resp, http.StatusNotFound, what)
+	resp := rawFeed(s, t, secret)
+	support.RequireStatus(t, resp, http.StatusNotFound, what)
 	if strings.Contains(string(resp.Body), "BEGIN:VCALENDAR") {
 		t.Fatalf("%s still served an iCalendar document: %s", what, resp.Body)
 	}

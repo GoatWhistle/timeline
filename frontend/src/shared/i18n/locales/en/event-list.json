@@ -48,7 +48,8 @@
     },
     "layout": {
       "list": "List",
-      "grid": "Tiles"
+      "grid": "Tiles",
+      "table": "Table"
     },
     "join": {
       "action": "Take part",
@@ -76,6 +77,47 @@
       "offline": "In person",
       "online": "Online",
       "hybrid": "Hybrid"
-    }
+    },
+    "sortAria": "Sort by",
+    "orderAria": "Sort direction",
+    "periodAria": "Period",
+    "sort": {
+      "start_at": "Start date",
+      "end_at": "Deadline",
+      "title": "Title"
+    },
+    "order": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "period": {
+      "from": "From",
+      "to": "To",
+      "fromAria": "Period start",
+      "toAria": "Period end",
+      "clear": "Clear period"
+    },
+    "column": {
+      "title": "Title",
+      "kind": "Kind",
+      "format": "Format",
+      "place": "Place",
+      "period": "Period",
+      "prize": "Prize pool",
+      "state": "State",
+      "participation": "Participation"
+    },
+    "export": {
+      "action": "Export CSV",
+      "pending": "Preparing the export",
+      "failed": "Could not export the catalog",
+      "done": "The export has been downloaded",
+      "hint": "Downloads every event matching the current filters, not only this page."
+    },
+    "resultCount_one": "{{count}} event",
+    "resultCount_few": "{{count}} events",
+    "resultCount_many": "{{count}} events",
+    "resultCount_other": "{{count}} events",
+    "filtersReset": "Reset filters"
   }
 }

@@ -21,7 +21,7 @@ type MeResponse struct {
 	TelegramUsername  *string          `json:"telegram_username,omitempty"`
 	TelegramLinked    bool             `json:"telegram_linked" example:"false"`
 	PreferredChannel  *models.Channel  `json:"preferred_channel,omitempty" enums:"TELEGRAM,EMAIL"`
-	AvatarURL         *string          `json:"avatar_url,omitempty" example:"https://example.com/a.png"`
+	AvatarURL         *string          `json:"avatar_url,omitempty" example:"/api/v1/avatars/ab12cd34.png"`
 	Bio               *string          `json:"bio,omitempty" example:"Backend developer"`
 	Locale            string           `json:"locale" example:"ru" enums:"ru,en"`
 	Timezone          string           `json:"timezone" example:"Europe/Moscow"`
@@ -40,7 +40,6 @@ type UpdateProfileRequest struct {
 	ProfilePublic    *bool   `json:"profile_public,omitempty" example:"false"`
 	PreferredChannel *string `json:"preferred_channel,omitempty" enums:"TELEGRAM,EMAIL"`
 	TelegramUsername *string `json:"telegram_username,omitempty" example:"@ivan"`
-	AvatarURL        *string `json:"avatar_url,omitempty" example:"https://example.com/a.png"`
 	Bio              *string `json:"bio,omitempty" example:"Backend developer"`
 	Locale           *string `json:"locale,omitempty" example:"en" enums:"ru,en"`
 	Timezone         *string `json:"timezone,omitempty" example:"Asia/Tokyo"`
@@ -105,7 +104,7 @@ type PublicProfileResponse struct {
 	MiddleName  *string              `json:"middle_name,omitempty" example:"Fitzgerald"`
 	LastName    string               `json:"last_name" example:"Smith"`
 	DisplayName string               `json:"display_name" example:"John Smith"`
-	AvatarURL   *string              `json:"avatar_url,omitempty" example:"https://example.com/a.png"`
+	AvatarURL   *string              `json:"avatar_url,omitempty" example:"/api/v1/avatars/ab12cd34.png"`
 	Bio         *string              `json:"bio,omitempty" example:"Backend developer"`
 	Events      []PublicProfileEvent `json:"events"`
 }

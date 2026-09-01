@@ -10,19 +10,21 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 func TestOnlyTheHashOfTheTokenIsStored(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	secret := s.session(t, f.member).issueFeed(t)
+	secret := issueFeed(s.Session(t, f.Member), t)
 
 	var hash string
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT token_hash FROM calendar_feed_tokens
 		 WHERE user_id = (SELECT id FROM users WHERE display_id = $1) AND revoked_at IS NULL`,
-		f.member.ID).Scan(&hash); err != nil {
+		f.Member.ID).Scan(&hash); err != nil {
 		t.Fatalf("reading the stored token: %v", err)
 	}
 	if hash == secret {
@@ -36,7 +38,7 @@ func TestOnlyTheHashOfTheTokenIsStored(t *testing.T) {
 	}
 
 	var anywhere int
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT count(*) FROM calendar_feed_tokens WHERE token_hash = $1`, secret).Scan(&anywhere); err != nil {
 		t.Fatalf("searching for the raw token: %v", err)
 	}
@@ -45,7 +47,7 @@ func TestOnlyTheHashOfTheTokenIsStored(t *testing.T) {
 	}
 
 	var recorded int
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT count(*) FROM audit_log WHERE action = 'CALENDAR_FEED_ISSUE'`).Scan(&recorded); err != nil {
 		t.Fatalf("reading the audit log: %v", err)
 	}
@@ -54,7 +56,7 @@ func TestOnlyTheHashOfTheTokenIsStored(t *testing.T) {
 	}
 
 	var audits int
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT count(*) FROM audit_log
 		 WHERE coalesce(before_json::text, '') || coalesce(after_json::text, '') LIKE '%' || $1 || '%'
 		    OR coalesce(before_json::text, '') || coalesce(after_json::text, '') LIKE '%' || $2 || '%'`,
@@ -67,21 +69,21 @@ func TestOnlyTheHashOfTheTokenIsStored(t *testing.T) {
 }
 
 func TestFeedRateLimitAppliesWithoutAnAccountContext(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	secret := s.session(t, f.member).issueFeed(t)
-	limit := s.cfg.RateLim.ICSRequests
+	secret := issueFeed(s.Session(t, f.Member), t)
+	limit := s.Config().RateLim.ICSRequests
 	if limit <= 0 {
-		t.Fatalf("the fixture must configure a positive feed limit, got %d", limit)
+		t.Fatalf("the support.Fixture must configure a positive feed limit, got %d", limit)
 	}
 
 	for attempt := 1; attempt <= limit; attempt++ {
-		requireStatus(t, s.rawFeed(t, secret), http.StatusOK, "a feed read within the limit")
+		support.RequireStatus(t, rawFeed(s, t, secret), http.StatusOK, "a feed read within the limit")
 	}
-	blocked := s.rawFeed(t, secret)
-	requireStatus(t, blocked, http.StatusTooManyRequests, "a feed read beyond the limit")
-	if code := blocked.errorCode(t); code != "rate_limited" {
+	blocked := rawFeed(s, t, secret)
+	support.RequireStatus(t, blocked, http.StatusTooManyRequests, "a feed read beyond the limit")
+	if code := blocked.ErrorCode(t); code != "rate_limited" {
 		t.Fatalf("the refusal carried the code %q instead of rate_limited: %s", code, blocked.Body)
 	}
 
@@ -89,39 +91,39 @@ func TestFeedRateLimitAppliesWithoutAnAccountContext(t *testing.T) {
 	if err != nil {
 		t.Fatalf("generating a second secret: %v", err)
 	}
-	requireStatus(t, s.rawFeed(t, other), http.StatusNotFound,
+	support.RequireStatus(t, rawFeed(s, t, other), http.StatusNotFound,
 		"a different token once the first exhausted its own budget")
 }
 
 func TestTheTokenStoreItselfHidesRevokedRows(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 	ctx := context.Background()
 
-	secret := s.session(t, f.member).issueFeed(t)
+	secret := issueFeed(s.Session(t, f.Member), t)
 	hash := crypto.HashSecret(secret)
 
-	memberUUID := s.userUUID(t, f.member.ID)
-	found, err := s.calendar.GetActiveByHash(ctx, hash)
+	memberUUID := s.UserUUID(t, f.Member.ID)
+	found, err := s.Calendar().GetActiveByHash(ctx, hash)
 	if err != nil {
 		t.Fatalf("looking up a live token: %v", err)
 	}
 	if found.UserID != memberUUID {
-		t.Fatalf("the lookup returned the token of %s instead of %s", found.UserID, f.member.ID)
+		t.Fatalf("the lookup returned the token of %s instead of %s", found.UserID, f.Member.ID)
 	}
 
-	if _, err := s.calendar.RevokeAllForUser(ctx, memberUUID); err != nil {
+	if _, err := s.Calendar().RevokeAllForUser(ctx, memberUUID); err != nil {
 		t.Fatalf("revoking the token: %v", err)
 	}
-	if _, err := s.calendar.GetActiveByHash(ctx, hash); !errors.Is(err, models.ErrNotFound) {
+	if _, err := s.Calendar().GetActiveByHash(ctx, hash); !errors.Is(err, models.ErrNotFound) {
 		t.Fatalf("the store still resolves a revoked hash, error was %v", err)
 	}
-	if _, err := s.calendar.GetActiveByUser(ctx, memberUUID); !errors.Is(err, models.ErrNotFound) {
-		t.Fatalf("the store still reports a revoked token as the account's active one, error was %v", err)
+	if _, err := s.Calendar().GetActiveByUser(ctx, memberUUID); !errors.Is(err, models.ErrNotFound) {
+		t.Fatalf("the store still reports a revoked token as the support.Account's active one, error was %v", err)
 	}
 
 	var revoked int
-	if err := s.db.Pool().QueryRow(ctx,
+	if err := s.DB().Pool().QueryRow(ctx,
 		`SELECT count(*) FROM calendar_feed_tokens WHERE token_hash = $1 AND revoked_at IS NOT NULL`,
 		hash).Scan(&revoked); err != nil {
 		t.Fatalf("counting revoked rows: %v", err)
@@ -132,43 +134,43 @@ func TestTheTokenStoreItselfHidesRevokedRows(t *testing.T) {
 }
 
 func TestASecondActiveTokenCannotBeStored(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 	ctx := context.Background()
 
-	memberUUID := s.userUUID(t, f.member.ID)
-	s.session(t, f.member).issueFeed(t)
-	if _, err := s.calendar.Create(ctx, memberUUID, strings.Repeat("f", 64)); err == nil {
-		t.Fatal("the store accepted a second active token for one account")
+	memberUUID := s.UserUUID(t, f.Member.ID)
+	issueFeed(s.Session(t, f.Member), t)
+	if _, err := s.Calendar().Create(ctx, memberUUID, strings.Repeat("f", 64)); err == nil {
+		t.Fatal("the store accepted a second active token for one support.Account")
 	}
 
-	if _, err := s.calendar.RevokeAllForUser(ctx, memberUUID); err != nil {
+	if _, err := s.Calendar().RevokeAllForUser(ctx, memberUUID); err != nil {
 		t.Fatalf("revoking the token: %v", err)
 	}
-	if _, err := s.calendar.Create(ctx, memberUUID, strings.Repeat("f", 64)); err != nil {
+	if _, err := s.Calendar().Create(ctx, memberUUID, strings.Repeat("f", 64)); err != nil {
 		t.Fatalf("the store refused a replacement once the previous token was revoked: %v", err)
 	}
 }
 
 func TestTheFeedRecordsWhenACalendarClientLastFetchedIt(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
-	member := s.session(t, f.member)
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	member := s.Session(t, f.Member)
 
-	secret := member.issueFeed(t)
-	fresh := member.get("/me/calendar-feed")
-	requireStatus(t, fresh, http.StatusOK, "describing a feed nobody fetched yet")
+	secret := issueFeed(member, t)
+	fresh := member.Get("/me/calendar-feed")
+	support.RequireStatus(t, fresh, http.StatusOK, "describing a feed nobody fetched yet")
 	if strings.Contains(string(fresh.Body), "last_used_at") {
 		t.Fatalf("a feed nobody fetched already reports a last use: %s", fresh.Body)
 	}
 
-	s.fetchFeed(t, secret, http.StatusOK)
+	fetchFeed(s, t, secret, http.StatusOK)
 
-	used := member.get("/me/calendar-feed")
-	requireStatus(t, used, http.StatusOK, "describing a fetched feed")
+	used := member.Get("/me/calendar-feed")
+	support.RequireStatus(t, used, http.StatusOK, "describing a fetched feed")
 	if !strings.Contains(string(used.Body), "last_used_at") {
 		t.Fatalf("fetching the feed did not record the last use: %s", used.Body)
 	}
-	requireNoBodyField(t, used, "url", "describing a fetched feed")
-	requireNoBodyField(t, used, "token", "describing a fetched feed")
+	support.RequireNoBodyField(t, used, "url", "describing a fetched feed")
+	support.RequireNoBodyField(t, used, "token", "describing a fetched feed")
 }

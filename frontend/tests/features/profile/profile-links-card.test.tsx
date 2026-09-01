@@ -58,22 +58,20 @@ describe('profile link acceptance', () => {
 describe('profile schema', () => {
   const NAMES = { first_name: 'Ivan', middle_name: '', last_name: 'Petrov' }
 
-  it('rejects an executable address in the avatar field', () => {
-    const result = profileSchema.safeParse({ ...NAMES, avatar_url: 'javascript:alert(1)', bio: '' })
-    expect(result.success).toBe(false)
-  })
-
   it('accepts a filled-in profile', () => {
     const result = profileSchema.safeParse({
       ...NAMES,
-      avatar_url: 'https://example.org/a.png',
       bio: 'Backend developer',
     })
     expect(result.success).toBe(true)
   })
 
+  it('carries no avatar address, because the avatar is an uploaded file', () => {
+    expect(Object.keys(profileSchema.shape)).not.toContain('avatar_url')
+  })
+
   it('bounds the bio at 2000 characters, matching the database constraint', () => {
-    const base = { ...NAMES, avatar_url: '' }
+    const base = { ...NAMES }
     expect(profileSchema.safeParse({ ...base, bio: 'a'.repeat(2000) }).success).toBe(true)
     expect(profileSchema.safeParse({ ...base, bio: 'a'.repeat(2001) }).success).toBe(false)
   })
@@ -146,6 +144,7 @@ describe('bio and avatar handling in the personal data card', () => {
   function renderCard(props: { bio?: string; avatarUrl?: string }) {
     return renderWithProviders(
       <PersonalDataCard
+        userId="us_42ej2s5gh7e8"
         firstName="Ivan"
         lastName="Petrov"
         bio={props.bio}
@@ -168,13 +167,8 @@ describe('bio and avatar handling in the personal data card', () => {
     expect(screen.queryByRole('link')).toBeNull()
   })
 
-  it('previews an avatar address the user has already saved', async () => {
-    renderCard({ avatarUrl: 'https://example.org/a.png' })
-    expect(await screen.findByText('example.org')).toBeInTheDocument()
-  })
-
-  it('shows no preview for a saved address the browser cannot open', () => {
-    renderCard({ avatarUrl: 'javascript:alert(1)' })
-    expect(screen.queryByRole('link')).toBeNull()
+  it('offers no free-text avatar address field any more', () => {
+    renderCard({ avatarUrl: '/api/v1/avatars/abc123.png' })
+    expect(screen.queryByLabelText('profile.avatar_url')).toBeNull()
   })
 })

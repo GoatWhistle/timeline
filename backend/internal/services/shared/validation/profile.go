@@ -56,31 +56,7 @@ func ProfilePatch(req dto.UpdateProfileRequest) (dto.ProfilePatch, error) {
 	return patch, nil
 }
 
-func clearableURL(field string, raw *string, target **string, reset *bool) error {
-	if raw == nil {
-		return nil
-	}
-	if strings.TrimSpace(*raw) == "" {
-		*reset = true
-		return nil
-	}
-	value, err := ValidateURL(field, *raw)
-	if err != nil {
-		return err
-	}
-	if utf8.RuneCountInString(value) > 2048 {
-		return models.NewValidation("value is too long",
-			models.FieldError{Field: field, Message: "at most 2048 characters"})
-	}
-	*target = &value
-	return nil
-}
-
 func profileLinks(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) error {
-	if err := clearableURL("avatar_url", req.AvatarURL,
-		&patch.AvatarURL, &patch.ClearAvatarURL); err != nil {
-		return err
-	}
 	if req.Bio == nil {
 		return nil
 	}
@@ -198,6 +174,34 @@ func ProfileLinkLabel(raw *string) (*string, error) {
 		return nil, err
 	}
 	return &value, nil
+}
+
+func SessionLabel(raw *string) (*string, error) {
+	if raw == nil || strings.TrimSpace(*raw) == "" {
+		return nil, nil
+	}
+	value, err := ValidateText("label", *raw, 1, models.SessionLabelMaxLength)
+	if err != nil {
+		return nil, err
+	}
+	return &value, nil
+}
+
+func SessionPatch(req dto.UpdateSessionRequest) (dto.SessionPatch, error) {
+	var patch dto.SessionPatch
+	if req.ClearLabel {
+		patch.LabelSet = true
+		return patch, nil
+	}
+	if req.Label != nil {
+		value, err := SessionLabel(req.Label)
+		if err != nil {
+			return patch, err
+		}
+		patch.LabelSet = true
+		patch.Label = value
+	}
+	return patch, nil
 }
 
 func ProfileLinkPatch(req dto.UpdateProfileLinkRequest) (dto.ProfileLinkPatch, error) {

@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
-import { isAcceptedProfileLink } from '@/features/profile/profile-links-card/links-schema'
-import { ProfileLinkPreview } from '@/features/profile/profile-links-card/profile-link-preview'
+import { AvatarField } from '@/features/profile/avatar-field/avatar-field'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Field } from '@/shared/ui/forms/field'
@@ -28,15 +27,12 @@ export const profileSchema = z.object({
     .trim()
     .min(1, 'auth:validation.lastNameMin')
     .max(80, 'auth:validation.nameMax'),
-  avatar_url: z
-    .string()
-    .max(2048, 'validation.linkTooLong')
-    .refine(isAcceptedProfileLink, 'validation.linkScheme'),
   bio: z.string().max(BIO_MAX, 'validation.bioTooLong'),
 })
 type ProfileValues = z.infer<typeof profileSchema>
 
 export function PersonalDataCard({
+  userId,
   firstName,
   middleName,
   lastName,
@@ -44,6 +40,7 @@ export function PersonalDataCard({
   avatarUrl,
   bio,
 }: {
+  userId: string
   firstName: string
   middleName?: string | null
   lastName: string
@@ -59,7 +56,6 @@ export function PersonalDataCard({
       first_name: firstName,
       middle_name: middleName ?? '',
       last_name: lastName,
-      avatar_url: avatarUrl ?? '',
       bio: bio ?? '',
     },
   })
@@ -70,7 +66,6 @@ export function PersonalDataCard({
         first_name: values.first_name,
         middle_name: values.middle_name,
         last_name: values.last_name,
-        avatar_url: values.avatar_url,
         bio: values.bio,
       })
       toast.success(t('profile.saved'))
@@ -79,7 +74,6 @@ export function PersonalDataCard({
         'first_name',
         'middle_name',
         'last_name',
-        'avatar_url',
         'bio',
       ])
     }
@@ -105,8 +99,14 @@ export function PersonalDataCard({
             </p>
           </div>
         ) : null}
+        <AvatarField
+          seed={userId}
+          firstName={firstName}
+          lastName={lastName}
+          avatarUrl={avatarUrl}
+        />
         <form
-          className="flex flex-col gap-3"
+          className="mt-4 flex flex-col gap-3"
           onSubmit={profileForm.handleSubmit(onSaveProfile)}
           noValidate
         >
@@ -135,7 +135,7 @@ export function PersonalDataCard({
             />
           </Field>
           <Field
-            label={t('profile.middleNameOptional')}
+            label={t('profile.middleName')}
             htmlFor="middle_name"
             error={errors.middle_name?.message}
           >
@@ -146,23 +146,6 @@ export function PersonalDataCard({
               {...profileForm.register('middle_name')}
             />
           </Field>
-          <Field
-            label={t('profile.avatar_url')}
-            htmlFor="avatar_url"
-            error={errors.avatar_url?.message}
-          >
-            <Input
-              id="avatar_url"
-              type="url"
-              inputMode="url"
-              autoComplete="off"
-              placeholder={t('profile.avatar_urlPlaceholder')}
-              aria-invalid={Boolean(errors.avatar_url)}
-              {...profileForm.register('avatar_url')}
-            />
-          </Field>
-          <ProfileLinkPreview href={profileForm.watch('avatar_url')} />
-
           <Field label={t('profile.bio')} htmlFor="bio" error={errors.bio?.message}>
             <div className="relative">
               <Textarea

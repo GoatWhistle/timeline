@@ -17,12 +17,12 @@ type Sessions struct{ db *postgres.DB }
 func NewSessions(db *postgres.DB) *Sessions { return &Sessions{db: db} }
 
 const sessionColumns = `id, display_id, user_id, family_id, refresh_token_hash, user_agent, ip,
-	expires_at, last_used_at, revoked_at, created_at`
+	label, expires_at, last_used_at, revoked_at, created_at`
 
 func scanSession(row pgx.Row) (*models.Session, error) {
 	var s models.Session
 	err := row.Scan(&s.ID, &s.DisplayID, &s.UserID, &s.FamilyID, &s.RefreshTokenHash, &s.UserAgent, &s.IP,
-		&s.ExpiresAt, &s.LastUsedAt, &s.RevokedAt, &s.CreatedAt)
+		&s.Label, &s.ExpiresAt, &s.LastUsedAt, &s.RevokedAt, &s.CreatedAt)
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -100,6 +100,13 @@ func (r *Sessions) ResolveDisplayID(ctx context.Context, displayID string) (uuid
 		return uuid.Nil, mapError(err)
 	}
 	return id, nil
+}
+
+func (r *Sessions) UpdateLabel(ctx context.Context, userID, id uuid.UUID,
+	label *string) (*models.Session, error) {
+	return scanSession(r.db.Q(ctx).QueryRow(ctx,
+		`UPDATE sessions SET label = $3 WHERE id = $1 AND user_id = $2
+		 RETURNING `+sessionColumns, id, userID, label))
 }
 
 func (r *Sessions) GetByID(ctx context.Context, id uuid.UUID) (*models.Session, error) {

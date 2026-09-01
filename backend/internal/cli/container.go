@@ -28,6 +28,7 @@ import (
 	svcreminder "github.com/GoatWhistle/timeline/internal/services/reminder"
 	svcscheduler "github.com/GoatWhistle/timeline/internal/services/scheduler"
 	sharedaudit "github.com/GoatWhistle/timeline/internal/services/shared/audit"
+	"github.com/GoatWhistle/timeline/internal/services/shared/blobstore"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 )
@@ -78,6 +79,7 @@ type container struct {
 	invites       *svcauth.InviteService
 	profile       *svcauth.ProfileService
 	profileLinks  *svcauth.ProfileLinkService
+	avatars       *svcauth.AvatarService
 	users         *svcauth.UserService
 	events        *svcevent.EventService
 	catalog       *svcevent.CatalogService
@@ -166,6 +168,11 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.profile = svcauth.NewProfileService(db, c.repos.users, c.repos.tokens, c.repos.sessions,
 		c.notifier, c.audit, c.hasher, mailer, c.telegram, cfg)
 	c.profileLinks = svcauth.NewProfileLinkService(db, c.repos.profileLinks)
+	blobs, err := blobstore.NewLocal(cfg.Avatar.Root)
+	if err != nil {
+		return nil, err
+	}
+	c.avatars = svcauth.NewAvatarService(db, c.repos.users, blobs, c.audit, cfg.Avatar)
 	c.users = svcauth.NewUserService(db, c.repos.users, c.repos.sessions, c.notifier, c.audit)
 	c.events = svcevent.NewEventService(db, c.repos.events, c.repos.registrations,
 		c.notifier, c.scheduler, c.audit)
@@ -206,6 +213,8 @@ func (c *container) wireRealtime() {
 	c.auth.WithRealtime(c.hub)
 	c.users.WithRealtime(c.hub)
 	c.profile.WithRealtime(c.hub)
+	c.users.WithAvatars(c.avatars)
+	c.profile.WithAvatars(c.avatars)
 	c.users.WithCalendarFeeds(c.repos.calendarFeeds)
 	c.profile.WithCalendarFeeds(c.repos.calendarFeeds)
 }

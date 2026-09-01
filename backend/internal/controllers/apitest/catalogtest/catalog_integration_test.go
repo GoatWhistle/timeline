@@ -1,74 +1,36 @@
 //go:build integration
 
-package apitest_test
+package catalogtest_test
 
 import (
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
-type catalogItem struct {
-	ID              string `json:"id"`
-	Title           string `json:"title"`
-	Kind            string `json:"kind"`
-	Format          string `json:"format"`
-	Origin          string `json:"origin"`
-	EffectiveFormat string `json:"effective_format"`
-	State           string `json:"state"`
-	Joined          bool   `json:"joined"`
-	OfflineStages   []struct {
-		Name  string `json:"name"`
-		Place struct {
-			Format    string  `json:"format"`
-			City      *string `json:"city"`
-			Inherited bool    `json:"inherited"`
-		} `json:"place"`
-	} `json:"offline_stages"`
-}
-
-func (c *client) catalog(t *testing.T, query string) []catalogItem {
-	t.Helper()
-	path := "/catalog"
-	if query != "" {
-		path += "?" + query
-	}
-	resp := c.get(path)
-	requireStatus(t, resp, http.StatusOK, "reading the catalog "+query)
-	var body struct {
-		Items []catalogItem `json:"items"`
-	}
-	resp.decode(t, &body)
-	return body.Items
-}
-
-func catalogTitles(items []catalogItem) map[string]catalogItem {
-	out := make(map[string]catalogItem, len(items))
+func catalogTitles(items []support.CatalogItem) map[string]support.CatalogItem {
+	out := make(map[string]support.CatalogItem, len(items))
 	for _, item := range items {
 		out[item.Title] = item
 	}
 	return out
 }
 
-func (c *client) setEventTaxonomy(t *testing.T, id string, patch map[string]any) {
-	t.Helper()
-	requireStatus(t, c.patch("/admin/events/"+id, patch),
-		http.StatusOK, "patching event "+id)
-}
-
 func TestCatalogShowsOnlyPublishedEventsWithoutNotes(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
 
-	unpublished := f.adminClient.createEvent(t, "Unpublished draft", start)
-	archived := f.adminClient.createEvent(t, "Archived event", start)
-	f.adminClient.publish(t, archived)
-	requireStatus(t, f.adminClient.post("/admin/events/"+archived+"/archive", nil),
+	unpublished := f.AdminClient.CreateEvent(t, "Unpublished draft", start)
+	archived := f.AdminClient.CreateEvent(t, "Archived event", start)
+	f.AdminClient.Publish(t, archived)
+	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+archived+"/archive", nil),
 		http.StatusOK, "archiving the event")
 
-	for _, reader := range []*client{s.session(t, f.outsider), f.adminClient} {
-		items := reader.catalog(t, "page_size=100")
+	for _, reader := range []*support.Client{s.Session(t, f.Outsider), f.AdminClient} {
+		items := support.Catalog(t, reader, "page_size=100")
 		byTitle := catalogTitles(items)
 		if _, ok := byTitle["Unpublished draft"]; ok {
 			t.Fatalf("the catalog exposed the unpublished event %s", unpublished)
@@ -81,23 +43,23 @@ func TestCatalogShowsOnlyPublishedEventsWithoutNotes(t *testing.T) {
 		}
 	}
 
-	resp := s.session(t, f.outsider).get("/catalog?page_size=100")
-	requireStatus(t, resp, http.StatusOK, "the outsider reads the catalog")
-	requireNoBodyField(t, resp, "notes", "the catalog")
+	resp := s.Session(t, f.Outsider).Get("/catalog?page_size=100")
+	support.RequireStatus(t, resp, http.StatusOK, "the outsider reads the catalog")
+	support.RequireNoBodyField(t, resp, "notes", "the catalog")
 }
 
 func TestCatalogOriginViewsCoverEveryEvent(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
 
-	world := f.adminClient.createEvent(t, "World event", start)
-	f.adminClient.setEventTaxonomy(t, world, map[string]any{"origin": "WORLD"})
-	f.adminClient.publish(t, world)
+	world := f.AdminClient.CreateEvent(t, "World event", start)
+	support.SetEventTaxonomy(t, f.AdminClient, world, map[string]any{"origin": "WORLD"})
+	f.AdminClient.Publish(t, world)
 
-	reader := s.session(t, f.outsider)
+	reader := s.Session(t, f.Outsider)
 
-	russia := catalogTitles(reader.catalog(t, "origin=RU&page_size=100"))
+	russia := catalogTitles(support.Catalog(t, reader, "origin=RU&page_size=100"))
 	if _, ok := russia["Member event"]; !ok {
 		t.Fatalf("the Russia view lost the default-origin event: %v", russia)
 	}
@@ -105,7 +67,7 @@ func TestCatalogOriginViewsCoverEveryEvent(t *testing.T) {
 		t.Fatalf("the Russia view returned a WORLD event: %v", russia)
 	}
 
-	global := catalogTitles(reader.catalog(t, "origin=WORLD&page_size=100"))
+	global := catalogTitles(support.Catalog(t, reader, "origin=WORLD&page_size=100"))
 	if _, ok := global["World event"]; !ok {
 		t.Fatalf("the World view lost the WORLD event: %v", global)
 	}
@@ -113,7 +75,7 @@ func TestCatalogOriginViewsCoverEveryEvent(t *testing.T) {
 		t.Fatalf("the World view returned an RU event: %v", global)
 	}
 
-	all := catalogTitles(reader.catalog(t, "page_size=100"))
+	all := catalogTitles(support.Catalog(t, reader, "page_size=100"))
 	for _, title := range []string{"Member event", "World event"} {
 		if _, ok := all[title]; !ok {
 			t.Fatalf("the All view lost %q: %v", title, all)
@@ -126,13 +88,13 @@ func TestCatalogOriginViewsCoverEveryEvent(t *testing.T) {
 }
 
 func TestCatalogOfflineFilterMatchesStagesNotOnlyTheEvent(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
 
-	hybrid := f.adminClient.createEvent(t, "Online with an offline final", start)
-	f.adminClient.publish(t, hybrid)
-	requireStatus(t, f.adminClient.post("/admin/events/"+hybrid+"/stages",
+	hybrid := f.AdminClient.CreateEvent(t, "Online with an offline final", start)
+	f.AdminClient.Publish(t, hybrid)
+	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+hybrid+"/stages",
 		map[string]any{
 			"name":         "Final",
 			"type":         "DEMO",
@@ -143,9 +105,9 @@ func TestCatalogOfflineFilterMatchesStagesNotOnlyTheEvent(t *testing.T) {
 			"city":         "Kazan",
 		}), http.StatusCreated, "creating an offline final")
 
-	reader := s.session(t, f.outsider)
+	reader := s.Session(t, f.Outsider)
 
-	offline := catalogTitles(reader.catalog(t, "format=OFFLINE&page_size=100"))
+	offline := catalogTitles(support.Catalog(t, reader, "format=OFFLINE&page_size=100"))
 	item, ok := offline["Online with an offline final"]
 	if !ok {
 		t.Fatalf("the offline filter missed an event whose final is held in person: %v", offline)
@@ -167,18 +129,18 @@ func TestCatalogOfflineFilterMatchesStagesNotOnlyTheEvent(t *testing.T) {
 		t.Fatalf("a stage with its own format must not be marked inherited")
 	}
 
-	online := catalogTitles(reader.catalog(t, "format=ONLINE&page_size=100"))
+	online := catalogTitles(support.Catalog(t, reader, "format=ONLINE&page_size=100"))
 	if _, ok := online["Member event"]; !ok {
 		t.Fatalf("the online filter lost a fully online event: %v", online)
 	}
 }
 
 func TestCatalogStateFilterFollowsTheClock(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
-	reader := s.session(t, f.outsider)
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	reader := s.Session(t, f.Outsider)
 
-	upcoming := catalogTitles(reader.catalog(t, "state=UPCOMING&page_size=100"))
+	upcoming := catalogTitles(support.Catalog(t, reader, "state=UPCOMING&page_size=100"))
 	if _, ok := upcoming["Member event"]; !ok {
 		t.Fatalf("an event starting tomorrow is not UPCOMING: %v", upcoming)
 	}
@@ -188,7 +150,7 @@ func TestCatalogStateFilterFollowsTheClock(t *testing.T) {
 		}
 	}
 
-	finished := catalogTitles(reader.catalog(t, "state=FINISHED&page_size=100"))
+	finished := catalogTitles(support.Catalog(t, reader, "state=FINISHED&page_size=100"))
 	if _, ok := finished["Member event"]; ok {
 		t.Fatalf("a future event was reported as FINISHED: %v", finished)
 	}

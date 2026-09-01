@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 const (
@@ -18,174 +20,174 @@ type personalRecords struct {
 	artifactID string
 }
 
-func (c *client) put(path string, body any) response {
-	return c.mutate(http.MethodPut, path, body)
+func put(c *support.Client, path string, body any) support.Response {
+	return c.Mutate(http.MethodPut, path, body)
 }
 
-func (c *client) seedPersonal(t *testing.T, eventID string) personalRecords {
+func seedPersonal(c *support.Client, t *testing.T, eventID string) personalRecords {
 	t.Helper()
 
-	taskResp := c.post("/me/events/"+eventID+"/tasks",
+	taskResp := c.Post("/me/events/"+eventID+"/tasks",
 		map[string]any{"title": personalTaskTitle})
-	requireStatus(t, taskResp, http.StatusCreated, "creating a personal task")
+	support.RequireStatus(t, taskResp, http.StatusCreated, "creating a personal task")
 	var task struct {
 		ID string `json:"id"`
 	}
-	taskResp.decode(t, &task)
+	taskResp.Decode(t, &task)
 
-	requireStatus(t, c.put("/me/events/"+eventID+"/note",
+	support.RequireStatus(t, put(c, "/me/events/"+eventID+"/note",
 		map[string]any{"body": personalNoteBody}), http.StatusOK, "saving a personal note")
 
-	artifactResp := c.post("/me/events/"+eventID+"/artifacts",
+	artifactResp := c.Post("/me/events/"+eventID+"/artifacts",
 		map[string]any{"kind": "REPOSITORY", "url": "https://example.com/repo"})
-	requireStatus(t, artifactResp, http.StatusCreated, "creating an artifact")
+	support.RequireStatus(t, artifactResp, http.StatusCreated, "creating an artifact")
 	var artifact struct {
 		ID string `json:"id"`
 	}
-	artifactResp.decode(t, &artifact)
+	artifactResp.Decode(t, &artifact)
 
-	requireStatus(t, c.put("/me/events/"+eventID+"/outcome",
+	support.RequireStatus(t, put(c, "/me/events/"+eventID+"/outcome",
 		map[string]any{"outcome": "WINNER", "place": 1}), http.StatusOK, "recording an outcome")
 
-	requireStatus(t, c.put("/me/bookmarks/"+eventID, nil),
+	support.RequireStatus(t, put(c, "/me/bookmarks/"+eventID, nil),
 		http.StatusNoContent, "bookmarking the event")
 
 	return personalRecords{taskID: task.ID, artifactID: artifact.ID}
 }
 
-func (c *client) assign(t *testing.T, eventID, userID string) {
+func assign(c *support.Client, t *testing.T, eventID, userID string) {
 	t.Helper()
-	resp := c.post("/admin/events/"+eventID+"/participants/batch-add",
+	resp := c.Post("/admin/events/"+eventID+"/participants/batch-add",
 		map[string]any{"items": []map[string]any{
 			{"user_id": userID, "team_role": "Developer"},
 		}})
-	requireStatus(t, resp, http.StatusOK, "assigning a participant")
-	if !containsAll(string(resp.Body), `"succeeded":1`) {
+	support.RequireStatus(t, resp, http.StatusOK, "assigning a participant")
+	if !support.ContainsAll(string(resp.Body), `"succeeded":1`) {
 		t.Fatalf("assigning a participant did not succeed: %s", resp.Body)
 	}
 }
 
 func TestEmptyNoteDeletesTheRecord(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
-	member := s.session(t, f.member)
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	member := s.Session(t, f.Member)
 
-	blank := member.get("/me/events/" + f.eventID + "/note")
-	requireStatus(t, blank, http.StatusOK, "reading a note that was never written")
-	if !containsAll(string(blank.Body), `"body":""`) {
+	blank := member.Get("/me/events/" + f.EventID + "/note")
+	support.RequireStatus(t, blank, http.StatusOK, "reading a note that was never written")
+	if !support.ContainsAll(string(blank.Body), `"body":""`) {
 		t.Fatalf("a missing note is not answered with an empty body: %s", blank.Body)
 	}
 
 	markdown := "# Plan\n\n- [ ] talk to the mentor"
-	saved := member.put("/me/events/"+f.eventID+"/note",
+	saved := put(member, "/me/events/"+f.EventID+"/note",
 		map[string]any{"body": markdown})
-	requireStatus(t, saved, http.StatusOK, "saving a note")
+	support.RequireStatus(t, saved, http.StatusOK, "saving a note")
 
-	read := member.get("/me/events/" + f.eventID + "/note")
+	read := member.Get("/me/events/" + f.EventID + "/note")
 	var note struct {
 		Body string `json:"body"`
 	}
-	read.decode(t, &note)
+	read.Decode(t, &note)
 	if note.Body != markdown {
 		t.Fatalf("the server did not return the Markdown source verbatim: %q", note.Body)
 	}
 
-	requireStatus(t, member.put("/me/events/"+f.eventID+"/note",
+	support.RequireStatus(t, put(member, "/me/events/"+f.EventID+"/note",
 		map[string]any{"body": "   "}), http.StatusOK, "saving a blank note")
 
-	after := member.get("/me/events/" + f.eventID + "/note")
-	after.decode(t, &note)
+	after := member.Get("/me/events/" + f.EventID + "/note")
+	after.Decode(t, &note)
 	if note.Body != "" {
 		t.Fatalf("a blank save left the note behind: %q", note.Body)
 	}
-	if s.countRows(t, "participant_notes") != 0 {
+	if countRows(s, t, "participant_notes") != 0 {
 		t.Fatalf("a blank save kept an empty row in participant_notes")
 	}
 }
 
 func TestOutcomeDefaultsToParticipatedAndGuardsPlace(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
-	member := s.session(t, f.member)
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	member := s.Session(t, f.Member)
 
-	plain := member.put("/me/events/"+f.eventID+"/outcome", map[string]any{})
-	requireStatus(t, plain, http.StatusOK, "recording an outcome without a value")
-	if !containsAll(string(plain.Body), `"outcome":"PARTICIPATED"`) {
+	plain := put(member, "/me/events/"+f.EventID+"/outcome", map[string]any{})
+	support.RequireStatus(t, plain, http.StatusOK, "recording an outcome without a value")
+	if !support.ContainsAll(string(plain.Body), `"outcome":"PARTICIPATED"`) {
 		t.Fatalf("the default outcome is not PARTICIPATED: %s", plain.Body)
 	}
 	if strings.Contains(string(plain.Body), `"place"`) {
 		t.Fatalf("a default outcome carries a place: %s", plain.Body)
 	}
 
-	bad := member.put("/me/events/"+f.eventID+"/outcome",
+	bad := put(member, "/me/events/"+f.EventID+"/outcome",
 		map[string]any{"outcome": "PARTICIPATED", "place": 1})
-	requireStatus(t, bad, http.StatusBadRequest, "a place alongside PARTICIPATED")
+	support.RequireStatus(t, bad, http.StatusBadRequest, "a place alongside PARTICIPATED")
 
-	good := member.put("/me/events/"+f.eventID+"/outcome",
+	good := put(member, "/me/events/"+f.EventID+"/outcome",
 		map[string]any{"outcome": "WINNER", "place": 1, "track": "Smart city"})
-	requireStatus(t, good, http.StatusOK, "a place alongside WINNER")
-	if !containsAll(string(good.Body), `"outcome":"WINNER"`, `"place":1`) {
+	support.RequireStatus(t, good, http.StatusOK, "a place alongside WINNER")
+	if !support.ContainsAll(string(good.Body), `"outcome":"WINNER"`, `"place":1`) {
 		t.Fatalf("the placing outcome was not stored: %s", good.Body)
 	}
 }
 
 func TestBookmarkIsNotParticipation(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	outsider := s.session(t, f.outsider)
-	participantsBefore := s.countRows(t, "event_participants")
-	statusesBefore := s.countRows(t, "registration_statuses")
-	notifyBefore := s.countRows(t, "notifications")
+	outsider := s.Session(t, f.Outsider)
+	participantsBefore := countRows(s, t, "event_participants")
+	statusesBefore := countRows(s, t, "registration_statuses")
+	notifyBefore := countRows(s, t, "notifications")
 
-	requireStatus(t, outsider.put("/me/bookmarks/"+f.eventID, nil),
+	support.RequireStatus(t, put(outsider, "/me/bookmarks/"+f.EventID, nil),
 		http.StatusNoContent, "bookmarking an event the caller has not joined")
-	requireStatus(t, outsider.put("/me/bookmarks/"+f.eventID, nil),
+	support.RequireStatus(t, put(outsider, "/me/bookmarks/"+f.EventID, nil),
 		http.StatusNoContent, "bookmarking the same event again")
 
-	if after := s.countRows(t, "event_participants"); after != participantsBefore {
+	if after := countRows(s, t, "event_participants"); after != participantsBefore {
 		t.Fatalf("bookmarking created a participant assignment")
 	}
-	if after := s.countRows(t, "registration_statuses"); after != statusesBefore {
+	if after := countRows(s, t, "registration_statuses"); after != statusesBefore {
 		t.Fatalf("bookmarking created a registration status")
 	}
-	if after := s.countRows(t, "notifications"); after != notifyBefore {
+	if after := countRows(s, t, "notifications"); after != notifyBefore {
 		t.Fatalf("bookmarking queued a notification")
 	}
-	if total := s.countRows(t, "event_bookmarks"); total != 1 {
+	if total := countRows(s, t, "event_bookmarks"); total != 1 {
 		t.Fatalf("bookmarking twice produced %d rows, expected 1", total)
 	}
 
-	list := outsider.get("/me/bookmarks")
-	requireStatus(t, list, http.StatusOK, "listing bookmarks")
-	if !containsAll(string(list.Body), f.eventID, `"joined":false`) {
+	list := outsider.Get("/me/bookmarks")
+	support.RequireStatus(t, list, http.StatusOK, "listing bookmarks")
+	if !support.ContainsAll(string(list.Body), f.EventID, `"joined":false`) {
 		t.Fatalf("the bookmark listing does not show the event as not joined: %s", list.Body)
 	}
 
-	requireStatus(t, outsider.delete("/me/bookmarks/"+f.eventID),
+	support.RequireStatus(t, outsider.Delete("/me/bookmarks/"+f.EventID),
 		http.StatusNoContent, "removing the bookmark")
-	requireStatus(t, outsider.delete("/me/bookmarks/"+f.eventID),
+	support.RequireStatus(t, outsider.Delete("/me/bookmarks/"+f.EventID),
 		http.StatusNotFound, "removing a bookmark that is already gone")
 }
 
 func TestHistoryShowsOnlyOwnRecords(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	member := s.session(t, f.member)
-	member.seedPersonal(t, f.eventID)
+	member := s.Session(t, f.Member)
+	seedPersonal(member, t, f.EventID)
 
-	history := member.get("/me/history")
-	requireStatus(t, history, http.StatusOK, "reading own history")
-	if !containsAll(string(history.Body), f.eventID, `"outcome":"WINNER"`,
+	history := member.Get("/me/history")
+	support.RequireStatus(t, history, http.StatusOK, "reading own history")
+	if !support.ContainsAll(string(history.Body), f.EventID, `"outcome":"WINNER"`,
 		`"tasks_total":1`, "https://example.com/repo") {
 		t.Fatalf("the history does not carry the caller's own records: %s", history.Body)
 	}
 
-	outsider := s.session(t, f.outsider)
-	foreign := outsider.get("/me/history")
-	requireStatus(t, foreign, http.StatusOK, "reading the history of a non-participant")
-	if strings.Contains(string(foreign.Body), f.eventID) {
+	outsider := s.Session(t, f.Outsider)
+	foreign := outsider.Get("/me/history")
+	support.RequireStatus(t, foreign, http.StatusOK, "reading the history of a non-participant")
+	if strings.Contains(string(foreign.Body), f.EventID) {
 		t.Fatalf("the history of one user shows another user's event: %s", foreign.Body)
 	}
 	if strings.Contains(string(foreign.Body), "https://example.com/repo") {

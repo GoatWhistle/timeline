@@ -61,11 +61,14 @@ type Session struct {
 	RefreshTokenHash string     `json:"-"`
 	UserAgent        *string    `json:"user_agent,omitempty"`
 	IP               *string    `json:"ip,omitempty"`
+	Label            *string    `json:"label,omitempty"`
 	ExpiresAt        time.Time  `json:"expires_at"`
 	LastUsedAt       *time.Time `json:"last_used_at,omitempty"`
 	RevokedAt        *time.Time `json:"revoked_at,omitempty"`
 	CreatedAt        time.Time  `json:"created_at"`
 }
+
+const SessionLabelMaxLength = 64
 
 func (s *Session) Active(now time.Time) bool {
 	return s.RevokedAt == nil && s.ExpiresAt.After(now)

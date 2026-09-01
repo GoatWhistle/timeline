@@ -114,6 +114,7 @@ export function SettingsPanel({ section, user }: { section: SettingsSectionId; u
   return (
     <div className="flex flex-col gap-4">
       <PersonalDataCard
+        userId={user.id}
         firstName={user.first_name ?? ''}
         middleName={user.middle_name}
         lastName={user.last_name ?? ''}

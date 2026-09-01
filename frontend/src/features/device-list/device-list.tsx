@@ -12,6 +12,7 @@ import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { QueryBoundary } from '@/shared/ui/states'
 import { DeviceRow } from './device-row'
 import { DeviceSkeleton } from './device-skeleton'
+import { RenameDevice } from './rename-device'
 
 export function DeviceList() {
   const { t } = useTranslation()
@@ -20,6 +21,7 @@ export function DeviceList() {
   const query = useQuery(deviceSessionsQuery())
   const revoke = useRevokeSession()
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [renamingId, setRenamingId] = useState<string | null>(null)
 
   const items = sortSessions(query.data?.items ?? [])
 
@@ -58,24 +60,31 @@ export function DeviceList() {
             <EmptyState title={t('devices.emptyTitle')} description={t('devices.emptyHint')} />
           ) : (
             <>
-              <p className="mb-1 text-meta text-muted-foreground">
+              <p className="mb-2 text-meta text-muted-foreground">
                 {t('devices.count', { count: items.length })}
               </p>
-              <ul className="divide-y divide-border">
-                {items.map((session) => (
-                  <DeviceRow
-                    key={session.id}
-                    session={session}
-                    pending={revoke.isPending}
-                    onRevoke={() => {
-                      if (session.current === true) {
-                        setConfirmId(session.id)
-                        return
-                      }
-                      void revokeSession(session.id, false)
-                    }}
-                  />
-                ))}
+              <ul className="flex flex-col gap-2">
+                {items.map((session) =>
+                  renamingId === session.id ? (
+                    <li key={session.id}>
+                      <RenameDevice session={session} onDone={() => setRenamingId(null)} />
+                    </li>
+                  ) : (
+                    <DeviceRow
+                      key={session.id}
+                      session={session}
+                      pending={revoke.isPending}
+                      onRename={() => setRenamingId(session.id)}
+                      onRevoke={() => {
+                        if (session.current === true) {
+                          setConfirmId(session.id)
+                          return
+                        }
+                        void revokeSession(session.id, false)
+                      }}
+                    />
+                  ),
+                )}
               </ul>
             </>
           )}

@@ -9,92 +9,94 @@ import (
 	"testing"
 
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+
+	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
 func TestCalendarFeedIsIssuedOnceAndServesTheOwnersSchedule(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
-	member := s.session(t, f.member)
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	member := s.Session(t, f.Member)
 
-	before := member.get("/me/calendar-feed")
-	requireStatus(t, before, http.StatusOK, "describing a feed that does not exist yet")
+	before := member.Get("/me/calendar-feed")
+	support.RequireStatus(t, before, http.StatusOK, "describing a feed that does not exist yet")
 	if enabled := describeEnabled(t, before); enabled {
-		t.Fatalf("a fresh account already reports an enabled feed: %s", before.Body)
+		t.Fatalf("a fresh support.Account already reports an enabled feed: %s", before.Body)
 	}
 
-	secret := member.issueFeed(t)
-	body := s.fetchFeed(t, secret, http.StatusOK)
+	secret := issueFeed(member, t)
+	body := fetchFeed(s, t, secret, http.StatusOK)
 	if !strings.Contains(body, "BEGIN:VCALENDAR") || !strings.Contains(body, "Member event") {
 		t.Fatalf("the feed does not carry the owner's event: %s", body)
 	}
 
-	again := member.post("/me/calendar-feed", nil)
-	requireStatus(t, again, http.StatusConflict, "issuing a second feed for the same account")
-	if code := again.errorCode(t); code != "calendar_feed_exists" {
+	again := member.Post("/me/calendar-feed", nil)
+	support.RequireStatus(t, again, http.StatusConflict, "issuing a second feed for the same support.Account")
+	if code := again.ErrorCode(t); code != "calendar_feed_exists" {
 		t.Fatalf("the refusal carried the code %q instead of calendar_feed_exists: %s", code, again.Body)
 	}
 
-	after := member.get("/me/calendar-feed")
-	requireStatus(t, after, http.StatusOK, "describing an issued feed")
+	after := member.Get("/me/calendar-feed")
+	support.RequireStatus(t, after, http.StatusOK, "describing an issued feed")
 	if enabled := describeEnabled(t, after); !enabled {
 		t.Fatalf("an issued feed is reported as absent: %s", after.Body)
 	}
-	requireNoBodyField(t, after, "url", "describing an issued feed")
+	support.RequireNoBodyField(t, after, "url", "describing an issued feed")
 }
 
 func TestRevokedTokenServesNothing(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
-	member := s.session(t, f.member)
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	member := s.Session(t, f.Member)
 
-	secret := member.issueFeed(t)
-	s.fetchFeed(t, secret, http.StatusOK)
+	secret := issueFeed(member, t)
+	fetchFeed(s, t, secret, http.StatusOK)
 
-	requireStatus(t, member.delete("/me/calendar-feed"), http.StatusNoContent, "revoking the feed")
-	s.requireFeedNotFound(t, secret, "a token revoked through DELETE")
+	support.RequireStatus(t, member.Delete("/me/calendar-feed"), http.StatusNoContent, "revoking the feed")
+	requireFeedNotFound(s, t, secret, "a token revoked through DELETE")
 
-	requireStatus(t, member.delete("/me/calendar-feed"), http.StatusNoContent,
+	support.RequireStatus(t, member.Delete("/me/calendar-feed"), http.StatusNoContent,
 		"revoking an already revoked feed")
-	s.requireFeedNotFound(t, secret, "a token revoked twice")
+	requireFeedNotFound(s, t, secret, "a token revoked twice")
 
-	describe := member.get("/me/calendar-feed")
-	requireStatus(t, describe, http.StatusOK, "describing a revoked feed")
+	describe := member.Get("/me/calendar-feed")
+	support.RequireStatus(t, describe, http.StatusOK, "describing a revoked feed")
 	if enabled := describeEnabled(t, describe); enabled {
 		t.Fatalf("a revoked feed is still reported as enabled: %s", describe.Body)
 	}
 }
 
 func TestRotationRetiresThePreviousToken(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
-	member := s.session(t, f.member)
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	member := s.Session(t, f.Member)
 
-	first := member.issueFeed(t)
-	s.fetchFeed(t, first, http.StatusOK)
+	first := issueFeed(member, t)
+	fetchFeed(s, t, first, http.StatusOK)
 
-	rotated := member.post("/me/calendar-feed/rotate", nil)
-	requireStatus(t, rotated, http.StatusOK, "rotating the feed")
+	rotated := member.Post("/me/calendar-feed/rotate", nil)
+	support.RequireStatus(t, rotated, http.StatusOK, "rotating the feed")
 	second := secretFromResponse(t, rotated)
 	if second == first {
 		t.Fatal("rotation returned the same address")
 	}
 
-	s.requireFeedNotFound(t, first, "the address that rotation replaced")
-	s.fetchFeed(t, second, http.StatusOK)
+	requireFeedNotFound(s, t, first, "the address that rotation replaced")
+	fetchFeed(s, t, second, http.StatusOK)
 
-	if active := s.countActiveTokens(t, f.member.ID); active != 1 {
-		t.Fatalf("after rotation the account holds %d active tokens instead of 1", active)
+	if active := countActiveTokens(s, t, f.Member.ID); active != 1 {
+		t.Fatalf("after rotation the support.Account holds %d active tokens instead of 1", active)
 	}
 }
 
 func TestOneUsersTokenNeverReturnsAnotherUsersSchedule(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	memberSecret := s.session(t, f.member).issueFeed(t)
-	outsiderSecret := s.session(t, f.outsider).issueFeed(t)
+	memberSecret := issueFeed(s.Session(t, f.Member), t)
+	outsiderSecret := issueFeed(s.Session(t, f.Outsider), t)
 
-	memberFeed := s.fetchFeed(t, memberSecret, http.StatusOK)
+	memberFeed := fetchFeed(s, t, memberSecret, http.StatusOK)
 	if !strings.Contains(memberFeed, "Member event") {
 		t.Fatalf("the owner's feed lost their own event: %s", memberFeed)
 	}
@@ -104,51 +106,51 @@ func TestOneUsersTokenNeverReturnsAnotherUsersSchedule(t *testing.T) {
 	if strings.Contains(memberFeed, "internal administrative note") {
 		t.Fatalf("the feed exposes an administrative note: %s", memberFeed)
 	}
-	if strings.Contains(memberFeed, f.admin.Email) || strings.Contains(memberFeed, f.outsider.Email) {
+	if strings.Contains(memberFeed, f.Admin.Email) || strings.Contains(memberFeed, f.Outsider.Email) {
 		t.Fatalf("the feed names other people: %s", memberFeed)
 	}
 
-	outsiderFeed := s.fetchFeed(t, outsiderSecret, http.StatusOK)
+	outsiderFeed := fetchFeed(s, t, outsiderSecret, http.StatusOK)
 	if strings.Contains(outsiderFeed, "Member event") {
-		t.Fatalf("an unassigned account's feed carries someone else's event: %s", outsiderFeed)
+		t.Fatalf("an unassigned support.Account's feed carries someone else's event: %s", outsiderFeed)
 	}
 	if strings.Contains(outsiderFeed, "BEGIN:VEVENT") {
-		t.Fatalf("an unassigned account's feed is not empty: %s", outsiderFeed)
+		t.Fatalf("an unassigned support.Account's feed is not empty: %s", outsiderFeed)
 	}
 }
 
 func TestDeactivatedOwnerGetsNotFoundRatherThanAnEmptyCalendar(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	secret := s.session(t, f.member).issueFeed(t)
-	s.fetchFeed(t, secret, http.StatusOK)
+	secret := issueFeed(s.Session(t, f.Member), t)
+	fetchFeed(s, t, secret, http.StatusOK)
 
-	requireStatus(t, f.adminClient.post("/admin/users/"+f.member.ID+"/deactivate", nil),
+	support.RequireStatus(t, f.AdminClient.Post("/admin/users/"+f.Member.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the owner")
 
-	s.requireFeedNotFound(t, secret, "the feed of a deactivated account")
-	if active := s.countActiveTokens(t, f.member.ID); active != 0 {
+	requireFeedNotFound(s, t, secret, "the feed of a deactivated support.Account")
+	if active := countActiveTokens(s, t, f.Member.ID); active != 0 {
 		t.Fatalf("deactivation left %d active tokens", active)
 	}
 
-	s.reviveToken(t, f.member.ID)
-	if active := s.countActiveTokens(t, f.member.ID); active != 1 {
+	reviveToken(s, t, f.Member.ID)
+	if active := countActiveTokens(s, t, f.Member.ID); active != 1 {
 		t.Fatalf("the token was not revived, so the check below proves nothing")
 	}
-	s.requireFeedNotFound(t, secret, "a live token whose owner is deactivated")
+	requireFeedNotFound(s, t, secret, "a live token whose owner is deactivated")
 }
 
 func TestUnknownRevokedAndDeactivatedAreIndistinguishable(t *testing.T) {
-	s := newStack(t)
-	f := s.seed(t)
+	s := support.NewStack(t)
+	f := s.Seed(t)
 
-	revokedOwner := s.session(t, f.member)
-	revoked := revokedOwner.issueFeed(t)
-	requireStatus(t, revokedOwner.delete("/me/calendar-feed"), http.StatusNoContent, "revoking the feed")
+	revokedOwner := s.Session(t, f.Member)
+	revoked := issueFeed(revokedOwner, t)
+	support.RequireStatus(t, revokedOwner.Delete("/me/calendar-feed"), http.StatusNoContent, "revoking the feed")
 
-	deactivated := s.session(t, f.outsider).issueFeed(t)
-	requireStatus(t, f.adminClient.post("/admin/users/"+f.outsider.ID+"/deactivate", nil),
+	deactivated := issueFeed(s.Session(t, f.Outsider), t)
+	support.RequireStatus(t, f.AdminClient.Post("/admin/users/"+f.Outsider.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the outsider")
 
 	unknown, err := crypto.NewSecret()
@@ -164,8 +166,8 @@ func TestUnknownRevokedAndDeactivatedAreIndistinguishable(t *testing.T) {
 	}
 	seen := make(map[string]string, len(shapes))
 	for what, secret := range shapes {
-		resp := s.rawFeed(t, secret)
-		requireStatus(t, resp, http.StatusNotFound, what)
+		resp := rawFeed(s, t, secret)
+		support.RequireStatus(t, resp, http.StatusNotFound, what)
 		seen[what] = string(resp.Body)
 	}
 
@@ -176,16 +178,16 @@ func TestUnknownRevokedAndDeactivatedAreIndistinguishable(t *testing.T) {
 			continue
 		}
 		if got := stripRequestID(t, body); got != reference {
-			t.Fatalf("%s answers %s while %s answers %s: the response is an oracle "+
+			t.Fatalf("%s answers %s while %s answers %s: the support.Response is an oracle "+
 				"for whether the token ever existed", what, got, referenceOf, reference)
 		}
 	}
 }
 
-func (s *stack) countActiveTokens(t *testing.T, userID string) int {
+func countActiveTokens(s *support.Stack, t *testing.T, userID string) int {
 	t.Helper()
 	var count int
-	if err := s.db.Pool().QueryRow(context.Background(),
+	if err := s.DB().Pool().QueryRow(context.Background(),
 		`SELECT count(*) FROM calendar_feed_tokens
 		 WHERE user_id = (SELECT id FROM users WHERE display_id = $1) AND revoked_at IS NULL`,
 		userID).Scan(&count); err != nil {
@@ -194,9 +196,9 @@ func (s *stack) countActiveTokens(t *testing.T, userID string) int {
 	return count
 }
 
-func (s *stack) reviveToken(t *testing.T, userID string) {
+func reviveToken(s *support.Stack, t *testing.T, userID string) {
 	t.Helper()
-	if _, err := s.db.Pool().Exec(context.Background(),
+	if _, err := s.DB().Pool().Exec(context.Background(),
 		`UPDATE calendar_feed_tokens SET revoked_at = NULL
 		 WHERE user_id = (SELECT id FROM users WHERE display_id = $1)`, userID); err != nil {
 		t.Fatalf("reviving the token: %v", err)

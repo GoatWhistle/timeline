@@ -66,6 +66,12 @@ func Decode(r *http.Request, dst any) error {
 	return nil
 }
 
+func LogStreamFailure(r *http.Request, message string, err error) {
+	slog.ErrorContext(r.Context(), message,
+		"error", err, "path", ScrubPath(r.URL.Path), "method", r.Method,
+		"request_id", RequestID(r))
+}
+
 func Error(w http.ResponseWriter, r *http.Request, err error) {
 	status, body := mapError(err)
 	body.Error.RequestID = RequestID(r)

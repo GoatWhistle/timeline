@@ -10,56 +10,28 @@ import (
 
 func ptr(value string) *string { return &value }
 
-func TestProfilePatchRejectsExecutableSchemesInEveryLinkField(t *testing.T) {
-	hostile := []string{
-		"javascript:alert(document.cookie)",
-		"JavaScript:alert(1)",
-		"data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==",
-		"vbscript:msgbox(1)",
-		"file:///etc/passwd",
-	}
-	fields := map[string]func(string) dto.UpdateProfileRequest{
-		"avatar_url": func(v string) dto.UpdateProfileRequest { return dto.UpdateProfileRequest{AvatarURL: ptr(v)} },
-	}
-
-	for field, build := range fields {
-		for _, value := range hostile {
-			t.Run(field+" "+value, func(t *testing.T) {
-				if _, err := validation.ProfilePatch(build(value)); err == nil {
-					t.Fatalf("%s accepted %q; such an address reaches an anchor href", field, value)
-				}
-			})
-		}
-	}
-}
-
-func TestProfilePatchAcceptsOrdinaryAddresses(t *testing.T) {
-	patch, err := validation.ProfilePatch(dto.UpdateProfileRequest{
-		AvatarURL: ptr("https://example.org/a.png"),
-	})
+func TestProfilePatchCarriesNoAvatarAddress(t *testing.T) {
+	patch, err := validation.ProfilePatch(dto.UpdateProfileRequest{FirstName: ptr("Ivan")})
 	if err != nil {
-		t.Fatalf("expected the addresses to be accepted, got %v", err)
+		t.Fatalf("expected the request to be accepted, got %v", err)
 	}
-	if patch.AvatarURL == nil || *patch.AvatarURL != "https://example.org/a.png" {
-		t.Fatalf("avatar_url is %v, want the submitted address", patch.AvatarURL)
-	}
-	if patch.ClearAvatarURL {
-		t.Fatalf("a non-empty address must not be read as a clear request")
+	if patch.AvatarURL != nil || patch.ClearAvatarURL {
+		t.Fatalf("the profile patch set an avatar address: %+v; "+
+			"the avatar is an uploaded file and no client address may reach it", patch)
 	}
 }
 
 func TestProfilePatchTreatsAnEmptyStringAsClearing(t *testing.T) {
 	patch, err := validation.ProfilePatch(dto.UpdateProfileRequest{
-		AvatarURL: ptr(""),
-		Bio:       ptr(""),
+		Bio: ptr(""),
 	})
 	if err != nil {
 		t.Fatalf("expected an empty value to clear the field, got %v", err)
 	}
-	if !patch.ClearAvatarURL || !patch.ClearBio {
+	if !patch.ClearBio {
 		t.Fatalf("an empty value did not request clearing: %+v", patch)
 	}
-	if patch.AvatarURL != nil || patch.Bio != nil {
+	if patch.Bio != nil {
 		t.Fatalf("a clear request must not also carry a value: %+v", patch)
 	}
 }
@@ -69,10 +41,10 @@ func TestProfilePatchLeavesUnmentionedFieldsAlone(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected the request to be accepted, got %v", err)
 	}
-	if patch.AvatarURL != nil || patch.Bio != nil {
+	if patch.Bio != nil {
 		t.Fatalf("an absent field was given a value: %+v", patch)
 	}
-	if patch.ClearAvatarURL || patch.ClearBio {
+	if patch.ClearBio {
 		t.Fatalf("an absent field was cleared: %+v", patch)
 	}
 }

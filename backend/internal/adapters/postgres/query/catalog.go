@@ -36,7 +36,7 @@ func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter dto.Catalog
 
 	args = append(args, page.Limit(), page.Offset())
 	rows, err := r.db.Q(ctx).Query(ctx, `SELECT `+catalogColumns+` `+catalogFrom+` `+where+`
-		ORDER BY e.start_at, e.title
+		ORDER BY `+catalogOrderSQL(filter.Sort)+`
 		LIMIT $`+itoa(len(args)-1)+` OFFSET $`+itoa(len(args)), args...)
 	if err != nil {
 		return nil, 0, mapError(err)
@@ -111,6 +111,27 @@ func (r *Catalog) attachPlaces(ctx context.Context, items []dto.CatalogEvent,
 		}
 	}
 	return nil
+}
+
+var catalogSortColumns = map[models.CatalogSortField]string{
+	models.CatalogSortStartAt: "e.start_at",
+	models.CatalogSortEndAt:   "e.end_at",
+	models.CatalogSortTitle:   "lower(e.title)",
+}
+
+func catalogOrderSQL(sort models.CatalogSort) string {
+	column, ok := catalogSortColumns[sort.Field]
+	if !ok {
+		column = catalogSortColumns[models.DefaultCatalogSort.Field]
+	}
+	direction := "ASC"
+	if sort.Direction == models.CatalogSortDesc {
+		direction = "DESC"
+	}
+	if sort.Field == models.CatalogSortTitle {
+		return column + " " + direction + ", e.start_at ASC"
+	}
+	return column + " " + direction + ", lower(e.title) ASC"
 }
 
 func catalogState(start, end, now time.Time) models.EventState {

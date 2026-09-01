@@ -22,6 +22,8 @@ type AuthService interface {
 	ResolveSessionDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	ListSessions(ctx context.Context, actor models.Actor) ([]dto.SessionResponse, error)
 	RevokeSession(ctx context.Context, actor models.Actor, sessionID uuid.UUID) (bool, error)
+	RenameSession(ctx context.Context, actor models.Actor, sessionID uuid.UUID,
+		req dto.UpdateSessionRequest) (dto.SessionResponse, error)
 	VerifyEmail(ctx context.Context, token string) error
 	ResendVerification(ctx context.Context, email string) error
 	ForgotPassword(ctx context.Context, email string) error

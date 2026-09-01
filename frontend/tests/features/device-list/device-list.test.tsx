@@ -14,6 +14,7 @@ const CURRENT: SessionResponse = {
   last_used_at: '2026-08-29T08:30:00Z',
   expires_at: '2026-09-19T09:00:00Z',
   ip: '203.0.113.7',
+  label: '',
   user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128.0 Safari/537.36',
 }
 
@@ -24,6 +25,7 @@ const PHONE: SessionResponse = {
   last_used_at: '2026-08-27T19:05:00Z',
   expires_at: '2026-09-10T14:20:00Z',
   ip: '198.51.100.42',
+  label: '',
   user_agent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5) Mobile/15E148 Safari/604.1',
 }
 
