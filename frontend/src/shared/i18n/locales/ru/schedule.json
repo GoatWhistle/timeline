@@ -1,6 +1,7 @@
 {
   "schedule": {
     "title": "Шкала",
+    "myTitle": "Моё расписание",
     "adminDescription": "Все опубликованные события",
     "stateAria": "Состояние",
     "allStates": "Все состояния",

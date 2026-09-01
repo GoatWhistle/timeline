@@ -94,6 +94,7 @@ export function RegisterPage() {
           <Field
             label={t('field.firstName')}
             htmlFor="first_name"
+            required
             error={errors.first_name?.message}
           >
             <Input
@@ -104,7 +105,12 @@ export function RegisterPage() {
             />
           </Field>
 
-          <Field label={t('field.lastName')} htmlFor="last_name" error={errors.last_name?.message}>
+          <Field
+            label={t('field.lastName')}
+            htmlFor="last_name"
+            required
+            error={errors.last_name?.message}
+          >
             <Input
               id="last_name"
               autoComplete="family-name"
@@ -114,7 +120,7 @@ export function RegisterPage() {
           </Field>
 
           <Field
-            label={t('field.middleNameOptional')}
+            label={t('field.middleName')}
             htmlFor="middle_name"
             error={errors.middle_name?.message}
           >
@@ -126,7 +132,7 @@ export function RegisterPage() {
             />
           </Field>
 
-          <Field label="Email" htmlFor="email" error={errors.email?.message}>
+          <Field label="Email" htmlFor="email" required error={errors.email?.message}>
             <Input
               id="email"
               type="email"
@@ -136,7 +142,12 @@ export function RegisterPage() {
             />
           </Field>
 
-          <Field label={t('field.password')} htmlFor="password" error={errors.password?.message}>
+          <Field
+            label={t('field.password')}
+            htmlFor="password"
+            required
+            error={errors.password?.message}
+          >
             <PasswordInput
               id="password"
               autoComplete="new-password"
@@ -148,6 +159,7 @@ export function RegisterPage() {
           <Field
             label={t('field.repeatPassword')}
             htmlFor="password_repeat"
+            required
             error={errors.password_repeat?.message}
           >
             <PasswordInput

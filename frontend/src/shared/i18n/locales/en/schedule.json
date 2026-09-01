@@ -1,6 +1,7 @@
 {
   "schedule": {
     "title": "Schedule",
+    "myTitle": "My schedule",
     "adminDescription": "All published events",
     "stateAria": "State",
     "allStates": "All states",

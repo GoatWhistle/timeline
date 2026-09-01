@@ -31,10 +31,24 @@ import {
 import { ForbiddenPage } from './pages/forbidden-page'
 import { NotFoundPage } from './pages/not-found-page'
 
+const ANONYMOUS_PATHS = [
+  '/login',
+  '/register',
+  '/verify-email',
+  '/forgot-password',
+  '/reset-password',
+  '/invite',
+  '/email-change',
+]
+
 function UnauthenticatedRedirect() {
   const navigate = useNavigate()
   useEffect(() => {
-    setUnauthenticatedHandler(() => navigate('/login', { replace: true }))
+    setUnauthenticatedHandler(() => {
+      const path = window.location.pathname
+      if (ANONYMOUS_PATHS.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))) return
+      navigate('/login', { replace: true })
+    })
     return () => setUnauthenticatedHandler(() => {})
   }, [navigate])
   return null
@@ -45,8 +59,6 @@ export function AppRouter() {
     <BrowserRouter>
       <UnauthenticatedRedirect />
       <Routes>
-        <Route path="/:handle" element={<PublicProfilePage />} />
-
         <Route element={<AnonymousOnly />}>
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
@@ -93,6 +105,8 @@ export function AppRouter() {
             </Route>
           </Route>
         </Route>
+
+        <Route path="/:handle" element={<PublicProfilePage />} />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
