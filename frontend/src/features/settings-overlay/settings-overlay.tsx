@@ -103,8 +103,8 @@ export function SettingsOverlay() {
               </DialogPrimitive.Close>
             </header>
 
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-              <div className="max-w-2xl">
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 [scrollbar-gutter:stable_both-edges]">
+              <div className="mx-auto max-w-2xl">
                 <SettingsPanel section={section} user={user} />
               </div>
             </div>
