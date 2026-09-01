@@ -11,7 +11,7 @@ const FOCUSABLE = [
 
 function focusable(root: HTMLElement): HTMLElement[] {
   return [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
-    (node) => node.tabIndex !== -1 && node.offsetParent !== null,
+    (node) => node.tabIndex !== -1 && !node.hasAttribute('hidden'),
   )
 }
 
@@ -31,6 +31,7 @@ export function useFocusScope(ref: RefObject<HTMLElement | null>, onEscape: () =
       if (event.key === 'Escape') {
         event.preventDefault()
         event.stopPropagation()
+        event.stopImmediatePropagation()
         onEscape()
         return
       }
@@ -66,11 +67,11 @@ export function useFocusScope(ref: RefObject<HTMLElement | null>, onEscape: () =
       focusable(root)[0]?.focus()
     }
 
-    document.addEventListener('keydown', onKeyDown, true)
+    window.addEventListener('keydown', onKeyDown, true)
     document.addEventListener('focusin', onFocusIn, true)
 
     return () => {
-      document.removeEventListener('keydown', onKeyDown, true)
+      window.removeEventListener('keydown', onKeyDown, true)
       document.removeEventListener('focusin', onFocusIn, true)
       origin?.focus({ preventScroll: true })
     }

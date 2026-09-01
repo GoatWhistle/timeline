@@ -28,6 +28,8 @@
     "avatarUpload": "Загрузить",
     "avatarReplace": "Заменить",
     "avatarDownload": "Скачать",
+    "avatarDownloaded": "Аватар скачан",
+    "avatarDownloadFailed": "Не удалось скачать аватар",
     "avatarRemove": "Удалить аватар",
     "avatarSaved": "Аватар сохранён",
     "avatarRemoved": "Аватар удалён",

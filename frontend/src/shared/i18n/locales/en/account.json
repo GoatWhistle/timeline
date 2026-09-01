@@ -28,6 +28,8 @@
     "avatarUpload": "Upload",
     "avatarReplace": "Replace",
     "avatarDownload": "Download",
+    "avatarDownloaded": "The avatar has been downloaded",
+    "avatarDownloadFailed": "Could not download the avatar",
     "avatarRemove": "Remove avatar",
     "avatarSaved": "Avatar saved",
     "avatarRemoved": "Avatar removed",

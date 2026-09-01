@@ -21,13 +21,13 @@ var pngKeptChunks = map[string]bool{
 }
 
 var webpKeptChunks = map[string]bool{
-	"VP8 ":  true,
-	"VP8L":  true,
-	"VP8X":  true,
-	"ALPH":  true,
-	"ANIM":  true,
-	"ANMF":  true,
-	"ICCP":  true,
+	"VP8 ": true,
+	"VP8L": true,
+	"VP8X": true,
+	"ALPH": true,
+	"ANIM": true,
+	"ANMF": true,
+	"ICCP": true,
 }
 
 func StripMetadata(data []byte, contentType string) []byte {

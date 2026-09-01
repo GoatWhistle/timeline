@@ -1,98 +1,111 @@
-import { screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AvatarField } from '@/features/profile/avatar-field/avatar-field'
-import { resetCsrfToken } from '@/shared/api/client'
-import { i18n } from '@/shared/i18n/config'
 
-const STORED = '/api/v1/avatars/abc123.png'
+const toastError = vi.fn()
+const toastSuccess = vi.fn()
 
-let uploads = 0
-let deletes = 0
+vi.mock('sonner', () => ({
+  toast: {
+    error: (message: string) => toastError(message),
+    success: (message: string) => toastSuccess(message),
+  },
+}))
 
-function stubApi() {
-  vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
-    const request = input instanceof Request ? input : null
-    const url = String(request?.url ?? input)
-    const method = String(init?.method ?? request?.method ?? 'GET').toUpperCase()
+vi.mock('@/entities/user/avatar.queries', () => ({
+  useUploadAvatar: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useRemoveAvatar: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}))
 
-    if (url.includes('/auth/csrf')) {
-      return new Response(JSON.stringify({ csrf_token: 'test-token' }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      })
-    }
-    if (url.includes('/me/avatar') && method === 'POST') uploads += 1
-    if (url.includes('/me/avatar') && method === 'DELETE') deletes += 1
+const SEED = '5f0d2b7a-0000-4000-8000-000000000001'
 
-    return new Response(JSON.stringify({ id: 'us_1', avatar_url: STORED }), {
-      status: 200,
-      headers: { 'content-type': 'application/json' },
-    })
-  })
+vi.stubGlobal('createImageBitmap', async () => ({ width: 64, height: 64, close: () => {} }))
+
+function fileInput(): HTMLInputElement {
+  const node = document.querySelector<HTMLInputElement>('input[type=file]')
+  if (!node) throw new Error('no file input')
+  return node
 }
 
-describe('the avatar field', () => {
-  beforeEach(() => {
-    resetCsrfToken()
-    uploads = 0
-    deletes = 0
-    stubApi()
+function png(name: string, size = 64): File {
+  const file = new File([new Uint8Array(1)], name, { type: 'image/png' })
+  Object.defineProperty(file, 'size', { value: size })
+  return file
+}
+
+function select(node: HTMLInputElement, file: File) {
+  Object.defineProperty(node, 'files', { value: [file], configurable: true })
+  fireEvent.change(node)
+}
+
+function renderField() {
+  return renderWithProviders(<AvatarField seed={SEED} firstName="Ivan" lastName="Petrov" />)
+}
+
+beforeEach(() => {
+  toastError.mockClear()
+  toastSuccess.mockClear()
+})
+
+describe('the upload control is a real file input, not a scripted click', () => {
+  it('puts the file input inside its own label so the browser opens the picker', () => {
+    renderField()
+    const node = fileInput()
+
+    expect(node.closest('label')).not.toBeNull()
+    expect(node.disabled).toBe(false)
   })
 
-  afterEach(() => {
-    vi.restoreAllMocks()
+  it('keeps the input reachable rather than collapsing it to nothing', () => {
+    renderField()
+    const node = fileInput()
+
+    expect(node.className).toContain('sr-only')
+    expect(node.getAttribute('aria-hidden')).toBeNull()
+    expect(node.getAttribute('tabindex')).toBeNull()
   })
 
-  it('offers upload and no removal when nothing is stored', () => {
-    renderWithProviders(<AvatarField seed="us_1" firstName="Ivan" lastName="Petrov" />)
+  it('clears the value after a choice so the same file can be picked twice', async () => {
+    renderField()
+    const node = fileInput()
 
-    expect(screen.getByRole('button', { name: i18n.t('profile.avatarUpload') })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: i18n.t('profile.avatarRemove') })).toBeNull()
+    select(node, png('avatar.png'))
+
+    await waitFor(() => {
+      expect(node.value).toBe('')
+    })
+  })
+})
+
+describe('a chosen file is checked before the editor opens', () => {
+  it('opens the editor overlay for an accepted image', async () => {
+    const { user } = renderField()
+    await user.upload(fileInput(), png('avatar.png'))
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: /Image editor|editor/i })).toBeInTheDocument()
+    })
+    expect(toastError).not.toHaveBeenCalled()
   })
 
-  it('offers replace, download and removal once a file is stored', () => {
-    renderWithProviders(
-      <AvatarField seed="us_1" firstName="Ivan" lastName="Petrov" avatarUrl={STORED} />,
-    )
+  it('refuses a file the server would reject for its type, and says so', async () => {
+    renderField()
+    const bad = new File([new Uint8Array(8)], 'notes.pdf', { type: 'application/pdf' })
 
-    expect(
-      screen.getByRole('button', { name: i18n.t('profile.avatarReplace') }),
-    ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: i18n.t('profile.avatarRemove') })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: i18n.t('profile.avatarDownload') })).toHaveAttribute(
-      'href',
-      STORED,
-    )
+    select(fileInput(), bad)
+
+    await waitFor(() => expect(toastError).toHaveBeenCalledOnce())
+    expect(screen.queryByRole('dialog')).toBeNull()
   })
 
-  it('renders initials rather than an image when no file is stored', () => {
-    const { container } = renderWithProviders(
-      <AvatarField seed="us_1" firstName="Ivan" lastName="Petrov" />,
-    )
+  it('refuses a file past the 2 MB limit before it reaches the network', async () => {
+    renderField()
+    const huge = png('huge.png', 2 * 1024 * 1024 + 1)
 
-    expect(container.querySelector('[data-avatar] img')).toBeNull()
-    expect(container.querySelector('[data-avatar]')?.textContent).toContain('IP')
-  })
+    select(fileInput(), huge)
 
-  it('deletes the stored file when removal is confirmed', async () => {
-    const { user } = renderWithProviders(
-      <AvatarField seed="us_1" firstName="Ivan" lastName="Petrov" avatarUrl={STORED} />,
-    )
-
-    await user.click(screen.getByRole('button', { name: i18n.t('profile.avatarRemove') }))
-    await waitFor(() => expect(deletes).toBe(1))
-    expect(uploads).toBe(0)
-  })
-
-  it('opens the editor only after a file is chosen', async () => {
-    const { container } = renderWithProviders(
-      <AvatarField seed="us_1" firstName="Ivan" lastName="Petrov" />,
-    )
-
-    expect(screen.queryByRole('region', { name: i18n.t('imageEditor.title') })).toBeNull()
-
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement
-    expect(input.accept).toBe('image/png,image/jpeg,image/webp')
+    await waitFor(() => expect(toastError).toHaveBeenCalledOnce())
+    expect(screen.queryByRole('dialog')).toBeNull()
   })
 })

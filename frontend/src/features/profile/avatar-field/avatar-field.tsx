@@ -5,9 +5,9 @@ import { toast } from 'sonner'
 import { useRemoveAvatar, useUploadAvatar } from '@/entities/user/avatar.queries'
 import { UserAvatar } from '@/entities/user/user-avatar'
 import { ImageEditorOverlay } from '@/features/profile/image-editor/image-editor-overlay'
+import { cn } from '@/shared/styling/class-names/class-names'
 import { Button } from '@/shared/ui/primitives/button'
 import { AVATAR_ACCEPT, rejectionFor } from './avatar-file'
-import { openFilePicker } from './open-file-picker'
 
 export function AvatarField({
   seed,
@@ -22,7 +22,6 @@ export function AvatarField({
 }) {
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const uploadRef = useRef<HTMLButtonElement | null>(null)
   const headingId = useId()
   const [pending, setPending] = useState<Blob | null>(null)
   const upload = useUploadAvatar()
@@ -42,16 +41,6 @@ export function AvatarField({
     setPending(file)
   }
 
-  function pick() {
-    const input = inputRef.current
-    if (!input) {
-      toast.error(t('profile.avatarPickerFailed'))
-      return
-    }
-    input.value = ''
-    if (!openFilePicker(input)) toast.error(t('profile.avatarPickerFailed'))
-  }
-
   async function save(blob: Blob) {
     try {
       await upload.mutateAsync(blob)
@@ -64,7 +53,28 @@ export function AvatarField({
 
   function closeEditor() {
     setPending(null)
-    uploadRef.current?.focus()
+    inputRef.current?.focus()
+  }
+
+  async function download() {
+    if (!avatarUrl) return
+    try {
+      const response = await fetch(avatarUrl, { credentials: 'include' })
+      if (!response.ok) throw new Error(`avatar download failed with status ${response.status}`)
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = avatarUrl.split('/').pop() ?? 'avatar'
+      link.rel = 'noopener'
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      toast.success(t('profile.avatarDownloaded'))
+    } catch {
+      toast.error(t('profile.avatarDownloadFailed'))
+    }
   }
 
   async function clear() {
@@ -111,42 +121,39 @@ export function AvatarField({
 
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap gap-2">
-            <Button
-              ref={uploadRef}
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={busy}
-              onClick={pick}
+            <label
+              className={cn(
+                'inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md',
+                'border bg-background px-3 font-medium text-caption transition-colors',
+                'duration-instant ease-out hover:bg-accent-surface hover:text-accent-surface-foreground',
+                'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
+                busy && 'pointer-events-none opacity-50',
+              )}
             >
               <Upload className="size-4" />
               {avatarUrl ? t('profile.avatarReplace') : t('profile.avatarUpload')}
-            </Button>
+              <input
+                ref={inputRef}
+                type="file"
+                accept={AVATAR_ACCEPT}
+                disabled={busy}
+                className="sr-only"
+                onChange={(event) => {
+                  choose(event.target.files?.[0])
+                  event.target.value = ''
+                }}
+              />
+            </label>
             {avatarUrl ? (
-              <Button asChild variant="ghost" size="sm">
-                <a href={avatarUrl} download>
-                  <Download className="size-4" />
-                  {t('profile.avatarDownload')}
-                </a>
+              <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={download}>
+                <Download className="size-4" />
+                {t('profile.avatarDownload')}
               </Button>
             ) : null}
           </div>
           <p className="text-caption text-muted-foreground">{t('profile.avatarHint')}</p>
         </div>
       </div>
-
-      <input
-        ref={inputRef}
-        type="file"
-        accept={AVATAR_ACCEPT}
-        tabIndex={-1}
-        aria-hidden="true"
-        className="absolute size-0 opacity-0"
-        onChange={(event) => {
-          choose(event.target.files?.[0])
-          event.target.value = ''
-        }}
-      />
 
       {pending ? (
         <ImageEditorOverlay source={pending} busy={busy} onCancel={closeEditor} onSave={save} />
