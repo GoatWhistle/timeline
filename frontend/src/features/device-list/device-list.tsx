@@ -24,6 +24,7 @@ export function DeviceList() {
   const [renamingId, setRenamingId] = useState<string | null>(null)
 
   const items = sortSessions(query.data?.items ?? [])
+  const confirmingCurrent = items.some((item) => item.id === confirmId && item.current === true)
 
   async function revokeSession(id: string, current: boolean) {
     try {
@@ -75,13 +76,7 @@ export function DeviceList() {
                       session={session}
                       pending={revoke.isPending}
                       onRename={() => setRenamingId(session.id)}
-                      onRevoke={() => {
-                        if (session.current === true) {
-                          setConfirmId(session.id)
-                          return
-                        }
-                        void revokeSession(session.id, false)
-                      }}
+                      onRevoke={() => setConfirmId(session.id)}
                     />
                   ),
                 )}
@@ -96,15 +91,16 @@ export function DeviceList() {
         onOpenChange={(next) => {
           if (!next) setConfirmId(null)
         }}
-        title={t('devices.revokeCurrentTitle')}
-        description={t('devices.revokeCurrentHint')}
+        title={confirmingCurrent ? t('devices.revokeCurrentTitle') : t('devices.revokeTitle')}
+        description={confirmingCurrent ? t('devices.revokeCurrentHint') : t('devices.revokeHint')}
         confirmLabel={t('devices.revoke')}
         destructive
         disabled={revoke.isPending}
         onConfirm={() => {
           const id = confirmId
+          const wasCurrent = confirmingCurrent
           setConfirmId(null)
-          if (id) void revokeSession(id, true)
+          if (id) void revokeSession(id, wasCurrent)
         }}
       />
     </Card>

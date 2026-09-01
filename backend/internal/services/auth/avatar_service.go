@@ -42,6 +42,7 @@ func (s *AvatarService) Upload(ctx context.Context, actor models.Actor, data []b
 	if err != nil {
 		return nil, err
 	}
+	data = blobstore.StripMetadata(data, image.ContentType)
 	if err := s.blobs.Put(ctx, key, data, image.ContentType); err != nil {
 		return nil, fmt.Errorf("store avatar: %w", err)
 	}

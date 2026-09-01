@@ -39,31 +39,32 @@ export function useImageEditor(source: Blob) {
 
   useEffect(() => {
     let cancelled = false
-    const url = URL.createObjectURL(source)
-    const image = new Image()
-    image.onload = () => {
-      if (cancelled) return
-      const canvas = canvasRef.current
-      if (!canvas) return
-      const [width, height] = fitWithin(image.naturalWidth, image.naturalHeight, MAX_EDIT_DIMENSION)
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext('2d')
-      if (ctx) {
-        ctx.clearRect(0, 0, width, height)
-        ctx.drawImage(image, 0, 0, width, height)
-      }
-      historyRef.current = []
-      setCanUndo(false)
-      setCrop(null)
-      setReady(true)
-      URL.revokeObjectURL(url)
-    }
-    image.onerror = () => URL.revokeObjectURL(url)
-    image.src = url
+    let bitmap: ImageBitmap | null = null
+
+    createImageBitmap(source)
+      .then((decoded) => {
+        bitmap = decoded
+        if (cancelled) return
+        const canvas = canvasRef.current
+        if (!canvas) return
+        const [width, height] = fitWithin(decoded.width, decoded.height, MAX_EDIT_DIMENSION)
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.clearRect(0, 0, width, height)
+          ctx.drawImage(decoded, 0, 0, width, height)
+        }
+        historyRef.current = []
+        setCanUndo(false)
+        setCrop(null)
+        setReady(true)
+      })
+      .catch(() => setReady(false))
+
     return () => {
       cancelled = true
-      URL.revokeObjectURL(url)
+      bitmap?.close()
     }
   }, [source])
 
