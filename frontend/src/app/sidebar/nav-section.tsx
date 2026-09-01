@@ -21,8 +21,8 @@ export type NavItem = {
 }
 
 export const USER_NAV: NavItem[] = [
-  { to: '/', labelKey: 'nav.myEvents', icon: LayoutList },
   { to: '/catalog', labelKey: 'nav.catalog', icon: Compass },
+  { to: '/', labelKey: 'nav.myEvents', icon: LayoutList },
   { to: '/schedule', labelKey: 'nav.schedule', icon: CalendarRange },
 ]
 
