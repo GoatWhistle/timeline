@@ -46,6 +46,9 @@ jobs:
       - name: Code language is English
         run: bash scripts/check-cyrillic.sh
 
+      - name: Images only in screenshots, assets and docs
+        run: bash scripts/check-screenshots.sh
+
       - name: Install dependencies
         working-directory: frontend
         run: npm ci
