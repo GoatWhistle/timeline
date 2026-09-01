@@ -30,7 +30,7 @@
   --accent-foreground: var(--neutral-000);
   --accent-surface: var(--surface-3);
   --accent-surface-foreground: var(--neutral-900);
-  --highlight-fill: var(--linear-acid-lime);
+  --highlight-fill: var(--brand-amber-500);
   --highlight-fill-foreground: var(--neutral-900);
 
   --destructive: var(--hue-crimson-500);

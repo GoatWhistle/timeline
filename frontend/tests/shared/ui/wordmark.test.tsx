@@ -21,18 +21,17 @@ function prefersReducedMotion(reduce: boolean) {
 
 afterEach(() => {
   vi.unstubAllGlobals()
-  vi.useRealTimers()
 })
 
-describe('the wordmark leads to the schedule', () => {
+describe('the wordmark inside the application', () => {
   it('is a link, so the destination is visible before the click', () => {
-    renderWithProviders(<Wordmark />)
+    renderWithProviders(<Wordmark to="/schedule" />)
     expect(screen.getByRole('link')).toHaveAttribute('href', '/schedule')
   })
 
   it('plays the mark animation before it navigates', async () => {
     prefersReducedMotion(false)
-    const { user } = renderWithProviders(<Wordmark />)
+    const { user } = renderWithProviders(<Wordmark to="/schedule" />)
     const link = screen.getByRole('link')
     expect(link).toHaveAttribute('data-travelling', 'false')
 
@@ -42,7 +41,7 @@ describe('the wordmark leads to the schedule', () => {
 
   it('skips the wait when the visitor asked for less motion', async () => {
     prefersReducedMotion(true)
-    const { user } = renderWithProviders(<Wordmark />)
+    const { user } = renderWithProviders(<Wordmark to="/schedule" />)
     const link = screen.getByRole('link')
 
     await user.click(link)
@@ -51,7 +50,7 @@ describe('the wordmark leads to the schedule', () => {
 
   it('leaves a modified click to the browser, so it can open a new tab', async () => {
     prefersReducedMotion(false)
-    const { user } = renderWithProviders(<Wordmark />)
+    const { user } = renderWithProviders(<Wordmark to="/schedule" />)
     const link = screen.getByRole('link')
 
     await user.keyboard('[ControlLeft>]')
@@ -59,5 +58,22 @@ describe('the wordmark leads to the schedule', () => {
     await user.keyboard('[/ControlLeft]')
 
     expect(link).toHaveAttribute('data-travelling', 'false')
+  })
+})
+
+describe('the wordmark on the sign-in and sign-up screens', () => {
+  it('is not a link: there is nowhere to go before you are signed in', () => {
+    renderWithProviders(<Wordmark />)
+    expect(screen.queryByRole('link')).toBeNull()
+  })
+
+  it('still answers a press with the mark animation', async () => {
+    prefersReducedMotion(false)
+    const { container } = renderWithProviders(<Wordmark />)
+    const mark = container.querySelector('[data-travelling]') as HTMLElement
+    expect(mark).toHaveAttribute('data-travelling', 'false')
+
+    mark.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    await waitFor(() => expect(mark).toHaveAttribute('data-travelling', 'true'))
   })
 })

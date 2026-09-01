@@ -25,10 +25,10 @@
   --muted-foreground: var(--linear-fog);
   --faint-foreground: var(--linear-ash-lifted);
 
-  --accent: var(--linear-acid-lime);
+  --accent: var(--brand-amber-300);
   --accent-foreground: var(--linear-void);
   --accent-surface-foreground: var(--linear-paper);
-  --highlight-fill: var(--linear-acid-lime);
+  --highlight-fill: var(--brand-amber-300);
   --highlight-fill-foreground: var(--linear-void);
 
   --destructive: var(--hue-crimson-300);
@@ -37,7 +37,7 @@
   --border: var(--linear-smoke);
   --border-strong: var(--linear-steel);
   --input: var(--linear-steel);
-  --ring: var(--linear-acid-lime);
+  --ring: var(--brand-amber-300);
 
   --stage-registration: var(--hue-blue-300);
   --stage-selection: var(--hue-violet-300);

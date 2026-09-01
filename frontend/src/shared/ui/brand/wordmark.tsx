@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -7,7 +7,12 @@ import styles from './wordmark.module.css'
 
 const TRAVEL_MS = 320
 
-export function Wordmark({ className }: { className?: string }) {
+type WordmarkProps = {
+  className?: string
+  to?: string
+}
+
+export function Wordmark({ className, to }: WordmarkProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [travelling, setTravelling] = useState(false)
@@ -17,37 +22,57 @@ export function Wordmark({ className }: { className?: string }) {
   const head = name.slice(0, 4)
   const tail = name.slice(4)
 
-  const onClick = useCallback(
-    (event: React.MouseEvent<HTMLAnchorElement>) => {
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return
-      event.preventDefault()
-      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      if (reduced) {
-        navigate('/schedule')
-        return
-      }
-      setTravelling(true)
-      clearTimeout(timer.current)
-      timer.current = setTimeout(() => {
-        setTravelling(false)
-        navigate('/schedule')
-      }, TRAVEL_MS)
-    },
-    [navigate],
-  )
+  useEffect(() => () => clearTimeout(timer.current), [])
 
-  return (
-    <a
-      href="/schedule"
-      onClick={onClick}
-      data-travelling={travelling}
-      className={cn(styles.link, className)}
-    >
+  const play = useCallback((then?: () => void) => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      then?.()
+      return
+    }
+    setTravelling(true)
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => {
+      setTravelling(false)
+      then?.()
+    }, TRAVEL_MS)
+  }, [])
+
+  const content = (
+    <>
       <LogoMark className={cn(styles.mark, 'text-logo')} />
       <span className="truncate font-semibold text-screen uppercase tracking-[0.14em]">
         {head}
         <span className="text-logo">{tail}</span>
       </span>
+    </>
+  )
+
+  if (to === undefined) {
+    return (
+      <span
+        data-travelling={travelling}
+        onPointerDown={() => play()}
+        className={cn(styles.link, className)}
+      >
+        {content}
+      </span>
+    )
+  }
+
+  const onClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return
+    event.preventDefault()
+    play(() => navigate(to))
+  }
+
+  return (
+    <a
+      href={to}
+      onClick={onClick}
+      data-travelling={travelling}
+      className={cn(styles.link, className)}
+    >
+      {content}
     </a>
   )
 }

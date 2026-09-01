@@ -51,7 +51,7 @@ export function AppSidebar({
     >
       <nav aria-label={t('app.mainNav')} className="flex flex-col gap-3">
         <div className="flex items-center gap-2 px-3 py-2">
-          <Wordmark className="min-w-0 flex-1" />
+          <Wordmark to="/schedule" className="min-w-0 flex-1" />
           <button
             type="button"
             onClick={sidebar.toggle}
