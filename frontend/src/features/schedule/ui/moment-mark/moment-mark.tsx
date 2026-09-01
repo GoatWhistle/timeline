@@ -15,7 +15,11 @@ export type MomentMarkProps = {
 
 function MomentMarkView({ item, offset, highlighted, now }: MomentMarkProps) {
   const isDeadline = item.moment === 'deadline'
-  const urgency = resolveUrgency({ deadlineAt: item.at, now })
+  const urgency = resolveUrgency({
+    deadlineAt: item.at,
+    status: item.registrationStatus ?? null,
+    now,
+  })
   const color = isDeadline ? `var(--urgency-${urgency})` : 'var(--stage-checkpoint)'
 
   return (

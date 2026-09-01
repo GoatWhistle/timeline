@@ -21,7 +21,7 @@
     "dash": "—"
   },
   "batch": {
-    "succeeded": "Succeeded: {{count}}",
+    "succeeded": "succeeded: {{count}}",
     "skipped": "skipped: {{count}}",
     "failed": "failed: {{count}}",
     "noDescription": "no description",

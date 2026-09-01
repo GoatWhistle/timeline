@@ -1,3 +1,4 @@
+import type { RegistrationStatus } from '@/entities/deadline/urgency/urgency'
 import type { ScheduleItem, ScheduleRow, StageType } from '@/shared/api/types.gen'
 
 export type MomentKind = 'checkpoint' | 'deadline'
@@ -18,6 +19,7 @@ export type MomentItem = {
   at: string
   name: string
   stageType?: StageType
+  registrationStatus?: RegistrationStatus | null
 }
 
 export type RowItem = BarItem | MomentItem
@@ -72,6 +74,7 @@ export function buildRowItems(row: ScheduleRow): RowItem[] {
       moment: 'deadline',
       at: row.registration_deadline,
       name: '',
+      registrationStatus: row.registration_status?.status ?? null,
     })
   }
 

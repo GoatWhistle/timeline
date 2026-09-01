@@ -88,7 +88,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
         status: target,
         ...(note ? { note } : {}),
       })
-      reportBatchResult(result, t('statuses.updated'))
+      reportBatchResult(result, t('statuses.updated'), t('statuses.updateFailed'))
       setOutcome(result)
       if ((result.failed ?? 0) === 0) {
         setSelected(new Set())

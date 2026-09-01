@@ -35,7 +35,7 @@ export function ExternalLink({
 }: ExternalLinkProps) {
   return (
     <a
-      className={cn('inline-flex items-center gap-1', className)}
+      className={cn('inline-flex min-w-0 items-center gap-1', className)}
       href={safeLinkHref(href)}
       target="_blank"
       rel="noopener noreferrer"

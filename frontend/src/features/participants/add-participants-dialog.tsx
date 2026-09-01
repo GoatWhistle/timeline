@@ -69,7 +69,7 @@ export function AddParticipantsDialog({
     if (items.length === 0) return
     try {
       const result = await add.mutateAsync({ items })
-      reportBatchResult(result, t('participants.added'))
+      reportBatchResult(result, t('participants.added'), t('participants.addFailed'))
       setSelected(new Map())
       onOpenChange(false)
     } catch {

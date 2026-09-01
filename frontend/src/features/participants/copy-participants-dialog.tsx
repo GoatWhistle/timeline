@@ -74,7 +74,7 @@ export function CopyParticipantsDialog({
           team_role,
         })),
       })
-      reportBatchResult(result, t('participants.copied'))
+      reportBatchResult(result, t('participants.copied'), t('participants.copyFailed'))
       onOpenChange(false)
       setSourceId('')
       setOverrides({})

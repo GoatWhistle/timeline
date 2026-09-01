@@ -86,7 +86,7 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
       run: async () => {
         try {
           const result = await removeMany.mutateAsync({ participant_ids: ids })
-          reportBatchResult(result, t('participants.removed'))
+          reportBatchResult(result, t('participants.removed'), t('participants.removeFailed'))
         } catch {
           toast.error(t('participants.removeFailed'))
           setSelected(new Set(ids))

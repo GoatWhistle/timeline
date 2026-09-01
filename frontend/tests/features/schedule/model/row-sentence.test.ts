@@ -45,6 +45,33 @@ const ctx: SentenceContext = {
   formatRemaining: (iso) => `left-until-${iso.slice(0, 10)}`,
 }
 
+describe('the deadline sentence honours what the participant reported', () => {
+  const past = { registration_deadline: '2026-01-05T00:00:00Z' }
+  const now = new Date('2026-01-20T00:00:00Z')
+
+  it('calls a passed deadline overdue while the mark is still missing', () => {
+    const sentence = rowSentence(row({ ...past }), [], { ...ctx, now })
+    expect(sentence).toContain('event:urgency.overdue')
+  })
+
+  it('never nags about a deadline the participant already marked done', () => {
+    const r = row({ ...past, registration_status: { id: 'r1', status: 'DONE', todo_cycle: 1 } })
+    const sentence = rowSentence(r, [], { ...ctx, now })
+    expect(sentence).toContain('event:urgency.done')
+    expect(sentence).not.toContain('event:urgency.overdue')
+  })
+
+  it('never nags about a registration that was waived', () => {
+    const r = row({
+      ...past,
+      registration_status: { id: 'r2', status: 'NOT_REQUIRED', todo_cycle: 1 },
+    })
+    const sentence = rowSentence(r, [], { ...ctx, now })
+    expect(sentence).toContain('event:urgency.waived')
+    expect(sentence).not.toContain('event:urgency.overdue')
+  })
+})
+
 describe('rowSentence', () => {
   it('opens with the event title and its state', () => {
     const sentence = rowSentence(row(), [], ctx)

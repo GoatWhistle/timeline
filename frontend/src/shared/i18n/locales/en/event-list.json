@@ -53,7 +53,7 @@
     "join": {
       "action": "Take part",
       "title": "Take part in the event",
-      "hint": "State the function you take in the team. The organiser sees it in the roster.",
+      "hint": "State the function you take in the team. The organizer sees it in the roster.",
       "meetupHint": "A meetup has no team roles, so the field may be left empty.",
       "roleOptional": "Optional for a meetup",
       "roleRequired": "State your team role",

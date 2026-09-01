@@ -50,7 +50,15 @@ export function rowSentence(row: ScheduleRow, items: readonly RowItem[], ctx: Se
         date: formatDate(row.registration_deadline),
         remaining: ctx.formatRemaining(row.registration_deadline),
       }),
-      `${t(URGENCY_KEY[resolveUrgency({ deadlineAt: row.registration_deadline, now: ctx.now })])}.`,
+      `${t(
+        URGENCY_KEY[
+          resolveUrgency({
+            deadlineAt: row.registration_deadline,
+            status: row.registration_status?.status ?? null,
+            now: ctx.now,
+          })
+        ],
+      )}.`,
     )
   }
 

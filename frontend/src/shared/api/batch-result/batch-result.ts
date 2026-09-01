@@ -2,7 +2,11 @@ import { toast } from 'sonner'
 import type { BatchResult } from '@/shared/api/types.gen'
 import { i18n } from '@/shared/i18n/config'
 
-export function reportBatchResult(result: BatchResult, successMessage: string): void {
+export function reportBatchResult(
+  result: BatchResult,
+  successMessage: string,
+  failureMessage?: string,
+): void {
   const { succeeded, skipped, failed, results } = result
 
   if (failed === 0 && skipped === 0) {
@@ -24,8 +28,9 @@ export function reportBatchResult(result: BatchResult, successMessage: string): 
     .filter(Boolean)
     .join(', ')
 
+  const nothingWorked = failed > 0 && succeeded === 0
   const notify = failed > 0 ? toast.error : toast.warning
-  notify(successMessage, {
+  notify(nothingWorked ? (failureMessage ?? successMessage) : successMessage, {
     description: [summary, ...problems.slice(0, 5)].join('\n'),
   })
 }
