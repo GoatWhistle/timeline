@@ -51,7 +51,7 @@ export function Field({
       <Label htmlFor={htmlFor} className={hideLabel ? 'sr-only' : undefined}>
         {label}
         {required && (
-          <span aria-hidden="true" className="ml-0.5 align-super text-destructive text-meta">
+          <span aria-hidden="true" className="ml-0.5 text-destructive">
             *
           </span>
         )}
