@@ -36,12 +36,15 @@ export function AppSidebar({
   return (
     <aside
       data-sidebar={sidebar.visibility}
-      hidden={sidebar.visibility === 'hidden'}
-      onPointerLeave={() => sidebar.setPeeking(false)}
+      aria-hidden={sidebar.collapsed}
+      inert={sidebar.collapsed ? true : undefined}
       className={cn(
         'flex w-sidebar shrink-0 flex-col justify-between overflow-y-auto border-border border-r bg-card p-2',
-        sidebar.visibility === 'peeking' &&
-          'absolute inset-y-0 left-0 z-40 shadow-lg motion-safe:animate-in motion-safe:slide-in-from-left-2 motion-safe:duration-panel motion-safe:ease-out',
+        'motion-safe:transition-[margin,translate] motion-safe:duration-base motion-safe:ease-out',
+        'motion-safe:will-change-transform',
+        sidebar.collapsed
+          ? 'pointer-events-none -mr-sidebar translate-x-[calc(var(--pane-sidebar)*-1)]'
+          : 'mr-0 translate-x-0',
       )}
     >
       <nav aria-label={t('app.mainNav')} className="flex flex-col gap-3">

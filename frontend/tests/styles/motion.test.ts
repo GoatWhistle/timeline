@@ -49,7 +49,11 @@ describe('reduced motion', () => {
           `${file}: ungated animate-${match[1]} near "${text.slice(start, match.index + 20)}"`,
         )
       }
-      expect(text).toMatch(/motion-safe:animate-(in|out)/)
+      for (const match of text.matchAll(/(?<!motion-safe:)\btransition-\[/g)) {
+        const start = Math.max(0, match.index - 40)
+        throw new Error(`${file}: ungated transition near "${text.slice(start, match.index + 20)}"`)
+      }
+      expect(text).toMatch(/motion-safe:(animate-(in|out)|transition-)/)
     }
   })
 })

@@ -1,7 +1,5 @@
 export const SIDEBAR_STORAGE_KEY = 'timeline-sidebar-collapsed'
 
-export const PEEK_EDGE_PX = 8
-
 function isCollapsedValue(raw: unknown): boolean {
   return raw === '1'
 }
@@ -23,13 +21,8 @@ export function writeStoredCollapsed(collapsed: boolean): void {
   }
 }
 
-export function isEdgePointer(clientX: number, edge = PEEK_EDGE_PX): boolean {
-  return clientX <= edge
-}
+export type SidebarVisibility = 'expanded' | 'hidden'
 
-export type SidebarVisibility = 'expanded' | 'peeking' | 'hidden'
-
-export function sidebarVisibility(collapsed: boolean, peeking: boolean): SidebarVisibility {
-  if (!collapsed) return 'expanded'
-  return peeking ? 'peeking' : 'hidden'
+export function sidebarVisibility(collapsed: boolean): SidebarVisibility {
+  return collapsed ? 'hidden' : 'expanded'
 }

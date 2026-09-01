@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { type ShortcutDefinition, useShortcutScope } from '@/shared/keyboard/shortcut-registry'
 import {
-  isEdgePointer,
   readStoredCollapsed,
   type SidebarVisibility,
   sidebarVisibility,
@@ -10,15 +9,12 @@ import {
 
 export type SidebarState = {
   collapsed: boolean
-  peeking: boolean
   visibility: SidebarVisibility
   toggle: () => void
-  setPeeking: (value: boolean) => void
 }
 
 export function useSidebar(): SidebarState {
   const [collapsed, setCollapsed] = useState(readStoredCollapsed)
-  const [peeking, setPeeking] = useState(false)
 
   const toggle = useCallback(() => {
     setCollapsed((previous) => {
@@ -26,7 +22,6 @@ export function useSidebar(): SidebarState {
       writeStoredCollapsed(next)
       return next
     })
-    setPeeking(false)
   }, [])
 
   const shortcuts = useMemo<ShortcutDefinition[]>(
@@ -45,25 +40,9 @@ export function useSidebar(): SidebarState {
 
   useShortcutScope('sidebar', shortcuts)
 
-  useEffect(() => {
-    if (!collapsed) {
-      setPeeking(false)
-      return
-    }
-
-    const onMove = (event: PointerEvent) => {
-      if (isEdgePointer(event.clientX)) setPeeking(true)
-    }
-
-    document.addEventListener('pointermove', onMove)
-    return () => document.removeEventListener('pointermove', onMove)
-  }, [collapsed])
-
   return {
     collapsed,
-    peeking,
-    visibility: sidebarVisibility(collapsed, peeking),
+    visibility: sidebarVisibility(collapsed),
     toggle,
-    setPeeking,
   }
 }

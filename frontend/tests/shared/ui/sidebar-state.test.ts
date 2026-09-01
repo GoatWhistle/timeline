@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
-  isEdgePointer,
-  PEEK_EDGE_PX,
   readStoredCollapsed,
   SIDEBAR_STORAGE_KEY,
   sidebarVisibility,
@@ -36,29 +34,12 @@ describe('sidebar persistence', () => {
   })
 })
 
-describe('edge peek', () => {
-  it('answers to a pointer on the very left edge', () => {
-    expect(isEdgePointer(0)).toBe(true)
-    expect(isEdgePointer(PEEK_EDGE_PX)).toBe(true)
-  })
-
-  it('ignores a pointer past the edge strip', () => {
-    expect(isEdgePointer(PEEK_EDGE_PX + 1)).toBe(false)
-    expect(isEdgePointer(400)).toBe(false)
-  })
-})
-
 describe('sidebarVisibility', () => {
   it('shows the panel whenever it is not collapsed', () => {
-    expect(sidebarVisibility(false, false)).toBe('expanded')
-    expect(sidebarVisibility(false, true)).toBe('expanded')
+    expect(sidebarVisibility(false)).toBe('expanded')
   })
 
   it('removes a collapsed panel entirely rather than leaving an icon rail', () => {
-    expect(sidebarVisibility(true, false)).toBe('hidden')
-  })
-
-  it('brings a collapsed panel back temporarily on a peek', () => {
-    expect(sidebarVisibility(true, true)).toBe('peeking')
+    expect(sidebarVisibility(true)).toBe('hidden')
   })
 })
