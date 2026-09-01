@@ -9,7 +9,7 @@ export function EditorCanvas({ editor }: { editor: Editor }) {
   const { t } = useTranslation()
 
   return (
-    <div className="flex min-h-0 justify-center rounded-md border border-border bg-surface-2 p-3">
+    <div className="flex min-h-[22rem] items-center justify-center rounded-md border border-border bg-surface-2 p-4">
       <div className="relative inline-block">
         <canvas
           ref={editor.canvasRef}

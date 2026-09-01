@@ -124,7 +124,7 @@ export function AvatarField({
             </Button>
             {avatarUrl ? (
               <Button asChild variant="ghost" size="sm">
-                <a href={avatarUrl} download target="_blank" rel="noreferrer">
+                <a href={avatarUrl} download>
                   <Download className="size-4" />
                   {t('profile.avatarDownload')}
                 </a>

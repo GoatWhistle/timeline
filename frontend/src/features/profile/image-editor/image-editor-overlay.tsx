@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Button } from '@/shared/ui/primitives/button'
 import { EditorCanvas } from './editor-canvas'
-import { EditorToolbar } from './editor-toolbar'
 import { isUsableCrop } from './editor-model'
+import { EditorToolbar } from './editor-toolbar'
 import { useFocusScope } from './use-focus-scope'
 import { useImageEditor } from './use-image-editor'
 
@@ -60,7 +60,7 @@ export function ImageEditorOverlay({
         aria-modal="true"
         aria-label={t('imageEditor.title')}
         className={cn(
-          'relative flex max-h-[min(92vh,50rem)] w-[min(94vw,46rem)] flex-col gap-4',
+          'relative flex max-h-[min(94vh,56rem)] w-[min(94vw,60rem)] flex-col gap-4',
           'overflow-y-auto rounded-surface border border-border bg-background p-5 shadow-lg',
           'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95',
           'motion-safe:duration-zoom motion-safe:ease-out',
