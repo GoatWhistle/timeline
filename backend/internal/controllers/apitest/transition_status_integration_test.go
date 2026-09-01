@@ -16,7 +16,7 @@ func TestStatusTodoToDoneBelongsToTheOwnerAndTheAdmin(t *testing.T) {
 	if row := statusRow(s, t, f.StatusID); row.Status != "TODO" || row.TodoCycle != 1 || row.RegisteredAt != nil {
 		t.Fatalf("a seeded status is %+v instead of a fresh TODO", row)
 	}
-	f.seedPending(t, s)
+	seedPending(f, t, s)
 
 	outsider := s.Session(t, f.Outsider)
 	requireErrorCode(t, outsider.Post("/events/"+f.EventID+"/registration/done", nil),
@@ -78,7 +78,7 @@ func TestStatusTodoAndDoneReachNotRequiredAndCancelPending(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	f.seedPending(t, s)
+	seedPending(f, t, s)
 	cancelledBefore := notificationCount(s, t, f.EventID, "CANCELLED")
 
 	member := s.Session(t, f.Member)

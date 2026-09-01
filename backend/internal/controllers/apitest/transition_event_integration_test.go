@@ -20,7 +20,7 @@ func TestEventUnpublishedToPublishedIsAdminOnlyAndNotRepeatable(t *testing.T) {
 	if state := eventState(f.AdminClient, t, draft).State; state != "UNPUBLISHED" {
 		t.Fatalf("a fresh event is %q instead of UNPUBLISHED", state)
 	}
-	if items := s.Session(t, support.Catalog(t, f.Outsider), "page_size=100"); containsEvent(items, draft) {
+	if items := support.Catalog(t, s.Session(t, f.Outsider), "page_size=100"); containsEvent(items, draft) {
 		t.Fatalf("an unpublished event is visible in the catalog")
 	}
 
@@ -37,7 +37,7 @@ func TestEventUnpublishedToPublishedIsAdminOnlyAndNotRepeatable(t *testing.T) {
 	if published.PublishedAt == nil {
 		t.Fatalf("published_at stayed empty after publishing: %+v", published)
 	}
-	if items := s.Session(t, support.Catalog(t, f.Outsider), "page_size=100"); !containsEvent(items, draft) {
+	if items := support.Catalog(t, s.Session(t, f.Outsider), "page_size=100"); !containsEvent(items, draft) {
 		t.Fatalf("a published event is missing from the catalog")
 	}
 
@@ -49,7 +49,7 @@ func TestEventArchivedIsTerminalAndCancelsPending(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	f.seedPending(t, s)
+	seedPending(f, t, s)
 
 	member := s.Session(t, f.Member)
 	requireErrorCode(t, archive(member, t, f.EventID),
@@ -97,7 +97,7 @@ func TestEventEndChangeBumpsScheduleVersionAndCancelsPending(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	f.seedPending(t, s)
+	seedPending(f, t, s)
 	before := registrationState(f.AdminClient, t, f.EventID)
 	cancelledBefore := notificationCount(s, t, f.EventID, "CANCELLED")
 

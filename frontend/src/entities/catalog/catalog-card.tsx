@@ -25,12 +25,10 @@ function CatalogPlaceLine({ event }: { event: CatalogEvent }) {
 
 export function CatalogCard({
   event,
-  layout,
   selected,
   onSelect,
 }: {
   event: CatalogEvent
-  layout: 'list' | 'grid'
   selected: boolean
   onSelect: (id: string) => void
 }) {
@@ -45,20 +43,13 @@ export function CatalogCard({
       data-event-row={event.id}
       onClick={() => onSelect(event.id)}
       className={cn(
-        'flex w-full min-w-0 text-left transition-colors duration-instant',
+        'flex h-full w-full min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3',
+        'text-left transition-colors duration-instant',
         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
-        layout === 'grid'
-          ? 'h-full flex-col gap-2 rounded-lg border border-border bg-card p-3'
-          : 'h-row-roomy shrink-0 items-center gap-3 border-border/60 border-b px-3',
         selected ? 'bg-accent-surface' : 'hover:bg-surface-2',
       )}
     >
-      <span
-        className={cn(
-          'flex min-w-0 items-center gap-2',
-          layout === 'grid' ? 'w-full' : 'min-w-0 flex-1',
-        )}
-      >
+      <span className="flex w-full min-w-0 items-center gap-2">
         <CatalogKindMark kind={event.kind} />
         <span className="min-w-0 flex-1 truncate font-medium text-copy">{event.title}</span>
         {event.joined && (
@@ -68,27 +59,18 @@ export function CatalogCard({
         )}
       </span>
 
-      <span
-        className={cn(
-          'flex min-w-0 items-center gap-2 text-meta text-muted-foreground',
-          layout === 'grid' ? 'w-full' : 'hidden shrink-0 md:flex',
-        )}
-      >
+      <span className="flex w-full min-w-0 items-center gap-2 text-meta text-muted-foreground">
         <FormatIcon className="size-3 shrink-0" aria-hidden="true" />
         <span className="truncate">{t(EVENT_FORMAT_KEY[event.effective_format])}</span>
         <span aria-hidden="true">·</span>
         <span className="truncate">{formatDateRange(event.start_at, event.end_at)}</span>
       </span>
 
-      {layout === 'grid' && (
-        <>
-          <CatalogPlaceLine event={event} />
-          {event.prize_pool && event.prize_currency && (
-            <span className="text-meta text-muted-foreground">
-              {t('place.prizePool')}: {event.prize_pool} {event.prize_currency}
-            </span>
-          )}
-        </>
+      <CatalogPlaceLine event={event} />
+      {event.prize_pool && event.prize_currency && (
+        <span className="text-meta text-muted-foreground">
+          {t('place.prizePool')}: {event.prize_pool} {event.prize_currency}
+        </span>
       )}
 
       <span className="sr-only">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>

@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useRemoveAvatar, useUploadAvatar } from '@/entities/user/avatar.queries'
 import { UserAvatar } from '@/entities/user/user-avatar'
-import { ImageEditorPanel } from '@/features/profile/image-editor/image-editor-panel'
+import { ImageEditorOverlay } from '@/features/profile/image-editor/image-editor-overlay'
 import { Button } from '@/shared/ui/primitives/button'
-
-const ACCEPTED = 'image/png,image/jpeg,image/webp'
+import { AVATAR_ACCEPT, rejectionFor } from './avatar-file'
+import { openFilePicker } from './open-file-picker'
 
 export function AvatarField({
   seed,
@@ -22,6 +22,7 @@ export function AvatarField({
 }) {
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement | null>(null)
+  const uploadRef = useRef<HTMLButtonElement | null>(null)
   const headingId = useId()
   const [pending, setPending] = useState<Blob | null>(null)
   const upload = useUploadAvatar()
@@ -29,7 +30,26 @@ export function AvatarField({
 
   function choose(file: File | undefined) {
     if (!file) return
+    const rejection = rejectionFor(file)
+    if (rejection === 'type') {
+      toast.error(t('profile.avatarWrongType'))
+      return
+    }
+    if (rejection === 'size') {
+      toast.error(t('profile.avatarTooLarge'))
+      return
+    }
     setPending(file)
+  }
+
+  function pick() {
+    const input = inputRef.current
+    if (!input) {
+      toast.error(t('profile.avatarPickerFailed'))
+      return
+    }
+    input.value = ''
+    if (!openFilePicker(input)) toast.error(t('profile.avatarPickerFailed'))
   }
 
   async function save(blob: Blob) {
@@ -38,8 +58,13 @@ export function AvatarField({
       setPending(null)
       toast.success(t('profile.avatarSaved'))
     } catch {
-      toast.error(t('profile.avatarWrongType'))
+      toast.error(t('profile.avatarUploadFailed'))
     }
+  }
+
+  function closeEditor() {
+    setPending(null)
+    uploadRef.current?.focus()
   }
 
   async function clear() {
@@ -47,7 +72,7 @@ export function AvatarField({
       await remove.mutateAsync()
       toast.success(t('profile.avatarRemoved'))
     } catch {
-      toast.error(t('profile.avatarRemoved'))
+      toast.error(t('profile.avatarRemoveFailed'))
     }
   }
 
@@ -87,11 +112,12 @@ export function AvatarField({
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap gap-2">
             <Button
+              ref={uploadRef}
               type="button"
               variant="outline"
               size="sm"
               disabled={busy}
-              onClick={() => inputRef.current?.click()}
+              onClick={pick}
             >
               <Upload className="size-4" />
               {avatarUrl ? t('profile.avatarReplace') : t('profile.avatarUpload')}
@@ -112,9 +138,10 @@ export function AvatarField({
       <input
         ref={inputRef}
         type="file"
-        accept={ACCEPTED}
-        className="sr-only"
-        aria-label={t('profile.avatarUpload')}
+        accept={AVATAR_ACCEPT}
+        tabIndex={-1}
+        aria-hidden="true"
+        className="absolute size-0 opacity-0"
         onChange={(event) => {
           choose(event.target.files?.[0])
           event.target.value = ''
@@ -122,12 +149,7 @@ export function AvatarField({
       />
 
       {pending ? (
-        <ImageEditorPanel
-          source={pending}
-          busy={busy}
-          onCancel={() => setPending(null)}
-          onSave={save}
-        />
+        <ImageEditorOverlay source={pending} busy={busy} onCancel={closeEditor} onSave={save} />
       ) : null}
     </section>
   )

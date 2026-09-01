@@ -33,6 +33,7 @@ export function useImageEditor(source: Blob) {
   const [brushSize, setBrushSize] = useState<number>(6)
   const [crop, setCrop] = useState<Rect | null>(null)
   const [ready, setReady] = useState(false)
+  const [failed, setFailed] = useState(false)
   const [canUndo, setCanUndo] = useState(false)
 
   const context = useCallback(() => canvasRef.current?.getContext('2d') ?? null, [])
@@ -40,6 +41,8 @@ export function useImageEditor(source: Blob) {
   useEffect(() => {
     let cancelled = false
     let bitmap: ImageBitmap | null = null
+    setFailed(false)
+    setReady(false)
 
     createImageBitmap(source)
       .then((decoded) => {
@@ -60,7 +63,11 @@ export function useImageEditor(source: Blob) {
         setCrop(null)
         setReady(true)
       })
-      .catch(() => setReady(false))
+      .catch(() => {
+        if (cancelled) return
+        setReady(false)
+        setFailed(true)
+      })
 
     return () => {
       cancelled = true
@@ -186,6 +193,7 @@ export function useImageEditor(source: Blob) {
     setBrushSize,
     crop,
     ready,
+    failed,
     canUndo,
     begin,
     move,

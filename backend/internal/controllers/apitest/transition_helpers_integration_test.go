@@ -118,7 +118,7 @@ func notificationCount(s *support.Stack, t *testing.T, eventID string, state str
 	return count
 }
 
-func (f support.Fixture) seedPending(t *testing.T, s *support.Stack) {
+func seedPending(f support.Fixture, t *testing.T, s *support.Stack) {
 	t.Helper()
 	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+f.EventID+"/registration/disable", nil),
 		http.StatusOK, "disabling the registration to clear the queue")

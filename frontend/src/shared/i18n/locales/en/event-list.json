@@ -29,8 +29,6 @@
     "joined": "You take part",
     "empty": "No events found",
     "emptyHint": "Change the filters or the scope",
-    "scopeAria": "Scope",
-    "kindAria": "Event kind",
     "layoutAria": "Layout",
     "scope": {
       "all": "All",
@@ -47,7 +45,6 @@
       "MEETUP": "Meetup"
     },
     "layout": {
-      "list": "List",
       "grid": "Tiles",
       "table": "Table"
     },
@@ -64,8 +61,6 @@
       "failed": "Could not sign up",
       "finished": "The event has finished: only an administrator can add a participant now."
     },
-    "stateAria": "State",
-    "formatAria": "Format",
     "state": {
       "all": "All",
       "upcoming": "Upcoming",
@@ -80,7 +75,6 @@
     },
     "sortAria": "Sort by",
     "orderAria": "Sort direction",
-    "periodAria": "Period",
     "sort": {
       "start_at": "Start date",
       "end_at": "Deadline",
@@ -90,13 +84,6 @@
       "asc": "Ascending",
       "desc": "Descending"
     },
-    "period": {
-      "from": "From",
-      "to": "To",
-      "fromAria": "Period start",
-      "toAria": "Period end",
-      "clear": "Clear period"
-    },
     "column": {
       "title": "Title",
       "kind": "Kind",
@@ -105,7 +92,11 @@
       "period": "Period",
       "prize": "Prize pool",
       "state": "State",
-      "participation": "Participation"
+      "participation": "Participation",
+      "organizer": "Organizer",
+      "track": "Track",
+      "teamSize": "Team size",
+      "origin": "Scope"
     },
     "export": {
       "action": "Export CSV",
@@ -118,6 +109,34 @@
     "resultCount_few": "{{count}} events",
     "resultCount_many": "{{count}} events",
     "resultCount_other": "{{count}} events",
-    "filtersReset": "Reset filters"
+    "selected": "Selected",
+    "columns": {
+      "action": "Columns",
+      "reset": "Reset to default"
+    },
+    "filters": {
+      "action": "Filters",
+      "where": "Where",
+      "and": "And",
+      "add": "Add condition",
+      "reset": "Reset",
+      "remove": "Remove condition",
+      "empty": "No conditions yet. Everything is shown.",
+      "fieldAria": "Filter field",
+      "valueAria": "Filter value"
+    },
+    "field": {
+      "state": "State",
+      "format": "Format",
+      "kind": "Kind",
+      "origin": "Scope",
+      "from": "Start date",
+      "to": "End date"
+    },
+    "operator": {
+      "is": "is",
+      "onOrAfter": "on or after",
+      "onOrBefore": "on or before"
+    }
   }
 }

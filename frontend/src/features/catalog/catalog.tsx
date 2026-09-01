@@ -2,16 +2,13 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { useCatalogColumns } from '@/entities/catalog/catalog.columns'
 import { useCatalogExport } from '@/entities/catalog/catalog.export'
 import type { CatalogParams } from '@/entities/catalog/catalog.queries'
 import { catalogQuery } from '@/entities/catalog/catalog.queries'
 import {
-  type CatalogFormatFilter,
-  type CatalogKindFilter,
   type CatalogOrder,
-  type CatalogScope,
   type CatalogSort,
-  type CatalogStateFilter,
   resolveLayout,
   resolveOrder,
   resolveSort,
@@ -21,12 +18,12 @@ import type { CatalogEvent } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
-import { cn } from '@/shared/styling/class-names/class-names'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { DetailPane, ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
 import { CatalogDetail } from './catalog-detail'
+import type { CatalogFilterValues } from './catalog-filter-conditions'
 import { CatalogTable } from './catalog-table'
 import { CatalogToolbar } from './catalog-toolbar'
 
@@ -36,13 +33,15 @@ const DEFAULTS = {
   kind: '',
   format: '',
   state: '',
-  layout: 'list',
+  layout: 'table',
   selected: '',
   sort: '',
   order: '',
   from: '',
   to: '',
 }
+
+const FILTER_FIELDS = ['state', 'format', 'kind', 'origin', 'from', 'to'] as const
 
 function listParam<K extends 'origin' | 'kind' | 'format' | 'state'>(
   value: string,
@@ -68,11 +67,16 @@ export function CatalogPage() {
   const [page, setPage] = usePageParam()
   const [joining, setJoining] = useState<CatalogEvent | null>(null)
   const exportMutation = useCatalogExport()
+  const { columns, toggle: toggleColumn, reset: resetColumns } = useCatalogColumns()
 
   const search = useDebouncedValue(filters.search, 250)
   const layout = resolveLayout(filters.layout)
   const sort = resolveSort(filters.sort)
   const order = resolveOrder(filters.order)
+
+  const conditions = Object.fromEntries(
+    FILTER_FIELDS.map((field) => [field, filters[field]]),
+  ) as CatalogFilterValues
 
   const params: CatalogParams = {
     search: search === '' ? undefined : search,
@@ -112,6 +116,10 @@ export function CatalogPage() {
     setFilters({ sort: next, order: 'asc' })
   }
 
+  function resetFilters() {
+    setFilters(Object.fromEntries(FILTER_FIELDS.map((field) => [field, undefined])))
+  }
+
   function runExport() {
     exportMutation.mutate(params, {
       onSuccess: () => toast.success(t('catalog.export.done')),
@@ -124,28 +132,21 @@ export function CatalogPage() {
       <ListPane>
         <CatalogToolbar
           search={filters.search}
-          scope={filters.origin as CatalogScope}
-          kind={filters.kind as CatalogKindFilter}
-          state={filters.state as CatalogStateFilter}
-          format={filters.format as CatalogFormatFilter}
           layout={layout}
           sort={sort}
           order={order}
-          from={filters.from}
-          to={filters.to}
+          filters={conditions}
+          columns={columns}
           total={query.data?.meta.total}
           exporting={exportMutation.isPending}
           onSearch={(value) => setFilters({ search: value })}
-          onScope={(value) => setFilters({ origin: value })}
-          onKind={(value) => setFilters({ kind: value })}
-          onState={(value) => setFilters({ state: value })}
-          onFormat={(value) => setFilters({ format: value })}
           onLayout={(value) => setFilters({ layout: value }, { resetPage: false })}
           onSort={changeSort}
           onOrder={(value: CatalogOrder) => setFilters({ order: value })}
-          onFrom={(value) => setFilters({ from: value })}
-          onTo={(value) => setFilters({ to: value })}
-          onClearPeriod={() => setFilters({ from: undefined, to: undefined })}
+          onFilters={(patch) => setFilters(patch)}
+          onResetFilters={resetFilters}
+          onToggleColumn={toggleColumn}
+          onResetColumns={resetColumns}
           onExport={runExport}
         />
 
@@ -167,6 +168,7 @@ export function CatalogPage() {
               {layout === 'table' ? (
                 <CatalogTable
                   items={items}
+                  columns={columns}
                   selected={selected}
                   sort={sort}
                   order={order}
@@ -177,17 +179,12 @@ export function CatalogPage() {
                 <div
                   role="listbox"
                   aria-label={t('catalog.title')}
-                  className={cn(
-                    layout === 'grid'
-                      ? 'grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3 p-4'
-                      : 'flex flex-col',
-                  )}
+                  className="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3 p-4"
                 >
                   {items.map((item) => (
                     <CatalogCard
                       key={item.id}
                       event={item}
-                      layout={layout === 'grid' ? 'grid' : 'list'}
                       selected={item.id === selected}
                       onSelect={select}
                     />

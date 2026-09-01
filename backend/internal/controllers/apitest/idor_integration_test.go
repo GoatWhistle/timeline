@@ -188,11 +188,10 @@ func TestClosedProfileIsIndistinguishableFromAMissingOne(t *testing.T) {
 	f := s.Seed(t)
 
 	member := s.Session(t, f.Member)
-	support.RequireStatus(t, member.Patch("/me", map[string]any{"nickname": "closed"}),
-		http.StatusOK, "claiming a nickname while staying private")
-
+	claim := member.Patch("/me", map[string]any{"nickname": "closed"})
+	support.RequireStatus(t, claim, http.StatusOK, "claiming a nickname")
 	closed := s.Anonymous(t, "/profiles/closed")
-	support.RequireStatus(t, closed, http.StatusNotFound, "reading a profile its owner keeps closed")
+	support.RequireStatus(t, closed, http.StatusNotFound, "reading a closed profile")
 
 	missing := s.Anonymous(t, "/profiles/nobodyhere")
 	support.RequireStatus(t, missing, http.StatusNotFound, "reading a nickname nobody claimed")
@@ -220,8 +219,8 @@ func TestOwnSurfacesNeverExposeAnInternalIdentifier(t *testing.T) {
 	f := s.Seed(t)
 
 	member := s.Session(t, f.Member)
-	support.RequireStatus(t, member.Mutate(http.MethodPut, "/me/bookmarks/"+f.EventID, nil),
-		http.StatusNoContent, "bookmarking an event")
+	bookmark := member.Mutate(http.MethodPut, "/me/bookmarks/"+f.EventID, nil)
+	support.RequireStatus(t, bookmark, http.StatusNoContent, "bookmarking an event")
 	joined := member.Post("/events/"+f.OtherEvent+"/join", map[string]any{"team_role": "Developer"})
 	support.RequireStatus(t, joined, http.StatusCreated, "joining the open event")
 	requireNoUUID(t, joined.Body, "the self-signup support.Response")

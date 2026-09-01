@@ -33,6 +33,9 @@
     "avatarRemoved": "Avatar removed",
     "avatarTooLarge": "The file is larger than 2 MB",
     "avatarWrongType": "Only PNG, JPEG and WebP are accepted",
+    "avatarPickerFailed": "The file chooser could not be opened. Check your browser settings.",
+    "avatarUploadFailed": "The avatar could not be saved. Please try again.",
+    "avatarRemoveFailed": "The avatar could not be removed. Please try again.",
     "bio": "About",
     "bioCount": "{{current}} of {{max}}",
     "linkOpens": "Opens:",
@@ -210,6 +213,7 @@
     "save": "Save avatar",
     "cancel": "Cancel",
     "canvasLabel": "Image editor canvas",
-    "cropHint": "Drag on the canvas to select an area."
+    "cropHint": "Drag on the canvas to select an area.",
+    "loadFailed": "The image could not be opened"
   }
 }

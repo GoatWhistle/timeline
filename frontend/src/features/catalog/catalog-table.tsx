@@ -1,44 +1,33 @@
 import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { CatalogOrder, CatalogSort } from '@/entities/catalog/catalog.views'
+import {
+  CATALOG_COLUMN_KEY,
+  type CatalogColumn,
+  type CatalogOrder,
+  type CatalogSort,
+} from '@/entities/catalog/catalog.views'
 import { CatalogTableRow } from '@/entities/catalog/catalog-table-row'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
 
-type Column = {
-  key: string
-  labelKey: string
-  sort?: CatalogSort
-  className?: string
-  align?: 'right'
+const COLUMN_SORT: Partial<Record<CatalogColumn, CatalogSort>> = {
+  title: 'title',
+  period: 'start_at',
 }
 
-const COLUMNS: Column[] = [
-  { key: 'title', labelKey: 'catalog.column.title', sort: 'title', className: 'w-full' },
-  {
-    key: 'format',
-    labelKey: 'catalog.column.format',
-    className: 'hidden w-px whitespace-nowrap lg:table-cell',
-  },
-  {
-    key: 'place',
-    labelKey: 'catalog.column.place',
-    className: 'hidden w-48 xl:table-cell',
-  },
-  {
-    key: 'period',
-    labelKey: 'catalog.column.period',
-    sort: 'start_at',
-    className: 'w-px whitespace-nowrap',
-  },
-  {
-    key: 'prize',
-    labelKey: 'catalog.column.prize',
-    className: 'hidden w-px whitespace-nowrap md:table-cell',
-    align: 'right',
-  },
-  { key: 'state', labelKey: 'catalog.column.state', className: 'w-px whitespace-nowrap' },
-]
+const COLUMN_WIDTH: Record<CatalogColumn, string> = {
+  title: 'w-full',
+  kind: 'w-px whitespace-nowrap',
+  format: 'w-px whitespace-nowrap',
+  place: 'w-48 max-w-48',
+  period: 'w-px whitespace-nowrap',
+  prize: 'w-px whitespace-nowrap text-right',
+  organizer: 'w-40 max-w-40',
+  track: 'w-36 max-w-36',
+  teamSize: 'w-px whitespace-nowrap text-right',
+  origin: 'w-px whitespace-nowrap',
+  state: 'w-px whitespace-nowrap',
+}
 
 function SortIcon({ active, order }: { active: boolean; order: CatalogOrder }) {
   if (!active) {
@@ -50,6 +39,7 @@ function SortIcon({ active, order }: { active: boolean; order: CatalogOrder }) {
 
 export function CatalogTable({
   items,
+  columns,
   selected,
   sort,
   order,
@@ -57,6 +47,7 @@ export function CatalogTable({
   onSort,
 }: {
   items: CatalogEvent[]
+  columns: CatalogColumn[]
   selected: string | null
   sort: CatalogSort
   order: CatalogOrder
@@ -65,40 +56,44 @@ export function CatalogTable({
 }) {
   const { t } = useTranslation('event')
 
+  function cellClass(column: CatalogColumn) {
+    return cn('px-3 py-2 text-meta text-muted-foreground', COLUMN_WIDTH[column])
+  }
+
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full border-collapse text-copy">
         <caption className="sr-only">{t('catalog.title')}</caption>
         <thead>
           <tr className="border-border border-b bg-surface-1">
-            {COLUMNS.map((column) => {
-              const active = column.sort !== undefined && column.sort === sort
+            {columns.map((column) => {
+              const columnSort = COLUMN_SORT[column]
+              const active = columnSort !== undefined && columnSort === sort
               return (
                 <th
-                  key={column.key}
+                  key={column}
                   scope="col"
                   aria-sort={active ? (order === 'asc' ? 'ascending' : 'descending') : undefined}
                   className={cn(
                     'h-row px-3 text-left align-middle font-medium text-meta text-muted-foreground',
-                    column.align === 'right' && 'text-right',
-                    column.className,
+                    COLUMN_WIDTH[column],
                   )}
                 >
-                  {column.sort ? (
+                  {columnSort ? (
                     <button
                       type="button"
-                      onClick={() => onSort(column.sort as CatalogSort)}
+                      onClick={() => onSort(columnSort)}
                       className={cn(
                         'inline-flex items-center gap-1 transition-colors duration-instant',
                         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
                         active ? 'text-foreground' : 'hover:text-foreground',
                       )}
                     >
-                      {t(column.labelKey)}
+                      {t(CATALOG_COLUMN_KEY[column])}
                       <SortIcon active={active} order={order} />
                     </button>
                   ) : (
-                    t(column.labelKey)
+                    t(CATALOG_COLUMN_KEY[column])
                   )}
                 </th>
               )
@@ -110,6 +105,8 @@ export function CatalogTable({
             <CatalogTableRow
               key={item.id}
               event={item}
+              columns={columns}
+              cellClass={cellClass}
               selected={item.id === selected}
               onSelect={onSelect}
             />

@@ -36,11 +36,11 @@ export const CATALOG_FORMAT_KEY: Record<CatalogFormatFilter, string> = {
   HYBRID: 'catalog.format.hybrid',
 }
 
-export const CATALOG_LAYOUTS = ['list', 'table', 'grid'] as const
+export const CATALOG_LAYOUTS = ['table', 'grid'] as const
 export type CatalogLayout = (typeof CATALOG_LAYOUTS)[number]
 
 export function resolveLayout(value: string): CatalogLayout {
-  return CATALOG_LAYOUTS.includes(value as CatalogLayout) ? (value as CatalogLayout) : 'list'
+  return value === 'grid' ? 'grid' : 'table'
 }
 
 export const CATALOG_SORTS = ['start_at', 'end_at', 'title'] as const
@@ -62,4 +62,51 @@ export function resolveOrder(value: string): CatalogOrder {
   return CATALOG_ORDERS.includes(value as CatalogOrder)
     ? (value as CatalogOrder)
     : DEFAULT_CATALOG_ORDER
+}
+
+export const CATALOG_COLUMNS = [
+  'title',
+  'kind',
+  'format',
+  'place',
+  'period',
+  'prize',
+  'organizer',
+  'track',
+  'teamSize',
+  'origin',
+  'state',
+] as const
+export type CatalogColumn = (typeof CATALOG_COLUMNS)[number]
+
+export const CATALOG_COLUMN_KEY: Record<CatalogColumn, string> = {
+  title: 'catalog.column.title',
+  kind: 'catalog.column.kind',
+  format: 'catalog.column.format',
+  place: 'catalog.column.place',
+  period: 'catalog.column.period',
+  prize: 'catalog.column.prize',
+  organizer: 'catalog.column.organizer',
+  track: 'catalog.column.track',
+  teamSize: 'catalog.column.teamSize',
+  origin: 'catalog.column.origin',
+  state: 'catalog.column.state',
+}
+
+export const CATALOG_LOCKED_COLUMN: CatalogColumn = 'title'
+
+export const DEFAULT_CATALOG_COLUMNS: CatalogColumn[] = [
+  'title',
+  'format',
+  'place',
+  'period',
+  'prize',
+  'state',
+]
+
+export function resolveColumns(value: unknown): CatalogColumn[] {
+  if (!Array.isArray(value)) return DEFAULT_CATALOG_COLUMNS
+  const picked = CATALOG_COLUMNS.filter((column) => value.includes(column))
+  if (picked.length === 0) return DEFAULT_CATALOG_COLUMNS
+  return picked.includes(CATALOG_LOCKED_COLUMN) ? picked : [CATALOG_LOCKED_COLUMN, ...picked]
 }

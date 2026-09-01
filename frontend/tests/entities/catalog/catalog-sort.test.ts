@@ -42,8 +42,9 @@ describe('resolveLayout', () => {
     }
   })
 
-  it('falls back to the list for anything else', () => {
-    expect(resolveLayout('')).toBe('list')
-    expect(resolveLayout('carousel')).toBe('list')
+  it('falls back to the table for anything else', () => {
+    expect(resolveLayout('')).toBe('table')
+    expect(resolveLayout('carousel')).toBe('table')
+    expect(resolveLayout('list')).toBe('table')
   })
 })

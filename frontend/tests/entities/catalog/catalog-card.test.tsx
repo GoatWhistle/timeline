@@ -31,18 +31,13 @@ const kazanFinal = {
 describe('CatalogCard', () => {
   it('marks a meetup with a diamond and a hackathon with a bar', () => {
     const { unmount } = renderWithProviders(
-      <CatalogCard event={base} layout="list" selected={false} onSelect={vi.fn()} />,
+      <CatalogCard event={base} selected={false} onSelect={vi.fn()} />,
     )
     expect(screen.getByText(i18n.t('event:catalog.kindLabel.HACKATHON'))).toBeInTheDocument()
     unmount()
 
     renderWithProviders(
-      <CatalogCard
-        event={{ ...base, kind: 'MEETUP' }}
-        layout="list"
-        selected={false}
-        onSelect={vi.fn()}
-      />,
+      <CatalogCard event={{ ...base, kind: 'MEETUP' }} selected={false} onSelect={vi.fn()} />,
     )
     const mark = screen.getByText(i18n.t('event:catalog.kindLabel.MEETUP'))
     expect(mark).toBeInTheDocument()
@@ -53,7 +48,6 @@ describe('CatalogCard', () => {
     renderWithProviders(
       <CatalogCard
         event={{ ...base, effective_format: 'HYBRID', offline_stages: [kazanFinal] }}
-        layout="list"
         selected={false}
         onSelect={vi.fn()}
       />,
@@ -62,7 +56,7 @@ describe('CatalogCard', () => {
     expect(screen.queryByText(i18n.t('event:place.format.ONLINE'))).not.toBeInTheDocument()
   })
 
-  it('shows the in-person final and the prize pool only in the tile layout', () => {
+  it('shows the in-person final and the prize pool on the tile', () => {
     const event = {
       ...base,
       effective_format: 'HYBRID' as const,
@@ -71,15 +65,7 @@ describe('CatalogCard', () => {
       prize_currency: 'RUB',
     }
 
-    const { unmount } = renderWithProviders(
-      <CatalogCard event={event} layout="list" selected={false} onSelect={vi.fn()} />,
-    )
-    expect(screen.queryByText(/Kazan/)).not.toBeInTheDocument()
-    unmount()
-
-    renderWithProviders(
-      <CatalogCard event={event} layout="grid" selected={false} onSelect={vi.fn()} />,
-    )
+    renderWithProviders(<CatalogCard event={event} selected={false} onSelect={vi.fn()} />)
     expect(screen.getByText(/Kazan/)).toBeInTheDocument()
     expect(screen.getByText(/500000\.00 RUB/)).toBeInTheDocument()
   })
@@ -87,12 +73,7 @@ describe('CatalogCard', () => {
   it('reports participation and reports the selection back', async () => {
     const onSelect = vi.fn()
     const { user } = renderWithProviders(
-      <CatalogCard
-        event={{ ...base, joined: true }}
-        layout="list"
-        selected={false}
-        onSelect={onSelect}
-      />,
+      <CatalogCard event={{ ...base, joined: true }} selected={false} onSelect={onSelect} />,
     )
     expect(screen.getByText(i18n.t('event:catalog.joined'))).toBeInTheDocument()
 

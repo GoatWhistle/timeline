@@ -9,9 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
-
 	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
+	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 )
 
 func liveSessions(s *support.Stack, t *testing.T, userID string) int {
@@ -66,12 +65,11 @@ func TestRefreshRotatesAndRetiresTheOldToken(t *testing.T) {
 	if second == "" || second == first {
 		t.Fatalf("the refresh token did not rotate: %q then %q", first, second)
 	}
-	support.RequireStatus(t, member.Get("/me"), http.StatusOK, "reading the profile after a rotation")
-
+	support.RequireStatus(t, member.Get("/me"), http.StatusOK, "reading after a rotation")
 	replay := s.Client(t)
 	replay.SetCookie(support.RefreshCookie, first)
-	support.RequireStatus(t, replay.Post("/auth/refresh", nil), http.StatusUnauthorized,
-		"replaying a retired refresh token")
+	replayed := replay.Post("/auth/refresh", nil)
+	support.RequireStatus(t, replayed, http.StatusUnauthorized, "replaying a retired token")
 
 	if retiredSessions(s, t, f.Member.ID) == 0 {
 		t.Fatal("rotation did not retire the previous session row")

@@ -13,7 +13,7 @@ func TestRegistrationActiveToDisabledCancelsAndKeepsStatuses(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	f.seedPending(t, s)
+	seedPending(f, t, s)
 	forceStatus(f.AdminClient, t, f.StatusID, "DONE")
 	cancelledBefore := notificationCount(s, t, f.EventID, "CANCELLED")
 
@@ -84,7 +84,7 @@ func TestRegistrationURLChangeBumpsTheContentVersionAndCancelsPending(t *testing
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	f.seedPending(t, s)
+	seedPending(f, t, s)
 	before := registrationState(f.AdminClient, t, f.EventID)
 	cancelledBefore := notificationCount(s, t, f.EventID, "CANCELLED")
 

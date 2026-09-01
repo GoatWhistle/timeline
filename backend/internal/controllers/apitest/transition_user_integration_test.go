@@ -14,7 +14,7 @@ func TestUserActiveToInactiveRevokesSessionsAndCancelsPending(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	f.seedPending(t, s)
+	seedPending(f, t, s)
 	cancelledBefore := notificationCount(s, t, f.EventID, "CANCELLED")
 
 	member := s.Session(t, f.Member)
@@ -55,7 +55,7 @@ func TestUserInactiveToActiveRestoresAccessWithoutResurrectingNotifications(t *t
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	f.seedPending(t, s)
+	seedPending(f, t, s)
 	support.RequireStatus(t, f.AdminClient.Post("/admin/users/"+f.Member.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the member")
 	cancelledBefore := notificationCount(s, t, f.EventID, "CANCELLED")

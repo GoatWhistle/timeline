@@ -34,7 +34,7 @@ func TestParticipantAssignedToRemovedCancelsAndIsNotRepeatable(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	f.seedPending(t, s)
+	seedPending(f, t, s)
 	cancelledBefore := notificationCount(s, t, f.EventID, "CANCELLED")
 
 	member := s.Session(t, f.Member)
