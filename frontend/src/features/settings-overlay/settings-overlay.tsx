@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { useSession } from '@/shared/api/session'
 import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { SlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/sliding-indicator'
+import { useSlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/use-sliding-indicator'
 import { Button } from '@/shared/ui/primitives/button'
 import { SETTINGS_SECTIONS } from './sections'
 import { SettingsPanel } from './settings-panels'
@@ -15,6 +17,7 @@ export function SettingsOverlay() {
   const { user } = useSession()
   const { open, section, setSection, closeSettings } = useSettingsOverlay()
   const activeRef = useRef<HTMLButtonElement>(null)
+  const { containerRef, box } = useSlidingIndicator<HTMLDivElement>(section, 'y', open)
   const returnFocus = useReturnFocus(open)
 
   useEffect(() => {
@@ -61,26 +64,31 @@ export function SettingsOverlay() {
             className="flex w-56 shrink-0 flex-col gap-0.5 overflow-y-auto border-border border-r bg-card p-2"
           >
             <p className="px-3 py-2 font-semibold text-heading">{t('settings.title')}</p>
-            {SETTINGS_SECTIONS.map(({ id, labelKey, icon: Icon }) => (
-              <button
-                key={id}
-                type="button"
-                ref={section === id ? activeRef : undefined}
-                aria-current={section === id ? 'page' : undefined}
-                onClick={() => setSection(id)}
-                className={cn(
-                  'flex h-row items-center gap-2 rounded-control px-3 text-left text-copy',
-                  'transition-colors duration-instant',
-                  'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
-                  section === id
-                    ? 'bg-accent-surface font-medium text-accent-surface-foreground'
-                    : 'text-muted-foreground hover:bg-surface-2 hover:text-foreground',
-                )}
-              >
-                <Icon className="size-4 shrink-0" aria-hidden="true" />
-                {t(labelKey)}
-              </button>
-            ))}
+            <div ref={containerRef} className="relative flex flex-col gap-0.5">
+              <SlidingIndicator box={box} axis="y" />
+              {SETTINGS_SECTIONS.map(({ id, labelKey, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  ref={section === id ? activeRef : undefined}
+                  aria-current={section === id ? 'page' : undefined}
+                  data-indicator-item
+                  data-indicator-active={section === id ? 'true' : undefined}
+                  onClick={() => setSection(id)}
+                  className={cn(
+                    'relative z-10 flex h-row items-center gap-2 rounded-control px-3 text-left text-copy',
+                    'transition-colors duration-base ease-out',
+                    'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
+                    section === id
+                      ? 'font-medium text-accent-surface-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  <Icon className="size-4 shrink-0" aria-hidden="true" />
+                  {t(labelKey)}
+                </button>
+              ))}
+            </div>
           </nav>
 
           <div className="flex min-w-0 flex-1 flex-col overflow-hidden">

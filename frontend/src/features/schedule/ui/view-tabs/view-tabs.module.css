@@ -23,6 +23,15 @@
   line-height: 16px;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .tab {
+    transition:
+      background-color var(--duration-base) var(--ease-out),
+      color var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out);
+  }
+}
+
 .tab:hover {
   color: var(--foreground);
 }

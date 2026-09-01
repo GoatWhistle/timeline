@@ -124,7 +124,7 @@
     "timezone": "Time zone",
     "timezoneHint": "All dates and deadlines are shown in this zone. Everything is stored in UTC.",
     "sectionAccount": "Account",
-    "sectionShortcuts": "Keyboard shortcuts"
+    "sectionShortcuts": "Shortcuts"
   },
   "shortcuts": {
     "title": "Keyboard shortcuts",
