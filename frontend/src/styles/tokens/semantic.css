@@ -24,7 +24,7 @@
   --secondary-foreground: var(--neutral-900);
   --muted: var(--surface-2);
   --muted-foreground: var(--neutral-550);
-  --faint-foreground: var(--neutral-450);
+  --faint-foreground: var(--neutral-550);
 
   --accent: var(--brand-blue-500);
   --accent-foreground: var(--neutral-000);

@@ -65,8 +65,8 @@ describe.each(THEMES)('token contrast, %s theme', (theme) => {
     },
   )
 
-  it.each(SURFACES)('faint-foreground on %s meets 3:1', (bg) => {
-    expect(ratio('faint-foreground', bg)).toBeGreaterThanOrEqual(UI_AA)
+  it.each(SURFACES)('faint-foreground on %s meets 4.5:1', (bg) => {
+    expect(ratio('faint-foreground', bg)).toBeGreaterThanOrEqual(TEXT_AA)
   })
 
   it.each([...STAGES, ...STATES, ...STATUSES, ...URGENCY])(

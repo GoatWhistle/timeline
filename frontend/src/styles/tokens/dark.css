@@ -23,7 +23,7 @@
   --secondary-foreground: var(--linear-mist);
   --muted: var(--surface-2);
   --muted-foreground: var(--linear-fog);
-  --faint-foreground: var(--linear-ash-lifted);
+  --faint-foreground: var(--linear-fog);
 
   --accent: var(--brand-amber-300);
   --accent-foreground: var(--linear-void);

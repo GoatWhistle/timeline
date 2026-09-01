@@ -70,7 +70,8 @@ export async function createMember(): Promise<{ email: string; password: string;
   await call(guest, 'GET', '/auth/csrf')
   const accepted = await call(guest, 'POST', '/invites/accept', {
     token,
-    display_name: 'End To End',
+    first_name: 'End',
+    last_name: 'ToEnd',
     password: MEMBER_PASSWORD,
   })
   if (accepted.status !== 200) throw new Error(`the invite was not accepted: ${accepted.status}`)

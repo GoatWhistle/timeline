@@ -27,10 +27,9 @@ test('the participant reports the registration and the server records DONE', asy
 
   expect(await statusOf(member.eventId)).toBe('TODO')
 
-  const list = page.getByRole('listbox')
-  await expect(list.getByRole('option').filter({ hasText: member.eventTitle })).toBeVisible()
+  await page.goto(`/events/${member.eventId}`)
 
-  const mark = list.getByRole('button', { name: /^(отметить|mark)$/i })
+  const mark = page.getByRole('button', { name: /я зарегистрировался|i have registered/i })
   await expect(mark).toBeVisible()
   await mark.click()
 
@@ -43,7 +42,8 @@ test('the mark is gone after a reload, because the work is already reported', as
   await signIn(page)
   await page.reload()
 
-  const list = page.getByRole('listbox')
-  await expect(list.getByRole('option').filter({ hasText: member.eventTitle })).toBeVisible()
-  await expect(list.getByRole('button', { name: /^(отметить|mark)$/i })).toHaveCount(0)
+  await page.goto(`/events/${member.eventId}`)
+  await expect(
+    page.getByRole('button', { name: /я зарегистрировался|i have registered/i }),
+  ).toHaveCount(0)
 })
