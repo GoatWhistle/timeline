@@ -157,4 +157,8 @@ func mountTeams(mux *http.ServeMux, rt *routes, api string, c *team.Controller) 
 		rt.authd(c.RemoveFromRoster))
 	mux.Handle("POST "+api+"/teams/{id}/events/{event_id}/roster/{user_id}/registration/done",
 		rt.authd(c.MarkRosterMember))
+	mux.Handle("GET "+api+"/teams/{id}/join-link", rt.authd(c.JoinLink))
+	mux.Handle("POST "+api+"/teams/{id}/join-link", rt.authd(c.RotateJoinLink))
+	mux.Handle("DELETE "+api+"/teams/{id}/join-link", rt.authd(c.RevokeJoinLink))
+	mux.Handle("POST "+api+"/team-join/{token}", rt.authd(c.JoinByLink))
 }

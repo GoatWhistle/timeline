@@ -122,11 +122,7 @@ func NewRouter(deps Deps) http.Handler {
 	mountAdminIdentity(mux, rt, api, userC, inviteC, eventC)
 	mountAdminRegistration(mux, rt, api, partC, regC, statusC, ruleC, previewC)
 	mountAdminQueries(mux, rt, api, queryC, auditC, opsC)
-
-	if deps.SwaggerUI != nil {
-		mux.Handle("GET /docs/", deps.SwaggerUI)
-		mux.Handle("GET /docs", http.RedirectHandler("/docs/index.html", http.StatusMovedPermanently))
-	}
+	mountSwagger(mux, deps.SwaggerUI)
 
 	return middleware.Chain(mux,
 		middleware.RequestID,
@@ -135,6 +131,14 @@ func NewRouter(deps Deps) http.Handler {
 		middleware.CORS(deps.CORSOrigins),
 		middleware.CSRF,
 	)
+}
+
+func mountSwagger(mux *http.ServeMux, ui http.Handler) {
+	if ui == nil {
+		return
+	}
+	mux.Handle("GET /docs/", ui)
+	mux.Handle("GET /docs", http.RedirectHandler("/docs/index.html", http.StatusMovedPermanently))
 }
 
 type routes struct {

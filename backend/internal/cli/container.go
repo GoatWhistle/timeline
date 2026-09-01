@@ -73,6 +73,7 @@ type container struct {
 		teamMembers   *team.Members
 		teamEntries   *team.Entries
 		teamRosters   *team.Rosters
+		teamLinks     *team.JoinLinks
 		audit         *audit.Audit
 	}
 
@@ -145,6 +146,7 @@ func (c *container) wireRepositories() {
 	c.repos.teamMembers = team.NewMembers(db)
 	c.repos.teamEntries = team.NewEntries(db)
 	c.repos.teamRosters = team.NewRosters(db)
+	c.repos.teamLinks = team.NewJoinLinks(db)
 	c.repos.audit = audit.NewAudit(db)
 }
 
@@ -188,14 +190,7 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.events = svcevent.NewEventService(db, c.repos.events, c.repos.registrations,
 		c.notifier, c.scheduler, c.audit)
 	c.stages = svcevent.NewStageService(db, c.repos.stages, c.repos.events, c.repos.participants, c.audit)
-	c.participants = svcparticipation.NewParticipantService(db, c.repos.participants, c.repos.events,
-		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
-	c.registrations = svcparticipation.NewRegistrationService(db, c.repos.registrations, c.repos.events,
-		c.repos.participants, c.repos.statuses, c.repos.users, c.notifier, c.scheduler, c.audit)
-	c.statuses = svcparticipation.NewStatusService(db, c.repos.statuses, c.repos.registrations, c.repos.participants,
-		c.repos.events, c.repos.users, c.notifier, c.scheduler, c.audit)
-	c.rules = svcparticipation.NewRuleService(db, c.repos.rules, c.repos.events, c.repos.registrations,
-		c.notifier, c.scheduler, c.audit, cfg)
+	c.wireParticipation(cfg)
 	c.catalog = svcevent.NewCatalogService(db, c.repos.catalog, c.repos.events, c.repos.participants,
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
 	c.queries = svcevent.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
@@ -212,11 +207,28 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.hub = svcrealtime.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
 	c.calendar = svcauth.NewCalendarFeedService(db, c.repos.calendarFeeds, c.repos.users,
 		c.repos.queries, c.audit, cfg.App.PublicURL)
-	c.teams = svcteam.NewTeamService(db, c.repos.teams, c.repos.teamMembers, c.repos.teamEntries, c.repos.teamRosters,
-		c.repos.events, c.repos.participants, c.repos.registrations, c.repos.statuses,
-		c.repos.users, c.notifier, c.audit)
+	c.wireTeams(cfg)
 	c.wireRealtime()
 	return c, nil
+}
+
+func (c *container) wireParticipation(cfg *config.Config) {
+	db := c.db
+	c.participants = svcparticipation.NewParticipantService(db, c.repos.participants, c.repos.events,
+		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
+	c.registrations = svcparticipation.NewRegistrationService(db, c.repos.registrations, c.repos.events,
+		c.repos.participants, c.repos.statuses, c.repos.users, c.notifier, c.scheduler, c.audit)
+	c.statuses = svcparticipation.NewStatusService(db, c.repos.statuses, c.repos.registrations,
+		c.repos.participants, c.repos.events, c.repos.users, c.notifier, c.scheduler, c.audit)
+	c.rules = svcparticipation.NewRuleService(db, c.repos.rules, c.repos.events, c.repos.registrations,
+		c.notifier, c.scheduler, c.audit, cfg)
+}
+
+func (c *container) wireTeams(cfg *config.Config) {
+	c.teams = svcteam.NewTeamService(c.db, c.repos.teams, c.repos.teamMembers,
+		c.repos.teamEntries, c.repos.teamRosters, c.repos.teamLinks,
+		c.repos.events, c.repos.participants, c.repos.registrations, c.repos.statuses,
+		c.repos.users, c.notifier, c.audit, cfg)
 }
 
 func (c *container) wireRealtime() {

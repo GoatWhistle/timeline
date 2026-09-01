@@ -5,6 +5,8 @@ import type {
   TeamDetailResponse,
   TeamEventEntryListResponse,
   TeamEventEntryResponse,
+  TeamJoinLinkResponse,
+  TeamJoinLinkSecretResponse,
   TeamListResponse,
 } from '@/shared/api/types.gen'
 
@@ -55,7 +57,8 @@ export function useCreateTeam() {
 export function useRenameTeam(teamId: string) {
   const invalidate = useInvalidateTeams()
   return useMutation<TeamDetailResponse, Error, RenameBody>({
-    mutationFn: (body) => unwrap(api.PATCH('/teams/{id}', { params: { path: { id: teamId } }, body })),
+    mutationFn: (body) =>
+      unwrap(api.PATCH('/teams/{id}', { params: { path: { id: teamId } }, body })),
     onSuccess: () => invalidate(teamId),
   })
 }
@@ -72,7 +75,8 @@ export function useInviteTeamMember(teamId: string) {
 export function useAcceptTeamInvitation(teamId: string) {
   const invalidate = useInvalidateTeams()
   return useMutation<TeamDetailResponse, Error, void>({
-    mutationFn: () => unwrap(api.POST('/teams/{id}/membership', { params: { path: { id: teamId } } })),
+    mutationFn: () =>
+      unwrap(api.POST('/teams/{id}/membership', { params: { path: { id: teamId } } })),
     onSuccess: () => invalidate(teamId),
   })
 }
@@ -118,7 +122,9 @@ export function useRosterMember(teamId: string) {
     mutationFn: ({ eventId, userId, action }) => {
       const path = { id: teamId, event_id: eventId, user_id: userId }
       if (action === 'add') {
-        return unwrap(api.PUT('/teams/{id}/events/{event_id}/roster/{user_id}', { params: { path } }))
+        return unwrap(
+          api.PUT('/teams/{id}/events/{event_id}/roster/{user_id}', { params: { path } }),
+        )
       }
       if (action === 'remove') {
         return unwrap(
@@ -132,5 +138,40 @@ export function useRosterMember(teamId: string) {
       )
     },
     onSuccess: () => invalidate(teamId),
+  })
+}
+
+export function teamJoinLinkQuery(teamId: string, enabled: boolean) {
+  return queryOptions<TeamJoinLinkResponse>({
+    queryKey: ['team-join-link', teamId],
+    queryFn: () => unwrap(api.GET('/teams/{id}/join-link', { params: { path: { id: teamId } } })),
+    enabled,
+  })
+}
+
+export function useRotateJoinLink(teamId: string) {
+  const queryClient = useQueryClient()
+  return useMutation<TeamJoinLinkSecretResponse, Error, void>({
+    mutationFn: () =>
+      unwrap(api.POST('/teams/{id}/join-link', { params: { path: { id: teamId } } })),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team-join-link', teamId] }),
+  })
+}
+
+export function useRevokeJoinLink(teamId: string) {
+  const queryClient = useQueryClient()
+  return useMutation<unknown, Error, void>({
+    mutationFn: () =>
+      unwrap(api.DELETE('/teams/{id}/join-link', { params: { path: { id: teamId } } })),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team-join-link', teamId] }),
+  })
+}
+
+export function useJoinByLink() {
+  const queryClient = useQueryClient()
+  return useMutation<TeamDetailResponse, Error, { token: string }>({
+    mutationFn: ({ token }) =>
+      unwrap(api.POST('/team-join/{token}', { params: { path: { token } } })),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['teams'] }),
   })
 }

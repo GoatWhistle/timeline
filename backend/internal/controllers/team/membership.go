@@ -9,14 +9,17 @@ import (
 )
 
 // @Summary		Invite a user into the team
-// @Description	Restricted to the team lead. The invitation lands in the INVITED state and the
-// @Description	invited user accepts it themselves.
+// @Description	Restricted to the team lead. The person is named by exactly one of `user_id`, `nickname`
+// @Description	and `email`, and must already have an account: a platform invitation to somebody who is
+// @Description	not registered yet is an administrator operation, so an address nobody uses answers 404
+// @Description	with the same body an unknown nickname gets. The invitation lands in the INVITED state
+// @Description	and the invited person accepts it themselves.
 // @Tags			teams
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
 // @Param			id		path		string						true	"Team identifier"	example(tm_42ej2s5gh7e8)
-// @Param			request	body		dto.InviteTeamMemberRequest	true	"User to invite"
+// @Param			request	body		dto.InviteTeamMemberRequest	true	"Person to invite, named one way"
 // @Success		200		{object}	dto.TeamDetailResponse
 // @Failure		400		{object}	dto.ErrorResponse
 // @Failure		403		{object}	dto.ErrorResponse
@@ -33,12 +36,7 @@ func (c *Controller) Invite(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	userID, err := httpx.BodyDisplayID(r.Context(), &req.UserID, dto.DisplayKindUser, c.svc.ResolveUserDisplayID)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	detail, err := c.svc.Invite(r.Context(), middleware.ActorFrom(r), id, *userID)
+	detail, err := c.svc.Invite(r.Context(), middleware.ActorFrom(r), id, req)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

@@ -62,6 +62,7 @@ type Auth struct {
 	EmailVerifyTTL     time.Duration
 	PasswordResetTTL   time.Duration
 	InviteTTL          time.Duration
+	TeamJoinLinkTTL    time.Duration
 	TelegramLinkTTL    time.Duration
 	MinPasswordLength  int
 	FirstAdminEmail    string
@@ -164,6 +165,7 @@ func Load() (*Config, error) {
 			EmailVerifyTTL:     envDuration("EMAIL_VERIFICATION_TTL", 24*time.Hour),
 			PasswordResetTTL:   envDuration("PASSWORD_RESET_TTL", 30*time.Minute),
 			InviteTTL:          envDuration("INVITE_TTL", 72*time.Hour),
+			TeamJoinLinkTTL:    envDuration("TEAM_JOIN_LINK_TTL", 14*24*time.Hour),
 			TelegramLinkTTL:    envDuration("TELEGRAM_LINK_TTL", time.Hour),
 			MinPasswordLength:  envInt("PASSWORD_MIN_LENGTH", 10),
 			FirstAdminEmail:    env("FIRST_ADMIN_EMAIL", ""),

@@ -10,8 +10,8 @@ import (
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
-func (s *TeamService) Invite(ctx context.Context, actor models.Actor, teamID, userID uuid.UUID,
-) (*dto.TeamDetailResponse, error) {
+func (s *TeamService) Invite(ctx context.Context, actor models.Actor, teamID uuid.UUID,
+	req dto.InviteTeamMemberRequest) (*dto.TeamDetailResponse, error) {
 	var existing *models.Team
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		var err error
@@ -19,13 +19,14 @@ func (s *TeamService) Invite(ctx context.Context, actor models.Actor, teamID, us
 		if err != nil {
 			return err
 		}
-		invitee, err := s.users.GetByID(ctx, userID)
+		invitee, err := s.resolveInvitee(ctx, req)
 		if err != nil {
-			return models.NewNotFound("user not found")
+			return err
 		}
 		if !invitee.IsActive {
 			return models.NewConflict("user_inactive", "a deactivated user cannot be invited")
 		}
+		userID := invitee.ID
 
 		current, err := s.members.GetByTeamUser(ctx, teamID, userID)
 		switch {

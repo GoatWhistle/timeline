@@ -42,6 +42,22 @@ type TeamEventEntry struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type TeamJoinLink struct {
+	ID        uuid.UUID  `json:"id"`
+	DisplayID string     `json:"display_id"`
+	TeamID    uuid.UUID  `json:"team_id"`
+	TokenHash string     `json:"-"`
+	CreatedBy uuid.UUID  `json:"created_by"`
+	ExpiresAt time.Time  `json:"expires_at"`
+	RevokedAt *time.Time `json:"revoked_at,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+}
+
+func (l *TeamJoinLink) Usable(now time.Time) bool {
+	return l.RevokedAt == nil && now.Before(l.ExpiresAt)
+}
+
 type TeamEventRosterEntry struct {
 	ID        uuid.UUID `json:"id"`
 	DisplayID string    `json:"display_id"`

@@ -3,6 +3,7 @@ package team
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/team"
+	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
@@ -25,6 +27,7 @@ type TeamService struct {
 	members       *team.Members
 	entries       *team.Entries
 	rosters       *team.Rosters
+	links         *team.JoinLinks
 	events        *event.Events
 	participants  *participation.Participants
 	registrations *participation.Registrations
@@ -32,17 +35,23 @@ type TeamService struct {
 	users         *identity.Users
 	notifier      Notifier
 	audit         *audit.AuditService
+	publicURL     string
+	joinLinkTTL   time.Duration
+	now           func() time.Time
 }
 
 func NewTeamService(db *postgres.DB, teams *team.Teams, members *team.Members,
-	entries *team.Entries, rosters *team.Rosters,
+	entries *team.Entries, rosters *team.Rosters, links *team.JoinLinks,
 	events *event.Events, participants *participation.Participants,
 	registrations *participation.Registrations, statuses *participation.Statuses,
-	users *identity.Users, notifier Notifier, audit *audit.AuditService) *TeamService {
+	users *identity.Users, notifier Notifier, audit *audit.AuditService,
+	cfg *config.Config) *TeamService {
 	return &TeamService{
-		db: db, teams: teams, members: members, entries: entries, rosters: rosters, events: events,
-		participants: participants, registrations: registrations, statuses: statuses,
+		db: db, teams: teams, members: members, entries: entries, rosters: rosters, links: links,
+		events: events, participants: participants, registrations: registrations, statuses: statuses,
 		users: users, notifier: notifier, audit: audit,
+		publicURL: cfg.App.PublicURL, joinLinkTTL: cfg.Auth.TeamJoinLinkTTL,
+		now: func() time.Time { return time.Now().UTC() },
 	}
 }
 
