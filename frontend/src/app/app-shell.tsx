@@ -51,7 +51,10 @@ export function AppShell() {
 
       <main
         id="main"
-        className={cn('flex min-w-0 flex-1 flex-col overflow-hidden', sidebar.collapsed && 'pl-10')}
+        className={cn(
+          'flex min-w-0 flex-1 flex-col overflow-hidden',
+          sidebar.collapsed ? 'pl-10' : 'pl-2',
+        )}
       >
         <VerificationBanner />
         <ConnectionBanner />
