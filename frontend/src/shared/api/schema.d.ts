@@ -10665,6 +10665,7 @@ export interface components {
             message: string;
         };
         "dto.MyEventItem": {
+            color: components["schemas"]["models.EventColor"];
             /** Format: date-time */
             end_at: string;
             /** @example ev_gma9hq8a96q5 */

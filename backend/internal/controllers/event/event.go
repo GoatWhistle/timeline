@@ -130,12 +130,18 @@ func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	h, err := c.events.Get(r.Context(), middleware.ActorFrom(r), id)
+	actor := middleware.ActorFrom(r)
+	h, err := c.events.Get(r.Context(), actor, id)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.EventResponse(h, time.Now().UTC(), true))
+	stages, _, err := c.stages.List(r.Context(), actor, id)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, shared.EventResponseWithStages(h, stages, time.Now().UTC(), true))
 }
 
 // @Summary		Update an event

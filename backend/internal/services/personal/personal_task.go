@@ -63,7 +63,7 @@ func (s *PersonalService) CreateTask(ctx context.Context, actor models.Actor,
 			return err
 		}
 
-		task, err = s.tasks.Create(ctx, userID, eventID, req, title, sortOrder)
+		task, err = s.tasks.Create(ctx, userID, eventID, req, stageID, title, sortOrder)
 		return err
 	})
 	if err != nil {
@@ -179,7 +179,7 @@ func (s *PersonalService) applyItems(ctx context.Context, userID uuid.UUID, ev *
 		}
 
 		req := dto.CreateTaskRequest{Title: item.TitleKey, DueAt: templateDue(ev, item)}
-		task, err := s.tasks.Create(ctx, userID, ev.ID, req, item.TitleKey, sortOrder)
+		task, err := s.tasks.Create(ctx, userID, ev.ID, req, nil, item.TitleKey, sortOrder)
 		if err != nil {
 			return err
 		}

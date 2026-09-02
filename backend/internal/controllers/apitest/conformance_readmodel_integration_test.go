@@ -80,6 +80,10 @@ type myEventItem struct {
 	ID    string `json:"id"`
 	Title string `json:"title"`
 	State string `json:"state"`
+	Color *struct {
+		Family string `json:"family"`
+		Slot   int    `json:"slot"`
+	} `json:"color"`
 }
 
 func myEvents(c *support.Client, t *testing.T, query string) []myEventItem {

@@ -140,3 +140,45 @@ func TestTemplateAppliesOnceWithoutDuplicates(t *testing.T) {
 		map[string]any{"template_id": "no-such-template"}),
 		http.StatusNotFound, "applying an unknown template")
 }
+
+func TestTaskAcceptsStageOfItsOwnEvent(t *testing.T) {
+	s := support.NewStack(t)
+	f := s.Seed(t)
+
+	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
+	stageResp := f.AdminClient.Post("/admin/events/"+f.EventID+"/stages",
+		map[string]any{
+			"name":     "Own demo",
+			"type":     "DEMO",
+			"start_at": start.Format(time.RFC3339),
+			"end_at":   start.Add(time.Hour).Format(time.RFC3339),
+		})
+	support.RequireStatus(t, stageResp, http.StatusCreated, "creating a stage on the own event")
+	var stage struct {
+		ID string `json:"id"`
+	}
+	stageResp.Decode(t, &stage)
+
+	member := s.Session(t, f.Member)
+	created := member.Post("/me/events/"+f.EventID+"/tasks", map[string]any{
+		"title":    "Task pinned to a stage",
+		"stage_id": stage.ID,
+	})
+	support.RequireStatus(t, created, http.StatusCreated,
+		"pinning a personal task to a stage of its own event")
+
+	var task struct {
+		ID      string  `json:"id"`
+		StageID *string `json:"stage_id"`
+	}
+	created.Decode(t, &task)
+	if task.StageID == nil || *task.StageID != stage.ID {
+		t.Fatalf("the created task does not carry the stage it was pinned to: %s", created.Body)
+	}
+
+	list := member.Get("/me/events/" + f.EventID + "/tasks")
+	support.RequireStatus(t, list, http.StatusOK, "listing the own tasks")
+	if !strings.Contains(string(list.Body), stage.ID) {
+		t.Fatalf("the stage is missing from the stored task: %s", list.Body)
+	}
+}

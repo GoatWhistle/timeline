@@ -20,6 +20,7 @@ type MyEventItem struct {
 	RegistrationDeadline *time.Time               `json:"registration_deadline,omitempty"`
 	RegistrationStatus   *RegistrationStatusShort `json:"registration_status,omitempty"`
 	NextStage            *StageShort              `json:"next_stage,omitempty"`
+	Color                *models.EventColor       `json:"color,omitempty"`
 }
 
 type StageShort struct {

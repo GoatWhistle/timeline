@@ -9669,6 +9669,9 @@ const docTemplate = `{
         "dto.MyEventItem": {
             "type": "object",
             "properties": {
+                "color": {
+                    "$ref": "#/definitions/models.EventColor"
+                },
                 "end_at": {
                     "type": "string"
                 },

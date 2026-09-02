@@ -63,6 +63,7 @@ func (r *Timeline) MyEvents(ctx context.Context, userID uuid.UUID, filter models
 	args = append(args, page.Limit(), page.Offset())
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		SELECT h.id, h.display_id, h.title, h.organizer, h.start_at, h.end_at, h.archived_at,
+		       h.origin, h.color_slot,
 		       p.team_role,
 		       r.url, r.deadline_at, r.state,
 		       s.display_id, s.status, s.todo_cycle, s.registered_at `+from+where+`
@@ -80,6 +81,7 @@ func (r *Timeline) MyEvents(ctx context.Context, userID uuid.UUID, filter models
 			item        dto.MyEventItem
 			rawID       uuid.UUID
 			archivedAt  *time.Time
+			colored     models.Event
 			regURL      *string
 			regDeadline *time.Time
 			regState    *models.RegistrationState
@@ -89,11 +91,13 @@ func (r *Timeline) MyEvents(ctx context.Context, userID uuid.UUID, filter models
 			registered  *time.Time
 		)
 		if err := rows.Scan(&rawID, &item.ID, &item.Title, &item.Organizer, &item.StartAt, &item.EndAt, &archivedAt,
+			&colored.Origin, &colored.ColorSlot,
 			&item.TeamRole, &regURL, &regDeadline, &regState,
 			&statusID, &statusValue, &todoCycle, &registered); err != nil {
 			return nil, 0, mapError(err)
 		}
 		item.State = computeState(archivedAt, item.StartAt, item.EndAt, now)
+		item.Color = colored.Color()
 		if regState != nil && *regState == models.RegistrationActive {
 			item.RegistrationURL = regURL
 			item.RegistrationDeadline = regDeadline

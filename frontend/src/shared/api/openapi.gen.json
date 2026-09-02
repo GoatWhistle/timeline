@@ -11679,6 +11679,9 @@
       "dto.MyEventItem": {
         "type": "object",
         "properties": {
+          "color": {
+            "$ref": "#/components/schemas/models.EventColor"
+          },
           "end_at": {
             "type": "string",
             "format": "date-time"
@@ -11720,6 +11723,7 @@
           }
         },
         "required": [
+          "color",
           "end_at",
           "id",
           "start_at",

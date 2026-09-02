@@ -35,9 +35,10 @@ func scanTask(row pgx.Row) (*models.ParticipantTask, error) {
 }
 
 func (r *Tasks) Create(ctx context.Context, userID, eventID uuid.UUID,
-	req dto.CreateTaskRequest, title string, sortOrder int) (*models.ParticipantTask, error) {
+	req dto.CreateTaskRequest, stageID *uuid.UUID, title string,
+	sortOrder int) (*models.ParticipantTask, error) {
 	var stageEventID *uuid.UUID
-	if req.StageID != nil {
+	if stageID != nil {
 		stageEventID = &eventID
 	}
 	return scanTask(r.db.Q(ctx).QueryRow(ctx, `
@@ -45,7 +46,7 @@ func (r *Tasks) Create(ctx context.Context, userID, eventID uuid.UUID,
 			(user_id, event_id, stage_id, stage_event_id, title, notes, due_at, sort_order)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING `+taskColumns,
-		userID, eventID, req.StageID, stageEventID, title, req.Notes, req.DueAt, sortOrder))
+		userID, eventID, stageID, stageEventID, title, req.Notes, req.DueAt, sortOrder))
 }
 
 func (r *Tasks) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {

@@ -984,6 +984,8 @@ definitions:
     type: object
   dto.MyEventItem:
     properties:
+      color:
+        $ref: '#/definitions/models.EventColor'
       end_at:
         type: string
       id:
