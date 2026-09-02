@@ -8,7 +8,7 @@ type RegisterRequest struct {
 	FirstName   string  `json:"first_name" example:"John"`
 	MiddleName  *string `json:"middle_name,omitempty" example:"Fitzgerald"`
 	LastName    string  `json:"last_name" example:"Smith"`
-	Nickname    *string `json:"nickname,omitempty" example:"jsmith"`
+	Nickname    string  `json:"nickname" binding:"required" example:"jsmith"`
 	Email       string  `json:"email" example:"ivan@example.com"`
 	Password    string  `json:"password" example:"correct-horse-battery"`
 	InviteToken string  `json:"invite_token,omitempty"`

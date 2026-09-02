@@ -23,7 +23,8 @@ func (r *Users) NicknameTaken(ctx context.Context, nickname string, except uuid.
 	err := r.db.Q(ctx).QueryRow(ctx, `
 		SELECT EXISTS (
 			SELECT 1 FROM users
-			WHERE lower(nickname) = $1 AND ($2::uuid IS NULL OR id <> $2)
+			WHERE lower(nickname) = $1 AND deleted_at IS NULL
+				AND ($2::uuid IS NULL OR id <> $2)
 		)`, models.NormalizeNickname(nickname), postgres.NullUUID(except)).Scan(&exists)
 	if err != nil {
 		return false, mapError(err)

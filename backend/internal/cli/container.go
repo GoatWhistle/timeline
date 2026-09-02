@@ -185,7 +185,7 @@ func newContainer(ctx context.Context) (*container, error) {
 	if err := c.wireAvatars(cfg); err != nil {
 		return nil, err
 	}
-	c.users = svcauth.NewUserService(db, c.repos.users, c.repos.sessions, c.notifier, c.audit)
+	c.users = svcauth.NewUserService(db, c.repos.users, c.repos.sessions, c.notifier, c.audit, c.cfg)
 	c.events = svcevent.NewEventService(db, c.repos.events, c.repos.registrations,
 		c.notifier, c.scheduler, c.audit)
 	if err := c.wireCovers(cfg); err != nil {

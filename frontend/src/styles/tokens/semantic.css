@@ -1,4 +1,5 @@
-:root {
+:root,
+.light {
   color-scheme: light dark;
 
   --radius-control: 6px;

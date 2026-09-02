@@ -67,6 +67,8 @@ func TestValidateURLRejectsUnparseableValues(t *testing.T) {
 		{"free text", "see the chat for the link"},
 		{"relative path", "/events/42"},
 		{"scheme without host", "https://"},
+		{"no scheme at all, completed by the client and never guessed here", "example.org"},
+		{"no scheme with a path", "example.org/rules"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

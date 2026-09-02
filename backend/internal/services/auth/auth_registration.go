@@ -3,10 +3,10 @@ package auth
 import (
 	"context"
 	"errors"
-	"strings"
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
@@ -35,7 +35,7 @@ type registrationName struct {
 	first    string
 	middle   *string
 	last     string
-	nickname *string
+	nickname string
 }
 
 func (s *AuthService) validateRegistration(req dto.RegisterRequest) (string, registrationName, string, error) {
@@ -151,18 +151,15 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest,
 	return user, pair, nil
 }
 
-func (s *AuthService) checkRegistrationNickname(ctx context.Context, nickname *string) error {
-	if nickname == nil {
-		return nil
-	}
-	taken, err := s.users.NicknameTaken(ctx, *nickname, uuid.Nil)
+func (s *AuthService) checkRegistrationNickname(ctx context.Context, nickname string) error {
+	taken, err := s.users.NicknameTaken(ctx, nickname, uuid.Nil)
 	if err != nil {
 		return err
 	}
 	if taken {
 		return models.NewConflict("nickname_taken", "this nickname is already taken")
 	}
-	held, err := s.users.NicknameHeld(ctx, *nickname, uuid.Nil, s.now())
+	held, err := s.users.NicknameHeld(ctx, nickname, uuid.Nil, s.now())
 	if err != nil {
 		return err
 	}
@@ -179,12 +176,12 @@ func (s *AuthService) createUser(ctx context.Context, name registrationName,
 		FirstName:    name.first,
 		MiddleName:   name.middle,
 		LastName:     name.last,
-		Nickname:     name.nickname,
+		Nickname:     &name.nickname,
 		Email:        email,
 		PasswordHash: hash,
 		IsActive:     true,
 	})
-	if err != nil && name.nickname != nil && isNicknameConflict(err) {
+	if err != nil && isNicknameConflict(err) {
 		return nil, models.NewConflict("nickname_taken", "this nickname is already taken")
 	}
 	return user, err
@@ -196,5 +193,5 @@ func isNicknameConflict(err error) bool {
 		return false
 	}
 	return domain.Code == "unique_violation" &&
-		strings.Contains(domain.Message, "users_nickname_key")
+		domain.Message == postgres.ConstraintMessage("users_nickname_key")
 }

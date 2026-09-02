@@ -8201,6 +8201,9 @@
     "definitions": {
         "dto.AcceptInviteRequest": {
             "type": "object",
+            "required": [
+                "nickname"
+            ],
             "properties": {
                 "first_name": {
                     "type": "string",
@@ -10218,6 +10221,9 @@
         },
         "dto.RegisterRequest": {
             "type": "object",
+            "required": [
+                "nickname"
+            ],
             "properties": {
                 "email": {
                     "type": "string",

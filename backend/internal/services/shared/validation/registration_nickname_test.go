@@ -8,12 +8,12 @@ func TestRegistrationNicknameAcceptsAWellFormedValue(t *testing.T) {
 	cases := []string{"abc", "jsmith", "j-smith", "a_b", "a1b2c3", "Ivan_Petrov-42"}
 	for _, value := range cases {
 		t.Run(value, func(t *testing.T) {
-			got, err := RegistrationNickname(&value)
+			got, err := RegistrationNickname(value)
 			if err != nil {
 				t.Fatalf("expected %q to be accepted, got %v", value, err)
 			}
-			if got == nil || *got != value {
-				t.Fatalf("expected %q to survive validation, got %v", value, got)
+			if got != value {
+				t.Fatalf("expected %q to survive validation, got %q", value, got)
 			}
 		})
 	}
@@ -41,8 +41,7 @@ func TestRegistrationNicknameRefusesTheSameShapesTheClientRefuses(t *testing.T) 
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			value := tc.value
-			if _, err := RegistrationNickname(&value); err == nil {
+			if _, err := RegistrationNickname(tc.value); err == nil {
 				t.Fatalf("expected %q to be refused by the server", tc.value)
 			}
 		})
@@ -52,44 +51,33 @@ func TestRegistrationNicknameRefusesTheSameShapesTheClientRefuses(t *testing.T) 
 func TestRegistrationNicknameRefusesAReservedRoute(t *testing.T) {
 	for _, value := range []string{"admin", "settings", "Login", " api "} {
 		t.Run(value, func(t *testing.T) {
-			candidate := value
-			if _, err := RegistrationNickname(&candidate); err == nil {
+			if _, err := RegistrationNickname(value); err == nil {
 				t.Fatalf("expected the reserved nickname %q to be refused", value)
 			}
 		})
 	}
 }
 
-func TestRegistrationNicknameTreatsAnAbsentValueAsNoChoice(t *testing.T) {
-	got, err := RegistrationNickname(nil)
-	if err != nil {
-		t.Fatalf("expected an absent nickname to be accepted, got %v", err)
-	}
-	if got != nil {
-		t.Fatalf("expected an absent nickname to stay absent, got %v", *got)
+func TestRegistrationNicknameRefusesAnAbsentValue(t *testing.T) {
+	if _, err := RegistrationNickname(""); err == nil {
+		t.Fatalf("expected registration without a nickname to be refused")
 	}
 }
 
-func TestRegistrationNicknameTreatsBlankAsNoChoice(t *testing.T) {
-	for _, value := range []string{"", "   "} {
-		blank := value
-		got, err := RegistrationNickname(&blank)
-		if err != nil {
-			t.Fatalf("expected a blank nickname to be accepted, got %v", err)
-		}
-		if got != nil {
-			t.Fatalf("expected a blank nickname to stay absent, got %v", *got)
+func TestRegistrationNicknameRefusesBlankSpace(t *testing.T) {
+	for _, value := range []string{"", "   ", "\t"} {
+		if _, err := RegistrationNickname(value); err == nil {
+			t.Fatalf("expected the blank nickname %q to be refused", value)
 		}
 	}
 }
 
 func TestRegistrationNicknameTrimsSurroundingSpace(t *testing.T) {
-	value := "  jsmith  "
-	got, err := RegistrationNickname(&value)
+	got, err := RegistrationNickname("  jsmith  ")
 	if err != nil {
 		t.Fatalf("expected the padded nickname to be accepted, got %v", err)
 	}
-	if got == nil || *got != "jsmith" {
-		t.Fatalf("expected the nickname to be trimmed, got %v", got)
+	if got != "jsmith" {
+		t.Fatalf("expected the nickname to be trimmed, got %q", got)
 	}
 }

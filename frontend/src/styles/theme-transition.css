@@ -1,0 +1,40 @@
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation-name: theme-fade-out;
+    animation-duration: var(--duration-base-exit);
+    animation-timing-function: var(--ease-in);
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-new(root) {
+    animation-name: theme-fade-in;
+    animation-duration: var(--duration-base);
+    animation-timing-function: var(--ease-out);
+    mix-blend-mode: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+@keyframes theme-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes theme-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

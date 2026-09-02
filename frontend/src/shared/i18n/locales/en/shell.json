@@ -37,7 +37,9 @@
     "legend": "Appearance",
     "light": "Light theme",
     "dark": "Dark theme",
-    "system": "System theme"
+    "system": "System theme",
+    "activeLight": "The light theme is showing now.",
+    "activeDark": "The dark theme is showing now."
   },
   "language": {
     "legend": "Language",

@@ -2,11 +2,13 @@ package auth
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/audit"
@@ -21,11 +23,15 @@ type UserService struct {
 	feeds    *identity.CalendarFeeds
 	realtime SessionDropper
 	avatars  AvatarPurger
+	cfg      *config.Config
+	now      func() time.Time
 }
 
 func NewUserService(db *postgres.DB, users *identity.Users,
-	sessions *identity.Sessions, notifier Notifier, audit *audit.AuditService) *UserService {
-	return &UserService{db: db, users: users, sessions: sessions, notifier: notifier, audit: audit}
+	sessions *identity.Sessions, notifier Notifier, audit *audit.AuditService,
+	cfg *config.Config) *UserService {
+	return &UserService{db: db, users: users, sessions: sessions, notifier: notifier,
+		audit: audit, cfg: cfg, now: func() time.Time { return time.Now().UTC() }}
 }
 
 func (s *UserService) ResolveUserDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
@@ -97,6 +103,9 @@ func (s *UserService) Delete(ctx context.Context, actor models.Actor, userID uui
 		if err := s.notifier.CancelForRecipient(ctx, userID); err != nil {
 			return err
 		}
+		if err := s.holdNickname(ctx, user); err != nil {
+			return err
+		}
 		if err := s.users.Anonymize(ctx, userID); err != nil {
 			return err
 		}
@@ -111,4 +120,12 @@ func (s *UserService) Delete(ctx context.Context, actor models.Actor, userID uui
 		s.dropUser(userID)
 		return nil
 	})
+}
+
+func (s *UserService) holdNickname(ctx context.Context, user *models.User) error {
+	if user.Nickname == nil {
+		return nil
+	}
+	return s.users.ReserveNickname(ctx, *user.Nickname, user.ID,
+		s.now().Add(s.cfg.Auth.NicknameHoldTTL))
 }

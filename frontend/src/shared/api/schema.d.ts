@@ -10115,7 +10115,7 @@ export interface components {
             /** @example Fitzgerald */
             middle_name?: string;
             /** @example jsmith */
-            nickname?: string;
+            nickname: string;
             /** @example correct-horse-battery */
             password?: string;
             /** @example abc123 */
@@ -10875,7 +10875,7 @@ export interface components {
             /** @example Fitzgerald */
             middle_name?: string;
             /** @example jsmith */
-            nickname?: string;
+            nickname: string;
             /** @example correct-horse-battery */
             password?: string;
         };

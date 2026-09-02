@@ -14,6 +14,10 @@ import (
 
 const Password = "correct-horse-battery-staple"
 
+func Nickname() string {
+	return "u" + strings.ReplaceAll(uuid.NewString(), "-", "")[:20]
+}
+
 const (
 	MissingEventID  = "ev_zzzzzzzzzzzz"
 	MissingTaskID   = "tk_zzzzzzzzzzzz"
@@ -34,6 +38,7 @@ func (s *Stack) Register(t *testing.T, email string) Account {
 		"first_name": "Test",
 		"last_name":  email,
 		"email":      email,
+		"nickname":   Nickname(),
 		"password":   Password,
 	})
 	RequireStatus(t, resp, http.StatusOK, "registering "+email)

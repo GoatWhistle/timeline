@@ -36,7 +36,6 @@
     "createdHint": "Assigned participants received the \"not done\" status",
     "stateChanged": "Registration state changed",
     "stateFailed": "Could not change the state",
-    "urlHttps": "The link must start with https://",
     "deadlineRequired": "Set a deadline"
   },
   "rules": {

@@ -8203,6 +8203,9 @@ const docTemplate = `{
     "definitions": {
         "dto.AcceptInviteRequest": {
             "type": "object",
+            "required": [
+                "nickname"
+            ],
             "properties": {
                 "first_name": {
                     "type": "string",
@@ -10220,6 +10223,9 @@ const docTemplate = `{
         },
         "dto.RegisterRequest": {
             "type": "object",
+            "required": [
+                "nickname"
+            ],
             "properties": {
                 "email": {
                     "type": "string",

@@ -122,6 +122,8 @@ func MapError(err error) error {
 	return err
 }
 
+func ConstraintMessage(name string) string { return constraintMessage(name) }
+
 func constraintMessage(name string) string {
 	if msg, ok := constraintMessages[name]; ok {
 		return msg

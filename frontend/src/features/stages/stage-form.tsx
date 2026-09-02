@@ -7,6 +7,7 @@ import { STAGE_TYPE_KEY, STAGE_TYPES } from '@/entities/stage/stage.labels'
 import type { EventFormat, StageResponse, StageType } from '@/shared/api/types.gen'
 import { civilFromIso, civilToIso } from '@/shared/datetime/civil'
 import { applyServerErrors } from '@/shared/forms/server-errors'
+import { isAcceptedUrl, normalizeFormUrl } from '@/shared/forms/url'
 import {
   endBeforeStart,
   type MomentRange,
@@ -36,15 +37,15 @@ const schema = z.object({
   online_url: z
     .string()
     .optional()
-    .refine((value) => !value || value.startsWith('https://'), {
-      message: 'event:form.urlHttps',
+    .refine((value) => !value || isAcceptedUrl(value), {
+      message: 'event:form.urlInvalid',
     }),
   description: z.string().optional(),
   url: z
     .string()
     .optional()
-    .refine((value) => !value || value.startsWith('https://'), {
-      message: 'event:form.urlHttps',
+    .refine((value) => !value || isAcceptedUrl(value), {
+      message: 'event:form.urlInvalid',
     }),
 })
 
@@ -135,14 +136,16 @@ export function StageForm({
         end_at: endAt,
         sort_order: Number(values.sort_order),
         ...(values.description ? { description: values.description } : {}),
-        ...(values.url ? { url: values.url } : {}),
+        ...(values.url ? { url: normalizeFormUrl(values.url) ?? values.url } : {}),
         ...(values.format === INHERIT
           ? { clear_format: true }
           : { format: values.format as EventFormat }),
         ...(values.country_code ? { country_code: values.country_code } : {}),
         ...(values.city ? { city: values.city } : {}),
         ...(values.venue ? { venue: values.venue } : {}),
-        ...(values.online_url ? { online_url: values.online_url } : {}),
+        ...(values.online_url
+          ? { online_url: normalizeFormUrl(values.online_url) ?? values.online_url }
+          : {}),
       })
     } catch (error) {
       applyServerErrors(error, setError, [

@@ -1,8 +1,43 @@
 import { BadgeCheck, TriangleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { MeResponse } from '@/shared/api/types.gen'
+import { cn } from '@/shared/styling/class-names/class-names'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
-import { Badge } from '@/shared/ui/primitives/badge'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/shared/ui/overlays/tooltip'
+
+function EmailVerificationMark({ verified }: { verified: boolean }) {
+  const { t } = useTranslation()
+  const label = verified ? t('account.emailVerifiedMark') : t('account.emailUnverifiedMark')
+  const Mark = verified ? BadgeCheck : TriangleAlert
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label={label}
+            title={label}
+            data-email-verified={verified}
+            className={cn(
+              'inline-flex shrink-0 cursor-default rounded-full',
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+              verified ? 'text-primary' : 'text-destructive',
+            )}
+          >
+            <Mark className="size-4" aria-hidden="true" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
 
 export function AccountIdentityCard({ user }: { user: MeResponse }) {
   const { t } = useTranslation()
@@ -17,17 +52,7 @@ export function AccountIdentityCard({ user }: { user: MeResponse }) {
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-meta text-muted-foreground">{t('account.email')}</span>
           <span className="min-w-0 break-all font-medium text-copy">{user.email}</span>
-          {user.email_verified ? (
-            <Badge tone="primary">
-              <BadgeCheck className="size-3 shrink-0" aria-hidden="true" />
-              {t('account.emailVerified')}
-            </Badge>
-          ) : (
-            <Badge tone="danger">
-              <TriangleAlert className="size-3 shrink-0" aria-hidden="true" />
-              {t('account.emailUnverified')}
-            </Badge>
-          )}
+          <EmailVerificationMark verified={user.email_verified} />
         </div>
 
         <dl className="grid gap-x-4 gap-y-1 sm:grid-cols-[auto_1fr]">

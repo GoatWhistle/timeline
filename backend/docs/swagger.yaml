@@ -20,6 +20,8 @@ definitions:
       token:
         example: abc123
         type: string
+    required:
+    - nickname
     type: object
   dto.AddParticipantItem:
     properties:
@@ -1369,6 +1371,8 @@ definitions:
       password:
         example: correct-horse-battery
         type: string
+    required:
+    - nickname
     type: object
   dto.RegistrationCoverage:
     properties:

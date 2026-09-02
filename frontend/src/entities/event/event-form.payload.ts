@@ -1,6 +1,7 @@
 import { isApiError } from '@/shared/api/errors'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { civilFromIso, civilToIso } from '@/shared/datetime/civil'
+import { normalizeLinkableUrl } from '@/shared/forms/url'
 import type { MomentRange } from '@/shared/ui/forms/calendar/moment-range'
 import { type EventFormValues, MOMENT_FIELD_NAMES } from './event-form.schema'
 
@@ -65,7 +66,9 @@ export function buildPayload(values: EventFormValues, range: MomentRange): Event
     format: values.format,
     origin: values.origin,
     ...(values.organizer ? { organizer: values.organizer } : {}),
-    ...(values.website_url ? { website_url: values.website_url } : {}),
+    ...(values.website_url
+      ? { website_url: normalizeLinkableUrl(values.website_url) ?? values.website_url }
+      : {}),
     ...(values.description ? { description: values.description } : {}),
     ...(values.notes ? { notes: values.notes } : {}),
     ...(country ? { country_code: country } : {}),

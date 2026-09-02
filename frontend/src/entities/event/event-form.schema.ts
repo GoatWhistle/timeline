@@ -1,21 +1,13 @@
 import { z } from 'zod'
 import type { EventFormat, EventKind, EventOrigin } from '@/shared/api/types.gen'
+import { isLinkableUrl } from '@/shared/forms/url'
 
 export const EVENT_FORMATS: EventFormat[] = ['ONLINE', 'OFFLINE', 'HYBRID']
 export const EVENT_KINDS: EventKind[] = ['HACKATHON', 'MEETUP']
 export const EVENT_ORIGINS: EventOrigin[] = ['RU', 'WORLD']
 
-const EXECUTABLE_SCHEMES = ['javascript:', 'data:', 'vbscript:', 'file:']
-
 export function isSafeAbsoluteUrl(value: string): boolean {
-  let parsed: URL
-  try {
-    parsed = new URL(value)
-  } catch {
-    return false
-  }
-  if (!parsed.protocol) return false
-  return !EXECUTABLE_SCHEMES.includes(parsed.protocol.toLowerCase())
+  return isLinkableUrl(value)
 }
 
 const optionalText = (max: number) => z.string().trim().max(max).optional()

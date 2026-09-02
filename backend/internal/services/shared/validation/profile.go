@@ -123,23 +123,21 @@ func profileNickname(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) erro
 	return nil
 }
 
-func RegistrationNickname(raw *string) (*string, error) {
-	if raw == nil {
-		return nil, nil
-	}
-	value := strings.TrimSpace(*raw)
+func RegistrationNickname(raw string) (string, error) {
+	value := strings.TrimSpace(raw)
 	if value == "" {
-		return nil, nil
+		return "", models.NewValidation("nickname is required",
+			models.FieldError{Field: "nickname", Message: "a nickname is required"})
 	}
 	if !models.NicknameFormatValid(value) {
-		return nil, models.NewValidation("invalid nickname",
+		return "", models.NewValidation("invalid nickname",
 			models.FieldError{Field: "nickname", Message: "3 to 39 latin letters, digits, hyphen or underscore"})
 	}
 	if models.NicknameReserved(value) {
-		return nil, models.NewValidation("nickname is reserved",
+		return "", models.NewValidation("nickname is reserved",
 			models.FieldError{Field: "nickname", Message: "this nickname is reserved"})
 	}
-	return &value, nil
+	return value, nil
 }
 
 func PersonName(firstField, lastField, first string, middle *string, last string) (string, *string, string, error) {

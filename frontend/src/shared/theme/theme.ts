@@ -31,7 +31,7 @@ export function writeStoredTheme(preference: ThemePreference): void {
   }
 }
 
-function systemTheme(): ResolvedTheme {
+export function systemTheme(): ResolvedTheme {
   return typeof matchMedia === 'function' && matchMedia(DARK_QUERY).matches ? 'dark' : 'light'
 }
 
@@ -42,6 +42,29 @@ export function resolveTheme(preference: ThemePreference): ResolvedTheme {
 export function applyTheme(resolved: ResolvedTheme): void {
   document.documentElement.classList.toggle('dark', resolved === 'dark')
   document.documentElement.style.colorScheme = resolved
+}
+
+const REDUCE_QUERY = '(prefers-reduced-motion: reduce)'
+
+function motionAllowed(): boolean {
+  return typeof matchMedia === 'function' && !matchMedia(REDUCE_QUERY).matches
+}
+
+type ViewTransitionRoot = Document & {
+  startViewTransition?: (callback: () => void) => { finished: Promise<void> }
+}
+
+export function applyThemeAnimated(resolved: ResolvedTheme): void {
+  const root = document as ViewTransitionRoot
+  if (typeof root.startViewTransition !== 'function' || !motionAllowed()) {
+    applyTheme(resolved)
+    return
+  }
+  document.documentElement.dataset.themeSwitching = 'true'
+  const transition = root.startViewTransition(() => applyTheme(resolved))
+  void transition.finished.finally(() => {
+    delete document.documentElement.dataset.themeSwitching
+  })
 }
 
 export function watchSystemTheme(onChange: (resolved: ResolvedTheme) => void): () => void {

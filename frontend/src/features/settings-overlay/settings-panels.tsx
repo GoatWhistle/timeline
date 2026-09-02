@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
+import { LanguageChoice } from '@/features/appearance/language-choice'
+import { ThemeChoice } from '@/features/appearance/theme-choice'
 import { DeviceList } from '@/features/device-list/device-list'
 import {
   DeactivateAccountCard,
@@ -16,8 +18,6 @@ import { TelegramLinkCard } from '@/features/profile/telegram-link-card/telegram
 import { ShortcutSettings } from '@/features/shortcut-settings/shortcut-settings'
 import type { MeResponse } from '@/shared/api/types.gen'
 import { SYSTEM_TIME_ZONE } from '@/shared/datetime/datetime'
-import { LanguageToggle } from '@/shared/ui/primitives/language-toggle'
-import { ThemeToggle } from '@/shared/ui/primitives/theme-toggle'
 import { TimezoneSelect } from '@/shared/ui/primitives/timezone-select/timezone-select'
 import type { SettingsSectionId } from './sections'
 
@@ -29,6 +29,24 @@ function Row({ title, hint, control }: { title: string; hint: string; control: R
         <p className="mt-0.5 text-meta text-muted-foreground">{hint}</p>
       </div>
       <div className="shrink-0">{control}</div>
+    </div>
+  )
+}
+
+function Stack({
+  title,
+  hint,
+  children,
+}: {
+  title: string
+  hint: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="py-4">
+      <p className="font-medium text-copy">{title}</p>
+      <p className="mt-0.5 max-w-prose text-meta text-muted-foreground">{hint}</p>
+      <div className="mt-3">{children}</div>
     </div>
   )
 }
@@ -48,12 +66,12 @@ function AppearancePanel({ user }: { user: MeResponse }) {
 
   return (
     <div className="divide-y divide-border">
-      <Row title={t('settings.theme')} hint={t('settings.themeHint')} control={<ThemeToggle />} />
-      <Row
-        title={t('language.label')}
-        hint={t('settings.languageHint')}
-        control={<LanguageToggle />}
-      />
+      <Stack title={t('settings.theme')} hint={t('settings.themeHint')}>
+        <ThemeChoice />
+      </Stack>
+      <Stack title={t('language.label')} hint={t('settings.languageHint')}>
+        <LanguageChoice />
+      </Stack>
       <Row
         title={t('settings.timezone')}
         hint={t('settings.timezoneHint')}

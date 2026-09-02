@@ -1,10 +1,10 @@
 import { z } from 'zod'
-import { normalizeLinkUrl } from '@/shared/ui/navigation/service-link/detect-service'
+import { isAcceptedUrl, normalizeFormUrl } from '@/shared/forms/url'
 
 export function isAcceptedProfileLink(value: string): boolean {
   const trimmed = value.trim()
   if (trimmed === '') return true
-  return normalizeLinkUrl(trimmed) !== null
+  return isAcceptedUrl(trimmed)
 }
 
 export const newLinkSchema = z.object({
@@ -13,7 +13,8 @@ export const newLinkSchema = z.object({
     .trim()
     .min(1, 'validation.linkRequired')
     .max(2048, 'validation.linkTooLong')
-    .refine((value) => normalizeLinkUrl(value) !== null, 'validation.linkScheme'),
+    .refine(isAcceptedUrl, 'validation.linkScheme')
+    .transform((value) => normalizeFormUrl(value) ?? value),
   label: z.string().trim().max(100, 'validation.labelTooLong'),
 })
 

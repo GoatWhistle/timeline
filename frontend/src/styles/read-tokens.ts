@@ -7,9 +7,15 @@ const STYLES_DIR = dirname(fileURLToPath(import.meta.url))
 
 const DECLARATION = /(--[a-z0-9-]+)\s*:\s*([^;]+);/g
 
+function blockStart(source: string, blockSelector: string): number {
+  const direct = source.indexOf(`${blockSelector} {`)
+  if (direct >= 0) return direct
+  return source.indexOf(`${blockSelector},`)
+}
+
 function declarationsIn(file: string, blockSelector: string): Map<string, string> {
   const source = readFileSync(join(STYLES_DIR, file), 'utf8')
-  const start = source.indexOf(`${blockSelector} {`)
+  const start = blockStart(source, blockSelector)
   if (start < 0) throw new Error(`Block ${blockSelector} not found in ${file}`)
   const end = source.indexOf('\n}', start)
   const block = source.slice(start, end)

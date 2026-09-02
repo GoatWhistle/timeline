@@ -1,0 +1,1 @@
+DROP INDEX nickname_reservations_user_idx;

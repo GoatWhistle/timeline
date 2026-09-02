@@ -65,10 +65,12 @@ type Auth struct {
 	InviteTTL          time.Duration
 	TeamJoinLinkTTL    time.Duration
 	TelegramLinkTTL    time.Duration
+	NicknameHoldTTL    time.Duration
 	MinPasswordLength  int
 	FirstAdminEmail    string
 	FirstAdminPassword string
 	FirstAdminName     string
+	FirstAdminNickname string
 }
 
 type Argon struct {
@@ -168,10 +170,12 @@ func Load() (*Config, error) {
 			InviteTTL:          envDuration("INVITE_TTL", 72*time.Hour),
 			TeamJoinLinkTTL:    envDuration("TEAM_JOIN_LINK_TTL", 14*24*time.Hour),
 			TelegramLinkTTL:    envDuration("TELEGRAM_LINK_TTL", time.Hour),
+			NicknameHoldTTL:    envDuration("NICKNAME_HOLD_TTL", 30*24*time.Hour),
 			MinPasswordLength:  envInt("PASSWORD_MIN_LENGTH", 10),
 			FirstAdminEmail:    env("FIRST_ADMIN_EMAIL", ""),
 			FirstAdminPassword: env("FIRST_ADMIN_PASSWORD", ""),
 			FirstAdminName:     env("FIRST_ADMIN_NAME", "Administrator"),
+			FirstAdminNickname: env("FIRST_ADMIN_NICKNAME", "administrator"),
 		},
 		Argon: Argon{
 			Memory:      uint32(envInt("ARGON2_MEMORY_KIB", 65536)),

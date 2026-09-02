@@ -16,6 +16,7 @@ import { isApiError } from '@/shared/api/errors'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { applyServerErrors } from '@/shared/forms/server-errors'
+import { isAcceptedUrl, normalizeFormUrl } from '@/shared/forms/url'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { Textarea } from '@/shared/ui/forms/textarea'
@@ -32,8 +33,8 @@ function toLocalInput(iso: string | undefined): string {
 }
 
 const schema = z.object({
-  url: z.string().refine((value) => value.startsWith('https://'), {
-    message: 'event:form.urlHttps',
+  url: z.string().refine((value) => isAcceptedUrl(value), {
+    message: 'event:form.urlInvalid',
   }),
   deadline_at: z.string().min(1, 'registration:tab.deadlineRequired'),
   description: z.string().optional(),
@@ -67,7 +68,7 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
 
   async function submit(values: FormValues) {
     const payload = {
-      url: values.url,
+      url: normalizeFormUrl(values.url) ?? values.url,
       deadline_at: new Date(values.deadline_at).toISOString(),
       ...(values.description ? { description: values.description } : {}),
     }

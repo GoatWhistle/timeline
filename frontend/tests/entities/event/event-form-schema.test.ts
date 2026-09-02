@@ -155,10 +155,15 @@ describe('the website address is checked for shape, not for https', () => {
     expect(check({ website_url: 'tg://resolve?domain=x' }).success).toBe(true)
   })
 
-  it('refuses text that is not an absolute address', () => {
-    expect(messagesFor({ website_url: 'example.com' }, 'website_url')).toContain(
-      'event:form.urlInvalid',
-    )
+  it('accepts an address typed without a scheme, which is completed with https', () => {
+    expect(check({ website_url: 'example.com' }).success).toBe(true)
+    expect(check({ website_url: 'example.com/rules' }).success).toBe(true)
+  })
+
+  it('refuses text that is not an address at all', () => {
+    for (const value of ['ask me on the chat', '/events/42', 'localhost', 'https://']) {
+      expect(messagesFor({ website_url: value }, 'website_url')).toContain('event:form.urlInvalid')
+    }
   })
 
   it('refuses the executable schemes', () => {

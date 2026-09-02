@@ -21,6 +21,8 @@ x-backend: &backend
     FIRST_ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
     FIRST_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password123}
     FIRST_ADMIN_NAME: ${ADMIN_NAME:-Administrator}
+    FIRST_ADMIN_NICKNAME: ${ADMIN_NICKNAME:-administrator}
+    NICKNAME_HOLD_TTL: ${NICKNAME_HOLD_TTL:-720h}
     AVATAR_STORAGE_ROOT: /var/lib/timeline/avatars
     COVER_STORAGE_ROOT: /var/lib/timeline/covers
   volumes:
