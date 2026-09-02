@@ -178,8 +178,6 @@ type NicknameReservation struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-const NicknameHold = 30 * 24 * time.Hour
-
 var reservedNicknames = map[string]bool{
 	"about": true, "admin": true, "api": true, "assets": true, "audit": true,
 	"auth": true, "calendar": true, "catalog": true, "deadlines": true,

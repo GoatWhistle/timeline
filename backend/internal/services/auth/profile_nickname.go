@@ -42,7 +42,8 @@ func (s *ProfileService) holdPreviousNickname(ctx context.Context, before *model
 	if !changed {
 		return nil
 	}
-	return s.users.ReserveNickname(ctx, *before.Nickname, before.ID, s.now().Add(models.NicknameHold))
+	return s.users.ReserveNickname(ctx, *before.Nickname, before.ID,
+		s.now().Add(s.cfg.Auth.NicknameHoldTTL))
 }
 
 func (s *ProfileService) PublicProfile(ctx context.Context, nickname string,

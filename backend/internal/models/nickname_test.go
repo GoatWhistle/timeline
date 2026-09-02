@@ -55,9 +55,3 @@ func TestNormalizeNicknameLowercasesAndTrims(t *testing.T) {
 		t.Fatalf("normalised nickname = %q, want %q", got, "jsmith")
 	}
 }
-
-func TestNicknameHoldIsAMonth(t *testing.T) {
-	if models.NicknameHold.Hours() != 30*24 {
-		t.Fatalf("nickname hold = %v, want 30 days", models.NicknameHold)
-	}
-}
