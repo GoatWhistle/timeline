@@ -8,8 +8,9 @@ export function OptionMark({ selected, className }: { selected: boolean; classNa
       aria-hidden="true"
       data-option-mark={selected ? 'on' : 'off'}
       className={cn(
-        'shrink-0 text-primary transition-opacity duration-base ease-out',
-        selected ? 'opacity-100' : 'opacity-0',
+        'shrink-0 text-primary',
+        'motion-safe:transition-[opacity,transform] motion-safe:duration-base motion-safe:ease-out',
+        selected ? 'scale-100 opacity-100' : 'scale-75 opacity-0',
         className,
       )}
     />
@@ -40,7 +41,8 @@ export function OptionCard({
       data-selected={selected ? 'true' : undefined}
       className={cn(
         'group flex cursor-pointer rounded-surface border',
-        'transition-colors duration-base ease-out',
+        'motion-safe:transition-[colors,box-shadow] motion-safe:duration-base motion-safe:ease-out',
+        selected && 'motion-safe:shadow-md',
         'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
         selected ? 'border-primary bg-accent-surface' : 'border-border hover:border-border-strong',
         className,
