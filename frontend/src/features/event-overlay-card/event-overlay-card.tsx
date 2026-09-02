@@ -6,6 +6,7 @@ import { useSession } from '@/shared/api/session'
 import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { ErrorState } from '@/shared/ui/data-display/error-state'
+import { PANEL_MOTION, PANEL_SURFACE, SCRIM } from '@/shared/ui/overlays/overlay-chrome'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
 import { Button } from '@/shared/ui/primitives/button'
 import { SkeletonDetail } from '@/shared/ui/states'
@@ -34,16 +35,7 @@ export function EventOverlayCard({
       }}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay
-          data-event-overlay-backdrop
-          className={cn(
-            'fixed inset-0 z-50 bg-black/60',
-            'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
-            'data-[state=open]:motion-safe:duration-base data-[state=open]:motion-safe:ease-out',
-            'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
-            'data-[state=closed]:motion-safe:duration-base-exit data-[state=closed]:motion-safe:ease-in',
-          )}
-        />
+        <DialogPrimitive.Overlay data-event-overlay-backdrop className={SCRIM} />
         <DialogPrimitive.Content
           data-event-overlay-card
           onOpenAutoFocus={(event) => {
@@ -53,13 +45,8 @@ export function EventOverlayCard({
           onCloseAutoFocus={returnFocus}
           className={cn(
             'fixed inset-0 z-50 m-auto flex h-fit max-h-[min(90vh,48rem)] w-[min(92vw,42rem)] flex-col overflow-hidden',
-            'rounded-surface border border-border bg-background shadow-lg',
-            'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
-            'data-[state=open]:motion-safe:zoom-in-95 data-[state=open]:motion-safe:duration-base',
-            'data-[state=open]:motion-safe:ease-out',
-            'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
-            'data-[state=closed]:motion-safe:zoom-out-95 data-[state=closed]:motion-safe:duration-base-exit',
-            'data-[state=closed]:motion-safe:ease-in',
+            PANEL_SURFACE,
+            PANEL_MOTION,
           )}
         >
           <header className="flex items-center gap-2 border-border border-b px-5 py-3">

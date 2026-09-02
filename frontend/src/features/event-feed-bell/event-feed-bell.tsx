@@ -9,6 +9,7 @@ import {
 } from '@/entities/event-feed/event-feed.queries'
 import type { SystemEventResponse } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { FLOATING_MOTION, FLOATING_SURFACE } from '@/shared/ui/overlays/overlay-chrome'
 import styles from './event-feed-bell.module.css'
 
 export function EventFeedBell() {
@@ -41,16 +42,7 @@ export function EventFeedBell() {
         <DropdownMenu.Content
           align="end"
           sideOffset={8}
-          className={cn(
-            'z-50 w-80 rounded-surface border border-border bg-surface-1 p-2 shadow-lg',
-            'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
-            'data-[state=open]:motion-safe:zoom-in-95',
-            'data-[side=top]:motion-safe:slide-in-from-bottom-2 data-[side=bottom]:motion-safe:slide-in-from-top-2',
-            'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
-            'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
-            'data-[state=closed]:motion-safe:zoom-out-95',
-            'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
-          )}
+          className={cn(FLOATING_SURFACE, FLOATING_MOTION, 'w-80 p-2')}
         >
           <div className={styles.header}>
             <span className="font-medium text-copy">{t('feed.title')}</span>

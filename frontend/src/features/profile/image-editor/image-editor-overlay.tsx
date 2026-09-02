@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { PANEL_SURFACE } from '@/shared/ui/overlays/overlay-chrome'
 import { Button } from '@/shared/ui/primitives/button'
 import { EditorCanvas } from './editor-canvas'
 import { isUsableCrop } from './editor-model'
@@ -51,7 +52,7 @@ export function ImageEditorOverlay({
         aria-label={t('imageEditor.cancel')}
         tabIndex={-1}
         onClick={onCancel}
-        className="absolute inset-0 cursor-default bg-black/70"
+        className="absolute inset-0 cursor-default bg-scrim"
       />
 
       <div
@@ -60,8 +61,8 @@ export function ImageEditorOverlay({
         aria-modal="true"
         aria-label={t('imageEditor.title')}
         className={cn(
-          'relative flex max-h-[min(94vh,56rem)] w-[min(94vw,60rem)] flex-col gap-4',
-          'overflow-y-auto rounded-surface border border-border bg-background p-5 shadow-lg',
+          'relative flex max-h-[min(94vh,56rem)] w-[min(94vw,60rem)] flex-col gap-4 overflow-y-auto p-5',
+          PANEL_SURFACE,
           'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95',
           'motion-safe:duration-zoom motion-safe:ease-out',
         )}

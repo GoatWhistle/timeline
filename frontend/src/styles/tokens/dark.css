@@ -35,6 +35,8 @@
   --destructive: var(--hue-crimson-300);
   --destructive-foreground: var(--linear-void);
 
+  --scrim: color-mix(in oklch, var(--linear-void) 70%, transparent);
+
   --border: var(--linear-smoke);
   --border-strong: var(--linear-steel);
   --input: var(--linear-steel);

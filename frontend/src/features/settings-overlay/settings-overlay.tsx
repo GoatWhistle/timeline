@@ -7,6 +7,7 @@ import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus
 import { cn } from '@/shared/styling/class-names/class-names'
 import { SlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/sliding-indicator'
 import { useSlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/use-sliding-indicator'
+import { PANEL_MOTION, PANEL_SURFACE, SCRIM } from '@/shared/ui/overlays/overlay-chrome'
 import { Button } from '@/shared/ui/primitives/button'
 import { SETTINGS_SECTIONS } from './sections'
 import { SettingsPanel } from './settings-panels'
@@ -30,15 +31,7 @@ export function SettingsOverlay() {
       }}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay
-          className={cn(
-            'fixed inset-0 z-50 bg-black/60',
-            'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
-            'data-[state=open]:motion-safe:duration-base data-[state=open]:motion-safe:ease-out',
-            'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
-            'data-[state=closed]:motion-safe:duration-base-exit data-[state=closed]:motion-safe:ease-in',
-          )}
-        />
+        <DialogPrimitive.Overlay className={SCRIM} />
         <DialogPrimitive.Content
           aria-label={t('settings.title')}
           onOpenAutoFocus={(event) => {
@@ -48,13 +41,8 @@ export function SettingsOverlay() {
           onCloseAutoFocus={returnFocus}
           className={cn(
             'fixed inset-0 z-50 m-auto flex h-[min(90vh,44rem)] w-[min(92vw,64rem)] overflow-hidden',
-            'rounded-surface border border-border bg-background shadow-lg',
-            'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
-            'data-[state=open]:motion-safe:zoom-in-95 data-[state=open]:motion-safe:duration-base',
-            'data-[state=open]:motion-safe:ease-out',
-            'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
-            'data-[state=closed]:motion-safe:zoom-out-95 data-[state=closed]:motion-safe:duration-base-exit',
-            'data-[state=closed]:motion-safe:ease-in',
+            PANEL_SURFACE,
+            PANEL_MOTION,
           )}
         >
           <DialogPrimitive.Title className="sr-only">{t('settings.title')}</DialogPrimitive.Title>

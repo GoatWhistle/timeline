@@ -52,6 +52,7 @@
   --color-highlight-fill-foreground: var(--highlight-fill-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-scrim: var(--scrim);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-input: var(--input);

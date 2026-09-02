@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { isCivilDate } from '@/shared/datetime/civil'
 import { toLocale } from '@/shared/i18n/locale'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { FLOATING_SURFACE } from '@/shared/ui/overlays/overlay-chrome'
 import type { RangeHighlight } from './calendar-grid'
 import { shortDayLabel } from './calendar-labels'
 import { CalendarPanel } from './calendar-panel'
@@ -105,7 +106,8 @@ export function DatePicker({
             close(true)
           }}
           className={cn(
-            'absolute top-full left-0 z-50 mt-2 w-max rounded-surface border border-border bg-popover p-3 shadow-lg',
+            FLOATING_SURFACE,
+            'absolute top-full left-0 mt-2 w-max p-3',
             'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95',
             'motion-safe:duration-fast motion-safe:ease-out',
           )}

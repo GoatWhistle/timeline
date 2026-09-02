@@ -37,6 +37,8 @@
   --destructive: var(--hue-crimson-500);
   --destructive-foreground: var(--neutral-000);
 
+  --scrim: color-mix(in oklch, var(--linear-void) 55%, transparent);
+
   --border: var(--neutral-300);
   --border-strong: var(--neutral-450);
   --input: var(--neutral-450);

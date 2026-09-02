@@ -13,7 +13,10 @@ const RESET = source('src/styles/reset.css')
 const MOTION = source('src/styles/tokens/motion.css')
 const THEME_TRANSITION = source('src/styles/theme-transition.css')
 
+const SHARED_OVERLAY_MOTION = 'src/shared/ui/overlays/overlay-chrome.ts'
+
 const ANIMATED_SURFACES = [
+  SHARED_OVERLAY_MOTION,
   'src/shared/ui/overlays/dialog.tsx',
   'src/shared/ui/overlays/tooltip.tsx',
   'src/shared/ui/forms/select.tsx',
@@ -24,6 +27,13 @@ const ANIMATED_SURFACES = [
   'src/features/event-overlay-card/event-overlay-card.tsx',
   'src/features/batch-result-panel/batch-result-panel.tsx',
 ]
+
+function motionOf(relative: string): string {
+  const text = source(relative)
+  if (relative === SHARED_OVERLAY_MOTION) return text
+  const borrows = /\b(SCRIM|PANEL_MOTION|FLOATING_MOTION)\b/.test(text)
+  return borrows ? `${text}\n${source(SHARED_OVERLAY_MOTION)}` : text
+}
 
 describe('reduced motion', () => {
   it('the reset silences animation, transition and scrolling', () => {
@@ -43,7 +53,7 @@ describe('reduced motion', () => {
 
   it('every entrance and exit animation is gated behind motion-safe', () => {
     for (const file of ANIMATED_SURFACES) {
-      const text = source(file)
+      const text = motionOf(file)
       for (const match of text.matchAll(/(?<!motion-safe:)\banimate-(in|out)\b/g)) {
         const start = Math.max(0, match.index - 40)
         throw new Error(
@@ -92,9 +102,18 @@ describe('motion tokens', () => {
     expect(read('--duration-base-exit')).toBeLessThan(read('--duration-base'))
   })
 
+  it('no animated surface spells a duration outside the scale', () => {
+    const SCALE = ['instant', 'fast', 'fast-exit', 'base', 'base-exit', 'panel', 'zoom', 'slow']
+    for (const file of ANIMATED_SURFACES) {
+      for (const [found, name] of source(file).matchAll(/\bduration-([a-z0-9.-]+)/g)) {
+        expect(SCALE, `${file} spells ${found} outside the duration scale`).toContain(name)
+      }
+    }
+  })
+
   it('every animated surface picks a duration and an easing from the scale', () => {
     for (const file of ANIMATED_SURFACES) {
-      const text = source(file)
+      const text = motionOf(file)
       expect(text, `${file} animates without a duration token`).toMatch(
         /motion-safe:duration-(instant|fast|fast-exit|base|base-exit|panel|zoom|slow)/,
       )

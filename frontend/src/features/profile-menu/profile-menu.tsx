@@ -6,6 +6,7 @@ import { useLogout } from '@/entities/session/session.queries'
 import { UserAvatar } from '@/entities/user/user-avatar'
 import { useSettingsOverlay } from '@/features/settings-overlay/use-settings-overlay'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { FLOATING_MOTION, FLOATING_SURFACE } from '@/shared/ui/overlays/overlay-chrome'
 
 const ITEM = cn(
   'flex h-8 cursor-pointer items-center gap-2 rounded-control px-2 text-copy outline-none',
@@ -65,14 +66,9 @@ export function ProfileMenu({
           align="start"
           sideOffset={6}
           className={cn(
-            'z-50 w-[calc(var(--pane-sidebar)-1.5rem)] rounded-control border border-border bg-popover p-1 shadow-lg',
-            'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
-            'data-[state=open]:motion-safe:zoom-in-95',
-            'data-[side=top]:motion-safe:slide-in-from-bottom-2 data-[side=bottom]:motion-safe:slide-in-from-top-2',
-            'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
-            'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
-            'data-[state=closed]:motion-safe:zoom-out-95',
-            'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
+            FLOATING_SURFACE,
+            FLOATING_MOTION,
+            'w-[calc(var(--pane-sidebar)-1.5rem)] p-1',
           )}
         >
           <DropdownMenu.Item className={ITEM} onSelect={() => openSettings('profile')}>

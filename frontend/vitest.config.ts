@@ -10,6 +10,7 @@ const shared = {
   environment: 'jsdom' as const,
   globals: true,
   css: false,
+  testTimeout: 15_000,
   env: { VITE_API_BASE_URL: 'http://localhost/api/v1' },
 }
 

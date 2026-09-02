@@ -69,6 +69,9 @@ describe('components read the semantic tier, never the palette under it', () => 
   })
 })
 
+const BARE_COLOUR =
+  /\b(?:bg|text|border|ring|fill|stroke|outline|shadow|divide|placeholder)-(?:black|white)\b/
+
 describe('colour is never spelled outside the token system', () => {
   it('no component uses a built-in Tailwind colour scale', () => {
     expect(offenders((source) => TAILWIND_COLOUR.test(source))).toEqual([])
@@ -76,6 +79,64 @@ describe('colour is never spelled outside the token system', () => {
 
   it('no component writes a raw colour literal', () => {
     expect(offenders((source) => LITERAL_COLOUR.test(source))).toEqual([])
+  })
+
+  it('no component paints with bare black or white instead of a token', () => {
+    expect(offenders((source) => BARE_COLOUR.test(source))).toEqual([])
+  })
+})
+
+describe('every overlay wears the one shared chrome', () => {
+  const CHROME = join(SRC, 'shared', 'ui', 'overlays', 'overlay-chrome.ts')
+  const chrome = readFileSync(CHROME, 'utf8')
+
+  const SCRIM_EXEMPT = ['features/profile/image-editor/image-editor-overlay.tsx']
+
+  const named = (file: string) => relative(SRC, file).replaceAll('\\', '/')
+
+  it('the scrim is declared once, as a token', () => {
+    expect(chrome).toContain('bg-scrim')
+  })
+
+  it('the scrim token exists in both themes', () => {
+    for (const file of ['semantic.css', 'dark.css']) {
+      expect(readFileSync(join(TOKENS, file), 'utf8')).toMatch(/--scrim:/)
+    }
+  })
+
+  it('nothing outside that module spells its own full-screen backdrop fill', () => {
+    const spelled = styledFiles
+      .filter((file) => readFileSync(file, 'utf8').includes('bg-scrim'))
+      .map(named)
+    expect(spelled).toEqual(SCRIM_EXEMPT)
+  })
+
+  it('the chrome declares the raised and the floating surface', () => {
+    expect(chrome).toContain('bg-background shadow-lg')
+    expect(chrome).toContain('bg-popover')
+  })
+
+  it('no component respells a raised or floating panel surface by hand', () => {
+    const RAISED = /rounded-surface[^'\n]*bg-background[^'\n]*shadow-lg/
+    const FLOATING = /rounded-(?:surface|control)[^'\n]*bg-popover[^'\n]*shadow-lg/
+    const offenders = styledFiles
+      .filter((file) => {
+        const text = readFileSync(file, 'utf8')
+        return RAISED.test(text) || FLOATING.test(text)
+      })
+      .map(named)
+    expect(offenders).toEqual([])
+  })
+
+  it('every dropdown panel borrows the floating surface rather than picking its own fill', () => {
+    const DROPDOWN = /DropdownMenu\.Content|PopoverPrimitive\.Content/
+    const users = styledFiles.filter((file) => DROPDOWN.test(readFileSync(file, 'utf8')))
+    expect(users.length).toBeGreaterThan(0)
+    for (const file of users) {
+      expect(readFileSync(file, 'utf8'), `${named(file)} styles a dropdown by hand`).toContain(
+        'FLOATING_SURFACE',
+      )
+    }
   })
 })
 

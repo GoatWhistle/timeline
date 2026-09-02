@@ -4,14 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { browserTimeZone } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Input } from '@/shared/ui/forms/input'
-import {
-  cityOf,
-  clockIn,
-  matchesQuery,
-  offsetOf,
-  regionOf,
-  zoneOptions,
-} from './zone-list'
+import { cityOf, clockIn, matchesQuery, offsetOf, regionOf, zoneOptions } from './zone-list'
 
 function useMinuteClock(): Date {
   const [now, setNow] = useState(() => new Date())
