@@ -76,6 +76,67 @@ func (r *Entries) ListEventIDs(ctx context.Context, teamID uuid.UUID) ([]uuid.UU
 	return ids, mapError(rows.Err())
 }
 
+func (r *Entries) ListForTeam(ctx context.Context, teamID uuid.UUID) ([]models.TeamEventEntry, error) {
+	rows, err := r.db.Q(ctx).Query(ctx,
+		`SELECT `+entryColumns+` FROM team_event_entries WHERE team_id = $1 ORDER BY entered_at`,
+		teamID)
+	if err != nil {
+		return nil, mapError(err)
+	}
+	defer rows.Close()
+
+	items := make([]models.TeamEventEntry, 0, 4)
+	for rows.Next() {
+		var e models.TeamEventEntry
+		if err := rows.Scan(&e.ID, &e.DisplayID, &e.TeamID, &e.EventID,
+			&e.EnteredAt, &e.CreatedAt, &e.UpdatedAt); err != nil {
+			return nil, mapError(err)
+		}
+		items = append(items, e)
+	}
+	return items, mapError(rows.Err())
+}
+
+func (r *Entries) StandingByEntry(ctx context.Context, entryIDs []uuid.UUID,
+) (map[uuid.UUID]models.TeamEventStanding, error) {
+	result := make(map[uuid.UUID]models.TeamEventStanding, len(entryIDs))
+	if len(entryIDs) == 0 {
+		return result, nil
+	}
+	rows, err := r.db.Q(ctx).Query(ctx, `
+		SELECT en.id,
+			count(tp.id),
+			count(*) FILTER (WHERE p.participation_status = 'ASSIGNED'),
+			count(*) FILTER (WHERE p.participation_status = 'ASSIGNED' AND s.status = 'DONE'),
+			max(e.team_size_min),
+			max(e.team_size_max)
+		FROM team_event_entries en
+		JOIN events e ON e.id = en.event_id
+		LEFT JOIN team_event_participants tp ON tp.entry_id = en.id
+		LEFT JOIN team_members m ON m.id = tp.member_id
+		LEFT JOIN event_participants p ON p.user_id = m.user_id AND p.event_id = e.id
+		LEFT JOIN registration_statuses s ON s.participant_id = p.id
+		WHERE en.id = ANY($1)
+		GROUP BY en.id`, entryIDs)
+	if err != nil {
+		return nil, mapError(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			id       uuid.UUID
+			standing models.TeamEventStanding
+		)
+		if err := rows.Scan(&id, &standing.RosterSize, &standing.AssignedMembers,
+			&standing.RegisteredCount, &standing.TeamSizeMin, &standing.TeamSizeMax); err != nil {
+			return nil, mapError(err)
+		}
+		result[id] = standing
+	}
+	return result, mapError(rows.Err())
+}
+
 func (r *Entries) Standing(ctx context.Context, entryID, eventID uuid.UUID) (models.TeamEventStanding, error) {
 	var standing models.TeamEventStanding
 	err := r.db.Q(ctx).QueryRow(ctx, `

@@ -26,6 +26,8 @@ func BuildCandidate(h *models.Event, r *models.Registration, p *models.EventPart
 		StatusID:          statusID,
 		TodoCycle:         todoCycle,
 		RecipientID:       u.ID,
+		RecipientLocale:   u.Locale,
+		RecipientTimezone: u.Timezone,
 		RecipientChannels: models.RecipientChannels{
 			TelegramLinked:   u.TelegramLinked(),
 			EmailVerified:    u.EmailVerified(),

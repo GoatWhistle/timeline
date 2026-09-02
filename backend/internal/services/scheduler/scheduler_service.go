@@ -80,20 +80,15 @@ func (s *SchedulerService) ReconcileEvent(ctx context.Context, eventID uuid.UUID
 	cursor := uuid.Nil
 
 	for {
-		candidates, err := s.scheduler.Candidates(ctx, cursor, s.cfg.Notify.SchedulerBatch)
+		candidates, err := s.scheduler.CandidatesForEvent(ctx, eventID, cursor,
+			s.cfg.Notify.SchedulerBatch)
 		if err != nil {
 			return err
 		}
 		if len(candidates) == 0 {
 			return nil
 		}
-		filtered := make([]models.ReconcileCandidate, 0, len(candidates))
-		for _, c := range candidates {
-			if c.EventID == eventID {
-				filtered = append(filtered, c)
-			}
-		}
-		if err := s.processBatch(ctx, filtered, result); err != nil {
+		if err := s.processBatch(ctx, candidates, result); err != nil {
 			return err
 		}
 		cursor = candidates[len(candidates)-1].StatusID

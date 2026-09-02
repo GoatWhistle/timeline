@@ -1105,6 +1105,7 @@ definitions:
         example: https://example.com/register
         type: string
       rule_id:
+        example: nr_42ej2s5gh7e8
         type: string
       scheduled_at:
         type: string

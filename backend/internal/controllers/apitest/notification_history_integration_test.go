@@ -4,7 +4,9 @@ package apitest_test
 
 import (
 	"net/http"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
@@ -127,4 +129,36 @@ func TestNotificationHistoryNeverReturnsTheWholePayload(t *testing.T) {
 				"not the payload", field)
 		}
 	}
+}
+
+func TestPrimaryNotificationAtAssignmentUsesTheRecipientLanguage(t *testing.T) {
+	s := support.NewStack(t)
+	f := s.Seed(t)
+	setLocale(s, t, f.Member.ID, "en")
+
+	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+f.OtherEvent+"/registration",
+		map[string]any{
+			"url":         "https://example.com/other",
+			"deadline_at": time.Now().UTC().Add(36 * time.Hour).Format(time.RFC3339),
+		}), http.StatusCreated, "creating the second registration")
+
+	member := s.Session(t, f.Member)
+	support.RequireStatus(t, member.Post("/events/"+f.OtherEvent+"/join",
+		map[string]any{"team_role": "Developer"}), http.StatusCreated, "joining the open event")
+
+	page := notificationHistory(member, t)
+	for _, item := range page.Items {
+		if item.EventTitle == nil || *item.EventTitle != "Foreign event" {
+			continue
+		}
+		if item.Preview == nil {
+			t.Fatal("the primary notification carries no preview")
+		}
+		if !strings.HasPrefix(*item.Preview, "Registration required") {
+			t.Fatalf("an English recipient received %q: the notification created inside the "+
+				"assignment transaction ignored the language in their profile", *item.Preview)
+		}
+		return
+	}
+	t.Fatal("joining the event created no primary notification")
 }

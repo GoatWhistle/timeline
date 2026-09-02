@@ -9853,7 +9853,8 @@ const docTemplate = `{
                     "example": "https://example.com/register"
                 },
                 "rule_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "nr_42ej2s5gh7e8"
                 },
                 "scheduled_at": {
                     "type": "string"

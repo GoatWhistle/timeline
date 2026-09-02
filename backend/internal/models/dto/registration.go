@@ -4,8 +4,6 @@ import (
 	"time"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-
-	"github.com/google/uuid"
 )
 
 type RegistrationResponse struct {
@@ -92,7 +90,7 @@ type UpdateRuleRequest struct {
 
 type NotificationPreviewResponse struct {
 	Type            models.NotificationType `json:"type"`
-	RuleID          *uuid.UUID              `json:"rule_id,omitempty"`
+	RuleID          *string                 `json:"rule_id,omitempty" example:"nr_42ej2s5gh7e8"`
 	Language        string                  `json:"language" example:"ru"`
 	Subject         string                  `json:"subject" example:"Timeline: register for the event"`
 	Body            string                  `json:"body"`

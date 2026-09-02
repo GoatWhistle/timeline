@@ -74,21 +74,9 @@ func (r *Rosters) CountForUpdate(ctx context.Context, entryID uuid.UUID) (int, e
 
 func (r *Rosters) List(ctx context.Context, entryID uuid.UUID, eventID uuid.UUID,
 ) ([]dto.TeamRosterMemberResponse, error) {
-	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT tp.display_id, m.display_id, m.state,
-		       u.display_id, u.first_name, u.middle_name, u.last_name, u.nickname, u.email, u.is_active,
-		       t.lead_user_id = m.user_id,
-		       p.participation_status IS NOT DISTINCT FROM 'ASSIGNED',
-		       s.status
-		FROM team_event_participants tp
-		JOIN team_members m ON m.id = tp.member_id
-		JOIN teams t ON t.id = tp.team_id
-		JOIN users u ON u.id = m.user_id
-		LEFT JOIN event_participants p ON p.user_id = m.user_id AND p.event_id = $2
-		LEFT JOIN registration_statuses s ON s.participant_id = p.id
-		WHERE tp.entry_id = $1
-		ORDER BY t.lead_user_id = m.user_id DESC, lower(u.last_name), lower(u.first_name)`,
-		entryID, eventID)
+	rows, err := r.db.Q(ctx).Query(ctx, rosterSelect+`
+		WHERE tp.entry_id = $1 AND e.id = $2
+		`+rosterOrder, entryID, eventID)
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -96,15 +84,67 @@ func (r *Rosters) List(ctx context.Context, entryID uuid.UUID, eventID uuid.UUID
 
 	items := make([]dto.TeamRosterMemberResponse, 0, 8)
 	for rows.Next() {
-		var item dto.TeamRosterMemberResponse
-		if err := rows.Scan(&item.ID, &item.MemberID, &item.State,
-			&item.User.ID, &item.User.FirstName, &item.User.MiddleName, &item.User.LastName,
-			&item.User.Nickname, &item.User.Email, &item.User.IsActive,
-			&item.IsLead, &item.Assigned, &item.RegistrationStatus); err != nil {
-			return nil, mapError(err)
+		var entry uuid.UUID
+		item, err := scanRosterMember(rows, &entry)
+		if err != nil {
+			return nil, err
 		}
-		item.User.Fill(locale.Default)
 		items = append(items, item)
 	}
 	return items, mapError(rows.Err())
+}
+
+func (r *Rosters) ListByEntries(ctx context.Context, entryIDs []uuid.UUID,
+) (map[uuid.UUID][]dto.TeamRosterMemberResponse, error) {
+	result := make(map[uuid.UUID][]dto.TeamRosterMemberResponse, len(entryIDs))
+	if len(entryIDs) == 0 {
+		return result, nil
+	}
+	rows, err := r.db.Q(ctx).Query(ctx, rosterSelect+`
+		WHERE tp.entry_id = ANY($1)
+		`+rosterOrder, entryIDs)
+	if err != nil {
+		return nil, mapError(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var entry uuid.UUID
+		item, err := scanRosterMember(rows, &entry)
+		if err != nil {
+			return nil, err
+		}
+		result[entry] = append(result[entry], item)
+	}
+	return result, mapError(rows.Err())
+}
+
+const rosterSelect = `
+	SELECT tp.entry_id, tp.display_id, m.display_id, m.state,
+	       u.display_id, u.first_name, u.middle_name, u.last_name, u.nickname, u.email, u.is_active,
+	       t.lead_user_id = m.user_id,
+	       p.participation_status IS NOT DISTINCT FROM 'ASSIGNED',
+	       s.status
+	FROM team_event_participants tp
+	JOIN team_event_entries en ON en.id = tp.entry_id
+	JOIN events e ON e.id = en.event_id
+	JOIN team_members m ON m.id = tp.member_id
+	JOIN teams t ON t.id = tp.team_id
+	JOIN users u ON u.id = m.user_id
+	LEFT JOIN event_participants p ON p.user_id = m.user_id AND p.event_id = e.id
+	LEFT JOIN registration_statuses s ON s.participant_id = p.id`
+
+const rosterOrder = `ORDER BY tp.entry_id,
+	t.lead_user_id = m.user_id DESC, lower(u.last_name), lower(u.first_name)`
+
+func scanRosterMember(row pgx.Row, entryID *uuid.UUID) (dto.TeamRosterMemberResponse, error) {
+	var item dto.TeamRosterMemberResponse
+	if err := row.Scan(entryID, &item.ID, &item.MemberID, &item.State,
+		&item.User.ID, &item.User.FirstName, &item.User.MiddleName, &item.User.LastName,
+		&item.User.Nickname, &item.User.Email, &item.User.IsActive,
+		&item.IsLead, &item.Assigned, &item.RegistrationStatus); err != nil {
+		return item, mapError(err)
+	}
+	item.User.Fill(locale.Default)
+	return item, nil
 }

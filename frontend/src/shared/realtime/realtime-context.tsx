@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useSession } from '@/shared/api/session'
 import { createEditingGuard, EditingGuardContext } from './editing-guard'
 import { backoffDelay, type ConnectionState, parseEnvelope, realtimeUrl } from './envelope'
 import { useEditingFocus } from './use-editing-focus'
@@ -18,8 +19,9 @@ export function useRealtime(): RealtimeValue {
 
 const DEGRADED_AFTER_MS = 5_000
 
-export function RealtimeProvider({ enabled, children }: { enabled: boolean; children: ReactNode }) {
+export function RealtimeProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
+  const { isAuthenticated: enabled } = useSession()
   const [state, setState] = useState<ConnectionState>('connecting')
   const [degraded, setDegraded] = useState(false)
   const guard = useMemo(createEditingGuard, [])
@@ -32,6 +34,8 @@ export function RealtimeProvider({ enabled, children }: { enabled: boolean; chil
       setState('offline')
       return
     }
+
+    setState('connecting')
 
     let socket: WebSocket | null = null
     let attempt = 0

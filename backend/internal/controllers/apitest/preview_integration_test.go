@@ -206,3 +206,18 @@ func TestNotificationPreviewReportsTheAbsenceOfAChannel(t *testing.T) {
 		t.Fatalf("a verified recipient was not reported as reachable by email: %+v", reachable)
 	}
 }
+
+func TestNotificationPreviewNamesTheRuleByDisplayIdentifier(t *testing.T) {
+	s := support.NewStack(t)
+	f := s.Seed(t)
+
+	resp := f.AdminClient.Get(previewPath(f.StatusID, &f.RegRuleID))
+	support.RequireStatus(t, resp, http.StatusOK, "previewing a reminder")
+	requireNoUUID(t, resp.Body, "the notification preview")
+
+	var body previewBody
+	resp.Decode(t, &body)
+	if body.RuleID == nil || *body.RuleID != f.RegRuleID {
+		t.Fatalf("the preview named the rule %v instead of %s", body.RuleID, f.RegRuleID)
+	}
+}

@@ -14,7 +14,7 @@ export function App() {
     <I18nProvider>
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
-          <RealtimeProvider enabled>
+          <RealtimeProvider>
             <ShortcutProvider>
               <AppRouter />
               <Toaster position="bottom-right" richColors closeButton />

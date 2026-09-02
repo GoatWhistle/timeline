@@ -120,18 +120,22 @@ func (s *TeamService) List(ctx context.Context, actor models.Actor) (*dto.TeamLi
 	if actor.IsSystem() {
 		return nil, models.NewUnauthorized("authentication is required")
 	}
-	teams, err := s.teams.ListForUser(ctx, actor.UserID)
+	rows, err := s.teams.SummariesForUser(ctx, actor.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	items := make([]dto.TeamResponse, 0, len(teams))
-	for index := range teams {
-		item, err := s.summary(ctx, actor, &teams[index])
-		if err != nil {
-			return nil, err
-		}
-		items = append(items, item)
+	items := make([]dto.TeamResponse, 0, len(rows))
+	for index := range rows {
+		items = append(items, dto.TeamResponse{
+			ID:        rows[index].Team.DisplayID,
+			Name:      rows[index].Team.Name,
+			Lead:      rows[index].Lead,
+			IsLead:    rows[index].Team.LedBy(actor.UserID),
+			MyState:   rows[index].MyState,
+			CreatedAt: rows[index].Team.CreatedAt,
+			UpdatedAt: rows[index].Team.UpdatedAt,
+		})
 	}
 	return &dto.TeamListResponse{Items: items}, nil
 }

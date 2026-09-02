@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
@@ -45,6 +46,24 @@ func (r *Scheduler) Candidates(ctx context.Context, after uuid.UUID, limit int) 
 	if err != nil {
 		return nil, mapError(err)
 	}
+	return scanCandidates(rows, limit)
+}
+
+func (r *Scheduler) CandidatesForEvent(ctx context.Context, eventID, after uuid.UUID, limit int,
+) ([]models.ReconcileCandidate, error) {
+	rows, err := r.db.Q(ctx).Query(ctx, reconcileSelect+`
+		WHERE`+reconcileWhere+`
+		  AND s.event_id = $1
+		  AND ($2::uuid IS NULL OR s.id > $2)
+		ORDER BY s.id
+		LIMIT $3`, eventID, postgres.NullUUID(after), limit)
+	if err != nil {
+		return nil, mapError(err)
+	}
+	return scanCandidates(rows, limit)
+}
+
+func scanCandidates(rows pgx.Rows, limit int) ([]models.ReconcileCandidate, error) {
 	defer rows.Close()
 
 	items := make([]models.ReconcileCandidate, 0, limit)

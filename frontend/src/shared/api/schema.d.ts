@@ -10723,6 +10723,7 @@ export interface components {
             language: string;
             /** @example https://example.com/register */
             registration_url: string;
+            /** @example nr_42ej2s5gh7e8 */
             rule_id: string;
             /** Format: date-time */
             scheduled_at: string;

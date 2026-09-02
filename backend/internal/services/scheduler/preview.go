@@ -50,7 +50,7 @@ func (s *SchedulerService) PreviewNotification(ctx context.Context, actor models
 
 	var override *models.Channel
 	if rule != nil {
-		id := rule.ID
+		id := rule.DisplayID
 		resp.RuleID = &id
 		override = rule.ChannelOverride
 		trigger := rule.TriggerAt(candidate.DeadlineAt)

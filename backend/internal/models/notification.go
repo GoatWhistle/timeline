@@ -6,6 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	MaxAttemptCount      = 4
+	MaxRuleSlots         = 10
+	MaxRuleOffsetMinutes = 525600
+)
+
 type NotificationPayload struct {
 	EventTitle      string    `json:"event_title"`
 	RegistrationURL string    `json:"registration_url"`

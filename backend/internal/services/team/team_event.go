@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -69,31 +70,67 @@ func (s *TeamService) EventStanding(ctx context.Context, actor models.Actor, tea
 
 func (s *TeamService) ListEvents(ctx context.Context, actor models.Actor, teamID uuid.UUID,
 ) (*dto.TeamEventEntryListResponse, error) {
-	if _, err := s.visible(ctx, actor, teamID); err != nil {
+	teamRow, err := s.visible(ctx, actor, teamID)
+	if err != nil {
 		return nil, err
 	}
-	eventIDs, err := s.entries.ListEventIDs(ctx, teamID)
+	entries, err := s.entries.ListForTeam(ctx, teamID)
 	if err != nil {
 		return nil, err
 	}
 
-	items := make([]dto.TeamEventEntryResponse, 0, len(eventIDs))
-	for _, eventID := range eventIDs {
-		entry, err := s.entries.GetByTeamEvent(ctx, teamID, eventID)
-		if err != nil {
-			return nil, err
+	entryIDs := make([]uuid.UUID, 0, len(entries))
+	eventIDs := make([]uuid.UUID, 0, len(entries))
+	for i := range entries {
+		entryIDs = append(entryIDs, entries[i].ID)
+		eventIDs = append(eventIDs, entries[i].EventID)
+	}
+
+	labels, err := s.events.LabelsByIDs(ctx, eventIDs)
+	if err != nil {
+		return nil, err
+	}
+	standings, err := s.entries.StandingByEntry(ctx, entryIDs)
+	if err != nil {
+		return nil, err
+	}
+	rosters, err := s.rosters.ListByEntries(ctx, entryIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]dto.TeamEventEntryResponse, 0, len(entries))
+	for i := range entries {
+		label, ok := labels[entries[i].EventID]
+		if !ok {
+			return nil, models.NewNotFound("event not found")
 		}
-		eventRow, err := s.events.GetByID(ctx, eventID)
-		if err != nil {
-			return nil, err
-		}
-		item, err := s.entryResponse(ctx, entry, eventRow)
-		if err != nil {
-			return nil, err
-		}
-		items = append(items, *item)
+		items = append(items, buildEntryResponse(&entries[i], teamRow.DisplayID,
+			label, standings[entries[i].ID], rosters[entries[i].ID]))
 	}
 	return &dto.TeamEventEntryListResponse{Items: items}, nil
+}
+
+func buildEntryResponse(entry *models.TeamEventEntry, teamDisplayID string,
+	label event.EventLabel, standing models.TeamEventStanding,
+	roster []dto.TeamRosterMemberResponse) dto.TeamEventEntryResponse {
+	if roster == nil {
+		roster = []dto.TeamRosterMemberResponse{}
+	}
+	return dto.TeamEventEntryResponse{
+		ID:              entry.DisplayID,
+		TeamID:          teamDisplayID,
+		EventID:         label.DisplayID,
+		EventTitle:      label.Title,
+		EnteredAt:       entry.EnteredAt,
+		RosterSize:      standing.RosterSize,
+		AssignedMembers: standing.AssignedMembers,
+		RegisteredCount: standing.RegisteredCount,
+		TeamSizeMin:     standing.TeamSizeMin,
+		TeamSizeMax:     standing.TeamSizeMax,
+		Registered:      standing.Registered(),
+		Roster:          roster,
+	}
 }
 
 func (s *TeamService) entryResponse(ctx context.Context, entry *models.TeamEventEntry,
@@ -110,18 +147,7 @@ func (s *TeamService) entryResponse(ctx context.Context, entry *models.TeamEvent
 	if err != nil {
 		return nil, err
 	}
-	return &dto.TeamEventEntryResponse{
-		ID:              entry.DisplayID,
-		TeamID:          teamRow.DisplayID,
-		EventID:         eventRow.DisplayID,
-		EventTitle:      eventRow.Title,
-		EnteredAt:       entry.EnteredAt,
-		RosterSize:      standing.RosterSize,
-		AssignedMembers: standing.AssignedMembers,
-		RegisteredCount: standing.RegisteredCount,
-		TeamSizeMin:     standing.TeamSizeMin,
-		TeamSizeMax:     standing.TeamSizeMax,
-		Registered:      standing.Registered(),
-		Roster:          roster,
-	}, nil
+	response := buildEntryResponse(entry, teamRow.DisplayID,
+		event.EventLabel{DisplayID: eventRow.DisplayID, Title: eventRow.Title}, standing, roster)
+	return &response, nil
 }
