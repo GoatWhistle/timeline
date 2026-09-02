@@ -9,6 +9,7 @@
   "already_on_roster": "This person is already on the lineup",
   "already_present": "A task with this title already exists.",
   "already_removed": "The participant has already been removed from the roster.",
+  "already_set": "The participant already holds this status.",
   "artifact_limit_reached": "The artifact limit for this event is reached.",
   "calendar_feed_exists": "A calendar feed already exists. Rotate it to get a new address.",
   "conflict": "The operation conflicts with the current state.",

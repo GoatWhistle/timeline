@@ -1,4 +1,6 @@
 .mark {
+  --mark-ring: inset 0 0 0 0 transparent;
+  --mark-halo: 0 0 0 0 transparent;
   position: absolute;
   top: 50%;
   z-index: 2;
@@ -9,6 +11,7 @@
   border: 1.5px solid var(--card);
   background-color: var(--moment-color);
   border-radius: 1px;
+  box-shadow: var(--mark-ring), var(--mark-halo);
   cursor: pointer;
 }
 
@@ -43,7 +46,7 @@
 .mark[data-hollow="true"] {
   background-color: var(--card);
   border-color: var(--moment-color);
-  box-shadow: inset 0 0 0 2px var(--moment-color);
+  --mark-ring: inset 0 0 0 2px var(--moment-color);
 }
 
 .mark[data-urgency="overdue"] {
@@ -59,14 +62,14 @@
 .mark[data-urgency="soon"] {
   border-radius: 50%;
   background-color: var(--card);
-  box-shadow: inset 0 0 0 2.5px var(--moment-color);
+  --mark-ring: inset 0 0 0 2.5px var(--moment-color);
 }
 
 .mark[data-urgency="calm"] {
   width: calc(var(--mark-size) - 2px);
   height: calc(var(--mark-size) - 2px);
   background-color: var(--card);
-  box-shadow: inset 0 0 0 1.5px var(--moment-color);
+  --mark-ring: inset 0 0 0 1.5px var(--moment-color);
 }
 
 .mark[data-urgency="done"] {
@@ -75,17 +78,17 @@
 
 .mark[data-urgency="waived"] {
   background-color: var(--card);
-  box-shadow: inset 0 0 0 1.5px var(--moment-color);
+  --mark-ring: inset 0 0 0 1.5px var(--moment-color);
   opacity: 0.75;
 }
 
 .mark[data-highlighted="true"] {
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--moment-color) 35%, transparent);
+  --mark-halo: 0 0 0 3px color-mix(in oklch, var(--moment-color) 35%, transparent);
 }
 
 .mark:hover,
 .mark[data-state="open"] {
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--moment-color) 45%, transparent);
+  --mark-halo: 0 0 0 3px color-mix(in oklch, var(--moment-color) 45%, transparent);
 }
 
 .mark:focus-visible {

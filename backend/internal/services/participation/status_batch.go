@@ -28,6 +28,14 @@ func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, eventI
 			result.Failed++
 			continue
 		}
+		if status.Status == req.Status {
+			result.Results = append(result.Results, dto.BatchItemResult{
+				Index: index, Key: req.ParticipantIDs[index], ID: status.DisplayID, Status: "skipped",
+				Code: "already_set", Message: "the participant already holds this status",
+			})
+			result.Skipped++
+			continue
+		}
 		_, err := s.AdminChange(ctx, actor, status.ID, dto.AdminChangeStatusRequest{Status: req.Status, Note: req.Note})
 		item := dto.BatchItemResult{Index: index, Key: req.ParticipantIDs[index]}
 		if err == nil {

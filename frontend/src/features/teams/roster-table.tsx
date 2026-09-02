@@ -61,7 +61,7 @@ export function RosterTable({
           <TableHeader>
             <TableRow>
               <TableHead>{t('columnUser')}</TableHead>
-              <TableHead className="w-40">{t('columnState')}</TableHead>
+              <TableHead className="w-56">{t('columnState')}</TableHead>
               {isLead && <TableHead className="w-56">{t('columnActions')}</TableHead>}
             </TableRow>
           </TableHeader>

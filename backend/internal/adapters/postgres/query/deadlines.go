@@ -80,7 +80,7 @@ func (r *Timeline) Deadlines(ctx context.Context, overdue bool, within time.Dura
 
 	args = append(args, page.Limit(), page.Offset())
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT h.display_id, h.title, p.id, u.id, u.first_name, u.middle_name, u.last_name,
+		SELECT h.display_id, h.title, p.display_id, u.display_id, u.first_name, u.middle_name, u.last_name,
 		       u.nickname, u.email, u.is_active,
 		       r.deadline_at, s.status `+from+`
 		ORDER BY r.deadline_at

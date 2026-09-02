@@ -10437,6 +10437,7 @@ export interface components {
             event_title: string;
             /** @example 120 */
             overdue_minutes?: number;
+            /** @example pa_42ej2s5gh7e8 */
             participant_id: string;
             status: components["schemas"]["models.RegistrationStatusValue"];
             user: components["schemas"]["dto.UserSummary"];

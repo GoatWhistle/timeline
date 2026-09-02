@@ -47,9 +47,9 @@ export function EventOverlayBody({
         <div className="flex flex-wrap items-center gap-2">
           <EventColorMark color={card.color} />
           <EventStateBadge state={card.state} />
-          <span className="rounded-control bg-event-fill px-2 py-0.5 text-copy text-event-tint">
+          <Badge className="border-transparent bg-event-fill text-event-tint">
             {formatDateRange(card.startAt, card.endAt)}
-          </span>
+          </Badge>
         </div>
       </div>
 

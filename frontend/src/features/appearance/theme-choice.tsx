@@ -1,4 +1,4 @@
-import { Monitor, Moon, Sun } from 'lucide-react'
+import { Check, Monitor, Moon, Sun } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -57,6 +57,13 @@ export function ThemeChoice() {
               <span className={cn('truncate', selected ? 'font-medium' : 'text-muted-foreground')}>
                 {t(labelKey)}
               </span>
+              <Check
+                aria-hidden="true"
+                className={cn(
+                  'ml-auto size-3.5 shrink-0 text-primary transition-opacity duration-base ease-out',
+                  selected ? 'opacity-100' : 'opacity-0',
+                )}
+              />
             </span>
             <input
               type="radio"

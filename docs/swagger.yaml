@@ -591,6 +591,7 @@ definitions:
         example: 120
         type: integer
       participant_id:
+        example: pa_42ej2s5gh7e8
         type: string
       status:
         allOf:

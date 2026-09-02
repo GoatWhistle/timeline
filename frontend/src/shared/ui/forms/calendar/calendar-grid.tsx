@@ -79,12 +79,12 @@ export function CalendarGrid({
     <table
       aria-labelledby={labelledBy}
       onKeyDown={onKeyDown}
-      className="border-separate border-spacing-1"
+      className="w-max table-fixed border-separate border-spacing-1"
     >
       <thead>
         <tr>
           {weekdays.map((weekday) => (
-            <th key={weekday.long} scope="col" abbr={weekday.long} className="font-normal">
+            <th key={weekday.long} scope="col" abbr={weekday.long} className="w-9 font-normal">
               <span aria-hidden="true" className="text-caption text-muted-foreground">
                 {weekday.short}
               </span>

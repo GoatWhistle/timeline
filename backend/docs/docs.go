@@ -9082,7 +9082,8 @@ const docTemplate = `{
                     "example": 120
                 },
                 "participant_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "pa_42ej2s5gh7e8"
                 },
                 "status": {
                     "enum": [

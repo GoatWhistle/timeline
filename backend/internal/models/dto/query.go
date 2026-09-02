@@ -85,7 +85,7 @@ type ScheduleResponse struct {
 type DeadlineItem struct {
 	EventID        string                         `json:"event_id" example:"ev_gma9hq8a96q5"`
 	EventTitle     string                         `json:"event_title"`
-	ParticipantID  uuid.UUID                      `json:"participant_id"`
+	ParticipantID  string                         `json:"participant_id" example:"pa_42ej2s5gh7e8"`
 	User           UserSummary                    `json:"user"`
 	DeadlineAt     time.Time                      `json:"deadline_at"`
 	Status         models.RegistrationStatusValue `json:"status" enums:"TODO,DONE,NOT_REQUIRED"`

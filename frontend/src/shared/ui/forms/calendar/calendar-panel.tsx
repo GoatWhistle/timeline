@@ -77,7 +77,9 @@ export function CalendarPanel({
         onKeyDown={handleKeyDown}
       />
 
-      <p className="text-caption text-muted-foreground">{t('calendar.keyboardHint')}</p>
+      <p className="max-w-[17rem] text-caption text-muted-foreground">
+        {t('calendar.keyboardHint')}
+      </p>
     </div>
   )
 }
