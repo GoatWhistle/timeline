@@ -2,9 +2,9 @@ import { Check, Monitor, Moon, Sun } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
-import type { ResolvedTheme, ThemePreference } from '@/shared/theme/theme'
+import type { ThemePreference } from '@/shared/theme/theme'
 import { useTheme } from '@/shared/theme/theme-context'
-import { ThemePreview } from './theme-preview'
+import { ThemePreview, ThemePreviewSplit } from './theme-preview'
 
 type Option = {
   value: ThemePreference
@@ -18,12 +18,16 @@ const OPTIONS: Option[] = [
   { value: 'system', labelKey: 'theme.system', icon: Monitor },
 ]
 
-function previewFor(value: ThemePreference, system: ResolvedTheme): ResolvedTheme {
-  return value === 'system' ? system : value
+function previewClass(selected: boolean): string {
+  return cn(
+    'h-16 w-full motion-safe:transition-transform motion-safe:duration-base',
+    'motion-safe:ease-out motion-safe:group-hover:scale-[1.02]',
+    selected && 'motion-safe:scale-[1.02]',
+  )
 }
 
 export function ThemeChoice() {
-  const { preference, resolved, setPreference, systemTheme } = useTheme()
+  const { preference, setPreference } = useTheme()
   const { t } = useTranslation()
 
   return (
@@ -44,14 +48,11 @@ export function ThemeChoice() {
                 : 'border-border hover:border-border-strong',
             )}
           >
-            <ThemePreview
-              theme={previewFor(value, systemTheme)}
-              className={cn(
-                'h-16 w-full motion-safe:transition-transform motion-safe:duration-base',
-                'motion-safe:ease-out motion-safe:group-hover:scale-[1.02]',
-                selected && 'motion-safe:scale-[1.02]',
-              )}
-            />
+            {value === 'system' ? (
+              <ThemePreviewSplit className={previewClass(selected)} />
+            ) : (
+              <ThemePreview theme={value} className={previewClass(selected)} />
+            )}
             <span className="flex items-center gap-1.5 text-caption">
               <Icon className="size-3.5 shrink-0" aria-hidden="true" />
               <span className={cn('truncate', selected ? 'font-medium' : 'text-muted-foreground')}>
@@ -76,9 +77,6 @@ export function ThemeChoice() {
           </label>
         )
       })}
-      <p className="col-span-3 text-meta text-muted-foreground" data-theme-resolved={resolved}>
-        {t(resolved === 'dark' ? 'theme.activeDark' : 'theme.activeLight')}
-      </p>
     </fieldset>
   )
 }

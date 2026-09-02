@@ -1,4 +1,5 @@
 import { cn } from '@/shared/styling/class-names/class-names'
+import styles from './logo-mark.module.css'
 
 export function LogoMark({ className }: { className?: string }) {
   return (
@@ -13,10 +14,10 @@ export function LogoMark({ className }: { className?: string }) {
         stroke="currentColor"
         strokeWidth="2.5"
         strokeLinecap="round"
-        opacity="0.4"
+        className={styles.track}
       />
-      <circle cx="4" cy="12" r="2.5" fill="currentColor" opacity="0.4" />
-      <circle cx="20" cy="12" r="2.5" fill="currentColor" opacity="0.4" />
+      <circle cx="4" cy="12" r="2.5" fill="currentColor" className={styles.track} />
+      <circle cx="20" cy="12" r="2.5" fill="currentColor" className={styles.track} />
       <circle cx="12" cy="12" r="5.5" fill="currentColor" />
     </svg>
   )

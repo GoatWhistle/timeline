@@ -8,6 +8,7 @@ import { filled } from '@/entities/personal/personal-fields'
 import { tasksQuery } from '@/entities/personal/task.queries'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { Skeleton } from '@/shared/ui/states'
 import { PERSONAL_SECTION_ID } from './personal-section'
 
 export function PersonalSummary({ eventId, enabled }: { eventId: string; enabled: boolean }) {
@@ -22,6 +23,7 @@ export function PersonalSummary({ eventId, enabled }: { eventId: string; enabled
   const done = items.filter((task) => filled(task.done_at)).length
   const noteKept = filled(note.data)
   const submissions = artifacts.data?.length ?? 0
+  const settled = !tasks.isPending && !note.isPending && !artifacts.isPending
   const bare = items.length === 0 && !noteKept && submissions === 0
 
   return (
@@ -31,7 +33,9 @@ export function PersonalSummary({ eventId, enabled }: { eventId: string; enabled
         {t('personal.summary.title')}
       </h3>
 
-      {bare ? (
+      {!settled ? (
+        <Skeleton className="h-5 w-40" />
+      ) : bare ? (
         <p className="text-meta text-muted-foreground">{t('personal.summary.nothing')}</p>
       ) : (
         <div className="flex flex-wrap items-center gap-1.5">

@@ -11,6 +11,7 @@ function source(relative: string): string {
 
 const RESET = source('src/styles/reset.css')
 const MOTION = source('src/styles/tokens/motion.css')
+const THEME_TRANSITION = source('src/styles/theme-transition.css')
 
 const ANIMATED_SURFACES = [
   'src/shared/ui/overlays/dialog.tsx',
@@ -100,6 +101,56 @@ describe('motion tokens', () => {
       expect(text, `${file} animates without an easing token`).toMatch(
         /motion-safe:ease-(out|in|in-out|linear)/,
       )
+    }
+  })
+})
+
+describe('the theme switch animation', () => {
+  it('runs only when motion is welcome', () => {
+    const gate = THEME_TRANSITION.indexOf('@media (prefers-reduced-motion: no-preference)')
+    const stop = THEME_TRANSITION.indexOf('@media (prefers-reduced-motion: reduce)')
+    expect(gate).toBeGreaterThanOrEqual(0)
+    expect(stop).toBeGreaterThan(gate)
+
+    const animated = THEME_TRANSITION.slice(gate, stop)
+    expect(animated).toContain('animation-name: theme-fade-out')
+    expect(animated).toContain('animation-name: theme-fade-in')
+  })
+
+  it('is switched off outright under prefers-reduced-motion', () => {
+    const block = THEME_TRANSITION.slice(
+      THEME_TRANSITION.indexOf('@media (prefers-reduced-motion: reduce)'),
+    )
+    for (const pseudo of [
+      '::view-transition-group(root)',
+      '::view-transition-old(root)',
+      '::view-transition-new(root)',
+    ]) {
+      expect(block).toContain(pseudo)
+    }
+    expect(block).toContain('animation: none')
+  })
+
+  it('cross-fades symmetrically so neither layer hides the other', () => {
+    const animated = THEME_TRANSITION.slice(
+      THEME_TRANSITION.indexOf('@media (prefers-reduced-motion: no-preference)'),
+      THEME_TRANSITION.indexOf('@media (prefers-reduced-motion: reduce)'),
+    )
+    const durations = [...animated.matchAll(/animation-duration:\s*var\((--duration-[a-z-]+)\)/g)]
+    expect(durations.length).toBeGreaterThan(0)
+    expect(new Set(durations.map((match) => match[1])).size).toBe(1)
+
+    const easings = [...animated.matchAll(/animation-timing-function:\s*var\((--ease-[a-z-]+)\)/g)]
+    expect(easings.length).toBeGreaterThan(0)
+    for (const easing of easings) expect(easing[1]).toBe('--ease-in-out')
+  })
+
+  it('takes every duration and easing from a token', () => {
+    for (const match of THEME_TRANSITION.matchAll(/animation-duration:\s*([^;]+);/g)) {
+      expect(match[1]?.trim()).toMatch(/^var\(--duration-[a-z-]+\)$/)
+    }
+    for (const match of THEME_TRANSITION.matchAll(/animation-timing-function:\s*([^;]+);/g)) {
+      expect(match[1]?.trim()).toMatch(/^var\(--ease-[a-z-]+\)$/)
     }
   })
 })

@@ -4,6 +4,7 @@ import { renderWithProviders } from '@tests/support/render'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeChoice } from '@/features/appearance/theme-choice'
 import { i18n } from '@/shared/i18n/config'
+import { LOCALES } from '@/shared/i18n/locale'
 import { THEME_STORAGE_KEY } from '@/shared/theme/theme'
 
 const darkLabel = () => text(i18n.language === 'en' ? 'en' : 'ru', 'common', 'theme.dark')
@@ -66,12 +67,53 @@ describe('choosing a theme shows what is being chosen', () => {
     expect(light?.classList.contains('dark')).toBe(false)
   })
 
-  it('previews the system option as whatever the system currently is', () => {
-    vi.stubGlobal('matchMedia', matchMediaReturning(true))
+  it('shows both themes inside the one system card, split by a divider', () => {
     renderWithProviders(<ThemeChoice />)
 
-    const system = document.querySelector('[data-theme-option="system"] [data-theme-preview]')
-    expect(system?.getAttribute('data-theme-preview')).toBe('dark')
+    const card = document.querySelector('[data-theme-option="system"]')
+    const split = card?.querySelector('[data-theme-preview="system"]')
+    expect(split).not.toBeNull()
+
+    const light = split?.querySelector('[data-theme-preview-half="light"]')
+    const dark = split?.querySelector('[data-theme-preview-half="dark"]')
+    expect(light?.classList.contains('light')).toBe(true)
+    expect(light?.classList.contains('dark')).toBe(false)
+    expect(dark?.classList.contains('dark')).toBe(true)
+    expect(split?.querySelector('[data-theme-preview-divider]')).not.toBeNull()
+  })
+
+  it('never explains the obvious in words', () => {
+    renderWithProviders(<ThemeChoice />)
+
+    const copy = document.body.textContent ?? ''
+    expect(copy).not.toMatch(/showing now/i)
+    expect(copy).not.toMatch(/follow the system setting/i)
+    expect(document.querySelector('[data-theme-resolved]')).toBeNull()
+  })
+
+  it('labels each card with one word and never repeats "Theme"', () => {
+    renderWithProviders(<ThemeChoice />)
+
+    const locale = i18n.language === 'en' ? 'en' : 'ru'
+    for (const value of ['light', 'dark', 'system']) {
+      const shown = document
+        .querySelector(`[data-theme-option="${value}"] span span`)
+        ?.textContent?.trim()
+      expect(shown).toBe(text(locale, 'common', `theme.${value}`))
+    }
+  })
+
+  it('states every theme in one word, in every language', () => {
+    for (const each of LOCALES) {
+      const heading = text(each, 'common', 'settings.theme')
+      for (const value of ['light', 'dark', 'system']) {
+        const label = text(each, 'common', `theme.${value}`)
+        expect(label, `${each}/${value} repeats the section heading`).not.toMatch(
+          new RegExp(heading, 'i'),
+        )
+        expect(label.split(' '), `${each}/${value} is not a single word`).toHaveLength(1)
+      }
+    }
   })
 
   it('applies the pick to the document at once and remembers it', async () => {

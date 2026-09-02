@@ -27,7 +27,7 @@
   --muted-foreground: var(--neutral-550);
   --faint-foreground: var(--neutral-550);
 
-  --accent: var(--brand-blue-500);
+  --accent: var(--brand-amber-600);
   --accent-foreground: var(--neutral-000);
   --accent-surface: var(--surface-3);
   --accent-surface-foreground: var(--neutral-900);
@@ -42,6 +42,7 @@
   --input: var(--neutral-450);
   --scrollbar-thumb: var(--neutral-300);
   --scrollbar-thumb-hover: var(--neutral-450);
-  --logo: var(--brand-amber-500);
-  --ring: var(--brand-blue-500);
+  --logo: var(--brand-amber-600);
+  --logo-track-opacity: 0.75;
+  --ring: var(--brand-amber-600);
 }

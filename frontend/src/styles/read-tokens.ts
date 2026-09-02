@@ -42,7 +42,7 @@ export function loadTheme(theme: 'light' | 'dark'): Map<string, string> {
   return theme === 'light' ? base : merge(base, declarationsIn('tokens/dark.css', '.dark'))
 }
 
-export function resolve(tokens: Map<string, string>, name: string): Srgb {
+export function resolveRaw(tokens: Map<string, string>, name: string): string {
   const seen = new Set<string>()
   let current = name
   for (;;) {
@@ -56,8 +56,20 @@ export function resolve(tokens: Map<string, string>, name: string): Srgb {
       current = reference
       continue
     }
-    const colour = parseOklch(value)
-    if (!colour) throw new Error(`Token ${current} is not a parsable oklch value: ${value}`)
-    return colour
+    return value
   }
+}
+
+export function resolve(tokens: Map<string, string>, name: string): Srgb {
+  const value = resolveRaw(tokens, name)
+  const colour = parseOklch(value)
+  if (!colour) throw new Error(`Token ${name} is not a parsable oklch value: ${value}`)
+  return colour
+}
+
+export function hueOf(tokens: Map<string, string>, name: string): number {
+  const value = resolveRaw(tokens, name)
+  const match = value.trim().match(/^oklch\(\s*[\d.]+\s+([\d.]+)\s+([\d.]+)\s*\)$/)
+  if (!match?.[1] || !match[2]) throw new Error(`Token ${name} is not an oklch colour: ${value}`)
+  return Number(match[1]) < 0.02 ? Number.NaN : Number(match[2])
 }

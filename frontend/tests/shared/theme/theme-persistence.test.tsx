@@ -74,7 +74,6 @@ describe('the theme a person picked survives a reload', () => {
 describe('the theme switch animation obeys the motion preference', () => {
   afterEach(() => {
     document.documentElement.classList.remove('dark')
-    delete document.documentElement.dataset.themeSwitching
     vi.unstubAllGlobals()
     Reflect.deleteProperty(document, 'startViewTransition')
   })

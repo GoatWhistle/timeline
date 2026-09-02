@@ -17,6 +17,7 @@
   --scrollbar-thumb: var(--linear-smoke);
   --scrollbar-thumb-hover: var(--neutral-550);
   --logo: var(--brand-amber-300);
+  --logo-track-opacity: 0.55;
   --primary: var(--brand-blue-300);
   --primary-foreground: var(--linear-void);
   --secondary: var(--surface-2);

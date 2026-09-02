@@ -39,13 +39,13 @@ function Stack({
   children,
 }: {
   title: string
-  hint: string
+  hint?: string
   children: React.ReactNode
 }) {
   return (
     <div className="py-4">
       <p className="font-medium text-copy">{title}</p>
-      <p className="mt-0.5 max-w-prose text-meta text-muted-foreground">{hint}</p>
+      {hint ? <p className="mt-0.5 max-w-prose text-meta text-muted-foreground">{hint}</p> : null}
       <div className="mt-3">{children}</div>
     </div>
   )
@@ -66,7 +66,7 @@ function AppearancePanel({ user }: { user: MeResponse }) {
 
   return (
     <div className="divide-y divide-border">
-      <Stack title={t('settings.theme')} hint={t('settings.themeHint')}>
+      <Stack title={t('settings.theme')}>
         <ThemeChoice />
       </Stack>
       <Stack title={t('language.label')} hint={t('settings.languageHint')}>

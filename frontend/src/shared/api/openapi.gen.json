@@ -11395,11 +11395,9 @@
           "event_id",
           "joined",
           "kind",
-          "outcome",
           "start_at",
           "tasks_done",
           "tasks_total",
-          "team_role",
           "title"
         ]
       },
@@ -14033,7 +14031,6 @@
           }
         },
         "required": [
-          "due_offset_minutes",
           "slot_no",
           "title_key"
         ]
@@ -14296,8 +14293,6 @@
           "id",
           "kind",
           "sort_order",
-          "submitted_at",
-          "title",
           "updated_at",
           "url"
         ]
@@ -14366,8 +14361,7 @@
         },
         "required": [
           "body",
-          "event_id",
-          "updated_at"
+          "event_id"
         ]
       },
       "models.ParticipantOutcome": {
@@ -14407,11 +14401,7 @@
         "required": [
           "created_at",
           "event_id",
-          "note",
           "outcome",
-          "place",
-          "prize",
-          "track",
           "updated_at"
         ]
       },
@@ -14441,12 +14431,7 @@
           }
         },
         "required": [
-          "created_at",
-          "event_id",
-          "next_time",
-          "updated_at",
-          "went_badly",
-          "went_well"
+          "event_id"
         ]
       },
       "models.ParticipantTask": {
@@ -14494,15 +14479,10 @@
         },
         "required": [
           "created_at",
-          "done_at",
-          "due_at",
           "event_id",
           "id",
-          "notes",
           "sort_order",
-          "stage_id",
-          "title",
-          "updated_at"
+          "title"
         ]
       },
       "models.ParticipationStatus": {

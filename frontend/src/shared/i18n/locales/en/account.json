@@ -143,7 +143,6 @@
   },
   "settings": {
     "title": "Settings",
-    "themeHint": "Light, dark, or follow the system setting.",
     "languageHint": "Applies to this browser. Notifications use the language stored in your profile.",
     "theme": "Theme",
     "sectionProfile": "Profile",

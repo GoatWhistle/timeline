@@ -10543,7 +10543,7 @@ export interface components {
             /** @example true */
             joined: boolean;
             kind: components["schemas"]["models.EventKind"];
-            outcome: components["schemas"]["models.ParticipantOutcome"];
+            outcome?: components["schemas"]["models.ParticipantOutcome"];
             /** Format: date-time */
             start_at: string;
             /** @example 9 */
@@ -10551,7 +10551,7 @@ export interface components {
             /** @example 12 */
             tasks_total: number;
             /** @example Backend developer */
-            team_role: string;
+            team_role?: string;
             /** @example National event */
             title: string;
         };
@@ -11485,7 +11485,7 @@ export interface components {
         };
         "models.ChecklistTemplateItem": {
             /** @example -10080 */
-            due_offset_minutes: number;
+            due_offset_minutes?: number;
             /** @example 1 */
             slot_no: number;
             /** @example task.read_rules */
@@ -11534,9 +11534,9 @@ export interface components {
             /** @example 0 */
             sort_order: number;
             /** Format: date-time */
-            submitted_at: string;
+            submitted_at?: string;
             /** @example Project repository */
-            title: string;
+            title?: string;
             /** Format: date-time */
             updated_at: string;
             /** @example https://github.com/example/project */
@@ -11565,55 +11565,55 @@ export interface components {
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
             /** Format: date-time */
-            updated_at: string;
+            updated_at?: string;
         };
         "models.ParticipantOutcome": {
             /** Format: date-time */
             created_at: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
-            note: string;
+            note?: string;
             outcome: components["schemas"]["models.Outcome"];
             /** @example 2 */
-            place: number;
+            place?: number;
             /** @example Jury award */
-            prize: string;
+            prize?: string;
             /** @example Smart city */
-            track: string;
+            track?: string;
             /** Format: date-time */
             updated_at: string;
         };
         "models.ParticipantRetrospective": {
             /** Format: date-time */
-            created_at: string;
+            created_at?: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
-            next_time: string;
+            next_time?: string;
             /** Format: date-time */
-            updated_at: string;
-            went_badly: string;
-            went_well: string;
+            updated_at?: string;
+            went_badly?: string;
+            went_well?: string;
         };
         "models.ParticipantTask": {
             /** Format: date-time */
             created_at: string;
             /** Format: date-time */
-            done_at: string;
+            done_at?: string;
             /** Format: date-time */
-            due_at: string;
+            due_at?: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
             /** @example tk_42ej2s5gh7e8 */
             id: string;
-            notes: string;
+            notes?: string;
             /** @example 0 */
             sort_order: number;
             /** @example st_42ej2s5gh7e8 */
-            stage_id: string;
+            stage_id?: string;
             /** @example Record the demo video */
             title: string;
             /** Format: date-time */
-            updated_at: string;
+            updated_at?: string;
         };
         /** @enum {string} */
         "models.ParticipationStatus": "ASSIGNED" | "REMOVED";

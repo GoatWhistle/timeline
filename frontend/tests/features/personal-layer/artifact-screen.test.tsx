@@ -37,7 +37,7 @@ function artifact(over: Partial<ParticipantArtifact> = {}): ParticipantArtifact 
     created_at: '2026-01-01T00:00:00Z',
     updated_at: '2026-01-01T00:00:00Z',
     ...over,
-  } as ParticipantArtifact
+  }
 }
 
 function submitButton(): HTMLElement {

@@ -60,11 +60,7 @@ export function applyThemeAnimated(resolved: ResolvedTheme): void {
     applyTheme(resolved)
     return
   }
-  document.documentElement.dataset.themeSwitching = 'true'
-  const transition = root.startViewTransition(() => applyTheme(resolved))
-  void transition.finished.finally(() => {
-    delete document.documentElement.dataset.themeSwitching
-  })
+  root.startViewTransition(() => applyTheme(resolved))
 }
 
 export function watchSystemTheme(onChange: (resolved: ResolvedTheme) => void): () => void {
