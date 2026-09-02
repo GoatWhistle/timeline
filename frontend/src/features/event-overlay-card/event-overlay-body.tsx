@@ -8,6 +8,7 @@ import { StatusWithHint } from '@/entities/registration/status-hint/status-hint'
 import { STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
 import { StageTypeMark } from '@/entities/stage/stage-type-mark/stage-type-mark'
 import { EventCover } from '@/features/event-cover'
+import { PersonalSummary } from '@/features/personal-layer'
 import { formatDateRange, formatEventMoment, formatRelative } from '@/shared/datetime/datetime'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
@@ -99,6 +100,8 @@ export function EventOverlayBody({
           </ul>
         )}
       </section>
+
+      <PersonalSummary eventId={card.id} enabled={card.joined} />
 
       <div className="flex flex-wrap items-center gap-2">
         {actions}

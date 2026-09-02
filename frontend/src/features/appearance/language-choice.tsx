@@ -1,10 +1,9 @@
 import { Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useLocale } from '@/shared/i18n/i18n-context'
-import { LOCALES, type Locale } from '@/shared/i18n/locale'
+import { LOCALES } from '@/shared/i18n/locale'
 import { cn } from '@/shared/styling/class-names/class-names'
-
-const CODE: Record<Locale, string> = { ru: 'RU', en: 'EN' }
+import { LanguageFlag } from './language-flag/language-flag'
 
 export function LanguageChoice() {
   const { locale, setLocale } = useLocale()
@@ -28,15 +27,7 @@ export function LanguageChoice() {
                 : 'border-border hover:border-border-strong',
             )}
           >
-            <span
-              aria-hidden="true"
-              className={cn(
-                'shrink-0 rounded-badge px-1.5 py-0.5 font-medium font-mono text-caption',
-                selected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
-              )}
-            >
-              {CODE[value]}
-            </span>
+            <LanguageFlag locale={value} />
             <span className={cn('min-w-0 truncate text-copy', selected && 'font-medium')}>
               {t(`language.${value}`)}
             </span>

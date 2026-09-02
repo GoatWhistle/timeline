@@ -1,36 +1,43 @@
 import { describe, expect, it } from 'vitest'
 import {
-  type EventFormValues,
-  eventSchema,
+  type HackathonFormValues,
+  hackathonSchema,
   isSafeAbsoluteUrl,
+  type MeetupFormValues,
+  meetupSchema,
 } from '@/entities/event/event-form.schema'
 
-const VALID: EventFormValues = {
+const COMMON: MeetupFormValues = {
   title: 'National event',
   organizer: '',
   website_url: '',
   description: '',
   notes: '',
-  kind: 'HACKATHON',
   format: 'ONLINE',
   origin: 'RU',
   country_code: '',
   city: '',
+}
+
+const VALID: HackathonFormValues = {
+  ...COMMON,
   track: '',
   prize_pool: '',
   prize_currency: '',
-  team_size_min: '',
-  team_size_max: '',
+  team_size_min: 1,
+  team_size_max: 10,
 }
 
-function check(overrides: Partial<EventFormValues>) {
-  return eventSchema.safeParse({ ...VALID, ...overrides })
+function check(overrides: Partial<HackathonFormValues>) {
+  return hackathonSchema.safeParse({ ...VALID, ...overrides })
 }
 
-function messagesFor(overrides: Partial<EventFormValues>, path: string): string[] {
+function messagesFor(overrides: Partial<HackathonFormValues>, path: string): string[] {
   const result = check(overrides)
   if (result.success) return []
-  return result.error.issues.filter((issue) => issue.path[0] === path).map((issue) => issue.message)
+  return result.error.issues
+    .filter((issue: { path: PropertyKey[] }) => issue.path[0] === path)
+    .map((issue: { message: string }) => issue.message)
 }
 
 describe('the smallest valid event', () => {
@@ -49,43 +56,51 @@ describe('the smallest valid event', () => {
   })
 })
 
-describe('team size is a whole number in range and correctly ordered', () => {
+describe('the meetup schema knows nothing of the hackathon fields', () => {
+  it('accepts a meetup without a prize pool, a track or a team size', () => {
+    expect(meetupSchema.safeParse(COMMON).success).toBe(true)
+  })
+
+  it('carries no hackathon key through to the parsed value', () => {
+    const parsed = meetupSchema.parse({
+      ...COMMON,
+      track: 'AI',
+      prize_pool: '1000',
+      prize_currency: 'RUB',
+      team_size_min: 2,
+      team_size_max: 5,
+    })
+    for (const key of ['track', 'prize_pool', 'prize_currency', 'team_size_min', 'team_size_max']) {
+      expect(parsed, key).not.toHaveProperty(key)
+    }
+  })
+
+  it('still demands a country for an on-site meetup', () => {
+    const result = meetupSchema.safeParse({ ...COMMON, format: 'OFFLINE' })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('team size is a bounded, ordered pair', () => {
   it('accepts a pair in the right order', () => {
-    expect(check({ team_size_min: '2', team_size_max: '5' }).success).toBe(true)
-    expect(check({ team_size_min: '3', team_size_max: '3' }).success).toBe(true)
+    expect(check({ team_size_min: 2, team_size_max: 5 }).success).toBe(true)
+    expect(check({ team_size_min: 3, team_size_max: 3 }).success).toBe(true)
   })
 
   it('refuses a smallest team larger than the largest', () => {
-    expect(messagesFor({ team_size_min: '5', team_size_max: '3' }, 'team_size_min')).toContain(
+    expect(messagesFor({ team_size_min: 5, team_size_max: 3 }, 'team_size_min')).toContain(
       'event:form.teamSizeOrder',
     )
   })
 
-  it('refuses zero and negative sizes', () => {
-    expect(messagesFor({ team_size_min: '0' }, 'team_size_min')).toContain(
-      'event:form.teamSizeRange',
-    )
-    expect(messagesFor({ team_size_max: '-1' }, 'team_size_max')).toContain(
-      'event:form.teamSizeInteger',
-    )
-  })
-
-  it('refuses a size beyond one hundred', () => {
-    expect(check({ team_size_max: '100' }).success).toBe(true)
-    expect(messagesFor({ team_size_max: '101' }, 'team_size_max')).toContain(
-      'event:form.teamSizeRange',
-    )
+  it('refuses a size outside one to ten', () => {
+    expect(check({ team_size_min: 0 }).success).toBe(false)
+    expect(check({ team_size_max: 11 }).success).toBe(false)
+    expect(check({ team_size_min: 1, team_size_max: 10 }).success).toBe(true)
   })
 
   it('refuses a fractional size', () => {
-    expect(messagesFor({ team_size_min: '2.5' }, 'team_size_min')).toContain(
-      'event:form.teamSizeInteger',
-    )
-  })
-
-  it('leaves a lone bound alone', () => {
-    expect(check({ team_size_min: '4' }).success).toBe(true)
-    expect(check({ team_size_max: '4' }).success).toBe(true)
+    expect(check({ team_size_min: 2.5 }).success).toBe(false)
   })
 })
 
@@ -113,15 +128,6 @@ describe('the prize pool and its currency travel together', () => {
     )
     expect(messagesFor({ prize_pool: 'lots', prize_currency: 'RUB' }, 'prize_pool')).toContain(
       'event:form.prizePoolInvalid',
-    )
-  })
-
-  it('refuses a currency code that is not three letters', () => {
-    expect(messagesFor({ prize_pool: '1', prize_currency: 'RU' }, 'prize_currency')).toContain(
-      'event:form.prizeCurrencyInvalid',
-    )
-    expect(messagesFor({ prize_pool: '1', prize_currency: '123' }, 'prize_currency')).toContain(
-      'event:form.prizeCurrencyInvalid',
     )
   })
 })

@@ -76,7 +76,7 @@
     },
     "format": {
       "all": "All",
-      "offline": "In person",
+      "offline": "Offline",
       "online": "Online",
       "hybrid": "Hybrid"
     },

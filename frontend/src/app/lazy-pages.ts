@@ -42,6 +42,9 @@ export const EventCardPage = lazy(() =>
 export const MySchedulePage = lazy(() =>
   import('@/features/schedule/my/schedule').then((m) => ({ default: m.MySchedulePage })),
 )
+export const HistoryPage = lazy(() =>
+  import('@/features/personal-history/history').then((m) => ({ default: m.HistoryPage })),
+)
 export const SettingsPage = lazy(() =>
   import('@/features/settings/settings').then((m) => ({ default: m.SettingsPage })),
 )

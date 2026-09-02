@@ -44,7 +44,7 @@
   "place": {
     "format": {
       "ONLINE": "Online",
-      "OFFLINE": "In person",
+      "OFFLINE": "Offline",
       "HYBRID": "Hybrid"
     },
     "online": "Online",
@@ -64,7 +64,7 @@
     "formCity": "City",
     "formVenue": "Venue",
     "formOnlineUrl": "Broadcast link",
-    "filterOffline": "In person",
+    "filterOffline": "Offline",
     "filterOfflineHint": "Searches by stages: a hybrid event with an in-person final is included."
   },
   "links": {

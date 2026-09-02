@@ -18,6 +18,7 @@ import {
   EmailChangeConfirmPage,
   EventCardPage,
   ForgotPasswordPage,
+  HistoryPage,
   InvitePage,
   LoginPage,
   MyEventsPage,
@@ -90,6 +91,7 @@ export function AppRouter() {
             <Route element={<ScrollPage />}>
               <Route path="/events/:id" element={<EventCardPage />} />
               <Route path="/schedule" element={<MySchedulePage />} />
+              <Route path="/history" element={<HistoryPage />} />
               <Route path="/profile" element={<Navigate to="/?settings=profile" replace />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/teams" element={<TeamsPage />} />

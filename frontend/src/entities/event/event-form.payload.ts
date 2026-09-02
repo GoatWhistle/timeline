@@ -1,17 +1,23 @@
 import { isApiError } from '@/shared/api/errors'
-import type { EventResponse } from '@/shared/api/types.gen'
+import type { EventKind, EventResponse } from '@/shared/api/types.gen'
 import { civilFromIso, civilToIso } from '@/shared/datetime/civil'
 import { normalizeLinkableUrl } from '@/shared/forms/url'
 import type { MomentRange } from '@/shared/ui/forms/calendar/moment-range'
-import { type EventFormValues, MOMENT_FIELD_NAMES } from './event-form.schema'
+import {
+  type HackathonFormValues,
+  type MeetupFormValues,
+  MOMENT_FIELD_NAMES,
+  TEAM_SIZE_MAX,
+  TEAM_SIZE_MIN,
+} from './event-form.schema'
 
 export type EventFormPayload = {
   title: string
   start_at: string
   end_at: string
-  kind: EventFormValues['kind']
-  format: EventFormValues['format']
-  origin: EventFormValues['origin']
+  kind: EventKind
+  format: MeetupFormValues['format']
+  origin: MeetupFormValues['origin']
   organizer?: string
   website_url?: string
   description?: string
@@ -25,23 +31,28 @@ export type EventFormPayload = {
   team_size_max?: number
 }
 
-export function defaultValues(event: EventResponse | undefined): EventFormValues {
+export function commonDefaults(event: EventResponse | undefined): MeetupFormValues {
   return {
     title: event?.title ?? '',
     organizer: event?.organizer ?? '',
     website_url: event?.website_url ?? '',
     description: event?.description ?? '',
     notes: event?.notes ?? '',
-    kind: event?.kind ?? 'HACKATHON',
     format: event?.format ?? 'ONLINE',
     origin: event?.origin ?? 'RU',
     country_code: event?.country_code ?? '',
     city: event?.city ?? '',
+  }
+}
+
+export function hackathonDefaults(event: EventResponse | undefined): HackathonFormValues {
+  return {
+    ...commonDefaults(event),
     track: event?.track ?? '',
     prize_pool: event?.prize_pool ?? '',
     prize_currency: event?.prize_currency ?? '',
-    team_size_min: event?.team_size_min === undefined ? '' : String(event.team_size_min),
-    team_size_max: event?.team_size_max === undefined ? '' : String(event.team_size_max),
+    team_size_min: event?.team_size_min ?? TEAM_SIZE_MIN,
+    team_size_max: event?.team_size_max ?? TEAM_SIZE_MAX,
   }
 }
 
@@ -49,11 +60,12 @@ export function defaultRange(event: EventResponse | undefined): MomentRange {
   return { start: civilFromIso(event?.start_at), end: civilFromIso(event?.end_at) }
 }
 
-export function buildPayload(values: EventFormValues, range: MomentRange): EventFormPayload | null {
-  const startAt = civilToIso(range.start)
-  const endAt = civilToIso(range.end)
-  if (startAt === null || endAt === null) return null
-
+function commonPayload(
+  values: MeetupFormValues,
+  kind: EventKind,
+  startAt: string,
+  endAt: string,
+): EventFormPayload {
   const offline = values.format !== 'ONLINE'
   const country = offline ? values.country_code?.toUpperCase() : undefined
   const city = offline ? values.city : undefined
@@ -62,7 +74,7 @@ export function buildPayload(values: EventFormValues, range: MomentRange): Event
     title: values.title,
     start_at: startAt,
     end_at: endAt,
-    kind: values.kind,
+    kind,
     format: values.format,
     origin: values.origin,
     ...(values.organizer ? { organizer: values.organizer } : {}),
@@ -73,11 +85,34 @@ export function buildPayload(values: EventFormValues, range: MomentRange): Event
     ...(values.notes ? { notes: values.notes } : {}),
     ...(country ? { country_code: country } : {}),
     ...(city ? { city } : {}),
+  }
+}
+
+export function buildMeetupPayload(
+  values: MeetupFormValues,
+  range: MomentRange,
+): EventFormPayload | null {
+  const startAt = civilToIso(range.start)
+  const endAt = civilToIso(range.end)
+  if (startAt === null || endAt === null) return null
+  return commonPayload(values, 'MEETUP', startAt, endAt)
+}
+
+export function buildHackathonPayload(
+  values: HackathonFormValues,
+  range: MomentRange,
+): EventFormPayload | null {
+  const startAt = civilToIso(range.start)
+  const endAt = civilToIso(range.end)
+  if (startAt === null || endAt === null) return null
+
+  return {
+    ...commonPayload(values, 'HACKATHON', startAt, endAt),
     ...(values.track ? { track: values.track } : {}),
     ...(values.prize_pool ? { prize_pool: values.prize_pool } : {}),
     ...(values.prize_currency ? { prize_currency: values.prize_currency.toUpperCase() } : {}),
-    ...(values.team_size_min ? { team_size_min: Number(values.team_size_min) } : {}),
-    ...(values.team_size_max ? { team_size_max: Number(values.team_size_max) } : {}),
+    team_size_min: values.team_size_min,
+    team_size_max: values.team_size_max,
   }
 }
 

@@ -2,20 +2,19 @@ import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
 import { EventForm } from '@/entities/event/event-form'
-import { day, EVENT, fixMoscowClock, trigger } from './event-form.harness'
+import { day, dayCells, EVENT, fixMoscowClock, trigger } from './event-form.harness'
 
 fixMoscowClock()
 
-describe('the period rule is visible in the calendar, not only after submitting', () => {
+describe('the end calendar begins at the start date', () => {
   it('forbids an end before the chosen start', async () => {
     const { user } = renderWithProviders(
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
     await user.click(trigger('event-end'))
-    const before = day('2026-04-30')
-    expect(before).toHaveAttribute('aria-disabled', 'true')
-    const after = day('2026-05-02')
-    expect(after).toHaveAttribute('aria-disabled', 'false')
+    expect(day('2026-04-30')).toHaveAttribute('aria-disabled', 'true')
+    expect(day('2026-05-01')).toHaveAttribute('aria-disabled', 'false')
+    expect(day('2026-05-02')).toHaveAttribute('aria-disabled', 'false')
   })
 
   it('forbids a start after the chosen end', async () => {
@@ -23,8 +22,46 @@ describe('the period rule is visible in the calendar, not only after submitting'
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
     await user.click(trigger('event-start'))
-    const past = day('2026-05-04')
-    expect(past).toHaveAttribute('aria-disabled', 'true')
+    expect(day('2026-05-04')).toHaveAttribute('aria-disabled', 'true')
+  })
+
+  it('refuses a click on a day before the start', async () => {
+    const { user } = renderWithProviders(
+      <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
+    )
+    await user.click(trigger('event-end'))
+    await user.click(day('2026-04-28'))
+    expect(trigger('event-end')).toHaveAttribute('data-value', '2026-05-03')
+  })
+
+  it('refuses to reach a day before the start with the arrow keys', async () => {
+    const { user } = renderWithProviders(
+      <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
+    )
+    await user.click(trigger('event-end'))
+    await user.keyboard('{ArrowUp}{ArrowUp}{ArrowUp}{ArrowLeft}{ArrowLeft}')
+    const focusable = dayCells().filter((cell) => cell.tabIndex === 0)
+    expect(focusable).toHaveLength(1)
+    expect(focusable[0]?.dataset.date).toBe('2026-05-01')
+    await user.keyboard('{Enter}')
+    expect(trigger('event-end')).toHaveAttribute('data-value', '2026-05-01')
+  })
+
+  it('cannot land on a forbidden day with Home or PageUp either', async () => {
+    const { user } = renderWithProviders(
+      <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
+    )
+    await user.click(trigger('event-end'))
+    await user.keyboard('{PageUp}')
+    expect(dayCells().find((cell) => cell.tabIndex === 0)?.dataset.date).toBe('2026-05-01')
+    await user.keyboard('{Home}')
+    expect(dayCells().find((cell) => cell.tabIndex === 0)?.dataset.date).toBe('2026-05-01')
+  })
+
+  it('states the rule through the calendar, not through a hint under the field', () => {
+    renderWithProviders(<EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />)
+    expect(document.getElementById('event-end-hint')).toBeNull()
+    expect(trigger('event-end')).not.toHaveAttribute('aria-describedby')
   })
 
   it('highlights the days between the two ends', async () => {
@@ -32,10 +69,8 @@ describe('the period rule is visible in the calendar, not only after submitting'
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
     await user.click(trigger('event-start'))
-    const middle = day('2026-05-02')
-    expect(middle).toHaveAttribute('data-in-range', 'true')
-    const outside = day('2026-05-05')
-    expect(outside).not.toHaveAttribute('data-in-range')
+    expect(day('2026-05-02')).toHaveAttribute('data-in-range', 'true')
+    expect(day('2026-05-05')).not.toHaveAttribute('data-in-range')
   })
 })
 

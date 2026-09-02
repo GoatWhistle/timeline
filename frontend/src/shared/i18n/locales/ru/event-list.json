@@ -76,7 +76,7 @@
     },
     "format": {
       "all": "Все",
-      "offline": "Очно",
+      "offline": "Офлайн",
       "online": "Онлайн",
       "hybrid": "Гибрид"
     },

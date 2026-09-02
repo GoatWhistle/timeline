@@ -10,6 +10,7 @@ import { StageTypeMark } from '@/entities/stage/stage-type-mark/stage-type-mark'
 import { EventCover } from '@/features/event-cover'
 import { LinkList } from '@/features/event-links/ui/link-list/link-list'
 import { PinnedLinks } from '@/features/event-links/ui/pinned-links/pinned-links'
+import { PersonalSection } from '@/features/personal-layer'
 import type { EventCard } from '@/shared/api/types.gen'
 import { formatDate, formatDateTime, formatRelative } from '@/shared/datetime/datetime'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
@@ -211,6 +212,8 @@ function EventCardBody({
             )}
           </CardContent>
         </Card>
+
+        <PersonalSection eventId={event.id} stages={card.stages} />
       </div>
     </div>
   )

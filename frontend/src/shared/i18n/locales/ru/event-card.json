@@ -44,7 +44,7 @@
   "place": {
     "format": {
       "ONLINE": "Онлайн",
-      "OFFLINE": "Очно",
+      "OFFLINE": "Офлайн",
       "HYBRID": "Гибрид"
     },
     "online": "Онлайн",
@@ -64,7 +64,7 @@
     "formCity": "Город",
     "formVenue": "Площадка",
     "formOnlineUrl": "Ссылка на трансляцию",
-    "filterOffline": "Очные",
+    "filterOffline": "Офлайн",
     "filterOfflineHint": "Ищет по этапам: гибрид с очным финалом тоже попадёт в список."
   },
   "links": {

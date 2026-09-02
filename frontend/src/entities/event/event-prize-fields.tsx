@@ -1,15 +1,28 @@
-import type { FieldErrors, UseFormRegister } from 'react-hook-form'
+import { type Control, Controller, type FieldErrors, type UseFormRegister } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
-import type { EventFormValues } from './event-form.schema'
+import { RangeSlider } from '@/shared/ui/forms/range-slider/range-slider'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/forms/select'
+import { CURRENCIES } from './event-currency'
+import { type HackathonFormValues, TEAM_SIZE_MAX, TEAM_SIZE_MIN } from './event-form.schema'
+
+const TEAM_BOUNDS = { min: TEAM_SIZE_MIN, max: TEAM_SIZE_MAX }
 
 export function EventPrizeFields({
+  control,
   register,
   errors,
 }: {
-  register: UseFormRegister<EventFormValues>
-  errors: FieldErrors<EventFormValues>
+  control: Control<HackathonFormValues>
+  register: UseFormRegister<HackathonFormValues>
+  errors: FieldErrors<HackathonFormValues>
 }) {
   const { t } = useTranslation('event')
 
@@ -29,44 +42,67 @@ export function EventPrizeFields({
           htmlFor="event-prize-currency"
           error={errors.prize_currency?.message}
         >
-          <Input
-            id="event-prize-currency"
-            maxLength={3}
-            autoCapitalize="characters"
-            {...register('prize_currency')}
+          <Controller
+            control={control}
+            name="prize_currency"
+            render={({ field }) => (
+              <Select value={field.value ?? ''} onValueChange={field.onChange}>
+                <SelectTrigger id="event-prize-currency">
+                  <SelectValue placeholder={t('form.prizeCurrencyPlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map(({ code, symbol }) => (
+                    <SelectItem key={code} value={code}>
+                      <span className="inline-flex items-center gap-2">
+                        <span className="w-4 text-center tabular-nums">{symbol}</span>
+                        <span className="font-mono">{code}</span>
+                        <span className="text-muted-foreground">{t(`form.currency.${code}`)}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
         </Field>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t('form.teamSizeMin')}
-          htmlFor="event-team-min"
-          error={errors.team_size_min?.message}
-          hint={t('form.teamSizeHint')}
-        >
-          <Input
-            id="event-team-min"
-            inputMode="numeric"
-            min={1}
-            max={100}
-            {...register('team_size_min')}
+      <Controller
+        control={control}
+        name="team_size_min"
+        render={({ field: low }) => (
+          <Controller
+            control={control}
+            name="team_size_max"
+            render={({ field: high }) => (
+              <Field
+                label={t('form.teamSize')}
+                htmlFor="event-team-size-min"
+                error={errors.team_size_min?.message ?? errors.team_size_max?.message}
+                hint={t('form.teamSizeHint', { min: TEAM_SIZE_MIN, max: TEAM_SIZE_MAX })}
+              >
+                <RangeSlider
+                  id="event-team-size"
+                  bounds={TEAM_BOUNDS}
+                  value={{ low: low.value, high: high.value }}
+                  lowLabel={t('form.teamSizeMin')}
+                  highLabel={t('form.teamSizeMax')}
+                  summary={t('form.teamSizeSummary', {
+                    min: low.value,
+                    max: high.value,
+                    count: high.value,
+                  })}
+                  valueText={(amount) => t('form.teamSizeValue', { count: amount })}
+                  onChange={(next) => {
+                    low.onChange(next.low)
+                    high.onChange(next.high)
+                  }}
+                />
+              </Field>
+            )}
           />
-        </Field>
-        <Field
-          label={t('form.teamSizeMax')}
-          htmlFor="event-team-max"
-          error={errors.team_size_max?.message}
-        >
-          <Input
-            id="event-team-max"
-            inputMode="numeric"
-            min={1}
-            max={100}
-            {...register('team_size_max')}
-          />
-        </Field>
-      </div>
+        )}
+      />
     </div>
   )
 }

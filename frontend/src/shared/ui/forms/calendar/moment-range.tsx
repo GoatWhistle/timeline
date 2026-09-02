@@ -50,7 +50,6 @@ export function MomentRangeFields({
         range={highlight}
         {...(isCivilDate(value.start.date) ? { bounds: { min: value.start.date } } : {})}
         error={endError}
-        hint={t('form.endAfterStartHint')}
         onChange={(end) => onChange({ ...value, end })}
       />
     </div>

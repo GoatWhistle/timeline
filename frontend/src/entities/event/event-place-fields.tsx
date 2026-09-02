@@ -1,6 +1,7 @@
 import { type Control, Controller, type FieldErrors, type UseFormRegister } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { EVENT_FORMAT_KEY } from '@/entities/stage/stage.place'
+import { cn } from '@/shared/styling/class-names/class-names'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import {
@@ -10,25 +11,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/forms/select'
-import { EVENT_FORMATS, type EventFormValues } from './event-form.schema'
+import { EVENT_FORMATS, type MeetupFormValues } from './event-form.schema'
 
 export function EventPlaceFields({
   control,
   register,
   errors,
   format,
+  side,
 }: {
-  control: Control<EventFormValues>
-  register: UseFormRegister<EventFormValues>
-  errors: FieldErrors<EventFormValues>
-  format: EventFormValues['format']
+  control: Control<MeetupFormValues>
+  register: UseFormRegister<MeetupFormValues>
+  errors: FieldErrors<MeetupFormValues>
+  format: MeetupFormValues['format']
+  side?: React.ReactNode
 }) {
   const { t } = useTranslation('event')
   const offline = format !== 'ONLINE'
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className={cn('grid gap-4', side && 'sm:grid-cols-2')}>
         <Field
           label={t('form.format')}
           htmlFor="event-format"
@@ -55,9 +58,7 @@ export function EventPlaceFields({
           />
         </Field>
 
-        <Field label={t('form.track')} htmlFor="event-track" error={errors.track?.message}>
-          <Input id="event-track" {...register('track')} />
-        </Field>
+        {side}
       </div>
 
       {offline && (

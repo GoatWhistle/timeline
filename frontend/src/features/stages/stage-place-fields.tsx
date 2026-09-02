@@ -89,7 +89,6 @@ export function StagePlaceFields<T extends FieldValues>({
         label={t('place.formOnlineUrl')}
         htmlFor="stage-online-url"
         error={errors.online_url?.message as string | undefined}
-        hint={t('form.httpsOnly')}
       >
         <Input id="stage-online-url" {...register('online_url' as Path<T>)} />
       </Field>

@@ -211,12 +211,7 @@ export function StageForm({
         <Input id="stage-sort" type="number" min={0} {...register('sort_order')} />
       </Field>
 
-      <Field
-        label={t('stages.formUrl')}
-        htmlFor="stage-url"
-        error={errors.url?.message}
-        hint={t('form.httpsOnly')}
-      >
+      <Field label={t('stages.formUrl')} htmlFor="stage-url" error={errors.url?.message}>
         <Input id="stage-url" {...register('url')} />
       </Field>
 

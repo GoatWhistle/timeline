@@ -11,7 +11,13 @@ describe('the sidebar shows one section at a time', () => {
   })
 
   it('keeps the participant entries in their agreed order', () => {
-    expect(USER_NAV.map((item) => item.to)).toEqual(['/catalog', '/', '/schedule', '/teams'])
+    expect(USER_NAV.map((item) => item.to)).toEqual([
+      '/catalog',
+      '/',
+      '/schedule',
+      '/teams',
+      '/history',
+    ])
   })
 
   it('keeps the participant entries free of any admin destination', () => {

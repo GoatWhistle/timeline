@@ -4,6 +4,7 @@ import {
   CalendarRange,
   ClipboardList,
   Compass,
+  History,
   LayoutList,
   ScrollText,
   Send,
@@ -28,6 +29,7 @@ export const USER_NAV: NavItem[] = [
   { to: '/', labelKey: 'nav.myEvents', icon: LayoutList },
   { to: '/schedule', labelKey: 'nav.schedule', icon: CalendarRange },
   { to: '/teams', labelKey: 'team:title', icon: UsersRound },
+  { to: '/history', labelKey: 'event:personal.history.title', icon: History },
 ]
 
 export const ADMIN_NAV: NavItem[] = [

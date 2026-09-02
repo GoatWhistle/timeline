@@ -17,7 +17,7 @@ export type Namespace = (typeof NAMESPACES)[number]
 
 export const BUNDLES: Record<Namespace, readonly string[]> = {
   common: ['shell', 'action', 'format', 'admin', 'account', 'schedule'],
-  event: ['event', 'event-form', 'event-list', 'event-card', 'event-schedule'],
+  event: ['event', 'event-form', 'event-list', 'event-card', 'event-personal', 'event-schedule'],
   registration: ['registration'],
   notification: ['notification'],
   auth: ['auth'],
