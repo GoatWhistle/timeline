@@ -26,7 +26,7 @@ function ChannelNotice({ ready, channel }: { ready: boolean; channel: string }) 
   return (
     <div
       className={cn(
-        'flex items-start gap-2 rounded-md border px-3 py-2',
+        'flex items-start gap-2 rounded-control border px-3 py-2',
         ready ? 'border-border bg-surface-2' : 'border-destructive/40 bg-destructive/5',
       )}
       data-ready={ready ? 'yes' : 'no'}
@@ -53,7 +53,7 @@ function Rendered({ preview }: { preview: NotificationPreviewResponse }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="flex items-start gap-2 rounded-md border border-border bg-surface-2 px-3 py-2 text-meta text-muted-foreground">
+      <p className="flex items-start gap-2 rounded-control border border-border bg-surface-2 px-3 py-2 text-meta text-muted-foreground">
         <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
         {t('preview.noSideEffects')}
       </p>
@@ -63,7 +63,7 @@ function Rendered({ preview }: { preview: NotificationPreviewResponse }) {
         channel={preview.channel ? t(CHANNEL_KEY[preview.channel]) : ''}
       />
 
-      <div className="rounded-md border border-border">
+      <div className="rounded-control border border-border">
         <p className="border-border border-b px-3 py-2 font-medium text-copy">
           {preview.subject || '—'}
         </p>

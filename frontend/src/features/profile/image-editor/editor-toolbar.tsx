@@ -78,7 +78,7 @@ export function EditorToolbar({
             aria-label={swatch}
             style={{ backgroundColor: swatch }}
             className={cn(
-              'size-6 cursor-pointer rounded-full border transition-transform duration-instant ease-out',
+              'size-6 cursor-pointer rounded-pill border transition-transform duration-instant ease-out',
               'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2',
               'has-[:focus-visible]:outline-ring',
               swatch === colour

@@ -85,7 +85,7 @@ export function CloneEventDialog({
             <Label htmlFor="clone-with-stages">{t('clone.withStages')}</Label>
           </div>
 
-          <p className="rounded-md border border-border border-dashed p-3 text-meta text-muted-foreground">
+          <p className="rounded-control border border-border border-dashed p-3 text-meta text-muted-foreground">
             {days === 0
               ? t('clone.noShift')
               : t('clone.shiftSummary', {

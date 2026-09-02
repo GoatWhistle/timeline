@@ -18,7 +18,7 @@ export function EventCover({
   const [broken, setBroken] = useState(false)
 
   return (
-    <div className={cn('relative overflow-hidden rounded-lg border bg-muted', className)}>
+    <div className={cn('relative overflow-hidden rounded-surface border bg-muted', className)}>
       {coverUrl && !broken ? (
         <img
           src={coverUrl}

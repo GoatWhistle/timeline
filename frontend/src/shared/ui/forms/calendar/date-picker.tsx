@@ -82,7 +82,7 @@ export function DatePicker({
         data-value={value || undefined}
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          'flex h-9 w-full items-center gap-2 rounded-md border border-input bg-transparent px-3 text-copy shadow-xs',
+          'flex h-9 w-full items-center gap-2 rounded-control border border-input bg-transparent px-3 text-copy shadow-xs',
           'transition-colors motion-safe:duration-instant hover:bg-accent-surface',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
           'aria-invalid:border-destructive aria-invalid:outline-destructive',

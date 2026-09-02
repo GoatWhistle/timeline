@@ -43,7 +43,7 @@ function DiffBlock({ title, value }: { title: string; value: unknown }) {
   return (
     <div className="min-w-0 flex-1">
       <p className="mb-1 font-medium text-muted-foreground text-caption uppercase">{title}</p>
-      <pre className="overflow-x-auto rounded-md bg-muted p-3 text-caption">
+      <pre className="overflow-x-auto rounded-control bg-muted p-3 text-caption">
         {value === undefined || value === null ? '—' : JSON.stringify(value, null, 2)}
       </pre>
     </div>

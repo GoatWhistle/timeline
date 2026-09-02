@@ -53,7 +53,7 @@ export function TeamDetailPage() {
               {!isLead && (
                 <p
                   className={cn(
-                    'rounded-lg border border-border border-dashed bg-surface-2 px-4 py-3',
+                    'rounded-surface border border-border border-dashed bg-surface-2 px-4 py-3',
                     'text-meta text-muted-foreground',
                   )}
                 >

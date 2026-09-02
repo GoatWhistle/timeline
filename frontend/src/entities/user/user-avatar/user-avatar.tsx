@@ -28,7 +28,7 @@ export function UserAvatar({
       aria-hidden="true"
       data-avatar=""
       className={cn(
-        'relative flex size-7 shrink-0 select-none items-center justify-center overflow-hidden rounded-full font-medium text-caption',
+        'relative flex size-7 shrink-0 select-none items-center justify-center overflow-hidden rounded-pill font-medium text-caption',
         className,
       )}
       style={{ '--avatar-hue': hue } as React.CSSProperties}

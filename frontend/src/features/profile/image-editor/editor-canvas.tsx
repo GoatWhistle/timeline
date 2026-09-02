@@ -9,13 +9,13 @@ export function EditorCanvas({ editor }: { editor: Editor }) {
   const { t } = useTranslation()
 
   return (
-    <div className="flex min-h-[22rem] items-center justify-center rounded-md border border-border bg-surface-2 p-4">
+    <div className="flex min-h-[22rem] items-center justify-center rounded-control border border-border bg-surface-2 p-4">
       <div className="relative inline-block">
         <canvas
           ref={editor.canvasRef}
           aria-label={t('imageEditor.canvasLabel')}
           className={cn(
-            'block max-h-[46vh] max-w-full touch-none rounded-sm',
+            'block max-h-[46vh] max-w-full touch-none rounded-badge',
             editor.ready ? 'opacity-100' : 'opacity-0',
             'transition-opacity duration-base ease-out',
           )}

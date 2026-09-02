@@ -104,7 +104,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
   return (
     <div className="flex flex-col gap-4">
       {selected.size > 0 && (
-        <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-2">
+        <div className="flex items-center justify-between rounded-control border bg-muted/40 px-4 py-2">
           <p className="text-copy">{t('statuses.selected', { count: selected.size })}</p>
           <Button size="sm" onClick={openDialog}>
             {t('statuses.changeStatus')}
@@ -199,7 +199,7 @@ export function StatusesTab({ eventId }: { eventId: string }) {
               />
             )}
 
-            <div className="rounded-md border border-dashed p-3 text-copy">
+            <div className="rounded-control border border-dashed p-3 text-copy">
               {previewResult ? (
                 <Trans
                   t={t}

@@ -9,7 +9,7 @@ export function DeviceSkeleton({ rows = 3 }: { rows?: number }) {
       <span className="sr-only">{t('state.loading')}</span>
       {Array.from({ length: rows }, (_, index) => `device-skeleton-${index}`).map((key) => (
         <div key={key} className="flex items-start gap-3 py-3">
-          <Skeleton className="mt-0.5 size-5 shrink-0 rounded-full" />
+          <Skeleton className="mt-0.5 size-5 shrink-0 rounded-pill" />
           <div className="flex min-w-0 flex-1 flex-col">
             <span className="flex h-[22px] items-center">
               <Skeleton className="h-4 w-40" />

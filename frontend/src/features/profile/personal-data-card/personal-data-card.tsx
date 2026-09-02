@@ -91,7 +91,7 @@ export function PersonalDataCard({
         {legacyDisplayName ? (
           <div
             role="status"
-            className="mb-4 rounded-md border border-status-todo/40 bg-status-todo/10 p-3 text-caption"
+            className="mb-4 rounded-control border border-status-todo/40 bg-status-todo/10 p-3 text-caption"
           >
             <p className="font-medium">{t('profile.legacyTitle')}</p>
             <p className="mt-1 text-muted-foreground">

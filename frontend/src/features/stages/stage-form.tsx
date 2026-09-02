@@ -200,7 +200,9 @@ export function StageForm({
       />
 
       {outOfRange && (
-        <p className="rounded-md border border-dashed p-3 text-copy">{t('stages.outOfRange')}</p>
+        <p className="rounded-control border border-dashed p-3 text-copy">
+          {t('stages.outOfRange')}
+        </p>
       )}
 
       <Field

@@ -12,14 +12,14 @@ export function LanguageToggle({ className }: { className?: string }) {
   return (
     <fieldset
       aria-label={t('language.legend')}
-      className={cn('inline-flex gap-0.5 rounded-md border p-0.5', className)}
+      className={cn('inline-flex gap-0.5 rounded-control border p-0.5', className)}
     >
       {LOCALES.map((value) => (
         <label
           key={value}
           title={t(`language.${value}`)}
           className={cn(
-            'inline-flex h-7 cursor-pointer items-center justify-center rounded-sm px-2',
+            'inline-flex h-7 cursor-pointer items-center justify-center rounded-badge px-2',
             'font-medium text-caption transition-colors duration-instant',
             'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
             locale === value

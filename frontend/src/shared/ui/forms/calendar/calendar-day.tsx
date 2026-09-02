@@ -66,7 +66,7 @@ export function CalendarDayCell({
         <span
           aria-hidden="true"
           className={cn(
-            'absolute bottom-1 size-1 rounded-full',
+            'absolute bottom-1 size-1 rounded-pill',
             day.selected ? 'bg-primary-foreground' : 'bg-primary',
           )}
         />

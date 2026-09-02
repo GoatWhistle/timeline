@@ -60,7 +60,7 @@ export function TeamsPage() {
                 <NavLink
                   to={`/teams/${team.id}`}
                   className={cn(
-                    'block rounded-lg',
+                    'block rounded-surface',
                     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                   )}
                 >

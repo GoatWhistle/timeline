@@ -45,7 +45,7 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
       </CardHeader>
       <CardContent>
         {pendingEmail && (
-          <p className="mb-4 rounded-md border border-dashed p-3 text-copy">
+          <p className="mb-4 rounded-control border border-dashed p-3 text-copy">
             {t('profile.emailPending')} <strong>{pendingEmail}</strong>
           </p>
         )}

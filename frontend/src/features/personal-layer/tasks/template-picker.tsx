@@ -37,7 +37,7 @@ export function TemplatePicker({ eventId }: { eventId: string }) {
   if (items.length === 0) return null
 
   return (
-    <section className="flex flex-col gap-3 rounded-md border border-border bg-surface-1 p-4">
+    <section className="flex flex-col gap-3 rounded-control border border-border bg-surface-1 p-4">
       <div>
         <h4 className="font-medium text-copy">{t('personal.template.title')}</h4>
         <p className="mt-0.5 text-meta text-muted-foreground">{t('personal.template.hint')}</p>

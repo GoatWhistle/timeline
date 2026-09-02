@@ -48,7 +48,7 @@ export function RenameDevice({
 
   return (
     <form
-      className="flex flex-col gap-3 rounded-md border border-border bg-card p-3"
+      className="flex flex-col gap-3 rounded-control border border-border bg-card p-3"
       onSubmit={form.handleSubmit(onSubmit)}
       noValidate
     >

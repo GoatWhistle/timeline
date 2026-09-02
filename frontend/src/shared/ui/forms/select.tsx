@@ -14,7 +14,7 @@ export function SelectTrigger({
   return (
     <SelectPrimitive.Trigger
       className={cn(
-        'flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-copy shadow-xs',
+        'flex h-9 w-full items-center justify-between gap-2 rounded-control border border-input bg-transparent px-3 py-2 text-copy shadow-xs',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         'disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate',
         className,
@@ -39,7 +39,7 @@ export function SelectContent({
       <SelectPrimitive.Content
         position="popper"
         className={cn(
-          'relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md',
+          'relative z-50 max-h-96 min-w-32 overflow-hidden rounded-control border bg-popover text-popover-foreground shadow-md',
           'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
           'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
           'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
@@ -64,7 +64,7 @@ export function SelectItem({
   return (
     <SelectPrimitive.Item
       className={cn(
-        'relative flex w-full cursor-default select-none items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-copy outline-hidden',
+        'relative flex w-full cursor-default select-none items-center gap-2 rounded-badge py-1.5 pr-8 pl-2 text-copy outline-hidden',
         'focus:bg-accent-surface focus:text-accent-surface-foreground data-disabled:pointer-events-none data-disabled:opacity-50',
         className,
       )}

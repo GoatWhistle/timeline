@@ -24,7 +24,7 @@ export function EmptyState({
   const Figure = filtered ? FilterFigure : figure
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 rounded-lg border border-dashed px-6 py-12 text-center">
+    <div className="flex flex-col items-center justify-center gap-6 rounded-surface border border-dashed px-6 py-12 text-center">
       {Figure && <Figure label={title} />}
       <div className="flex flex-col gap-2">
         <p className="font-medium text-copy">{title}</p>

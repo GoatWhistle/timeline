@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import type { EventKind, EventOrigin } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Field } from '@/shared/ui/forms/field'
+import { OptionCard, OptionMark } from '@/shared/ui/forms/option-card'
 import {
   Select,
   SelectContent,
@@ -52,32 +53,23 @@ export function EventKindChoice({
       {EVENT_KINDS.map((kind) => {
         const selected = value === kind
         return (
-          <label
+          <OptionCard
             key={kind}
+            name="event-kind-choice"
+            value={kind}
+            selected={selected}
+            onSelect={() => onChange(kind)}
             data-kind-option={kind}
-            data-selected={selected ? 'true' : undefined}
-            className={cn(
-              'flex cursor-pointer flex-col gap-1 rounded-surface border px-3 py-2.5',
-              'transition-colors duration-base ease-out',
-              'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
-              selected
-                ? 'border-primary bg-accent-surface'
-                : 'border-border hover:border-border-strong',
-            )}
+            className="flex-col gap-1 px-3 py-2.5"
           >
-            <span className={cn('text-copy', selected && 'font-medium')}>
-              {t(`catalog.kindLabel.${kind}`)}
+            <span className="flex items-center gap-1.5">
+              <span className={cn('min-w-0 truncate text-copy', selected && 'font-medium')}>
+                {t(`catalog.kindLabel.${kind}`)}
+              </span>
+              <OptionMark selected={selected} className="ml-auto size-4" />
             </span>
             <span className="text-caption text-muted-foreground">{t(`form.kindHint.${kind}`)}</span>
-            <input
-              type="radio"
-              name="event-kind-choice"
-              value={kind}
-              checked={selected}
-              onChange={() => onChange(kind)}
-              className="sr-only"
-            />
-          </label>
+          </OptionCard>
         )
       })}
     </fieldset>

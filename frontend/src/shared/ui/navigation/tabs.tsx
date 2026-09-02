@@ -17,12 +17,16 @@ export function TabsList({
     <TabsPrimitive.List
       ref={containerRef}
       className={cn(
-        'relative inline-flex h-9 items-center justify-center gap-1 rounded-lg bg-muted p-1 text-muted-foreground',
+        'relative inline-flex h-9 items-center justify-center gap-1 rounded-surface bg-muted p-1 text-muted-foreground',
         className,
       )}
       {...props}
     >
-      <SlidingIndicator box={box} axis="x" className="my-1 rounded-md bg-background shadow-sm" />
+      <SlidingIndicator
+        box={box}
+        axis="x"
+        className="my-1 rounded-control bg-background shadow-sm"
+      />
       {children}
     </TabsPrimitive.List>
   )
@@ -36,7 +40,7 @@ export function TabsTrigger({
     <TabsPrimitive.Trigger
       data-indicator-item
       className={cn(
-        'relative z-10 inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1',
+        'relative z-10 inline-flex items-center justify-center whitespace-nowrap rounded-control px-3 py-1',
         'font-medium text-copy transition-colors duration-base ease-out',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         'disabled:pointer-events-none disabled:opacity-50',

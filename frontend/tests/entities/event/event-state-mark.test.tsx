@@ -40,7 +40,7 @@ describe('event state under grayscale', () => {
     const signatures = [...container.querySelectorAll('[data-event-state]')].map((node) => {
       const shape = shapeOf(node)
       return [
-        shape.includes('rounded-full') ? 'round' : 'square',
+        shape.includes('rounded-pill') ? 'round' : 'square',
         shape.includes('bg-current') ? 'filled' : 'hollow',
         shape.includes('border-dashed') ? 'dashed' : 'solid',
         shape.includes('size-2') ? 'large' : 'small',

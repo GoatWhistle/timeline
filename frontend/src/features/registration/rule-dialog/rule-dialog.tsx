@@ -126,7 +126,7 @@ export function RuleDialog({
             </Select>
           </Field>
 
-          <p className="rounded-md border border-dashed p-3 text-copy">
+          <p className="rounded-control border border-dashed p-3 text-copy">
             {t('ruleDialog.willFire')}{' '}
             {formatOffsetMinutes(
               (direction === 'before' ? 1 : -1) * (Number(days) * 1440 + Number(hours) * 60),

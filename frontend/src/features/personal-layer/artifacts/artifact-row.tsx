@@ -30,7 +30,7 @@ export function ArtifactRow({
   const submitted = filled(artifact.submitted_at)
 
   return (
-    <li className="flex items-start gap-3 rounded-md border border-border bg-card p-3">
+    <li className="flex items-start gap-3 rounded-control border border-border bg-card p-3">
       <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
 
       <div className="min-w-0 flex-1">

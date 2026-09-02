@@ -63,7 +63,7 @@ describe('colour is never the only signal that tells the families apart', () => 
     for (const node of container.querySelectorAll('[data-event-color]')) {
       const family = node.getAttribute('data-event-family') as string
       const glyph = (node.querySelector('[aria-hidden="true"]') as HTMLElement).className
-      const shape = glyph.includes('rounded-full') ? 'round' : 'square'
+      const shape = glyph.includes('rounded-pill') ? 'round' : 'square'
       shapes.set(family, (shapes.get(family) ?? new Set()).add(shape))
     }
     const perFamily = [...shapes.values()].map((set) => [...set].join(','))

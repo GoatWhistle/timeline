@@ -88,7 +88,7 @@ export function ArtifactPanel({ eventId }: { eventId: string }) {
               artifact.id === editingId ? (
                 <li
                   key={artifact.id}
-                  className="rounded-md border border-primary bg-accent-surface p-3"
+                  className="rounded-control border border-primary bg-accent-surface p-3"
                 >
                   <ArtifactForm
                     idPrefix={`artifact-${artifact.id}`}
@@ -124,7 +124,7 @@ export function ArtifactPanel({ eventId }: { eventId: string }) {
       <p className="text-caption text-muted-foreground">{t('personal.artifacts.selfReport')}</p>
 
       {composing ? (
-        <section className="flex flex-col gap-4 rounded-md border border-border bg-surface-1 p-4">
+        <section className="flex flex-col gap-4 rounded-control border border-border bg-surface-1 p-4">
           <h4 className="font-medium text-copy">{t('personal.artifacts.add')}</h4>
           <ArtifactForm
             idPrefix="artifact-new"

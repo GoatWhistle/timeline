@@ -29,7 +29,7 @@ export function ProfileLinksCard() {
 
         <section
           aria-label={editing === null ? t('profile.links.addTitle') : t('profile.links.editTitle')}
-          className="flex flex-col gap-4 rounded-md border border-border bg-surface-1 p-4"
+          className="flex flex-col gap-4 rounded-control border border-border bg-surface-1 p-4"
         >
           <h3 className="font-medium text-caption text-muted-foreground uppercase tracking-wide">
             {editing === null ? t('profile.links.addTitle') : t('profile.links.editTitle')}

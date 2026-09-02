@@ -25,7 +25,7 @@ export function InviteModeTabs({
   const { t } = useTranslation('team')
 
   return (
-    <div role="tablist" className="flex gap-1 rounded-md bg-surface-2 p-1">
+    <div role="tablist" className="flex gap-1 rounded-control bg-surface-2 p-1">
       {MODES.map(({ value: mode, labelKey, icon: Icon }) => (
         <button
           key={mode}

@@ -26,7 +26,7 @@ export function SkeletonTable({
 
   return (
     <div
-      className={cn('w-full overflow-hidden rounded-lg border', className)}
+      className={cn('w-full overflow-hidden rounded-surface border', className)}
       role="status"
       aria-busy="true"
     >

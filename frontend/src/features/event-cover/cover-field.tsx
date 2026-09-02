@@ -85,7 +85,7 @@ export function CoverField({
               title={t('cover.remove')}
               disabled={busy}
               onClick={clear}
-              className="-right-1 -top-1 absolute size-6 rounded-full border shadow-sm"
+              className="-right-1 -top-1 absolute size-6 rounded-pill border shadow-sm"
             >
               <X className="size-3" />
             </Button>
@@ -96,7 +96,7 @@ export function CoverField({
           <div className="flex flex-wrap items-center gap-2">
             <label
               className={cn(
-                'inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md',
+                'inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-control',
                 'border bg-background px-3 font-medium text-caption transition-colors',
                 'duration-instant ease-out hover:bg-accent-surface hover:text-accent-surface-foreground',
                 'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',

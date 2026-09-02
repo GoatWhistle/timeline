@@ -177,7 +177,7 @@ export function ScheduleGrid({
 
   return (
     <TooltipProvider>
-      <div className="overflow-hidden rounded-lg border">
+      <div className="overflow-hidden rounded-surface border">
         <div className={styles.weekdays} aria-hidden="true">
           {(grid.weeks[0]?.days ?? []).map((day) => (
             <span key={day.index} className={styles.weekday}>

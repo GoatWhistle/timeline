@@ -135,10 +135,10 @@ func NotFoundOwned(err error, what string) error {
 }
 
 func ValidateTeamRole(kind models.EventKind, value *string) (*string, error) {
+	if kind == models.EventKindMeetup {
+		return nil, nil
+	}
 	if value == nil || strings.TrimSpace(*value) == "" {
-		if kind == models.EventKindMeetup {
-			return nil, nil
-		}
 		return nil, models.NewValidation("a team role is required for a hackathon",
 			models.FieldError{Field: "team_role", Message: "required field"})
 	}

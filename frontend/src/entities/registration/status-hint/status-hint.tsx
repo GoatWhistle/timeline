@@ -27,7 +27,7 @@ export function StatusWithHint({ status }: { status: RegistrationStatusValue }) 
             type="button"
             data-status-hint={status}
             aria-label={hint}
-            className="inline-flex items-center gap-1 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="inline-flex items-center gap-1 rounded-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             <Badge tone="outline">
               <Dot

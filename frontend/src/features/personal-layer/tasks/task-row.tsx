@@ -41,7 +41,7 @@ export function TaskRow({
   return (
     <li
       className={cn(
-        'flex items-start gap-3 rounded-md border border-border bg-card p-3',
+        'flex items-start gap-3 rounded-control border border-border bg-card p-3',
         'motion-safe:transition-colors motion-safe:duration-base motion-safe:ease-out',
         done && 'bg-surface-1',
       )}

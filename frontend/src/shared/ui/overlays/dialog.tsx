@@ -26,7 +26,7 @@ export function DialogContent({
       />
       <DialogPrimitive.Content
         className={cn(
-          'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border bg-background p-6 shadow-lg',
+          'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-surface border bg-background p-6 shadow-lg',
           'max-h-[90vh] overflow-y-auto',
           'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
           'data-[state=open]:motion-safe:zoom-in-95 data-[state=open]:motion-safe:duration-base',
@@ -39,7 +39,7 @@ export function DialogContent({
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 transition-opacity duration-instant ease-out hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-badge opacity-70 transition-opacity duration-instant ease-out hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
           <X className="size-4" />
           <span className="sr-only">{t('action.close')}</span>
         </DialogPrimitive.Close>

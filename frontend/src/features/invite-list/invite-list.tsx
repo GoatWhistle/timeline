@@ -169,7 +169,7 @@ export function AdminInvitesPage() {
           {link ? (
             <div className="flex flex-col gap-3">
               <p className="text-copy">{t('invites.link')}</p>
-              <code className="break-all rounded-md bg-muted p-3 text-caption">{link}</code>
+              <code className="break-all rounded-control bg-muted p-3 text-caption">{link}</code>
               <DialogFooter>
                 <Button onClick={() => setOpen(false)}>{t('invites.done')}</Button>
               </DialogFooter>

@@ -33,12 +33,12 @@ export function TeamProgressBar({ eventId, enabled }: { eventId: string; enabled
           done: progress.done,
           required: progress.required,
         })}
-        className="h-1.5 w-full overflow-hidden rounded-full bg-surface-3"
+        className="h-1.5 w-full overflow-hidden rounded-pill bg-surface-3"
       >
         <span
           data-team-fill
           style={{ width: `${percent}%` }}
-          className="block h-full rounded-full bg-status-done"
+          className="block h-full rounded-pill bg-status-done"
         />
       </div>
 

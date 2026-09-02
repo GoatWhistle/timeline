@@ -57,7 +57,7 @@ describe('the pills in the card header keep one rhythm', () => {
     const pills = headerPills(renderBody().container)
     const dates = pills.at(-1)
     expect(dates?.className).toContain('inline-flex')
-    expect(dates?.className).toContain('rounded-md')
+    expect(dates?.className).toContain('rounded-control')
     expect(typeSizeOf(dates as HTMLElement)).toBe('text-caption')
   })
 

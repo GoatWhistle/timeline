@@ -14,7 +14,7 @@ export function HistoryRow({ item }: { item: HistoryItem }) {
   const placed = outcome !== undefined && countOf(outcome.place) > 0
 
   return (
-    <li className="flex flex-col gap-2.5 rounded-md border border-border bg-card p-4">
+    <li className="flex flex-col gap-2.5 rounded-control border border-border bg-card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <Link to={`/events/${item.event_id}`} className="font-medium text-copy hover:underline">
           {item.title}

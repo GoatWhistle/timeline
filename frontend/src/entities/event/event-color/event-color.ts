@@ -40,7 +40,7 @@ export const EVENT_ORIGIN_KEY: Record<EventOrigin, string> = {
 
 export const EVENT_ORIGIN_SHAPE: Record<EventOrigin, string> = {
   RU: 'rounded-[2px]',
-  WORLD: 'rounded-full',
+  WORLD: 'rounded-pill',
 }
 
 export function eventColorLabelKey(color: EventColor | null | undefined): string {

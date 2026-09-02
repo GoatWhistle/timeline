@@ -30,7 +30,7 @@ export function TimeInput({
       aria-describedby={describedBy}
       onChange={(event) => onChange(normalize(event.target.value))}
       className={cn(
-        'h-9 w-24 rounded-md border border-input bg-transparent px-3 text-copy tabular-nums shadow-xs',
+        'h-9 w-24 rounded-control border border-input bg-transparent px-3 text-copy tabular-nums shadow-xs',
         'transition-colors motion-safe:duration-instant',
         'placeholder:text-muted-foreground',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',

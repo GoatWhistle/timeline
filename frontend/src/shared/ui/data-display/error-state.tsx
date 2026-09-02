@@ -16,7 +16,7 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
   return (
     <div
       role="alert"
-      className="flex flex-col items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/5 py-12 text-center"
+      className="flex flex-col items-center gap-3 rounded-surface border border-destructive/40 bg-destructive/5 py-12 text-center"
     >
       <AlertCircle className="size-8 text-destructive" aria-hidden="true" />
       <div>

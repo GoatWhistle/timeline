@@ -101,7 +101,7 @@ export function TaskPanel({ eventId, stages }: { eventId: string; stages: StageR
                 task.id === editingId ? (
                   <li
                     key={task.id}
-                    className="rounded-md border border-primary bg-accent-surface p-3"
+                    className="rounded-control border border-primary bg-accent-surface p-3"
                   >
                     <TaskForm
                       idPrefix={`task-${task.id}`}
@@ -136,7 +136,7 @@ export function TaskPanel({ eventId, stages }: { eventId: string; stages: StageR
       </PersonalBoundary>
 
       {composing ? (
-        <section className="flex flex-col gap-4 rounded-md border border-border bg-surface-1 p-4">
+        <section className="flex flex-col gap-4 rounded-control border border-border bg-surface-1 p-4">
           <h4 className="font-medium text-copy">{t('personal.tasks.add')}</h4>
           <TaskForm
             idPrefix="task-new"

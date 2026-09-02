@@ -5,8 +5,8 @@ import { cn } from '@/shared/styling/class-names/class-names'
 
 const STATE_SHAPE: Record<EventState, string> = {
   UNPUBLISHED: 'size-1.5 rounded-[1px] border border-current bg-transparent',
-  UPCOMING: 'size-1.5 rounded-full border border-current bg-transparent',
-  ACTIVE: 'size-2 rounded-full border-2 border-current bg-current',
+  UPCOMING: 'size-1.5 rounded-pill border border-current bg-transparent',
+  ACTIVE: 'size-2 rounded-pill border-2 border-current bg-current',
   FINISHED: 'size-1.5 rounded-[1px] border border-current bg-current',
   ARCHIVED: 'size-1.5 rounded-[1px] border border-current border-dashed bg-transparent',
 }

@@ -25,7 +25,7 @@ function EmailVerificationMark({ verified }: { verified: boolean }) {
             title={label}
             data-email-verified={verified}
             className={cn(
-              'inline-flex shrink-0 cursor-default rounded-full',
+              'inline-flex shrink-0 cursor-default rounded-pill',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
               verified ? 'text-primary' : 'text-destructive',
             )}

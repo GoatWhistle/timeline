@@ -50,7 +50,7 @@ export function AdminOpsQueuePage() {
     <div>
       <PageHeader title={t('ops:title')} description={t('ops:description')} />
 
-      <p className="mb-4 flex items-start gap-2 rounded-md border border-border bg-surface-2 px-3 py-2 text-meta text-muted-foreground">
+      <p className="mb-4 flex items-start gap-2 rounded-control border border-border bg-surface-2 px-3 py-2 text-meta text-muted-foreground">
         <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
         {t('ops:readOnly')}
       </p>

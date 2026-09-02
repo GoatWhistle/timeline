@@ -41,7 +41,7 @@ export function ChannelMatrix({ eventId }: { eventId: string }) {
         <p className="mt-1 max-w-prose text-meta text-muted-foreground">{t('matrix.hint')}</p>
       </div>
 
-      <p className="flex items-start gap-2 rounded-md border border-border bg-surface-2 px-3 py-2 text-meta">
+      <p className="flex items-start gap-2 rounded-control border border-border bg-surface-2 px-3 py-2 text-meta">
         <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
         <span className="min-w-0">
           <span className="font-medium text-copy">{t('matrix.inAppTitle')}</span>

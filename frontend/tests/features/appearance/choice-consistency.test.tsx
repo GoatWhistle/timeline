@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { EventKindChoice } from '@/entities/event/event-taxonomy-fields'
 import { LanguageChoice } from '@/features/appearance/language-choice'
 import { ThemeChoice } from '@/features/appearance/theme-choice'
 import { I18nProvider } from '@/shared/i18n/i18n-context'
@@ -26,12 +27,33 @@ function selectedOption(attribute: string): HTMLElement {
 }
 
 function markCount(option: HTMLElement): number {
-  return [...option.querySelectorAll('svg')].filter((icon) =>
-    (icon.getAttribute('class') ?? '').includes('opacity-100'),
-  ).length
+  return [...option.querySelectorAll('[data-option-mark="on"]')].length
 }
 
-describe('the two choice groups on the appearance page agree', () => {
+const GROUPS = [
+  {
+    name: 'language',
+    attribute: 'data-language-option',
+    mount: () =>
+      render(
+        <I18nProvider>
+          <LanguageChoice />
+        </I18nProvider>,
+      ),
+  },
+  {
+    name: 'theme',
+    attribute: 'data-theme-option',
+    mount: () => renderWithProviders(<ThemeChoice />),
+  },
+  {
+    name: 'event kind',
+    attribute: 'data-kind-option',
+    mount: () => renderWithProviders(<EventKindChoice value="MEETUP" onChange={vi.fn()} />),
+  },
+] as const
+
+describe('every group of picture-and-label choices is built the same way', () => {
   beforeEach(() => {
     localStorage.removeItem(THEME_STORAGE_KEY)
     document.documentElement.classList.remove('dark')
@@ -44,37 +66,36 @@ describe('the two choice groups on the appearance page agree', () => {
     vi.unstubAllGlobals()
   })
 
-  it('marks the chosen language with something that is not a colour', () => {
-    render(
-      <I18nProvider>
-        <LanguageChoice />
-      </I18nProvider>,
-    )
-
-    expect(markCount(selectedOption('data-language-option'))).toBe(1)
+  it.each(GROUPS)('$name marks the chosen option with something that is not a colour', (group) => {
+    group.mount()
+    expect(markCount(selectedOption(group.attribute))).toBe(1)
   })
 
-  it('marks the chosen theme with something that is not a colour', () => {
-    renderWithProviders(<ThemeChoice />)
-
-    expect(markCount(selectedOption('data-theme-option'))).toBe(1)
-  })
-
-  it('leaves the unchosen theme cards unmarked', () => {
-    renderWithProviders(<ThemeChoice />)
-
-    const unselected = [...document.querySelectorAll<HTMLElement>('[data-theme-option]')].filter(
+  it.each(GROUPS)('$name leaves every unchosen option unmarked', (group) => {
+    group.mount()
+    const unselected = [...document.querySelectorAll<HTMLElement>(`[${group.attribute}]`)].filter(
       (node) => node.dataset.selected !== 'true',
     )
-    expect(unselected).toHaveLength(2)
+    expect(unselected.length).toBeGreaterThan(0)
     for (const option of unselected) expect(markCount(option)).toBe(0)
   })
 
-  it('never leaves the selected border colour as the only signal', () => {
-    renderWithProviders(<ThemeChoice />)
-
-    const chosen = selectedOption('data-theme-option')
+  it.each(GROUPS)('$name never leaves the border colour as the only signal', (group) => {
+    group.mount()
+    const chosen = selectedOption(group.attribute)
     expect(chosen.className).toContain('border-primary')
     expect(markCount(chosen)).toBeGreaterThan(0)
+  })
+
+  it.each(GROUPS)('$name is drawn on the one shared option chassis', (group) => {
+    group.mount()
+    const options = [...document.querySelectorAll<HTMLElement>(`[${group.attribute}]`)]
+    expect(options.length).toBeGreaterThan(0)
+    for (const option of options) {
+      expect(option.hasAttribute('data-option-card')).toBe(true)
+      expect(option.tagName).toBe('LABEL')
+      expect(option.querySelector('input[type="radio"].sr-only')).not.toBeNull()
+      expect(option.className).toContain('rounded-surface')
+    }
   })
 })

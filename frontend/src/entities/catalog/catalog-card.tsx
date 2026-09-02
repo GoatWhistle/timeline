@@ -43,7 +43,7 @@ export function CatalogCard({
       data-event-row={event.id}
       onClick={() => onSelect(event.id)}
       className={cn(
-        'flex h-full w-full min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3',
+        'flex h-full w-full min-w-0 flex-col gap-2 rounded-surface border border-border bg-card p-3',
         'text-left transition-colors duration-instant',
         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
         selected ? 'bg-accent-surface' : 'hover:bg-surface-2',

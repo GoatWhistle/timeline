@@ -51,7 +51,7 @@ export function ProfileLinkRow({
       onDragOver={(event) => event.preventDefault()}
       aria-label={`${name}, ${position}`}
       className={cn(
-        'flex items-center gap-2 rounded-md border border-border bg-card p-2',
+        'flex items-center gap-2 rounded-control border border-border bg-card p-2',
         'motion-safe:transition-colors motion-safe:duration-base motion-safe:ease-out',
         isDragged && 'opacity-60 ring-1 ring-primary',
         isEditing && 'border-primary bg-accent-surface',

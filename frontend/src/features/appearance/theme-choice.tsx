@@ -1,9 +1,10 @@
-import { Check, Monitor, Moon, Sun } from 'lucide-react'
+import { Monitor, Moon, Sun } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import type { ThemePreference } from '@/shared/theme/theme'
 import { useTheme } from '@/shared/theme/theme-context'
+import { OptionCard, OptionMark } from '@/shared/ui/forms/option-card'
 import { ThemePreview, ThemePreviewSplit } from './theme-preview'
 
 type Option = {
@@ -35,18 +36,14 @@ export function ThemeChoice() {
       {OPTIONS.map(({ value, labelKey, icon: Icon }) => {
         const selected = preference === value
         return (
-          <label
+          <OptionCard
             key={value}
+            name="theme-preference"
+            value={value}
+            selected={selected}
+            onSelect={() => setPreference(value)}
             data-theme-option={value}
-            data-selected={selected ? 'true' : undefined}
-            className={cn(
-              'group flex cursor-pointer flex-col gap-2 rounded-surface border p-2',
-              'transition-colors duration-base ease-out',
-              'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
-              selected
-                ? 'border-primary bg-accent-surface'
-                : 'border-border hover:border-border-strong',
-            )}
+            className="flex-col gap-2 p-2"
           >
             {value === 'system' ? (
               <ThemePreviewSplit className={previewClass(selected)} />
@@ -58,23 +55,9 @@ export function ThemeChoice() {
               <span className={cn('truncate', selected ? 'font-medium' : 'text-muted-foreground')}>
                 {t(labelKey)}
               </span>
-              <Check
-                aria-hidden="true"
-                className={cn(
-                  'ml-auto size-3.5 shrink-0 text-primary transition-opacity duration-base ease-out',
-                  selected ? 'opacity-100' : 'opacity-0',
-                )}
-              />
+              <OptionMark selected={selected} className="ml-auto size-3.5" />
             </span>
-            <input
-              type="radio"
-              name="theme-preference"
-              value={value}
-              checked={selected}
-              onChange={() => setPreference(value)}
-              className="sr-only"
-            />
-          </label>
+          </OptionCard>
         )
       })}
     </fieldset>

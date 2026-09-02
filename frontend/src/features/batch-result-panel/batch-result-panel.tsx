@@ -69,7 +69,7 @@ export function BatchResultPanel({
       </div>
 
       {rows.length > 0 && (
-        <ul className="max-h-64 divide-y divide-border overflow-y-auto rounded-md border border-border">
+        <ul className="max-h-64 divide-y divide-border overflow-y-auto rounded-control border border-border">
           {rows.map((item, index) => {
             const status = rowStatus(item)
             const Icon = ICON[status]

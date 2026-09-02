@@ -53,7 +53,7 @@ export function RosterTable({
       </div>
 
       {entry.roster.length === 0 ? (
-        <p className="rounded-lg border border-border border-dashed px-4 py-6 text-center text-meta text-muted-foreground">
+        <p className="rounded-surface border border-border border-dashed px-4 py-6 text-center text-meta text-muted-foreground">
           {t('rosterEmpty')}
         </p>
       ) : (
