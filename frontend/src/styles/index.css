@@ -3,6 +3,7 @@
 @import "./tokens/palette.css";
 @import "./tokens/semantic.css";
 @import "./tokens/domain.css";
+@import "./tokens/event-palette.css";
 @import "./tokens/typography.css";
 @import "./tokens/motion.css";
 @import "./tokens/dark.css";
@@ -83,6 +84,10 @@
   --color-urgency-done: var(--urgency-done);
   --color-urgency-waived: var(--urgency-waived);
   --color-urgency-foreground: var(--urgency-foreground);
+
+  --color-event-tint: var(--event-tint);
+  --color-event-fill: var(--event-fill);
+  --color-event-fill-strong: var(--event-fill-strong);
 
   --text-screen: var(--text-title);
   --text-screen--line-height: var(--leading-title);

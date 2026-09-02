@@ -10545,6 +10545,9 @@
             "type": "string",
             "example": "Moscow"
           },
+          "color": {
+            "$ref": "#/components/schemas/models.EventColor"
+          },
           "country_code": {
             "type": "string",
             "example": "RU"
@@ -11206,6 +11209,9 @@
           "city": {
             "type": "string",
             "example": "Moscow"
+          },
+          "color": {
+            "$ref": "#/components/schemas/models.EventColor"
           },
           "country_code": {
             "type": "string",
@@ -14061,6 +14067,26 @@
           "EntityNotificationRule",
           "EntityResourceLink",
           "EntityCalendarFeed"
+        ]
+      },
+      "models.EventColor": {
+        "type": "object",
+        "properties": {
+          "family": {
+            "type": "string",
+            "enum": [
+              "RU",
+              "WORLD"
+            ]
+          },
+          "slot": {
+            "type": "integer",
+            "example": 3
+          }
+        },
+        "required": [
+          "family",
+          "slot"
         ]
       },
       "models.EventFormat": {

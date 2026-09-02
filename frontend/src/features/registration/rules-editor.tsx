@@ -12,6 +12,7 @@ import {
 } from '@/entities/registration/registration.queries'
 import type { Channel, NotificationRuleResponse } from '@/shared/api/types.gen'
 import { formatOffsetMinutes } from '@/shared/datetime/datetime'
+import { RuleFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Table,
@@ -115,7 +116,11 @@ export function RulesEditor({ eventId }: { eventId: string }) {
         skeleton={<SkeletonTable rows={3} columns={5} density="action" />}
       >
         {rules.length === 0 ? (
-          <EmptyState title={t('rules.emptyTitle')} description={t('rules.emptyHint')} />
+          <EmptyState
+            title={t('rules.emptyTitle')}
+            description={t('rules.emptyHint')}
+            figure={RuleFigure}
+          />
         ) : (
           <Table>
             <TableHeader>

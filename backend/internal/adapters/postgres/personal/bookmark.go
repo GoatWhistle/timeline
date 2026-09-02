@@ -60,7 +60,7 @@ func (r *Bookmarks) IDs(ctx context.Context, userID uuid.UUID, eventIDs []uuid.U
 const bookmarkColumns = `e.display_id, e.title, e.description, e.organizer, e.website_url,
 	e.kind, e.format, e.origin, e.country_code, e.city,
 	e.track, e.prize_pool, e.prize_currency, e.team_size_min, e.team_size_max, e.start_at, e.end_at,
-	(p.id IS NOT NULL) AS joined`
+	e.color_slot, (p.id IS NOT NULL) AS joined`
 
 const bookmarkFrom = `FROM event_bookmarks b
 	JOIN events e ON e.id = b.event_id
@@ -90,12 +90,14 @@ func (r *Bookmarks) List(ctx context.Context, userID uuid.UUID, page models.Page
 	items := make([]dto.CatalogEvent, 0, page.Limit())
 	for rows.Next() {
 		var c dto.CatalogEvent
+		var slot *int
 		if err := rows.Scan(&c.ID, &c.Title, &c.Description, &c.Organizer, &c.WebsiteURL,
 			&c.Kind, &c.Format, &c.Origin, &c.CountryCode, &c.City,
 			&c.Track, &c.PrizePool, &c.PrizeCurrency, &c.TeamSizeMin, &c.TeamSizeMax,
-			&c.StartAt, &c.EndAt, &c.Joined); err != nil {
+			&c.StartAt, &c.EndAt, &slot, &c.Joined); err != nil {
 			return nil, 0, mapError(err)
 		}
+		c.Color = (&models.Event{Origin: c.Origin, ColorSlot: slot}).Color()
 		c.State = eventState(c.StartAt, c.EndAt, now)
 		c.EffectiveFormat = c.Format
 		c.OfflineStages = []dto.CatalogPlace{}

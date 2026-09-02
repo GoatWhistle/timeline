@@ -11,6 +11,7 @@ import { CHANNEL_KEY } from '@/entities/notification/notification.labels'
 import { rulesQuery } from '@/entities/registration/registration.queries'
 import { useSession } from '@/shared/api/session'
 import { formatOffsetMinutes } from '@/shared/datetime/datetime'
+import { MatrixFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Table,
@@ -58,7 +59,11 @@ export function ChannelMatrix({ eventId }: { eventId: string }) {
         skeleton={<SkeletonTable rows={4} columns={4} density="action" />}
       >
         {rows.length === 0 ? (
-          <EmptyState title={t('matrix.emptyTitle')} description={t('matrix.emptyHint')} />
+          <EmptyState
+            title={t('matrix.emptyTitle')}
+            description={t('matrix.emptyHint')}
+            figure={MatrixFigure}
+          />
         ) : (
           <>
             <Table>

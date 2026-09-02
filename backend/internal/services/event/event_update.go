@@ -47,12 +47,9 @@ func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.U
 		}
 		websiteMoved = websiteChanged(before.WebsiteURL, updated.WebsiteURL)
 
-		if !updated.EndAt.Equal(before.EndAt) {
-			reset, err := s.resetSchedule(ctx, id)
-			if err != nil {
-				return err
-			}
-			scheduleReset = reset
+		scheduleReset, err = s.applyUpdateEffects(ctx, id, before, updated)
+		if err != nil {
+			return err
 		}
 
 		return s.audit.Record(ctx, actor, models.AuditEventUpdate, models.EntityEvent, id,
@@ -70,6 +67,17 @@ func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.U
 		s.refreshCover(ctx, id, updated.WebsiteURL)
 	}
 	return updated, nil
+}
+
+func (s *EventService) applyUpdateEffects(ctx context.Context, id uuid.UUID,
+	before, updated *models.Event) (bool, error) {
+	if err := s.repaintOnOriginChange(ctx, id, before.Origin, updated); err != nil {
+		return false, err
+	}
+	if updated.EndAt.Equal(before.EndAt) {
+		return false, nil
+	}
+	return s.resetSchedule(ctx, id)
 }
 
 func normalizeUpdateText(req *dto.UpdateEventRequest) error {

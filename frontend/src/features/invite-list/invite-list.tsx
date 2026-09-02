@@ -11,6 +11,7 @@ import type { InviteResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { usePageParam } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { InviteFigure } from '@/shared/ui/data-display/empty-figures/people-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Table,
@@ -105,7 +106,7 @@ export function AdminInvitesPage() {
         skeleton={<SkeletonTable rows={8} columns={4} density="action" />}
       >
         {query.data?.items.length === 0 ? (
-          <EmptyState title={t('invites.empty')} />
+          <EmptyState title={t('invites.empty')} figure={InviteFigure} />
         ) : (
           <div className="flex flex-col gap-4">
             <Table>

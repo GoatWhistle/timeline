@@ -1,17 +1,20 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { myEventsQuery } from '@/entities/event/event.queries'
 import { EventRow } from '@/entities/event/event-row/event-row'
 import { EventDetailPane } from '@/features/event-detail-pane/event-detail-pane'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { EventListFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Checkbox } from '@/shared/ui/forms/checkbox'
 import { Label } from '@/shared/ui/forms/label'
 import { DetailPane, ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Segmented } from '@/shared/ui/navigation/segmented'
+import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
 
 const MY_STATES = ['', 'UPCOMING', 'ACTIVE', 'FINISHED'] as const
@@ -39,6 +42,12 @@ export function MyEventsPage() {
     }),
   )
   const items = query.data?.items ?? []
+  const filtered = filters.state !== '' || includeArchived
+
+  function resetFilters() {
+    setFilters({ state: undefined, archived: undefined })
+  }
+
   const selected = filters.selected || null
 
   useListNavigation({
@@ -89,7 +98,17 @@ export function MyEventsPage() {
         >
           {items.length === 0 ? (
             <div className="p-4">
-              <EmptyState title={t('list.myEmpty')} />
+              <EmptyState
+                title={filtered ? t('list.myEmptyFiltered') : t('list.myEmpty')}
+                figure={EventListFigure}
+                filtered={filtered}
+                onReset={resetFilters}
+                action={
+                  <Button asChild variant="outline">
+                    <Link to="/catalog">{t('common:action.browseCatalog')}</Link>
+                  </Button>
+                }
+              />
             </div>
           ) : (
             <>

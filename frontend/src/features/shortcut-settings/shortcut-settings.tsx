@@ -14,6 +14,7 @@ import {
   withoutBinding,
 } from '@/shared/keyboard/shortcut-bindings'
 import { listByScope, useShortcutScopeList } from '@/shared/keyboard/shortcut-registry'
+import { ShortcutFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
@@ -90,7 +91,11 @@ export function ShortcutSettings() {
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
           {listings.length === 0 ? (
-            <EmptyState title={t('shortcuts.emptyTitle')} description={t('shortcuts.emptyHint')} />
+            <EmptyState
+              title={t('shortcuts.emptyTitle')}
+              description={t('shortcuts.emptyHint')}
+              figure={ShortcutFigure}
+            />
           ) : (
             listings.map((scope) => (
               <section key={scope.id} className="flex flex-col gap-1">

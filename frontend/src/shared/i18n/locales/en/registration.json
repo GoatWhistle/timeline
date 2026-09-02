@@ -104,8 +104,9 @@
   },
   "participants": {
     "removeSelected": "Remove selected",
-    "emptyTitle": "No participants found",
-    "emptyHint": "Add participants or change the filters",
+    "emptyTitle": "Nobody is on this hackathon yet",
+    "emptyHint": "Assign participants and they appear here.",
+    "emptyFiltered": "No participant matches these filters",
     "removed": "Participants removed",
     "removeFailed": "Could not remove the participants",
     "restored": "Participant restored",

@@ -14,6 +14,7 @@ import type { ParticipantResponse, RegistrationStatusValue } from '@/shared/api/
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useUndoableAction } from '@/shared/hooks/use-undoable-action/use-undoable-action'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { RosterFigure } from '@/shared/ui/data-display/empty-figures/people-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Button } from '@/shared/ui/primitives/button'
@@ -54,6 +55,13 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
   const removeMany = useRemoveParticipants(eventId)
   const updateRole = useUpdateTeamRole(eventId)
   const reactivate = useReactivateParticipant(eventId)
+
+  const filtered = role !== '' || filters.status !== ALL || filters.removed === '1'
+
+  function resetFilters() {
+    setRoleInput('')
+    setFilters({ role: undefined, status: undefined, removed: undefined })
+  }
 
   const items = query.data?.items ?? []
   const selectableIds = items
@@ -132,8 +140,11 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
       >
         {items.length === 0 ? (
           <EmptyState
-            title={t('participants.emptyTitle')}
-            description={t('participants.emptyHint')}
+            title={filtered ? t('participants.emptyFiltered') : t('participants.emptyTitle')}
+            description={filtered ? undefined : t('participants.emptyHint')}
+            figure={RosterFigure}
+            filtered={filtered}
+            onReset={resetFilters}
           />
         ) : (
           <div className="flex flex-col gap-4">

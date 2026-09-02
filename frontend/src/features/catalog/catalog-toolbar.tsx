@@ -17,7 +17,6 @@ export type CatalogToolbarProps = {
   order: CatalogOrder
   filters: CatalogFilterValues
   columns: CatalogColumn[]
-  total: number | undefined
   exporting: boolean
   onLayout: (value: CatalogLayout) => void
   onSort: (value: CatalogSort) => void
@@ -35,7 +34,6 @@ export function CatalogToolbar({
   order,
   filters,
   columns,
-  total,
   exporting,
   onLayout,
   onSort,
@@ -50,7 +48,7 @@ export function CatalogToolbar({
 
   return (
     <div className="flex flex-wrap items-center gap-2 border-border border-b px-4 py-3">
-      <h1 className="mr-1 font-semibold text-screen tracking-tight">{t('catalog.title')}</h1>
+      <h1 className="mr-6 font-semibold text-screen tracking-tight">{t('catalog.title')}</h1>
 
       <CatalogFiltersPopover values={filters} onChange={onFilters} onReset={onResetFilters} />
 
@@ -61,12 +59,6 @@ export function CatalogToolbar({
       )}
 
       <CatalogExportButton pending={exporting} onExport={onExport} />
-
-      {total !== undefined && (
-        <span aria-live="polite" className="text-meta text-muted-foreground tabular-nums">
-          {t('catalog.resultCount', { count: total })}
-        </span>
-      )}
 
       <div className="ml-auto">
         <CatalogViewSwitch layout={layout} onLayout={onLayout} />

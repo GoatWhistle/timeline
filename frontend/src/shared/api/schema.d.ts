@@ -10222,6 +10222,7 @@ export interface components {
         "dto.CatalogEvent": {
             /** @example Moscow */
             city?: string;
+            color?: components["schemas"]["models.EventColor"];
             /** @example RU */
             country_code?: string;
             description?: string;
@@ -10482,6 +10483,7 @@ export interface components {
             archived_at?: string;
             /** @example Moscow */
             city?: string;
+            color?: components["schemas"]["models.EventColor"];
             /** @example RU */
             country_code?: string;
             cover_source?: components["schemas"]["models.CoverSource"];
@@ -11488,6 +11490,12 @@ export interface components {
         "models.CoverSource": "MANUAL" | "AUTO";
         /** @enum {string} */
         "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "CALENDAR_FEED";
+        "models.EventColor": {
+            /** @enum {string} */
+            family: "RU" | "WORLD";
+            /** @example 3 */
+            slot: number;
+        };
         /** @enum {string} */
         "models.EventFormat": "ONLINE" | "OFFLINE" | "HYBRID";
         /** @enum {string} */

@@ -40,8 +40,8 @@ func (l *Local) Put(_ context.Context, key string, data []byte, _ string) error 
 	}
 	tmpName := tmp.Name()
 	defer func() {
-		tmp.Close()
-		os.Remove(tmpName)
+		_ = tmp.Close()
+		_ = os.Remove(tmpName)
 	}()
 
 	if _, err := tmp.Write(data); err != nil {
@@ -53,7 +53,7 @@ func (l *Local) Put(_ context.Context, key string, data []byte, _ string) error 
 	if err := tmp.Close(); err != nil {
 		return fmt.Errorf("close blob: %w", err)
 	}
-	if err := os.Chmod(tmpName, 0o640); err != nil {
+	if err := os.Chmod(tmpName, 0o600); err != nil {
 		return fmt.Errorf("chmod blob: %w", err)
 	}
 	if err := os.Rename(tmpName, name); err != nil {
@@ -76,11 +76,11 @@ func (l *Local) Open(_ context.Context, key string) (*Blob, error) {
 	}
 	info, err := file.Stat()
 	if err != nil {
-		file.Close()
+		_ = file.Close()
 		return nil, fmt.Errorf("stat blob: %w", err)
 	}
 	if !info.Mode().IsRegular() {
-		file.Close()
+		_ = file.Close()
 		return nil, ErrNotFound
 	}
 	return &Blob{

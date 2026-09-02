@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router'
 import { teamsQuery } from '@/entities/team/team.queries'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { TeamFigure } from '@/shared/ui/data-display/empty-figures/people-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Card } from '@/shared/ui/layout/card'
 import { PageHeader } from '@/shared/ui/layout/page-header'
@@ -44,6 +45,7 @@ export function TeamsPage() {
           <EmptyState
             title={t('empty')}
             description={t('emptyHint')}
+            figure={TeamFigure}
             action={
               <Button onClick={() => setCreating(true)}>
                 <Plus aria-hidden="true" />

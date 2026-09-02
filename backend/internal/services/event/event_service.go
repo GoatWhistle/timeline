@@ -101,6 +101,13 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req dto.C
 		if err != nil {
 			return err
 		}
+		claim, err := s.AssignColor(ctx, created.ID, created.Origin)
+		if err != nil {
+			return err
+		}
+		if claim != nil {
+			created.ColorSlot, created.ColorAssignedAt = &claim.Slot, &claim.AssignedAt
+		}
 		return s.audit.Record(ctx, actor, models.AuditEventCreate, models.EntityEvent, created.ID, nil,
 			map[string]any{"title": created.Title, "start_at": created.StartAt, "end_at": created.EndAt})
 	})

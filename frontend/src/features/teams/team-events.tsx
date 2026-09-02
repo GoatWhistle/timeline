@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { teamEventsQuery } from '@/entities/team/team.queries'
 import type { TeamMemberResponse } from '@/shared/api/types.gen'
+import { EventListFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary } from '@/shared/ui/states'
@@ -48,7 +49,18 @@ export function TeamEvents({
         shape="unknown"
       >
         {query.data && query.data.items.length === 0 ? (
-          <EmptyState title={t('eventsEmpty')} />
+          <EmptyState
+            title={t('eventsEmpty')}
+            figure={EventListFigure}
+            action={
+              isLead ? (
+                <Button onClick={() => setEntering(true)}>
+                  <Plus aria-hidden="true" />
+                  {t('enterEvent')}
+                </Button>
+              ) : undefined
+            }
+          />
         ) : (
           <div className="flex flex-col gap-4">
             {(query.data?.items ?? []).map((entry) => (

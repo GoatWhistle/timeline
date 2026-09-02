@@ -5,6 +5,7 @@ import type { PreviewState } from '@/entities/notification-preview'
 import type { NotificationPreviewResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { PreviewFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { ErrorState } from '@/shared/ui/data-display/error-state'
 import { Skeleton } from '@/shared/ui/states'
@@ -101,7 +102,13 @@ export function PreviewBody({ state, onRetry }: { state: PreviewState; onRetry: 
   }
 
   if (state.kind === 'nothing-to-send') {
-    return <EmptyState title={t('preview.nothingTitle')} description={t('preview.nothingHint')} />
+    return (
+      <EmptyState
+        title={t('preview.nothingTitle')}
+        description={t('preview.nothingHint')}
+        figure={PreviewFigure}
+      />
+    )
   }
 
   if (state.kind === 'error') return <ErrorState error={state.error} onRetry={onRetry} />

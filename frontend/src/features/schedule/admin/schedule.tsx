@@ -13,6 +13,7 @@ import type { EventState } from '@/shared/api/types.gen'
 import { localeCollator } from '@/shared/datetime/datetime'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { toLocale } from '@/shared/i18n/locale'
+import { ScheduleFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Select,
@@ -111,7 +112,11 @@ export function AdminSchedulePage() {
         shape="unknown"
       >
         {query.data && query.data.rows.length === 0 ? (
-          <EmptyState title={t('schedule.emptyTitle')} description={t('schedule.emptyHint')} />
+          <EmptyState
+            title={t('schedule.emptyTitle')}
+            description={t('schedule.emptyHint')}
+            figure={ScheduleFigure}
+          />
         ) : (
           query.data && (
             <div className="flex flex-col gap-4">

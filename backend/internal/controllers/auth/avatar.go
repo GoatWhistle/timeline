@@ -69,7 +69,7 @@ func (c *AvatarController) Upload(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, avatarTooLarge(err, c.maxBytes))
 		return
 	}
-	defer r.MultipartForm.RemoveAll()
+	defer func() { _ = r.MultipartForm.RemoveAll() }()
 
 	file, _, err := r.FormFile("file")
 	if err != nil {

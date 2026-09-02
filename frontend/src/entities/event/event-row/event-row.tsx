@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { resolveUrgency, URGENCY_KEY, URGENCY_TEXT } from '@/entities/deadline/urgency/urgency'
+import { EventColorMark } from '@/entities/event/event-color'
 import { EventStateMark, EventStateText } from '@/entities/event/event-state-mark/event-state-mark'
-import type { EventState } from '@/shared/api/types.gen'
+import type { EventColor, EventState } from '@/shared/api/types.gen'
 import { formatDateRange, formatRelative } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
 
@@ -12,6 +13,7 @@ export type EventRowData = {
   start_at: string
   end_at: string
   state: EventState
+  color?: EventColor | null
   registration_deadline?: string | null
   registration_status?: { status: 'TODO' | 'DONE' | 'NOT_REQUIRED' } | null
 }
@@ -45,6 +47,7 @@ export function EventRow({
         selected ? 'bg-accent-surface' : 'hover:bg-surface-2',
       )}
     >
+      <EventColorMark color={event.color} />
       <EventStateMark state={event.state} labelled={false} />
 
       <span className="min-w-0 flex-1 truncate font-medium text-copy">{event.title}</span>

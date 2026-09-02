@@ -59,6 +59,8 @@ func (s *EventService) Archive(ctx context.Context, actor models.Actor, id uuid.
 		if err := s.notifier.CancelForEvent(ctx, id); err != nil {
 			return err
 		}
+		s.releaseColor(ctx, id)
+		archived.ColorSlot, archived.ColorAssignedAt = nil, nil
 		return s.audit.Record(ctx, actor, models.AuditEventArchive, models.EntityEvent, id,
 			map[string]any{"archived_at": nil}, map[string]any{"archived_at": archived.ArchivedAt})
 	})

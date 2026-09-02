@@ -11,13 +11,15 @@
     "logout": "Sign out",
     "home": "Go home",
     "apply": "Apply",
-    "undo": "Undo"
+    "undo": "Undo",
+    "browseCatalog": "Browse the catalog"
   },
   "state": {
     "loading": "Loading",
     "loadingPage": "Loading page",
     "loadFailed": "Failed to load data",
     "requestId": "Request id: {{id}}",
+    "resetFilters": "Reset the filters",
     "dash": "—"
   },
   "batch": {

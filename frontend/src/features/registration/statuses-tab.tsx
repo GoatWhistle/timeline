@@ -16,6 +16,7 @@ import { NotificationPreviewDialog } from '@/features/notification-preview/previ
 import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
 import type { BatchResult, RegistrationStatusValue } from '@/shared/api/types.gen'
 import { usePageParam } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { RosterFigure } from '@/shared/ui/data-display/empty-figures/people-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Field } from '@/shared/ui/forms/field'
 import {
@@ -121,7 +122,11 @@ export function StatusesTab({ eventId }: { eventId: string }) {
         skeleton={<SkeletonTable rows={10} columns={7} density="action" />}
       >
         {items.length === 0 ? (
-          <EmptyState title={t('statuses.emptyTitle')} description={t('statuses.emptyHint')} />
+          <EmptyState
+            title={t('statuses.emptyTitle')}
+            description={t('statuses.emptyHint')}
+            figure={RosterFigure}
+          />
         ) : (
           <div className="flex flex-col gap-4">
             <StatusesTable

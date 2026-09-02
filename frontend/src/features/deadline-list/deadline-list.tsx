@@ -10,6 +10,7 @@ import {
 import type { DeadlineItem, DeadlinePage } from '@/shared/api/types.gen'
 import { formatDuration, formatRelative } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { DeadlineFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Table,
@@ -55,7 +56,7 @@ function DeadlineTable({
   const { t } = useTranslation('event')
   const items = data?.items ?? []
 
-  if (items.length === 0) return <EmptyState title={emptyTitle} />
+  if (items.length === 0) return <EmptyState title={emptyTitle} figure={DeadlineFigure} />
 
   return (
     <div className="flex flex-col gap-4">

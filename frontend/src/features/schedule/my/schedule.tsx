@@ -1,13 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { myScheduleQuery } from '@/entities/schedule/schedule.queries'
 import { useScheduleView } from '@/features/schedule/model/use-schedule-view'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
 import { ScheduleLegend } from '@/features/schedule/ui/schedule-legend'
 import { ViewTabs } from '@/features/schedule/ui/view-tabs/view-tabs'
+import { ScheduleFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { PageHeader } from '@/shared/ui/layout/page-header'
+import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary } from '@/shared/ui/states'
 
 export function MySchedulePage() {
@@ -30,7 +32,15 @@ export function MySchedulePage() {
         shape="unknown"
       >
         {query.data && query.data.rows.length === 0 ? (
-          <EmptyState title={t('schedule.myEmpty')} />
+          <EmptyState
+            title={t('schedule.myEmpty')}
+            figure={ScheduleFigure}
+            action={
+              <Button asChild variant="outline">
+                <Link to="/catalog">{t('action.browseCatalog')}</Link>
+              </Button>
+            }
+          />
         ) : (
           query.data && (
             <div className="flex flex-col gap-4">

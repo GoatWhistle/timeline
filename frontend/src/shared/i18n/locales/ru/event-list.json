@@ -8,8 +8,9 @@
     "stateAria": "Состояние",
     "allStates": "Все состояния",
     "showArchived": "Показывать архивные",
-    "emptyTitle": "События не найдены",
-    "emptyHint": "Измените фильтры или создайте новый",
+    "emptyTitle": "Событий пока нет",
+    "emptyHint": "Создайте первое, и оно появится здесь.",
+    "emptyFiltered": "Ни одно событие не подходит под эти фильтры",
     "columnTitle": "Название",
     "columnOrganizer": "Организатор",
     "columnPeriod": "Период",
@@ -20,6 +21,7 @@
     "myTitle": "Мои события",
     "myDescription": "События, на которые вы назначены",
     "myEmpty": "У вас пока нет назначенных событий",
+    "myEmptyFiltered": "Ни одно ваше событие не подходит под эти фильтры",
     "teamRole": "Роль в команде:",
     "nextStage": "Ближайший этап: {{name}} ·",
     "registrationDeadline": "Дедлайн регистрации {{relative}}"
@@ -110,10 +112,6 @@
       "done": "Выгрузка скачана",
       "hint": "Скачивает все события по текущим фильтрам, а не только эту страницу."
     },
-    "resultCount_one": "{{count}} событие",
-    "resultCount_few": "{{count}} события",
-    "resultCount_many": "{{count}} событий",
-    "resultCount_other": "{{count}} события",
     "selected": "Выбрано",
     "columns": {
       "action": "Колонки",

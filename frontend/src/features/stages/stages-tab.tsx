@@ -13,6 +13,7 @@ import {
 import { StageTypeMark } from '@/entities/stage/stage-type-mark/stage-type-mark'
 import type { EventResponse, StageResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
+import { StageFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Table,
@@ -78,7 +79,17 @@ export function StagesTab({ event }: { event: EventResponse }) {
         skeleton={<SkeletonTable rows={5} columns={5} density="action" />}
       >
         {stages.length === 0 ? (
-          <EmptyState title={t('stages.emptyTitle')} description={t('stages.emptyHint')} />
+          <EmptyState
+            title={t('stages.emptyTitle')}
+            description={t('stages.emptyHint')}
+            figure={StageFigure}
+            action={
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="size-4" aria-hidden="true" />
+                {t('stages.add')}
+              </Button>
+            }
+          />
         ) : (
           <Table>
             <TableHeader>

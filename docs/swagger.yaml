@@ -204,6 +204,8 @@ definitions:
       city:
         example: Moscow
         type: string
+      color:
+        $ref: '#/definitions/models.EventColor'
       country_code:
         example: RU
         type: string
@@ -674,6 +676,8 @@ definitions:
       city:
         example: Moscow
         type: string
+      color:
+        $ref: '#/definitions/models.EventColor'
       country_code:
         example: RU
         type: string
@@ -2542,6 +2546,17 @@ definitions:
     - EntityNotificationRule
     - EntityResourceLink
     - EntityCalendarFeed
+  models.EventColor:
+    properties:
+      family:
+        enum:
+        - RU
+        - WORLD
+        type: string
+      slot:
+        example: 3
+        type: integer
+    type: object
   models.EventFormat:
     enum:
     - ONLINE

@@ -11,6 +11,7 @@ import { auditQuery } from '@/entities/audit/audit.queries'
 import type { AuditAction, AuditResponse, EntityType } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { AuditFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Table,
@@ -54,6 +55,13 @@ export function AdminAuditPage() {
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
   const [page, setPage] = usePageParam()
   const [detail, setDetail] = useState<AuditResponse | null>(null)
+
+  const filtered =
+    filters.action !== ALL || filters.entity !== ALL || filters.from !== '' || filters.to !== ''
+
+  function resetFilters() {
+    setFilters({ action: undefined, entity: undefined, from: undefined, to: undefined })
+  }
 
   const query = useQuery(
     auditQuery({
@@ -137,7 +145,12 @@ export function AdminAuditPage() {
         skeleton={<SkeletonTable rows={10} columns={5} density="action" />}
       >
         {query.data?.items.length === 0 ? (
-          <EmptyState title={t('audit.empty')} />
+          <EmptyState
+            title={filtered ? t('audit.emptyFiltered') : t('audit.empty')}
+            figure={AuditFigure}
+            filtered={filtered}
+            onReset={resetFilters}
+          />
         ) : (
           <div className="flex flex-col gap-4">
             <Table>

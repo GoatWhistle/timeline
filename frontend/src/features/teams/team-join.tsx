@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { useJoinByLink } from '@/entities/team/team.queries'
 import { isApiError } from '@/shared/api/errors'
+import { BrokenLinkFigure } from '@/shared/ui/data-display/empty-figures/people-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { PageHeader } from '@/shared/ui/layout/page-header'
@@ -37,6 +38,7 @@ export function TeamJoinPage() {
         <EmptyState
           title={t('linkInvalid')}
           description={t('linkInvalidHint')}
+          figure={BrokenLinkFigure}
           action={
             <Button variant="outline" onClick={() => navigate('/teams')}>
               {t('title')}

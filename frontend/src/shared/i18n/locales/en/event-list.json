@@ -8,8 +8,9 @@
     "stateAria": "State",
     "allStates": "All states",
     "showArchived": "Show archived",
-    "emptyTitle": "No events found",
-    "emptyHint": "Change the filters or create a new one",
+    "emptyTitle": "No event has been created yet",
+    "emptyHint": "Create the first one and it shows up here.",
+    "emptyFiltered": "No event matches these filters",
     "columnTitle": "Title",
     "columnOrganizer": "Organizer",
     "columnPeriod": "Period",
@@ -20,6 +21,7 @@
     "myTitle": "My events",
     "myDescription": "Events you are assigned to",
     "myEmpty": "You have no assigned events yet",
+    "myEmptyFiltered": "None of your events matches these filters",
     "teamRole": "Team role:",
     "nextStage": "Next stage: {{name}} ·",
     "registrationDeadline": "Registration deadline {{relative}}"
@@ -110,10 +112,6 @@
       "done": "The export has been downloaded",
       "hint": "Downloads every event matching the current filters, not only this page."
     },
-    "resultCount_one": "{{count}} event",
-    "resultCount_few": "{{count}} events",
-    "resultCount_many": "{{count}} events",
-    "resultCount_other": "{{count}} events",
     "selected": "Selected",
     "columns": {
       "action": "Columns",

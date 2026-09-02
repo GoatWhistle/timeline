@@ -14,6 +14,7 @@ import type { EventState } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { EventListFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Input } from '@/shared/ui/forms/input'
 import {
@@ -55,6 +56,13 @@ export function AdminEventsPage() {
   )
 
   const items = query.data?.items ?? []
+  const filtered = search !== '' || filters.state !== ALL || filters.archived === '1'
+
+  function resetFilters() {
+    setSearchInput('')
+    setFilters({ search: undefined, state: undefined, archived: undefined })
+  }
+
   const selected = filters.selected || null
 
   useListNavigation({
@@ -119,7 +127,19 @@ export function AdminEventsPage() {
         >
           {items.length === 0 ? (
             <div className="p-4">
-              <EmptyState title={t('list.emptyTitle')} description={t('list.emptyHint')} />
+              <EmptyState
+                title={filtered ? t('list.emptyFiltered') : t('list.emptyTitle')}
+                description={filtered ? undefined : t('list.emptyHint')}
+                figure={EventListFigure}
+                filtered={filtered}
+                onReset={resetFilters}
+                action={
+                  <Button onClick={() => setCreateOpen(true)}>
+                    <Plus className="size-4" aria-hidden="true" />
+                    {t('list.create')}
+                  </Button>
+                }
+              />
             </div>
           ) : (
             <>

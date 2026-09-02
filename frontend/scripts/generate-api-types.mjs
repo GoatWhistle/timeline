@@ -45,6 +45,7 @@ const OPTIONAL = {
     'team_size_max',
     'cover_url',
     'cover_source',
+    'color',
   ],
   'dto.CatalogEvent': [
     'description',
@@ -57,6 +58,7 @@ const OPTIONAL = {
     'prize_currency',
     'team_size_min',
     'team_size_max',
+    'color',
   ],
   'dto.CatalogPlace': [],
   'models.Place': ['country_code', 'city', 'venue', 'online_url'],

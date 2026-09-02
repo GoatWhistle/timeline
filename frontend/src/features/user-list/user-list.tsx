@@ -9,6 +9,7 @@ import type { UserSummary } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { useLocale } from '@/shared/i18n/i18n-context'
+import { RosterFigure } from '@/shared/ui/data-display/empty-figures/people-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Table,
@@ -37,6 +38,12 @@ export function AdminUsersPage() {
   const search = useDebouncedValue(searchInput, 300)
 
   const [deleting, setDeleting] = useState<UserSummary | null>(null)
+  const filtered = search !== ''
+
+  function resetFilters() {
+    setSearchInput('')
+    setFilters({ query: undefined })
+  }
 
   const query = useQuery(usersQuery({ page, ...(search ? { query: search } : {}) }))
   const activate = useActivateUser()
@@ -69,7 +76,12 @@ export function AdminUsersPage() {
         skeleton={<SkeletonTable rows={10} columns={4} density="action" />}
       >
         {query.data?.items.length === 0 ? (
-          <EmptyState title={t('users.empty')} />
+          <EmptyState
+            title={filtered ? t('users.emptyFiltered') : t('users.empty')}
+            figure={RosterFigure}
+            filtered={filtered}
+            onReset={resetFilters}
+          />
         ) : (
           <div className="flex flex-col gap-4">
             <Table>

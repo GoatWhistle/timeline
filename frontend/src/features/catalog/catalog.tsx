@@ -133,7 +133,6 @@ export function CatalogPage() {
           order={order}
           filters={conditions}
           columns={columns}
-          total={query.data?.meta.total}
           exporting={exportMutation.isPending}
           onLayout={(value) => setFilters({ layout: value }, { resetPage: false })}
           onSort={changeSort}

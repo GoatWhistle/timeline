@@ -32,6 +32,9 @@ type Event struct {
 	CoverAutoSource    *string    `json:"cover_auto_source,omitempty"`
 	CoverAutoFetchedAt *time.Time `json:"cover_auto_fetched_at,omitempty"`
 
+	ColorSlot       *int       `json:"color_slot,omitempty"`
+	ColorAssignedAt *time.Time `json:"color_assigned_at,omitempty"`
+
 	PublishedAt *time.Time `json:"published_at,omitempty"`
 	ArchivedAt  *time.Time `json:"archived_at,omitempty"`
 	CreatedAt   time.Time  `json:"created_at"`

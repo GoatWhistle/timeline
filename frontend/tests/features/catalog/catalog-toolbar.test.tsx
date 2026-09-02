@@ -21,7 +21,6 @@ function props(overrides: Partial<CatalogToolbarProps> = {}): CatalogToolbarProp
     order: 'asc',
     filters: NO_FILTERS,
     columns: ['title', 'period'],
-    total: 3,
     exporting: false,
     onLayout: vi.fn(),
     onSort: vi.fn(),
@@ -68,6 +67,20 @@ describe('catalog toolbar', () => {
     )
     await user.click(screen.getByLabelText(i18n.t('event:catalog.order.asc')))
     expect(onOrder).toHaveBeenCalledWith('desc')
+  })
+
+  it('shows no result count beside the heading, which was noise', () => {
+    renderWithProviders(<CatalogToolbar {...props()} />)
+    expect(screen.getByRole('heading', { name: i18n.t('event:catalog.title') })).toBeInTheDocument()
+    expect(screen.queryByText(/\d/)).not.toBeInTheDocument()
+    expect(document.querySelector('[aria-live="polite"]')).toBeNull()
+  })
+
+  it('separates the heading from the buttons with a scale step, not a hair', () => {
+    renderWithProviders(<CatalogToolbar {...props()} />)
+    const heading = screen.getByRole('heading', { name: i18n.t('event:catalog.title') })
+    expect(heading.className).toContain('mr-6')
+    expect(heading.className).not.toContain('mr-1')
   })
 
   it('keeps the export and the view switch in both views', () => {

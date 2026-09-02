@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { overdueSeconds, type QueueScope, queueQuery, splitOverdue } from '@/entities/ops'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { QueueFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Table,
@@ -69,6 +70,7 @@ export function AdminOpsQueuePage() {
           <EmptyState
             title={t(stuck ? 'ops:emptyStuckTitle' : 'ops:emptyFailuresTitle')}
             description={t(stuck ? 'ops:emptyStuckHint' : 'ops:emptyFailuresHint')}
+            figure={QueueFigure}
           />
         ) : (
           <Table>

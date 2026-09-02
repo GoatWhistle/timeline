@@ -29,6 +29,8 @@ type EventResponse struct {
 	CoverURL    *string             `json:"cover_url,omitempty" example:"/api/v1/covers/abc.png"`
 	CoverSource *models.CoverSource `json:"cover_source,omitempty" enums:"MANUAL,AUTO"`
 
+	Color *models.EventColor `json:"color,omitempty"`
+
 	StartAt     time.Time         `json:"start_at"`
 	EndAt       time.Time         `json:"end_at"`
 	State       models.EventState `json:"state" enums:"UNPUBLISHED,UPCOMING,ACTIVE,FINISHED,ARCHIVED"`

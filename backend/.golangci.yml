@@ -237,6 +237,14 @@ linters:
         linters:
           - lll
 
+      - path: internal/controllers/auth/session\.go
+        linters:
+          - lll
+
+      - path: internal/services/shared/blobstore/local\.go
+        linters:
+          - gosec
+
       - path: internal/controllers/participation/status\.go
         linters:
           - lll

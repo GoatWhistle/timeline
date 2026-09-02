@@ -50,5 +50,8 @@
     "sourceAuto": "From the website",
     "hint": "PNG, JPEG or WebP up to 5 MB. An uploaded cover always wins over the one fetched from the website.",
     "hintNoWebsite": "PNG, JPEG or WebP up to 5 MB. Add a website address to fetch a cover automatically."
+  },
+  "color": {
+    "unassigned": "No colour assigned"
   }
 }

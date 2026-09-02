@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { sortSessions } from '@/entities/session/device-label'
 import { deviceSessionsQuery, useRevokeSession } from '@/entities/session/device-sessions.queries'
 import { resetCsrfToken } from '@/shared/api/client'
+import { DeviceFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
@@ -58,7 +59,11 @@ export function DeviceList() {
           skeleton={<DeviceSkeleton rows={3} />}
         >
           {items.length === 0 ? (
-            <EmptyState title={t('devices.emptyTitle')} description={t('devices.emptyHint')} />
+            <EmptyState
+              title={t('devices.emptyTitle')}
+              description={t('devices.emptyHint')}
+              figure={DeviceFigure}
+            />
           ) : (
             <>
               <p className="mb-2 text-meta text-muted-foreground">

@@ -23,6 +23,7 @@ type CatalogEvent struct {
 	PrizeCurrency   *string            `json:"prize_currency,omitempty" example:"RUB"`
 	TeamSizeMin     *int               `json:"team_size_min,omitempty" example:"3"`
 	TeamSizeMax     *int               `json:"team_size_max,omitempty" example:"5"`
+	Color           *models.EventColor `json:"color,omitempty"`
 	OfflineStages   []CatalogPlace     `json:"offline_stages"`
 	StartAt         time.Time          `json:"start_at"`
 	EndAt           time.Time          `json:"end_at"`

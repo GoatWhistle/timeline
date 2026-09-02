@@ -8509,6 +8509,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Moscow"
                 },
+                "color": {
+                    "$ref": "#/definitions/models.EventColor"
+                },
                 "country_code": {
                     "type": "string",
                     "example": "RU"
@@ -9208,6 +9211,9 @@ const docTemplate = `{
                 "city": {
                     "type": "string",
                     "example": "Moscow"
+                },
+                "color": {
+                    "$ref": "#/definitions/models.EventColor"
                 },
                 "country_code": {
                     "type": "string",
@@ -11916,6 +11922,22 @@ const docTemplate = `{
                 "EntityResourceLink",
                 "EntityCalendarFeed"
             ]
+        },
+        "models.EventColor": {
+            "type": "object",
+            "properties": {
+                "family": {
+                    "type": "string",
+                    "enum": [
+                        "RU",
+                        "WORLD"
+                    ]
+                },
+                "slot": {
+                    "type": "integer",
+                    "example": 3
+                }
+            }
         },
         "models.EventFormat": {
             "type": "string",
