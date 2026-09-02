@@ -10225,6 +10225,8 @@ export interface components {
             color?: components["schemas"]["models.EventColor"];
             /** @example RU */
             country_code?: string;
+            /** @example /api/v1/covers/abc.png */
+            cover_url?: string;
             description?: string;
             effective_format: components["schemas"]["models.EventFormat"];
             /** Format: date-time */
@@ -11024,6 +11026,7 @@ export interface components {
             rows: components["schemas"]["dto.ScheduleRow"][];
         };
         "dto.ScheduleRow": {
+            color?: components["schemas"]["models.EventColor"];
             effective_format: components["schemas"]["models.EventFormat"];
             /** Format: date-time */
             end_at: string;

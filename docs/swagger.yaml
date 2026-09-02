@@ -209,6 +209,9 @@ definitions:
       country_code:
         example: RU
         type: string
+      cover_url:
+        example: /api/v1/covers/abc.png
+        type: string
       description:
         type: string
       effective_format:
@@ -1619,6 +1622,8 @@ definitions:
     type: object
   dto.ScheduleRow:
     properties:
+      color:
+        $ref: '#/definitions/models.EventColor'
       effective_format:
         allOf:
         - $ref: '#/definitions/models.EventFormat'

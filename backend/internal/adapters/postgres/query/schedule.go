@@ -54,7 +54,7 @@ func scheduleQuery(filter models.ScheduleFilter, forUserID *uuid.UUID) (string, 
 
 	return `
 		SELECT h.id, h.display_id, h.title, h.start_at, h.end_at, h.published_at, h.archived_at,
-		       h.format, h.country_code, h.city,
+		       h.format, h.country_code, h.city, h.origin, h.color_slot,
 		       (SELECT r.deadline_at FROM registrations r WHERE r.event_id = h.id AND r.state = 'ACTIVE'),
 		       ` + mineSelect + `
 		FROM events h` + mineJoin + `
@@ -87,10 +87,12 @@ func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilte
 		)
 		if err := rows.Scan(&row.EventUUID, &row.EventID, &row.Title, &row.StartAt, &row.EndAt,
 			&publishedAt, &archivedAt,
-			&event.Format, &event.CountryCode, &event.City, &row.RegistrationDeadline,
+			&event.Format, &event.CountryCode, &event.City, &event.Origin, &event.ColorSlot,
+			&row.RegistrationDeadline,
 			&row.TeamRole, &statusID, &statusValue, &todoCycle, &registered); err != nil {
 			return nil, mapError(err)
 		}
+		row.Color = event.Color()
 		if statusID != nil && statusValue != nil && todoCycle != nil {
 			row.RegistrationStatus = &dto.RegistrationStatusShort{
 				ID: *statusID, Status: *statusValue, TodoCycle: *todoCycle, RegisteredAt: registered,

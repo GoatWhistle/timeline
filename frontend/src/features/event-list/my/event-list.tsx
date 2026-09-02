@@ -4,14 +4,14 @@ import { Link } from 'react-router'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { myEventsQuery } from '@/entities/event/event.queries'
 import { EventRow } from '@/entities/event/event-row/event-row'
-import { EventDetailPane } from '@/features/event-detail-pane/event-detail-pane'
+import { AssignedEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EventListFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Checkbox } from '@/shared/ui/forms/checkbox'
 import { Label } from '@/shared/ui/forms/label'
-import { DetailPane, ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
+import { ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Segmented } from '@/shared/ui/navigation/segmented'
 import { Button } from '@/shared/ui/primitives/button'
@@ -49,6 +49,7 @@ export function MyEventsPage() {
   }
 
   const selected = filters.selected || null
+  const { openEventCard } = useEventOverlay()
 
   useListNavigation({
     ids: items.map((item) => item.id),
@@ -118,12 +119,10 @@ export function MyEventsPage() {
                     key={item.id}
                     event={item}
                     selected={item.id === selected}
-                    onSelect={(id) =>
-                      setFilters(
-                        { selected: id === selected ? undefined : id },
-                        { resetPage: false },
-                      )
-                    }
+                    onSelect={(id) => {
+                      setFilters({ selected: id }, { resetPage: false })
+                      openEventCard(id)
+                    }}
                   />
                 ))}
               </div>
@@ -137,18 +136,7 @@ export function MyEventsPage() {
         </QueryBoundary>
       </ListPane>
 
-      <DetailPane
-        open={selected !== null}
-        onClose={() => setFilters({ selected: undefined }, { resetPage: false })}
-        labelledBy="event-detail-title"
-      >
-        {selected && (
-          <EventDetailPane
-            id={selected}
-            onClose={() => setFilters({ selected: undefined }, { resetPage: false })}
-          />
-        )}
-      </DetailPane>
+      <AssignedEventOverlay />
     </ThreePane>
   )
 }

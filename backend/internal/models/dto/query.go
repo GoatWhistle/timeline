@@ -74,6 +74,7 @@ type ScheduleRow struct {
 	Stages               []ScheduleItem           `json:"stages"`
 	RegistrationDeadline *time.Time               `json:"registration_deadline,omitempty"`
 	RegistrationStatus   *RegistrationStatusShort `json:"registration_status,omitempty"`
+	Color                *models.EventColor       `json:"color,omitempty"`
 }
 
 type ScheduleResponse struct {

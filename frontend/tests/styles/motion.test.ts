@@ -20,7 +20,7 @@ const ANIMATED_SURFACES = [
   'src/features/settings-overlay/settings-overlay.tsx',
   'src/features/event-feed-bell/event-feed-bell.tsx',
   'src/app/sidebar/app-sidebar.tsx',
-  'src/shared/ui/layout/three-pane/three-pane.tsx',
+  'src/features/event-overlay-card/event-overlay-card.tsx',
   'src/features/batch-result-panel/batch-result-panel.tsx',
 ]
 

@@ -10552,6 +10552,10 @@
             "type": "string",
             "example": "RU"
           },
+          "cover_url": {
+            "type": "string",
+            "example": "/api/v1/covers/abc.png"
+          },
           "description": {
             "type": "string"
           },
@@ -12700,6 +12704,9 @@
       "dto.ScheduleRow": {
         "type": "object",
         "properties": {
+          "color": {
+            "$ref": "#/components/schemas/models.EventColor"
+          },
           "effective_format": {
             "$ref": "#/components/schemas/models.EventFormat"
           },

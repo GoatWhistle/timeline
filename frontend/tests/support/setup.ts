@@ -9,4 +9,12 @@ beforeAll(async () => {
   await Promise.all(LOCALES.map((locale) => loadLocale(locale)))
 })
 
+if (!('ResizeObserver' in globalThis)) {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+}
+
 afterEach(cleanup)

@@ -1,13 +1,8 @@
 import { memo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
-import {
-  STAGE_TYPE_COLOR,
-  STAGE_TYPE_ICON,
-  STAGE_TYPE_PATTERNED,
-} from '@/entities/stage/stage.labels'
-import { cn } from '@/shared/styling/class-names/class-names'
+import { EventColorMark, eventColorAttrs } from '@/entities/event/event-color'
+import { STAGE_TYPE_ICON, STAGE_TYPE_PATTERNED } from '@/entities/stage/stage.labels'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/tooltip'
+import type { BarSummary } from '../../model/bar-summary'
 import type { CalendarSpan } from '../../model/calendar-items'
 import { marksWithin } from '../../model/calendar-items'
 import type { Segment } from '../../model/pack-lanes'
@@ -22,22 +17,27 @@ export type EventBarProps = {
   segment: Segment<CalendarSpan>
   scale: ScheduleScale
   sentence: string
+  summary: BarSummary
   focused: boolean
   now: Date
   highlightedId?: string
   onFocusItem: () => void
+  onOpenItem: () => void
+  onOpenMoment: (momentId: string) => void
 }
 
 function EventBarView({
   segment,
   scale,
   sentence,
+  summary,
   focused,
   now,
   highlightedId,
   onFocusItem,
+  onOpenItem,
+  onOpenMoment,
 }: EventBarProps) {
-  const { t } = useTranslation()
   const span = segment.item
   const { row } = span
 
@@ -45,56 +45,79 @@ function EventBarView({
   const unconfirmed = spanIsUnconfirmed(span)
   const Icon = STAGE_TYPE_ICON[stageType]
   const marks = marksWithin(span, segment.startDay, segment.endDay)
-
-  const left = `calc(${segment.startColumn} * (100% / 7))`
-  const width = `calc(${segment.span} * (100% / 7))`
+  const roomy = scale !== 'quarter'
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          tabIndex={-1}
-          data-schedule-item={span.id}
-          data-schedule-segment={`${span.id}:${segment.week}`}
-          data-unconfirmed={unconfirmed ? 'true' : 'false'}
-          data-patterned={STAGE_TYPE_PATTERNED[stageType] ? 'true' : 'false'}
-          data-clipped-start={segment.clippedStart ? 'true' : 'false'}
-          data-clipped-end={segment.clippedEnd ? 'true' : 'false'}
-          data-focused={focused ? 'true' : 'false'}
-          data-state-name={row.state}
-          aria-label={sentence}
-          onFocus={onFocusItem}
-          className={cn(styles.bar, !unconfirmed && STAGE_TYPE_COLOR[stageType])}
-          style={{
-            left,
-            width,
-            top: laneOffset(scale, segment.lane),
-            ['--bar-height' as string]: `${BAR_HEIGHT[scale]}px`,
-            ['--bar-radius' as string]: `${BAR_RADIUS}px`,
-          }}
-        >
-          <Icon className="size-3 shrink-0" aria-hidden="true" />
-          <span className={styles.title}>{row.title}</span>
+    <div
+      {...eventColorAttrs(summary.color)}
+      className={styles.slot}
+      style={{
+        left: `calc(${segment.startColumn} * (100% / 7))`,
+        width: `calc(${segment.span} * (100% / 7))`,
+        top: laneOffset(scale, segment.lane),
+        ['--bar-height' as string]: `${BAR_HEIGHT[scale]}px`,
+        ['--bar-radius' as string]: `${BAR_RADIUS}px`,
+      }}
+    >
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            tabIndex={-1}
+            data-schedule-item={span.id}
+            data-schedule-segment={`${span.id}:${segment.week}`}
+            data-unconfirmed={unconfirmed ? 'true' : 'false'}
+            data-patterned={STAGE_TYPE_PATTERNED[stageType] ? 'true' : 'false'}
+            data-clipped-start={segment.clippedStart ? 'true' : 'false'}
+            data-clipped-end={segment.clippedEnd ? 'true' : 'false'}
+            data-focused={focused ? 'true' : 'false'}
+            data-state-name={row.state}
+            data-urgency={summary.urgency}
+            aria-label={sentence}
+            onFocus={onFocusItem}
+            onClick={onOpenItem}
+            className={styles.bar}
+          >
+            <span className={styles.head}>
+              <EventColorMark color={summary.color} className={styles.colorMark} />
+              <Icon className={styles.icon} aria-hidden="true" />
+              <span className={styles.title}>{summary.title}</span>
+            </span>
 
-          <span className={styles.marks} aria-hidden="true">
-            {marks.map((mark) => (
-              <MomentMark
-                key={mark.id}
-                item={mark.moment}
-                offset={(mark.dayIndex - segment.startDay + 0.5) / segment.span}
-                highlighted={mark.id === highlightedId}
-                now={now}
-              />
-            ))}
-          </span>
-        </button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p className="font-medium">{row.title}</p>
-        <p className="text-muted-foreground">{t(EVENT_STATE_KEY[row.state])}</p>
-        <p className="text-muted-foreground">{sentence}</p>
-      </TooltipContent>
-    </Tooltip>
+            {roomy ? (
+              <span className={styles.lines}>
+                <span className={styles.line}>{summary.dates}</span>
+                <span className={styles.line} data-registration={summary.urgency}>
+                  {summary.registration}
+                </span>
+                {summary.nextStage ? (
+                  <span className={styles.line}>{summary.nextStage}</span>
+                ) : null}
+              </span>
+            ) : null}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="font-medium">{summary.title}</p>
+          <p className="text-muted-foreground">{summary.state}</p>
+          <p className="text-muted-foreground">{sentence}</p>
+        </TooltipContent>
+      </Tooltip>
+
+      <span className={styles.marks}>
+        {marks.map((mark) => (
+          <MomentMark
+            key={mark.id}
+            item={mark.moment}
+            title={summary.title}
+            offset={(mark.dayIndex - segment.startDay + 0.5) / segment.span}
+            highlighted={mark.id === highlightedId}
+            now={now}
+            onOpen={() => onOpenMoment(mark.id)}
+            onOpenEvent={onOpenItem}
+          />
+        ))}
+      </span>
+    </div>
   )
 }

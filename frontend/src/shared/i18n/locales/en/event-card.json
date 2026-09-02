@@ -21,7 +21,6 @@
   "detail": {
     "registration": "Registration",
     "stages": "Stages",
-    "openFull": "Open full card",
     "close": "Close details",
     "status": "Status",
     "tabGeneral": "General",
@@ -97,5 +96,10 @@
     "RESULTS": "Results page",
     "SPONSOR": "Partners",
     "OTHER": "Other"
+  },
+  "overlay": {
+    "title": "Event",
+    "openFull": "Show the full statistics",
+    "openAdmin": "Administrative card"
   }
 }

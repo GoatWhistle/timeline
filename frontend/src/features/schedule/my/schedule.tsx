@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { myScheduleQuery } from '@/entities/schedule/schedule.queries'
+import { AssignedEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
 import { useScheduleView } from '@/features/schedule/model/use-schedule-view'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
-import { ScheduleLegend } from '@/features/schedule/ui/schedule-legend'
 import { ViewTabs } from '@/features/schedule/ui/view-tabs/view-tabs'
 import { ScheduleFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
@@ -14,7 +14,7 @@ import { QueryBoundary } from '@/shared/ui/states'
 
 export function MySchedulePage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { openEventCard } = useEventOverlay()
   const query = useQuery(myScheduleQuery({}))
   const view = useScheduleView(query.data?.range)
 
@@ -50,10 +50,10 @@ export function MySchedulePage() {
                 scale={view.scale}
                 onToday={view.goToday}
                 onZoom={view.zoom}
-                onNavigate={(href) => navigate(href)}
+                onOpenEvent={(row) => openEventCard(row.event_id)}
               />
               <ViewTabs value={view.scale} onChange={view.setScale} onToday={view.goToday} />
-              <ScheduleLegend />
+              <AssignedEventOverlay />
             </div>
           )
         )}

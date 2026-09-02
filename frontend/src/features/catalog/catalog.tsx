@@ -14,17 +14,19 @@ import {
   resolveSort,
 } from '@/entities/catalog/catalog.views'
 import { CatalogCard } from '@/entities/catalog/catalog-card'
+import { CatalogEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
-import { DetailPane, ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
+import { ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
+import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
-import { CatalogDetail } from './catalog-detail'
 import { CatalogEmpty } from './catalog-empty'
 import { activeFilterCount, type CatalogFilterValues } from './catalog-filter-conditions'
 import { CatalogTable } from './catalog-table'
 import { CatalogToolbar } from './catalog-toolbar'
+import { JoinEventDialog } from './join-event-dialog'
 
 const DEFAULTS = {
   origin: '',
@@ -91,7 +93,7 @@ export function CatalogPage() {
   const items = query.data?.items ?? []
   const filtered = activeFilterCount(conditions) > 0
   const selected = filters.selected || null
-  const selectedEvent = items.find((item) => item.id === selected) ?? null
+  const { openEventCard } = useEventOverlay()
 
   useListNavigation({
     ids: items.map((item) => item.id),
@@ -102,7 +104,8 @@ export function CatalogPage() {
   })
 
   function select(id: string) {
-    setFilters({ selected: id === selected ? undefined : id }, { resetPage: false })
+    setFilters({ selected: id }, { resetPage: false })
+    openEventCard(id)
   }
 
   function changeSort(next: CatalogSort) {
@@ -193,21 +196,26 @@ export function CatalogPage() {
         </QueryBoundary>
       </ListPane>
 
-      <DetailPane
-        open={selectedEvent !== null}
-        onClose={() => setFilters({ selected: undefined }, { resetPage: false })}
-        labelledBy="catalog-detail-title"
-      >
-        {selectedEvent && (
-          <CatalogDetail
-            event={selectedEvent}
-            joining={joining?.id === selectedEvent.id}
-            onJoin={() => setJoining(selectedEvent)}
-            onJoinClose={() => setJoining(null)}
-            onClose={() => setFilters({ selected: undefined }, { resetPage: false })}
-          />
-        )}
-      </DetailPane>
+      <CatalogEventOverlay
+        items={items}
+        actions={(event) =>
+          event.joined ? null : (
+            <Button onClick={() => setJoining(event)} disabled={event.state === 'FINISHED'}>
+              {t('catalog.join.action')}
+            </Button>
+          )
+        }
+      />
+
+      {joining && (
+        <JoinEventDialog
+          event={joining}
+          open
+          onOpenChange={(open) => {
+            if (!open) setJoining(null)
+          }}
+        />
+      )}
     </ThreePane>
   )
 }

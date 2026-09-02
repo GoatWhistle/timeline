@@ -24,6 +24,7 @@ type CatalogEvent struct {
 	TeamSizeMin     *int               `json:"team_size_min,omitempty" example:"3"`
 	TeamSizeMax     *int               `json:"team_size_max,omitempty" example:"5"`
 	Color           *models.EventColor `json:"color,omitempty"`
+	CoverURL        *string            `json:"cover_url,omitempty" example:"/api/v1/covers/abc.png"`
 	OfflineStages   []CatalogPlace     `json:"offline_stages"`
 	StartAt         time.Time          `json:"start_at"`
 	EndAt           time.Time          `json:"end_at"`

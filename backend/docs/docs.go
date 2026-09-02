@@ -8516,6 +8516,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "RU"
                 },
+                "cover_url": {
+                    "type": "string",
+                    "example": "/api/v1/covers/abc.png"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -10626,6 +10630,9 @@ const docTemplate = `{
         "dto.ScheduleRow": {
             "type": "object",
             "properties": {
+                "color": {
+                    "$ref": "#/definitions/models.EventColor"
+                },
                 "effective_format": {
                     "enum": [
                         "ONLINE",

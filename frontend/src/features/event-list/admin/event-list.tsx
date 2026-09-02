@@ -9,7 +9,7 @@ import { adminEventsQuery, useCreateEvent } from '@/entities/event/event.queries
 import { EventForm } from '@/entities/event/event-form'
 import { EventRow } from '@/entities/event/event-row/event-row'
 import { AdminStats } from '@/features/admin-stats/admin-stats'
-import { AdminDetailPane } from '@/features/event-detail-pane/admin-detail-pane'
+import { AdminEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
 import type { EventState } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/forms/select'
-import { DetailPane, ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
+import { ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
@@ -64,6 +64,7 @@ export function AdminEventsPage() {
   }
 
   const selected = filters.selected || null
+  const { openEventCard } = useEventOverlay()
 
   useListNavigation({
     ids: items.map((item) => item.id),
@@ -149,12 +150,10 @@ export function AdminEventsPage() {
                     key={item.id}
                     event={item}
                     selected={item.id === selected}
-                    onSelect={(id) =>
-                      setFilters(
-                        { selected: id === selected ? undefined : id },
-                        { resetPage: false },
-                      )
-                    }
+                    onSelect={(id) => {
+                      setFilters({ selected: id }, { resetPage: false })
+                      openEventCard(id)
+                    }}
                   />
                 ))}
               </div>
@@ -168,18 +167,7 @@ export function AdminEventsPage() {
         </QueryBoundary>
       </ListPane>
 
-      <DetailPane
-        open={selected !== null}
-        onClose={() => setFilters({ selected: undefined }, { resetPage: false })}
-        labelledBy="event-detail-title"
-      >
-        {selected && (
-          <AdminDetailPane
-            id={selected}
-            onClose={() => setFilters({ selected: undefined }, { resetPage: false })}
-          />
-        )}
-      </DetailPane>
+      <AdminEventOverlay />
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>

@@ -27,10 +27,6 @@
     "forbiddenTitle": "Access denied",
     "forbiddenHint": "This section is available to system administrators only."
   },
-  "pane": {
-    "details": "Details",
-    "close": "Close details"
-  },
   "palette": {
     "title": "Command palette",
     "placeholder": "Type a command or a page name",

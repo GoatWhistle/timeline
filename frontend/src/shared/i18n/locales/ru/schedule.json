@@ -30,6 +30,11 @@
     "sentenceDeadline": "Дедлайн регистрации {{date}}, {{remaining}}.",
     "sentenceBar": "{{name}}. {{type}}. С {{start}} по {{end}}.",
     "weekAria": "Неделя от {{date}}",
+    "barDates": "{{start}} — {{end}}",
+    "barRegistration": "Регистрация: {{urgency}}, {{date}}",
+    "barNextStage": "Сейчас: {{name}} ({{current}} из {{total}})",
+    "barNextCheckpoint": "Далее: {{name}}, {{date}}",
+    "momentOpenEvent": "Открыть событие",
     "moreEvents": "ещё {{count}}"
   }
 }

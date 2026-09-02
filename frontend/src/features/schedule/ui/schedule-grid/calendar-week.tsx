@@ -1,5 +1,6 @@
 import { type KeyboardEvent, memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { BarSummary } from '../../model/bar-summary'
 import type { CalendarWeek as CalendarWeekData } from '../../model/calendar-grid'
 import type { CalendarSpan } from '../../model/calendar-items'
 import type { WeekPacking } from '../../model/pack-lanes'
@@ -19,7 +20,10 @@ export type CalendarWeekProps = {
   highlightedId?: string
   dayLabel: (date: Date) => string
   sentenceOf: (span: CalendarSpan) => string
+  summaryOf: (span: CalendarSpan) => BarSummary
   onToggleOverflow: () => void
+  onOpenSpan: (span: CalendarSpan) => void
+  onOpenMoment: (span: CalendarSpan, momentId: string) => void
   onKeyDown: (event: KeyboardEvent<HTMLTableRowElement>) => void
   onFocusWeek: () => void
   onFocusSpan: (id: string) => void
@@ -70,10 +74,13 @@ function CalendarWeekView(props: CalendarWeekProps) {
             segment={segment}
             scale={scale}
             sentence={props.sentenceOf(segment.item)}
+            summary={props.summaryOf(segment.item)}
             focused={props.isCursorWeek && focusedId === segment.item.id}
             now={now}
             highlightedId={highlightedId}
             onFocusItem={() => props.onFocusSpan(segment.item.id)}
+            onOpenItem={() => props.onOpenSpan(segment.item)}
+            onOpenMoment={(momentId) => props.onOpenMoment(segment.item, momentId)}
           />
         ))}
 

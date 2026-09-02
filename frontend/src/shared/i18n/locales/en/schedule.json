@@ -30,6 +30,11 @@
     "sentenceDeadline": "Registration deadline {{date}}, {{remaining}}.",
     "sentenceBar": "{{name}}. {{type}}. {{start}} to {{end}}.",
     "weekAria": "Week of {{date}}",
+    "barDates": "{{start}} — {{end}}",
+    "barRegistration": "Registration: {{urgency}}, {{date}}",
+    "barNextStage": "Now: {{name}} ({{current}} of {{total}})",
+    "barNextCheckpoint": "Next: {{name}}, {{date}}",
+    "momentOpenEvent": "Open the event",
     "moreEvents": "{{count}} more"
   }
 }

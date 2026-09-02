@@ -6,6 +6,8 @@ export type NavigationAction =
   | { type: 'zoomIn' }
   | { type: 'zoomOut' }
   | { type: 'open' }
+  | { type: 'moment'; delta: 1 | -1 }
+  | { type: 'openMoment' }
 
 export type NavigableSpan = {
   id: string
@@ -53,6 +55,13 @@ export function resolveKey(
       return { type: 'move', index: Math.max(0, spans.length - 1) }
     case 'Enter':
       return { type: 'open' }
+    case 'PageDown':
+      return { type: 'moment', delta: 1 }
+    case 'PageUp':
+      return { type: 'moment', delta: -1 }
+    case ' ':
+    case 'Spacebar':
+      return { type: 'openMoment' }
     case 't':
     case 'T':
       return { type: 'today' }

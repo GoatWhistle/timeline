@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { EVENT_STATE_KEY, EVENT_STATES } from '@/entities/event/event.labels'
 import { adminScheduleQuery } from '@/entities/schedule/schedule.queries'
+import { AdminEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
 import { useScheduleView } from '@/features/schedule/model/use-schedule-view'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
-import { ScheduleLegend } from '@/features/schedule/ui/schedule-legend'
 import { ViewTabs } from '@/features/schedule/ui/view-tabs/view-tabs'
 import { usersQuery } from '@/shared/api/directory'
 import type { EventState } from '@/shared/api/types.gen'
@@ -32,6 +32,7 @@ const DEFAULTS = { state: ALL, participant: ALL, archived: '' }
 export function AdminSchedulePage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
+  const { openEventCard } = useEventOverlay()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
 
   const users = useQuery(usersQuery({ page_size: 100 }))
@@ -128,9 +129,10 @@ export function AdminSchedulePage() {
                 onZoom={view.zoom}
                 onNavigate={(href) => navigate(href)}
                 hrefBuilder={(row) => `/admin/events/${row.event_id}`}
+                onOpenEvent={(row) => openEventCard(row.event_id)}
               />
               <ViewTabs value={view.scale} onChange={view.setScale} onToday={view.goToday} />
-              <ScheduleLegend />
+              <AdminEventOverlay />
             </div>
           )
         )}

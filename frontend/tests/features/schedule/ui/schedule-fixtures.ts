@@ -137,6 +137,12 @@ export function bars(container: HTMLElement): HTMLElement[] {
   )
 }
 
+export function slots(container: HTMLElement): HTMLElement[] {
+  return bars(container)
+    .map((bar) => bar.closest('[data-event-color]'))
+    .filter((element): element is HTMLElement => element instanceof HTMLElement)
+}
+
 export function marks(container: HTMLElement): HTMLElement[] {
   return [...container.querySelectorAll('[data-schedule-mark]')].filter(
     (element): element is HTMLElement => element instanceof HTMLElement,

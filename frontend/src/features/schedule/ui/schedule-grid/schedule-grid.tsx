@@ -1,11 +1,12 @@
 import { format } from 'date-fns'
 import { enUS, ru } from 'date-fns/locale'
-import { type KeyboardEvent, useCallback, useMemo, useRef, useState } from 'react'
+import { type KeyboardEvent, type RefObject, useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ScheduleResponse, ScheduleRow as ScheduleRowData } from '@/shared/api/types.gen'
 import { formatDate, formatRelative } from '@/shared/datetime/datetime'
 import { DEFAULT_LOCALE, isLocale } from '@/shared/i18n/locale'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
+import { barSummary } from '../../model/bar-summary'
 import { buildCalendarGrid } from '../../model/calendar-grid'
 import { buildCalendarSpans, type CalendarSpan } from '../../model/calendar-items'
 import { clampIndex, resolveKey } from '../../model/grid-navigation'
@@ -14,6 +15,7 @@ import { DAYS_PER_WEEK, packWeeks } from '../../model/pack-lanes'
 import { rowSentence } from '../../model/row-sentence'
 import { MAX_LANES, type ScheduleScale } from '../../model/schedule-scale'
 import { useAnnouncer } from '../../model/use-announcer'
+import { markElement, useMomentCursor } from '../../model/use-moment-cursor'
 import { useTodayLine } from '../../model/use-today-line'
 import type { Range } from '../../model/zoom-range'
 import { CalendarWeek } from './calendar-week'
@@ -31,6 +33,7 @@ export type ScheduleGridProps = {
   onNavigate?: (href: string) => void
   onToday?: () => void
   onZoom?: (direction: 1 | -1) => void
+  onOpenEvent?: (row: ScheduleRowData) => void
 }
 
 export function ScheduleGrid({
@@ -42,12 +45,14 @@ export function ScheduleGrid({
   onNavigate,
   onToday,
   onZoom,
+  onOpenEvent,
 }: ScheduleGridProps) {
   const { t, i18n } = useTranslation()
   const canvasRef = useRef<HTMLTableElement>(null)
   const [cursor, setCursor] = useState(0)
   const [expanded, setExpanded] = useState<ReadonlySet<number>>(() => new Set())
   const { message, announce } = useAnnouncer()
+  const momentCursor = useMomentCursor(canvasRef)
 
   const language = i18n.language?.split('-')[0]
   const locale = DATE_FNS_LOCALES[isLocale(language) ? language : DEFAULT_LOCALE]
@@ -84,6 +89,28 @@ export function ScheduleGrid({
     [sentenceContext],
   )
 
+  const summaryContext = useMemo(
+    () => ({ t, formatDate: (iso: string) => formatDate(iso), now }),
+    [t, now],
+  )
+
+  const summaryOf = useCallback(
+    (span: CalendarSpan) => barSummary(span, summaryContext),
+    [summaryContext],
+  )
+
+  const openSpan = useCallback(
+    (span: CalendarSpan) => {
+      setCursor(spans.findIndex((candidate) => candidate.id === span.id))
+      if (onOpenEvent) {
+        onOpenEvent(span.row)
+        return
+      }
+      onNavigate?.(hrefBuilder?.(span.row) ?? `/events/${span.row.event_id}`)
+    },
+    [spans, onOpenEvent, onNavigate, hrefBuilder],
+  )
+
   const highlightedId = useMemo(
     () =>
       nearestUpcomingId(
@@ -111,10 +138,21 @@ export function ScheduleGrid({
       }
       if (action.type === 'open') {
         const span = spans[clampIndex(spans, cursor)]
-        if (span) onNavigate?.(hrefBuilder?.(span.row) ?? `/events/${span.row.event_id}`)
+        if (span) openSpan(span)
+        return
+      }
+      if (action.type === 'moment') {
+        const span = spans[clampIndex(spans, cursor)]
+        const momentId = momentCursor.step(span, action.delta)
+        announce(momentId ? (markLabel(canvasRef, momentId) ?? '') : '')
+        return
+      }
+      if (action.type === 'openMoment') {
+        momentCursor.activate(spans[clampIndex(spans, cursor)])
         return
       }
 
+      momentCursor.reset()
       setCursor(action.index)
       const span = spans[action.index]
       announce(span ? sentenceOf(span) : '')
@@ -123,7 +161,7 @@ export function ScheduleGrid({
       const target = canvasRef.current?.querySelector(`[data-schedule-week="${week}"]`)
       if (target instanceof HTMLElement) target.focus()
     },
-    [spans, cursor, hrefBuilder, onNavigate, onToday, onZoom, announce, sentenceOf],
+    [spans, cursor, openSpan, onToday, onZoom, announce, sentenceOf, momentCursor],
   )
 
   const cursorSpan = spans[clampIndex(spans, cursor)]
@@ -168,7 +206,13 @@ export function ScheduleGrid({
                 highlightedId={highlightedId}
                 dayLabel={dayLabel}
                 sentenceOf={sentenceOf}
+                summaryOf={summaryOf}
                 onToggleOverflow={() => toggleOverflow(week.index)}
+                onOpenSpan={openSpan}
+                onOpenMoment={(span) => {
+                  momentCursor.reset()
+                  setCursor(spans.findIndex((c) => c.id === span.id))
+                }}
                 onKeyDown={onKeyDown}
                 onFocusWeek={() => undefined}
                 onFocusSpan={(id) => setCursor(spans.findIndex((span) => span.id === id))}
@@ -182,4 +226,8 @@ export function ScheduleGrid({
       </output>
     </TooltipProvider>
   )
+}
+
+function markLabel(canvas: RefObject<HTMLElement | null>, momentId: string): string | undefined {
+  return markElement(canvas, momentId)?.getAttribute('aria-label') ?? undefined
 }

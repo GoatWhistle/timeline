@@ -1,10 +1,14 @@
 import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
-import { STAGE_TYPE_COLOR } from '@/entities/stage/stage.labels'
 import { buildCalendarGrid } from '@/features/schedule/model/calendar-grid'
 import { DAYS_PER_WEEK } from '@/features/schedule/model/pack-lanes'
-import { BAR_HEIGHT, MARK_SIZE, MAX_LANES } from '@/features/schedule/model/schedule-scale'
+import {
+  BAR_HEIGHT,
+  LEGACY_BAR_HEIGHT,
+  MARK_SIZE,
+  MAX_LANES,
+} from '@/features/schedule/model/schedule-scale'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
 import type { ScheduleResponse } from '@/shared/api/types.gen'
 import {
@@ -17,6 +21,7 @@ import {
   range,
   rowWith,
   schedule,
+  slots,
   stageTypeText,
 } from './schedule-fixtures'
 
@@ -55,9 +60,11 @@ describe('ScheduleGrid', () => {
 
   it('runs a bar through the days it covers rather than a single cell', () => {
     const { container } = renderGrid()
-    const bar = bars(container).find((element) => element.textContent?.includes('Winter Hackathon'))
+    const slot = slots(container).find((element) =>
+      element.textContent?.includes('Winter Hackathon'),
+    )
     const oneDay = 100 / 7
-    expect(Number.parseFloat(bar?.style.width.replace(/[^\d.]/g, '') ?? '0')).toBeGreaterThan(
+    expect(Number.parseFloat(slot?.style.width.replace(/[^\d.]/g, '') ?? '0')).toBeGreaterThan(
       oneDay + 0.5,
     )
   })
@@ -87,16 +94,26 @@ describe('ScheduleGrid', () => {
 
   it('gives every bar the height of its scale', () => {
     const { container } = renderGrid()
-    for (const bar of bars(container)) {
-      expect(bar.style.getPropertyValue('--bar-height')).toBe(`${BAR_HEIGHT.month}px`)
+    for (const slot of slots(container)) {
+      expect(slot.style.getPropertyValue('--bar-height')).toBe(`${BAR_HEIGHT.month}px`)
+    }
+  })
+
+  it('gives a bar at least twice the height it used to have', () => {
+    for (const scale of ['week', 'month', 'quarter'] as const) {
+      expect(BAR_HEIGHT[scale]).toBeGreaterThanOrEqual(2 * LEGACY_BAR_HEIGHT[scale])
     }
   })
 
   it('puts the checkpoint and deadline marks on the bar itself', () => {
     const { container } = renderGrid()
-    const carrying = bars(container).filter((bar) => marks(bar).length > 0)
+    const carrying = slots(container).filter((slot) => marks(slot).length > 0)
     expect(carrying.length).toBeGreaterThan(0)
-    for (const bar of carrying) expect(bar.dataset.scheduleItem).toBe('e1')
+    for (const slot of carrying) {
+      expect(slot.querySelector('[data-schedule-item]')?.getAttribute('data-schedule-item')).toBe(
+        'e1',
+      )
+    }
   })
 
   it('keeps a mark a fixed size rather than scaling it with the bar', () => {
@@ -119,8 +136,8 @@ describe('ScheduleGrid', () => {
     const { container } = renderGrid()
     const bar = bars(container).find((element) => element.textContent?.includes('Winter Hackathon'))
 
-    expect(bar?.className).toContain(STAGE_TYPE_COLOR.REGISTRATION)
     expect(bar?.querySelector('svg')).toBeInTheDocument()
+    expect(bar?.textContent).toContain('Winter Hackathon')
     expect(bar).toHaveAccessibleName(expect.stringContaining('Winter Hackathon'))
   })
 
@@ -194,11 +211,11 @@ describe('ScheduleGrid', () => {
 
   it('shortens the bars as the scale widens', () => {
     const week = renderGrid(schedule, { scale: 'week' })
-    const weekHeight = bars(week.container)[0]?.style.getPropertyValue('--bar-height')
+    const weekHeight = slots(week.container)[0]?.style.getPropertyValue('--bar-height')
     week.unmount()
 
     const quarter = renderGrid(schedule, { scale: 'quarter' })
-    const quarterHeight = bars(quarter.container)[0]?.style.getPropertyValue('--bar-height')
+    const quarterHeight = slots(quarter.container)[0]?.style.getPropertyValue('--bar-height')
 
     expect(Number.parseInt(weekHeight ?? '0', 10)).toBeGreaterThan(
       Number.parseInt(quarterHeight ?? '0', 10),
