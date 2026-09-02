@@ -144,15 +144,13 @@
   },
   "settings": {
     "title": "Настройки",
-    "languageHint": "Действует в этом браузере. Уведомления приходят на языке из профиля.",
-    "theme": "Тема оформления",
+    "theme": "Тема",
     "sectionProfile": "Профиль",
     "sectionAppearance": "Внешний вид",
     "sectionNotifications": "Уведомления",
     "sectionSessions": "Сессии",
     "sectionDanger": "Опасная зона",
     "timezone": "Часовой пояс",
-    "timezoneHint": "В этом поясе показываются все даты и сроки. Хранится всё в UTC.",
     "sectionAccount": "Аккаунт",
     "sectionShortcuts": "Сочетания клавиш"
   },

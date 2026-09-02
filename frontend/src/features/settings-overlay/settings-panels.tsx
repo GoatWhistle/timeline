@@ -21,18 +21,6 @@ import { SYSTEM_TIME_ZONE } from '@/shared/datetime/datetime'
 import { TimezoneSelect } from '@/shared/ui/primitives/timezone-select/timezone-select'
 import type { SettingsSectionId } from './sections'
 
-function Row({ title, hint, control }: { title: string; hint: string; control: React.ReactNode }) {
-  return (
-    <div className="flex flex-wrap items-start justify-between gap-3 py-4">
-      <div className="min-w-0 max-w-prose">
-        <p className="font-medium text-copy">{title}</p>
-        <p className="mt-0.5 text-meta text-muted-foreground">{hint}</p>
-      </div>
-      <div className="shrink-0">{control}</div>
-    </div>
-  )
-}
-
 function Stack({
   title,
   hint,
@@ -69,20 +57,16 @@ function AppearancePanel({ user }: { user: MeResponse }) {
       <Stack title={t('settings.theme')}>
         <ThemeChoice />
       </Stack>
-      <Stack title={t('language.label')} hint={t('settings.languageHint')}>
+      <Stack title={t('language.label')}>
         <LanguageChoice />
       </Stack>
-      <Row
-        title={t('settings.timezone')}
-        hint={t('settings.timezoneHint')}
-        control={
-          <TimezoneSelect
-            value={user.timezone ?? SYSTEM_TIME_ZONE}
-            onChange={onChangeTimezone}
-            disabled={updateProfile.isPending}
-          />
-        }
-      />
+      <Stack title={t('settings.timezone')}>
+        <TimezoneSelect
+          value={user.timezone ?? SYSTEM_TIME_ZONE}
+          onChange={onChangeTimezone}
+          disabled={updateProfile.isPending}
+        />
+      </Stack>
     </div>
   )
 }

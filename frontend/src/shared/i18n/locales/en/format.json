@@ -15,6 +15,9 @@
   "timezone": {
     "legend": "Time zone selection",
     "placeholder": "Select a zone",
+    "search": "Search a city or zone",
+    "detected": "yours",
+    "nothingFound": "Nothing matches",
     "systemNote": "System time: {{time}}",
     "updated": "The time zone is saved",
     "failed": "The time zone could not be saved"
