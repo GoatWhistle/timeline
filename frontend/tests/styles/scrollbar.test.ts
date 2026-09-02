@@ -45,10 +45,7 @@ describe('scrollbars follow the design system', () => {
 
   it('keeps the themes distinct, so the thumb never sinks into its surface', () => {
     const read = (sheet: string, token: string) =>
-      sheet
-        .split(token + ':')[1]
-        ?.split(';')[0]
-        ?.trim()
+      sheet.split(`${token}:`)[1]?.split(';')[0]?.trim()
     expect(read(semantic, '--scrollbar-thumb')).not.toBe(read(dark, '--scrollbar-thumb'))
   })
 })

@@ -109,6 +109,7 @@ func newRouter(c *container) http.Handler {
 		Invites:        c.invites,
 		Profile:        c.profile,
 		Avatars:        c.avatars,
+		Covers:         c.covers,
 		ProfileLinks:   c.profileLinks,
 		PublicProfiles: c.profile,
 		Users:          c.users,
@@ -142,6 +143,7 @@ func newRouter(c *container) http.Handler {
 		UserPageSize:   c.cfg.Ops.UserSearchPageSize,
 		CSRFTTL:        c.cfg.Auth.RefreshTTL,
 		AvatarMaxBytes: c.cfg.Avatar.MaxBytes,
+		CoverMaxBytes:  c.cfg.Cover.MaxBytes,
 	}
 	applyRateLimits(&deps, c)
 	if c.cfg.Realtime.Enabled {

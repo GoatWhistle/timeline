@@ -23,6 +23,7 @@ type Config struct {
 	Realtime Realtime
 	Links    ResourceLinks
 	Avatar   Avatar
+	Cover    Cover
 }
 
 type App struct {
@@ -224,6 +225,7 @@ func Load() (*Config, error) {
 		Digest:   loadDigest(),
 		Links:    loadResourceLinks(),
 		Avatar:   loadAvatar(),
+		Cover:    loadCover(),
 		Realtime: loadRealtime(),
 	}
 
@@ -231,20 +233,4 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 	return cfg, nil
-}
-
-func (c *Config) validate() error {
-	if c.DB.DSN == "" {
-		return fmt.Errorf("DATABASE_URL is required")
-	}
-	if c.App.Env != "dev" && c.Auth.JWTSecret == "dev-insecure-secret-change-me" {
-		return fmt.Errorf("JWT_SECRET is required outside the dev environment")
-	}
-	if len(c.Notify.Backoff) == 0 {
-		return fmt.Errorf("NOTIFICATION_BACKOFF cannot be empty")
-	}
-	if c.Notify.MaxProviderCalls < 1 {
-		return fmt.Errorf("NOTIFICATION_MAX_PROVIDER_CALLS must be at least 1")
-	}
-	return c.Avatar.validate()
 }

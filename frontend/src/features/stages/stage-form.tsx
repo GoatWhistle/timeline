@@ -1,10 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { STAGE_TYPE_KEY, STAGE_TYPES } from '@/entities/stage/stage.labels'
 import type { EventFormat, StageResponse, StageType } from '@/shared/api/types.gen'
+import { civilFromIso, civilToIso } from '@/shared/datetime/civil'
 import { applyServerErrors } from '@/shared/forms/server-errors'
+import {
+  endBeforeStart,
+  type MomentRange,
+  MomentRangeFields,
+} from '@/shared/ui/forms/calendar/moment-range'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import {
@@ -18,41 +25,28 @@ import { Textarea } from '@/shared/ui/forms/textarea'
 import { Button } from '@/shared/ui/primitives/button'
 import { INHERIT, STAGE_FORMATS, StagePlaceFields } from './stage-place-fields'
 
-function toLocalInput(iso: string | undefined): string {
-  if (!iso) return ''
-  const date = new Date(iso)
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
-}
-
-const schema = z
-  .object({
-    name: z.string().min(1, 'event:form.titleRequired').max(120),
-    type: z.enum(STAGE_TYPES as [StageType, ...StageType[]]),
-    start_at: z.string().min(1, 'event:form.startRequired'),
-    end_at: z.string().min(1, 'event:form.endRequired'),
-    sort_order: z.coerce.number().int().min(0),
-    format: z.enum([INHERIT, ...STAGE_FORMATS] as [string, ...string[]]),
-    country_code: z.string().optional(),
-    city: z.string().optional(),
-    venue: z.string().optional(),
-    online_url: z
-      .string()
-      .optional()
-      .refine((value) => !value || value.startsWith('https://'), {
-        message: 'event:form.urlHttps',
-      }),
-    description: z.string().optional(),
-    url: z
-      .string()
-      .optional()
-      .refine((value) => !value || value.startsWith('https://'), {
-        message: 'event:form.urlHttps',
-      }),
-  })
-  .refine((values) => new Date(values.end_at) > new Date(values.start_at), {
-    path: ['end_at'],
-    message: 'event:form.endAfterStart',
-  })
+const schema = z.object({
+  name: z.string().min(1, 'event:form.titleRequired').max(120),
+  type: z.enum(STAGE_TYPES as [StageType, ...StageType[]]),
+  sort_order: z.coerce.number().int().min(0),
+  format: z.enum([INHERIT, ...STAGE_FORMATS] as [string, ...string[]]),
+  country_code: z.string().optional(),
+  city: z.string().optional(),
+  venue: z.string().optional(),
+  online_url: z
+    .string()
+    .optional()
+    .refine((value) => !value || value.startsWith('https://'), {
+      message: 'event:form.urlHttps',
+    }),
+  description: z.string().optional(),
+  url: z
+    .string()
+    .optional()
+    .refine((value) => !value || value.startsWith('https://'), {
+      message: 'event:form.urlHttps',
+    }),
+})
 
 type FormValues = z.input<typeof schema>
 
@@ -84,6 +78,11 @@ export function StageForm({
   onSubmit: (payload: StagePayload) => Promise<void>
 }) {
   const { t } = useTranslation('event')
+  const [range, setRange] = useState<MomentRange>(() => ({
+    start: civilFromIso(stage?.start_at),
+    end: civilFromIso(stage?.end_at),
+  }))
+  const [rangeError, setRangeError] = useState<string | null>(null)
   const {
     register,
     control,
@@ -96,8 +95,6 @@ export function StageForm({
     defaultValues: {
       name: stage?.name ?? '',
       type: stage?.type ?? 'PARTICIPATION',
-      start_at: toLocalInput(stage?.start_at),
-      end_at: toLocalInput(stage?.end_at),
       sort_order: stage?.sort_order ?? 0,
       format: stage?.format ?? INHERIT,
       country_code: stage?.country_code ?? '',
@@ -109,23 +106,33 @@ export function StageForm({
     },
   })
 
-  const start = watch('start_at')
-  const end = watch('end_at')
   const format = watch('format')
 
+  const startAt = civilToIso(range.start)
+  const endAt = civilToIso(range.end)
   const outOfRange =
-    eventRange &&
-    start &&
-    end &&
-    (new Date(start) < new Date(eventRange.start_at) || new Date(end) > new Date(eventRange.end_at))
+    eventRange !== undefined &&
+    startAt !== null &&
+    endAt !== null &&
+    (Date.parse(startAt) < Date.parse(eventRange.start_at) ||
+      Date.parse(endAt) > Date.parse(eventRange.end_at))
 
   async function submit(values: FormValues) {
+    if (startAt === null || endAt === null) {
+      setRangeError('event:form.momentRequired')
+      return
+    }
+    if (endBeforeStart(range)) {
+      setRangeError('event:form.endAfterStart')
+      return
+    }
+    setRangeError(null)
     try {
       await onSubmit({
         name: values.name,
         type: values.type,
-        start_at: new Date(values.start_at).toISOString(),
-        end_at: new Date(values.end_at).toISOString(),
+        start_at: startAt,
+        end_at: endAt,
         sort_order: Number(values.sort_order),
         ...(values.description ? { description: values.description } : {}),
         ...(values.url ? { url: values.url } : {}),
@@ -141,8 +148,6 @@ export function StageForm({
       applyServerErrors(error, setError, [
         'name',
         'type',
-        'start_at',
-        'end_at',
         'description',
         'url',
         'format',
@@ -181,14 +186,15 @@ export function StageForm({
         />
       </Field>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Field label={t('stages.formStart')} htmlFor="stage-start" error={errors.start_at?.message}>
-          <Input id="stage-start" type="datetime-local" {...register('start_at')} />
-        </Field>
-        <Field label={t('stages.formEnd')} htmlFor="stage-end" error={errors.end_at?.message}>
-          <Input id="stage-end" type="datetime-local" {...register('end_at')} />
-        </Field>
-      </div>
+      <MomentRangeFields
+        idPrefix="stage"
+        value={range}
+        endError={rangeError ?? undefined}
+        onChange={(next) => {
+          setRange(next)
+          setRangeError(null)
+        }}
+      />
 
       {outOfRange && (
         <p className="rounded-md border border-dashed p-3 text-copy">{t('stages.outOfRange')}</p>

@@ -86,6 +86,7 @@ func mountAdminIdentity(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("PATCH "+api+"/admin/events/{id}", rt.admin(eventC.Update))
 	mux.Handle("POST "+api+"/admin/events/{id}/publish", rt.admin(eventC.Publish))
 	mux.Handle("POST "+api+"/admin/events/{id}/archive", rt.admin(eventC.Archive))
+	mux.Handle("DELETE "+api+"/admin/events/{id}", rt.admin(eventC.Delete))
 	mux.Handle("POST "+api+"/admin/events/{id}/stages", rt.admin(eventC.CreateStage))
 	mux.Handle("PATCH "+api+"/admin/stages/{id}", rt.admin(eventC.UpdateStage))
 	mux.Handle("DELETE "+api+"/admin/stages/{id}", rt.admin(eventC.DeleteStage))
@@ -161,4 +162,11 @@ func mountTeams(mux *http.ServeMux, rt *routes, api string, c *team.Controller) 
 	mux.Handle("POST "+api+"/teams/{id}/join-link", rt.authd(c.RotateJoinLink))
 	mux.Handle("DELETE "+api+"/teams/{id}/join-link", rt.authd(c.RevokeJoinLink))
 	mux.Handle("POST "+api+"/team-join/{token}", rt.authd(c.JoinByLink))
+}
+
+func mountCovers(mux *http.ServeMux, rt *routes, api string, c *event.CoverController) {
+	mux.Handle("GET "+api+"/covers/{key}", rt.authd(c.Serve))
+	mux.Handle("POST "+api+"/admin/events/{id}/cover", rt.admin(c.Upload))
+	mux.Handle("DELETE "+api+"/admin/events/{id}/cover", rt.admin(c.Remove))
+	mux.Handle("POST "+api+"/admin/events/{id}/cover/refresh", rt.admin(c.Refresh))
 }

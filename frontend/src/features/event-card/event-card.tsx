@@ -7,6 +7,7 @@ import { eventCardQuery, useMarkRegistrationDone } from '@/entities/event/event.
 import { EventStateBadge, RegistrationStatusBadge } from '@/entities/event/event-state-badge'
 import { STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
 import { StageTypeMark } from '@/entities/stage/stage-type-mark/stage-type-mark'
+import { EventCover } from '@/features/event-cover'
 import { LinkList } from '@/features/event-links/ui/link-list/link-list'
 import { PinnedLinks } from '@/features/event-links/ui/pinned-links/pinned-links'
 import type { EventCard } from '@/shared/api/types.gen'
@@ -79,6 +80,12 @@ function EventCardBody({
       />
 
       <div className="flex flex-col gap-6">
+        <EventCover
+          coverUrl={event.cover_url}
+          title={event.title}
+          className="aspect-[3/1] w-full"
+        />
+
         <Card>
           <CardHeader>
             <CardTitle>{t('card.participation')}</CardTitle>

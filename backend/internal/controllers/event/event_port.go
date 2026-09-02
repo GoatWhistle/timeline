@@ -19,6 +19,7 @@ type EventService interface {
 	) ([]models.Event, int64, error)
 	Publish(ctx context.Context, actor models.Actor, id uuid.UUID) (*models.Event, error)
 	Archive(ctx context.Context, actor models.Actor, id uuid.UUID) (*models.Event, error)
+	Delete(ctx context.Context, actor models.Actor, id uuid.UUID) error
 }
 
 type StageService interface {

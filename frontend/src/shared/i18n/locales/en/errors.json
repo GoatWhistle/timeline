@@ -12,6 +12,10 @@
   "artifact_limit_reached": "The artifact limit for this event is reached.",
   "calendar_feed_exists": "A calendar feed already exists. Rotate it to get a new address.",
   "conflict": "The operation conflicts with the current state.",
+  "cover_fetch_blocked": "The website address does not point at a reachable public host, so no cover was fetched.",
+  "cover_fetch_disabled": "Fetching covers from event websites is disabled.",
+  "cover_fetch_failed": "The cover could not be fetched from the event website.",
+  "cover_not_found": "The event website declares no cover image.",
   "deadline_after_end": "The registration deadline must not be later than the event end.",
   "email_taken": "This email is already taken by another account.",
   "forbidden": "You do not have enough permissions.",
@@ -38,5 +42,6 @@
   "user_deleted": "A deleted account cannot be restored.",
   "user_exists": "A user with this email already exists.",
   "user_inactive": "The account is deactivated.",
-  "validation_failed": "The request data is invalid."
+  "validation_failed": "The request data is invalid.",
+  "website_url_missing": "The event has no website address to fetch a cover from."
 }

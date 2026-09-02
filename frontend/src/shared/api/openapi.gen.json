@@ -328,6 +328,65 @@
           }
         }
       },
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Removes the event together with its stages, participants and stored covers.\nAn event that already produced notifications cannot be removed: archive it instead.",
+        "tags": [
+          "events"
+        ],
+        "summary": "Delete an event",
+        "parameters": [
+          {
+            "example": "ev_3k7d8gb9be",
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "the event is referenced by notifications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "patch": {
         "security": [
           {
@@ -473,6 +532,208 @@
           },
           "409": {
             "description": "event is already archived",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/events/{id}/cover": {
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Accepts a single image part named \"file\". The stored type is decided by the file\ncontent, not by its name or declared type: only PNG, JPEG and WebP are kept, and\nmetadata is stripped. An uploaded cover always wins over the automatically fetched\none and is never overwritten by a refresh.",
+        "tags": [
+          "events"
+        ],
+        "summary": "Upload or replace the event cover",
+        "parameters": [
+          {
+            "description": "Event display id",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/postAdminEvents_id_cover"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.EventResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Deletes the stored file. An automatically fetched cover, if any, becomes visible again.",
+        "tags": [
+          "events"
+        ],
+        "summary": "Remove the uploaded event cover",
+        "parameters": [
+          {
+            "description": "Event display id",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.EventResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/events/{id}/cover/refresh": {
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Reads the og:image declared by website_url. The address is validated against\nprivate and loopback networks after DNS resolution and on every redirect; the\nresponse is capped in size, time and redirect count and must decode as an image.\nAn uploaded cover is left untouched and keeps taking precedence.",
+        "tags": [
+          "events"
+        ],
+        "summary": "Fetch the cover from the event website",
+        "parameters": [
+          {
+            "description": "Event display id",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.EventResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {
@@ -3861,6 +4122,46 @@
         }
       }
     },
+    "/covers/{key}": {
+      "get": {
+        "description": "Serves a stored cover by its server-generated key. The key is opaque and\nunguessable; no client-supplied path ever reaches the storage.",
+        "tags": [
+          "events"
+        ],
+        "summary": "Fetch a stored cover",
+        "parameters": [
+          {
+            "description": "Storage key",
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/events/{id}": {
       "get": {
         "security": [
@@ -4904,24 +5205,7 @@
         ],
         "summary": "Upload or replace your avatar",
         "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "description": "Image file",
-                    "type": "string",
-                    "format": "binary"
-                  }
-                },
-                "required": [
-                  "file"
-                ]
-              }
-            }
-          },
-          "required": true
+          "$ref": "#/components/requestBodies/postAdminEvents_id_cover"
         },
         "responses": {
           "200": {
@@ -9862,6 +10146,26 @@
   ],
   "components": {
     "requestBodies": {
+      "postAdminEvents_id_cover": {
+        "content": {
+          "multipart/form-data": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "file": {
+                  "description": "Image file",
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "required": [
+                "file"
+              ]
+            }
+          }
+        },
+        "required": true
+      },
       "dto.BatchSetStatusRequest": {
         "content": {
           "application/json": {
@@ -10906,6 +11210,13 @@
           "country_code": {
             "type": "string",
             "example": "RU"
+          },
+          "cover_source": {
+            "$ref": "#/components/schemas/models.CoverSource"
+          },
+          "cover_url": {
+            "type": "string",
+            "example": "/api/v1/covers/abc.png"
           },
           "created_at": {
             "type": "string",
@@ -13568,6 +13879,9 @@
           "EVENT_UPDATE",
           "EVENT_PUBLISH",
           "EVENT_ARCHIVE",
+          "EVENT_DELETE",
+          "EVENT_COVER_SET",
+          "EVENT_COVER_CLEAR",
           "STAGE_CREATE",
           "STAGE_UPDATE",
           "STAGE_DELETE",
@@ -13608,6 +13922,9 @@
           "AuditEventUpdate",
           "AuditEventPublish",
           "AuditEventArchive",
+          "AuditEventDelete",
+          "AuditEventCoverSet",
+          "AuditEventCoverClear",
           "AuditStageCreate",
           "AuditStageUpdate",
           "AuditStageDelete",
@@ -13698,6 +14015,17 @@
           "due_offset_minutes",
           "slot_no",
           "title_key"
+        ]
+      },
+      "models.CoverSource": {
+        "type": "string",
+        "enum": [
+          "MANUAL",
+          "AUTO"
+        ],
+        "x-enum-varnames": [
+          "CoverSourceManual",
+          "CoverSourceAuto"
         ]
       },
       "models.EntityType": {

@@ -1,176 +1,157 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { type ReactNode, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { z } from 'zod'
-import type { EventKind, EventOrigin, EventResponse } from '@/shared/api/types.gen'
+import type { EventResponse } from '@/shared/api/types.gen'
 import { applyServerErrors } from '@/shared/forms/server-errors'
+import {
+  endBeforeStart,
+  type MomentRange,
+  MomentRangeFields,
+} from '@/shared/ui/forms/calendar/moment-range'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { Textarea } from '@/shared/ui/forms/textarea'
 import { Button } from '@/shared/ui/primitives/button'
+import {
+  buildPayload,
+  defaultRange,
+  defaultValues,
+  type EventFormPayload,
+  momentServerError,
+} from './event-form.payload'
+import { EVENT_FIELD_NAMES, type EventFormValues, eventSchema } from './event-form.schema'
+import { EventPlaceFields } from './event-place-fields'
+import { EventPrizeFields } from './event-prize-fields'
 import { EventTaxonomyFields } from './event-taxonomy-fields'
 
-function toLocalInput(iso: string | undefined): string {
-  if (!iso) return ''
-  const date = new Date(iso)
-  const offset = date.getTimezoneOffset() * 60_000
-  return new Date(date.getTime() - offset).toISOString().slice(0, 16)
-}
-
-function toIso(local: string): string {
-  return new Date(local).toISOString()
-}
-
-const schema = z
-  .object({
-    title: z.string().min(1, 'event:form.titleRequired').max(200),
-    organizer: z.string().max(200).optional(),
-    website_url: z
-      .string()
-      .optional()
-      .refine((value) => !value || value.startsWith('https://'), {
-        message: 'event:form.urlHttps',
-      }),
-    description: z.string().optional(),
-    notes: z.string().optional(),
-    start_at: z.string().min(1, 'event:form.startRequired'),
-    end_at: z.string().min(1, 'event:form.endRequired'),
-  })
-  .refine((values) => new Date(values.end_at) > new Date(values.start_at), {
-    path: ['end_at'],
-    message: 'event:form.endAfterStart',
-  })
-
-export type EventFormValues = z.infer<typeof schema>
-
-export type EventFormPayload = {
-  title: string
-  start_at: string
-  end_at: string
-  kind: EventKind
-  origin: EventOrigin
-  organizer?: string
-  website_url?: string
-  description?: string
-  notes?: string
-}
+export type { EventFormPayload }
 
 export function EventForm({
   event,
   submitLabel,
+  cover,
   onSubmit,
 }: {
   event?: EventResponse
   submitLabel: string
+  cover?: ReactNode
   onSubmit: (payload: EventFormPayload) => Promise<void>
 }) {
   const { t } = useTranslation('event')
-  const [kind, setKind] = useState<EventKind>(event?.kind ?? 'HACKATHON')
-  const [origin, setOrigin] = useState<EventOrigin>(event?.origin ?? 'RU')
+  const [range, setRange] = useState<MomentRange>(() => defaultRange(event))
+  const [rangeError, setRangeError] = useState<string | null>(null)
+
   const {
     register,
+    control,
     handleSubmit,
     setError,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<EventFormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      title: event?.title ?? '',
-      organizer: event?.organizer ?? '',
-      website_url: event?.website_url ?? '',
-      description: event?.description ?? '',
-      notes: event?.notes ?? '',
-      start_at: toLocalInput(event?.start_at),
-      end_at: toLocalInput(event?.end_at),
-    },
+    resolver: zodResolver(eventSchema),
+    defaultValues: defaultValues(event),
   })
 
+  const format = watch('format')
+
   async function submit(values: EventFormValues) {
+    const payload = buildPayload(values, range)
+    if (payload === null) {
+      setRangeError('event:form.momentRequired')
+      return
+    }
+    if (endBeforeStart(range)) {
+      setRangeError('event:form.endAfterStart')
+      return
+    }
+    setRangeError(null)
     try {
-      await onSubmit({
-        title: values.title,
-        start_at: toIso(values.start_at),
-        end_at: toIso(values.end_at),
-        kind,
-        origin,
-        ...(values.organizer ? { organizer: values.organizer } : {}),
-        ...(values.website_url ? { website_url: values.website_url } : {}),
-        ...(values.description ? { description: values.description } : {}),
-        ...(values.notes ? { notes: values.notes } : {}),
-      })
+      await onSubmit(payload)
     } catch (error) {
-      applyServerErrors(error, setError, [
-        'title',
-        'organizer',
-        'website_url',
-        'description',
-        'notes',
-        'start_at',
-        'end_at',
-      ])
+      const fromServer = momentServerError(error)
+      if (fromServer !== null) setRangeError(fromServer)
+      applyServerErrors(error, setError, EVENT_FIELD_NAMES)
     }
   }
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)} noValidate>
-      <Field label={t('form.title')} htmlFor="title" error={errors.title?.message}>
-        <Input id="title" aria-invalid={Boolean(errors.title)} {...register('title')} />
+    <form className="flex flex-col gap-5" onSubmit={handleSubmit(submit)} noValidate>
+      <Field label={t('form.title')} htmlFor="event-title" error={errors.title?.message} required>
+        <Input id="event-title" aria-invalid={Boolean(errors.title)} {...register('title')} />
       </Field>
 
-      <EventTaxonomyFields kind={kind} origin={origin} onKind={setKind} onOrigin={setOrigin} />
-
-      <div className="grid grid-cols-2 gap-4">
-        <Field label={t('form.start')} htmlFor="start_at" error={errors.start_at?.message}>
-          <Input
-            id="start_at"
-            type="datetime-local"
-            aria-invalid={Boolean(errors.start_at)}
-            {...register('start_at')}
+      <Controller
+        control={control}
+        name="kind"
+        render={({ field: kindField }) => (
+          <Controller
+            control={control}
+            name="origin"
+            render={({ field: originField }) => (
+              <EventTaxonomyFields
+                kind={kindField.value}
+                origin={originField.value}
+                onKind={kindField.onChange}
+                onOrigin={originField.onChange}
+              />
+            )}
           />
-        </Field>
-        <Field label={t('form.end')} htmlFor="end_at" error={errors.end_at?.message}>
-          <Input
-            id="end_at"
-            type="datetime-local"
-            aria-invalid={Boolean(errors.end_at)}
-            {...register('end_at')}
-          />
-        </Field>
-      </div>
+        )}
+      />
 
-      <Field label={t('form.organizer')} htmlFor="organizer" error={errors.organizer?.message}>
-        <Input id="organizer" {...register('organizer')} />
+      <MomentRangeFields
+        value={range}
+        endError={rangeError ?? undefined}
+        onChange={(next) => {
+          setRange(next)
+          setRangeError(null)
+        }}
+      />
+
+      <EventPlaceFields control={control} register={register} errors={errors} format={format} />
+
+      <EventPrizeFields register={register} errors={errors} />
+
+      <Field
+        label={t('form.organizer')}
+        htmlFor="event-organizer"
+        error={errors.organizer?.message}
+      >
+        <Input id="event-organizer" {...register('organizer')} />
       </Field>
 
       <Field
         label={t('form.website')}
-        htmlFor="website_url"
+        htmlFor="event-website"
         error={errors.website_url?.message}
-        hint={t('form.httpsOnly')}
+        hint={t('form.websiteHint')}
       >
-        <Input id="website_url" {...register('website_url')} />
+        <Input id="event-website" inputMode="url" {...register('website_url')} />
       </Field>
+
+      {cover}
 
       <Field
         label={t('form.description')}
-        htmlFor="description"
+        htmlFor="event-description"
         error={errors.description?.message}
       >
-        <Textarea id="description" {...register('description')} />
+        <Textarea id="event-description" {...register('description')} />
       </Field>
 
       <Field
         label={t('form.adminNotes')}
-        htmlFor="notes"
+        htmlFor="event-notes"
         error={errors.notes?.message}
         hint={t('form.adminNotesHint')}
       >
-        <Textarea id="notes" {...register('notes')} />
+        <Textarea id="event-notes" {...register('notes')} />
       </Field>
 
       {errors.root && (
-        <p role="alert" className="text-destructive text-copy">
+        <p role="alert" className="text-copy text-destructive">
           {errors.root.message}
         </p>
       )}

@@ -11,6 +11,8 @@
     "overlap": "пересечение",
     "editAria": "Изменить этап {{name}}",
     "deleteAria": "Удалить этап {{name}}",
+    "moveUpAria": "Переместить этап «{{name}}» выше",
+    "moveDownAria": "Переместить этап «{{name}}» ниже",
     "newTitle": "Новый этап",
     "editTitle": "Изменение этапа",
     "created": "Этап создан",

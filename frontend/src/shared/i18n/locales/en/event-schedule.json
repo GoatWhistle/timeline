@@ -11,6 +11,8 @@
     "overlap": "overlap",
     "editAria": "Edit stage {{name}}",
     "deleteAria": "Delete stage {{name}}",
+    "moveUpAria": "Move the stage {{name}} up",
+    "moveDownAria": "Move the stage {{name}} down",
     "newTitle": "New stage",
     "editTitle": "Edit stage",
     "created": "Stage created",

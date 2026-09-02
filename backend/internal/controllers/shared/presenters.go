@@ -65,6 +65,8 @@ func EventResponseWithStages(h *models.Event, stages []models.Stage, now time.Ti
 		PrizeCurrency:   h.PrizeCurrency,
 		TeamSizeMin:     h.TeamSizeMin,
 		TeamSizeMax:     h.TeamSizeMax,
+		CoverURL:        h.EffectiveCoverURL(),
+		CoverSource:     h.EffectiveCoverSource(),
 		StartAt:         h.StartAt,
 		EndAt:           h.EndAt,
 		State:           h.State(now),

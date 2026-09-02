@@ -12,6 +12,7 @@ import {
 } from '@/entities/event/event.queries'
 import { EventForm } from '@/entities/event/event-form'
 import { EventStateBadge } from '@/entities/event/event-state-badge'
+import { CoverField } from '@/features/event-cover'
 import { ParticipantsTab } from '@/features/participants/participants-tab'
 import { RegistrationTab } from '@/features/registration/registration-tab'
 import { StatusesTab } from '@/features/registration/statuses-tab'
@@ -92,20 +93,39 @@ export function AdminEventPage() {
             </TabsList>
 
             <TabsContent value="general">
-              <Card className="max-w-3xl">
-                <CardContent className="pt-6">
-                  <EventForm
-                    event={event}
-                    submitLabel={t('common:action.save')}
-                    onSubmit={async (payload) => {
-                      await update.mutateAsync(payload)
-                      toast.success(t('detail.saved'), {
-                        description: t('detail.savedHint'),
-                      })
-                    }}
-                  />
-                </CardContent>
-              </Card>
+              <div className="flex max-w-3xl flex-col gap-6">
+                <Card>
+                  <CardContent className="pt-6">
+                    <EventForm
+                      event={event}
+                      submitLabel={t('common:action.save')}
+                      onSubmit={async (payload) => {
+                        await update.mutateAsync(payload)
+                        toast.success(t('detail.saved'), {
+                          description: t('detail.savedHint'),
+                        })
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <CoverField
+                      eventId={event.id}
+                      title={event.title}
+                      coverUrl={event.cover_url}
+                      coverSource={event.cover_source}
+                      hasWebsite={Boolean(event.website_url)}
+                    />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="flex flex-col gap-4 pt-6">
+                    <h2 className="font-semibold text-heading">{t('detail.tabStages')}</h2>
+                    <StagesTab event={event} />
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             <TabsContent value="stages">

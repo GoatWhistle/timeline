@@ -28,5 +28,27 @@
     "coverageHint_one": "{{done}} of {{count}} participant marked themselves as registered; {{waived}} waived by an administrator, {{outstanding}} still to mark. The system checks nothing.",
     "coverageHint_other": "{{done}} of {{count}} participants marked themselves as registered; {{waived}} waived by an administrator, {{outstanding}} still to mark. The system checks nothing.",
     "coverageEmptyHint": "No published event requires registration, so there is no share to show."
+  },
+  "cover": {
+    "title": "Cover",
+    "alt": "Cover of {{title}}",
+    "missing": "No cover",
+    "upload": "Upload a cover",
+    "replace": "Replace the cover",
+    "remove": "Remove the uploaded cover",
+    "open": "Open the file",
+    "fetch": "Fetch from the website",
+    "saved": "The cover has been saved",
+    "removed": "The uploaded cover has been removed",
+    "fetched": "The cover has been fetched from the website",
+    "uploadFailed": "The cover could not be saved",
+    "removeFailed": "The cover could not be removed",
+    "fetchFailed": "The cover could not be fetched from the website",
+    "wrongType": "Only PNG, JPEG and WebP images are accepted",
+    "tooLarge": "The image is larger than 5 MB",
+    "sourceManual": "Uploaded",
+    "sourceAuto": "From the website",
+    "hint": "PNG, JPEG or WebP up to 5 MB. An uploaded cover always wins over the one fetched from the website.",
+    "hintNoWebsite": "PNG, JPEG or WebP up to 5 MB. Add a website address to fetch a cover automatically."
   }
 }

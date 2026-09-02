@@ -20,7 +20,31 @@
     "originValue": {
       "RU": "Russia",
       "WORLD": "World"
-    }
+    },
+    "format": "Format",
+    "formatHint": "The declared format; stages may refine it",
+    "country": "Country",
+    "countryHint": "ISO 3166-1 alpha-2 code, two letters",
+    "city": "City",
+    "track": "Track",
+    "prizePool": "Prize pool",
+    "prizeCurrency": "Currency",
+    "prizePairHint": "The pool and its currency are set and cleared together",
+    "teamSizeMin": "Smallest team",
+    "teamSizeMax": "Largest team",
+    "teamSizeHint": "Between 1 and 100 members",
+    "websiteHint": "An absolute address; https is not required",
+    "endAfterStartHint": "The end comes after the start",
+    "urlInvalid": "An absolute address with a scheme and a host is expected",
+    "countryInvalid": "Two letters of the country code",
+    "prizePoolInvalid": "A non-negative number with at most two decimals",
+    "prizeCurrencyInvalid": "Three letters of the ISO 4217 currency code",
+    "prizePairRequired": "The prize pool and its currency are set together",
+    "countryRequiredOffline": "An on-site or hybrid format needs a country",
+    "teamSizeInteger": "A whole number is expected",
+    "teamSizeRange": "Between 1 and 100",
+    "teamSizeOrder": "The smallest team cannot exceed the largest",
+    "momentRequired": "Enter a date and a time"
   },
   "clone": {
     "title": "Clone the event",
@@ -37,5 +61,14 @@
     "doneHint_other": "{{count}} stages moved by {{days}} days",
     "failed": "Could not clone the event",
     "action": "Clone"
+  },
+  "calendar": {
+    "pickDate": "Pick a date",
+    "dialogLabel": "Calendar",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "timeAria": "Time, hours and minutes",
+    "zone": "{{zone}} ({{offset}})",
+    "keyboardHint": "Arrows move by day, PageUp and PageDown by month, Home and End to the week, Escape closes"
   }
 }

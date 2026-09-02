@@ -677,6 +677,15 @@ definitions:
       country_code:
         example: RU
         type: string
+      cover_source:
+        allOf:
+        - $ref: '#/definitions/models.CoverSource'
+        enum:
+        - MANUAL
+        - AUTO
+      cover_url:
+        example: /api/v1/covers/abc.png
+        type: string
       created_at:
         type: string
       description:
@@ -2382,6 +2391,9 @@ definitions:
     - EVENT_UPDATE
     - EVENT_PUBLISH
     - EVENT_ARCHIVE
+    - EVENT_DELETE
+    - EVENT_COVER_SET
+    - EVENT_COVER_CLEAR
     - STAGE_CREATE
     - STAGE_UPDATE
     - STAGE_DELETE
@@ -2422,6 +2434,9 @@ definitions:
     - AuditEventUpdate
     - AuditEventPublish
     - AuditEventArchive
+    - AuditEventDelete
+    - AuditEventCoverSet
+    - AuditEventCoverClear
     - AuditStageCreate
     - AuditStageUpdate
     - AuditStageDelete
@@ -2487,6 +2502,14 @@ definitions:
         example: task.read_rules
         type: string
     type: object
+  models.CoverSource:
+    enum:
+    - MANUAL
+    - AUTO
+    type: string
+    x-enum-varnames:
+    - CoverSourceManual
+    - CoverSourceAuto
   models.EntityType:
     enum:
     - USER
@@ -3077,6 +3100,39 @@ paths:
       tags:
       - events
   /admin/events/{id}:
+    delete:
+      description: |-
+        Removes the event together with its stages, participants and stored covers.
+        An event that already produced notifications cannot be removed: archive it instead.
+      parameters:
+      - description: Event identifier
+        example: ev_3k7d8gb9be
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: the event is referenced by notifications
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Delete an event
+      tags:
+      - events
     get:
       description: Administrative read, including notes.
       parameters:
@@ -3187,6 +3243,120 @@ paths:
       security:
       - CookieAuth: []
       summary: Archive an event
+      tags:
+      - events
+  /admin/events/{id}/cover:
+    delete:
+      description: Deletes the stored file. An automatically fetched cover, if any,
+        becomes visible again.
+      parameters:
+      - description: Event display id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EventResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Remove the uploaded event cover
+      tags:
+      - events
+    post:
+      consumes:
+      - multipart/form-data
+      description: |-
+        Accepts a single image part named "file". The stored type is decided by the file
+        content, not by its name or declared type: only PNG, JPEG and WebP are kept, and
+        metadata is stripped. An uploaded cover always wins over the automatically fetched
+        one and is never overwritten by a refresh.
+      parameters:
+      - description: Event display id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Upload or replace the event cover
+      tags:
+      - events
+  /admin/events/{id}/cover/refresh:
+    post:
+      description: |-
+        Reads the og:image declared by website_url. The address is validated against
+        private and loopback networks after DNS resolution and on every redirect; the
+        response is capped in size, time and redirect count and must decode as an image.
+        An uploaded cover is left untouched and keeps taking precedence.
+      parameters:
+      - description: Event display id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EventResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Fetch the cover from the event website
       tags:
       - events
   /admin/events/{id}/participants:
@@ -5137,6 +5307,30 @@ paths:
       summary: Export the catalog as CSV
       tags:
       - catalog
+  /covers/{key}:
+    get:
+      description: |-
+        Serves a stored cover by its server-generated key. The key is opaque and
+        unguessable; no client-supplied path ever reaches the storage.
+      parameters:
+      - description: Storage key
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - image/png
+      - image/jpeg
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Fetch a stored cover
+      tags:
+      - events
   /events/{id}:
     get:
       description: |-

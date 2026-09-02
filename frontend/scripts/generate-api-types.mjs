@@ -43,6 +43,8 @@ const OPTIONAL = {
     'prize_currency',
     'team_size_min',
     'team_size_max',
+    'cover_url',
+    'cover_source',
   ],
   'dto.CatalogEvent': [
     'description',

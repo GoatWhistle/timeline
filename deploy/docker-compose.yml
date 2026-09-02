@@ -22,8 +22,10 @@ x-backend: &backend
     FIRST_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password123}
     FIRST_ADMIN_NAME: ${ADMIN_NAME:-Administrator}
     AVATAR_STORAGE_ROOT: /var/lib/timeline/avatars
+    COVER_STORAGE_ROOT: /var/lib/timeline/covers
   volumes:
     - avatars:/var/lib/timeline/avatars
+    - covers:/var/lib/timeline/covers
   networks:
     - timeline
 
@@ -111,6 +113,7 @@ services:
 volumes:
   pgdata:
   avatars:
+  covers:
 
 networks:
   timeline:

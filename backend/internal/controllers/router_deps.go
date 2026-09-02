@@ -23,6 +23,7 @@ type Deps struct {
 	ProfileLinks  auth.ProfileLinkService
 	Users         auth.UserService
 	Events        event.EventService
+	Covers        event.CoverService
 	Catalog       event.CatalogService
 	Stages        event.StageService
 	Participants  participation.ParticipantService
@@ -74,6 +75,7 @@ type Deps struct {
 	LinkRate           int
 	LinkRateWindow     time.Duration
 	AvatarMaxBytes     int64
+	CoverMaxBytes      int64
 
 	Cookies      shared.CookieOptions
 	PublicURL    string

@@ -239,7 +239,62 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete an event
+         * @description Removes the event together with its stages, participants and stored covers.
+         *     An event that already produced notifications cannot be removed: archive it instead.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description the event is referenced by notifications */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         /**
@@ -373,6 +428,203 @@ export interface paths {
                     };
                 };
                 /** @description event is already archived */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/events/{id}/cover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload or replace the event cover
+         * @description Accepts a single image part named "file". The stored type is decided by the file
+         *     content, not by its name or declared type: only PNG, JPEG and WebP are kept, and
+         *     metadata is stripped. An uploaded cover always wins over the automatically fetched
+         *     one and is never overwritten by a refresh.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event display id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: components["requestBodies"]["postAdminEvents_id_cover"];
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Request Entity Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Remove the uploaded event cover
+         * @description Deletes the stored file. An automatically fetched cover, if any, becomes visible again.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event display id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/events/{id}/cover/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Fetch the cover from the event website
+         * @description Reads the og:image declared by website_url. The address is validated against
+         *     private and loopback networks after DNS resolution and on every redirect; the
+         *     response is capped in size, time and redirect count and must decode as an image.
+         *     An uploaded cover is left untouched and keeps taking precedence.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event display id */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -3704,6 +3956,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/covers/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fetch a stored cover
+         * @description Serves a stored cover by its server-generated key. The key is opaque and
+         *     unguessable; no client-supplied path ever reaches the storage.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Storage key */
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "image/jpeg": components["schemas"]["dto.ErrorResponse"];
+                        "image/png": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events/{id}": {
         parameters: {
             query?: never;
@@ -4779,17 +5082,7 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
-                content: {
-                    "multipart/form-data": {
-                        /**
-                         * Format: binary
-                         * @description Image file
-                         */
-                        file: string;
-                    };
-                };
-            };
+            requestBody: components["requestBodies"]["postAdminEvents_id_cover"];
             responses: {
                 /** @description OK */
                 200: {
@@ -10191,6 +10484,9 @@ export interface components {
             city?: string;
             /** @example RU */
             country_code?: string;
+            cover_source?: components["schemas"]["models.CoverSource"];
+            /** @example /api/v1/covers/abc.png */
+            cover_url?: string;
             /** Format: date-time */
             created_at: string;
             description?: string;
@@ -11170,7 +11466,7 @@ export interface components {
         /** @enum {string} */
         "models.ArtifactKind": "REPOSITORY" | "VIDEO" | "SLIDES" | "DEMO" | "SUBMISSION" | "OTHER";
         /** @enum {string} */
-        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "CALENDAR_FEED_ISSUE" | "CALENDAR_FEED_REVOKE";
+        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "EVENT_DELETE" | "EVENT_COVER_SET" | "EVENT_COVER_CLEAR" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "CALENDAR_FEED_ISSUE" | "CALENDAR_FEED_REVOKE";
         /** @enum {string} */
         "models.ChangeSource": "SYSTEM" | "USER" | "ADMIN";
         /** @enum {string} */
@@ -11188,6 +11484,8 @@ export interface components {
             /** @example task.read_rules */
             title_key: string;
         };
+        /** @enum {string} */
+        "models.CoverSource": "MANUAL" | "AUTO";
         /** @enum {string} */
         "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "CALENDAR_FEED";
         /** @enum {string} */
@@ -11385,6 +11683,17 @@ export interface components {
         "dto.TokenRequest": {
             content: {
                 "application/json": components["schemas"]["dto.TokenRequest"];
+            };
+        };
+        postAdminEvents_id_cover: {
+            content: {
+                "multipart/form-data": {
+                    /**
+                     * Format: binary
+                     * @description Image file
+                     */
+                    file: string;
+                };
             };
         };
     };

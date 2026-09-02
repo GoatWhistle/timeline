@@ -19,6 +19,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
 	"github.com/GoatWhistle/timeline/internal/config"
 	svcauth "github.com/GoatWhistle/timeline/internal/services/auth"
+	svccover "github.com/GoatWhistle/timeline/internal/services/cover"
 	svcdelivery "github.com/GoatWhistle/timeline/internal/services/delivery"
 	svcdigest "github.com/GoatWhistle/timeline/internal/services/digest"
 	svcevent "github.com/GoatWhistle/timeline/internal/services/event"
@@ -29,7 +30,6 @@ import (
 	svcreminder "github.com/GoatWhistle/timeline/internal/services/reminder"
 	svcscheduler "github.com/GoatWhistle/timeline/internal/services/scheduler"
 	sharedaudit "github.com/GoatWhistle/timeline/internal/services/shared/audit"
-	"github.com/GoatWhistle/timeline/internal/services/shared/blobstore"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 	svcteam "github.com/GoatWhistle/timeline/internal/services/team"
@@ -87,6 +87,7 @@ type container struct {
 	profile       *svcauth.ProfileService
 	profileLinks  *svcauth.ProfileLinkService
 	avatars       *svcauth.AvatarService
+	covers        *svccover.Service
 	users         *svcauth.UserService
 	events        *svcevent.EventService
 	catalog       *svcevent.CatalogService
@@ -181,14 +182,15 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.profile = svcauth.NewProfileService(db, c.repos.users, c.repos.tokens, c.repos.sessions,
 		c.notifier, c.audit, c.hasher, mailer, c.telegram, cfg)
 	c.profileLinks = svcauth.NewProfileLinkService(db, c.repos.profileLinks)
-	blobs, err := blobstore.NewLocal(cfg.Avatar.Root)
-	if err != nil {
+	if err := c.wireAvatars(cfg); err != nil {
 		return nil, err
 	}
-	c.avatars = svcauth.NewAvatarService(db, c.repos.users, blobs, c.audit, cfg.Avatar)
 	c.users = svcauth.NewUserService(db, c.repos.users, c.repos.sessions, c.notifier, c.audit)
 	c.events = svcevent.NewEventService(db, c.repos.events, c.repos.registrations,
 		c.notifier, c.scheduler, c.audit)
+	if err := c.wireCovers(cfg); err != nil {
+		return nil, err
+	}
 	c.stages = svcevent.NewStageService(db, c.repos.stages, c.repos.events, c.repos.participants, c.audit)
 	c.wireParticipation(cfg)
 	c.catalog = svcevent.NewCatalogService(db, c.repos.catalog, c.repos.events, c.repos.participants,

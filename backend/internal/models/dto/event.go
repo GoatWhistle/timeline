@@ -26,6 +26,9 @@ type EventResponse struct {
 	TeamSizeMin     *int               `json:"team_size_min,omitempty" example:"3"`
 	TeamSizeMax     *int               `json:"team_size_max,omitempty" example:"5"`
 
+	CoverURL    *string             `json:"cover_url,omitempty" example:"/api/v1/covers/abc.png"`
+	CoverSource *models.CoverSource `json:"cover_source,omitempty" enums:"MANUAL,AUTO"`
+
 	StartAt     time.Time         `json:"start_at"`
 	EndAt       time.Time         `json:"end_at"`
 	State       models.EventState `json:"state" enums:"UNPUBLISHED,UPCOMING,ACTIVE,FINISHED,ARCHIVED"`

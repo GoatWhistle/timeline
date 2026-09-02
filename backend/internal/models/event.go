@@ -26,10 +26,16 @@ type Event struct {
 	TeamSizeMax   *int        `json:"team_size_max,omitempty"`
 	StartAt       time.Time   `json:"start_at"`
 	EndAt         time.Time   `json:"end_at"`
-	PublishedAt   *time.Time  `json:"published_at,omitempty"`
-	ArchivedAt    *time.Time  `json:"archived_at,omitempty"`
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at"`
+
+	CoverManualURL     *string    `json:"cover_manual_url,omitempty"`
+	CoverAutoURL       *string    `json:"cover_auto_url,omitempty"`
+	CoverAutoSource    *string    `json:"cover_auto_source,omitempty"`
+	CoverAutoFetchedAt *time.Time `json:"cover_auto_fetched_at,omitempty"`
+
+	PublishedAt *time.Time `json:"published_at,omitempty"`
+	ArchivedAt  *time.Time `json:"archived_at,omitempty"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
 func (h *Event) State(now time.Time) EventState {

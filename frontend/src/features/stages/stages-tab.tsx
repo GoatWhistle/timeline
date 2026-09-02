@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -28,6 +28,7 @@ import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { StageForm } from './stage-form'
+import { canMove, moveStage, sortedStages } from './stage-order'
 
 function overlaps(stage: StageResponse, all: StageResponse[]): boolean {
   return all.some(
@@ -49,7 +50,14 @@ export function StagesTab({ event }: { event: EventResponse }) {
   const [editing, setEditing] = useState<StageResponse | null>(null)
   const [deleting, setDeleting] = useState<StageResponse | null>(null)
 
-  const stages = query.data ?? []
+  const stages = sortedStages(query.data ?? [])
+
+  async function reorder(id: string, direction: -1 | 1) {
+    const changes = moveStage(stages, id, direction)
+    for (const change of changes) {
+      await update.mutateAsync({ id: change.id, body: { sort_order: change.sort_order } })
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -79,7 +87,7 @@ export function StagesTab({ event }: { event: EventResponse }) {
                 <TableHead>{t('stages.columnName')}</TableHead>
                 <TableHead>{t('stages.columnType')}</TableHead>
                 <TableHead>{t('stages.columnPeriod')}</TableHead>
-                <TableHead className="w-24">{t('stages.columnActions')}</TableHead>
+                <TableHead className="w-40">{t('stages.columnActions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -101,6 +109,24 @@ export function StagesTab({ event }: { event: EventResponse }) {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t('stages.moveUpAria', { name: stage.name })}
+                        disabled={!canMove(stages, stage.id, -1) || update.isPending}
+                        onClick={() => reorder(stage.id, -1)}
+                      >
+                        <ArrowUp className="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t('stages.moveDownAria', { name: stage.name })}
+                        disabled={!canMove(stages, stage.id, 1) || update.isPending}
+                        onClick={() => reorder(stage.id, 1)}
+                      >
+                        <ArrowDown className="size-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"

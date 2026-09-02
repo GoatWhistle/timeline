@@ -279,6 +279,54 @@ const docTemplate = `{
                     }
                 }
             },
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Removes the event together with its stages, participants and stored covers.\nAn event that already produced notifications cannot be removed: archive it instead.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Delete an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "ev_3k7d8gb9be",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "the event is referenced by notifications",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {
@@ -395,6 +443,170 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "event is already archived",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/events/{id}/cover": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Accepts a single image part named \"file\". The stored type is decided by the file\ncontent, not by its name or declared type: only PNG, JPEG and WebP are kept, and\nmetadata is stripped. An uploaded cover always wins over the automatically fetched\none and is never overwritten by a refresh.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Upload or replace the event cover",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event display id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Deletes the stored file. An automatically fetched cover, if any, becomes visible again.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Remove the uploaded event cover",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event display id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/events/{id}/cover/refresh": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Reads the og:image declared by website_url. The address is validated against\nprivate and loopback networks after DNS resolution and on every redirect; the\nresponse is capped in size, time and redirect count and must decode as an image.\nAn uploaded cover is left untouched and keeps taking precedence.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Fetch the cover from the event website",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event display id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -3200,6 +3412,39 @@ const docTemplate = `{
                     },
                     "429": {
                         "description": "too many catalog requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/covers/{key}": {
+            "get": {
+                "description": "Serves a stored cover by its server-generated key. The key is opaque and\nunguessable; no client-supplied path ever reaches the storage.",
+                "produces": [
+                    "image/png",
+                    "image/jpeg"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Fetch a stored cover",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Storage key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -8968,6 +9213,21 @@ const docTemplate = `{
                     "type": "string",
                     "example": "RU"
                 },
+                "cover_source": {
+                    "enum": [
+                        "MANUAL",
+                        "AUTO"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CoverSource"
+                        }
+                    ]
+                },
+                "cover_url": {
+                    "type": "string",
+                    "example": "/api/v1/covers/abc.png"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -11482,6 +11742,9 @@ const docTemplate = `{
                 "EVENT_UPDATE",
                 "EVENT_PUBLISH",
                 "EVENT_ARCHIVE",
+                "EVENT_DELETE",
+                "EVENT_COVER_SET",
+                "EVENT_COVER_CLEAR",
                 "STAGE_CREATE",
                 "STAGE_UPDATE",
                 "STAGE_DELETE",
@@ -11522,6 +11785,9 @@ const docTemplate = `{
                 "AuditEventUpdate",
                 "AuditEventPublish",
                 "AuditEventArchive",
+                "AuditEventDelete",
+                "AuditEventCoverSet",
+                "AuditEventCoverClear",
                 "AuditStageCreate",
                 "AuditStageUpdate",
                 "AuditStageDelete",
@@ -11604,6 +11870,17 @@ const docTemplate = `{
                     "example": "task.read_rules"
                 }
             }
+        },
+        "models.CoverSource": {
+            "type": "string",
+            "enum": [
+                "MANUAL",
+                "AUTO"
+            ],
+            "x-enum-varnames": [
+                "CoverSourceManual",
+                "CoverSourceAuto"
+            ]
         },
         "models.EntityType": {
             "type": "string",

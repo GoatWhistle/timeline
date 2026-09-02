@@ -18,6 +18,7 @@ x-backend: &backend
     RATE_LIMIT_RESEND_ATTEMPTS: "10000"
     RATE_LIMIT_CATALOG_REQUESTS: "100000"
     AVATAR_STORAGE_ROOT: /tmp/timeline/avatars
+    COVER_STORAGE_ROOT: /tmp/timeline/covers
   networks:
     - contract
 
