@@ -1,4 +1,5 @@
 import { PanelLeft, Shield, User } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
 import { listName } from '@/entities/user/person-name/person-name'
@@ -32,16 +33,57 @@ export function AppSidebar({
     : ''
 
   const inAdmin = isAdmin && location.pathname.startsWith('/admin')
+  const paneRef = useRef<HTMLElement>(null)
+  const openedRef = useRef(false)
+  const settled = useRef(location.pathname)
+  const drawerOpen = sidebar.overlay && !sidebar.collapsed
+
+  useEffect(() => {
+    if (!drawerOpen) {
+      if (!openedRef.current) return
+      openedRef.current = false
+      const opener = [...document.querySelectorAll<HTMLElement>('[data-sidebar-toggle]')].find(
+        (candidate) => !paneRef.current?.contains(candidate),
+      )
+      opener?.focus({ preventScroll: true })
+      return
+    }
+    openedRef.current = true
+    const pane = paneRef.current
+    if (pane === null) return
+    const first = pane.querySelector<HTMLElement>('a[href], button:not([disabled])')
+    first?.focus({ preventScroll: true })
+  }, [drawerOpen])
+
+  const closeDrawer = sidebar.close
+  const overlayMode = sidebar.overlay
+  const visited = location.pathname
+
+  useEffect(() => {
+    if (!overlayMode) return
+    if (settled.current === visited) return
+    settled.current = visited
+    closeDrawer()
+  }, [visited, overlayMode, closeDrawer])
 
   return (
     <aside
+      ref={paneRef}
       data-sidebar={sidebar.visibility}
+      data-sidebar-overlay={sidebar.overlay ? 'true' : undefined}
       aria-hidden={sidebar.collapsed}
       inert={sidebar.collapsed ? true : undefined}
+      onKeyDown={(event) => {
+        if (sidebar.overlay && event.key === 'Escape') {
+          event.stopPropagation()
+          sidebar.close()
+        }
+      }}
       className={cn(
         'flex w-sidebar shrink-0 flex-col justify-between overflow-y-auto border-border border-r bg-card p-2',
         'motion-safe:transition-[margin,translate] motion-safe:duration-base motion-safe:ease-out',
         'motion-safe:will-change-transform',
+        sidebar.overlay && 'fixed inset-y-0 left-0 z-50 shadow-lg',
         sidebar.collapsed
           ? 'pointer-events-none -mr-sidebar translate-x-[calc(var(--pane-sidebar)*-1)]'
           : 'mr-0 translate-x-0',
@@ -73,10 +115,7 @@ export function AppSidebar({
           {inAdmin ? (
             <NavSection items={ADMIN_NAV} />
           ) : (
-            <div className="flex flex-col gap-4">
-              <NavSection items={CATALOG_NAV} />
-              <NavSection title={t('nav.sectionMine')} items={MINE_NAV} />
-            </div>
+            <NavSection items={[...CATALOG_NAV, ...MINE_NAV]} />
           )}
         </div>
       </nav>
@@ -84,7 +123,7 @@ export function AppSidebar({
       <div className="mt-6 flex flex-col gap-6 px-1 pb-2">
         {isAdmin && (
           <NavLink
-            to={inAdmin ? '/events' : '/admin/events'}
+            to={inAdmin ? '/catalog' : '/admin/events'}
             className={cn(
               'flex h-row items-center gap-2 rounded-control px-2 text-copy',
               'text-muted-foreground transition-colors duration-instant',

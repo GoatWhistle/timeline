@@ -1,5 +1,7 @@
+export const SCRIM_FILL = 'bg-scrim'
+
 export const SCRIM = [
-  'fixed inset-0 z-50 bg-scrim',
+  `fixed inset-0 z-50 ${SCRIM_FILL}`,
   'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
   'data-[state=open]:motion-safe:duration-base data-[state=open]:motion-safe:ease-out',
   'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',

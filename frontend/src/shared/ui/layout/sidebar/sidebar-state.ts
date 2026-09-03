@@ -1,5 +1,9 @@
 export const SIDEBAR_STORAGE_KEY = 'timeline-sidebar-collapsed'
 
+export const OVERLAY_MAX_WIDTH = 1024
+
+export const OVERLAY_QUERY = `(max-width: ${OVERLAY_MAX_WIDTH - 1}px)`
+
 function isCollapsedValue(raw: unknown): boolean {
   return raw === '1'
 }

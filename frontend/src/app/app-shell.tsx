@@ -13,6 +13,7 @@ import { useProfileShortcuts } from '@/shared/keyboard/shortcut-bindings'
 import { GOTO_ADMIN, GOTO_USER } from '@/shared/keyboard/shortcut-catalog'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { useSidebar } from '@/shared/ui/layout/sidebar/use-sidebar'
+import { SCRIM_FILL } from '@/shared/ui/overlays/overlay-chrome'
 import { RouteFallback } from './route-fallback'
 import { AppSidebar } from './sidebar/app-sidebar'
 import { useProfileLocale } from './use-profile-locale'
@@ -37,6 +38,21 @@ export function AppShell() {
       <AppShortcuts targets={isAdmin ? [...GOTO_USER, ...GOTO_ADMIN] : GOTO_USER} />
 
       <AppSidebar user={user} isAdmin={isAdmin} sidebar={sidebar} />
+
+      {sidebar.overlay && !sidebar.collapsed && (
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-hidden="true"
+          data-sidebar-scrim
+          onClick={sidebar.close}
+          className={cn(
+            'fixed inset-0 z-40',
+            SCRIM_FILL,
+            'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:duration-base motion-safe:ease-out',
+          )}
+        />
+      )}
 
       <main
         id="main"

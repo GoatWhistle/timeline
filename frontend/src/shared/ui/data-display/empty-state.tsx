@@ -1,9 +1,17 @@
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/shared/styling/class-names/class-names'
 import { Button } from '@/shared/ui/primitives/button'
 import { FilterFigure } from './empty-figures/filter-figure'
 
 export type EmptyFigure = (props: { label: string }) => React.ReactElement
+
+export type EmptySize = 'page' | 'card'
+
+const SIZES: Record<EmptySize, string> = {
+  page: 'min-h-[24rem] gap-6 px-6',
+  card: 'min-h-[10rem] gap-3 px-4',
+}
 
 export function EmptyState({
   title,
@@ -12,6 +20,7 @@ export function EmptyState({
   figure,
   filtered = false,
   onReset,
+  size = 'page',
 }: {
   title: string
   description?: string
@@ -19,12 +28,15 @@ export function EmptyState({
   figure?: EmptyFigure
   filtered?: boolean
   onReset?: () => void
+  size?: EmptySize
 }) {
   const { t } = useTranslation()
   const Figure = filtered ? FilterFigure : figure
 
   return (
-    <div className="flex min-h-[24rem] flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
+    <div
+      className={cn('flex flex-1 flex-col items-center justify-center text-center', SIZES[size])}
+    >
       {Figure && <Figure label={title} />}
       <div className="flex flex-col gap-2">
         <p className="font-medium text-copy">{title}</p>

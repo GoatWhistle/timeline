@@ -26,6 +26,10 @@ export function EventOverlayCard({
   const closeRef = useRef<HTMLButtonElement>(null)
   const returnFocus = useReturnFocus(open)
 
+  const shown = useRef<OverlayResult>(result)
+  if (open) shown.current = result
+  const held = shown.current
+
   return (
     <DialogPrimitive.Root
       open={open}
@@ -50,7 +54,7 @@ export function EventOverlayCard({
         >
           <header className="flex items-center gap-2 border-border border-b px-5 py-3">
             <DialogPrimitive.Title className="min-w-0 flex-1 truncate font-semibold text-heading">
-              {result.card?.title ?? t('overlay.title')}
+              {held.card?.title ?? t('overlay.title')}
             </DialogPrimitive.Title>
             <DialogPrimitive.Close asChild>
               <CloseButton ref={closeRef} label={t('detail.close')} />
@@ -59,7 +63,7 @@ export function EventOverlayCard({
 
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 [scrollbar-gutter:stable_both-edges]">
             <TooltipProvider>
-              <OverlayContent result={result} isAdmin={isAdmin} actions={actions} />
+              <OverlayContent result={held} isAdmin={isAdmin} actions={actions} />
             </TooltipProvider>
           </div>
         </DialogPrimitive.Content>
