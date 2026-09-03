@@ -33,7 +33,7 @@ export function AppShortcuts({ targets }: { targets: GotoTarget[] }) {
       },
       {
         id: 'shortcut-help',
-        keys: ['?'],
+        keys: ['?', 'mod+/'],
         titleKey: 'shortcuts.help',
         group: 'global',
         run: () => setHelpOpen(true),

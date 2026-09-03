@@ -7,7 +7,7 @@ export {
   withBinding,
   withoutBinding,
 } from './bindings'
-export { captureCombo, isModifierOnly } from './capture'
+export { captureCombo, heldModifiers, isModifierOnly } from './capture'
 export { comboLatin, comboValid, MAX_STEPS, normalizeCombo, reservedReason } from './combo'
 export {
   ALT_GLYPH,

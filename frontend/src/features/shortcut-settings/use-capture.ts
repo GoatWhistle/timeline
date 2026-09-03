@@ -1,53 +1,81 @@
-import { useEffect, useRef, useState } from 'react'
-import { captureCombo, isModifierOnly } from '@/shared/keyboard/shortcut-bindings'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { captureCombo, heldModifiers, isModifierOnly } from '@/shared/keyboard/shortcut-bindings'
 
-export const CHORD_WINDOW_MS = 900
+const CHORD_WINDOW_MS = 900
+
+export type CaptureDraft = {
+  combo: string | null
+  held: string[]
+}
+
+const EMPTY: CaptureDraft = { combo: null, held: [] }
 
 export function useCaptureKeys(
   active: boolean,
-  onCombo: (combo: string) => void,
-): { pending: string | null } {
-  const [pending, setPending] = useState<string | null>(null)
-  const latest = useRef(onCombo)
-  latest.current = onCombo
+  onCancel: () => void,
+): { draft: CaptureDraft; clear: () => void } {
+  const [draft, setDraft] = useState<CaptureDraft>(EMPTY)
+  const chordOpenUntil = useRef(0)
+
+  const clear = useCallback(() => {
+    chordOpenUntil.current = 0
+    setDraft(EMPTY)
+  }, [])
 
   useEffect(() => {
-    if (!active) setPending(null)
-  }, [active])
+    if (!active) clear()
+  }, [active, clear])
 
   useEffect(() => {
     if (!active) return
 
+    function onKeyUp(event: KeyboardEvent) {
+      if (!isModifierOnly(event)) return
+      setDraft((current) =>
+        current.held.length === 0 ? current : { ...current, held: heldModifiers(event) },
+      )
+    }
+
     function onKeyDown(event: KeyboardEvent) {
-      if (event.isComposing || isModifierOnly(event)) return
+      if (event.isComposing) return
       event.preventDefault()
       event.stopPropagation()
 
-      if (event.key === 'Escape' && pending === null) {
-        latest.current('')
+      if (isModifierOnly(event)) {
+        setDraft((current) => ({ ...current, held: heldModifiers(event) }))
         return
       }
 
-      const captured = captureCombo(event, pending)
-      if (captured === null) return
-
-      setPending(null)
-      latest.current(captured)
-
-      if (pending === null && !captured.includes('+') && [...event.key].length === 1) {
-        setPending(captured)
+      if (event.key === 'Escape' && heldModifiers(event).length === 0) {
+        onCancel()
+        return
       }
+
+      const openUntil = chordOpenUntil.current
+      chordOpenUntil.current = Date.now() + CHORD_WINDOW_MS
+
+      setDraft((current) => {
+        const previous = current.combo
+        const chord =
+          previous !== null &&
+          Date.now() < openUntil &&
+          !previous.includes(' ') &&
+          !previous.includes('+')
+            ? previous
+            : null
+        const captured = captureCombo(event, chord)
+        if (captured === null) return current
+        return { combo: captured, held: [] }
+      })
     }
 
     window.addEventListener('keydown', onKeyDown, true)
-    return () => window.removeEventListener('keydown', onKeyDown, true)
-  }, [active, pending])
+    window.addEventListener('keyup', onKeyUp, true)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown, true)
+      window.removeEventListener('keyup', onKeyUp, true)
+    }
+  }, [active, onCancel])
 
-  useEffect(() => {
-    if (pending === null) return
-    const timer = setTimeout(() => setPending(null), CHORD_WINDOW_MS)
-    return () => clearTimeout(timer)
-  }, [pending])
-
-  return { pending }
+  return { draft, clear }
 }

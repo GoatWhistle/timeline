@@ -1,12 +1,5 @@
-const SCOPE_KEY: Record<string, string> = {
-  app: 'shortcuts.scopeApp',
-  sidebar: 'shortcuts.scopeSidebar',
-  search: 'shortcuts.scopeSearch',
-  list: 'shortcuts.scopeList',
-  'command-palette': 'shortcuts.scopePalette',
-  'shortcut-help': 'shortcuts.scopeHelp',
-}
+const GLOBAL_SCOPES = new Set(['app', 'sidebar'])
 
-export function scopeLabelKey(id: string): string {
-  return SCOPE_KEY[id] ?? 'shortcuts.scopeOther'
+export function isGlobalScope(id: string): boolean {
+  return GLOBAL_SCOPES.has(id)
 }
