@@ -174,3 +174,57 @@ func TestUnreadCountFallsAfterMarkingRead(t *testing.T) {
 		t.Fatalf("expected an empty unread count after marking all read, got %d", counter.Unread)
 	}
 }
+
+func TestAdminUnreadCountAgreesWithTheFeedAfterMarkingRead(t *testing.T) {
+	s := support.NewStack(t)
+	admin := s.Register(t, "admin-unread@example.com")
+	s.Promote(t, admin.ID)
+
+	emit(s, t, svcrealtime.EmitRequest{
+		Type:     models.EventQueueAgeNormal,
+		Severity: models.SeverityInfo,
+		Audience: models.AudienceAdmin,
+		Payload:  map[string]any{"state": "normal"},
+	})
+	emit(s, t, svcrealtime.EmitRequest{
+		Type:     models.EventWorkerRecovered,
+		Severity: models.SeverityInfo,
+		Audience: models.AudienceAdmin,
+		Payload:  map[string]any{"state": "healthy"},
+	})
+
+	c := s.Session(t, admin)
+	var counter struct {
+		Unread int64 `json:"unread"`
+	}
+	resp := c.Get("/me/events-feed/unread-count")
+	support.RequireStatus(t, resp, http.StatusOK, "reading the administrator unread count")
+	resp.Decode(t, &counter)
+	if counter.Unread != 2 {
+		t.Fatalf("expected two unread administrative entries, got %d", counter.Unread)
+	}
+
+	resp = c.Post("/me/events-feed/read", map[string]any{})
+	support.RequireStatus(t, resp, http.StatusOK, "marking the administrative feed read")
+	resp.Decode(t, &counter)
+	if counter.Unread != 0 {
+		t.Fatalf("marking all read reported %d unread instead of none", counter.Unread)
+	}
+
+	resp = c.Get("/me/events-feed/unread-count")
+	support.RequireStatus(t, resp, http.StatusOK, "re-reading the administrator unread count")
+	resp.Decode(t, &counter)
+	if counter.Unread != 0 {
+		t.Fatalf("the counter still reports %d unread after marking all read", counter.Unread)
+	}
+
+	var page feedPage
+	resp = c.Get("/me/events-feed")
+	support.RequireStatus(t, resp, http.StatusOK, "reading the administrator feed")
+	resp.Decode(t, &page)
+	for _, item := range page.Items {
+		if !item.Read {
+			t.Fatalf("the feed still lists %s as unread while the counter reports none", item.Type)
+		}
+	}
+}

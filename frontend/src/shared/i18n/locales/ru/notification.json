@@ -23,9 +23,6 @@
     "title": "Уведомления",
     "markAllRead": "Отметить все прочитанными",
     "empty": "Пока ничего не произошло",
-    "unread_one": "{{count}} непрочитанное",
-    "unread_few": "{{count}} непрочитанных",
-    "unread_many": "{{count}} непрочитанных",
     "type": {
       "REGISTRATION_REMINDER": "Напоминание о регистрации",
       "NOTIFICATION_FAILED": "Уведомление не доставлено",
