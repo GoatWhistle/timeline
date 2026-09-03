@@ -5,6 +5,10 @@ participants and configures reminders; a participant sees their assignments and
 marks for themselves that they have registered. Reminders go out via Telegram or
 email.
 
+Participants form standing teams and enter an event with a lineup drawn from one;
+each keeps a private layer of tasks, notes, submissions, an outcome and a
+retrospective against every event they took part in.
+
 **Key caveat.** The system does not verify the external registration site. The
 registration status is a user's self-report or an administratively set state, not
 a confirmed fact. The wording in the interface is honest: "you marked", not
@@ -241,16 +245,12 @@ Priority order when sources disagree:
    error schema, pagination, batch results, status codes, the 403/404 policy.
 3. [docs/swagger.yaml](docs/swagger.yaml) / [swagger.json](docs/swagger.json) - the
    endpoint contract. Generated from annotations in the code, never edited by hand.
-4. [docs/tasks.md](docs/tasks.md) - the MVP backlog (INF, BE, FE, QA).
-5. [docs/dependency-order.md](docs/dependency-order.md) - the single source of truth
-   for the order of work.
+4. [CLAUDE.md](CLAUDE.md) - the working rules: layering, the comment ban, the
+   language rule, what closes a task, and what the ratchets guard.
 
-Development plans:
+* [docs/baselines/](docs/baselines/) - the ratchet baselines. Each one records
+  what the repository already has; the counter only moves down.
 
-* [docs/refactoring.md](docs/refactoring.md) - the refactoring and development plan.
-* [docs/todo.md](docs/todo.md) - the working task list derived from it.
-* [docs/realtime-notifications.md](docs/realtime-notifications.md) - the plan for
-  real-time notification delivery.
-* [docs/frontend-status.md](docs/frontend-status.md) - what is closed on the SPA side
-  and what remains.
-* [docs/baselines/](docs/baselines/) - the ratchet baselines.
+The delivery plans that drove the build have been removed: everything they
+described is either shipped, recorded in the specification, or kept as a rule
+in `CLAUDE.md`. A plan that outlives its work becomes a lie about the code.
