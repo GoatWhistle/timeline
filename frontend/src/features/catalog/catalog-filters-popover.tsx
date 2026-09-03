@@ -1,4 +1,4 @@
-import { Plus, SlidersHorizontal, X } from 'lucide-react'
+import { Plus, SlidersHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/shared/ui/forms/input'
 import {
@@ -11,6 +11,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/overlays/popover'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { CloseButton } from '@/shared/ui/primitives/close-button'
 import {
   activeFields,
   CATALOG_FILTER_FIELD_KEY,
@@ -89,15 +90,7 @@ function ConditionRow({
         </Select>
       )}
 
-      <Button
-        variant="ghost"
-        size="sm"
-        aria-label={t('catalog.filters.remove')}
-        onClick={() => onRemove(field)}
-        className="size-8 shrink-0 p-0"
-      >
-        <X className="size-3.5" aria-hidden="true" />
-      </Button>
+      <CloseButton label={t('catalog.filters.remove')} onClick={() => onRemove(field)} />
     </div>
   )
 }

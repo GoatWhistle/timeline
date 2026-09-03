@@ -1,14 +1,13 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/shared/api/session'
 import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { CloseButton } from '@/shared/ui/primitives/close-button'
 import { SlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/sliding-indicator'
 import { useSlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/use-sliding-indicator'
 import { PANEL_MOTION, PANEL_SURFACE, SCRIM } from '@/shared/ui/overlays/overlay-chrome'
-import { Button } from '@/shared/ui/primitives/button'
 import { SETTINGS_SECTIONS } from './sections'
 import { SettingsPanel } from './settings-panels'
 import { useSettingsOverlay } from './use-settings-overlay'
@@ -85,9 +84,7 @@ export function SettingsOverlay() {
                 {t(SETTINGS_SECTIONS.find((item) => item.id === section)?.labelKey ?? '')}
               </h2>
               <DialogPrimitive.Close asChild className="ml-auto">
-                <Button variant="ghost" size="sm" aria-label={t('action.close')}>
-                  <X className="size-4" aria-hidden="true" />
-                </Button>
+                <CloseButton />
               </DialogPrimitive.Close>
             </header>
 

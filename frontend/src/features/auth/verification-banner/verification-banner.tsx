@@ -1,10 +1,11 @@
-import { MailWarning, X } from 'lucide-react'
+import { MailWarning } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useResendVerification } from '@/entities/session/session.queries'
 import { useSession } from '@/shared/api/session'
 import { Button } from '@/shared/ui/primitives/button'
+import { CloseButton } from '@/shared/ui/primitives/close-button'
 
 const STORAGE_KEY = 'timeline.verification-banner.dismissed'
 
@@ -54,19 +55,14 @@ export function VerificationBanner() {
       >
         {t('banner.resend')}
       </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-7 shrink-0"
-        aria-label={t('banner.dismiss')}
+      <CloseButton
+        label={t('banner.dismiss')}
         title={t('banner.dismiss')}
         onClick={() => {
           writeDismissed(user.email)
           setDismissed(user.email)
         }}
-      >
-        <X className="size-4" aria-hidden="true" />
-      </Button>
+      />
     </div>
   )
 }

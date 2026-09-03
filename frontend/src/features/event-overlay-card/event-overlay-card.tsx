@@ -1,14 +1,13 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
 import { type ReactNode, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/shared/api/session'
 import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { CloseButton } from '@/shared/ui/primitives/close-button'
 import { ErrorState } from '@/shared/ui/data-display/error-state'
 import { PANEL_MOTION, PANEL_SURFACE, SCRIM } from '@/shared/ui/overlays/overlay-chrome'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
-import { Button } from '@/shared/ui/primitives/button'
 import { SkeletonDetail } from '@/shared/ui/states'
 import { EventOverlayBody } from './event-overlay-body'
 import type { OverlayResult } from './overlay-resolvers'
@@ -54,9 +53,7 @@ export function EventOverlayCard({
               {result.card?.title ?? t('overlay.title')}
             </DialogPrimitive.Title>
             <DialogPrimitive.Close asChild>
-              <Button ref={closeRef} variant="ghost" size="sm" aria-label={t('detail.close')}>
-                <X className="size-4" aria-hidden="true" />
-              </Button>
+              <CloseButton ref={closeRef} label={t('detail.close')} />
             </DialogPrimitive.Close>
           </header>
 

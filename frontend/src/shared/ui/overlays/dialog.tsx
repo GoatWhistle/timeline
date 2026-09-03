@@ -1,8 +1,7 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
 import type * as React from 'react'
-import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { CloseButton } from '@/shared/ui/primitives/close-button'
 import { PANEL_MOTION, PANEL_SURFACE, SCRIM } from './overlay-chrome'
 
 export const Dialog = DialogPrimitive.Root
@@ -12,7 +11,6 @@ export function DialogContent({
   children,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
-  const { t } = useTranslation()
 
   return (
     <DialogPrimitive.Portal>
@@ -28,9 +26,8 @@ export function DialogContent({
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-badge opacity-70 transition-opacity duration-instant ease-out hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-          <X className="size-4" />
-          <span className="sr-only">{t('action.close')}</span>
+        <DialogPrimitive.Close asChild>
+          <CloseButton className="absolute top-3 right-3" />
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
