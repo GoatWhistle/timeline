@@ -1,14 +1,15 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { i18n } from '@/shared/i18n/config'
 import {
-  appRegistry,
   cancelButtons,
   changeButtons,
   drafts,
+  pencilFor,
   recordedVariables,
   renderWith,
-  revertButtons,
+  revertFor,
+  rowNamed,
   saveButtons,
 } from './harness'
 
@@ -18,7 +19,7 @@ beforeAll(async () => {
 
 describe('what the screen shows while a combination is being recorded', () => {
   it('shows a held modifier the moment it goes down, before any other key', async () => {
-    const { user } = renderWith(appRegistry())
+    const { user } = renderWith()
 
     await user.click(changeButtons()[0] as HTMLElement)
     expect(screen.getByText(i18n.t('common:shortcuts.recording'))).toBeInTheDocument()
@@ -30,7 +31,7 @@ describe('what the screen shows while a combination is being recorded', () => {
   })
 
   it('shows the whole combination the instant the second key lands, with nothing else clicked', async () => {
-    const { user } = renderWith(appRegistry())
+    const { user } = renderWith()
 
     await user.click(changeButtons()[0] as HTMLElement)
     await user.keyboard('{Control>}1{/Control}')
@@ -40,7 +41,7 @@ describe('what the screen shows while a combination is being recorded', () => {
   })
 
   it('accepts a single letter as a whole shortcut and offers to save it', async () => {
-    const { user } = renderWith(appRegistry())
+    const { user } = renderWith()
 
     await user.click(changeButtons()[0] as HTMLElement)
     await user.keyboard('m')
@@ -50,7 +51,7 @@ describe('what the screen shows while a combination is being recorded', () => {
   })
 
   it('keeps the prompt, and no save, until something has actually been pressed', async () => {
-    const { user } = renderWith(appRegistry())
+    const { user } = renderWith()
 
     await user.click(changeButtons()[0] as HTMLElement)
 
@@ -59,7 +60,7 @@ describe('what the screen shows while a combination is being recorded', () => {
   })
 
   it('replaces the draft when the person presses something else instead', async () => {
-    const { user } = renderWith(appRegistry())
+    const { user } = renderWith()
 
     await user.click(changeButtons()[0] as HTMLElement)
     await user.keyboard('{Control>}1{/Control}')
@@ -71,17 +72,18 @@ describe('what the screen shows while a combination is being recorded', () => {
 
 describe('save, cancel and revert while recording', () => {
   it('offers all three controls, not the cancel cross alone', async () => {
-    const { user } = renderWith(appRegistry())
+    const { user } = renderWith()
 
-    await user.click(changeButtons()[0] as HTMLElement)
+    const row = rowNamed(i18n.t('common:shortcuts.palette'))
+    await user.click(pencilFor(i18n.t('common:shortcuts.palette')))
 
     expect(saveButtons()).toHaveLength(1)
     expect(cancelButtons()).toHaveLength(1)
-    expect(revertButtons()).toHaveLength(1)
+    expect(within(row).getAllByRole('button')).toHaveLength(3)
   })
 
   it('stores nothing until save is pressed, then stores what was drawn', async () => {
-    const { user, queryClient } = renderWith(appRegistry())
+    const { user, queryClient } = renderWith()
     const saved = recordedVariables(queryClient)
 
     await user.click(changeButtons()[0] as HTMLElement)
@@ -93,7 +95,7 @@ describe('save, cancel and revert while recording', () => {
   })
 
   it('stores nothing when the cross is used instead, and puts the old keys back', async () => {
-    const { user, queryClient } = renderWith(appRegistry())
+    const { user, queryClient } = renderWith()
     const saved = recordedVariables(queryClient)
 
     await user.click(changeButtons()[0] as HTMLElement)
@@ -101,44 +103,42 @@ describe('save, cancel and revert while recording', () => {
     await user.click(cancelButtons()[0] as HTMLElement)
 
     expect(saved).toEqual([])
-    expect(screen.getByText('k')).toBeInTheDocument()
+    expect(within(rowNamed(i18n.t('common:shortcuts.palette'))).getByText('k')).toBeInTheDocument()
     expect(drafts()).toHaveLength(0)
   })
 
   it('drops the override when revert is pressed', async () => {
-    const { user, queryClient } = renderWith(appRegistry(), { 'command-palette': 'mod+u' })
+    const { user, queryClient } = renderWith({ 'command-palette': 'mod+u' })
     const saved = recordedVariables(queryClient)
 
     await waitFor(() => expect(screen.getByText('u')).toBeInTheDocument())
-    await user.click(revertButtons()[0] as HTMLElement)
+    await user.click(revertFor(i18n.t('common:shortcuts.palette')))
 
     expect(saved).toEqual([{}])
   })
 
   it('offers a per-action revert only while that action carries an override', async () => {
-    const { unmount } = renderWith(appRegistry())
-    expect(revertButtons()[0]).toBeDisabled()
+    const { unmount } = renderWith()
+    expect(revertFor(i18n.t('common:shortcuts.palette'))).toBeDisabled()
     unmount()
 
-    renderWith(appRegistry(), { 'command-palette': 'mod+u' })
-    await waitFor(() => expect(revertButtons()[0]).toBeEnabled())
+    renderWith({ 'command-palette': 'mod+u' })
+    await waitFor(() => expect(revertFor(i18n.t('common:shortcuts.palette'))).toBeEnabled())
   })
 
-  it('offers a full reset only while something is overridden', async () => {
-    const { unmount } = renderWith(appRegistry())
-    expect(screen.getByRole('button', { name: i18n.t('common:shortcuts.resetAll') })).toBeDisabled()
-    unmount()
+  it('reverts one shortcut at a time, offering no button that wipes them all', async () => {
+    renderWith({ 'command-palette': 'mod+u' })
+    await waitFor(() => expect(revertFor(i18n.t('common:shortcuts.palette'))).toBeEnabled())
 
-    renderWith(appRegistry(), { 'command-palette': 'mod+u' })
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: i18n.t('common:shortcuts.resetAll') }),
-      ).toBeEnabled()
-    })
+    const wipesEverything = screen
+      .getAllByRole('button')
+      .filter((button) => /all|всё|все/i.test(button.textContent ?? ''))
+
+    expect(wipesEverything).toEqual([])
   })
 
   it('stops recording when the user backs out with escape', async () => {
-    const { user } = renderWith(appRegistry())
+    const { user } = renderWith()
 
     await user.click(changeButtons()[0] as HTMLElement)
     expect(screen.getByText(i18n.t('common:shortcuts.recording'))).toBeInTheDocument()

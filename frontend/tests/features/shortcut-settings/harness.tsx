@@ -1,18 +1,10 @@
-import { act, screen } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { ShortcutSettings } from '@/features/shortcut-settings/shortcut-settings'
 import { sessionQueryKey } from '@/shared/api/session'
 import type { MeResponse, Shortcuts } from '@/shared/api/types.gen'
 import { i18n } from '@/shared/i18n/config'
-import {
-  type ShortcutDefinition,
-  ShortcutProvider,
-  ShortcutRegistry,
-} from '@/shared/keyboard/shortcut-registry'
-
-export function shortcut(id: string, keys: string[], titleKey: string): ShortcutDefinition {
-  return { id, keys, titleKey, group: 'global', run: () => {} }
-}
+import { ShortcutProvider, ShortcutRegistry } from '@/shared/keyboard/shortcut-registry'
 
 function session(shortcuts: Shortcuts): MeResponse {
   return {
@@ -34,13 +26,9 @@ function session(shortcuts: Shortcuts): MeResponse {
   }
 }
 
-export function renderWith(
-  registry: ShortcutRegistry,
-  shortcuts: Shortcuts = {},
-  route = '/catalog',
-) {
+export function renderWith(shortcuts: Shortcuts = {}, route = '/catalog') {
   const result = renderWithProviders(
-    <ShortcutProvider registry={registry}>
+    <ShortcutProvider registry={new ShortcutRegistry()}>
       <ShortcutSettings />
     </ShortcutProvider>,
     { route },
@@ -49,26 +37,6 @@ export function renderWith(
     result.queryClient.setQueryData(sessionQueryKey, session(shortcuts))
   })
   return result
-}
-
-export function appRegistry() {
-  const registry = new ShortcutRegistry()
-  registry.push({
-    id: 'app',
-    mode: 'normal',
-    shortcuts: [shortcut('command-palette', ['mod+k'], 'shortcuts.palette')],
-  })
-  return registry
-}
-
-export function twoRowRegistry() {
-  const registry = appRegistry()
-  registry.push({
-    id: 'sidebar',
-    mode: 'normal',
-    shortcuts: [shortcut('sidebar-toggle', ['mod+b'], 'shortcuts.sidebar')],
-  })
-  return registry
 }
 
 const MARK = ' '
@@ -86,6 +54,26 @@ export const changeButtons = () => labelled('changeOne')
 export const saveButtons = () => labelled('saveOne')
 export const cancelButtons = () => labelled('cancelOne')
 export const revertButtons = () => labelled('resetOne')
+
+export function rowNamed(title: string): HTMLElement {
+  const cell = screen.getByText(title)
+  const row = cell.closest('div')
+  if (!row) throw new Error(`no row for ${title}`)
+  return row
+}
+
+export function revertFor(title: string): HTMLElement {
+  const buttons = within(rowNamed(title)).getAllByRole('button')
+  const revert = buttons[buttons.length - 1]
+  if (!(revert instanceof HTMLElement)) throw new Error(`no revert for ${title}`)
+  return revert
+}
+
+export function pencilFor(title: string): HTMLElement {
+  const button = rowNamed(title).querySelector('[data-row-action="edit"]')
+  if (!(button instanceof HTMLElement)) throw new Error(`no pencil for ${title}`)
+  return button
+}
 
 export const drafts = (kind?: string) =>
   Array.from(

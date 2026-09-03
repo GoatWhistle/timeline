@@ -37,6 +37,14 @@ export function isTypeAheadKey(pressed: string): boolean {
   return ALPHANUMERIC.test(pressed)
 }
 
+const LETTER = /^\p{Letter}$/u
+
+export function shiftIsSeparate(event: KeyEventLike): boolean {
+  if (!event.shiftKey) return false
+  if (event.key.length !== 1) return true
+  return LETTER.test(event.key)
+}
+
 export function normalizeKey(event: KeyEventLike): string {
   const parts: string[] = []
   if (event.ctrlKey || event.metaKey) parts.push('mod')
@@ -45,7 +53,7 @@ export function normalizeKey(event: KeyEventLike): string {
   const raw = event.key
   const lower = raw.length === 1 ? raw.toLocaleLowerCase('ru') : raw.toLowerCase()
 
-  if (event.shiftKey && lower.length > 1) parts.push('shift')
+  if (shiftIsSeparate(event)) parts.push('shift')
   parts.push(lower === ' ' ? 'space' : lower)
   return parts.join('+')
 }

@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { catalogEntry } from '@/shared/keyboard/shortcut-catalog'
 import { type ShortcutDefinition, useShortcutScope } from '@/shared/keyboard/shortcut-registry'
 import {
   readStoredCollapsed,
@@ -25,16 +26,7 @@ export function useSidebar(): SidebarState {
   }, [])
 
   const shortcuts = useMemo<ShortcutDefinition[]>(
-    () => [
-      {
-        id: 'sidebar-toggle',
-        keys: ['mod+b'],
-        titleKey: 'shortcuts.sidebar',
-        group: 'global',
-        allowInInput: true,
-        run: toggle,
-      },
-    ],
+    () => [{ ...catalogEntry('sidebar-toggle'), allowInInput: true, run: toggle }],
     [toggle],
   )
 

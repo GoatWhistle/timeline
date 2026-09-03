@@ -24,11 +24,3 @@ export function useSaveShortcutBindings() {
     onSuccess: (data) => patchSession(queryClient, data),
   })
 }
-
-export function useResetShortcutBindings() {
-  const queryClient = useQueryClient()
-  return useMutation<ShortcutsResponse, Error, void>({
-    mutationFn: () => unwrap(api.DELETE('/me/shortcuts')),
-    onSuccess: (data) => patchSession(queryClient, data),
-  })
-}

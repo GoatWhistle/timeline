@@ -3,9 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { type Command, CommandPalette } from '@/features/command-palette/command-palette'
 import { ShortcutHelp } from '@/features/shortcut-help/shortcut-help'
+import { catalogEntry, catalogKeys, type GotoTarget } from '@/shared/keyboard/shortcut-catalog'
 import { type ShortcutDefinition, useShortcutScope } from '@/shared/keyboard/shortcut-registry'
-
-export type GotoTarget = { id: string; path: string; titleKey: string; key: string }
 
 export function AppShortcuts({ targets }: { targets: GotoTarget[] }) {
   const { t } = useTranslation()
@@ -15,29 +14,17 @@ export function AppShortcuts({ targets }: { targets: GotoTarget[] }) {
 
   const shortcuts = useMemo<ShortcutDefinition[]>(() => {
     const goto: ShortcutDefinition[] = targets.map((target) => ({
-      id: `goto-${target.id}`,
-      keys: [`g ${target.key}`],
-      titleKey: target.titleKey,
-      group: 'navigation',
+      ...catalogEntry(`goto-${target.id}`),
       run: () => navigate(target.path),
     }))
 
     return [
       {
-        id: 'command-palette',
-        keys: ['mod+k'],
-        titleKey: 'shortcuts.palette',
-        group: 'global',
+        ...catalogEntry('command-palette'),
         allowInInput: true,
         run: () => setPaletteOpen(true),
       },
-      {
-        id: 'shortcut-help',
-        keys: ['?', 'mod+/'],
-        titleKey: 'shortcuts.help',
-        group: 'global',
-        run: () => setHelpOpen(true),
-      },
+      { ...catalogEntry('shortcut-help'), run: () => setHelpOpen(true) },
       ...goto,
     ]
   }, [navigate, targets])
@@ -50,7 +37,7 @@ export function AppShortcuts({ targets }: { targets: GotoTarget[] }) {
         id: target.id,
         title: t(target.titleKey),
         hint: t('palette.goto'),
-        keys: ['g', target.key],
+        keys: catalogKeys(`goto-${target.id}`),
         run: () => navigate(target.path),
       })),
     [targets, navigate, t],

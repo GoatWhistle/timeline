@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { catalogEntry } from '@/shared/keyboard/shortcut-catalog'
 import { type ShortcutDefinition, useShortcutScope } from '@/shared/keyboard/shortcut-registry'
 
 export function step(ids: string[], current: string | null, delta: number): string | null {
@@ -46,25 +47,10 @@ export function useListNavigation({
 
   const shortcuts = useMemo<ShortcutDefinition[]>(
     () => [
+      { ...catalogEntry('list-next'), run: () => move(1) },
+      { ...catalogEntry('list-previous'), run: () => move(-1) },
       {
-        id: 'list-next',
-        keys: ['j', 'arrowdown'],
-        titleKey: 'shortcuts.listNext',
-        group: 'list',
-        run: () => move(1),
-      },
-      {
-        id: 'list-previous',
-        keys: ['k', 'arrowup'],
-        titleKey: 'shortcuts.listPrevious',
-        group: 'list',
-        run: () => move(-1),
-      },
-      {
-        id: 'list-clear',
-        keys: ['escape'],
-        titleKey: 'shortcuts.listClear',
-        group: 'list',
+        ...catalogEntry('list-clear'),
         when: () => selected !== null,
         run: () => onClear?.(),
       },
