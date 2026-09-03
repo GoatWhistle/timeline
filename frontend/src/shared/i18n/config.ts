@@ -70,7 +70,7 @@ export const i18nReady: Promise<void> = (
           fallbackLng: false,
           supportedLngs: LOCALES,
           defaultNS: 'common',
-          ns: NAMESPACES,
+          ns: [...NAMESPACES],
           interpolation: { escapeValue: false },
           returnNull: false,
           partialBundledLanguages: true,

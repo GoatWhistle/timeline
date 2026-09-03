@@ -24,9 +24,7 @@ export type NavItem = {
   icon: React.ComponentType<{ className?: string }>
 }
 
-export const CATALOG_NAV: NavItem[] = [
-  { to: '/catalog', labelKey: 'nav.catalog', icon: Compass },
-]
+export const CATALOG_NAV: NavItem[] = [{ to: '/catalog', labelKey: 'nav.catalog', icon: Compass }]
 
 export const MINE_NAV: NavItem[] = [
   { to: '/events', labelKey: 'nav.events', icon: LayoutList },

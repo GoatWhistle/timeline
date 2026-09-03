@@ -54,7 +54,9 @@ describe('the administrative sidebar belongs to administrators', () => {
     for (const item of ADMIN_NAV) {
       expect(links, `${item.to} is a dead end a participant can still click`).not.toContain(item.to)
     }
-    expect(links).toEqual(expect.arrayContaining([...CATALOG_NAV, ...MINE_NAV].map((item) => item.to)))
+    expect(links).toEqual(
+      expect.arrayContaining([...CATALOG_NAV, ...MINE_NAV].map((item) => item.to)),
+    )
   })
 
   it('still gives an administrator standing on an admin route the admin navigation', () => {
@@ -67,7 +69,9 @@ describe('the administrative sidebar belongs to administrators', () => {
     mount(true, '/schedule')
 
     const links = destinations()
-    expect(links).toEqual(expect.arrayContaining([...CATALOG_NAV, ...MINE_NAV].map((item) => item.to)))
+    expect(links).toEqual(
+      expect.arrayContaining([...CATALOG_NAV, ...MINE_NAV].map((item) => item.to)),
+    )
     expect(links.filter((href) => href.startsWith('/admin/'))).toEqual(['/admin/events'])
   })
 
