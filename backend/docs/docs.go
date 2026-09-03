@@ -1613,6 +1613,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/events/{id}/tracks": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Tracks belong to hackathons only; a meetup is refused with 409 tracks_not_supported.\nPrize amounts are whole numbers in the event currency. The sum of every prize of\nevery track must not exceed prize_pool, and a request that would break that is\nrefused with 400 without writing anything.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tracks"
+                ],
+                "summary": "Create a track",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Track payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateEventTrackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventTrackResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/invites": {
             "get": {
                 "security": [
@@ -2365,6 +2435,112 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.StageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/tracks/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Teams that had chosen this track keep their entry and lose the choice: the\ntrack becomes unset rather than the registration being withdrawn.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tracks"
+                ],
+                "summary": "Delete a track",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "tr_42ej2s5gh7e8",
+                        "description": "Track identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "the track is deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Prizes are replaced wholesale only when set_prizes is true; otherwise they are\nleft as they are. The pool ceiling is rechecked against every other track.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tracks"
+                ],
+                "summary": "Update a track",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Track identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Mutable fields",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateEventTrackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventTrackResponse"
                         }
                     },
                     "400": {
@@ -3891,6 +4067,53 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/dto.StageResponse"
                             }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/tracks": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The cases a hackathon is split into, in order, each with its prize places.\nOnly a hackathon carries tracks; a meetup answers with an empty list.\nThe envelope also states the event prize pool, the sum already distributed\nacross every track, and what is left unallocated.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tracks"
+                ],
+                "summary": "Event tracks",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "ev_3k7d8gb9be",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventTrackListResponse"
                         }
                     },
                     "403": {
@@ -7217,6 +7440,125 @@ const docTemplate = `{
                 }
             }
         },
+        "/team-links/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Deletes one link of the team. Any active member may remove any of them: the\nlist belongs to the team rather than to whoever added a row.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Remove a team link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "tl_42ej2s5gh7e8",
+                        "description": "Link",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "the link is removed"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Edits one link of the team. A link of a team the caller does not belong to\nanswers 404: its existence is not disclosed.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Change a team link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "tl_42ej2s5gh7e8",
+                        "description": "Link",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Changes",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateTeamEventLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TeamEventLink"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/teams": {
             "get": {
                 "security": [
@@ -7465,7 +7807,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Restricted to the team lead. Only a published, non-archived event of kind HACKATHON\naccepts a team entry. The entry starts with an empty roster: the lead then draws a\nlineup for this event from the team's active members, and the team's size limits\napply to that lineup, not to the whole team. Entering registers nobody: registration\nstays the self-report of each member and the system never checks the external site.",
+                "description": "Restricted to the team lead. Only a published, non-archived event of kind HACKATHON\naccepts a team entry. The entry starts with an empty roster: the lead then draws a\nlineup for this event from the team's active members, and the team's size limits\napply to that lineup, not to the whole team. Entering registers nobody: registration\nstays the self-report of each member and the system never checks the external site.\nA track may be chosen here when the hackathon declares any; the choice is optional\nand can be changed until the event starts.",
                 "consumes": [
                     "application/json"
                 ],
@@ -7571,6 +7913,217 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{id}/events/{event_id}/links": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Links the team keeps beside its entry into one hackathon: the repository, the\nboard, the deployed demo. They belong to the team, not to a person, and only\nthe team can read them. Somebody outside the team gets 404 for the entry, so\nno list discloses that a rival team even entered.\n\nThe kind of a link is not stored: the client derives the service from the\naddress, exactly as it does for profile links, so a new service needs no\nmigration. ` + "`" + `can_write` + "`" + ` says whether the caller may change the list: an active\nmember may, somebody still holding an unaccepted invitation may not.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "The team's own links for one hackathon",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TeamEventLinkListResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "the team or its entry is not visible to the caller",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Appends a link to the end of the team's list for this entry. Any active member\nmay add one, the lead included; an invitation that has not been accepted grants\nno write. The address must parse and use http or https, so a scheme that\nexecutes in the browser or hands the address to an operating system handler is\nrejected. HTTPS is not required. The number of links per entry is bounded.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Add a team link to a hackathon",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Link",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateTeamEventLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.TeamEventLink"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "the caller is not an active member",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "the link limit for this entry is reached",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{id}/events/{event_id}/links/order": {
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Replaces the display order. Every link of the entry must be listed exactly\nonce, so a stale client cannot silently drop a row somebody else added.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Reorder the team links of a hackathon",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Wanted order",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ReorderTeamEventLinksRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TeamEventLinkListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -7776,6 +8329,85 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{id}/events/{event_id}/track": {
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Restricted to the team lead. The choice is optional: an empty track_id clears it.\nIt can be changed until the event starts; afterwards the request is refused with\n409 invalid_state_transition and nothing is written. Deleting a track leaves every\nentry that had chosen it in place, with the choice unset.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Choose the team's track",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "tm_42ej2s5gh7e8",
+                        "description": "Team identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "ev_gma9hq8a96q5",
+                        "description": "Event identifier",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Track to compete in",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChooseTrackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TeamEventEntryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -8622,9 +9254,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "National event"
                 },
-                "track": {
-                    "type": "string",
-                    "example": "Smart city"
+                "tracks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.EventTrackSummary"
+                    }
                 },
                 "website_url": {
                     "type": "string",
@@ -8681,6 +9315,15 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "correct-horse-battery"
+                }
+            }
+        },
+        "dto.ChooseTrackRequest": {
+            "type": "object",
+            "properties": {
+                "track_id": {
+                    "type": "string",
+                    "example": "tr_42ej2s5gh7e8"
                 }
             }
         },
@@ -8821,13 +9464,31 @@ const docTemplate = `{
                     "type": "string",
                     "example": "National event"
                 },
-                "track": {
-                    "type": "string",
-                    "example": "Smart city"
-                },
                 "website_url": {
                     "type": "string",
                     "example": "https://example.com"
+                }
+            }
+        },
+        "dto.CreateEventTrackRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Smart city"
+                },
+                "prizes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.TrackPrizeInput"
+                    }
+                },
+                "track_no": {
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -9046,6 +9707,19 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateTeamEventLinkRequest": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "example": "Our repository"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://github.com/team/project"
+                }
+            }
+        },
         "dto.CreateTeamRequest": {
             "type": "object",
             "properties": {
@@ -9122,6 +9796,10 @@ const docTemplate = `{
                 "event_id": {
                     "type": "string",
                     "example": "ev_gma9hq8a96q5"
+                },
+                "track_id": {
+                    "type": "string",
+                    "example": "tr_42ej2s5gh7e8"
                 }
             }
         },
@@ -9336,9 +10014,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "National event"
                 },
-                "track": {
-                    "type": "string",
-                    "example": "Smart city"
+                "tracks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.EventTrackSummary"
+                    }
                 },
                 "updated_at": {
                     "type": "string"
@@ -9346,6 +10026,94 @@ const docTemplate = `{
                 "website_url": {
                     "type": "string",
                     "example": "https://example.com"
+                }
+            }
+        },
+        "dto.EventTrackListResponse": {
+            "type": "object",
+            "properties": {
+                "distributed": {
+                    "type": "string",
+                    "example": "450000"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.EventTrackResponse"
+                    }
+                },
+                "prize_currency": {
+                    "type": "string",
+                    "example": "RUB"
+                },
+                "prize_pool": {
+                    "type": "string",
+                    "example": "500000"
+                },
+                "unallocated": {
+                    "type": "string",
+                    "example": "50000"
+                }
+            }
+        },
+        "dto.EventTrackResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "tr_42ej2s5gh7e8"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Smart city"
+                },
+                "prize_total": {
+                    "type": "string",
+                    "example": "300000"
+                },
+                "prizes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.TrackPrizeResponse"
+                    }
+                },
+                "track_no": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.EventTrackSummary": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "tr_42ej2s5gh7e8"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Smart city"
+                },
+                "prize_total": {
+                    "type": "string",
+                    "example": "300000"
+                },
+                "track_no": {
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -10522,6 +11290,20 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ReorderTeamEventLinksRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "tl_42ej2s5gh7e8"
+                    ]
+                }
+            }
+        },
         "dto.ResetPasswordRequest": {
             "type": "object",
             "properties": {
@@ -11008,6 +11790,34 @@ const docTemplate = `{
                 "team_size_min": {
                     "type": "integer",
                     "example": 3
+                },
+                "track": {
+                    "$ref": "#/definitions/dto.EventTrackSummary"
+                },
+                "track_locked": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "tracks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.EventTrackSummary"
+                    }
+                }
+            }
+        },
+        "dto.TeamEventLinkListResponse": {
+            "type": "object",
+            "properties": {
+                "can_write": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.TeamEventLink"
+                    }
                 }
             }
         },
@@ -11225,6 +12035,36 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.TrackPrizeInput": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string",
+                    "example": "150000"
+                },
+                "place": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "dto.TrackPrizeResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string",
+                    "example": "150000"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "pz_42ej2s5gh7e8"
+                },
+                "place": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "dto.UnreadCountResponse": {
             "type": "object",
             "properties": {
@@ -11350,12 +12190,32 @@ const docTemplate = `{
                 "title": {
                     "type": "string"
                 },
-                "track": {
-                    "type": "string",
-                    "example": "Smart city"
-                },
                 "website_url": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.UpdateEventTrackRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "prizes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.TrackPrizeInput"
+                    }
+                },
+                "set_prizes": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "track_no": {
+                    "type": "integer"
                 }
             }
         },
@@ -11650,6 +12510,23 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdateTeamEventLinkRequest": {
+            "type": "object",
+            "properties": {
+                "clear_label": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "label": {
+                    "type": "string",
+                    "example": "Our repository"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://github.com/team/project"
+                }
+            }
+        },
         "dto.UpdateTeamRoleRequest": {
             "type": "object",
             "properties": {
@@ -11786,6 +12663,11 @@ const docTemplate = `{
                 "STAGE_CREATE",
                 "STAGE_UPDATE",
                 "STAGE_DELETE",
+                "TRACK_CREATE",
+                "TRACK_UPDATE",
+                "TRACK_DELETE",
+                "TRACK_PRIZE_SET",
+                "TEAM_TRACK_CHOOSE",
                 "PARTICIPANT_ADD",
                 "PARTICIPANT_REMOVE",
                 "PARTICIPANT_REACTIVATE",
@@ -11800,6 +12682,9 @@ const docTemplate = `{
                 "TEAM_ROSTER_REMOVE",
                 "TEAM_LINK_ISSUE",
                 "TEAM_LINK_REVOKE",
+                "TEAM_EVENT_LINK_ADD",
+                "TEAM_EVENT_LINK_UPDATE",
+                "TEAM_EVENT_LINK_REMOVE",
                 "REGISTRATION_CHANGE",
                 "STATUS_CHANGE",
                 "RULE_CHANGE",
@@ -11829,6 +12714,11 @@ const docTemplate = `{
                 "AuditStageCreate",
                 "AuditStageUpdate",
                 "AuditStageDelete",
+                "AuditTrackCreate",
+                "AuditTrackUpdate",
+                "AuditTrackDelete",
+                "AuditTrackPrizeSet",
+                "AuditTeamTrackChoose",
                 "AuditParticipantAdd",
                 "AuditParticipantRemove",
                 "AuditParticipantReactive",
@@ -11843,6 +12733,9 @@ const docTemplate = `{
                 "AuditTeamRosterRemove",
                 "AuditTeamLinkIssue",
                 "AuditTeamLinkRevoke",
+                "AuditTeamEventLinkAdd",
+                "AuditTeamEventLinkUpdate",
+                "AuditTeamEventLinkRemove",
                 "AuditRegistrationChange",
                 "AuditStatusChange",
                 "AuditRuleChange",
@@ -11927,11 +12820,13 @@ const docTemplate = `{
                 "INVITE",
                 "EVENT",
                 "STAGE",
+                "EVENT_TRACK",
                 "EVENT_PARTICIPANT",
                 "TEAM",
                 "TEAM_MEMBER",
                 "TEAM_EVENT_ENTRY",
                 "TEAM_JOIN_LINK",
+                "TEAM_EVENT_LINK",
                 "REGISTRATION",
                 "REGISTRATION_STATUS",
                 "NOTIFICATION_RULE",
@@ -11943,11 +12838,13 @@ const docTemplate = `{
                 "EntityInvite",
                 "EntityEvent",
                 "EntityStage",
+                "EntityEventTrack",
                 "EntityParticipant",
                 "EntityTeam",
                 "EntityTeamMember",
                 "EntityTeamEventEntry",
                 "EntityTeamJoinLink",
+                "EntityTeamEventLink",
                 "EntityRegistration",
                 "EntityRegistrationStatus",
                 "EntityNotificationRule",
@@ -12499,6 +13396,37 @@ const docTemplate = `{
                 "StageResults",
                 "StageOther"
             ]
+        },
+        "models.TeamEventLink": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "entry_id": {
+                    "type": "string",
+                    "example": "te_42ej2s5gh7e8"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "tl_42ej2s5gh7e8"
+                },
+                "label": {
+                    "type": "string",
+                    "example": "Our repository"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://github.com/team/project"
+                }
+            }
         },
         "models.TeamMemberState": {
             "type": "string",

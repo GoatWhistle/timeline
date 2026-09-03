@@ -91,3 +91,29 @@ type ProfileLinkPatch struct {
 type ProfileLinkListResponse struct {
 	Items []models.ProfileLink `json:"items"`
 }
+
+type CreateTeamEventLinkRequest struct {
+	URL   string  `json:"url" example:"https://github.com/team/project"`
+	Label *string `json:"label,omitempty" example:"Our repository"`
+}
+
+type UpdateTeamEventLinkRequest struct {
+	URL        *string `json:"url,omitempty" example:"https://github.com/team/project"`
+	Label      *string `json:"label,omitempty" example:"Our repository"`
+	ClearLabel bool    `json:"clear_label,omitempty" example:"false"`
+}
+
+type ReorderTeamEventLinksRequest struct {
+	IDs []string `json:"ids" example:"tl_42ej2s5gh7e8"`
+}
+
+type TeamEventLinkPatch struct {
+	URL      *string
+	Label    *string
+	LabelSet bool
+}
+
+type TeamEventLinkListResponse struct {
+	Items    []models.TeamEventLink `json:"items"`
+	CanWrite bool                   `json:"can_write" example:"true"`
+}

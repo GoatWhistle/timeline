@@ -1793,6 +1793,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/events/{id}/tracks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a track
+         * @description Tracks belong to hackathons only; a meetup is refused with 409 tracks_not_supported.
+         *     Prize amounts are whole numbers in the event currency. The sum of every prize of
+         *     every track must not exceed prize_pool, and a request that would break that is
+         *     refused with 400 without writing anything.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Track payload */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.CreateEventTrackRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventTrackResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/invites": {
         parameters: {
             query?: never;
@@ -2701,6 +2787,127 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["dto.StageResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/tracks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a track
+         * @description Teams that had chosen this track keep their entry and lose the choice: the
+         *     track becomes unset rather than the registration being withdrawn.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Track identifier
+                     * @example tr_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the track is deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a track
+         * @description Prizes are replaced wholesale only when set_prizes is true; otherwise they are
+         *     left as they are. The pool ceiling is rechecked against every other track.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Track identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Mutable fields */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.UpdateEventTrackRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventTrackResponse"];
                     };
                 };
                 /** @description Bad Request */
@@ -4582,6 +4789,72 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["dto.StageResponse"][];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/tracks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Event tracks
+         * @description The cases a hackathon is split into, in order, each with its prize places.
+         *     Only a hackathon carries tracks; a meetup answers with an empty list.
+         *     The envelope also states the event prize pool, the sum already distributed
+         *     across every track, and what is left unallocated.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventTrackListResponse"];
                     };
                 };
                 /** @description Forbidden */
@@ -8942,6 +9215,148 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/team-links/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a team link
+         * @description Deletes one link of the team. Any active member may remove any of them: the
+         *     list belongs to the team rather than to whoever added a row.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Link
+                     * @example tl_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the link is removed */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Change a team link
+         * @description Edits one link of the team. A link of a team the caller does not belong to
+         *     answers 404: its existence is not disclosed.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Link
+                     * @example tl_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Changes */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.UpdateTeamEventLinkRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.TeamEventLink"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/teams": {
         parameters: {
             query?: never;
@@ -9234,6 +9649,8 @@ export interface paths {
          *     lineup for this event from the team's active members, and the team's size limits
          *     apply to that lineup, not to the whole team. Entering registers nobody: registration
          *     stays the self-report of each member and the system never checks the external site.
+         *     A track may be chosen here when the hackathon declares any; the choice is optional
+         *     and can be changed until the event starts.
          */
         post: {
             parameters: {
@@ -9373,6 +9790,244 @@ export interface paths {
             };
         };
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}/events/{event_id}/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The team's own links for one hackathon
+         * @description Links the team keeps beside its entry into one hackathon: the repository, the
+         *     board, the deployed demo. They belong to the team, not to a person, and only
+         *     the team can read them. Somebody outside the team gets 404 for the entry, so
+         *     no list discloses that a rival team even entered.
+         *
+         *     The kind of a link is not stored: the client derives the service from the
+         *     address, exactly as it does for profile links, so a new service needs no
+         *     migration. `can_write` says whether the caller may change the list: an active
+         *     member may, somebody still holding an unaccepted invitation may not.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event */
+                    event_id: string;
+                    /** @description Team */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamEventLinkListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description the team or its entry is not visible to the caller */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Add a team link to a hackathon
+         * @description Appends a link to the end of the team's list for this entry. Any active member
+         *     may add one, the lead included; an invitation that has not been accepted grants
+         *     no write. The address must parse and use http or https, so a scheme that
+         *     executes in the browser or hands the address to an operating system handler is
+         *     rejected. HTTPS is not required. The number of links per entry is bounded.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event */
+                    event_id: string;
+                    /** @description Team */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Link */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.CreateTeamEventLinkRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["models.TeamEventLink"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description the caller is not an active member */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description the link limit for this entry is reached */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}/events/{event_id}/links/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder the team links of a hackathon
+         * @description Replaces the display order. Every link of the entry must be listed exactly
+         *     once, so a stale client cannot silently drop a row somebody else added.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event */
+                    event_id: string;
+                    /** @description Team */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Wanted order */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.ReorderTeamEventLinksRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamEventLinkListResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
         post?: never;
         delete?: never;
         options?: never;
@@ -9630,6 +10285,100 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/teams/{id}/events/{event_id}/track": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Choose the team's track
+         * @description Restricted to the team lead. The choice is optional: an empty track_id clears it.
+         *     It can be changed until the event starts; afterwards the request is refused with
+         *     409 invalid_state_transition and nothing is written. Deleting a track leaves every
+         *     entry that had chosen it in place, with the choice unset.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_gma9hq8a96q5
+                     */
+                    event_id: string;
+                    /**
+                     * @description Team identifier
+                     * @example tm_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Track to compete in */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.ChooseTrackRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.TeamEventEntryResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -10266,8 +11015,7 @@ export interface components {
             team_size_min?: number;
             /** @example National event */
             title: string;
-            /** @example Smart city */
-            track?: string;
+            tracks: components["schemas"]["dto.EventTrackSummary"][];
             /** @example https://example.com */
             website_url?: string;
         };
@@ -10292,6 +11040,10 @@ export interface components {
             new_email?: string;
             /** @example correct-horse-battery */
             password?: string;
+        };
+        "dto.ChooseTrackRequest": {
+            /** @example tr_42ej2s5gh7e8 */
+            track_id?: string;
         };
         "dto.CopyParticipantsRequest": {
             overrides?: components["schemas"]["dto.CopyRoleOverride"][];
@@ -10337,10 +11089,16 @@ export interface components {
             team_size_min?: number;
             /** @example National event */
             title?: string;
-            /** @example Smart city */
-            track?: string;
             /** @example https://example.com */
             website_url?: string;
+        };
+        "dto.CreateEventTrackRequest": {
+            description?: string;
+            /** @example Smart city */
+            name?: string;
+            prizes?: components["schemas"]["dto.TrackPrizeInput"][];
+            /** @example 1 */
+            track_no?: number;
         };
         "dto.CreateInviteRequest": {
             /** @example new@example.com */
@@ -10430,6 +11188,12 @@ export interface components {
             /** @example Record the demo video */
             title?: string;
         };
+        "dto.CreateTeamEventLinkRequest": {
+            /** @example Our repository */
+            label?: string;
+            /** @example https://github.com/team/project */
+            url?: string;
+        };
         "dto.CreateTeamRequest": {
             /** @example Night shift */
             name?: string;
@@ -10464,6 +11228,8 @@ export interface components {
         "dto.EnterEventRequest": {
             /** @example ev_gma9hq8a96q5 */
             event_id?: string;
+            /** @example tr_42ej2s5gh7e8 */
+            track_id?: string;
         };
         "dto.ErrorBody": {
             /** @example validation_failed */
@@ -10531,12 +11297,50 @@ export interface components {
             team_size_min?: number;
             /** @example National event */
             title: string;
-            /** @example Smart city */
-            track?: string;
+            tracks: components["schemas"]["dto.EventTrackSummary"][];
             /** Format: date-time */
             updated_at: string;
             /** @example https://example.com */
             website_url?: string;
+        };
+        "dto.EventTrackListResponse": {
+            /** @example 450000 */
+            distributed: string;
+            items: components["schemas"]["dto.EventTrackResponse"][];
+            /** @example RUB */
+            prize_currency: string;
+            /** @example 500000 */
+            prize_pool: string;
+            /** @example 50000 */
+            unallocated: string;
+        };
+        "dto.EventTrackResponse": {
+            /** Format: date-time */
+            created_at: string;
+            description: string;
+            /** @example ev_gma9hq8a96q5 */
+            event_id: string;
+            /** @example tr_42ej2s5gh7e8 */
+            id: string;
+            /** @example Smart city */
+            name: string;
+            /** @example 300000 */
+            prize_total: string;
+            prizes: components["schemas"]["dto.TrackPrizeResponse"][];
+            /** @example 1 */
+            track_no: number;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        "dto.EventTrackSummary": {
+            /** @example tr_42ej2s5gh7e8 */
+            id: string;
+            /** @example Smart city */
+            name: string;
+            /** @example 300000 */
+            prize_total: string;
+            /** @example 1 */
+            track_no: number;
         };
         "dto.HealthResponse": {
             /** @example ok */
@@ -11003,6 +11807,14 @@ export interface components {
              */
             ids?: string[];
         };
+        "dto.ReorderTeamEventLinksRequest": {
+            /**
+             * @example [
+             *       "tl_42ej2s5gh7e8"
+             *     ]
+             */
+            ids?: string[];
+        };
         "dto.ResetPasswordRequest": {
             /** @example new-correct-horse */
             password?: string;
@@ -11192,6 +12004,15 @@ export interface components {
             team_size_max?: number;
             /** @example 3 */
             team_size_min?: number;
+            track: components["schemas"]["dto.EventTrackSummary"];
+            /** @example false */
+            track_locked: boolean;
+            tracks: components["schemas"]["dto.EventTrackSummary"][];
+        };
+        "dto.TeamEventLinkListResponse": {
+            /** @example true */
+            can_write: boolean;
+            items: components["schemas"]["models.TeamEventLink"][];
         };
         "dto.TeamJoinLinkResponse": {
             /** @example true */
@@ -11280,6 +12101,20 @@ export interface components {
             /** @example 7f9c0f0e2f4b4a1d */
             token?: string;
         };
+        "dto.TrackPrizeInput": {
+            /** @example 150000 */
+            amount: string;
+            /** @example 1 */
+            place: number;
+        };
+        "dto.TrackPrizeResponse": {
+            /** @example 150000 */
+            amount: string;
+            /** @example pz_42ej2s5gh7e8 */
+            id: string;
+            /** @example 1 */
+            place: number;
+        };
         "dto.UnreadCountResponse": {
             /** @example 3 */
             unread: number;
@@ -11320,9 +12155,15 @@ export interface components {
             /** @example 3 */
             team_size_min?: number;
             title?: string;
-            /** @example Smart city */
-            track?: string;
             website_url?: string;
+        };
+        "dto.UpdateEventTrackRequest": {
+            description?: string;
+            name?: string;
+            prizes?: components["schemas"]["dto.TrackPrizeInput"][];
+            /** @example false */
+            set_prizes?: boolean;
+            track_no?: number;
         };
         "dto.UpdateParticipantLinkRequest": {
             /** @example false */
@@ -11447,6 +12288,14 @@ export interface components {
             /** @example Record the demo video */
             title?: string;
         };
+        "dto.UpdateTeamEventLinkRequest": {
+            /** @example false */
+            clear_label?: boolean;
+            /** @example Our repository */
+            label?: string;
+            /** @example https://github.com/team/project */
+            url?: string;
+        };
         "dto.UpdateTeamRoleRequest": {
             /** @example Captain */
             team_role?: string;
@@ -11494,7 +12343,7 @@ export interface components {
         /** @enum {string} */
         "models.ArtifactKind": "REPOSITORY" | "VIDEO" | "SLIDES" | "DEMO" | "SUBMISSION" | "OTHER";
         /** @enum {string} */
-        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "EVENT_DELETE" | "EVENT_COVER_SET" | "EVENT_COVER_CLEAR" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "CALENDAR_FEED_ISSUE" | "CALENDAR_FEED_REVOKE";
+        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "EVENT_DELETE" | "EVENT_COVER_SET" | "EVENT_COVER_CLEAR" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "TRACK_CREATE" | "TRACK_UPDATE" | "TRACK_DELETE" | "TRACK_PRIZE_SET" | "TEAM_TRACK_CHOOSE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "TEAM_EVENT_LINK_ADD" | "TEAM_EVENT_LINK_UPDATE" | "TEAM_EVENT_LINK_REMOVE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "CALENDAR_FEED_ISSUE" | "CALENDAR_FEED_REVOKE";
         /** @enum {string} */
         "models.ChangeSource": "SYSTEM" | "USER" | "ADMIN";
         /** @enum {string} */
@@ -11515,7 +12364,7 @@ export interface components {
         /** @enum {string} */
         "models.CoverSource": "MANUAL" | "AUTO";
         /** @enum {string} */
-        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "CALENDAR_FEED";
+        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_TRACK" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "TEAM_EVENT_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "CALENDAR_FEED";
         "models.EventColor": {
             /** @enum {string} */
             family: "RU" | "WORLD";
@@ -11695,6 +12544,22 @@ export interface components {
         };
         /** @enum {string} */
         "models.StageType": "REGISTRATION" | "SELECTION" | "PARTICIPATION" | "CHECKPOINT" | "SUBMISSION" | "DEMO" | "RESULTS" | "OTHER";
+        "models.TeamEventLink": {
+            /** Format: date-time */
+            created_at: string;
+            /** @example te_42ej2s5gh7e8 */
+            entry_id: string;
+            /** @example tl_42ej2s5gh7e8 */
+            id: string;
+            /** @example Our repository */
+            label: string;
+            /** @example 0 */
+            sort_order: number;
+            /** Format: date-time */
+            updated_at: string;
+            /** @example https://github.com/team/project */
+            url: string;
+        };
         /** @enum {string} */
         "models.TeamMemberState": "INVITED" | "ACTIVE" | "LEFT";
     };

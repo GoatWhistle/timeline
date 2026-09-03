@@ -28,7 +28,9 @@ type TeamService struct {
 	entries       *team.Entries
 	rosters       *team.Rosters
 	links         *team.JoinLinks
+	eventLinks    *team.EventLinks
 	events        *event.Events
+	tracks        *event.Tracks
 	participants  *participation.Participants
 	registrations *participation.Registrations
 	statuses      *participation.Statuses
@@ -42,13 +44,15 @@ type TeamService struct {
 
 func NewTeamService(db *postgres.DB, teams *team.Teams, members *team.Members,
 	entries *team.Entries, rosters *team.Rosters, links *team.JoinLinks,
-	events *event.Events, participants *participation.Participants,
+	eventLinks *team.EventLinks,
+	events *event.Events, tracks *event.Tracks, participants *participation.Participants,
 	registrations *participation.Registrations, statuses *participation.Statuses,
 	users *identity.Users, notifier Notifier, audit *audit.AuditService,
 	cfg *config.Config) *TeamService {
 	return &TeamService{
 		db: db, teams: teams, members: members, entries: entries, rosters: rosters, links: links,
-		events: events, participants: participants, registrations: registrations, statuses: statuses,
+		eventLinks: eventLinks, events: events, tracks: tracks, participants: participants,
+		registrations: registrations, statuses: statuses,
 		users: users, notifier: notifier, audit: audit,
 		publicURL: cfg.App.PublicURL, joinLinkTTL: cfg.Auth.TeamJoinLinkTTL,
 		now: func() time.Time { return time.Now().UTC() },

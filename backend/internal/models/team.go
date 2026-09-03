@@ -33,13 +33,14 @@ type TeamMember struct {
 func (m *TeamMember) Active() bool { return m.State == TeamMemberActive }
 
 type TeamEventEntry struct {
-	ID        uuid.UUID `json:"id"`
-	DisplayID string    `json:"display_id"`
-	TeamID    uuid.UUID `json:"team_id"`
-	EventID   uuid.UUID `json:"event_id"`
-	EnteredAt time.Time `json:"entered_at"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID  `json:"id"`
+	DisplayID string     `json:"display_id"`
+	TeamID    uuid.UUID  `json:"team_id"`
+	EventID   uuid.UUID  `json:"event_id"`
+	TrackID   *uuid.UUID `json:"track_id,omitempty"`
+	EnteredAt time.Time  `json:"entered_at"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 type TeamJoinLink struct {

@@ -112,5 +112,26 @@
   "linkCopyFailed": "The link could not be copied",
   "joinTitle": "Joining a team",
   "linkInvalid": "This join link does not work",
-  "linkInvalidHint": "It was revoked, replaced by a newer one, or it expired. Ask the team lead for a current link."
+  "linkInvalidHint": "It was revoked, replaced by a newer one, or it expired. Ask the team lead for a current link.",
+  "links": {
+    "title": "Team links",
+    "hint": "The repository, the board, the demo. Only the team sees them; the service is read from the address.",
+    "empty": "The team has not added any links yet",
+    "listLabel": "The team's links for this hackathon",
+    "addTitle": "Add a link",
+    "editTitle": "Change the link",
+    "add": "Add",
+    "save": "Save",
+    "added": "The link is added",
+    "saved": "The link is saved",
+    "saveFailed": "The link could not be saved",
+    "removeFailed": "The link could not be removed",
+    "reorderFailed": "The order could not be changed",
+    "limitReached": "No more links can be added",
+    "position": "position {{current}} of {{total}}",
+    "moveUp": "Move {{name}} up",
+    "moveDown": "Move {{name}} down",
+    "edit": "Change {{name}}",
+    "remove": "Remove {{name}}"
+  }
 }

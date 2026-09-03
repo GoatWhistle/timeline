@@ -57,8 +57,8 @@ func newService(t *testing.T, db *postgres.DB) *svcteam.TeamService {
 	t.Helper()
 	return svcteam.NewTeamService(db,
 		repoteam.NewTeams(db), repoteam.NewMembers(db), repoteam.NewEntries(db),
-		repoteam.NewRosters(db), repoteam.NewJoinLinks(db),
-		event.NewEvents(db), participation.NewParticipants(db),
+		repoteam.NewRosters(db), repoteam.NewJoinLinks(db), repoteam.NewEventLinks(db),
+		event.NewEvents(db), event.NewTracks(db), participation.NewParticipants(db),
 		participation.NewRegistrations(db), participation.NewStatuses(db),
 		identity.NewUsers(db), noopNotifier{}, audit.NewAuditService(auditrepo.NewAudit(db)),
 		&config.Config{},

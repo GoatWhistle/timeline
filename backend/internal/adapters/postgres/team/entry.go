@@ -15,22 +15,30 @@ type Entries struct{ db *postgres.DB }
 
 func NewEntries(db *postgres.DB) *Entries { return &Entries{db: db} }
 
-const entryColumns = `id, display_id, team_id, event_id, entered_at, created_at, updated_at`
+const entryColumns = `id, display_id, team_id, event_id, track_id, entered_at, created_at, updated_at`
 
 func scanEntry(row pgx.Row) (*models.TeamEventEntry, error) {
 	var e models.TeamEventEntry
-	if err := row.Scan(&e.ID, &e.DisplayID, &e.TeamID, &e.EventID,
+	if err := row.Scan(&e.ID, &e.DisplayID, &e.TeamID, &e.EventID, &e.TrackID,
 		&e.EnteredAt, &e.CreatedAt, &e.UpdatedAt); err != nil {
 		return nil, mapError(err)
 	}
 	return &e, nil
 }
 
-func (r *Entries) Create(ctx context.Context, teamID, eventID uuid.UUID) (*models.TeamEventEntry, error) {
+func (r *Entries) Create(ctx context.Context, teamID, eventID uuid.UUID,
+	trackID *uuid.UUID) (*models.TeamEventEntry, error) {
 	return scanEntry(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO team_event_entries (team_id, event_id)
-		VALUES ($1, $2)
-		RETURNING `+entryColumns, teamID, eventID))
+		INSERT INTO team_event_entries (team_id, event_id, track_id)
+		VALUES ($1, $2, $3)
+		RETURNING `+entryColumns, teamID, eventID, trackID))
+}
+
+func (r *Entries) SetTrack(ctx context.Context, id uuid.UUID,
+	trackID *uuid.UUID) (*models.TeamEventEntry, error) {
+	return scanEntry(r.db.Q(ctx).QueryRow(ctx, `
+		UPDATE team_event_entries SET track_id = $2 WHERE id = $1
+		RETURNING `+entryColumns, id, trackID))
 }
 
 func (r *Entries) GetByTeamEvent(ctx context.Context, teamID, eventID uuid.UUID) (*models.TeamEventEntry, error) {
@@ -88,7 +96,7 @@ func (r *Entries) ListForTeam(ctx context.Context, teamID uuid.UUID) ([]models.T
 	items := make([]models.TeamEventEntry, 0, 4)
 	for rows.Next() {
 		var e models.TeamEventEntry
-		if err := rows.Scan(&e.ID, &e.DisplayID, &e.TeamID, &e.EventID,
+		if err := rows.Scan(&e.ID, &e.DisplayID, &e.TeamID, &e.EventID, &e.TrackID,
 			&e.EnteredAt, &e.CreatedAt, &e.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}

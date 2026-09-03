@@ -4,6 +4,7 @@ import { cn } from '@/shared/styling/class-names/class-names'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { RosterTable } from './roster-table'
+import { TeamLinksCard } from './team-links/team-links-card'
 
 export function TeamEventCard({
   teamId,
@@ -43,8 +44,9 @@ export function TeamEventCard({
           <span className={cn('ml-2 opacity-80')}>{t('derivedHint')}</span>
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col gap-6">
         <RosterTable teamId={teamId} entry={entry} members={members} isLead={isLead} />
+        <TeamLinksCard teamId={teamId} eventId={entry.event_id} />
       </CardContent>
     </Card>
   )

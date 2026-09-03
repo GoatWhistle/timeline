@@ -16,6 +16,8 @@ import (
 // @Description	lineup for this event from the team's active members, and the team's size limits
 // @Description	apply to that lineup, not to the whole team. Entering registers nobody: registration
 // @Description	stays the self-report of each member and the system never checks the external site.
+// @Description	A track may be chosen here when the hackathon declares any; the choice is optional
+// @Description	and can be changed until the event starts.
 // @Tags			teams
 // @Accept			json
 // @Produce		json
@@ -44,7 +46,7 @@ func (c *Controller) EnterEvent(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	entry, err := c.svc.EnterEvent(r.Context(), middleware.ActorFrom(r), id, *eventID)
+	entry, err := c.svc.EnterEvent(r.Context(), middleware.ActorFrom(r), id, *eventID, req)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -128,4 +130,40 @@ func (c *Controller) rosterTarget(w http.ResponseWriter, r *http.Request,
 		return uuid.Nil, uuid.Nil, uuid.Nil, false
 	}
 	return id, eventID, userID, true
+}
+
+// @Summary		Choose the team's track
+// @Description	Restricted to the team lead. The choice is optional: an empty track_id clears it.
+// @Description	It can be changed until the event starts; afterwards the request is refused with
+// @Description	409 invalid_state_transition and nothing is written. Deleting a track leaves every
+// @Description	entry that had chosen it in place, with the choice unset.
+// @Tags			teams
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			id			path		string					true	"Team identifier"	example(tm_42ej2s5gh7e8)
+// @Param			event_id	path		string					true	"Event identifier"	example(ev_gma9hq8a96q5)
+// @Param			request		body		dto.ChooseTrackRequest	true	"Track to compete in"
+// @Success		200			{object}	dto.TeamEventEntryResponse
+// @Failure		400			{object}	dto.ErrorResponse
+// @Failure		403			{object}	dto.ErrorResponse
+// @Failure		404			{object}	dto.ErrorResponse
+// @Failure		409			{object}	dto.ErrorResponse
+// @Router			/teams/{id}/events/{event_id}/track [put]
+func (c *Controller) ChooseTrack(w http.ResponseWriter, r *http.Request) {
+	teamID, eventID, ok := c.teamEventIDs(w, r)
+	if !ok {
+		return
+	}
+	var req dto.ChooseTrackRequest
+	if err := httpx.Decode(r, &req); err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	entry, err := c.svc.ChooseTrack(r.Context(), middleware.ActorFrom(r), teamID, eventID, req)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, entry)
 }

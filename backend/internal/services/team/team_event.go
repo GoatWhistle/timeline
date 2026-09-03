@@ -12,7 +12,7 @@ import (
 )
 
 func (s *TeamService) EnterEvent(ctx context.Context, actor models.Actor, teamID, eventID uuid.UUID,
-) (*dto.TeamEventEntryResponse, error) {
+	req dto.EnterEventRequest) (*dto.TeamEventEntryResponse, error) {
 	var (
 		created  *models.TeamEventEntry
 		eventRow *models.Event
@@ -39,12 +39,17 @@ func (s *TeamService) EnterEvent(ctx context.Context, actor models.Actor, teamID
 			return err
 		}
 
-		created, err = s.entries.Create(ctx, teamID, eventID)
+		trackID, err := s.resolveTrack(ctx, eventRow, req.TrackID)
+		if err != nil {
+			return err
+		}
+		created, err = s.entries.Create(ctx, teamID, eventID, trackID)
 		if err != nil {
 			return err
 		}
 		return s.audit.Record(ctx, actor, models.AuditTeamEventEnter, models.EntityTeamEventEntry,
-			created.ID, nil, map[string]any{"team_id": teamID, "event_id": eventID})
+			created.ID, nil, map[string]any{"team_id": teamID, "event_id": eventID,
+				"track_id": trackID})
 	})
 	if err != nil {
 		return nil, err
@@ -99,6 +104,11 @@ func (s *TeamService) ListEvents(ctx context.Context, actor models.Actor, teamID
 		return nil, err
 	}
 
+	byEvent, err := s.tracks.ListByEvents(ctx, eventIDs)
+	if err != nil {
+		return nil, err
+	}
+
 	items := make([]dto.TeamEventEntryResponse, 0, len(entries))
 	for i := range entries {
 		label, ok := labels[entries[i].EventID]
@@ -106,22 +116,53 @@ func (s *TeamService) ListEvents(ctx context.Context, actor models.Actor, teamID
 			return nil, models.NewNotFound("event not found")
 		}
 		items = append(items, buildEntryResponse(&entries[i], teamRow.DisplayID,
-			label, standings[entries[i].ID], rosters[entries[i].ID]))
+			label, standings[entries[i].ID], rosters[entries[i].ID],
+			listTracks(byEvent[entries[i].EventID], entries[i].TrackID)))
 	}
 	return &dto.TeamEventEntryListResponse{Items: items}, nil
 }
 
+func listTracks(tracks []models.EventTrack, chosen *uuid.UUID) entryTracks {
+	out := entryTracks{available: make([]dto.EventTrackSummary, 0, len(tracks))}
+	for i := range tracks {
+		summary := dto.EventTrackSummary{
+			ID:         tracks[i].DisplayID,
+			TrackNo:    tracks[i].TrackNo,
+			Name:       tracks[i].Name,
+			PrizeTotal: tracks[i].PrizeTotal(),
+		}
+		out.available = append(out.available, summary)
+		if chosen != nil && tracks[i].ID == *chosen {
+			match := summary
+			out.chosen = &match
+		}
+	}
+	return out
+}
+
+type entryTracks struct {
+	chosen    *dto.EventTrackSummary
+	available []dto.EventTrackSummary
+	locked    bool
+}
+
 func buildEntryResponse(entry *models.TeamEventEntry, teamDisplayID string,
 	label event.EventLabel, standing models.TeamEventStanding,
-	roster []dto.TeamRosterMemberResponse) dto.TeamEventEntryResponse {
+	roster []dto.TeamRosterMemberResponse, tracks entryTracks) dto.TeamEventEntryResponse {
 	if roster == nil {
 		roster = []dto.TeamRosterMemberResponse{}
+	}
+	if tracks.available == nil {
+		tracks.available = []dto.EventTrackSummary{}
 	}
 	return dto.TeamEventEntryResponse{
 		ID:              entry.DisplayID,
 		TeamID:          teamDisplayID,
 		EventID:         label.DisplayID,
 		EventTitle:      label.Title,
+		Track:           tracks.chosen,
+		Tracks:          tracks.available,
+		TrackLocked:     tracks.locked,
 		EnteredAt:       entry.EnteredAt,
 		RosterSize:      standing.RosterSize,
 		AssignedMembers: standing.AssignedMembers,
@@ -147,7 +188,13 @@ func (s *TeamService) entryResponse(ctx context.Context, entry *models.TeamEvent
 	if err != nil {
 		return nil, err
 	}
+	tracks, err := s.trackContext(ctx, eventRow, entry.TrackID)
+	if err != nil {
+		return nil, err
+	}
+	tracks.locked = s.trackChangeAllowed(eventRow) != nil
 	response := buildEntryResponse(entry, teamRow.DisplayID,
-		event.EventLabel{DisplayID: eventRow.DisplayID, Title: eventRow.Title}, standing, roster)
+		event.EventLabel{DisplayID: eventRow.DisplayID, Title: eventRow.Title}, standing, roster,
+		tracks)
 	return &response, nil
 }

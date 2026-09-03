@@ -290,9 +290,10 @@ definitions:
       title:
         example: National event
         type: string
-      track:
-        example: Smart city
-        type: string
+      tracks:
+        items:
+          $ref: '#/definitions/dto.EventTrackSummary'
+        type: array
       website_url:
         example: https://example.com
         type: string
@@ -330,6 +331,12 @@ definitions:
         type: string
       password:
         example: correct-horse-battery
+        type: string
+    type: object
+  dto.ChooseTrackRequest:
+    properties:
+      track_id:
+        example: tr_42ej2s5gh7e8
         type: string
     type: object
   dto.CopyParticipantsRequest:
@@ -423,12 +430,24 @@ definitions:
       title:
         example: National event
         type: string
-      track:
-        example: Smart city
-        type: string
       website_url:
         example: https://example.com
         type: string
+    type: object
+  dto.CreateEventTrackRequest:
+    properties:
+      description:
+        type: string
+      name:
+        example: Smart city
+        type: string
+      prizes:
+        items:
+          $ref: '#/definitions/dto.TrackPrizeInput'
+        type: array
+      track_no:
+        example: 1
+        type: integer
     type: object
   dto.CreateInviteRequest:
     properties:
@@ -579,6 +598,15 @@ definitions:
         example: Record the demo video
         type: string
     type: object
+  dto.CreateTeamEventLinkRequest:
+    properties:
+      label:
+        example: Our repository
+        type: string
+      url:
+        example: https://github.com/team/project
+        type: string
+    type: object
   dto.CreateTeamRequest:
     properties:
       name:
@@ -629,6 +657,9 @@ definitions:
     properties:
       event_id:
         example: ev_gma9hq8a96q5
+        type: string
+      track_id:
+        example: tr_42ej2s5gh7e8
         type: string
     type: object
   dto.ErrorBody:
@@ -769,14 +800,77 @@ definitions:
       title:
         example: National event
         type: string
-      track:
-        example: Smart city
-        type: string
+      tracks:
+        items:
+          $ref: '#/definitions/dto.EventTrackSummary'
+        type: array
       updated_at:
         type: string
       website_url:
         example: https://example.com
         type: string
+    type: object
+  dto.EventTrackListResponse:
+    properties:
+      distributed:
+        example: "450000"
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.EventTrackResponse'
+        type: array
+      prize_currency:
+        example: RUB
+        type: string
+      prize_pool:
+        example: "500000"
+        type: string
+      unallocated:
+        example: "50000"
+        type: string
+    type: object
+  dto.EventTrackResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      event_id:
+        example: ev_gma9hq8a96q5
+        type: string
+      id:
+        example: tr_42ej2s5gh7e8
+        type: string
+      name:
+        example: Smart city
+        type: string
+      prize_total:
+        example: "300000"
+        type: string
+      prizes:
+        items:
+          $ref: '#/definitions/dto.TrackPrizeResponse'
+        type: array
+      track_no:
+        example: 1
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  dto.EventTrackSummary:
+    properties:
+      id:
+        example: tr_42ej2s5gh7e8
+        type: string
+      name:
+        example: Smart city
+        type: string
+      prize_total:
+        example: "300000"
+        type: string
+      track_no:
+        example: 1
+        type: integer
     type: object
   dto.HealthResponse:
     properties:
@@ -1564,6 +1658,15 @@ definitions:
           type: string
         type: array
     type: object
+  dto.ReorderTeamEventLinksRequest:
+    properties:
+      ids:
+        example:
+        - tl_42ej2s5gh7e8
+        items:
+          type: string
+        type: array
+    type: object
   dto.ResetPasswordRequest:
     properties:
       password:
@@ -1894,6 +1997,25 @@ definitions:
       team_size_min:
         example: 3
         type: integer
+      track:
+        $ref: '#/definitions/dto.EventTrackSummary'
+      track_locked:
+        example: false
+        type: boolean
+      tracks:
+        items:
+          $ref: '#/definitions/dto.EventTrackSummary'
+        type: array
+    type: object
+  dto.TeamEventLinkListResponse:
+    properties:
+      can_write:
+        example: true
+        type: boolean
+      items:
+        items:
+          $ref: '#/definitions/models.TeamEventLink'
+        type: array
     type: object
   dto.TeamJoinLinkResponse:
     properties:
@@ -2038,6 +2160,27 @@ definitions:
         example: 7f9c0f0e2f4b4a1d
         type: string
     type: object
+  dto.TrackPrizeInput:
+    properties:
+      amount:
+        example: "150000"
+        type: string
+      place:
+        example: 1
+        type: integer
+    type: object
+  dto.TrackPrizeResponse:
+    properties:
+      amount:
+        example: "150000"
+        type: string
+      id:
+        example: pz_42ej2s5gh7e8
+        type: string
+      place:
+        example: 1
+        type: integer
+    type: object
   dto.UnreadCountResponse:
     properties:
       unread:
@@ -2121,11 +2264,24 @@ definitions:
         type: integer
       title:
         type: string
-      track:
-        example: Smart city
-        type: string
       website_url:
         type: string
+    type: object
+  dto.UpdateEventTrackRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      prizes:
+        items:
+          $ref: '#/definitions/dto.TrackPrizeInput'
+        type: array
+      set_prizes:
+        example: false
+        type: boolean
+      track_no:
+        type: integer
     type: object
   dto.UpdateParticipantLinkRequest:
     properties:
@@ -2331,6 +2487,18 @@ definitions:
         example: Record the demo video
         type: string
     type: object
+  dto.UpdateTeamEventLinkRequest:
+    properties:
+      clear_label:
+        example: false
+        type: boolean
+      label:
+        example: Our repository
+        type: string
+      url:
+        example: https://github.com/team/project
+        type: string
+    type: object
   dto.UpdateTeamRoleRequest:
     properties:
       team_role:
@@ -2435,6 +2603,11 @@ definitions:
     - STAGE_CREATE
     - STAGE_UPDATE
     - STAGE_DELETE
+    - TRACK_CREATE
+    - TRACK_UPDATE
+    - TRACK_DELETE
+    - TRACK_PRIZE_SET
+    - TEAM_TRACK_CHOOSE
     - PARTICIPANT_ADD
     - PARTICIPANT_REMOVE
     - PARTICIPANT_REACTIVATE
@@ -2449,6 +2622,9 @@ definitions:
     - TEAM_ROSTER_REMOVE
     - TEAM_LINK_ISSUE
     - TEAM_LINK_REVOKE
+    - TEAM_EVENT_LINK_ADD
+    - TEAM_EVENT_LINK_UPDATE
+    - TEAM_EVENT_LINK_REMOVE
     - REGISTRATION_CHANGE
     - STATUS_CHANGE
     - RULE_CHANGE
@@ -2478,6 +2654,11 @@ definitions:
     - AuditStageCreate
     - AuditStageUpdate
     - AuditStageDelete
+    - AuditTrackCreate
+    - AuditTrackUpdate
+    - AuditTrackDelete
+    - AuditTrackPrizeSet
+    - AuditTeamTrackChoose
     - AuditParticipantAdd
     - AuditParticipantRemove
     - AuditParticipantReactive
@@ -2492,6 +2673,9 @@ definitions:
     - AuditTeamRosterRemove
     - AuditTeamLinkIssue
     - AuditTeamLinkRevoke
+    - AuditTeamEventLinkAdd
+    - AuditTeamEventLinkUpdate
+    - AuditTeamEventLinkRemove
     - AuditRegistrationChange
     - AuditStatusChange
     - AuditRuleChange
@@ -2554,11 +2738,13 @@ definitions:
     - INVITE
     - EVENT
     - STAGE
+    - EVENT_TRACK
     - EVENT_PARTICIPANT
     - TEAM
     - TEAM_MEMBER
     - TEAM_EVENT_ENTRY
     - TEAM_JOIN_LINK
+    - TEAM_EVENT_LINK
     - REGISTRATION
     - REGISTRATION_STATUS
     - NOTIFICATION_RULE
@@ -2570,11 +2756,13 @@ definitions:
     - EntityInvite
     - EntityEvent
     - EntityStage
+    - EntityEventTrack
     - EntityParticipant
     - EntityTeam
     - EntityTeamMember
     - EntityTeamEventEntry
     - EntityTeamJoinLink
+    - EntityTeamEventLink
     - EntityRegistration
     - EntityRegistrationStatus
     - EntityNotificationRule
@@ -2976,6 +3164,28 @@ definitions:
     - StageDemo
     - StageResults
     - StageOther
+  models.TeamEventLink:
+    properties:
+      created_at:
+        type: string
+      entry_id:
+        example: te_42ej2s5gh7e8
+        type: string
+      id:
+        example: tl_42ej2s5gh7e8
+        type: string
+      label:
+        example: Our repository
+        type: string
+      sort_order:
+        example: 0
+        type: integer
+      updated_at:
+        type: string
+      url:
+        example: https://github.com/team/project
+        type: string
+    type: object
   models.TeamMemberState:
     enum:
     - INVITED
@@ -4087,6 +4297,55 @@ paths:
       summary: Create a stage
       tags:
       - stages
+  /admin/events/{id}/tracks:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Tracks belong to hackathons only; a meetup is refused with 409 tracks_not_supported.
+        Prize amounts are whole numbers in the event currency. The sum of every prize of
+        every track must not exceed prize_pool, and a request that would break that is
+        refused with 400 without writing anything.
+      parameters:
+      - description: Event identifier
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Track payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateEventTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.EventTrackResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Create a track
+      tags:
+      - tracks
   /admin/invites:
     get:
       parameters:
@@ -4623,6 +4882,78 @@ paths:
       summary: Update a stage
       tags:
       - stages
+  /admin/tracks/{id}:
+    delete:
+      description: |-
+        Teams that had chosen this track keep their entry and lose the choice: the
+        track becomes unset rather than the registration being withdrawn.
+      parameters:
+      - description: Track identifier
+        example: tr_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: the track is deleted
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Delete a track
+      tags:
+      - tracks
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Prizes are replaced wholesale only when set_prizes is true; otherwise they are
+        left as they are. The pool ceiling is rechecked against every other track.
+      parameters:
+      - description: Track identifier
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Mutable fields
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateEventTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EventTrackResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Update a track
+      tags:
+      - tracks
   /admin/users:
     get:
       description: |-
@@ -5719,6 +6050,40 @@ paths:
       summary: Event stages
       tags:
       - stages
+  /events/{id}/tracks:
+    get:
+      description: |-
+        The cases a hackathon is split into, in order, each with its prize places.
+        Only a hackathon carries tracks; a meetup answers with an empty list.
+        The envelope also states the event prize pool, the sum already distributed
+        across every track, and what is left unallocated.
+      parameters:
+      - description: Event identifier
+        example: ev_3k7d8gb9be
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EventTrackListResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Event tracks
+      tags:
+      - tracks
   /healthz:
     get:
       produces:
@@ -8086,6 +8451,87 @@ paths:
       summary: Join a team through its link
       tags:
       - teams
+  /team-links/{id}:
+    delete:
+      description: |-
+        Deletes one link of the team. Any active member may remove any of them: the
+        list belongs to the team rather than to whoever added a row.
+      parameters:
+      - description: Link
+        example: tl_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: the link is removed
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Remove a team link
+      tags:
+      - teams
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Edits one link of the team. A link of a team the caller does not belong to
+        answers 404: its existence is not disclosed.
+      parameters:
+      - description: Link
+        example: tl_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Changes
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTeamEventLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TeamEventLink'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Change a team link
+      tags:
+      - teams
   /teams:
     get:
       description: |-
@@ -8256,6 +8702,8 @@ paths:
         lineup for this event from the team's active members, and the team's size limits
         apply to that lineup, not to the whole team. Entering registers nobody: registration
         stays the self-report of each member and the system never checks the external site.
+        A track may be chosen here when the hackathon declares any; the choice is optional
+        and can be changed until the event starts.
       parameters:
       - description: Team identifier
         example: tm_42ej2s5gh7e8
@@ -8336,6 +8784,159 @@ paths:
       security:
       - CookieAuth: []
       summary: Team standing on an event
+      tags:
+      - teams
+  /teams/{id}/events/{event_id}/links:
+    get:
+      description: |-
+        Links the team keeps beside its entry into one hackathon: the repository, the
+        board, the deployed demo. They belong to the team, not to a person, and only
+        the team can read them. Somebody outside the team gets 404 for the entry, so
+        no list discloses that a rival team even entered.
+
+        The kind of a link is not stored: the client derives the service from the
+        address, exactly as it does for profile links, so a new service needs no
+        migration. `can_write` says whether the caller may change the list: an active
+        member may, somebody still holding an unaccepted invitation may not.
+      parameters:
+      - description: Team
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event
+        in: path
+        name: event_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamEventLinkListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: the team or its entry is not visible to the caller
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: The team's own links for one hackathon
+      tags:
+      - teams
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Appends a link to the end of the team's list for this entry. Any active member
+        may add one, the lead included; an invitation that has not been accepted grants
+        no write. The address must parse and use http or https, so a scheme that
+        executes in the browser or hands the address to an operating system handler is
+        rejected. HTTPS is not required. The number of links per entry is bounded.
+      parameters:
+      - description: Team
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: Link
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTeamEventLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.TeamEventLink'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: the caller is not an active member
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: the link limit for this entry is reached
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Add a team link to a hackathon
+      tags:
+      - teams
+  /teams/{id}/events/{event_id}/links/order:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        Replaces the display order. Every link of the entry must be listed exactly
+        once, so a stale client cannot silently drop a row somebody else added.
+      parameters:
+      - description: Team
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: Wanted order
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ReorderTeamEventLinksRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamEventLinkListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Reorder the team links of a hackathon
       tags:
       - teams
   /teams/{id}/events/{event_id}/roster/{user_id}:
@@ -8492,6 +9093,62 @@ paths:
       security:
       - CookieAuth: []
       summary: Mark a roster member as registered
+      tags:
+      - teams
+  /teams/{id}/events/{event_id}/track:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        Restricted to the team lead. The choice is optional: an empty track_id clears it.
+        It can be changed until the event starts; afterwards the request is refused with
+        409 invalid_state_transition and nothing is written. Deleting a track leaves every
+        entry that had chosen it in place, with the choice unset.
+      parameters:
+      - description: Team identifier
+        example: tm_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event identifier
+        example: ev_gma9hq8a96q5
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: Track to compete in
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChooseTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamEventEntryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Choose the team's track
       tags:
       - teams
   /teams/{id}/invitations:
