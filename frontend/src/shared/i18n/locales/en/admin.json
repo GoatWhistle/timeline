@@ -36,7 +36,9 @@
       "TEAM_EVENT_ENTRY": "Team entry",
       "TEAM_JOIN_LINK": "Team join link",
       "RESOURCE_LINK": "Resource link",
-      "CALENDAR_FEED": "Calendar feed"
+      "CALENDAR_FEED": "Calendar feed",
+      "EVENT_TRACK": "Event track",
+      "TEAM_EVENT_LINK": "Team link"
     },
     "actionLabel": {
       "USER_REGISTER": "User sign-up",
@@ -79,7 +81,15 @@
       "RESOURCE_LINK_UPDATE": "Link updated",
       "RESOURCE_LINK_DELETE": "Link removed",
       "CALENDAR_FEED_ISSUE": "Calendar feed issued",
-      "CALENDAR_FEED_REVOKE": "Calendar feed revoked"
+      "CALENDAR_FEED_REVOKE": "Calendar feed revoked",
+      "TRACK_CREATE": "Track created",
+      "TRACK_UPDATE": "Track changed",
+      "TRACK_DELETE": "Track deleted",
+      "TRACK_PRIZE_SET": "Track prizes set",
+      "TEAM_TRACK_CHOOSE": "Team track chosen",
+      "TEAM_EVENT_LINK_ADD": "Team link added",
+      "TEAM_EVENT_LINK_UPDATE": "Team link changed",
+      "TEAM_EVENT_LINK_REMOVE": "Team link removed"
     }
   },
   "users": {

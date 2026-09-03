@@ -43,10 +43,6 @@ export function EventPrizeFields({
 
   return (
     <div className="flex flex-col gap-5">
-      <Field label={t('form.track')} htmlFor="event-track" error={errors.track?.message}>
-        <Input id="event-track" {...register('track')} />
-      </Field>
-
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
           label={t('form.prizePool')}

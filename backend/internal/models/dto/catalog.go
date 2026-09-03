@@ -7,29 +7,29 @@ import (
 )
 
 type CatalogEvent struct {
-	ID              string             `json:"id" example:"ev_gma9hq8a96q5"`
-	Title           string             `json:"title" example:"National event"`
-	Description     *string            `json:"description,omitempty"`
-	Organizer       *string            `json:"organizer,omitempty" example:"Organising committee"`
-	WebsiteURL      *string            `json:"website_url,omitempty" example:"https://example.com"`
-	Kind            models.EventKind   `json:"kind" enums:"HACKATHON,MEETUP"`
-	Format          models.EventFormat `json:"format" enums:"ONLINE,OFFLINE,HYBRID"`
-	Origin          models.EventOrigin `json:"origin" enums:"RU,WORLD"`
-	CountryCode     *string            `json:"country_code,omitempty" example:"RU"`
-	City            *string            `json:"city,omitempty" example:"Moscow"`
-	EffectiveFormat models.EventFormat `json:"effective_format" enums:"ONLINE,OFFLINE,HYBRID"`
-	Track           *string            `json:"track,omitempty" example:"Smart city"`
-	PrizePool       *string            `json:"prize_pool,omitempty" example:"500000.00"`
-	PrizeCurrency   *string            `json:"prize_currency,omitempty" example:"RUB"`
-	TeamSizeMin     *int               `json:"team_size_min,omitempty" example:"3"`
-	TeamSizeMax     *int               `json:"team_size_max,omitempty" example:"5"`
-	Color           *models.EventColor `json:"color,omitempty"`
-	CoverURL        *string            `json:"cover_url,omitempty" example:"/api/v1/covers/abc.png"`
-	OfflineStages   []CatalogPlace     `json:"offline_stages"`
-	StartAt         time.Time          `json:"start_at"`
-	EndAt           time.Time          `json:"end_at"`
-	State           models.EventState  `json:"state" enums:"UPCOMING,ACTIVE,FINISHED"`
-	Joined          bool               `json:"joined" example:"false"`
+	ID              string              `json:"id" example:"ev_gma9hq8a96q5"`
+	Title           string              `json:"title" example:"National event"`
+	Description     *string             `json:"description,omitempty"`
+	Organizer       *string             `json:"organizer,omitempty" example:"Organising committee"`
+	WebsiteURL      *string             `json:"website_url,omitempty" example:"https://example.com"`
+	Kind            models.EventKind    `json:"kind" enums:"HACKATHON,MEETUP"`
+	Format          models.EventFormat  `json:"format" enums:"ONLINE,OFFLINE,HYBRID"`
+	Origin          models.EventOrigin  `json:"origin" enums:"RU,WORLD"`
+	CountryCode     *string             `json:"country_code,omitempty" example:"RU"`
+	City            *string             `json:"city,omitempty" example:"Moscow"`
+	EffectiveFormat models.EventFormat  `json:"effective_format" enums:"ONLINE,OFFLINE,HYBRID"`
+	Tracks          []EventTrackSummary `json:"tracks"`
+	PrizePool       *string             `json:"prize_pool,omitempty" example:"500000.00"`
+	PrizeCurrency   *string             `json:"prize_currency,omitempty" example:"RUB"`
+	TeamSizeMin     *int                `json:"team_size_min,omitempty" example:"3"`
+	TeamSizeMax     *int                `json:"team_size_max,omitempty" example:"5"`
+	Color           *models.EventColor  `json:"color,omitempty"`
+	CoverURL        *string             `json:"cover_url,omitempty" example:"/api/v1/covers/abc.png"`
+	OfflineStages   []CatalogPlace      `json:"offline_stages"`
+	StartAt         time.Time           `json:"start_at"`
+	EndAt           time.Time           `json:"end_at"`
+	State           models.EventState   `json:"state" enums:"UPCOMING,ACTIVE,FINISHED"`
+	Joined          bool                `json:"joined" example:"false"`
 
 	TeamRole             *string                  `json:"team_role,omitempty" example:"Developer"`
 	RegistrationURL      *string                  `json:"registration_url,omitempty"`

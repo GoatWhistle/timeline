@@ -64,7 +64,8 @@ type TeamJoinLinkSecretResponse struct {
 }
 
 type EnterEventRequest struct {
-	EventID string `json:"event_id" example:"ev_gma9hq8a96q5"`
+	EventID string  `json:"event_id" example:"ev_gma9hq8a96q5"`
+	TrackID *string `json:"track_id,omitempty" example:"tr_42ej2s5gh7e8"`
 }
 
 type TeamRosterMemberResponse struct {
@@ -82,6 +83,9 @@ type TeamEventEntryResponse struct {
 	TeamID          string                     `json:"team_id" example:"tm_42ej2s5gh7e8"`
 	EventID         string                     `json:"event_id" example:"ev_gma9hq8a96q5"`
 	EventTitle      string                     `json:"event_title" example:"National hackathon"`
+	Track           *EventTrackSummary         `json:"track,omitempty"`
+	Tracks          []EventTrackSummary        `json:"tracks"`
+	TrackLocked     bool                       `json:"track_locked" example:"false"`
 	EnteredAt       time.Time                  `json:"entered_at"`
 	RosterSize      int                        `json:"roster_size" example:"4"`
 	AssignedMembers int                        `json:"assigned_members" example:"4"`

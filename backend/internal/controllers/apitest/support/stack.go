@@ -105,6 +105,7 @@ func NewStack(t *testing.T) *Stack {
 	teamEntriesRepo := team.NewEntries(db)
 	teamRostersRepo := team.NewRosters(db)
 	teamLinksRepo := team.NewJoinLinks(db)
+	teamEventLinksRepo := team.NewEventLinks(db)
 
 	hasher := crypto.NewPasswordHasher(cfg.Argon)
 	issuer := crypto.NewTokenIssuer(cfg.Auth)
@@ -134,16 +135,23 @@ func NewStack(t *testing.T) *Stack {
 	userSvc.WithCalendarFeeds(calendarRepo)
 	profileSvc.WithCalendarFeeds(calendarRepo)
 
+	tracksRepo := event.NewTracks(db)
+	eventSvc := svcevent.NewEventService(db, events, registrations, notifier, scheduler, auditSvc)
+	eventSvc.WithTracks(tracksRepo)
+	querySvc := svcevent.NewQueryService(queries, events, stages, participants, registrations, statuses)
+	querySvc.WithTracks(tracksRepo)
+
 	deps := controllers.Deps{
 		Auth:           auth,
 		Invites:        svcauth.NewInviteService(db, invites, users, auth, auditSvc, mailer, limiter, cfg),
 		Profile:        profileSvc,
 		PublicProfiles: profileSvc,
 		Users:          userSvc,
-		Events:         svcevent.NewEventService(db, events, registrations, notifier, scheduler, auditSvc),
+		Events:         eventSvc,
 		Catalog: svcevent.NewCatalogService(db, catalogRepo, events, participants,
 			registrations, statuses, users, notifier, auditSvc),
 		Stages: svcevent.NewStageService(db, stages, events, participants, auditSvc),
+		Tracks: svcevent.NewTrackService(db, tracksRepo, events, participants, auditSvc),
 		Participants: svcparticipation.NewParticipantService(db, participants, events,
 			registrations, statuses, users, notifier, auditSvc),
 		Registrations: svcparticipation.NewRegistrationService(db, registrations, events,
@@ -151,7 +159,7 @@ func NewStack(t *testing.T) *Stack {
 		Statuses: svcparticipation.NewStatusService(db, statuses, registrations, participants,
 			events, users, notifier, scheduler, auditSvc),
 		Rules:    svcparticipation.NewRuleService(db, rules, events, registrations, notifier, scheduler, auditSvc, cfg),
-		Queries:  svcevent.NewQueryService(queries, events, stages, participants, registrations, statuses),
+		Queries:  querySvc,
 		Audit:    auditSvc,
 		Ops:      svcdelivery.NewOpsService(db, scheduleRepo, notifications, cfg),
 		Previews: scheduler,
@@ -163,7 +171,7 @@ func NewStack(t *testing.T) *Stack {
 			queries, auditSvc, cfg.App.PublicURL),
 		Notifications: notifier,
 		Teams: svcteam.NewTeamService(db, teamsRepo, teamMembersRepo, teamEntriesRepo, teamRostersRepo, teamLinksRepo,
-			events, participants, registrations, statuses, users, notifier, auditSvc, cfg),
+			teamEventLinksRepo, events, tracksRepo, participants, registrations, statuses, users, notifier, auditSvc, cfg),
 		Realtime: hub,
 		Sessions: auth,
 

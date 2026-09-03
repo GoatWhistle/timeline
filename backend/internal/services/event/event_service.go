@@ -23,6 +23,7 @@ type Reconciler interface {
 type EventService struct {
 	db            *postgres.DB
 	events        *event.Events
+	tracks        *event.Tracks
 	registrations *participation.Registrations
 	notifier      Notifier
 	reconciler    Reconciler
@@ -69,10 +70,6 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req dto.C
 	if err != nil {
 		return nil, err
 	}
-	track, err := normalizeTrack(req.Track)
-	if err != nil {
-		return nil, err
-	}
 	if err := validateTeamSize(req.TeamSizeMin, req.TeamSizeMax); err != nil {
 		return nil, err
 	}
@@ -89,7 +86,6 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req dto.C
 			Origin:        place.origin,
 			CountryCode:   place.countryCode,
 			City:          place.city,
-			Track:         track,
 			PrizePool:     prize.pool,
 			PrizeCurrency: prize.currency,
 			TeamSizeMin:   req.TeamSizeMin,
@@ -117,11 +113,40 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req dto.C
 	return created, nil
 }
 
+func (s *EventService) WithTracks(t *event.Tracks) { s.tracks = t }
+
 func (s *EventService) Get(ctx context.Context, actor models.Actor, id uuid.UUID) (*models.Event, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
-	return s.events.GetByID(ctx, id)
+	found, err := s.events.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return found, s.loadTracks(ctx, []models.Event{*found}, found)
+}
+
+func (s *EventService) loadTracks(ctx context.Context, items []models.Event,
+	single *models.Event) error {
+	if s.tracks == nil || len(items) == 0 {
+		return nil
+	}
+	ids := make([]uuid.UUID, 0, len(items))
+	for i := range items {
+		ids = append(ids, items[i].ID)
+	}
+	byEvent, err := s.tracks.ListByEvents(ctx, ids)
+	if err != nil {
+		return err
+	}
+	if single != nil {
+		single.Tracks = byEvent[single.ID]
+		return nil
+	}
+	for i := range items {
+		items[i].Tracks = byEvent[items[i].ID]
+	}
+	return nil
 }
 
 func (s *EventService) List(ctx context.Context, actor models.Actor, filter models.EventFilter,
@@ -129,7 +154,11 @@ func (s *EventService) List(ctx context.Context, actor models.Actor, filter mode
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("the operation is restricted to administrators")
 	}
-	return s.events.List(ctx, filter, page, s.now())
+	items, total, err := s.events.List(ctx, filter, page, s.now())
+	if err != nil {
+		return nil, 0, err
+	}
+	return items, total, s.loadTracks(ctx, items, nil)
 }
 
 func (s *EventService) reconcile(ctx context.Context, eventID uuid.UUID) {

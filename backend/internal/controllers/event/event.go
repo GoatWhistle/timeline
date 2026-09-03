@@ -17,12 +17,14 @@ import (
 type Controller struct {
 	events  EventService
 	stages  StageService
+	tracks  TrackService
 	pageDef int
 	pageMax int
 }
 
-func NewController(h EventService, s StageService, pageDef, pageMax int) *Controller {
-	return &Controller{events: h, stages: s, pageDef: pageDef, pageMax: pageMax}
+func NewController(h EventService, s StageService, t TrackService,
+	pageDef, pageMax int) *Controller {
+	return &Controller{events: h, stages: s, tracks: t, pageDef: pageDef, pageMax: pageMax}
 }
 
 func (c *Controller) eventID(r *http.Request, name string) (uuid.UUID, error) {

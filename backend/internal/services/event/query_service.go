@@ -18,6 +18,7 @@ type QueryService struct {
 	queries       *query.Timeline
 	events        *event.Events
 	stages        *event.Stages
+	tracks        *event.Tracks
 	participants  *participation.Participants
 	registrations *participation.Registrations
 	statuses      *participation.Statuses
@@ -33,6 +34,8 @@ func NewQueryService(queries *query.Timeline, events *event.Events,
 		now: func() time.Time { return time.Now().UTC() },
 	}
 }
+
+func (s *QueryService) WithTracks(t *event.Tracks) { s.tracks = t }
 
 func (s *QueryService) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
 	return s.events.ResolveDisplayID(ctx, displayID)
@@ -75,6 +78,12 @@ func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
 	stages, err := s.stages.ListByEvent(ctx, eventID)
 	if err != nil {
 		return nil, err
+	}
+	if s.tracks != nil {
+		event.Tracks, err = s.tracks.ListByEvent(ctx, eventID)
+		if err != nil {
+			return nil, err
+		}
 	}
 	nextStage, err := s.queries.NextStage(ctx, eventID, now)
 	if err != nil {
@@ -174,57 +183,4 @@ func (s *QueryService) RegistrationCoverage(ctx context.Context,
 		return nil, err
 	}
 	return &coverage, nil
-}
-
-func eventView(h *models.Event, stages []models.Stage, now time.Time) dto.EventResponse {
-	return dto.EventResponse{
-		ID:              h.DisplayID,
-		Title:           h.Title,
-		Description:     h.Description,
-		Organizer:       h.Organizer,
-		WebsiteURL:      h.WebsiteURL,
-		Kind:            h.Kind,
-		Format:          h.Format,
-		Origin:          h.Origin,
-		CountryCode:     h.CountryCode,
-		City:            h.City,
-		EffectiveFormat: models.DeriveEventFormat(h, stages),
-		Track:           h.Track,
-		PrizePool:       h.PrizePool,
-		PrizeCurrency:   h.PrizeCurrency,
-		TeamSizeMin:     h.TeamSizeMin,
-		TeamSizeMax:     h.TeamSizeMax,
-		CoverURL:        h.EffectiveCoverURL(),
-		CoverSource:     h.EffectiveCoverSource(),
-		Color:           h.Color(),
-		StartAt:         h.StartAt,
-		EndAt:           h.EndAt,
-		State:           h.State(now),
-		PublishedAt:     h.PublishedAt,
-		ArchivedAt:      h.ArchivedAt,
-		CreatedAt:       h.CreatedAt,
-		UpdatedAt:       h.UpdatedAt,
-	}
-}
-
-func stageView(s *models.Stage, event *models.Event) dto.StageResponse {
-	return dto.StageResponse{
-		ID:          s.DisplayID,
-		EventID:     event.DisplayID,
-		Name:        s.Name,
-		Type:        s.Type,
-		StartAt:     s.StartAt,
-		EndAt:       s.EndAt,
-		Description: s.Description,
-		URL:         s.URL,
-		Format:      s.Format,
-		CountryCode: s.CountryCode,
-		City:        s.City,
-		Venue:       s.Venue,
-		OnlineURL:   s.OnlineURL,
-		Place:       s.ResolvePlace(event),
-		SortOrder:   s.SortOrder,
-		CreatedAt:   s.CreatedAt,
-		UpdatedAt:   s.UpdatedAt,
-	}
 }

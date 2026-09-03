@@ -67,6 +67,7 @@ func mountMe(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("POST "+api+"/events/{id}/join", rt.authd(catalogC.Join))
 	mux.Handle("GET "+api+"/events/{id}", rt.authd(queryC.EventCard))
 	mux.Handle("GET "+api+"/events/{id}/stages", rt.authd(eventC.ListStages))
+	mux.Handle("GET "+api+"/events/{id}/tracks", rt.authd(eventC.ListTracks))
 	mux.Handle("POST "+api+"/events/{id}/registration/done", rt.authd(statusC.MarkDone))
 }
 
@@ -91,6 +92,9 @@ func mountAdminIdentity(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("POST "+api+"/admin/events/{id}/stages", rt.admin(eventC.CreateStage))
 	mux.Handle("PATCH "+api+"/admin/stages/{id}", rt.admin(eventC.UpdateStage))
 	mux.Handle("DELETE "+api+"/admin/stages/{id}", rt.admin(eventC.DeleteStage))
+	mux.Handle("POST "+api+"/admin/events/{id}/tracks", rt.admin(eventC.CreateTrack))
+	mux.Handle("PATCH "+api+"/admin/tracks/{id}", rt.admin(eventC.UpdateTrack))
+	mux.Handle("DELETE "+api+"/admin/tracks/{id}", rt.admin(eventC.DeleteTrack))
 }
 
 func mountAdminRegistration(mux *http.ServeMux, rt *routes, api string,
@@ -153,6 +157,7 @@ func mountTeams(mux *http.ServeMux, rt *routes, api string, c *team.Controller) 
 	mux.Handle("GET "+api+"/teams/{id}/events", rt.authd(c.ListEvents))
 	mux.Handle("POST "+api+"/teams/{id}/events", rt.authd(c.EnterEvent))
 	mux.Handle("GET "+api+"/teams/{id}/events/{event_id}", rt.authd(c.EventStanding))
+	mux.Handle("PUT "+api+"/teams/{id}/events/{event_id}/track", rt.authd(c.ChooseTrack))
 	mux.Handle("PUT "+api+"/teams/{id}/events/{event_id}/roster/{user_id}", rt.authd(c.AddToRoster))
 	mux.Handle("DELETE "+api+"/teams/{id}/events/{event_id}/roster/{user_id}",
 		rt.authd(c.RemoveFromRoster))
@@ -162,6 +167,11 @@ func mountTeams(mux *http.ServeMux, rt *routes, api string, c *team.Controller) 
 	mux.Handle("POST "+api+"/teams/{id}/join-link", rt.authd(c.RotateJoinLink))
 	mux.Handle("DELETE "+api+"/teams/{id}/join-link", rt.authd(c.RevokeJoinLink))
 	mux.Handle("POST "+api+"/team-join/{token}", rt.authd(c.JoinByLink))
+	mux.Handle("GET "+api+"/teams/{id}/events/{event_id}/links", rt.authd(c.ListEventLinks))
+	mux.Handle("POST "+api+"/teams/{id}/events/{event_id}/links", rt.authd(c.AddEventLink))
+	mux.Handle("PUT "+api+"/teams/{id}/events/{event_id}/links/order", rt.authd(c.ReorderEventLinks))
+	mux.Handle("PATCH "+api+"/team-links/{id}", rt.authd(c.UpdateEventLink))
+	mux.Handle("DELETE "+api+"/team-links/{id}", rt.authd(c.RemoveEventLink))
 }
 
 func mountCovers(mux *http.ServeMux, rt *routes, api string, c *event.CoverController) {

@@ -36,7 +36,9 @@
       "TEAM_EVENT_ENTRY": "Заявка команды",
       "TEAM_JOIN_LINK": "Ссылка для вступления",
       "RESOURCE_LINK": "Ссылка",
-      "CALENDAR_FEED": "Календарная лента"
+      "CALENDAR_FEED": "Календарная лента",
+      "EVENT_TRACK": "Трек события",
+      "TEAM_EVENT_LINK": "Ссылка команды"
     },
     "actionLabel": {
       "USER_REGISTER": "Регистрация пользователя",
@@ -79,7 +81,15 @@
       "RESOURCE_LINK_UPDATE": "Изменение ссылки",
       "RESOURCE_LINK_DELETE": "Удаление ссылки",
       "CALENDAR_FEED_ISSUE": "Выпуск календарной ленты",
-      "CALENDAR_FEED_REVOKE": "Отзыв календарной ленты"
+      "CALENDAR_FEED_REVOKE": "Отзыв календарной ленты",
+      "TRACK_CREATE": "Трек создан",
+      "TRACK_UPDATE": "Трек изменён",
+      "TRACK_DELETE": "Трек удалён",
+      "TRACK_PRIZE_SET": "Призовые трека заданы",
+      "TEAM_TRACK_CHOOSE": "Команда выбрала трек",
+      "TEAM_EVENT_LINK_ADD": "Добавлена ссылка команды",
+      "TEAM_EVENT_LINK_UPDATE": "Изменена ссылка команды",
+      "TEAM_EVENT_LINK_REMOVE": "Удалена ссылка команды"
     }
   },
   "users": {

@@ -4,7 +4,9 @@
     "skipToContent": "Перейти к содержимому",
     "mainNav": "Основная навигация",
     "collapseSidebar": "Свернуть боковую панель",
-    "expandSidebar": "Развернуть боковую панель"
+    "expandSidebar": "Развернуть боковую панель",
+    "more": "Ещё",
+    "primaryNav": "Разделы"
   },
   "nav": {
     "myEvents": "Мои события",

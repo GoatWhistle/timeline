@@ -18,12 +18,12 @@ type EventResponse struct {
 	CountryCode *string            `json:"country_code,omitempty" example:"RU"`
 	City        *string            `json:"city,omitempty" example:"Moscow"`
 
-	EffectiveFormat models.EventFormat `json:"effective_format" enums:"ONLINE,OFFLINE,HYBRID"`
-	Track           *string            `json:"track,omitempty" example:"Smart city"`
-	PrizePool       *string            `json:"prize_pool,omitempty" example:"500000.00"`
-	PrizeCurrency   *string            `json:"prize_currency,omitempty" example:"RUB"`
-	TeamSizeMin     *int               `json:"team_size_min,omitempty" example:"3"`
-	TeamSizeMax     *int               `json:"team_size_max,omitempty" example:"5"`
+	EffectiveFormat models.EventFormat  `json:"effective_format" enums:"ONLINE,OFFLINE,HYBRID"`
+	Tracks          []EventTrackSummary `json:"tracks"`
+	PrizePool       *string             `json:"prize_pool,omitempty" example:"500000.00"`
+	PrizeCurrency   *string             `json:"prize_currency,omitempty" example:"RUB"`
+	TeamSizeMin     *int                `json:"team_size_min,omitempty" example:"3"`
+	TeamSizeMax     *int                `json:"team_size_max,omitempty" example:"5"`
 
 	CoverURL    *string             `json:"cover_url,omitempty" example:"/api/v1/covers/abc.png"`
 	CoverSource *models.CoverSource `json:"cover_source,omitempty" enums:"MANUAL,AUTO"`
@@ -55,7 +55,6 @@ type CreateEventRequest struct {
 	CountryCode *string             `json:"country_code,omitempty" example:"RU"`
 	City        *string             `json:"city,omitempty" example:"Moscow"`
 
-	Track         *string `json:"track,omitempty" example:"Smart city"`
 	PrizePool     *string `json:"prize_pool,omitempty" example:"500000.00"`
 	PrizeCurrency *string `json:"prize_currency,omitempty" example:"RUB"`
 	TeamSizeMin   *int    `json:"team_size_min,omitempty" example:"3"`
@@ -76,7 +75,6 @@ type UpdateEventRequest struct {
 	CountryCode *string             `json:"country_code,omitempty" example:"RU"`
 	City        *string             `json:"city,omitempty" example:"Moscow"`
 
-	Track         *string `json:"track,omitempty" example:"Smart city"`
 	PrizePool     *string `json:"prize_pool,omitempty" example:"500000.00"`
 	PrizeCurrency *string `json:"prize_currency,omitempty" example:"RUB"`
 	TeamSizeMin   *int    `json:"team_size_min,omitempty" example:"3"`
@@ -135,4 +133,61 @@ type UpdateStageRequest struct {
 	OnlineURL   *string             `json:"online_url,omitempty" example:"https://example.com/stream"`
 	ClearFormat bool                `json:"clear_format,omitempty" example:"false"`
 	SortOrder   *int                `json:"sort_order,omitempty"`
+}
+
+type EventTrackSummary struct {
+	ID         string `json:"id" example:"tr_42ej2s5gh7e8"`
+	TrackNo    int    `json:"track_no" example:"1"`
+	Name       string `json:"name" example:"Smart city"`
+	PrizeTotal string `json:"prize_total" example:"300000"`
+}
+
+type TrackPrizeResponse struct {
+	ID     string `json:"id" example:"pz_42ej2s5gh7e8"`
+	Place  int    `json:"place" example:"1"`
+	Amount string `json:"amount" example:"150000"`
+}
+
+type EventTrackResponse struct {
+	ID          string               `json:"id" example:"tr_42ej2s5gh7e8"`
+	EventID     string               `json:"event_id" example:"ev_gma9hq8a96q5"`
+	TrackNo     int                  `json:"track_no" example:"1"`
+	Name        string               `json:"name" example:"Smart city"`
+	Description *string              `json:"description,omitempty"`
+	Prizes      []TrackPrizeResponse `json:"prizes"`
+	PrizeTotal  string               `json:"prize_total" example:"300000"`
+	CreatedAt   time.Time            `json:"created_at"`
+	UpdatedAt   time.Time            `json:"updated_at"`
+}
+
+type EventTrackListResponse struct {
+	Items         []EventTrackResponse `json:"items"`
+	PrizePool     *string              `json:"prize_pool,omitempty" example:"500000"`
+	PrizeCurrency *string              `json:"prize_currency,omitempty" example:"RUB"`
+	Distributed   string               `json:"distributed" example:"450000"`
+	Unallocated   *string              `json:"unallocated,omitempty" example:"50000"`
+}
+
+type TrackPrizeInput struct {
+	Place  int    `json:"place" example:"1"`
+	Amount string `json:"amount" example:"150000"`
+}
+
+type CreateEventTrackRequest struct {
+	Name        string            `json:"name" example:"Smart city"`
+	Description *string           `json:"description,omitempty"`
+	TrackNo     *int              `json:"track_no,omitempty" example:"1"`
+	Prizes      []TrackPrizeInput `json:"prizes,omitempty"`
+}
+
+type UpdateEventTrackRequest struct {
+	Name        *string           `json:"name,omitempty"`
+	Description *string           `json:"description,omitempty"`
+	TrackNo     *int              `json:"track_no,omitempty"`
+	Prizes      []TrackPrizeInput `json:"prizes,omitempty"`
+	SetPrizes   bool              `json:"set_prizes,omitempty" example:"false"`
+}
+
+type ChooseTrackRequest struct {
+	TrackID *string `json:"track_id,omitempty" example:"tr_42ej2s5gh7e8"`
 }

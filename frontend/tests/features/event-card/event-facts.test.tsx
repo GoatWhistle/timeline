@@ -16,6 +16,7 @@ const base: EventResponse = {
   start_at: '2026-10-01T00:00:00Z',
   end_at: '2026-10-20T00:00:00Z',
   state: 'UPCOMING',
+  tracks: [],
   created_at: '2026-09-01T00:00:00Z',
   updated_at: '2026-09-01T00:00:00Z',
 }
@@ -202,7 +203,30 @@ describe('the facts panel carries the event basics', () => {
   })
 
   it('states the track when there is one', () => {
-    renderWithProviders(<EventFacts event={{ ...base, track: 'Smart city' }} />)
+    renderWithProviders(
+      <EventFacts
+        event={{
+          ...base,
+          tracks: [{ id: 'tr_1', track_no: 1, name: 'Smart city', prize_total: '0' }],
+        }}
+      />,
+    )
     expect(screen.getByText('Smart city')).toBeInTheDocument()
+  })
+
+  it('names every track of a hackathon that has several', () => {
+    renderWithProviders(
+      <EventFacts
+        event={{
+          ...base,
+          tracks: [
+            { id: 'tr_1', track_no: 1, name: 'Smart city', prize_total: '3000' },
+            { id: 'tr_2', track_no: 2, name: 'Voice agents', prize_total: '2000' },
+          ],
+        }}
+      />,
+    )
+    expect(screen.getByText('Smart city')).toBeInTheDocument()
+    expect(screen.getByText('Voice agents')).toBeInTheDocument()
   })
 })

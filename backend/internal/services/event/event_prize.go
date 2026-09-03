@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/GoatWhistle/timeline/internal/models"
-	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
 const teamSizeMaxLimit = 100
@@ -13,21 +12,6 @@ const teamSizeMaxLimit = 100
 type prizeAmount struct {
 	pool     *string
 	currency *string
-}
-
-func normalizeTrack(value *string) (*string, error) {
-	if value == nil {
-		return nil, nil
-	}
-	track := strings.TrimSpace(*value)
-	if track == "" {
-		return nil, nil
-	}
-	normalized, err := validation.ValidateText("track", track, 1, 120)
-	if err != nil {
-		return nil, err
-	}
-	return &normalized, nil
 }
 
 func validateTeamSizeBound(field string, value *int) error {

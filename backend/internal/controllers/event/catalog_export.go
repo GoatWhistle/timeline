@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
@@ -16,7 +17,7 @@ const catalogExportFilename = "catalog.csv"
 
 var catalogExportHeader = []string{
 	"id", "title", "kind", "state", "format", "effective_format", "origin",
-	"country_code", "city", "start_at", "end_at", "organizer", "track",
+	"country_code", "city", "start_at", "end_at", "organizer", "tracks",
 	"prize_pool", "prize_currency", "team_size_min", "team_size_max", "website_url", "joined",
 }
 
@@ -112,7 +113,7 @@ func catalogExportRow(item dto.CatalogEvent) []string {
 		item.StartAt.UTC().Format(time.RFC3339),
 		item.EndAt.UTC().Format(time.RFC3339),
 		text(item.Organizer),
-		text(item.Track),
+		trackNames(item.Tracks),
 		text(item.PrizePool),
 		text(item.PrizeCurrency),
 		number(item.TeamSizeMin),
@@ -120,6 +121,14 @@ func catalogExportRow(item dto.CatalogEvent) []string {
 		text(item.WebsiteURL),
 		strconv.FormatBool(item.Joined),
 	}
+}
+
+func trackNames(tracks []dto.EventTrackSummary) string {
+	names := make([]string, 0, len(tracks))
+	for _, t := range tracks {
+		names = append(names, t.Name)
+	}
+	return strings.Join(names, "; ")
 }
 
 func text(value *string) string {

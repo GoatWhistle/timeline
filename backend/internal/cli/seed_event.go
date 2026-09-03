@@ -3,8 +3,11 @@ package cli
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
@@ -27,6 +30,9 @@ func seedOne(ctx context.Context, c *container, actor models.Actor, item seedEve
 
 	event, err := c.events.Create(ctx, actor, req)
 	if err != nil {
+		return nil, err
+	}
+	if err := seedTracks(ctx, c, actor, event.ID, item.tracks); err != nil {
 		return nil, err
 	}
 	if !item.publish {
@@ -73,7 +79,6 @@ func seedRequest(item seedEvent) (dto.CreateEventRequest, error) {
 		Origin:      &origin,
 		CountryCode: text(item.countryCode),
 		City:        text(item.city),
-		Track:       text(item.track),
 		StartAt:     startAt,
 		EndAt:       endAt,
 	}
@@ -95,4 +100,27 @@ func text(value string) *string {
 		return nil
 	}
 	return &value
+}
+
+func seedTracks(ctx context.Context, c *container, actor models.Actor,
+	eventID uuid.UUID, tracks []seedTrack) error {
+	for number, track := range tracks {
+		prizes := make([]dto.TrackPrizeInput, 0, len(track.prizes))
+		for place, amount := range track.prizes {
+			prizes = append(prizes, dto.TrackPrizeInput{
+				Place: place + 1, Amount: strconv.FormatInt(amount, 10),
+			})
+		}
+		trackNo := number + 1
+		_, err := c.tracks.Create(ctx, actor, eventID, dto.CreateEventTrackRequest{
+			Name:        track.name,
+			Description: text(track.description),
+			TrackNo:     &trackNo,
+			Prizes:      prizes,
+		})
+		if err != nil {
+			return fmt.Errorf("track %q: %w", track.name, err)
+		}
+	}
+	return nil
 }

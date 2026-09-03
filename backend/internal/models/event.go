@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,7 +20,6 @@ type Event struct {
 	Origin        EventOrigin `json:"origin"`
 	CountryCode   *string     `json:"country_code,omitempty"`
 	City          *string     `json:"city,omitempty"`
-	Track         *string     `json:"track,omitempty"`
 	PrizePool     *string     `json:"prize_pool,omitempty"`
 	PrizeCurrency *string     `json:"prize_currency,omitempty"`
 	TeamSizeMin   *int        `json:"team_size_min,omitempty"`
@@ -30,6 +31,8 @@ type Event struct {
 	CoverAutoURL       *string    `json:"cover_auto_url,omitempty"`
 	CoverAutoSource    *string    `json:"cover_auto_source,omitempty"`
 	CoverAutoFetchedAt *time.Time `json:"cover_auto_fetched_at,omitempty"`
+
+	Tracks []EventTrack `json:"tracks,omitempty"`
 
 	ColorSlot       *int       `json:"color_slot,omitempty"`
 	ColorAssignedAt *time.Time `json:"color_assigned_at,omitempty"`
@@ -60,6 +63,41 @@ func (h *Event) Published() bool { return h.PublishedAt != nil }
 func (h *Event) Archived() bool { return h.ArchivedAt != nil }
 
 func (h *Event) Schedulable() bool { return h.Published() && !h.Archived() }
+
+type EventTrack struct {
+	ID          uuid.UUID    `json:"id"`
+	DisplayID   string       `json:"display_id"`
+	EventID     uuid.UUID    `json:"event_id"`
+	TrackNo     int          `json:"track_no"`
+	Name        string       `json:"name"`
+	Description *string      `json:"description,omitempty"`
+	Prizes      []TrackPrize `json:"prizes"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
+}
+
+func (t *EventTrack) PrizeTotal() string {
+	var total int64
+	for _, p := range t.Prizes {
+		amount, err := strconv.ParseInt(strings.TrimSpace(p.Amount), 10, 64)
+		if err != nil {
+			continue
+		}
+		total += amount
+	}
+	return strconv.FormatInt(total, 10)
+}
+
+type TrackPrize struct {
+	ID        uuid.UUID `json:"id"`
+	DisplayID string    `json:"display_id"`
+	TrackID   uuid.UUID `json:"track_id"`
+	EventID   uuid.UUID `json:"event_id"`
+	Place     int       `json:"place"`
+	Amount    string    `json:"amount"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
 
 type Stage struct {
 	ID          uuid.UUID    `json:"id"`

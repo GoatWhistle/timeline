@@ -73,3 +73,18 @@ type ProfileLink struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+const TeamEventLinkMaxPerEntry = 20
+
+type TeamEventLink struct {
+	ID             uuid.UUID `json:"-"`
+	DisplayID      string    `json:"id" example:"tl_42ej2s5gh7e8"`
+	EntryID        uuid.UUID `json:"-"`
+	EntryDisplayID string    `json:"entry_id" example:"te_42ej2s5gh7e8"`
+	CreatedBy      uuid.UUID `json:"-"`
+	URL            string    `json:"url" example:"https://github.com/team/project"`
+	Label          *string   `json:"label,omitempty" example:"Our repository"`
+	SortOrder      int       `json:"sort_order" example:"0"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}

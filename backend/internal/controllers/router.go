@@ -50,6 +50,8 @@ import (
 // @tag.description			Events and their lifecycle
 // @tag.name					stages
 // @tag.description			Event stages
+// @tag.name					tracks
+// @tag.description			Hackathon tracks and the prize split across their places
 // @tag.name					participants
 // @tag.description			Participant roster and bulk operations
 // @tag.name					registration
@@ -81,7 +83,7 @@ func NewRouter(deps Deps) http.Handler {
 	publicProfileC := auth.NewPublicProfileController(deps.PublicProfiles, deps.Limiter,
 		deps.PublicRate, deps.PublicRateWindow)
 	userC := auth.NewUserController(deps.Users, deps.UserPageSize, deps.PageMax)
-	eventC := event.NewController(deps.Events, deps.Stages, deps.PageDefault, deps.PageMax)
+	eventC := event.NewController(deps.Events, deps.Stages, deps.Tracks, deps.PageDefault, deps.PageMax)
 	catalogC := event.NewCatalogController(deps.Catalog, deps.Limiter, deps.CatalogRate,
 		deps.CatalogRateWindow, deps.PageDefault, deps.PageMax)
 	sessionC := auth.NewSessionController(deps.Auth, deps.Cookies, deps.Limiter,

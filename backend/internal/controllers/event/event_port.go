@@ -22,6 +22,18 @@ type EventService interface {
 	Delete(ctx context.Context, actor models.Actor, id uuid.UUID) error
 }
 
+type TrackService interface {
+	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*dto.EventTrackListResponse, error)
+	Create(
+		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.CreateEventTrackRequest,
+	) (*dto.EventTrackResponse, error)
+	Update(
+		ctx context.Context, actor models.Actor, id uuid.UUID, req dto.UpdateEventTrackRequest,
+	) (*dto.EventTrackResponse, error)
+	Delete(ctx context.Context, actor models.Actor, id uuid.UUID) error
+}
+
 type StageService interface {
 	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.Stage, *models.Event, error)

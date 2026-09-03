@@ -17,7 +17,7 @@ func NewCatalog(db *postgres.DB) *Catalog { return &Catalog{db: db} }
 
 const catalogColumns = `e.id, e.display_id, e.title, e.description, e.organizer, e.website_url,
 	e.kind, e.format, e.origin, e.country_code, e.city,
-	e.track, e.prize_pool, e.prize_currency, e.team_size_min, e.team_size_max, e.start_at, e.end_at,
+	e.prize_pool, e.prize_currency, e.team_size_min, e.team_size_max, e.start_at, e.end_at,
 	e.color_slot, e.cover_manual_url, e.cover_auto_url, (p.id IS NOT NULL) AS joined,
 	p.team_role, r.url, r.deadline_at, r.state,
 	s.display_id, s.status, s.todo_cycle, s.registered_at`
@@ -57,7 +57,7 @@ func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter dto.Catalog
 		var reg catalogRegistration
 		if err := rows.Scan(&rawID, &c.ID, &c.Title, &c.Description, &c.Organizer, &c.WebsiteURL,
 			&c.Kind, &c.Format, &c.Origin, &c.CountryCode, &c.City,
-			&c.Track, &c.PrizePool, &c.PrizeCurrency, &c.TeamSizeMin, &c.TeamSizeMax,
+			&c.PrizePool, &c.PrizeCurrency, &c.TeamSizeMin, &c.TeamSizeMax,
 			&c.StartAt, &c.EndAt, &slot, &manualCover, &autoCover, &c.Joined,
 			&c.TeamRole, &reg.url, &reg.deadline, &reg.state,
 			&reg.statusID, &reg.status, &reg.todoCycle, &reg.registeredAt); err != nil {
@@ -76,6 +76,9 @@ func (r *Catalog) List(ctx context.Context, viewer uuid.UUID, filter dto.Catalog
 		return nil, 0, mapError(err)
 	}
 	if err := r.attachPlaces(ctx, items, events, ids); err != nil {
+		return nil, 0, err
+	}
+	if err := AttachTrackSummaries(ctx, r.db.Q(ctx), items, ids); err != nil {
 		return nil, 0, err
 	}
 	return items, total, nil

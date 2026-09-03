@@ -44,7 +44,17 @@ export function EventFacts({ event }: { event: EventResponse }) {
         </Fact>
       )}
 
-      {event.track && <Fact label={t('place.track')}>{event.track}</Fact>}
+      {event.tracks.length > 0 && (
+        <Fact label={t('place.tracks')}>
+          <ul className="flex flex-col gap-1">
+            {event.tracks.map((track) => (
+              <li key={track.id} className="min-w-0 truncate">
+                {track.name}
+              </li>
+            ))}
+          </ul>
+        </Fact>
+      )}
 
       {event.website_url && host && (
         <Fact label={t('place.website')}>

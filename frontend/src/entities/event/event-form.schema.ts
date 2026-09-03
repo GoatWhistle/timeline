@@ -37,7 +37,6 @@ export const commonEventShape = {
 }
 
 export const hackathonOnlyShape = {
-  track: optionalText(120),
   prize_pool: z
     .string()
     .trim()
@@ -103,7 +102,6 @@ export const COMMON_FIELD_NAMES = [
 
 export const HACKATHON_FIELD_NAMES = [
   ...COMMON_FIELD_NAMES,
-  'track',
   'prize_pool',
   'prize_currency',
   'team_size_min',

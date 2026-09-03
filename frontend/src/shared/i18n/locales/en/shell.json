@@ -4,7 +4,9 @@
     "skipToContent": "Skip to content",
     "mainNav": "Main navigation",
     "collapseSidebar": "Collapse the sidebar",
-    "expandSidebar": "Expand the sidebar"
+    "expandSidebar": "Expand the sidebar",
+    "more": "More",
+    "primaryNav": "Sections"
   },
   "nav": {
     "myEvents": "My events",

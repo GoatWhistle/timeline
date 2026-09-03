@@ -16,7 +16,11 @@
     "noStages": "Этапы не заданы",
     "marked": "Регистрация отмечена",
     "markedHint": "Напоминания по этому событию больше не придут",
-    "markFailed": "Не удалось изменить статус"
+    "markFailed": "Не удалось изменить статус",
+    "trackCount_one": "{{count}} трек",
+    "trackCount_few": "{{count}} трека",
+    "trackCount_many": "{{count}} треков",
+    "trackCount_other": "{{count}} трека"
   },
   "detail": {
     "registration": "Регистрация",
@@ -70,7 +74,13 @@
     "teamRange": "{{min}}–{{max}} в команде",
     "teamSize": "Размер команды",
     "prizePoolShort": "Призовой фонд",
-    "website": "Сайт"
+    "website": "Сайт",
+    "tracks": "Треки",
+    "noTracks": "Треки не заданы",
+    "trackPlace": "{{place}} место",
+    "prizeDistributed": "Распределено",
+    "prizeUnallocated": "Не распределено",
+    "trackPrizeTotal": "Призовой фонд трека"
   },
   "links": {
     "title": "Ссылки",

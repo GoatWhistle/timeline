@@ -46,7 +46,6 @@ export function commonDefaults(event: EventResponse | undefined): MeetupFormValu
 export function hackathonDefaults(event: EventResponse | undefined): HackathonFormValues {
   return {
     ...commonDefaults(event),
-    track: event?.track ?? '',
     prize_pool: event?.prize_pool ?? '',
     prize_currency: event?.prize_currency ?? '',
     team_size_min: event?.team_size_min ?? TEAM_SIZE_MIN,
@@ -105,7 +104,6 @@ export function buildHackathonPayload(
 
   return {
     ...commonPayload(values, 'HACKATHON', startAt, endAt),
-    ...(values.track ? { track: values.track } : {}),
     ...(values.prize_pool ? { prize_pool: values.prize_pool } : {}),
     ...(values.prize_currency ? { prize_currency: values.prize_currency.toUpperCase() } : {}),
     team_size_min: values.team_size_min,

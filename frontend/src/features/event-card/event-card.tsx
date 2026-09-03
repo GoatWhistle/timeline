@@ -16,6 +16,7 @@ import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
 import { EventFacts } from './event-facts'
 import { EventPlaceSummary } from './event-place-summary'
 import { RegistrationSection, StagesSection } from './event-sections'
+import { EventTracksSection } from './event-tracks'
 
 export function EventCardPage() {
   const { t } = useTranslation('event')
@@ -117,6 +118,8 @@ function EventCardBody({
           </Card>
 
           <RegistrationSection card={card} onMarkDone={onMarkDone} pending={pending} />
+
+          <EventTracksSection eventId={event.id} />
 
           <div className="grid items-start gap-6 lg:grid-cols-2">
             <StagesSection stages={card.stages} />

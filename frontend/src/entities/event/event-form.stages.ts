@@ -29,7 +29,7 @@ const PLACE: StageDefinition = {
 const PRIZE: StageDefinition = {
   id: 'prize',
   labelKey: 'stage.prize',
-  fields: ['track', 'prize_pool', 'prize_currency', 'team_size_min', 'team_size_max'],
+  fields: ['prize_pool', 'prize_currency', 'team_size_min', 'team_size_max'],
 }
 
 const MEETUP_STAGES: StageDefinition[] = [KIND, BASICS, PERIOD, PLACE]

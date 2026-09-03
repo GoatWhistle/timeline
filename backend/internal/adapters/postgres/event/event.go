@@ -18,14 +18,14 @@ type Events struct{ db *postgres.DB }
 func NewEvents(db *postgres.DB) *Events { return &Events{db: db} }
 
 const eventColumns = `id, display_id, title, description, organizer, website_url,
-	kind, format, origin, country_code, city, track, prize_pool, prize_currency, team_size_min, team_size_max,
+	kind, format, origin, country_code, city, prize_pool, prize_currency, team_size_min, team_size_max,
 	start_at, end_at, cover_manual_url, cover_auto_url, cover_auto_source, cover_auto_fetched_at,
 	color_slot, color_assigned_at, published_at, archived_at, created_at, updated_at`
 
 func scanEventInto(row pgx.Row, h *models.Event) error {
 	return row.Scan(&h.ID, &h.DisplayID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL,
 		&h.Kind, &h.Format, &h.Origin, &h.CountryCode, &h.City,
-		&h.Track, &h.PrizePool, &h.PrizeCurrency, &h.TeamSizeMin, &h.TeamSizeMax,
+		&h.PrizePool, &h.PrizeCurrency, &h.TeamSizeMin, &h.TeamSizeMax,
 		&h.StartAt, &h.EndAt,
 		&h.CoverManualURL, &h.CoverAutoURL, &h.CoverAutoSource, &h.CoverAutoFetchedAt,
 		&h.ColorSlot, &h.ColorAssignedAt,
@@ -43,12 +43,12 @@ func scanEvent(row pgx.Row) (*models.Event, error) {
 func (r *Events) Create(ctx context.Context, h *models.Event) (*models.Event, error) {
 	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
 		INSERT INTO events (title, description, organizer, website_url,
-			kind, format, origin, country_code, city, track, prize_pool, prize_currency,
+			kind, format, origin, country_code, city, prize_pool, prize_currency,
 			team_size_min, team_size_max, start_at, end_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 		RETURNING `+eventColumns,
 		h.Title, h.Description, h.Organizer, h.WebsiteURL,
-		h.Kind, h.Format, h.Origin, h.CountryCode, h.City, h.Track, h.PrizePool,
+		h.Kind, h.Format, h.Origin, h.CountryCode, h.City, h.PrizePool,
 		h.PrizeCurrency, h.TeamSizeMin, h.TeamSizeMax, h.StartAt, h.EndAt))
 }
 
@@ -126,19 +126,18 @@ func (r *Events) Update(ctx context.Context, id uuid.UUID, req dto.UpdateEventRe
 			origin = COALESCE($8, origin),
 			country_code = CASE WHEN $9::boolean THEN $10 ELSE country_code END,
 			city = CASE WHEN $11::boolean THEN $12 ELSE city END,
-			track = COALESCE($13, track),
-			prize_pool = COALESCE($14, prize_pool),
-			prize_currency = COALESCE($15, prize_currency),
-			team_size_min = COALESCE($16, team_size_min),
-			team_size_max = COALESCE($17, team_size_max),
-			start_at = COALESCE($18, start_at),
-			end_at = COALESCE($19, end_at)
+			prize_pool = COALESCE($13, prize_pool),
+			prize_currency = COALESCE($14, prize_currency),
+			team_size_min = COALESCE($15, team_size_min),
+			team_size_max = COALESCE($16, team_size_max),
+			start_at = COALESCE($17, start_at),
+			end_at = COALESCE($18, end_at)
 		WHERE id = $1
 		RETURNING `+eventColumns,
 		id, req.Title, req.Description, req.Organizer, req.WebsiteURL,
 		req.Kind, req.Format, req.Origin,
 		place.CountrySet, place.CountryCode, place.CitySet, place.City,
-		req.Track, req.PrizePool, req.PrizeCurrency, req.TeamSizeMin, req.TeamSizeMax,
+		req.PrizePool, req.PrizeCurrency, req.TeamSizeMin, req.TeamSizeMax,
 		req.StartAt, req.EndAt))
 }
 

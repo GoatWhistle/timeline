@@ -128,13 +128,6 @@ func resolveUpdateFields(req *dto.UpdateEventRequest, before *models.Event) (res
 		return resolvedPlace{}, err
 	}
 	req.PrizePool, req.PrizeCurrency = prize.pool, prize.currency
-	if req.Track != nil {
-		track, err := normalizeTrack(req.Track)
-		if err != nil {
-			return resolvedPlace{}, err
-		}
-		req.Track = track
-	}
 	if err := validateTeamSize(
 		coalesceSize(req.TeamSizeMin, before.TeamSizeMin),
 		coalesceSize(req.TeamSizeMax, before.TeamSizeMax)); err != nil {

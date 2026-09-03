@@ -1,0 +1,152 @@
+package event
+
+import (
+	"context"
+	"strconv"
+
+	"github.com/google/uuid"
+
+	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
+)
+
+func (s *TrackService) Update(ctx context.Context, actor models.Actor, id uuid.UUID,
+	req dto.UpdateEventTrackRequest) (*dto.EventTrackResponse, error) {
+	if req.Name != nil {
+		name, err := validation.ValidateText("name", *req.Name, 1, 120)
+		if err != nil {
+			return nil, err
+		}
+		req.Name = &name
+	}
+	if req.Description != nil {
+		description, err := validation.OptionalText("description", req.Description, 4000)
+		if err != nil {
+			return nil, err
+		}
+		req.Description = description
+	}
+	if err := validateTrackNo(req.TrackNo); err != nil {
+		return nil, err
+	}
+	prizes, total, err := validatePrizeInputs(req.Prizes)
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		updated *models.EventTrack
+		target  *models.Event
+	)
+	err = s.db.WithTx(ctx, func(ctx context.Context) error {
+		before, err := s.tracks.GetByID(ctx, id)
+		if err != nil {
+			return err
+		}
+		target, err = s.writable(ctx, actor, before.EventID)
+		if err != nil {
+			return err
+		}
+		if req.SetPrizes {
+			others, err := s.tracks.DistributedTotal(ctx, before.EventID, &id)
+			if err != nil {
+				return err
+			}
+			if err := checkPoolCoverage(target.PrizePool, others, total); err != nil {
+				return err
+			}
+		}
+		updated, err = s.tracks.Update(ctx, id, req.Name, req.Description, req.TrackNo)
+		if err != nil {
+			return err
+		}
+		if req.SetPrizes {
+			updated.Prizes, err = s.tracks.ReplacePrizes(ctx, id, before.EventID, prizes)
+		} else {
+			current, listErr := s.tracks.ListByEvent(ctx, before.EventID)
+			err = listErr
+			updated.Prizes = prizesOf(current, id)
+		}
+		if err != nil {
+			return err
+		}
+		return s.audit.Record(ctx, actor, models.AuditTrackUpdate, models.EntityEventTrack, id,
+			map[string]any{"name": before.Name, "track_no": before.TrackNo},
+			map[string]any{"name": updated.Name, "track_no": updated.TrackNo,
+				"prize_total": sumPrizes(updated.Prizes)})
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := TrackResponse(target, updated)
+	return &out, nil
+}
+
+func prizesOf(tracks []models.EventTrack, id uuid.UUID) []models.TrackPrize {
+	for i := range tracks {
+		if tracks[i].ID == id {
+			return tracks[i].Prizes
+		}
+	}
+	return []models.TrackPrize{}
+}
+
+func TrackResponse(target *models.Event, track *models.EventTrack) dto.EventTrackResponse {
+	prizes := make([]dto.TrackPrizeResponse, 0, len(track.Prizes))
+	for _, p := range track.Prizes {
+		prizes = append(prizes, dto.TrackPrizeResponse{
+			ID: p.DisplayID, Place: p.Place, Amount: p.Amount,
+		})
+	}
+	return dto.EventTrackResponse{
+		ID:          track.DisplayID,
+		EventID:     target.DisplayID,
+		TrackNo:     track.TrackNo,
+		Name:        track.Name,
+		Description: track.Description,
+		Prizes:      prizes,
+		PrizeTotal:  sumPrizes(track.Prizes),
+		CreatedAt:   track.CreatedAt,
+		UpdatedAt:   track.UpdatedAt,
+	}
+}
+
+func TrackSummary(track *models.EventTrack) dto.EventTrackSummary {
+	return dto.EventTrackSummary{
+		ID:         track.DisplayID,
+		TrackNo:    track.TrackNo,
+		Name:       track.Name,
+		PrizeTotal: sumPrizes(track.Prizes),
+	}
+}
+
+func TrackSummaries(tracks []models.EventTrack) []dto.EventTrackSummary {
+	out := make([]dto.EventTrackSummary, 0, len(tracks))
+	for i := range tracks {
+		out = append(out, TrackSummary(&tracks[i]))
+	}
+	return out
+}
+
+func mustWhole(value string) int64 {
+	amount, err := parseWholeAmount("amount", value)
+	if err != nil {
+		return 0
+	}
+	return amount
+}
+
+func formatWhole(value int64) string { return strconv.FormatInt(value, 10) }
+
+func pointerWhole(value int64) *string {
+	out := formatWhole(value)
+	return &out
+}
+
+func wholePool(pool *string) *string {
+	if pool == nil {
+		return nil
+	}
+	return pointerWhole(mustWhole(*pool))
+}

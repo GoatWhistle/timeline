@@ -116,6 +116,7 @@ func newRouter(c *container) http.Handler {
 		Events:         c.events,
 		Catalog:        c.catalog,
 		Stages:         c.stages,
+		Tracks:         c.tracks,
 		Participants:   c.participants,
 		Registrations:  c.registrations,
 		Statuses:       c.statuses,

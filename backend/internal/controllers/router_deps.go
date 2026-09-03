@@ -26,6 +26,7 @@ type Deps struct {
 	Covers        event.CoverService
 	Catalog       event.CatalogService
 	Stages        event.StageService
+	Tracks        event.TrackService
 	Participants  participation.ParticipantService
 	Registrations participation.RegistrationService
 	Statuses      participation.StatusService

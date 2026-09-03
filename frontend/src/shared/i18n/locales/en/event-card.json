@@ -16,7 +16,9 @@
     "noStages": "No stages defined",
     "marked": "Registration marked",
     "markedHint": "You will get no more reminders about this event",
-    "markFailed": "Could not change the status"
+    "markFailed": "Could not change the status",
+    "trackCount_one": "{{count}} track",
+    "trackCount_other": "{{count}} tracks"
   },
   "detail": {
     "registration": "Registration",
@@ -70,7 +72,13 @@
     "teamRange": "{{min}}–{{max}} in a team",
     "teamSize": "Team size",
     "prizePoolShort": "Prize pool",
-    "website": "Website"
+    "website": "Website",
+    "tracks": "Tracks",
+    "noTracks": "No tracks declared",
+    "trackPlace": "Place {{place}}",
+    "prizeDistributed": "Distributed",
+    "prizeUnallocated": "Unallocated",
+    "trackPrizeTotal": "Track prize fund"
   },
   "links": {
     "title": "Links",

@@ -13,6 +13,7 @@ const eventKeys = {
   card: (id: string) => ['event-card', id] as const,
   adminList: (params: Record<string, unknown>) => ['admin-events', params] as const,
   adminOne: (id: string) => ['admin-event', id] as const,
+  tracks: (id: string) => ['event-tracks', id] as const,
 }
 
 export type MyEventsParams = QueryParams<'/me/events', 'get'>
@@ -28,6 +29,13 @@ export function eventCardQuery(id: string) {
   return queryOptions({
     queryKey: eventKeys.card(id),
     queryFn: () => unwrap(api.GET('/events/{id}', { params: { path: { id } } })),
+  })
+}
+
+export function eventTracksQuery(id: string) {
+  return queryOptions({
+    queryKey: eventKeys.tracks(id),
+    queryFn: () => unwrap(api.GET('/events/{id}/tracks', { params: { path: { id } } })),
   })
 }
 

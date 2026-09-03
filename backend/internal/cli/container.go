@@ -40,41 +40,43 @@ type container struct {
 	db  *postgres.DB
 
 	repos struct {
-		users         *identity.Users
-		profileLinks  *identity.ProfileLinks
-		sessions      *identity.Sessions
-		tokens        *identity.Tokens
-		invites       *identity.Invites
-		events        *event.Events
-		stages        *event.Stages
-		participants  *participation.Participants
-		registrations *participation.Registrations
-		statuses      *participation.Statuses
-		rules         *participation.Rules
-		notifications *notification.Notifications
-		scheduler     *notification.Scheduler
-		catalog       *query.Catalog
-		tasks         *personal.Tasks
-		notes         *personal.Notes
-		artifacts     *personal.Artifacts
-		outcomes      *personal.Outcomes
-		bookmarks     *personal.Bookmarks
-		templates     *personal.Templates
-		history       *personal.History
-		retros        *personal.Retrospectives
-		reminders     *personal.Reminders
-		links         *resourcelink.Links
-		userLinks     *resourcelink.PersonalLinks
-		queries       *query.Timeline
-		digests       *query.Digests
-		feed          *systemevent.Events
-		calendarFeeds *identity.CalendarFeeds
-		teams         *team.Teams
-		teamMembers   *team.Members
-		teamEntries   *team.Entries
-		teamRosters   *team.Rosters
-		teamLinks     *team.JoinLinks
-		audit         *audit.Audit
+		users          *identity.Users
+		profileLinks   *identity.ProfileLinks
+		sessions       *identity.Sessions
+		tokens         *identity.Tokens
+		invites        *identity.Invites
+		events         *event.Events
+		stages         *event.Stages
+		tracks         *event.Tracks
+		participants   *participation.Participants
+		registrations  *participation.Registrations
+		statuses       *participation.Statuses
+		rules          *participation.Rules
+		notifications  *notification.Notifications
+		scheduler      *notification.Scheduler
+		catalog        *query.Catalog
+		tasks          *personal.Tasks
+		notes          *personal.Notes
+		artifacts      *personal.Artifacts
+		outcomes       *personal.Outcomes
+		bookmarks      *personal.Bookmarks
+		templates      *personal.Templates
+		history        *personal.History
+		retros         *personal.Retrospectives
+		reminders      *personal.Reminders
+		links          *resourcelink.Links
+		userLinks      *resourcelink.PersonalLinks
+		queries        *query.Timeline
+		digests        *query.Digests
+		feed           *systemevent.Events
+		calendarFeeds  *identity.CalendarFeeds
+		teams          *team.Teams
+		teamMembers    *team.Members
+		teamEntries    *team.Entries
+		teamRosters    *team.Rosters
+		teamLinks      *team.JoinLinks
+		teamEventLinks *team.EventLinks
+		audit          *audit.Audit
 	}
 
 	telegram telegram.Sender
@@ -92,6 +94,7 @@ type container struct {
 	events        *svcevent.EventService
 	catalog       *svcevent.CatalogService
 	stages        *svcevent.StageService
+	tracks        *svcevent.TrackService
 	participants  *svcparticipation.ParticipantService
 	registrations *svcparticipation.RegistrationService
 	statuses      *svcparticipation.StatusService
@@ -110,45 +113,6 @@ type container struct {
 	digest        *svcdigest.DigestService
 	hub           *svcrealtime.RealtimeHub
 	teams         *svcteam.TeamService
-}
-
-func (c *container) wireRepositories() {
-	db := c.db
-	c.repos.users = identity.NewUsers(db)
-	c.repos.profileLinks = identity.NewProfileLinks(db)
-	c.repos.sessions = identity.NewSessions(db)
-	c.repos.tokens = identity.NewTokens(db)
-	c.repos.invites = identity.NewInvites(db)
-	c.repos.events = event.NewEvents(db)
-	c.repos.stages = event.NewStages(db)
-	c.repos.participants = participation.NewParticipants(db)
-	c.repos.registrations = participation.NewRegistrations(db)
-	c.repos.statuses = participation.NewStatuses(db)
-	c.repos.rules = participation.NewRules(db)
-	c.repos.notifications = notification.NewNotifications(db)
-	c.repos.scheduler = notification.NewScheduler(db)
-	c.repos.catalog = query.NewCatalog(db)
-	c.repos.tasks = personal.NewTasks(db)
-	c.repos.notes = personal.NewNotes(db)
-	c.repos.artifacts = personal.NewArtifacts(db)
-	c.repos.outcomes = personal.NewOutcomes(db)
-	c.repos.bookmarks = personal.NewBookmarks(db)
-	c.repos.templates = personal.NewTemplates(db)
-	c.repos.history = personal.NewHistory(db)
-	c.repos.retros = personal.NewRetrospectives(db)
-	c.repos.reminders = personal.NewReminders(db)
-	c.repos.links = resourcelink.NewLinks(db)
-	c.repos.userLinks = resourcelink.NewPersonalLinks(db)
-	c.repos.queries = query.NewTimeline(db)
-	c.repos.digests = query.NewDigests(db)
-	c.repos.feed = systemevent.NewEvents(db)
-	c.repos.calendarFeeds = identity.NewCalendarFeeds(db)
-	c.repos.teams = team.NewTeams(db)
-	c.repos.teamMembers = team.NewMembers(db)
-	c.repos.teamEntries = team.NewEntries(db)
-	c.repos.teamRosters = team.NewRosters(db)
-	c.repos.teamLinks = team.NewJoinLinks(db)
-	c.repos.audit = audit.NewAudit(db)
 }
 
 func newContainer(ctx context.Context) (*container, error) {
@@ -188,15 +152,18 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.users = svcauth.NewUserService(db, c.repos.users, c.repos.sessions, c.notifier, c.audit, c.cfg)
 	c.events = svcevent.NewEventService(db, c.repos.events, c.repos.registrations,
 		c.notifier, c.scheduler, c.audit)
+	c.events.WithTracks(c.repos.tracks)
 	if err := c.wireCovers(cfg); err != nil {
 		return nil, err
 	}
 	c.stages = svcevent.NewStageService(db, c.repos.stages, c.repos.events, c.repos.participants, c.audit)
+	c.tracks = svcevent.NewTrackService(db, c.repos.tracks, c.repos.events, c.repos.participants, c.audit)
 	c.wireParticipation(cfg)
 	c.catalog = svcevent.NewCatalogService(db, c.repos.catalog, c.repos.events, c.repos.participants,
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
 	c.queries = svcevent.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
 		c.repos.participants, c.repos.registrations, c.repos.statuses)
+	c.queries.WithTracks(c.repos.tracks)
 	c.delivery = svcdelivery.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
 		c.repos.rules, c.repos.audit, c.telegram, c.email, cfg)
 	c.personal = svcpersonal.NewPersonalService(db, c.repos.tasks, c.repos.notes, c.repos.artifacts,
@@ -228,8 +195,8 @@ func (c *container) wireParticipation(cfg *config.Config) {
 
 func (c *container) wireTeams(cfg *config.Config) {
 	c.teams = svcteam.NewTeamService(c.db, c.repos.teams, c.repos.teamMembers,
-		c.repos.teamEntries, c.repos.teamRosters, c.repos.teamLinks,
-		c.repos.events, c.repos.participants, c.repos.registrations, c.repos.statuses,
+		c.repos.teamEntries, c.repos.teamRosters, c.repos.teamLinks, c.repos.teamEventLinks,
+		c.repos.events, c.repos.tracks, c.repos.participants, c.repos.registrations, c.repos.statuses,
 		c.repos.users, c.notifier, c.audit, cfg)
 }
 
