@@ -58,7 +58,7 @@ other ready-made accounts: further users are created through an invite.
 backend/     Go: cmd, internal/{config,models,services,adapters,controllers,cli}, migrations
 frontend/    React + TypeScript + Vite, Tailwind + shadcn/ui, TanStack Query, react-router
 deploy/      Backend and frontend Dockerfiles, nginx.conf, docker-compose.yml (+ .dev.yml)
-docs/        Specification, backlog, implementation order, API conventions, OpenAPI, baselines
+docs/        The generated OpenAPI contract and the ratchet baselines
 scripts/     Ratchet checks: line limit, bundle size
 Makefile     Monorepo development commands
 ```
@@ -237,16 +237,12 @@ Commit messages are `type: description` in Russian (`feat`, `fix`, `docs`,
 
 Priority order when sources disagree:
 
-1. [docs/technical-specification.md](docs/technical-specification.md) - the
-   specification. Domain rules, states and transitions, acceptance scenarios
-   (section 19), configuration parameters (appendix C). OpenAPI cannot change
-   domain rules.
-2. [docs/api-conventions.md](docs/api-conventions.md) - shared transport rules: the
-   error schema, pagination, batch results, status codes, the 403/404 policy.
-3. [docs/swagger.yaml](docs/swagger.yaml) / [swagger.json](docs/swagger.json) - the
-   endpoint contract. Generated from annotations in the code, never edited by hand.
-4. [CLAUDE.md](CLAUDE.md) - the working rules: layering, the comment ban, the
-   language rule, what closes a task, and what the ratchets guard.
+1. [CLAUDE.md](CLAUDE.md) - domain rules, states and transitions, the 403/404
+   policy, layering, and the working rules. The separate specification and API
+   conventions were folded in here once the product caught up with them.
+2. [docs/swagger.yaml](docs/swagger.yaml) / [swagger.json](docs/swagger.json) - the
+   endpoint contract. Generated from annotations in the code, never edited by hand,
+   and it cannot change a domain rule.
 
 * [docs/baselines/](docs/baselines/) - the ratchet baselines. Each one records
   what the repository already has; the counter only moves down.
