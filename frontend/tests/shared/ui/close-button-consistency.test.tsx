@@ -42,7 +42,18 @@ describe('a close control is square, and there is one of it', () => {
       .filter((file) => {
         const source = readFileSync(file, 'utf8')
         if (!/CloseButton/.test(source)) return false
-        return /<CloseButton[^>]*className=[^>]*px-\d/.test(source)
+        return /<CloseButton[^>]*className=[^>]*\bpx-\d/.test(source)
+      })
+      .map(named)
+
+    expect(offenders).toEqual([])
+  })
+
+  it('never lets a caller respell the size as a width and a height that can drift apart', () => {
+    const offenders = tsxFiles(SRC)
+      .filter((file) => {
+        const source = readFileSync(file, 'utf8')
+        return /<CloseButton[^>]*className=[^>]*\b[wh]-\d/.test(source)
       })
       .map(named)
 
@@ -53,6 +64,7 @@ describe('a close control is square, and there is one of it', () => {
     render(<CloseButton />)
     const button = screen.getByRole('button')
 
+    expect(button.className).toMatch(SQUARE)
     expect(button.className).toContain('size-8')
     expect(button.className).not.toMatch(/\bpx-\d/)
   })

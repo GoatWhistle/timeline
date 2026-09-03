@@ -98,6 +98,70 @@ describe('the history screen', () => {
     expect(screen.getByText('Jury award')).toBeInTheDocument()
   })
 
+  it('says what the number means: a place is labelled, never a naked digit', async () => {
+    items = [
+      entry({
+        tasks_done: 0,
+        tasks_total: 0,
+        team_role: '',
+        outcome: {
+          event_id: 'ev_gma9hq8a96q5',
+          outcome: 'WINNER',
+          place: 3,
+          prize: '',
+          track: '',
+          note: '',
+          created_at: '2026-03-04T00:00:00Z',
+          updated_at: '2026-03-04T00:00:00Z',
+        },
+      }),
+    ]
+    const { container } = renderWithProviders(<HistoryPage />)
+
+    await screen.findByRole('link', { name: 'National event' })
+
+    const label = i18n.t('event:personal.history.place')
+    expect(screen.getByText(`${label}: 3`)).toBeInTheDocument()
+
+    const badges = [...container.querySelectorAll('li span')].map(
+      (node) => node.textContent?.trim() ?? '',
+    )
+    expect(badges).not.toContain('3')
+  })
+
+  it('labels the place in Russian too, not only in the active locale', async () => {
+    await i18n.changeLanguage('ru')
+    items = [
+      entry({
+        tasks_done: 0,
+        tasks_total: 0,
+        team_role: '',
+        outcome: {
+          event_id: 'ev_gma9hq8a96q5',
+          outcome: 'WINNER',
+          place: 3,
+          prize: '',
+          track: '',
+          note: '',
+          created_at: '2026-03-04T00:00:00Z',
+          updated_at: '2026-03-04T00:00:00Z',
+        },
+      }),
+    ]
+    const { container } = renderWithProviders(<HistoryPage />)
+
+    await screen.findByRole('link', { name: 'National event' })
+
+    expect(screen.getByText(`${i18n.t('event:personal.history.place')}: 3`)).toBeInTheDocument()
+
+    const badges = [...container.querySelectorAll('li span')].map(
+      (node) => node.textContent?.trim() ?? '',
+    )
+    expect(badges).not.toContain('3')
+
+    await i18n.changeLanguage('en')
+  })
+
   it('links the submissions it carries', async () => {
     items = [
       entry({

@@ -30,7 +30,11 @@ export function HistoryRow({ item }: { item: HistoryItem }) {
         ) : (
           <Badge tone="primary">{t(OUTCOME_KEY[outcome.outcome])}</Badge>
         )}
-        {placed && <Badge tone="neutral">{outcome.place}</Badge>}
+        {placed && (
+          <Badge tone="neutral">
+            {t('personal.history.place')}: {outcome.place}
+          </Badge>
+        )}
         {outcome !== undefined && filled(outcome.prize) && (
           <Badge tone="neutral">{outcome.prize}</Badge>
         )}

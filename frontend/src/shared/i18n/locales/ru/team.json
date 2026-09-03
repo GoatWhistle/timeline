@@ -69,6 +69,7 @@
   "rosterMax": "В составе не больше {{max}}",
   "rosterNoLimits": "Хакатон не задаёт размер команды",
   "addToRoster": "Добавить в состав",
+  "rosterFullHint": "В составе уже предельные {{max}}",
   "removeFromRoster": "Убрать из состава",
   "rosterAdded": "Добавлен в состав",
   "rosterRemoved": "Убран из состава",

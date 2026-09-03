@@ -87,6 +87,32 @@ describe('every group of picture-and-label choices is built the same way', () =>
     expect(markCount(chosen)).toBeGreaterThan(0)
   })
 
+  it.each(GROUPS)('$name eases the selected look in with a property that exists', (group) => {
+    group.mount()
+    const chosen = selectedOption(group.attribute)
+    const eased = chosen.className.match(/motion-safe:transition-\[([^\]]+)\]/)?.[1]
+    expect(eased, `${group.name} declares no transition property list`).toBeDefined()
+
+    const CSS_PROPERTIES = new Set([
+      'color',
+      'background-color',
+      'border-color',
+      'box-shadow',
+      'opacity',
+      'transform',
+      'outline-color',
+      'text-decoration-color',
+      'fill',
+      'stroke',
+    ])
+    for (const property of (eased ?? '').split(',')) {
+      expect(
+        CSS_PROPERTIES,
+        `${group.name} eases "${property}", which is not a CSS property and so never animates`,
+      ).toContain(property.trim())
+    }
+  })
+
   it.each(GROUPS)('$name is drawn on the one shared option chassis', (group) => {
     group.mount()
     const options = [...document.querySelectorAll<HTMLElement>(`[${group.attribute}]`)]

@@ -1,5 +1,6 @@
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
+import type { Range } from '@/features/schedule/model/zoom-range'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
 import { bars, NOW, range, rowWith, schedule } from './schedule-fixtures'
 
@@ -40,6 +41,37 @@ describe('schedule accessibility', () => {
     const tabbable = [...container.querySelectorAll('[tabindex="0"]')]
     expect(tabbable).toHaveLength(1)
     expect((tabbable[0] as HTMLElement).dataset.scheduleWeek).toBeDefined()
+  })
+
+  it('keeps a tab stop when the schedule holds no events at all', () => {
+    const { container } = renderGrid({ data: { range: schedule.range, rows: [] } })
+
+    expect(container.querySelectorAll('[data-schedule-week]').length).toBeGreaterThan(0)
+
+    const tabbable = weeks(container).filter((week) => week.tabIndex === 0)
+    expect(tabbable).toHaveLength(1)
+  })
+
+  it('keeps a tab stop when every event falls after the viewed range', () => {
+    const away: Range = {
+      from: new Date('2025-01-01T00:00:00Z').getTime(),
+      to: new Date('2025-02-01T00:00:00Z').getTime(),
+    }
+    const { container } = renderGrid({ range: away })
+
+    const tabbable = weeks(container).filter((week) => week.tabIndex === 0)
+    expect(tabbable).toHaveLength(1)
+  })
+
+  it('keeps a tab stop when every event falls before the viewed range', () => {
+    const away: Range = {
+      from: new Date('2027-01-01T00:00:00Z').getTime(),
+      to: new Date('2027-02-01T00:00:00Z').getTime(),
+    }
+    const { container } = renderGrid({ range: away })
+
+    const tabbable = weeks(container).filter((week) => week.tabIndex === 0)
+    expect(tabbable).toHaveLength(1)
   })
 
   it('leaves every bar and overflow control out of the tab order', () => {

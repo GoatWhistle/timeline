@@ -24,6 +24,12 @@ import styles from './schedule-grid.module.css'
 const DATE_FNS_LOCALES = { ru, en: enUS }
 const EXPANDED_LANES = 99
 
+function weekOfSpan(span: CalendarSpan | undefined, weekCount: number): number {
+  if (!span) return 0
+  const week = Math.floor(Math.max(0, span.startDay) / DAYS_PER_WEEK)
+  return Math.min(week, Math.max(0, weekCount - 1))
+}
+
 export type ScheduleGridProps = {
   data: ScheduleResponse
   range: Range
@@ -157,15 +163,15 @@ export function ScheduleGrid({
       const span = spans[action.index]
       announce(span ? sentenceOf(span) : '')
 
-      const week = span ? Math.floor(Math.max(0, span.startDay) / DAYS_PER_WEEK) : 0
+      const week = weekOfSpan(span, grid.weekCount)
       const target = canvasRef.current?.querySelector(`[data-schedule-week="${week}"]`)
       if (target instanceof HTMLElement) target.focus()
     },
-    [spans, cursor, openSpan, onToday, onZoom, announce, sentenceOf, momentCursor],
+    [spans, cursor, openSpan, onToday, onZoom, announce, sentenceOf, momentCursor, grid.weekCount],
   )
 
   const cursorSpan = spans[clampIndex(spans, cursor)]
-  const cursorWeek = cursorSpan ? Math.floor(Math.max(0, cursorSpan.startDay) / DAYS_PER_WEEK) : 0
+  const cursorWeek = weekOfSpan(cursorSpan, grid.weekCount)
 
   const toggleOverflow = useCallback((week: number) => {
     setExpanded((previous) => {

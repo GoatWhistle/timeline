@@ -30,7 +30,13 @@
       "EVENT_PARTICIPANT": "Участник",
       "REGISTRATION": "Регистрация",
       "REGISTRATION_STATUS": "Статус регистрации",
-      "NOTIFICATION_RULE": "Правило уведомления"
+      "NOTIFICATION_RULE": "Правило уведомления",
+      "TEAM": "Команда",
+      "TEAM_MEMBER": "Участник команды",
+      "TEAM_EVENT_ENTRY": "Заявка команды",
+      "TEAM_JOIN_LINK": "Ссылка для вступления",
+      "RESOURCE_LINK": "Ссылка",
+      "CALENDAR_FEED": "Календарная лента"
     },
     "actionLabel": {
       "USER_REGISTER": "Регистрация пользователя",
@@ -55,7 +61,25 @@
       "TEAM_ROLE_CHANGE": "Изменение роли",
       "REGISTRATION_CHANGE": "Изменение регистрации",
       "STATUS_CHANGE": "Изменение статуса",
-      "RULE_CHANGE": "Изменение правила"
+      "RULE_CHANGE": "Изменение правила",
+      "EVENT_DELETE": "Удаление события",
+      "EVENT_COVER_SET": "Установка обложки",
+      "EVENT_COVER_CLEAR": "Снятие обложки",
+      "TEAM_CREATE": "Создание команды",
+      "TEAM_RENAME": "Переименование команды",
+      "TEAM_INVITE": "Приглашение в команду",
+      "TEAM_JOIN": "Вступление в команду",
+      "TEAM_LEAVE": "Выход из команды",
+      "TEAM_EVENT_ENTER": "Заявка команды на событие",
+      "TEAM_ROSTER_ADD": "Добавление в состав",
+      "TEAM_ROSTER_REMOVE": "Удаление из состава",
+      "TEAM_LINK_ISSUE": "Выпуск ссылки для вступления",
+      "TEAM_LINK_REVOKE": "Отзыв ссылки для вступления",
+      "RESOURCE_LINK_CREATE": "Добавление ссылки",
+      "RESOURCE_LINK_UPDATE": "Изменение ссылки",
+      "RESOURCE_LINK_DELETE": "Удаление ссылки",
+      "CALENDAR_FEED_ISSUE": "Выпуск календарной ленты",
+      "CALENDAR_FEED_REVOKE": "Отзыв календарной ленты"
     }
   },
   "users": {
@@ -100,6 +124,10 @@
     "revokeFailed": "Не удалось отозвать",
     "newTitle": "Новое приглашение",
     "link": "Ссылка для приглашённого:",
+    "linkCopy": "Скопировать ссылку",
+    "linkCopied": "Ссылка скопирована",
+    "linkCopyFailed": "Не удалось скопировать ссылку",
+    "linkShownOnce": "Ссылка показывается только сейчас. Отзыв приглашения делает её недействительной.",
     "done": "Готово",
     "emailHint": "Адрес существующего пользователя будет отклонён",
     "created": "Приглашение создано",

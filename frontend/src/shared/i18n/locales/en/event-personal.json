@@ -164,6 +164,7 @@
       "artifacts_one": "{{count}} submission",
       "artifacts_other": "{{count}} submissions",
       "role": "Role",
+      "place": "Place",
       "open": "Open the event"
     },
     "summary": {

@@ -41,7 +41,8 @@ export function OptionCard({
       data-selected={selected ? 'true' : undefined}
       className={cn(
         'group flex cursor-pointer rounded-surface border',
-        'motion-safe:transition-[colors,box-shadow] motion-safe:duration-base motion-safe:ease-out',
+        'motion-safe:transition-[color,background-color,border-color,box-shadow]',
+        'motion-safe:duration-base motion-safe:ease-out',
         selected && 'motion-safe:shadow-md',
         'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
         selected ? 'border-primary bg-accent-surface' : 'border-border hover:border-border-strong',

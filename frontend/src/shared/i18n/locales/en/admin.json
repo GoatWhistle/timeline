@@ -30,7 +30,13 @@
       "EVENT_PARTICIPANT": "Participant",
       "REGISTRATION": "Registration",
       "REGISTRATION_STATUS": "Registration status",
-      "NOTIFICATION_RULE": "Notification rule"
+      "NOTIFICATION_RULE": "Notification rule",
+      "TEAM": "Team",
+      "TEAM_MEMBER": "Team member",
+      "TEAM_EVENT_ENTRY": "Team entry",
+      "TEAM_JOIN_LINK": "Team join link",
+      "RESOURCE_LINK": "Resource link",
+      "CALENDAR_FEED": "Calendar feed"
     },
     "actionLabel": {
       "USER_REGISTER": "User sign-up",
@@ -55,7 +61,25 @@
       "TEAM_ROLE_CHANGE": "Team role change",
       "REGISTRATION_CHANGE": "Registration change",
       "STATUS_CHANGE": "Status change",
-      "RULE_CHANGE": "Rule change"
+      "RULE_CHANGE": "Rule change",
+      "EVENT_DELETE": "Event deleted",
+      "EVENT_COVER_SET": "Cover set",
+      "EVENT_COVER_CLEAR": "Cover cleared",
+      "TEAM_CREATE": "Team created",
+      "TEAM_RENAME": "Team renamed",
+      "TEAM_INVITE": "Team invitation sent",
+      "TEAM_JOIN": "Joined a team",
+      "TEAM_LEAVE": "Left a team",
+      "TEAM_EVENT_ENTER": "Team entered an event",
+      "TEAM_ROSTER_ADD": "Added to the roster",
+      "TEAM_ROSTER_REMOVE": "Removed from the roster",
+      "TEAM_LINK_ISSUE": "Join link issued",
+      "TEAM_LINK_REVOKE": "Join link revoked",
+      "RESOURCE_LINK_CREATE": "Link added",
+      "RESOURCE_LINK_UPDATE": "Link updated",
+      "RESOURCE_LINK_DELETE": "Link removed",
+      "CALENDAR_FEED_ISSUE": "Calendar feed issued",
+      "CALENDAR_FEED_REVOKE": "Calendar feed revoked"
     }
   },
   "users": {
@@ -100,6 +124,10 @@
     "revokeFailed": "Could not revoke",
     "newTitle": "New invite",
     "link": "Link for the invitee:",
+    "linkCopy": "Copy the link",
+    "linkCopied": "The link is copied",
+    "linkCopyFailed": "The link could not be copied",
+    "linkShownOnce": "This is the only time the link is shown. Revoking the invite stops it working.",
     "done": "Done",
     "emailHint": "An address of an existing user will be rejected",
     "created": "Invite created",

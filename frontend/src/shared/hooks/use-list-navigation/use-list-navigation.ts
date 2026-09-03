@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { type ShortcutDefinition, useShortcutScope } from '@/shared/keyboard/shortcut-registry'
 
 export function step(ids: string[], current: string | null, delta: number): string | null {
@@ -10,6 +10,13 @@ export function step(ids: string[], current: string | null, delta: number): stri
   const next = index + delta
   if (next < 0 || next >= ids.length) return current
   return ids[next] ?? current
+}
+
+const FOCUSABLE = 'button, a[href], [tabindex]:not([tabindex="-1"])'
+
+function focusTargetOf(row: HTMLElement): HTMLElement | null {
+  if (row.tabIndex >= 0) return row
+  return row.querySelector<HTMLElement>(FOCUSABLE)
 }
 
 export function useListNavigation({
@@ -25,10 +32,14 @@ export function useListNavigation({
   onClear?: () => void
   scopeId?: string
 }) {
+  const keyboardMove = useRef(false)
+
   const move = useCallback(
     (delta: number) => {
       const next = step(ids, selected, delta)
-      if (next) onSelect(next)
+      if (!next) return
+      keyboardMove.current = true
+      onSelect(next)
     },
     [ids, selected, onSelect],
   )
@@ -64,12 +75,17 @@ export function useListNavigation({
   useShortcutScope(scopeId, shortcuts)
 
   useEffect(() => {
+    const fromKeyboard = keyboardMove.current
+    keyboardMove.current = false
     if (!selected) return
     const row = document.querySelector<HTMLElement>(`[data-event-row="${selected}"]`)
     if (!row) return
     row.scrollIntoView({ block: 'nearest' })
     const active = document.activeElement
-    const inList = active instanceof HTMLElement && active.hasAttribute('data-event-row')
-    if (inList && active !== row) row.focus({ preventScroll: true })
+    const inList =
+      active instanceof HTMLElement && active.closest('[data-event-row]') !== null
+    if (!fromKeyboard && !inList) return
+    const target = focusTargetOf(row)
+    if (target && target !== active) target.focus({ preventScroll: true })
   }, [selected])
 }

@@ -31,7 +31,7 @@ export function AppSidebar({
       )
     : ''
 
-  const inAdmin = location.pathname.startsWith('/admin')
+  const inAdmin = isAdmin && location.pathname.startsWith('/admin')
 
   return (
     <aside

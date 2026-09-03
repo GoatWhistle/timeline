@@ -11,7 +11,6 @@ export function DialogContent({
   children,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
-
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className={SCRIM} />
@@ -25,10 +24,10 @@ export function DialogContent({
         )}
         {...props}
       >
-        {children}
         <DialogPrimitive.Close asChild>
           <CloseButton className="absolute top-3 right-3" />
         </DialogPrimitive.Close>
+        {children}
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   )

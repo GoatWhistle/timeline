@@ -75,8 +75,12 @@ export function isInteractiveTarget(target: unknown): boolean {
   if (!target || typeof target !== 'object') return false
   const element = target as {
     tagName?: string
+    dataset?: Record<string, string | undefined>
+    closest?: (selector: string) => unknown
     getAttribute?: (name: string) => string | null
   }
+  if (element.dataset?.eventRow !== undefined) return false
+  if (element.closest?.('[data-event-row]') != null) return false
   const tag = element.tagName?.toLowerCase()
   if (tag && INTERACTIVE_TAGS.has(tag)) return true
   const role = element.getAttribute?.('role')

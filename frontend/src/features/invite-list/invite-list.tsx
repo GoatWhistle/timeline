@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
-import { Plus } from 'lucide-react'
+import { Copy, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -64,6 +64,15 @@ export function AdminInvitesPage() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { email: '' } })
+
+  async function copyLink(value: string) {
+    try {
+      await navigator.clipboard.writeText(value)
+      toast.success(t('invites.linkCopied'))
+    } catch {
+      toast.error(t('invites.linkCopyFailed'))
+    }
+  }
 
   async function submit(values: FormValues) {
     try {
@@ -169,7 +178,18 @@ export function AdminInvitesPage() {
           {link ? (
             <div className="flex flex-col gap-3">
               <p className="text-copy">{t('invites.link')}</p>
-              <code className="break-all rounded-control bg-muted p-3 text-caption">{link}</code>
+              <div className="flex gap-2">
+                <Input readOnly value={link} aria-label={t('invites.link')} />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => copyLink(link)}
+                  aria-label={t('invites.linkCopy')}
+                >
+                  <Copy aria-hidden="true" />
+                </Button>
+              </div>
+              <p className="text-caption text-muted-foreground">{t('invites.linkShownOnce')}</p>
               <DialogFooter>
                 <Button onClick={() => setOpen(false)}>{t('invites.done')}</Button>
               </DialogFooter>

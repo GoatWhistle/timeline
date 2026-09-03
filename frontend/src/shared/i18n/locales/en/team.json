@@ -68,6 +68,7 @@
   "rosterMax": "At most {{max}} on the lineup",
   "rosterNoLimits": "The hackathon sets no team size",
   "addToRoster": "Add to the lineup",
+  "rosterFullHint": "The lineup is already at its limit of {{max}}",
   "removeFromRoster": "Take off the lineup",
   "rosterAdded": "Added to the lineup",
   "rosterRemoved": "Taken off the lineup",

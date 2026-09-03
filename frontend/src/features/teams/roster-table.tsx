@@ -122,19 +122,26 @@ export function RosterTable({
       )}
 
       {isLead && candidates.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-meta text-muted-foreground">{t('addToRoster')}:</span>
-          {candidates.map((member) => (
-            <Button
-              key={member.id}
-              variant="outline"
-              size="sm"
-              disabled={full || mutate.isPending}
-              onClick={() => act(member.user.id, 'add')}
-            >
-              {member.user.display_name}
-            </Button>
-          ))}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-meta text-muted-foreground">{t('addToRoster')}:</span>
+            {candidates.map((member) => (
+              <Button
+                key={member.id}
+                variant="outline"
+                size="sm"
+                disabled={full || mutate.isPending}
+                onClick={() => act(member.user.id, 'add')}
+              >
+                {member.user.display_name}
+              </Button>
+            ))}
+          </div>
+          {full && (
+            <p className="text-caption text-muted-foreground">
+              {t('rosterFullHint', { max: entry.team_size_max })}
+            </p>
+          )}
         </div>
       )}
     </div>
