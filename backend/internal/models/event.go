@@ -13,7 +13,6 @@ type Event struct {
 	Description   *string     `json:"description,omitempty"`
 	Organizer     *string     `json:"organizer,omitempty"`
 	WebsiteURL    *string     `json:"website_url,omitempty"`
-	Notes         *string     `json:"notes,omitempty"`
 	Kind          EventKind   `json:"kind"`
 	Format        EventFormat `json:"format"`
 	Origin        EventOrigin `json:"origin"`

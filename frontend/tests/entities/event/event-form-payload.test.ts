@@ -16,7 +16,6 @@ const COMMON = {
   organizer: '',
   website_url: '',
   description: '',
-  notes: '',
   format: 'ONLINE' as const,
   origin: 'RU' as const,
   country_code: '',

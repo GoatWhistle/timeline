@@ -24,7 +24,6 @@ export const commonEventShape = {
     .optional()
     .refine((value) => !value || isSafeAbsoluteUrl(value), { message: 'event:form.urlInvalid' }),
   description: z.string().optional(),
-  notes: z.string().optional(),
   format: z.enum(EVENT_FORMATS as [EventFormat, ...EventFormat[]]),
   origin: z.enum(EVENT_ORIGINS as [EventOrigin, ...EventOrigin[]]),
   country_code: z
@@ -96,7 +95,6 @@ export const COMMON_FIELD_NAMES = [
   'organizer',
   'website_url',
   'description',
-  'notes',
   'format',
   'origin',
   'country_code',

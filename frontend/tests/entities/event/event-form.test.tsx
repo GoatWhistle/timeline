@@ -22,7 +22,6 @@ const SHARED = [
   'event-organizer',
   'event-website',
   'event-description',
-  'event-notes',
   'event-start',
   'event-end',
 ]

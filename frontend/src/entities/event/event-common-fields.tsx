@@ -72,14 +72,6 @@ export function EventProseFields({
       >
         <Textarea id="event-description" {...register('description')} />
       </Field>
-      <Field
-        label={t('form.adminNotes')}
-        htmlFor="event-notes"
-        error={errors.notes?.message}
-        hint={t('form.adminNotesHint')}
-      >
-        <Textarea id="event-notes" {...register('notes')} />
-      </Field>
     </>
   )
 }

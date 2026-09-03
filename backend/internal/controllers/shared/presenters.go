@@ -76,9 +76,6 @@ func EventResponseWithStages(h *models.Event, stages []models.Stage, now time.Ti
 		CreatedAt:       h.CreatedAt,
 		UpdatedAt:       h.UpdatedAt,
 	}
-	if admin {
-		resp.Notes = h.Notes
-	}
 	return resp
 }
 

@@ -191,7 +191,7 @@ export interface paths {
         };
         /**
          * The whole event
-         * @description Administrative read, including notes.
+         * @description Administrative read of the whole event.
          */
         get: {
             parameters: {
@@ -3775,7 +3775,7 @@ export interface paths {
         /**
          * Event catalog
          * @description Every published, non-archived event regardless of participation. The response
-         *     carries a dedicated payload that cannot include administrative notes.
+         *     carries a dedicated payload built for the catalog.
          *
          *     The catalog requires a session: an anonymous request is answered with 401. An
          *     unauthenticated listing would enumerate every event of the organisation together
@@ -3871,8 +3871,8 @@ export interface paths {
         /**
          * Export the catalog as CSV
          * @description The same events the catalog listing returns, under the same filters and the same
-         *     sort, streamed as CSV instead of paginated JSON. Only the fields the listing itself
-         *     exposes are written: the export carries no administrative notes.
+         *     sort, streamed as CSV instead of paginated JSON. Only the fields the listing
+         *     itself exposes are written.
          *
          *     Like the listing it requires a session and is counted against the catalog rate
          *     limit of the account. Rows are streamed as they are read, so the response is not
@@ -4017,7 +4017,7 @@ export interface paths {
         /**
          * Assigned event card
          * @description Participant role, computed state, stages, the nearest stage, registration status,
-         *     deadline and link. Administrative notes are withheld from the participant.
+         *     deadline and link.
          */
         get: {
             parameters: {
@@ -10311,7 +10311,6 @@ export interface components {
             end_at?: string;
             format?: components["schemas"]["models.EventFormat"];
             kind?: components["schemas"]["models.EventKind"];
-            notes?: string;
             organizer?: string;
             origin?: components["schemas"]["models.EventOrigin"];
             /** @example RUB */
@@ -10502,7 +10501,6 @@ export interface components {
             /** @example ev_gma9hq8a96q5 */
             id: string;
             kind: components["schemas"]["models.EventKind"];
-            notes?: string;
             /** @example Organising committee */
             organizer?: string;
             origin: components["schemas"]["models.EventOrigin"];
@@ -11286,7 +11284,6 @@ export interface components {
             end_at?: string;
             format?: components["schemas"]["models.EventFormat"];
             kind?: components["schemas"]["models.EventKind"];
-            notes?: string;
             organizer?: string;
             origin?: components["schemas"]["models.EventOrigin"];
             /** @example RUB */

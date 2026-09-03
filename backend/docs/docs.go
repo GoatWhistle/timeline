@@ -240,7 +240,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Administrative read, including notes.",
+                "description": "Administrative read of the whole event.",
                 "produces": [
                     "application/json"
                 ],
@@ -3152,7 +3152,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Every published, non-archived event regardless of participation. The response\ncarries a dedicated payload that cannot include administrative notes.\n\nThe catalog requires a session: an anonymous request is answered with 401. An\nunauthenticated listing would enumerate every event of the organisation together\nwith its organisers and prize pools, and the system is internal. It also carries\nits own rate limit, counted per account, because a catalog page is heavier than\nother reads: substring search, filters and the stages of the page.",
+                "description": "Every published, non-archived event regardless of participation. The response\ncarries a dedicated payload built for the catalog.\n\nThe catalog requires a session: an anonymous request is answered with 401. An\nunauthenticated listing would enumerate every event of the organisation together\nwith its organisers and prize pools, and the system is internal. It also carries\nits own rate limit, counted per account, because a catalog page is heavier than\nother reads: substring search, filters and the stages of the page.",
                 "produces": [
                     "application/json"
                 ],
@@ -3296,7 +3296,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "The same events the catalog listing returns, under the same filters and the same\nsort, streamed as CSV instead of paginated JSON. Only the fields the listing itself\nexposes are written: the export carries no administrative notes.\n\nLike the listing it requires a session and is counted against the catalog rate\nlimit of the account. Rows are streamed as they are read, so the response is not\nbuilt in memory.\n\nThe ` + "`" + `joined` + "`" + ` column repeats the participation the listing shows. It says whether\nthe account takes part in the event, not whether anyone registered on an external\nsite: the system never checks that.",
+                "description": "The same events the catalog listing returns, under the same filters and the same\nsort, streamed as CSV instead of paginated JSON. Only the fields the listing\nitself exposes are written.\n\nLike the listing it requires a session and is counted against the catalog rate\nlimit of the account. Rows are streamed as they are read, so the response is not\nbuilt in memory.\n\nThe ` + "`" + `joined` + "`" + ` column repeats the participation the listing shows. It says whether\nthe account takes part in the event, not whether anyone registered on an external\nsite: the system never checks that.",
                 "produces": [
                     "text/csv"
                 ],
@@ -3459,7 +3459,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Participant role, computed state, stages, the nearest stage, registration status,\ndeadline and link. Administrative notes are withheld from the participant.",
+                "description": "Participant role, computed state, stages, the nearest stage, registration status,\ndeadline and link.",
                 "produces": [
                     "application/json"
                 ],
@@ -8790,9 +8790,6 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "notes": {
-                    "type": "string"
-                },
                 "organizer": {
                     "type": "string"
                 },
@@ -9289,9 +9286,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.EventKind"
                         }
                     ]
-                },
-                "notes": {
-                    "type": "string"
                 },
                 "organizer": {
                     "type": "string",
@@ -11296,9 +11290,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.EventKind"
                         }
                     ]
-                },
-                "notes": {
-                    "type": "string"
                 },
                 "organizer": {
                     "type": "string"

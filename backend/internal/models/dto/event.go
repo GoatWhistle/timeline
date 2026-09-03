@@ -12,7 +12,6 @@ type EventResponse struct {
 	Description *string            `json:"description,omitempty"`
 	Organizer   *string            `json:"organizer,omitempty" example:"Organising committee"`
 	WebsiteURL  *string            `json:"website_url,omitempty" example:"https://example.com"`
-	Notes       *string            `json:"notes,omitempty"`
 	Kind        models.EventKind   `json:"kind" enums:"HACKATHON,MEETUP"`
 	Format      models.EventFormat `json:"format" enums:"ONLINE,OFFLINE,HYBRID"`
 	Origin      models.EventOrigin `json:"origin" enums:"RU,WORLD"`
@@ -50,7 +49,6 @@ type CreateEventRequest struct {
 	Description *string             `json:"description,omitempty"`
 	Organizer   *string             `json:"organizer,omitempty"`
 	WebsiteURL  *string             `json:"website_url,omitempty" example:"https://example.com"`
-	Notes       *string             `json:"notes,omitempty"`
 	Kind        *models.EventKind   `json:"kind,omitempty" enums:"HACKATHON,MEETUP"`
 	Format      *models.EventFormat `json:"format,omitempty" enums:"ONLINE,OFFLINE,HYBRID"`
 	Origin      *models.EventOrigin `json:"origin,omitempty" enums:"RU,WORLD"`
@@ -72,7 +70,6 @@ type UpdateEventRequest struct {
 	Description *string             `json:"description,omitempty"`
 	Organizer   *string             `json:"organizer,omitempty"`
 	WebsiteURL  *string             `json:"website_url,omitempty"`
-	Notes       *string             `json:"notes,omitempty"`
 	Kind        *models.EventKind   `json:"kind,omitempty" enums:"HACKATHON,MEETUP"`
 	Format      *models.EventFormat `json:"format,omitempty" enums:"ONLINE,OFFLINE,HYBRID"`
 	Origin      *models.EventOrigin `json:"origin,omitempty" enums:"RU,WORLD"`

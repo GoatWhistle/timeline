@@ -389,8 +389,6 @@ definitions:
         enum:
         - HACKATHON
         - MEETUP
-      notes:
-        type: string
       organizer:
         type: string
       origin:
@@ -725,8 +723,6 @@ definitions:
         enum:
         - HACKATHON
         - MEETUP
-      notes:
-        type: string
       organizer:
         example: Organising committee
         type: string
@@ -2074,8 +2070,6 @@ definitions:
         enum:
         - HACKATHON
         - MEETUP
-      notes:
-        type: string
       organizer:
         type: string
       origin:
@@ -3162,7 +3156,7 @@ paths:
       tags:
       - events
     get:
-      description: Administrative read, including notes.
+      description: Administrative read of the whole event.
       parameters:
       - description: Event identifier
         example: ev_3k7d8gb9be
@@ -5129,7 +5123,7 @@ paths:
     get:
       description: |-
         Every published, non-archived event regardless of participation. The response
-        carries a dedicated payload that cannot include administrative notes.
+        carries a dedicated payload built for the catalog.
 
         The catalog requires a session: an anonymous request is answered with 401. An
         unauthenticated listing would enumerate every event of the organisation together
@@ -5239,8 +5233,8 @@ paths:
     get:
       description: |-
         The same events the catalog listing returns, under the same filters and the same
-        sort, streamed as CSV instead of paginated JSON. Only the fields the listing itself
-        exposes are written: the export carries no administrative notes.
+        sort, streamed as CSV instead of paginated JSON. Only the fields the listing
+        itself exposes are written.
 
         Like the listing it requires a session and is counted against the catalog rate
         limit of the account. Rows are streamed as they are read, so the response is not
@@ -5363,7 +5357,7 @@ paths:
     get:
       description: |-
         Participant role, computed state, stages, the nearest stage, registration status,
-        deadline and link. Administrative notes are withheld from the participant.
+        deadline and link.
       parameters:
       - description: Event identifier
         example: ev_3k7d8gb9be

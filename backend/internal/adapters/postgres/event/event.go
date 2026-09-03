@@ -17,13 +17,13 @@ type Events struct{ db *postgres.DB }
 
 func NewEvents(db *postgres.DB) *Events { return &Events{db: db} }
 
-const eventColumns = `id, display_id, title, description, organizer, website_url, notes,
+const eventColumns = `id, display_id, title, description, organizer, website_url,
 	kind, format, origin, country_code, city, track, prize_pool, prize_currency, team_size_min, team_size_max,
 	start_at, end_at, cover_manual_url, cover_auto_url, cover_auto_source, cover_auto_fetched_at,
 	color_slot, color_assigned_at, published_at, archived_at, created_at, updated_at`
 
 func scanEventInto(row pgx.Row, h *models.Event) error {
-	return row.Scan(&h.ID, &h.DisplayID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL, &h.Notes,
+	return row.Scan(&h.ID, &h.DisplayID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL,
 		&h.Kind, &h.Format, &h.Origin, &h.CountryCode, &h.City,
 		&h.Track, &h.PrizePool, &h.PrizeCurrency, &h.TeamSizeMin, &h.TeamSizeMax,
 		&h.StartAt, &h.EndAt,
@@ -42,12 +42,12 @@ func scanEvent(row pgx.Row) (*models.Event, error) {
 
 func (r *Events) Create(ctx context.Context, h *models.Event) (*models.Event, error) {
 	return scanEvent(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO events (title, description, organizer, website_url, notes,
+		INSERT INTO events (title, description, organizer, website_url,
 			kind, format, origin, country_code, city, track, prize_pool, prize_currency,
 			team_size_min, team_size_max, start_at, end_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 		RETURNING `+eventColumns,
-		h.Title, h.Description, h.Organizer, h.WebsiteURL, h.Notes,
+		h.Title, h.Description, h.Organizer, h.WebsiteURL,
 		h.Kind, h.Format, h.Origin, h.CountryCode, h.City, h.Track, h.PrizePool,
 		h.PrizeCurrency, h.TeamSizeMin, h.TeamSizeMax, h.StartAt, h.EndAt))
 }
@@ -121,22 +121,21 @@ func (r *Events) Update(ctx context.Context, id uuid.UUID, req dto.UpdateEventRe
 			description = COALESCE($3, description),
 			organizer = COALESCE($4, organizer),
 			website_url = COALESCE($5, website_url),
-			notes = COALESCE($6, notes),
-			kind = COALESCE($7, kind),
-			format = COALESCE($8, format),
-			origin = COALESCE($9, origin),
-			country_code = CASE WHEN $10::boolean THEN $11 ELSE country_code END,
-			city = CASE WHEN $12::boolean THEN $13 ELSE city END,
-			track = COALESCE($14, track),
-			prize_pool = COALESCE($15, prize_pool),
-			prize_currency = COALESCE($16, prize_currency),
-			team_size_min = COALESCE($17, team_size_min),
-			team_size_max = COALESCE($18, team_size_max),
-			start_at = COALESCE($19, start_at),
-			end_at = COALESCE($20, end_at)
+			kind = COALESCE($6, kind),
+			format = COALESCE($7, format),
+			origin = COALESCE($8, origin),
+			country_code = CASE WHEN $9::boolean THEN $10 ELSE country_code END,
+			city = CASE WHEN $11::boolean THEN $12 ELSE city END,
+			track = COALESCE($13, track),
+			prize_pool = COALESCE($14, prize_pool),
+			prize_currency = COALESCE($15, prize_currency),
+			team_size_min = COALESCE($16, team_size_min),
+			team_size_max = COALESCE($17, team_size_max),
+			start_at = COALESCE($18, start_at),
+			end_at = COALESCE($19, end_at)
 		WHERE id = $1
 		RETURNING `+eventColumns,
-		id, req.Title, req.Description, req.Organizer, req.WebsiteURL, req.Notes,
+		id, req.Title, req.Description, req.Organizer, req.WebsiteURL,
 		req.Kind, req.Format, req.Origin,
 		place.CountrySet, place.CountryCode, place.CitySet, place.City,
 		req.Track, req.PrizePool, req.PrizeCurrency, req.TeamSizeMin, req.TeamSizeMax,

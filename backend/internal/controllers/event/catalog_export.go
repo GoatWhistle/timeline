@@ -22,8 +22,8 @@ var catalogExportHeader = []string{
 
 // @Summary		Export the catalog as CSV
 // @Description	The same events the catalog listing returns, under the same filters and the same
-// @Description	sort, streamed as CSV instead of paginated JSON. Only the fields the listing itself
-// @Description	exposes are written: the export carries no administrative notes.
+// @Description	sort, streamed as CSV instead of paginated JSON. Only the fields the listing
+// @Description	itself exposes are written.
 // @Description
 // @Description	Like the listing it requires a session and is counted against the catalog rate
 // @Description	limit of the account. Rows are streamed as they are read, so the response is not

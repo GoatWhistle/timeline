@@ -6,8 +6,6 @@
     "organizer": "Организатор",
     "website": "Сайт",
     "description": "Описание",
-    "adminNotes": "Административные заметки",
-    "adminNotesHint": "Видны только администраторам",
     "titleRequired": "Укажите название",
     "startRequired": "Укажите начало",
     "endRequired": "Укажите окончание",

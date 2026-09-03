@@ -6,8 +6,6 @@
     "organizer": "Organizer",
     "website": "Website",
     "description": "Description",
-    "adminNotes": "Administrator notes",
-    "adminNotesHint": "Visible to administrators only",
     "titleRequired": "Enter a title",
     "startRequired": "Enter a start date",
     "endRequired": "Enter an end date",

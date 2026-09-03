@@ -56,7 +56,7 @@ func (c *CatalogController) allow(r *http.Request, scope string) bool {
 
 // @Summary		Event catalog
 // @Description	Every published, non-archived event regardless of participation. The response
-// @Description	carries a dedicated payload that cannot include administrative notes.
+// @Description	carries a dedicated payload built for the catalog.
 // @Description
 // @Description	The catalog requires a session: an anonymous request is answered with 401. An
 // @Description	unauthenticated listing would enumerate every event of the organisation together

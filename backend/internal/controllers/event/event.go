@@ -115,7 +115,7 @@ func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary		The whole event
-// @Description	Administrative read, including notes.
+// @Description	Administrative read of the whole event.
 // @Tags			events
 // @Produce		json
 // @Security		CookieAuth

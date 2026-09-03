@@ -67,26 +67,6 @@ func TestMarkDoneOnForeignEventIsRejected(t *testing.T) {
 	}
 }
 
-func TestAdminNotesAreInvisibleToParticipant(t *testing.T) {
-	s := support.NewStack(t)
-	f := s.Seed(t)
-
-	member := s.Session(t, f.Member)
-	card := member.Get("/events/" + f.EventID)
-	support.RequireStatus(t, card, http.StatusOK, "the member reads their own card")
-	support.RequireNoBodyField(t, card, "notes", "the participant event card")
-
-	catalog := member.Get("/catalog")
-	support.RequireStatus(t, catalog, http.StatusOK, "the member reads the catalog")
-	support.RequireNoBodyField(t, catalog, "notes", "the catalog")
-
-	adminView := f.AdminClient.Get("/admin/events/" + f.EventID)
-	support.RequireStatus(t, adminView, http.StatusOK, "the administrator reads the event")
-	if !support.ContainsAll(string(adminView.Body), "internal administrative note") {
-		t.Fatalf("the administrator cannot see the notes either: %s", adminView.Body)
-	}
-}
-
 func TestParticipantCannotReachForeignParticipantObjects(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)

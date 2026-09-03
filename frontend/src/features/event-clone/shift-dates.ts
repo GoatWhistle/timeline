@@ -35,7 +35,6 @@ export function cloneEventPayload(
   if (end) payload.end_at = end
   if (event.organizer) payload.organizer = event.organizer
   if (event.description) payload.description = event.description
-  if (event.notes) payload.notes = event.notes
   if (event.website_url) payload.website_url = event.website_url
   if (event.kind) payload.kind = event.kind
   if (event.format) payload.format = event.format

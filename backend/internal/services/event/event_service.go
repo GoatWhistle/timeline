@@ -84,7 +84,6 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req dto.C
 			Description:   req.Description,
 			Organizer:     req.Organizer,
 			WebsiteURL:    website,
-			Notes:         req.Notes,
 			Kind:          place.kind,
 			Format:        place.format,
 			Origin:        place.origin,

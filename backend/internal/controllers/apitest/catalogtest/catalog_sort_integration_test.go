@@ -163,7 +163,7 @@ func TestCatalogExportSendsCSVHeaders(t *testing.T) {
 	}
 }
 
-func TestCatalogExportRequiresSessionAndHidesNotes(t *testing.T) {
+func TestCatalogExportRequiresSession(t *testing.T) {
 	s := support.NewStack(t)
 	s.Seed(t)
 
@@ -172,12 +172,7 @@ func TestCatalogExportRequiresSessionAndHidesNotes(t *testing.T) {
 
 	records, _ := exportCatalog(t, freshReader(t, s), "")
 	if strings.Contains(strings.Join(records[0], ","), "notes") {
-		t.Fatalf("the export must not carry administrative notes: %v", records[0])
-	}
-	for _, row := range records[1:] {
-		if strings.Contains(strings.Join(row, ","), "internal administrative note") {
-			t.Fatalf("the export leaked an administrative note: %v", row)
-		}
+		t.Fatalf("the export must not carry a notes column: %v", records[0])
 	}
 }
 

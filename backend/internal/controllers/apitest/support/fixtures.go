@@ -120,10 +120,6 @@ func (s *Stack) Seed(t *testing.T) Fixture {
 	adminClient.Publish(t, eventID)
 	adminClient.Publish(t, otherEvent)
 
-	notes := "internal administrative note"
-	RequireStatus(t, adminClient.Patch("/admin/events/"+eventID,
-		map[string]any{"notes": notes}), http.StatusOK, "attaching notes")
-
 	RequireStatus(t, adminClient.Post("/admin/events/"+eventID+"/registration",
 		map[string]any{
 			"url":         "https://example.com/register",

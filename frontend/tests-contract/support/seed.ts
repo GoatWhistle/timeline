@@ -64,7 +64,6 @@ async function createEvent(title: string): Promise<string> {
       start_at: inThe(1),
       end_at: inThe(2),
       organizer: 'Contract suite',
-      notes: 'Administrative note',
     },
   })
   expect(created.response.status).toBe(201)

@@ -75,7 +75,7 @@ func (c *QueryController) MyEvents(w http.ResponseWriter, r *http.Request) {
 
 // @Summary		Assigned event card
 // @Description	Participant role, computed state, stages, the nearest stage, registration status,
-// @Description	deadline and link. Administrative notes are withheld from the participant.
+// @Description	deadline and link.
 // @Tags			queries
 // @Produce		json
 // @Security		CookieAuth

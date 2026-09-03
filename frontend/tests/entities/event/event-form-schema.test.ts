@@ -12,7 +12,6 @@ const COMMON: MeetupFormValues = {
   organizer: '',
   website_url: '',
   description: '',
-  notes: '',
   format: 'ONLINE',
   origin: 'RU',
   country_code: '',

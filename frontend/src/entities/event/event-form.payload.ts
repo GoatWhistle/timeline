@@ -21,7 +21,6 @@ export type EventFormPayload = {
   organizer?: string
   website_url?: string
   description?: string
-  notes?: string
   country_code?: string
   city?: string
   track?: string
@@ -37,7 +36,6 @@ export function commonDefaults(event: EventResponse | undefined): MeetupFormValu
     organizer: event?.organizer ?? '',
     website_url: event?.website_url ?? '',
     description: event?.description ?? '',
-    notes: event?.notes ?? '',
     format: event?.format ?? 'ONLINE',
     origin: event?.origin ?? 'RU',
     country_code: event?.country_code ?? '',
@@ -82,7 +80,6 @@ function commonPayload(
       ? { website_url: normalizeLinkableUrl(values.website_url) ?? values.website_url }
       : {}),
     ...(values.description ? { description: values.description } : {}),
-    ...(values.notes ? { notes: values.notes } : {}),
     ...(country ? { country_code: country } : {}),
     ...(city ? { city } : {}),
   }
