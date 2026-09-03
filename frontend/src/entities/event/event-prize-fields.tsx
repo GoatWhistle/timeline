@@ -13,6 +13,23 @@ import { CURRENCIES } from './event-currency'
 import type { HackathonFormValues } from './event-form.schema'
 import { EventTeamSizeField } from './event-team-size-field'
 
+function PrizePoolInput({ register }: { register: UseFormRegister<HackathonFormValues> }) {
+  const field = register('prize_pool')
+
+  return (
+    <Input
+      id="event-prize-pool"
+      inputMode="numeric"
+      {...field}
+      onChange={(event) => {
+        const digits = event.target.value.replace(/\D/g, '')
+        if (event.target.value !== digits) event.target.value = digits
+        void field.onChange(event)
+      }}
+    />
+  )
+}
+
 export function EventPrizeFields({
   control,
   register,
@@ -36,7 +53,7 @@ export function EventPrizeFields({
           htmlFor="event-prize-pool"
           error={errors.prize_pool?.message}
         >
-          <Input id="event-prize-pool" inputMode="decimal" {...register('prize_pool')} />
+          <PrizePoolInput register={register} />
         </Field>
         <Field
           label={t('form.prizeCurrency')}

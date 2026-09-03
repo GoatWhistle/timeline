@@ -1,4 +1,4 @@
-import { Armchair, Laptop } from 'lucide-react'
+import { Laptop, Martini } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import type { EventKind, EventOrigin } from '@/shared/api/types.gen'
@@ -138,7 +138,7 @@ function EventKindPreview({ kind, className }: { kind: EventKind; className?: st
 
 const KIND_ICON: Record<EventKind, React.ComponentType<{ className?: string }>> = {
   HACKATHON: Laptop,
-  MEETUP: Armchair,
+  MEETUP: Martini,
 }
 
 function previewClass(selected: boolean): string {
