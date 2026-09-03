@@ -78,6 +78,11 @@ export const i18nReady: Promise<void> = (
         .then(() => undefined)
 ).then(() => loadLocale(initialLocale))
 
+export function localeLoaded(locale: Locale): boolean {
+  if (!i18n.isInitialized) return false
+  return NAMESPACES.every((namespace) => i18n.hasResourceBundle(locale, namespace))
+}
+
 export async function ensureLocale(locale: Locale): Promise<void> {
   await i18nReady
   await loadLocale(locale)

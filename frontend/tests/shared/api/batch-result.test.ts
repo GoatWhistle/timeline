@@ -2,6 +2,9 @@ import { toast } from 'sonner'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
 import type { BatchResult } from '@/shared/api/types.gen'
+import { ensureLocale, i18n } from '@/shared/i18n/config'
+import { errorMessage } from '@/shared/i18n/error-message'
+import { LOCALES, type Locale } from '@/shared/i18n/locale'
 
 type BatchResultItem = NonNullable<BatchResult['results']>[number]
 
@@ -93,13 +96,23 @@ describe('reportBatchResult', () => {
     expect(options.description).toContain('second problem')
   })
 
-  it('falls back to the machine code when a failed row carries no message', () => {
+  it('explains a coded failure in words rather than showing the machine code', () => {
     reportBatchResult(
       result({ failed: 1, results: [item({ status: 'error', code: 'rate_limited' })] }),
       'Participants added',
     )
     const [, options] = vi.mocked(toast.error).mock.calls[0] as [string, { description: string }]
-    expect(options.description).toContain('rate_limited')
+    expect(options.description).not.toContain('rate_limited')
+    expect(options.description).toContain(String(errorMessage('rate_limited')))
+  })
+
+  it('shows the bare code only when nothing else describes the failure', () => {
+    reportBatchResult(
+      result({ failed: 1, results: [item({ status: 'error', code: 'brand_new_code' })] }),
+      'Participants added',
+    )
+    const [, options] = vi.mocked(toast.error).mock.calls[0] as [string, { description: string }]
+    expect(options.description).toContain('brand_new_code')
   })
 
   it('caps the listed problems at five so one bad batch cannot flood the toast', () => {
@@ -128,5 +141,46 @@ describe('reportBatchResult', () => {
     const [, options] = vi.mocked(toast.error).mock.calls[0] as [string, { description: string }]
     expect(options.description).toContain('loud failure')
     expect(options.description).not.toContain('quiet success')
+  })
+})
+
+describe('a failed row explains itself in the reader language', () => {
+  it.each(LOCALES)('translates a known code instead of echoing English in %s', async (lc) => {
+    await ensureLocale(lc as Locale)
+    await i18n.changeLanguage(lc)
+
+    reportBatchResult(
+      result({
+        failed: 1,
+        results: [
+          item({ status: 'error', code: 'already_on_roster', message: 'RAW ENGLISH FALLBACK' }),
+        ],
+      }),
+      'Participants added',
+    )
+
+    const [, options] = vi.mocked(toast.error).mock.calls[0] as [string, { description: string }]
+    expect(options.description).not.toContain('RAW ENGLISH FALLBACK')
+    expect(options.description).toContain(
+      String(i18n.getResource(lc, 'errors', 'already_on_roster')),
+    )
+  })
+
+  it('keeps the server wording when the code is one the dictionary does not know', async () => {
+    await ensureLocale('ru')
+    await i18n.changeLanguage('ru')
+
+    reportBatchResult(
+      result({
+        failed: 1,
+        results: [
+          item({ status: 'error', code: 'brand_new_code', message: 'only wording there is' }),
+        ],
+      }),
+      'Participants added',
+    )
+
+    const [, options] = vi.mocked(toast.error).mock.calls[0] as [string, { description: string }]
+    expect(options.description).toContain('only wording there is')
   })
 })

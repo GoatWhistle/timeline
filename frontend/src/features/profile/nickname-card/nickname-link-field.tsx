@@ -1,13 +1,8 @@
 import { ArrowUpRight } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
+import { PUBLIC_PROFILE_PREFIX } from '@/shared/routing/public-profile-path'
 import { cn } from '@/shared/styling/class-names/class-names'
-
-export const PUBLIC_PROFILE_PREFIX = '/@'
-
-export function publicProfilePath(nickname: string): string {
-  return `${PUBLIC_PROFILE_PREFIX}${nickname}`
-}
 
 export function publicProfileOrigin(): string {
   if (typeof window === 'undefined') return ''

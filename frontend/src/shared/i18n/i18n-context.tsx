@@ -1,7 +1,7 @@
 import type * as React from 'react'
 import { createContext, use, useCallback, useEffect, useMemo, useState } from 'react'
 import { I18nextProvider, useTranslation } from 'react-i18next'
-import { ensureLocale, i18n, i18nReady } from './config'
+import { ensureLocale, i18n, i18nReady, localeLoaded } from './config'
 import { type Locale, resolveLocale, writeStoredLocale } from './locale'
 
 type LocaleContextValue = {
@@ -13,7 +13,7 @@ const LocaleContext = createContext<LocaleContextValue | null>(null)
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => resolveLocale())
-  const [ready, setReady] = useState(() => i18n.isInitialized)
+  const [ready, setReady] = useState(() => localeLoaded(resolveLocale()))
 
   useEffect(() => {
     let active = true

@@ -6,11 +6,12 @@ import { z } from 'zod'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
 import { nicknameProblem } from '@/shared/forms/nickname'
 import { applyServerErrors } from '@/shared/forms/server-errors'
+import { publicProfilePath } from '@/shared/routing/public-profile-path'
 import { Field } from '@/shared/ui/forms/field'
 import { Switch } from '@/shared/ui/forms/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
-import { NicknameLinkField, publicProfilePath } from './nickname-link-field'
+import { NicknameLinkField } from './nickname-link-field'
 
 const nicknameSchema = z.object({
   nickname: z

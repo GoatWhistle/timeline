@@ -1,6 +1,7 @@
 import { toast } from 'sonner'
 import type { BatchResult } from '@/shared/api/types.gen'
 import { i18n } from '@/shared/i18n/config'
+import { errorMessage } from '@/shared/i18n/error-message'
 
 export function reportBatchResult(
   result: BatchResult,
@@ -18,7 +19,13 @@ export function reportBatchResult(
 
   const problems = results
     .filter((item) => item.status !== 'ok')
-    .map((item) => item.message ?? item.code ?? i18n.t('batch.noDescription'))
+    .map(
+      (item) =>
+        (item.code ? errorMessage(item.code) : undefined) ??
+        item.message ??
+        item.code ??
+        i18n.t('batch.noDescription'),
+    )
 
   const summary = [
     i18n.t('batch.succeeded', { count: succeeded }),

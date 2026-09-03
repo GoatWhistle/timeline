@@ -47,7 +47,7 @@ export function AdminOpsQueuePage() {
   const items = query.data?.items ?? []
 
   return (
-    <div>
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <PageHeader title={t('ops:title')} description={t('ops:description')} />
 
       <p className="mb-4 flex items-start gap-2 rounded-control border border-border bg-surface-2 px-3 py-2 text-meta text-muted-foreground">

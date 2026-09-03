@@ -18,7 +18,7 @@ import { useProfileLocale } from './use-profile-locale'
 
 const USER_TARGETS: GotoTarget[] = [
   { id: 'catalog', path: '/catalog', key: 'c', titleKey: 'nav.catalog' },
-  { id: 'events', path: '/', key: 'e', titleKey: 'nav.myEvents' },
+  { id: 'events', path: '/events', key: 'e', titleKey: 'nav.myEvents' },
   { id: 'schedule', path: '/schedule', key: 's', titleKey: 'nav.schedule' },
 ]
 

@@ -26,7 +26,7 @@ export type NavItem = {
 
 export const USER_NAV: NavItem[] = [
   { to: '/catalog', labelKey: 'nav.catalog', icon: Compass },
-  { to: '/', labelKey: 'nav.myEvents', icon: LayoutList },
+  { to: '/events', labelKey: 'nav.myEvents', icon: LayoutList },
   { to: '/schedule', labelKey: 'nav.schedule', icon: CalendarRange },
   { to: '/teams', labelKey: 'team:title', icon: UsersRound },
   { to: '/history', labelKey: 'event:personal.history.title', icon: History },
@@ -60,7 +60,6 @@ export function NavSection({ title, items }: { title?: string; items: NavItem[] 
           <NavLink
             key={to}
             to={to}
-            end={to === '/'}
             data-indicator-item
             className={({ isActive }) =>
               cn(

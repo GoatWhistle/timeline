@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { z } from 'zod'
 import { useLogin } from '@/entities/session/session.queries'
-import { isApiError } from '@/shared/api/errors'
+import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Wordmark } from '@/shared/ui/brand/wordmark'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
@@ -43,15 +43,7 @@ export function LoginPage() {
       await login.mutateAsync(values)
       navigate(from, { replace: true })
     } catch (error) {
-      if (!isApiError(error)) throw error
-      for (const field of error.fields) {
-        if (field.field === 'email' || field.field === 'password') {
-          setError(field.field, { message: field.message })
-        }
-      }
-      if (error.fields.length === 0) {
-        setError('root', { message: error.message })
-      }
+      applyServerErrors(error, setError, ['email', 'password'])
     }
   }
 

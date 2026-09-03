@@ -13,11 +13,24 @@ describe('the sidebar shows one section at a time', () => {
   it('keeps the participant entries in their agreed order', () => {
     expect(USER_NAV.map((item) => item.to)).toEqual([
       '/catalog',
-      '/',
+      '/events',
       '/schedule',
       '/teams',
       '/history',
     ])
+  })
+
+  it('sends every participant entry to a named address, never to the bare root', () => {
+    for (const item of USER_NAV) {
+      expect(item.to).not.toBe('/')
+      expect(item.to.startsWith('/')).toBe(true)
+      expect(item.to.length).toBeGreaterThan(1)
+    }
+  })
+
+  it('names the my-events entry after the address that serves it', () => {
+    const myEvents = USER_NAV.find((item) => item.labelKey === 'nav.myEvents')
+    expect(myEvents?.to).toBe('/events')
   })
 
   it('keeps the participant entries free of any admin destination', () => {

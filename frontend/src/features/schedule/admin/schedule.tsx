@@ -6,6 +6,7 @@ import { EVENT_STATE_KEY, EVENT_STATES } from '@/entities/event/event.labels'
 import { adminScheduleQuery } from '@/entities/schedule/schedule.queries'
 import { AdminEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
 import { useScheduleView } from '@/features/schedule/model/use-schedule-view'
+import { ScheduleEmptyOverlay } from '@/features/schedule/ui/schedule-empty/schedule-empty'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
 import { ViewTabs } from '@/features/schedule/ui/view-tabs/view-tabs'
 import { usersQuery } from '@/shared/api/directory'
@@ -13,8 +14,6 @@ import type { EventState } from '@/shared/api/types.gen'
 import { localeCollator } from '@/shared/datetime/datetime'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { toLocale } from '@/shared/i18n/locale'
-import { ScheduleFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
-import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import {
   Select,
   SelectContent,
@@ -54,6 +53,7 @@ export function AdminSchedulePage() {
   )
 
   const view = useScheduleView(query.data?.range)
+  const filtered = filters.state !== ALL || filters.participant !== ALL || filters.archived === '1'
 
   return (
     <div>
@@ -112,15 +112,20 @@ export function AdminSchedulePage() {
         hasData={query.data !== undefined}
         shape="unknown"
       >
-        {query.data && query.data.rows.length === 0 ? (
-          <EmptyState
-            title={t('schedule.emptyTitle')}
-            description={t('schedule.emptyHint')}
-            figure={ScheduleFigure}
-          />
-        ) : (
-          query.data && (
-            <div className="flex flex-col gap-4">
+        {query.data && (
+          <div className="flex flex-col gap-4">
+            <ScheduleEmptyOverlay
+              empty={query.data.rows.length === 0}
+              title={filtered ? t('schedule.emptyTitle') : t('schedule.adminEmptyTitle')}
+              description={filtered ? t('schedule.emptyHint') : t('schedule.adminEmptyHint')}
+              action={
+                filtered ? (
+                  <Button variant="outline" onClick={() => setFilters(DEFAULTS)}>
+                    {t('state.resetFilters')}
+                  </Button>
+                ) : undefined
+              }
+            >
               <ScheduleGrid
                 data={query.data}
                 range={view.range}
@@ -131,10 +136,10 @@ export function AdminSchedulePage() {
                 hrefBuilder={(row) => `/admin/events/${row.event_id}`}
                 onOpenEvent={(row) => openEventCard(row.event_id)}
               />
-              <ViewTabs value={view.scale} onChange={view.setScale} onToday={view.goToday} />
-              <AdminEventOverlay />
-            </div>
-          )
+            </ScheduleEmptyOverlay>
+            <ViewTabs value={view.scale} onChange={view.setScale} onToday={view.goToday} />
+            <AdminEventOverlay />
+          </div>
         )}
       </QueryBoundary>
     </div>

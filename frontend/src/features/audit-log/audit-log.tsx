@@ -74,7 +74,7 @@ export function AdminAuditPage() {
   )
 
   return (
-    <div>
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <PageHeader title={t('audit.title')} description={t('audit.description')} />
 
       <div className="mb-4 flex flex-wrap items-end gap-3">

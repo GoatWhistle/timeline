@@ -1,6 +1,8 @@
 import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
+import { CatalogEmpty } from '@/features/catalog/catalog-empty'
+import { ApiError } from '@/shared/api/errors'
 import { i18n } from '@/shared/i18n/config'
 import { FilterFigure } from '@/shared/ui/data-display/empty-figures/filter-figure'
 import {
@@ -25,6 +27,7 @@ import {
   ShortcutFigure,
 } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
+import { ErrorState } from '@/shared/ui/data-display/error-state'
 
 const SPIN = '.motion-safe\\:animate-\\[spin_9s_linear_infinite\\]'
 
@@ -145,5 +148,54 @@ describe('the empty-state shell', () => {
 
     expect(screen.getByText('Bare')).toBeInTheDocument()
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
+  })
+})
+
+describe('an empty pane sits in the middle of the space it was given', () => {
+  function pane(): HTMLElement {
+    renderWithProviders(<EmptyState title="Nothing here" />)
+    return screen.getByText('Nothing here').closest('div[class]')?.parentElement as HTMLElement
+  }
+
+  it('draws no frame around itself, the way the catalog does not', () => {
+    expect(pane().className).not.toContain('border-dashed')
+  })
+
+  it('claims height so its content centres rather than clinging to the top', () => {
+    const className = pane().className
+    expect(className).toContain('min-h-')
+    expect(className).toContain('justify-center')
+  })
+
+  it('stretches into the pane it was given rather than only centring within itself', () => {
+    const className = pane().className
+    expect(className).toContain('flex-1')
+    expect(className).toMatch(/\bflex\b/)
+    expect(className).toContain('flex-col')
+  })
+
+  it('is shaped like the catalog and the failure pane, so the three cannot drift apart', () => {
+    const { container: catalogBox, unmount } = renderWithProviders(
+      <CatalogEmpty filtered={false} onResetFilters={vi.fn()} />,
+    )
+    const catalogPane = catalogBox.firstElementChild as HTMLElement
+    const catalogClasses = new Set(catalogPane.className.split(/\s+/))
+    unmount()
+
+    const { container: errorBox, unmount: closeError } = renderWithProviders(
+      <ErrorState error={new ApiError(500, { code: 'internal_error' })} />,
+    )
+    const errorClasses = new Set(
+      (errorBox.querySelector('[role="alert"]') as HTMLElement).className.split(/\s+/),
+    )
+    closeError()
+
+    const sharedClasses = new Set(pane().className.split(/\s+/))
+
+    for (const token of ['flex', 'flex-1', 'flex-col', 'min-h-[24rem]', 'justify-center']) {
+      expect(sharedClasses, `shared empty state lacks ${token}`).toContain(token)
+      expect(catalogClasses, `catalog empty state lacks ${token}`).toContain(token)
+      expect(errorClasses, `failure pane lacks ${token}`).toContain(token)
+    }
   })
 })

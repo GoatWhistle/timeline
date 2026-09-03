@@ -77,7 +77,7 @@ export function AppSidebar({
       <div className="mt-6 flex flex-col gap-6 px-1 pb-2">
         {isAdmin && (
           <NavLink
-            to={inAdmin ? '/' : '/admin/events'}
+            to={inAdmin ? '/events' : '/admin/events'}
             className={cn(
               'flex h-row items-center gap-2 rounded-control px-2 text-copy',
               'text-muted-foreground transition-colors duration-instant',

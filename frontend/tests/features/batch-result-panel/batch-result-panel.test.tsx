@@ -7,6 +7,7 @@ import {
   rowStatus,
 } from '@/features/batch-result-panel/batch-result-panel'
 import type { BatchItemResult, BatchResult } from '@/shared/api/types.gen'
+import { errorMessage } from '@/shared/i18n/error-message'
 
 const result: BatchResult = {
   succeeded: 1,
@@ -55,10 +56,41 @@ describe('BatchResultPanel', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(4)
   })
 
-  it('shows the reason a row did not succeed', () => {
+  it('shows the reason a row did not succeed, in words the reader knows', () => {
     renderWithProviders(<BatchResultPanel result={result} />)
-    expect(screen.getByText('status not found')).toBeInTheDocument()
-    expect(screen.getByText('already set')).toBeInTheDocument()
+
+    expect(screen.getByText(String(errorMessage('not_found')))).toBeInTheDocument()
+    expect(screen.getByText(String(errorMessage('conflict')))).toBeInTheDocument()
+  })
+
+  it('prefers the dictionary over the English the server sent alongside the code', () => {
+    renderWithProviders(<BatchResultPanel result={result} />)
+
+    expect(screen.queryByText('status not found')).not.toBeInTheDocument()
+    expect(screen.queryByText('already set')).not.toBeInTheDocument()
+  })
+
+  it('keeps the server wording for a code the dictionary does not know', () => {
+    renderWithProviders(
+      <BatchResultPanel
+        result={{
+          succeeded: 0,
+          skipped: 0,
+          failed: 1,
+          results: [
+            {
+              index: 0,
+              key: 'p9',
+              status: 'error',
+              code: 'brand_new_code',
+              message: 'only wording there is',
+            },
+          ],
+        }}
+      />,
+    )
+
+    expect(screen.getByText('only wording there is')).toBeInTheDocument()
   })
 
   it('retries exactly the failed rows', async () => {

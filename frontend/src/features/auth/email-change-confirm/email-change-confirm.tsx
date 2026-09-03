@@ -3,7 +3,7 @@ import { CheckCircle2, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import { api, unwrap } from '@/shared/api/client'
-import { isApiError } from '@/shared/api/errors'
+import { failureMessage } from '@/shared/api/failure'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
@@ -48,9 +48,7 @@ export function EmailChangeConfirmPage() {
         {isError && (
           <div className="flex items-start gap-2" role="alert">
             <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden="true" />
-            <p className="text-copy">
-              {isApiError(error) ? error.message : t('emailChange.failed')}
-            </p>
+            <p className="text-copy">{failureMessage(error)}</p>
           </div>
         )}
 

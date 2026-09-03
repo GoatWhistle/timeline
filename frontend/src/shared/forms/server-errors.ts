@@ -1,5 +1,6 @@
 import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
 import { isApiError } from '@/shared/api/errors'
+import { failureMessage } from '@/shared/api/failure'
 import { i18n } from '@/shared/i18n/config'
 
 export function applyServerErrors<T extends FieldValues>(
@@ -7,7 +8,10 @@ export function applyServerErrors<T extends FieldValues>(
   setError: UseFormSetError<T>,
   knownFields: readonly Path<T>[],
 ): void {
-  if (!isApiError(error)) throw error
+  if (!isApiError(error)) {
+    setError('root' as Path<T>, { message: failureMessage(error) })
+    return
+  }
 
   let matched = false
   for (const field of error.fields) {
@@ -18,5 +22,5 @@ export function applyServerErrors<T extends FieldValues>(
     }
   }
 
-  if (!matched) setError('root' as Path<T>, { message: error.message })
+  if (!matched) setError('root' as Path<T>, { message: failureMessage(error) })
 }

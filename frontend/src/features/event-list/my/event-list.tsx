@@ -98,7 +98,7 @@ export function MyEventsPage() {
           skeleton={<SkeletonRows rows={8} />}
         >
           {items.length === 0 ? (
-            <div className="p-4">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col p-4">
               <EmptyState
                 title={filtered ? t('list.myEmptyFiltered') : t('list.myEmpty')}
                 figure={EventListFigure}

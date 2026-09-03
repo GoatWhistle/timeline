@@ -68,11 +68,32 @@ function serverCodes(): Set<string> {
   return codes
 }
 
+const TRANSPORT = ['transport_network', 'transport_offline', 'transport_timeout'] as const
+
 describe('error dictionaries', () => {
   it('cover every code the server can emit', () => {
     const emitted = [...serverCodes()].sort()
     expect(emitted.length).toBeGreaterThan(0)
-    expect(Object.keys(enErrors).sort()).toEqual(emitted)
+
+    const fromServer = Object.keys(enErrors)
+      .filter((code) => !TRANSPORT.includes(code as (typeof TRANSPORT)[number]))
+      .sort()
+
+    expect(fromServer).toEqual(emitted)
+  })
+
+  it('also covers the failures the server never gets to answer', () => {
+    for (const code of TRANSPORT) {
+      expect(Object.keys(enErrors), code).toContain(code)
+      expect(Object.keys(ruErrors), code).toContain(code)
+    }
+  })
+
+  it('keeps the transport codes client-side, since no server emits them', () => {
+    const emitted = serverCodes()
+    for (const code of TRANSPORT) {
+      expect(emitted.has(code), `${code} must not come from the server`).toBe(false)
+    }
   })
 
   it('keep ru and en key sets identical', () => {

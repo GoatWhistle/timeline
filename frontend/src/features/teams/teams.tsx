@@ -19,16 +19,20 @@ export function TeamsPage() {
   const [creating, setCreating] = useState(false)
   const query = useQuery(teamsQuery())
 
+  const empty = query.data !== undefined && query.data.items.length === 0
+
   return (
-    <div>
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <PageHeader
         title={t('title')}
         description={t('subtitle')}
         actions={
-          <Button onClick={() => setCreating(true)}>
-            <Plus aria-hidden="true" />
-            {t('create')}
-          </Button>
+          empty ? undefined : (
+            <Button onClick={() => setCreating(true)}>
+              <Plus aria-hidden="true" />
+              {t('create')}
+            </Button>
+          )
         }
       />
 

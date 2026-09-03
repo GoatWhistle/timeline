@@ -59,7 +59,7 @@ export function CatalogEmpty({
   const hint = filtered ? t('catalog.empty.filteredHint') : t('catalog.empty.hint')
 
   return (
-    <div className="flex min-h-[24rem] flex-col items-center justify-center gap-6 px-6 text-center">
+    <div className="flex min-h-[24rem] flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
       <CatalogEmptyFigure label={title} />
       <div className="flex flex-col gap-2">
         <h2 className="font-semibold text-screen">{title}</h2>

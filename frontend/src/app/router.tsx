@@ -23,7 +23,6 @@ import {
   LoginPage,
   MyEventsPage,
   MySchedulePage,
-  PublicProfilePage,
   RegisterPage,
   ResetPasswordPage,
   SettingsPage,
@@ -34,6 +33,7 @@ import {
 } from './lazy-pages'
 import { ForbiddenPage } from './pages/forbidden-page'
 import { NotFoundPage } from './pages/not-found-page'
+import { PublicProfileRoute } from './public-profile-route'
 
 const ANONYMOUS_PATHS = [
   '/login',
@@ -45,12 +45,31 @@ const ANONYMOUS_PATHS = [
   '/email-change',
 ]
 
+const APP_PATHS = [
+  '/events',
+  '/catalog',
+  '/schedule',
+  '/history',
+  '/profile',
+  '/settings',
+  '/teams',
+  '/team-join',
+  '/admin',
+  '/forbidden',
+]
+
+export function staysAnonymous(path: string): boolean {
+  if (ANONYMOUS_PATHS.some((prefix) => path === prefix || path.startsWith(`${prefix}/`)))
+    return true
+  if (path === '/') return false
+  return !APP_PATHS.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))
+}
+
 function UnauthenticatedRedirect() {
   const navigate = useNavigate()
   useEffect(() => {
     setUnauthenticatedHandler(() => {
-      const path = window.location.pathname
-      if (ANONYMOUS_PATHS.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))) return
+      if (staysAnonymous(window.location.pathname)) return
       navigate('/login', { replace: true })
     })
     return () => setUnauthenticatedHandler(() => {})
@@ -80,7 +99,7 @@ export function AppRouter() {
 
         <Route element={<RequireAuth />}>
           <Route element={<AppShell />}>
-            <Route index element={<MyEventsPage />} />
+            <Route index element={<Navigate to="/events" replace />} />
             <Route path="/events" element={<MyEventsPage />} />
             <Route path="/catalog" element={<CatalogPage />} />
 
@@ -92,7 +111,7 @@ export function AppRouter() {
               <Route path="/events/:id" element={<EventCardPage />} />
               <Route path="/schedule" element={<MySchedulePage />} />
               <Route path="/history" element={<HistoryPage />} />
-              <Route path="/profile" element={<Navigate to="/?settings=profile" replace />} />
+              <Route path="/profile" element={<Navigate to="/events?settings=profile" replace />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/teams" element={<TeamsPage />} />
               <Route path="/teams/:id" element={<TeamDetailPage />} />
@@ -109,14 +128,15 @@ export function AppRouter() {
               </Route>
 
               <Route path="/forbidden" element={<ForbiddenPage />} />
-              <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Route>
         </Route>
 
-        <Route path="/:handle" element={<PublicProfilePage />} />
+        <Route path="/:handle" element={<PublicProfileRoute />} />
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route element={<AuthLayout />}>
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )

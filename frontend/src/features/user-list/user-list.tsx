@@ -51,7 +51,7 @@ export function AdminUsersPage() {
   const remove = useDeleteUser()
 
   return (
-    <div>
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <PageHeader title={t('users.title')} description={t('users.description')} />
 
       <div className="mb-4 w-80">

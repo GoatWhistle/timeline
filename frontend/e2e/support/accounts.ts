@@ -55,7 +55,12 @@ export async function adminJar(): Promise<Jar> {
   return jar
 }
 
-export async function createMember(): Promise<{ email: string; password: string; id: string }> {
+export async function createMember(): Promise<{
+  email: string
+  password: string
+  id: string
+  nickname: string
+}> {
   const jar = await adminJar()
 
   const email = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`
@@ -68,11 +73,12 @@ export async function createMember(): Promise<{ email: string; password: string;
 
   const guest: Jar = new Map()
   await call(guest, 'GET', '/auth/csrf')
+  const nickname = `e2e${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
   const accepted = await call(guest, 'POST', '/invites/accept', {
     token,
     first_name: 'End',
     last_name: 'ToEnd',
-    nickname: `e2e${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+    nickname,
     password: MEMBER_PASSWORD,
   })
   if (accepted.status !== 200) throw new Error(`the invite was not accepted: ${accepted.status}`)
@@ -80,5 +86,5 @@ export async function createMember(): Promise<{ email: string; password: string;
   const id = (accepted.json as { user?: { id?: string } }).user?.id
   if (!id) throw new Error('accepting the invite returned no user')
 
-  return { email, password: MEMBER_PASSWORD, id }
+  return { email, password: MEMBER_PASSWORD, id, nickname }
 }

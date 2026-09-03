@@ -6,6 +6,7 @@ import { UserAvatar } from '@/entities/user/user-avatar/user-avatar'
 import { api, unwrap } from '@/shared/api/client'
 import type { PublicProfileResponse } from '@/shared/api/types.gen'
 import { useLocale } from '@/shared/i18n/i18n-context'
+import { profileNickname } from '@/shared/routing/public-profile-path'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { ProfileMissing } from './profile-missing'
 
@@ -21,17 +22,17 @@ export function PublicProfilePage() {
   const { t } = useTranslation()
   const { locale } = useLocale()
   const { handle = '' } = useParams()
-  const nickname = handle.startsWith('@') ? handle.slice(1) : ''
+  const nickname = profileNickname(handle) ?? ''
   const query = useQuery<PublicProfileResponse>({
     ...publicProfileQuery(nickname),
     enabled: nickname !== '',
   })
 
-  if (nickname !== '' && query.isPending) {
+  if (query.isPending) {
     return <div className="p-8 text-muted-foreground">{t('state.loading')}</div>
   }
 
-  if (nickname === '' || query.isError || !query.data) {
+  if (query.isError || !query.data) {
     return <ProfileMissing handle={nickname === '' ? undefined : nickname} />
   }
 

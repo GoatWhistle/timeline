@@ -10,6 +10,7 @@ import {
   useDisableRule,
   useUpdateRule,
 } from '@/entities/registration/registration.queries'
+import { failureMessage } from '@/shared/api/failure'
 import type { Channel, NotificationRuleResponse } from '@/shared/api/types.gen'
 import { formatOffsetMinutes } from '@/shared/datetime/datetime'
 import { RuleFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
@@ -91,7 +92,7 @@ export function RulesEditor({ eventId }: { eventId: string }) {
       setOpen(false)
       setEditing(null)
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : t('rules.saveFailed'))
+      toast.error(failureMessage(error))
     }
   }
 

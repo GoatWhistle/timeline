@@ -6,7 +6,7 @@ import { Link, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { useResendVerification } from '@/entities/session/session.queries'
 import { api, unwrap } from '@/shared/api/client'
-import { isApiError } from '@/shared/api/errors'
+import { failureMessage } from '@/shared/api/failure'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
@@ -79,7 +79,7 @@ export function VerifyEmailPage() {
         {isError && (
           <div className="flex items-start gap-2" role="alert">
             <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden="true" />
-            <p className="text-copy">{isApiError(error) ? error.message : t('verify.failed')}</p>
+            <p className="text-copy">{failureMessage(error)}</p>
           </div>
         )}
 

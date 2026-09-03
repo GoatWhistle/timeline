@@ -1,6 +1,7 @@
 import { AlertCircle, CheckCircle2, MinusCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { BatchItemResult, BatchResult } from '@/shared/api/types.gen'
+import { errorMessage } from '@/shared/i18n/error-message'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Button } from '@/shared/ui/primitives/button'
@@ -85,7 +86,10 @@ export function BatchResultPanel({
                   </span>
                   {status !== 'ok' && (
                     <span className="block text-muted-foreground">
-                      {item.message ?? item.code ?? t('batch.noDescription')}
+                      {(item.code ? errorMessage(item.code) : undefined) ??
+                        item.message ??
+                        item.code ??
+                        t('batch.noDescription')}
                     </span>
                   )}
                 </span>

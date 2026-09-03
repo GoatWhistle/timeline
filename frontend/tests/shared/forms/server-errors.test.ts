@@ -2,6 +2,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/shared/api/errors'
 import type { FieldError } from '@/shared/api/types.gen'
 import { applyServerErrors } from '@/shared/forms/server-errors'
+import { ensureLocale, i18n } from '@/shared/i18n/config'
+import { errorMessage } from '@/shared/i18n/error-message'
+import { LOCALES, type Locale } from '@/shared/i18n/locale'
 
 type Form = { name: string; deadline_at: string; root: string }
 
@@ -47,13 +50,19 @@ describe('applyServerErrors', () => {
       KNOWN,
     )
     expect(setError).toHaveBeenCalledTimes(1)
-    expect(setError).toHaveBeenCalledWith('root', { message: 'invalid request' })
+    expect(setError).toHaveBeenCalledWith('root', {
+      message: errorMessage('validation_failed'),
+    })
   })
 
   it('falls back to the root error when the server names no field at all', () => {
     const setError = vi.fn()
-    applyServerErrors<Form>(validation([], 'conflict on the record'), setError, KNOWN)
-    expect(setError).toHaveBeenCalledWith('root', { message: 'conflict on the record' })
+    applyServerErrors<Form>(
+      new ApiError(409, { code: 'already_member', message: 'conflict on the record' }),
+      setError,
+      KNOWN,
+    )
+    expect(setError).toHaveBeenCalledWith('root', { message: errorMessage('already_member') })
   })
 
   it('still reports the recognised field when another field is unknown', () => {
@@ -84,10 +93,47 @@ describe('applyServerErrors', () => {
     expect(payload.message).not.toBe('invalid request')
   })
 
-  it('rethrows anything that is not an API error, so a bug is not swallowed as a field error', () => {
+  it('reports a transport failure on the form instead of throwing past every handler', () => {
     const setError = vi.fn()
-    const boom = new TypeError('reading of undefined')
-    expect(() => applyServerErrors<Form>(boom, setError, KNOWN)).toThrow(boom)
-    expect(setError).not.toHaveBeenCalled()
+    const dropped = new TypeError('Failed to fetch')
+
+    expect(() => applyServerErrors<Form>(dropped, setError, KNOWN)).not.toThrow()
+
+    const [field, payload] = setError.mock.calls[0] as [string, { message: string }]
+    expect(field).toBe('root')
+    expect(payload.message).not.toContain('Failed to fetch')
+    expect(payload.message).toBeTruthy()
+  })
+})
+
+describe('what the form shows is never the raw English the server sent', () => {
+  it.each(LOCALES)('translates the served code onto the root error in %s', async (lc) => {
+    await ensureLocale(lc as Locale)
+    await i18n.changeLanguage(lc)
+    const setError = vi.fn()
+
+    applyServerErrors<Form>(
+      new ApiError(409, { code: 'already_member', message: 'RAW ENGLISH FALLBACK' }),
+      setError,
+      KNOWN,
+    )
+
+    const [, payload] = setError.mock.calls[0] as [string, { message: string }]
+    expect(payload.message).not.toContain('RAW ENGLISH FALLBACK')
+    expect(payload.message).toBe(i18n.getResource(lc, 'errors', 'already_member'))
+  })
+
+  it.each(LOCALES)('never shows the browser fetch wording in %s', async (lc) => {
+    await ensureLocale(lc as Locale)
+    await i18n.changeLanguage(lc)
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
+    const setError = vi.fn()
+
+    applyServerErrors<Form>(new TypeError('Failed to fetch'), setError, KNOWN)
+
+    const [, payload] = setError.mock.calls[0] as [string, { message: string }]
+    expect(payload.message).not.toContain('fetch')
+    expect(payload.message).toBe(i18n.getResource(lc, 'errors', 'transport_network'))
+    vi.restoreAllMocks()
   })
 })

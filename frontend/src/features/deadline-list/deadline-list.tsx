@@ -126,7 +126,7 @@ export function AdminDeadlinesPage() {
   const overdue = useQuery({ ...overdueQuery(page), enabled: tab === 'overdue' })
 
   return (
-    <div>
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <PageHeader
         title={t('deadlines.title')}
         description={t('deadlines.description')}
