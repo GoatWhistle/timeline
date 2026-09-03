@@ -65,7 +65,12 @@
     "formVenue": "Venue",
     "formOnlineUrl": "Broadcast link",
     "filterOffline": "Offline",
-    "filterOfflineHint": "Searches by stages: a hybrid event with an in-person final is included."
+    "filterOfflineHint": "Searches by stages: a hybrid event with an in-person final is included.",
+    "teamExact": "{{size}} in a team",
+    "teamRange": "{{min}}–{{max}} in a team",
+    "teamSize": "Team size",
+    "prizePoolShort": "Prize pool",
+    "website": "Website"
   },
   "links": {
     "title": "Links",

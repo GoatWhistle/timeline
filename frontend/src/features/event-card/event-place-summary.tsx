@@ -21,15 +21,17 @@ export function EventPlaceSummary({
   const derived = event.effective_format !== event.format
   const offline = stages.filter((stage) => isOffline(stage.place))
 
+  if (!derived && offline.length === 0) return null
+
   return (
     <div className="flex flex-col gap-2 text-copy">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Badge tone="outline">
           <FormatIcon className="size-3" aria-hidden="true" />
           {t(EVENT_FORMAT_KEY[event.effective_format])}
         </Badge>
         {derived && (
-          <span className="text-muted-foreground text-caption">{t('place.derivedHint')}</span>
+          <span className="text-caption text-muted-foreground">{t('place.derivedHint')}</span>
         )}
       </div>
 
@@ -42,29 +44,6 @@ export function EventPlaceSummary({
           })}
         </p>
       ))}
-
-      <dl className="flex flex-wrap gap-x-6 gap-y-1 text-muted-foreground">
-        {event.track && (
-          <div className="flex gap-1">
-            <dt>{t('place.track')}:</dt>
-            <dd className="text-foreground">{event.track}</dd>
-          </div>
-        )}
-        {event.prize_pool && event.prize_currency && (
-          <div className="flex gap-1">
-            <dt>{t('place.prizePool')}:</dt>
-            <dd className="text-foreground">
-              {event.prize_pool} {event.prize_currency}
-            </dd>
-          </div>
-        )}
-        {event.team_size_max && (
-          <div className="flex gap-1">
-            <dt>{t('place.teamSizeMax')}:</dt>
-            <dd className="text-foreground">{event.team_size_max}</dd>
-          </div>
-        )}
-      </dl>
     </div>
   )
 }

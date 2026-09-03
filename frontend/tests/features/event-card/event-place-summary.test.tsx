@@ -68,21 +68,27 @@ describe('EventPlaceSummary', () => {
     expect(screen.queryByText(/Kazan/)).not.toBeInTheDocument()
   })
 
-  it('shows the prize pool together with its currency', () => {
+  it('leaves the money and the team size to the facts panel', () => {
     renderWithProviders(
       <EventPlaceSummary
-        event={{ ...base, prize_pool: '500000.00', prize_currency: 'RUB' }}
-        stages={[]}
+        event={{
+          ...base,
+          effective_format: 'HYBRID',
+          prize_pool: '500000.00',
+          prize_currency: 'RUB',
+          team_size_max: 5,
+        }}
+        stages={[kazanFinal]}
       />,
     )
-    expect(screen.getByText('500000.00 RUB')).toBeInTheDocument()
+    expect(screen.queryByText(/500000\.00/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/RUB/)).not.toBeInTheDocument()
   })
 
-  it('shows the track and the maximum team size', () => {
-    renderWithProviders(
-      <EventPlaceSummary event={{ ...base, track: 'Smart city', team_size_max: 5 }} stages={[]} />,
+  it('renders nothing when the format is plain and no stage is in person', () => {
+    const { container } = renderWithProviders(
+      <EventPlaceSummary event={base} stages={[stage({})]} />,
     )
-    expect(screen.getByText('Smart city')).toBeInTheDocument()
-    expect(screen.getByText('5')).toBeInTheDocument()
+    expect(container).toBeEmptyDOMElement()
   })
 })

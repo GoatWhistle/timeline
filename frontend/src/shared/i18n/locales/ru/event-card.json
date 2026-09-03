@@ -65,7 +65,12 @@
     "formVenue": "Площадка",
     "formOnlineUrl": "Ссылка на трансляцию",
     "filterOffline": "Офлайн",
-    "filterOfflineHint": "Ищет по этапам: гибрид с очным финалом тоже попадёт в список."
+    "filterOfflineHint": "Ищет по этапам: гибрид с очным финалом тоже попадёт в список.",
+    "teamExact": "{{size}} в команде",
+    "teamRange": "{{min}}–{{max}} в команде",
+    "teamSize": "Размер команды",
+    "prizePoolShort": "Призовой фонд",
+    "website": "Сайт"
   },
   "links": {
     "title": "Ссылки",
