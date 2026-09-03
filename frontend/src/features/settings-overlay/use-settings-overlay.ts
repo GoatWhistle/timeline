@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { useSearchParams } from 'react-router'
 import { resolveSection, SETTINGS_PARAM, type SettingsSectionId } from './sections'
 
@@ -7,7 +7,9 @@ export function useSettingsOverlay() {
   const raw = params.get(SETTINGS_PARAM)
 
   const open = raw !== null
-  const section = resolveSection(raw)
+  const shown = useRef<SettingsSectionId>(resolveSection(raw))
+  if (open) shown.current = resolveSection(raw)
+  const section = shown.current
 
   const openSettings = useCallback(
     (next: SettingsSectionId) => {

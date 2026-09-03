@@ -20,6 +20,20 @@ describe('useSettingsOverlay', () => {
     expect(result.current.open).toBe(false)
   })
 
+  it('keeps showing the section it had while it closes, not the default one', () => {
+    const { result } = renderHook(() => useSettingsOverlay(), {
+      wrapper: wrapper('/?settings=shortcuts'),
+    })
+    expect(result.current.section).toBe('shortcuts')
+
+    act(() => {
+      result.current.closeSettings()
+    })
+
+    expect(result.current.open).toBe(false)
+    expect(result.current.section).toBe('shortcuts')
+  })
+
   it('opens on the section named in the address', () => {
     const { result } = renderHook(() => useSettingsOverlay(), {
       wrapper: wrapper('/?settings=appearance'),
