@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
 import { AppSidebar } from '@/app/sidebar/app-sidebar'
-import { ADMIN_NAV, USER_NAV } from '@/app/sidebar/nav-section'
+import { ADMIN_NAV, CATALOG_NAV, MINE_NAV } from '@/app/sidebar/nav-section'
 import type { MeResponse } from '@/shared/api/types.gen'
 import { I18nProvider } from '@/shared/i18n/i18n-context'
 import type { SidebarState } from '@/shared/ui/layout/sidebar/use-sidebar'
@@ -54,7 +54,7 @@ describe('the administrative sidebar belongs to administrators', () => {
     for (const item of ADMIN_NAV) {
       expect(links, `${item.to} is a dead end a participant can still click`).not.toContain(item.to)
     }
-    expect(links).toEqual(expect.arrayContaining(USER_NAV.map((item) => item.to)))
+    expect(links).toEqual(expect.arrayContaining([...CATALOG_NAV, ...MINE_NAV].map((item) => item.to)))
   })
 
   it('still gives an administrator standing on an admin route the admin navigation', () => {
@@ -67,7 +67,7 @@ describe('the administrative sidebar belongs to administrators', () => {
     mount(true, '/schedule')
 
     const links = destinations()
-    expect(links).toEqual(expect.arrayContaining(USER_NAV.map((item) => item.to)))
+    expect(links).toEqual(expect.arrayContaining([...CATALOG_NAV, ...MINE_NAV].map((item) => item.to)))
     expect(links.filter((href) => href.startsWith('/admin/'))).toEqual(['/admin/events'])
   })
 

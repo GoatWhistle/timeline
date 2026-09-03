@@ -9,7 +9,7 @@ import { useLocale } from '@/shared/i18n/i18n-context'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Wordmark } from '@/shared/ui/brand/wordmark'
 import type { SidebarState } from '@/shared/ui/layout/sidebar/use-sidebar'
-import { ADMIN_NAV, NavSection, USER_NAV } from './nav-section'
+import { ADMIN_NAV, CATALOG_NAV, MINE_NAV, NavSection } from './nav-section'
 
 export function AppSidebar({
   user,
@@ -70,7 +70,14 @@ export function AppSidebar({
           key={inAdmin ? 'admin' : 'user'}
           className="motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-left-2 motion-safe:duration-base motion-safe:ease-out"
         >
-          <NavSection items={inAdmin ? ADMIN_NAV : USER_NAV} />
+          {inAdmin ? (
+            <NavSection items={ADMIN_NAV} />
+          ) : (
+            <div className="flex flex-col gap-4">
+              <NavSection items={CATALOG_NAV} />
+              <NavSection title={t('nav.sectionMine')} items={MINE_NAV} />
+            </div>
+          )}
         </div>
       </nav>
 

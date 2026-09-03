@@ -9,7 +9,11 @@
   "nav": {
     "myEvents": "Мои события",
     "catalog": "Каталог",
-    "schedule": "Моё расписание",
+    "sectionMine": "Моё",
+    "events": "События",
+    "teams": "Команды",
+    "history": "История",
+    "schedule": "Расписание",
     "adminEvents": "События",
     "adminSchedule": "Шкала",
     "adminDeadlines": "Дедлайны",

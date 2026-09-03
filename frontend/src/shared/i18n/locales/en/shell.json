@@ -9,7 +9,11 @@
   "nav": {
     "myEvents": "My events",
     "catalog": "Catalog",
-    "schedule": "My schedule",
+    "sectionMine": "Mine",
+    "events": "Events",
+    "teams": "Teams",
+    "history": "History",
+    "schedule": "Schedule",
     "adminEvents": "Events",
     "adminSchedule": "Schedule",
     "adminDeadlines": "Deadlines",

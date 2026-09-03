@@ -24,12 +24,15 @@ export type NavItem = {
   icon: React.ComponentType<{ className?: string }>
 }
 
-export const USER_NAV: NavItem[] = [
+export const CATALOG_NAV: NavItem[] = [
   { to: '/catalog', labelKey: 'nav.catalog', icon: Compass },
-  { to: '/events', labelKey: 'nav.myEvents', icon: LayoutList },
+]
+
+export const MINE_NAV: NavItem[] = [
+  { to: '/events', labelKey: 'nav.events', icon: LayoutList },
   { to: '/schedule', labelKey: 'nav.schedule', icon: CalendarRange },
-  { to: '/teams', labelKey: 'team:title', icon: UsersRound },
-  { to: '/history', labelKey: 'event:personal.history.title', icon: History },
+  { to: '/teams', labelKey: 'nav.teams', icon: UsersRound },
+  { to: '/history', labelKey: 'nav.history', icon: History },
 ]
 
 export const ADMIN_NAV: NavItem[] = [
