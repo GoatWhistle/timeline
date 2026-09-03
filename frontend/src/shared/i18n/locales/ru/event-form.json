@@ -25,10 +25,8 @@
     "track": "Трек",
     "prizePool": "Призовой фонд",
     "prizeCurrency": "Валюта",
-    "prizePairHint": "Фонд и валюта задаются и очищаются вместе",
     "teamSizeMin": "Минимум в команде",
     "teamSizeMax": "Максимум в команде",
-    "teamSizeHint": "От {{min}} до {{max}} участников",
     "urlInvalid": "Нужен адрес сайта, http или https; без схемы подставляется https",
     "countryInvalid": "Две буквы кода страны",
     "prizePoolInvalid": "Неотрицательное число, до двух знаков после запятой",
@@ -36,17 +34,7 @@
     "countryRequiredOffline": "У очного и гибридного формата страна обязательна",
     "teamSizeOrder": "Минимум не может превышать максимум",
     "momentRequired": "Укажите дату и время",
-    "kindHint": {
-      "HACKATHON": "Призовой фонд, трек и команды",
-      "MEETUP": "Время, место и программа"
-    },
     "teamSize": "Размер команды",
-    "teamSizeSummary_one": "{{min}}-{{max}} участник",
-    "teamSizeSummary_few": "{{min}}-{{max}} участника",
-    "teamSizeSummary_many": "{{min}}-{{max}} участников",
-    "teamSizeValue_one": "{{count}} участник",
-    "teamSizeValue_few": "{{count}} участника",
-    "teamSizeValue_many": "{{count}} участников",
     "prizeCurrencyPlaceholder": "Выберите валюту",
     "currency": {
       "USD": "Доллар США",
@@ -59,6 +47,15 @@
       "KZT": "Казахстанский тенге",
       "UAH": "Украинская гривна"
     }
+  },
+  "stage": {
+    "pipeline": "Этапы заполнения",
+    "next": "Далее",
+    "kind": "Вид",
+    "basics": "Основное",
+    "period": "Даты",
+    "place": "Место",
+    "prize": "Призы и команды"
   },
   "clone": {
     "title": "Клонировать событие",
@@ -84,6 +81,6 @@
     "nextMonth": "Следующий месяц",
     "timeAria": "Время, часы и минуты",
     "zone": "{{zone}} ({{offset}})",
-    "keyboardHint": "Стрелки — день, PageUp и PageDown — месяц, Home и End — неделя, Escape — закрыть"
+    "keyboardHelp": "Стрелки — день, PageUp и PageDown — месяц, Home и End — неделя, Escape — закрыть"
   }
 }

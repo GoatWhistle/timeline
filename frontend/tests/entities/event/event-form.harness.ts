@@ -29,6 +29,41 @@ export function fixMoscowClock(): void {
   })
 }
 
+export type StageName = 'kind' | 'basics' | 'period' | 'place' | 'prize'
+
+export function stageStep(stage: StageName): HTMLElement {
+  const step = document.querySelector<HTMLElement>(`[data-stage-step="${stage}"] button`)
+  if (!step) throw new Error(`no stage ${stage}`)
+  return step
+}
+
+export async function goToStage(
+  user: { click: (element: Element) => Promise<void> },
+  stage: StageName,
+): Promise<void> {
+  await user.click(stageStep(stage))
+}
+
+export function lastStage(): StageName {
+  const steps = Array.from(document.querySelectorAll<HTMLElement>('[data-stage-step]'))
+  const last = steps[steps.length - 1]?.dataset.stageStep
+  if (!last) throw new Error('no stages')
+  return last as StageName
+}
+
+export async function submitForm(user: {
+  click: (element: Element) => Promise<void>
+}): Promise<void> {
+  await goToStage(user, lastStage())
+  const button = document.querySelector<HTMLElement>('[data-event-form] button[type="submit"]')
+  if (!button) throw new Error('no submit button')
+  await user.click(button)
+}
+
+export function currentStage(): string | undefined {
+  return document.querySelector<HTMLElement>('[data-event-stage]')?.dataset.eventStage
+}
+
 export function trigger(id: string): HTMLElement {
   const node = document.getElementById(id)
   if (!node) throw new Error(`no ${id}`)

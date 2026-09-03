@@ -26,6 +26,7 @@ export function CalendarPanel({
   const { t, i18n } = useTranslation('event')
   const locale = toLocale(i18n.language)
   const titleId = useId()
+  const keysId = useId()
   const { today, focused, month, moveTo, stepMonth, handleKeyDown } = useCalendar({
     value,
     bounds,
@@ -69,6 +70,7 @@ export function CalendarPanel({
         bounds={bounds}
         locale={locale}
         labelledBy={titleId}
+        describedBy={keysId}
         autoFocus={open}
         onSelect={(date) => {
           moveTo(date)
@@ -77,8 +79,8 @@ export function CalendarPanel({
         onKeyDown={handleKeyDown}
       />
 
-      <p className="max-w-[17rem] text-caption text-muted-foreground">
-        {t('calendar.keyboardHint')}
+      <p id={keysId} className="sr-only">
+        {t('calendar.keyboardHelp')}
       </p>
     </div>
   )

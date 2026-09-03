@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { RangeThumb } from './range-thumb'
+import { RangeTickLabels, RangeTickMarks } from './range-ticks'
 import {
   nearestHandle,
   type RangeBounds,
@@ -19,6 +20,7 @@ export function RangeSlider({
   lowLabel,
   highLabel,
   summary,
+  ticks,
   valueText,
   describedBy,
   onChange,
@@ -28,7 +30,8 @@ export function RangeSlider({
   value: RangeValue
   lowLabel: string
   highLabel: string
-  summary: string
+  summary?: string | undefined
+  ticks?: boolean | undefined
   valueText: (amount: number) => string
   describedBy?: string | undefined
   onChange: (next: RangeValue) => void
@@ -80,10 +83,12 @@ export function RangeSlider({
   const highRatio = ratioOf(value.high, bounds)
 
   return (
-    <div className="flex flex-col gap-2">
-      <p aria-hidden="true" className="font-medium text-copy tabular-nums">
-        {summary}
-      </p>
+    <div className="flex flex-col gap-2 px-2.5">
+      {summary !== undefined && (
+        <p aria-hidden="true" className="font-medium text-copy tabular-nums">
+          {summary}
+        </p>
+      )}
       <div
         ref={trackRef}
         data-testid={`${id}-track`}
@@ -99,6 +104,7 @@ export function RangeSlider({
           className="absolute h-1.5 rounded-pill bg-primary"
           style={{ left: `${lowRatio * 100}%`, right: `${(1 - highRatio) * 100}%` }}
         />
+        {ticks && <RangeTickMarks bounds={bounds} value={value} />}
         <RangeThumb
           id={`${id}-min`}
           handle="low"
@@ -122,10 +128,14 @@ export function RangeSlider({
           onMove={move}
         />
       </div>
-      <div aria-hidden="true" className="flex justify-between text-caption text-muted-foreground">
-        <span className="tabular-nums">{bounds.min}</span>
-        <span className="tabular-nums">{bounds.max}</span>
-      </div>
+      {ticks ? (
+        <RangeTickLabels bounds={bounds} value={value} />
+      ) : (
+        <div aria-hidden="true" className="flex justify-between text-caption text-muted-foreground">
+          <span className="tabular-nums">{bounds.min}</span>
+          <span className="tabular-nums">{bounds.max}</span>
+        </div>
+      )}
     </div>
   )
 }

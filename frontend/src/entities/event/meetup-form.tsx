@@ -2,17 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { type ReactNode, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import type { EventResponse } from '@/shared/api/types.gen'
-import { type MomentRange, MomentRangeFields } from '@/shared/ui/forms/calendar/moment-range'
-import { Button } from '@/shared/ui/primitives/button'
-import {
-  EventContactFields,
-  EventOriginRow,
-  EventProseFields,
-  EventTitleField,
-} from './event-common-fields'
+import type { MomentRange } from '@/shared/ui/forms/calendar/moment-range'
+import { EventFlatForm } from './event-flat-form'
 import { buildMeetupPayload, commonDefaults, type EventFormPayload } from './event-form.payload'
 import { COMMON_FIELD_NAMES, type MeetupFormValues, meetupSchema } from './event-form.schema'
-import { EventPlaceFields } from './event-place-fields'
+import { type StageId, type StagePipeline, stageOfFields } from './event-form.stages'
+import { EventStagePanel } from './event-stage-panel'
+import { EventStagedForm } from './event-staged-form'
 import { useEventSubmit } from './use-event-submit'
 
 export function MeetupForm({
@@ -21,6 +17,9 @@ export function MeetupForm({
   cover,
   draft,
   range,
+  pipeline,
+  staged,
+  onKindChange,
   onDraft,
   onRangeChange,
   onSubmit,
@@ -30,6 +29,9 @@ export function MeetupForm({
   cover?: ReactNode
   draft?: Partial<MeetupFormValues>
   range: MomentRange
+  pipeline: StagePipeline
+  staged: boolean
+  onKindChange: (next: 'HACKATHON' | 'MEETUP') => void
   onDraft?: (values: MeetupFormValues) => void
   onRangeChange: (next: MomentRange) => void
   onSubmit: (payload: EventFormPayload) => Promise<void>
@@ -39,6 +41,7 @@ export function MeetupForm({
     control,
     handleSubmit,
     setError,
+    trigger,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<MeetupFormValues>({
@@ -52,6 +55,8 @@ export function MeetupForm({
     build: buildMeetupPayload,
     setError,
     onSubmit,
+    onProblem: pipeline.goTo,
+    onServerFields: goToStageOf,
   })
 
   useEffect(() => {
@@ -60,49 +65,69 @@ export function MeetupForm({
     return () => subscription.unsubscribe()
   }, [watch, onDraft])
 
-  return (
-    <form
-      className="flex flex-col gap-5"
-      data-event-form="MEETUP"
-      onSubmit={handleSubmit(submit)}
-      noValidate
-    >
-      <EventTitleField register={register} errors={errors} />
-      <EventOriginRow control={control} />
+  function goToStageOf(named: string[]) {
+    const found = stageOfFields(pipeline.stages, named)
+    if (found !== null) pipeline.goTo(found)
+  }
 
-      <MomentRangeFields
-        value={range}
-        endError={rangeError ?? undefined}
-        onChange={(next) => {
-          onRangeChange(next)
-          setRangeError(null)
-        }}
-      />
+  function invalid(problems: Record<string, unknown>) {
+    goToStageOf(Object.keys(problems))
+  }
 
-      <EventPlaceFields
+  async function next() {
+    const fields = pipeline.stage.fields as readonly (keyof MeetupFormValues)[]
+    if (fields.length > 0 && !(await trigger([...fields]))) return
+    pipeline.markDone()
+  }
+
+  function panel(stage: StageId) {
+    return (
+      <EventStagePanel
+        stage={stage}
+        kind="MEETUP"
+        onKindChange={onKindChange}
         control={control}
         register={register}
         errors={errors}
         format={watch('format')}
+        range={range}
+        rangeError={rangeError}
+        onRangeChange={(nextRange) => {
+          onRangeChange(nextRange)
+          setRangeError(null)
+        }}
       />
+    )
+  }
 
-      <EventContactFields register={register} errors={errors} />
+  if (!staged) {
+    return (
+      <EventFlatForm
+        kind="MEETUP"
+        stages={pipeline.stages}
+        submitLabel={submitLabel}
+        busy={isSubmitting}
+        rootError={errors.root?.message}
+        cover={cover}
+        renderStage={(stage) => panel(stage.id)}
+        onSubmit={handleSubmit(submit, invalid)}
+      />
+    )
+  }
 
-      {cover}
-
-      <EventProseFields register={register} errors={errors} />
-
-      {errors.root && (
-        <p role="alert" className="text-copy text-destructive">
-          {errors.root.message}
-        </p>
-      )}
-
-      <div>
-        <Button type="submit" disabled={isSubmitting}>
-          {submitLabel}
-        </Button>
-      </div>
-    </form>
+  return (
+    <EventStagedForm
+      kind="MEETUP"
+      pipeline={pipeline}
+      submitLabel={submitLabel}
+      busy={isSubmitting}
+      rootError={errors.root?.message}
+      cover={cover}
+      onGoTo={(id: StageId) => pipeline.goTo(id)}
+      onNext={next}
+      onSubmit={handleSubmit(submit, invalid)}
+    >
+      {panel(pipeline.stage.id)}
+    </EventStagedForm>
   )
 }

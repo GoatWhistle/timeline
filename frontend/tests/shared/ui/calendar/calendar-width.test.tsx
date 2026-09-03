@@ -58,11 +58,24 @@ describe('the calendar stays as narrow as its seven columns', () => {
     for (const head of heads) expect(head.className).toContain('w-9')
   })
 
-  it('keeps the keyboard hint from setting the width of the whole panel', async () => {
+  it('shows no keyboard hint on the visible surface of the panel', async () => {
     await render()
-    const hint = document.querySelector('[role="dialog"] p')
-    expect(hint).not.toBeNull()
-    expect(hint?.className).toMatch(/max-w-/)
+    const carrying = [...document.querySelectorAll('[role="dialog"] *')].filter(
+      (node) => node.children.length === 0 && (node.textContent ?? '').includes('PageUp'),
+    )
+    expect(carrying.length).toBeGreaterThan(0)
+    for (const node of carrying) {
+      expect(node.closest('.sr-only'), node.tagName).not.toBeNull()
+    }
+  })
+
+  it('still tells a screen reader how the grid is driven', async () => {
+    await render()
+    const described = grid().getAttribute('aria-describedby')
+    expect(described).toBeTruthy()
+    const help = document.getElementById(described ?? '')
+    expect(help?.className).toContain('sr-only')
+    expect(help?.textContent ?? '').toMatch(/PageUp/)
   })
 
   it('still reaches the last weekday column, the one a clipped panel loses first', async () => {

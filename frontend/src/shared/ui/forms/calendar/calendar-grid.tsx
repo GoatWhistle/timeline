@@ -48,6 +48,7 @@ export function CalendarGrid({
   bounds,
   locale,
   labelledBy,
+  describedBy,
   autoFocus,
   onSelect,
   onKeyDown,
@@ -60,6 +61,7 @@ export function CalendarGrid({
   bounds: DayBounds
   locale: Locale
   labelledBy: string
+  describedBy?: string | undefined
   autoFocus: boolean
   onSelect: (date: string) => void
   onKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => void
@@ -78,6 +80,7 @@ export function CalendarGrid({
   return (
     <table
       aria-labelledby={labelledBy}
+      aria-describedby={describedBy}
       onKeyDown={onKeyDown}
       className="w-max table-fixed border-separate border-spacing-1"
     >

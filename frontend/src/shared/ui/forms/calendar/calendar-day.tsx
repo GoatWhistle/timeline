@@ -13,17 +13,32 @@ export type DayState = {
 }
 
 const BASE =
-  'relative flex size-9 items-center justify-center rounded-control text-copy tabular-nums transition-colors motion-safe:duration-instant'
+  'relative flex size-9 items-center justify-center text-copy tabular-nums transition-colors motion-safe:duration-instant'
+
+function bandShape(day: DayState): string {
+  const spans = day.rangeStart !== day.rangeEnd
+  if (!spans) return 'rounded-control'
+  if (day.rangeStart) return 'rounded-control rounded-r-none'
+  if (day.rangeEnd) return 'rounded-control rounded-l-none'
+  return 'rounded-none'
+}
 
 export function dayClassName(day: DayState): string {
+  const banded = day.rangeStart || day.rangeEnd
+  const middle = day.inRange && !banded
   return cn(
     BASE,
+    banded || middle ? bandShape(day) : 'rounded-control',
     day.outside && 'text-faint-foreground',
     day.disabled && 'cursor-not-allowed text-faint-foreground line-through opacity-60',
-    !day.disabled && !day.selected && 'hover:bg-accent-surface',
-    day.inRange && !day.selected && 'bg-accent-surface text-accent-surface-foreground',
+    !day.disabled && !day.selected && !banded && 'hover:bg-accent-surface',
+    middle && !day.selected && 'bg-accent-surface text-accent-surface-foreground',
+    banded && 'bg-primary font-semibold text-primary-foreground',
     day.selected && 'bg-primary font-semibold text-primary-foreground',
-    day.today && !day.selected && 'font-semibold underline decoration-2 underline-offset-4',
+    day.today &&
+      !day.selected &&
+      !banded &&
+      'font-semibold underline decoration-2 underline-offset-4',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
   )
 }
@@ -49,6 +64,8 @@ export function CalendarDayCell({
       data-today={day.today ? 'true' : undefined}
       data-selected={day.selected ? 'true' : undefined}
       data-in-range={day.inRange ? 'true' : undefined}
+      data-range-start={day.rangeStart ? 'true' : undefined}
+      data-range-end={day.rangeEnd ? 'true' : undefined}
       data-outside={day.outside ? 'true' : undefined}
       aria-label={label}
       aria-pressed={day.selected}
@@ -67,7 +84,7 @@ export function CalendarDayCell({
           aria-hidden="true"
           className={cn(
             'absolute bottom-1 size-1 rounded-pill',
-            day.selected ? 'bg-primary-foreground' : 'bg-primary',
+            day.selected || day.rangeStart || day.rangeEnd ? 'bg-primary-foreground' : 'bg-primary',
           )}
         />
       )}

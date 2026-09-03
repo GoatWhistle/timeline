@@ -1,18 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type ReactNode, useEffect } from 'react'
 import { type Control, type FieldErrors, type UseFormRegister, useForm } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import type { EventResponse } from '@/shared/api/types.gen'
-import { type MomentRange, MomentRangeFields } from '@/shared/ui/forms/calendar/moment-range'
-import { Field } from '@/shared/ui/forms/field'
-import { Input } from '@/shared/ui/forms/input'
-import { Button } from '@/shared/ui/primitives/button'
-import {
-  EventContactFields,
-  EventOriginRow,
-  EventProseFields,
-  EventTitleField,
-} from './event-common-fields'
+import type { MomentRange } from '@/shared/ui/forms/calendar/moment-range'
+import { EventFlatForm } from './event-flat-form'
 import {
   buildHackathonPayload,
   type EventFormPayload,
@@ -24,8 +15,10 @@ import {
   hackathonSchema,
   type MeetupFormValues,
 } from './event-form.schema'
-import { EventPlaceFields } from './event-place-fields'
+import { type StageId, type StagePipeline, stageOfFields } from './event-form.stages'
 import { EventPrizeFields } from './event-prize-fields'
+import { EventStagePanel } from './event-stage-panel'
+import { EventStagedForm } from './event-staged-form'
 import { useEventSubmit } from './use-event-submit'
 
 export function HackathonForm({
@@ -34,6 +27,9 @@ export function HackathonForm({
   cover,
   draft,
   range,
+  pipeline,
+  staged,
+  onKindChange,
   onDraft,
   onRangeChange,
   onSubmit,
@@ -43,17 +39,19 @@ export function HackathonForm({
   cover?: ReactNode
   draft?: Partial<MeetupFormValues>
   range: MomentRange
+  pipeline: StagePipeline
+  staged: boolean
+  onKindChange: (next: 'HACKATHON' | 'MEETUP') => void
   onDraft?: (values: MeetupFormValues) => void
   onRangeChange: (next: MomentRange) => void
   onSubmit: (payload: EventFormPayload) => Promise<void>
 }) {
-  const { t } = useTranslation('event')
-
   const {
     register,
     control,
     handleSubmit,
     setError,
+    trigger,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<HackathonFormValues>({
@@ -67,6 +65,8 @@ export function HackathonForm({
     build: buildHackathonPayload,
     setError,
     onSubmit,
+    onProblem: pipeline.goTo,
+    onServerFields: goToStageOf,
   })
 
   useEffect(() => {
@@ -75,60 +75,70 @@ export function HackathonForm({
     return () => subscription.unsubscribe()
   }, [watch, onDraft])
 
-  const commonControl = control as unknown as Control<MeetupFormValues>
-  const commonRegister = register as unknown as UseFormRegister<MeetupFormValues>
-  const commonErrors = errors as FieldErrors<MeetupFormValues>
+  function goToStageOf(named: string[]) {
+    const found = stageOfFields(pipeline.stages, named)
+    if (found !== null) pipeline.goTo(found)
+  }
 
-  return (
-    <form
-      className="flex flex-col gap-5"
-      data-event-form="HACKATHON"
-      onSubmit={handleSubmit(submit)}
-      noValidate
-    >
-      <EventTitleField register={commonRegister} errors={commonErrors} />
-      <EventOriginRow control={commonControl} />
+  function invalid(problems: Record<string, unknown>) {
+    goToStageOf(Object.keys(problems))
+  }
 
-      <MomentRangeFields
-        value={range}
-        endError={rangeError ?? undefined}
-        onChange={(next) => {
-          onRangeChange(next)
+  async function next() {
+    const fields = pipeline.stage.fields
+    if (fields.length > 0 && !(await trigger([...fields]))) return
+    pipeline.markDone()
+  }
+
+  function panel(stage: StageId) {
+    return (
+      <EventStagePanel
+        stage={stage}
+        kind="HACKATHON"
+        onKindChange={onKindChange}
+        control={control as unknown as Control<MeetupFormValues>}
+        register={register as unknown as UseFormRegister<MeetupFormValues>}
+        errors={errors as FieldErrors<MeetupFormValues>}
+        format={watch('format')}
+        range={range}
+        rangeError={rangeError}
+        onRangeChange={(nextRange) => {
+          onRangeChange(nextRange)
           setRangeError(null)
         }}
+        prize={<EventPrizeFields control={control} register={register} errors={errors} />}
       />
+    )
+  }
 
-      <EventPlaceFields
-        control={commonControl}
-        register={commonRegister}
-        errors={commonErrors}
-        format={watch('format')}
-        side={
-          <Field label={t('form.track')} htmlFor="event-track" error={errors.track?.message}>
-            <Input id="event-track" {...register('track')} />
-          </Field>
-        }
+  if (!staged) {
+    return (
+      <EventFlatForm
+        kind="HACKATHON"
+        stages={pipeline.stages}
+        submitLabel={submitLabel}
+        busy={isSubmitting}
+        rootError={errors.root?.message}
+        cover={cover}
+        renderStage={(stage) => panel(stage.id)}
+        onSubmit={handleSubmit(submit, invalid)}
       />
+    )
+  }
 
-      <EventPrizeFields control={control} register={register} errors={errors} />
-
-      <EventContactFields register={commonRegister} errors={commonErrors} />
-
-      {cover}
-
-      <EventProseFields register={commonRegister} errors={commonErrors} />
-
-      {errors.root && (
-        <p role="alert" className="text-copy text-destructive">
-          {errors.root.message}
-        </p>
-      )}
-
-      <div>
-        <Button type="submit" disabled={isSubmitting}>
-          {submitLabel}
-        </Button>
-      </div>
-    </form>
+  return (
+    <EventStagedForm
+      kind="HACKATHON"
+      pipeline={pipeline}
+      submitLabel={submitLabel}
+      busy={isSubmitting}
+      rootError={errors.root?.message}
+      cover={cover}
+      onGoTo={(id: StageId) => pipeline.goTo(id)}
+      onNext={next}
+      onSubmit={handleSubmit(submit, invalid)}
+    >
+      {panel(pipeline.stage.id)}
+    </EventStagedForm>
   )
 }

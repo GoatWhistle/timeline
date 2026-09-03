@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
 import { EventForm } from '@/entities/event/event-form'
-import { day, dayCells, EVENT, fixMoscowClock, trigger } from './event-form.harness'
+import { day, dayCells, EVENT, fixMoscowClock, goToStage, trigger } from './event-form.harness'
 
 fixMoscowClock()
 
@@ -11,6 +11,7 @@ describe('the end calendar begins at the start date', () => {
     const { user } = renderWithProviders(
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
+    await goToStage(user, 'period')
     await user.click(trigger('event-end'))
     expect(day('2026-04-30')).toHaveAttribute('aria-disabled', 'true')
     expect(day('2026-05-01')).toHaveAttribute('aria-disabled', 'false')
@@ -21,6 +22,7 @@ describe('the end calendar begins at the start date', () => {
     const { user } = renderWithProviders(
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
+    await goToStage(user, 'period')
     await user.click(trigger('event-start'))
     expect(day('2026-05-04')).toHaveAttribute('aria-disabled', 'true')
   })
@@ -29,6 +31,7 @@ describe('the end calendar begins at the start date', () => {
     const { user } = renderWithProviders(
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
+    await goToStage(user, 'period')
     await user.click(trigger('event-end'))
     await user.click(day('2026-04-28'))
     expect(trigger('event-end')).toHaveAttribute('data-value', '2026-05-03')
@@ -38,6 +41,7 @@ describe('the end calendar begins at the start date', () => {
     const { user } = renderWithProviders(
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
+    await goToStage(user, 'period')
     await user.click(trigger('event-end'))
     await user.keyboard('{ArrowUp}{ArrowUp}{ArrowUp}{ArrowLeft}{ArrowLeft}')
     const focusable = dayCells().filter((cell) => cell.tabIndex === 0)
@@ -51,6 +55,7 @@ describe('the end calendar begins at the start date', () => {
     const { user } = renderWithProviders(
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
+    await goToStage(user, 'period')
     await user.click(trigger('event-end'))
     await user.keyboard('{PageUp}')
     expect(dayCells().find((cell) => cell.tabIndex === 0)?.dataset.date).toBe('2026-05-01')
@@ -58,8 +63,11 @@ describe('the end calendar begins at the start date', () => {
     expect(dayCells().find((cell) => cell.tabIndex === 0)?.dataset.date).toBe('2026-05-01')
   })
 
-  it('states the rule through the calendar, not through a hint under the field', () => {
-    renderWithProviders(<EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />)
+  it('states the rule through the calendar, not through a hint under the field', async () => {
+    const { user } = renderWithProviders(
+      <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
+    )
+    await goToStage(user, 'period')
     expect(document.getElementById('event-end-hint')).toBeNull()
     expect(trigger('event-end')).not.toHaveAttribute('aria-describedby')
   })
@@ -68,6 +76,7 @@ describe('the end calendar begins at the start date', () => {
     const { user } = renderWithProviders(
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
+    await goToStage(user, 'period')
     await user.click(trigger('event-start'))
     expect(day('2026-05-02')).toHaveAttribute('data-in-range', 'true')
     expect(day('2026-05-05')).not.toHaveAttribute('data-in-range')
@@ -75,8 +84,11 @@ describe('the end calendar begins at the start date', () => {
 })
 
 describe('the zone is stated on the form', () => {
-  it('names the zone and its offset beside each moment', () => {
-    renderWithProviders(<EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />)
+  it('names the zone and its offset beside each moment', async () => {
+    const { user } = renderWithProviders(
+      <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
+    )
+    await goToStage(user, 'period')
     expect(screen.getByTestId('event-start-zone')).toHaveTextContent('Europe/Moscow')
     expect(screen.getByTestId('event-start-zone')).toHaveTextContent('GMT+3')
   })
