@@ -19,7 +19,7 @@ export function HistoryPage() {
   const items = query.data?.items ?? []
 
   return (
-    <div className="max-w-4xl">
+    <>
       <PageHeader
         title={t('personal.history.title')}
         description={t('personal.history.subtitle')}
@@ -56,6 +56,6 @@ export function HistoryPage() {
           </div>
         )}
       </QueryBoundary>
-    </div>
+    </>
   )
 }

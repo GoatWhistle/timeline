@@ -188,3 +188,23 @@ describe('the history screen', () => {
     )
   })
 })
+
+describe('the history page fills its pane like every other page', () => {
+  const PAGES = [
+    'src/features/personal-history/history.tsx',
+    'src/features/schedule/my/schedule.tsx',
+    'src/features/event-list/my/event-list.tsx',
+    'src/features/teams/teams.tsx',
+  ]
+
+  it('caps its width nowhere its siblings do not', async () => {
+    const { readFileSync } = await import('node:fs')
+    const { join } = await import('node:path')
+
+    const capped = PAGES.filter((page) =>
+      /max-w-/.test(readFileSync(join(process.cwd(), page), 'utf8')),
+    )
+
+    expect(capped).toEqual([])
+  })
+})

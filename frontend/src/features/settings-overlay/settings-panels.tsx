@@ -18,26 +18,9 @@ import { TelegramLinkCard } from '@/features/profile/telegram-link-card/telegram
 import { ShortcutSettings } from '@/features/shortcut-settings/shortcut-settings'
 import type { MeResponse } from '@/shared/api/types.gen'
 import { SYSTEM_TIME_ZONE } from '@/shared/datetime/datetime'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { TimezoneSelect } from '@/shared/ui/primitives/timezone-select/timezone-select'
 import type { SettingsSectionId } from './sections'
-
-function Stack({
-  title,
-  hint,
-  children,
-}: {
-  title: string
-  hint?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="py-4">
-      <p className="font-medium text-copy">{title}</p>
-      {hint ? <p className="mt-0.5 max-w-prose text-meta text-muted-foreground">{hint}</p> : null}
-      <div className="mt-3">{children}</div>
-    </div>
-  )
-}
 
 function AppearancePanel({ user }: { user: MeResponse }) {
   const { t } = useTranslation()
@@ -53,20 +36,35 @@ function AppearancePanel({ user }: { user: MeResponse }) {
   }
 
   return (
-    <div className="divide-y divide-border">
-      <Stack title={t('settings.theme')}>
-        <ThemeChoice />
-      </Stack>
-      <Stack title={t('language.label')}>
-        <LanguageChoice />
-      </Stack>
-      <Stack title={t('settings.timezone')}>
-        <TimezoneSelect
-          value={user.timezone ?? SYSTEM_TIME_ZONE}
-          onChange={onChangeTimezone}
-          disabled={updateProfile.isPending}
-        />
-      </Stack>
+    <div className="flex flex-col gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('settings.theme')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ThemeChoice />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('language.label')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <LanguageChoice />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('settings.timezone')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TimezoneSelect
+            value={user.timezone ?? SYSTEM_TIME_ZONE}
+            onChange={onChangeTimezone}
+            disabled={updateProfile.isPending}
+          />
+        </CardContent>
+      </Card>
     </div>
   )
 }
