@@ -148,6 +148,11 @@ func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
 // @Description	Changing end_at increments the registration schedule_version, cancels stale
 // @Description	pending notifications and triggers reconciliation. Violating the condition
 // @Description	deadline_at <= end_at is rejected.
+// @Description
+// @Description	The kind is fixed once the event exists: a hackathon never becomes a meetup.
+// @Description	Sending the kind it already has is not an attempted change and is accepted;
+// @Description	sending a different one is refused with invalid_state_transition and leaves
+// @Description	the event as it was.
 // @Tags			events
 // @Accept			json
 // @Produce		json
@@ -158,7 +163,7 @@ func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
 // @Failure		400		{object}	dto.ErrorResponse
 // @Failure		403		{object}	dto.ErrorResponse
 // @Failure		404		{object}	dto.ErrorResponse
-// @Failure		409		{object}	dto.ErrorResponse	"the registration deadline falls outside end_at"
+// @Failure		409		{object}	dto.ErrorResponse	"the kind was changed, or the registration deadline falls outside end_at"
 // @Router			/admin/events/{id} [patch]
 func (c *Controller) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := c.eventID(r, "id")

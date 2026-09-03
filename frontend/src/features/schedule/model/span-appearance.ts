@@ -1,6 +1,6 @@
 import type { StageType } from '@/shared/api/types.gen'
 import type { CalendarSpan } from './calendar-items'
-import type { Segment } from './pack-lanes'
+import type { PackedSpan } from './pack-lanes'
 
 const FALLBACK_TYPE: StageType = 'OTHER'
 
@@ -10,7 +10,7 @@ export function spanIsUnconfirmed(span: CalendarSpan): boolean {
 
 export function primaryStageType(
   span: CalendarSpan,
-  segment: Pick<Segment<CalendarSpan>, 'startDay' | 'endDay'>,
+  segment: Pick<PackedSpan<CalendarSpan>, 'startDay' | 'endDay'>,
 ): StageType {
   const overlapping = span.items.filter(
     (item) =>

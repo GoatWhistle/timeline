@@ -1,25 +1,31 @@
+import { ArrowUpRight, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
+import { formatPrize } from '@/entities/event/event-prize-format'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { formatDate, formatDateRange } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
+import { teamSizeLabelKey } from './catalog.facts'
+import { CatalogCover } from './catalog-cover'
+import { CatalogJoinedMark } from './catalog-joined-mark'
 import { CatalogKindMark } from './catalog-kind-mark'
 
-function CatalogPlaceLine({ event }: { event: CatalogEvent }) {
+function PlaceLine({ event }: { event: CatalogEvent }) {
   const { t } = useTranslation('event')
   const final = event.offline_stages.at(-1)
   if (!final) return null
 
   return (
-    <p className="truncate text-meta text-muted-foreground">
+    <span className="block truncate text-caption text-muted-foreground">
       {t('place.stageLine', {
         name: final.name,
         place: placeLabel(final.place, t('place.online')),
         date: formatDate(final.start_at),
       })}
-    </p>
+    </span>
   )
 }
 
@@ -34,46 +40,106 @@ export function CatalogCard({
 }) {
   const { t } = useTranslation('event')
   const FormatIcon = EVENT_FORMAT_ICON[event.effective_format]
+  const teamSize = teamSizeLabelKey(event)
+  const prize = formatPrize(event.prize_pool, event.prize_currency)
 
   return (
-    <button
-      type="button"
-      role="option"
-      aria-selected={selected}
-      data-event-row={event.id}
-      onClick={() => onSelect(event.id)}
+    <div
       className={cn(
-        'flex h-full w-full min-w-0 flex-col gap-2 rounded-surface border border-border bg-card p-3',
-        'text-left transition-colors duration-instant',
-        'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
-        selected ? 'bg-accent-surface' : 'hover:bg-surface-2',
+        'group relative flex h-full min-w-0 flex-col rounded-surface border bg-card',
+        'motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-base',
+        'motion-safe:ease-out',
+        'focus-within:border-ring hover:motion-safe:-translate-y-0.5 hover:shadow-sm',
+        selected ? 'border-ring shadow-sm' : 'border-border',
       )}
     >
-      <span className="flex w-full min-w-0 items-center gap-2">
-        <CatalogKindMark kind={event.kind} />
-        <span className="min-w-0 flex-1 truncate font-medium text-copy">{event.title}</span>
-        {event.joined && (
-          <Badge tone="primary" className="shrink-0">
-            {t('catalog.joined')}
-          </Badge>
+      <button
+        type="button"
+        role="option"
+        aria-selected={selected}
+        data-event-row={event.id}
+        onClick={() => onSelect(event.id)}
+        className={cn(
+          'flex min-w-0 flex-1 flex-col gap-2.5 rounded-surface p-3 text-left',
+          'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
         )}
-      </span>
+      >
+        <CatalogCover
+          coverUrl={event.cover_url}
+          color={event.color}
+          initial={event.title.slice(0, 1)}
+          className="aspect-[16/9] shrink-0"
+        />
 
-      <span className="flex w-full min-w-0 items-center gap-2 text-meta text-muted-foreground">
-        <FormatIcon className="size-3 shrink-0" aria-hidden="true" />
-        <span className="truncate">{t(EVENT_FORMAT_KEY[event.effective_format])}</span>
-        <span aria-hidden="true">·</span>
-        <span className="truncate">{formatDateRange(event.start_at, event.end_at)}</span>
-      </span>
-
-      <CatalogPlaceLine event={event} />
-      {event.prize_pool && event.prize_currency && (
-        <span className="text-meta text-muted-foreground">
-          {t('place.prizePool')}: {event.prize_pool} {event.prize_currency}
+        <span className="flex min-w-0 items-start gap-2">
+          <CatalogKindMark kind={event.kind} className="mt-0.5" />
+          <span className="min-w-0 flex-1 font-semibold text-heading leading-snug [text-wrap:balance]">
+            {event.title}
+          </span>
+          {event.joined && <CatalogJoinedMark className="mt-0.5" />}
         </span>
-      )}
 
-      <span className="sr-only">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>
-    </button>
+        {event.organizer && (
+          <span className="-mt-1 block truncate text-caption text-muted-foreground">
+            {event.organizer}
+          </span>
+        )}
+
+        <span className="mt-auto flex flex-col gap-1 pt-0.5">
+          <span className="flex min-w-0 items-center gap-1.5 text-meta">
+            <FormatIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <span className="shrink-0 text-muted-foreground">
+              {t(EVENT_FORMAT_KEY[event.effective_format])}
+            </span>
+            <span aria-hidden="true" className="shrink-0 text-faint-foreground">
+              ·
+            </span>
+            <span className="truncate font-medium">
+              {formatDateRange(event.start_at, event.end_at)}
+            </span>
+          </span>
+
+          <PlaceLine event={event} />
+
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1">
+            {event.track && (
+              <Badge tone="neutral" className="max-w-full truncate">
+                {event.track}
+              </Badge>
+            )}
+            {teamSize && (
+              <span className="inline-flex items-center gap-1 text-caption text-muted-foreground">
+                <Users className="size-3 shrink-0" aria-hidden="true" />
+                {t(teamSize.key, teamSize.values)}
+              </span>
+            )}
+            {prize && (
+              <span className="ml-auto font-semibold text-meta text-prize tabular-nums">
+                {prize}
+              </span>
+            )}
+          </span>
+        </span>
+
+        <span className="sr-only">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>
+      </button>
+
+      {event.website_url && (
+        <ExternalLink
+          href={event.website_url}
+          showIcon={false}
+          aria-label={t('catalog.card.websiteOf', { title: event.title })}
+          className={cn(
+            'absolute top-4 right-4 flex size-7 items-center justify-center rounded-control',
+            'border border-border bg-card/90 text-muted-foreground backdrop-blur-sm',
+            'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
+            'hover:bg-accent-surface hover:text-accent-surface-foreground',
+            'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring',
+          )}
+        >
+          <ArrowUpRight className="size-4" aria-hidden="true" />
+        </ExternalLink>
+      )}
+    </div>
   )
 }

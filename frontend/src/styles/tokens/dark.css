@@ -69,4 +69,7 @@
   --urgency-done: var(--hue-green-300);
   --urgency-waived: var(--hue-slate-300);
   --urgency-foreground: var(--linear-void);
+
+  --prize: var(--hue-green-300);
+  --joined: var(--hue-green-300);
 }

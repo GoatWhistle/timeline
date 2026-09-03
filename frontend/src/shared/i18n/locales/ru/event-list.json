@@ -140,6 +140,15 @@
       "is": "—",
       "onOrAfter": "не раньше",
       "onOrBefore": "не позже"
+    },
+    "card": {
+      "noCover": "Без обложки",
+      "prize": "{{amount}} {{currency}}",
+      "teamExact": "{{size}} в команде",
+      "teamRange": "{{min}}–{{max}} в команде",
+      "teamUpTo": "до {{max}} в команде",
+      "teamFrom": "от {{min}} в команде",
+      "websiteOf": "Сайт «{{title}}» (откроется в новой вкладке)"
     }
   }
 }

@@ -27,6 +27,7 @@ type CatalogService interface {
 	Join(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.JoinEventRequest,
 	) (*models.EventParticipant, error)
+	Organizers(ctx context.Context, actor models.Actor, search string) ([]string, error)
 }
 
 type CatalogController struct {
@@ -73,10 +74,11 @@ func (c *CatalogController) allow(r *http.Request, scope string) bool {
 // @Param			state		query		string	false	"Comma-separated state filter"																															Enums(UPCOMING,ACTIVE,FINISHED)
 // @Param			from		query		string	false	"Lower bound of the period"																																format(date-time)
 // @Param			to			query		string	false	"Upper bound of the period"																																format(date-time)
-// @Param			sort		query		string	false	"Sort field"																																			Enums(start_at,end_at,title)	default(start_at)
-// @Param			order		query		string	false	"Sort direction"																																		Enums(asc,desc)					default(asc)
-// @Param			page		query		int		false	"Page number"																																			default(1)
-// @Param			page_size	query		int		false	"Page size"																																				default(50)
+// @Param			joined		query		bool	false	"Participation filter: true keeps only the events the caller takes part in, false only the rest. Omit it for every event."
+// @Param			sort		query		string	false	"Sort field"		Enums(start_at,end_at,title)	default(start_at)
+// @Param			order		query		string	false	"Sort direction"	Enums(asc,desc)					default(asc)
+// @Param			page		query		int		false	"Page number"		default(1)
+// @Param			page_size	query		int		false	"Page size"			default(50)
 // @Success		200			{object}	dto.CatalogPage
 // @Failure		400			{object}	dto.ErrorResponse
 // @Failure		401			{object}	dto.ErrorResponse
@@ -161,6 +163,10 @@ func parseCatalogFilter(r *http.Request) (dto.CatalogFilter, error) {
 	if err != nil {
 		return dto.CatalogFilter{}, err
 	}
+	joined, err := parseJoined(r)
+	if err != nil {
+		return dto.CatalogFilter{}, err
+	}
 	sort, err := models.ParseCatalogSort(
 		strings.ToLower(httpx.QueryTrimmed(r, "sort")),
 		strings.ToLower(httpx.QueryTrimmed(r, "order")),
@@ -176,8 +182,20 @@ func parseCatalogFilter(r *http.Request) (dto.CatalogFilter, error) {
 		States:  parseStates(httpx.QueryTrimmed(r, "state")),
 		From:    from,
 		To:      to,
+		Joined:  joined,
 		Sort:    sort,
 	}, nil
+}
+
+func parseJoined(r *http.Request) (*bool, error) {
+	if r.URL.Query().Get("joined") == "" {
+		return nil, nil
+	}
+	value, err := httpx.QueryBool(r, "joined")
+	if err != nil {
+		return nil, err
+	}
+	return &value, nil
 }
 
 func parseOrigins(raw string) []models.EventOrigin {

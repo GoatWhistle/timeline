@@ -140,6 +140,15 @@
       "is": "is",
       "onOrAfter": "on or after",
       "onOrBefore": "on or before"
+    },
+    "card": {
+      "noCover": "No cover image",
+      "prize": "{{amount}} {{currency}}",
+      "teamExact": "{{size}} in a team",
+      "teamRange": "{{min}}–{{max}} in a team",
+      "teamUpTo": "up to {{max}} in a team",
+      "teamFrom": "from {{min}} in a team",
+      "websiteOf": "Website of {{title}} (opens in a new tab)"
     }
   }
 }

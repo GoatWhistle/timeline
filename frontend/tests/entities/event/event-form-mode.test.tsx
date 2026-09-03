@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
 import { EventForm } from '@/entities/event/event-form'
+import { i18n } from '@/shared/i18n/config'
 import { EVENT, fixMoscowClock } from './event-form.harness'
 
 fixMoscowClock()
@@ -68,6 +69,24 @@ describe('editing an event on the admin card shows the fields directly', () => {
     for (const id of [...EVERY_FIELD, 'event-country', 'event-city']) {
       expect(document.getElementById(id), id).not.toBeNull()
     }
+  })
+
+  it('shows the kind but offers nothing that could change it', () => {
+    renderWithProviders(
+      <EventForm event={EVENT} mode="edit" submitLabel="Save" onSubmit={vi.fn()} />,
+    )
+    expect(document.querySelector('[data-kind-locked="HACKATHON"]')).not.toBeNull()
+    expect(document.querySelectorAll('[data-kind-option]')).toHaveLength(0)
+    expect(document.querySelectorAll('input[name="event-kind-choice"]')).toHaveLength(0)
+  })
+
+  it('never offers the other kind, so a hackathon cannot be turned into a meetup here', () => {
+    renderWithProviders(
+      <EventForm event={EVENT} mode="edit" submitLabel="Save" onSubmit={vi.fn()} />,
+    )
+    expect(screen.queryByText(i18n.t('event:catalog.kindLabel.MEETUP'))).toBeNull()
+    expect(screen.getByText(i18n.t('event:catalog.kindLabel.HACKATHON'))).toBeInTheDocument()
+    expect(screen.getByText(i18n.t('event:form.kindFixed'))).toBeInTheDocument()
   })
 
   it('carries one save button and no forward or back action', () => {

@@ -302,6 +302,11 @@ export interface paths {
          * @description Changing end_at increments the registration schedule_version, cancels stale
          *     pending notifications and triggers reconciliation. Violating the condition
          *     deadline_at <= end_at is rejected.
+         *
+         *     The kind is fixed once the event exists: a hackathon never becomes a meetup.
+         *     Sending the kind it already has is not an attempted change and is accepted;
+         *     sending a different one is refused with invalid_state_transition and leaves
+         *     the event as it was.
          */
         patch: {
             parameters: {
@@ -359,7 +364,7 @@ export interface paths {
                         "application/json": components["schemas"]["dto.ErrorResponse"];
                     };
                 };
-                /** @description the registration deadline falls outside end_at */
+                /** @description the kind was changed, or the registration deadline falls outside end_at */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -3722,6 +3727,8 @@ export interface paths {
                     format?: "ONLINE" | "OFFLINE" | "HYBRID";
                     /** @description Lower bound of the period */
                     from?: string;
+                    /** @description Participation filter: true keeps only the events the caller takes part in, false only the rest. Omit it for every event. */
+                    joined?: boolean;
                     /** @description Comma-separated kind filter */
                     kind?: "HACKATHON" | "MEETUP";
                     /** @description Sort direction */
@@ -8610,6 +8617,73 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/organizers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Organizer suggestions
+         * @description The distinct organiser names already used by events the caller may see, offered
+         *     while an organiser is being typed. The field itself stays free text: a name that
+         *     is not on the list yet remains valid, so this is a suggestion list and not a
+         *     closed set of values.
+         *
+         *     Visibility follows the same rule as every other read. An administrator sees the
+         *     organisers of all events; anyone else sees only those of published, non-archived
+         *     ones, so an unpublished event is never disclosed through a suggestion.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Narrow the suggestions by substring */
+                    search?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.OrganizerSuggestions"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description too many catalog requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/profiles/{nickname}": {
         parameters: {
             query?: never;
@@ -10178,8 +10252,14 @@ export interface components {
             /** @example 500000.00 */
             prize_pool?: string;
             /** Format: date-time */
+            registration_deadline?: string;
+            registration_status?: components["schemas"]["dto.RegistrationStatusShort"];
+            registration_url?: string;
+            /** Format: date-time */
             start_at: string;
             state: components["schemas"]["models.EventState"];
+            /** @example Developer */
+            team_role?: string;
             /** @example 5 */
             team_size_max?: number;
             /** @example 3 */
@@ -10683,6 +10763,15 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
         };
+        "dto.OrganizerSuggestions": {
+            /**
+             * @example [
+             *       "lablab.ai",
+             *       "WeMakeDevs"
+             *     ]
+             */
+            items: string[];
+        };
         "dto.PageMeta": {
             /** @example true */
             has_next: boolean;
@@ -10965,6 +11054,7 @@ export interface components {
             end_at: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
+            kind: components["schemas"]["models.EventKind"];
             /** Format: date-time */
             registration_deadline?: string;
             registration_status?: components["schemas"]["dto.RegistrationStatusShort"];
@@ -10975,6 +11065,7 @@ export interface components {
             team_role?: string;
             /** @example National event */
             title: string;
+            website_url?: string;
         };
         "dto.SessionListResponse": {
             items: components["schemas"]["dto.SessionResponse"][];

@@ -1,8 +1,8 @@
 import type { ScheduleResponse, ScheduleRow } from '@/shared/api/types.gen'
-import type { CalendarGrid } from './calendar-grid'
-import { dayIndexOf } from './calendar-grid'
 import type { SpanInput } from './pack-lanes'
 import { buildRowItems, type MomentItem, type RowItem } from './row-items'
+import type { TimelineGrid } from './timeline-grid'
+import { dayIndexOf } from './timeline-grid'
 
 export type CalendarMark = {
   id: string
@@ -16,13 +16,17 @@ export type CalendarSpan = SpanInput & {
   marks: CalendarMark[]
 }
 
-export function buildCalendarSpans(data: ScheduleResponse, grid: CalendarGrid): CalendarSpan[] {
+export function buildCalendarSpans(data: ScheduleResponse, grid: TimelineGrid): CalendarSpan[] {
   const spans: CalendarSpan[] = []
 
   for (const row of data.rows) {
     const startDay = dayIndexOf(grid, row.start_at)
     const endDay = dayIndexOf(grid, row.end_at)
     if (!Number.isFinite(startDay) || !Number.isFinite(endDay)) continue
+
+    const from = Math.min(startDay, endDay)
+    const to = Math.max(startDay, endDay)
+    if (to < 0 || from > grid.dayCount - 1) continue
 
     const items = buildRowItems(row)
     const marks: CalendarMark[] = []
@@ -34,14 +38,7 @@ export function buildCalendarSpans(data: ScheduleResponse, grid: CalendarGrid): 
       marks.push({ id: item.id, moment: item, dayIndex: at })
     }
 
-    spans.push({
-      id: row.event_id,
-      startDay: Math.min(startDay, endDay),
-      endDay: Math.max(startDay, endDay),
-      row,
-      items,
-      marks,
-    })
+    spans.push({ id: row.event_id, startDay: from, endDay: to, row, items, marks })
   }
 
   return spans

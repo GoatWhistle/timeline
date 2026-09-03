@@ -63,6 +63,7 @@ func mountMe(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("GET "+api+"/me/schedule", rt.authd(queryC.MySchedule))
 	mux.Handle("GET "+api+"/catalog", rt.authd(catalogC.List))
 	mux.Handle("GET "+api+"/catalog/export", rt.authd(catalogC.Export))
+	mux.Handle("GET "+api+"/organizers", rt.authd(catalogC.Organizers))
 	mux.Handle("POST "+api+"/events/{id}/join", rt.authd(catalogC.Join))
 	mux.Handle("GET "+api+"/events/{id}", rt.authd(queryC.EventCard))
 	mux.Handle("GET "+api+"/events/{id}/stages", rt.authd(eventC.ListStages))

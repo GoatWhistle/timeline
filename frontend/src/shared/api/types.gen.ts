@@ -84,6 +84,7 @@ export type NotificationPreviewResponse = Schemas['dto.NotificationPreviewRespon
 export type NotificationRuleResponse = Schemas['dto.NotificationRuleResponse']
 export type NotificationStatus = Schemas['models.NotificationStatus']
 export type NotificationType = Schemas['models.NotificationType']
+export type OrganizerSuggestions = Schemas['dto.OrganizerSuggestions']
 export type Outcome = Schemas['models.Outcome']
 export type PageMeta = Schemas['dto.PageMeta']
 export type ParticipantArtifact = Schemas['models.ParticipantArtifact']

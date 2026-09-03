@@ -8,15 +8,22 @@ import (
 )
 
 type CatalogItem struct {
-	ID              string `json:"id"`
-	Title           string `json:"title"`
-	Kind            string `json:"kind"`
-	Format          string `json:"format"`
-	Origin          string `json:"origin"`
-	EffectiveFormat string `json:"effective_format"`
-	State           string `json:"state"`
-	Joined          bool   `json:"joined"`
-	OfflineStages   []struct {
+	ID                   string  `json:"id"`
+	Title                string  `json:"title"`
+	Kind                 string  `json:"kind"`
+	Format               string  `json:"format"`
+	Origin               string  `json:"origin"`
+	EffectiveFormat      string  `json:"effective_format"`
+	State                string  `json:"state"`
+	Joined               bool    `json:"joined"`
+	TeamRole             *string `json:"team_role"`
+	RegistrationURL      *string `json:"registration_url"`
+	RegistrationDeadline *string `json:"registration_deadline"`
+	RegistrationStatus   *struct {
+		ID     string `json:"id"`
+		Status string `json:"status"`
+	} `json:"registration_status"`
+	OfflineStages []struct {
 		Name  string `json:"name"`
 		Place struct {
 			Format    string  `json:"format"`

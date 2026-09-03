@@ -174,7 +174,7 @@ export function CatalogPage() {
                 <div
                   role="listbox"
                   aria-label={t('catalog.title')}
-                  className="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3 p-4"
+                  className="grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] gap-4 p-4"
                 >
                   {items.map((item) => (
                     <CatalogCard

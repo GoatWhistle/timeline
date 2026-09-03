@@ -333,7 +333,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Changing end_at increments the registration schedule_version, cancels stale\npending notifications and triggers reconciliation. Violating the condition\ndeadline_at \u003c= end_at is rejected.",
+                "description": "Changing end_at increments the registration schedule_version, cancels stale\npending notifications and triggers reconciliation. Violating the condition\ndeadline_at \u003c= end_at is rejected.\n\nThe kind is fixed once the event exists: a hackathon never becomes a meetup.\nSending the kind it already has is not an attempted change and is accepted;\nsending a different one is refused with invalid_state_transition and leaves\nthe event as it was.",
                 "consumes": [
                     "application/json"
                 ],
@@ -389,7 +389,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "the registration deadline falls outside end_at",
+                        "description": "the kind was changed, or the registration deadline falls outside end_at",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -3151,6 +3151,12 @@ const docTemplate = `{
                         "format": "date-time",
                         "description": "Upper bound of the period",
                         "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Participation filter: true keeps only the events the caller takes part in, false only the rest. Omit it for every event.",
+                        "name": "joined",
                         "in": "query"
                     },
                     {
@@ -7007,6 +7013,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/organizers": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The distinct organiser names already used by events the caller may see, offered\nwhile an organiser is being typed. The field itself stays free text: a name that\nis not on the list yet remains valid, so this is a suggestion list and not a\nclosed set of values.\n\nVisibility follows the same rule as every other read. An administrator sees the\norganisers of all events; anyone else sees only those of published, non-archived\nones, so an unpublished event is never disclosed through a suggestion.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "Organizer suggestions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Narrow the suggestions by substring",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.OrganizerSuggestions"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "too many catalog requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/profiles/{nickname}": {
             "get": {
                 "description": "Served without authentication. A profile is visible only when its owner\nturned visibility on; otherwise the response is 404, so that the existence\nof a closed profile is not disclosed. Events are limited to published,\nnon-archived ones that the person allowed to be shown.",
@@ -8531,6 +8582,15 @@ const docTemplate = `{
                     "type": "string",
                     "example": "500000.00"
                 },
+                "registration_deadline": {
+                    "type": "string"
+                },
+                "registration_status": {
+                    "$ref": "#/definitions/dto.RegistrationStatusShort"
+                },
+                "registration_url": {
+                    "type": "string"
+                },
                 "start_at": {
                     "type": "string"
                 },
@@ -8545,6 +8605,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.EventState"
                         }
                     ]
+                },
+                "team_role": {
+                    "type": "string",
+                    "example": "Developer"
                 },
                 "team_size_max": {
                     "type": "integer",
@@ -9853,6 +9917,21 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.OrganizerSuggestions": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "lablab.ai",
+                        "WeMakeDevs"
+                    ]
+                }
+            }
+        },
         "dto.PageMeta": {
             "type": "object",
             "properties": {
@@ -10587,6 +10666,17 @@ const docTemplate = `{
                     "type": "string",
                     "example": "ev_gma9hq8a96q5"
                 },
+                "kind": {
+                    "enum": [
+                        "HACKATHON",
+                        "MEETUP"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EventKind"
+                        }
+                    ]
+                },
                 "registration_deadline": {
                     "type": "string"
                 },
@@ -10611,6 +10701,9 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "National event"
+                },
+                "website_url": {
+                    "type": "string"
                 }
             }
         },

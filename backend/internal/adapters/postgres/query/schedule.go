@@ -53,7 +53,8 @@ func scheduleQuery(filter models.ScheduleFilter, forUserID *uuid.UUID) (string, 
 	}
 
 	return `
-		SELECT h.id, h.display_id, h.title, h.start_at, h.end_at, h.published_at, h.archived_at,
+		SELECT h.id, h.display_id, h.title, h.kind, h.website_url,
+		       h.start_at, h.end_at, h.published_at, h.archived_at,
 		       h.format, h.country_code, h.city, h.origin, h.color_slot,
 		       (SELECT r.deadline_at FROM registrations r WHERE r.event_id = h.id AND r.state = 'ACTIVE'),
 		       ` + mineSelect + `
@@ -85,7 +86,8 @@ func (r *Timeline) ScheduleRows(ctx context.Context, filter models.ScheduleFilte
 			todoCycle   *int
 			registered  *time.Time
 		)
-		if err := rows.Scan(&row.EventUUID, &row.EventID, &row.Title, &row.StartAt, &row.EndAt,
+		if err := rows.Scan(&row.EventUUID, &row.EventID, &row.Title, &row.Kind, &row.WebsiteURL,
+			&row.StartAt, &row.EndAt,
 			&publishedAt, &archivedAt,
 			&event.Format, &event.CountryCode, &event.City, &event.Origin, &event.ColorSlot,
 			&row.RegistrationDeadline,

@@ -28,6 +28,7 @@ function row(overrides: Partial<ScheduleRow> = {}): ScheduleRow {
   return {
     event_id: 'e1',
     title: 'Event',
+    kind: 'HACKATHON',
     state: 'ACTIVE',
     start_at: '2026-01-01T00:00:00Z',
     end_at: '2026-02-01T00:00:00Z',

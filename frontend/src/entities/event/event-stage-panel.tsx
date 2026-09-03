@@ -6,11 +6,12 @@ import { EventBasicsFields, EventOriginRow } from './event-common-fields'
 import type { MeetupFormValues } from './event-form.schema'
 import type { StageId } from './event-form.stages'
 import { EventPlaceFields } from './event-place-fields'
-import { EventKindChoice } from './event-taxonomy-fields'
+import { EventKindChoice, EventKindLocked } from './event-taxonomy-fields'
 
 export function EventStagePanel({
   stage,
   kind,
+  kindLocked,
   onKindChange,
   control,
   register,
@@ -19,10 +20,12 @@ export function EventStagePanel({
   range,
   rangeError,
   onRangeChange,
+  onOrganizerPick,
   prize,
 }: {
   stage: StageId
   kind: EventKind
+  kindLocked: boolean
   onKindChange: (next: EventKind) => void
   control: Control<MeetupFormValues>
   register: UseFormRegister<MeetupFormValues>
@@ -31,11 +34,19 @@ export function EventStagePanel({
   range: MomentRange
   rangeError: string | null
   onRangeChange: (next: MomentRange) => void
+  onOrganizerPick: (value: string) => void
   prize?: ReactNode
 }) {
-  if (stage === 'kind') return <EventKindChoice value={kind} onChange={onKindChange} />
+  if (stage === 'kind') {
+    if (kindLocked) return <EventKindLocked value={kind} />
+    return <EventKindChoice value={kind} onChange={onKindChange} />
+  }
 
-  if (stage === 'basics') return <EventBasicsFields register={register} errors={errors} />
+  if (stage === 'basics') {
+    return (
+      <EventBasicsFields register={register} errors={errors} onOrganizerPick={onOrganizerPick} />
+    )
+  }
 
   if (stage === 'period') {
     return (

@@ -263,6 +263,12 @@ definitions:
       prize_pool:
         example: "500000.00"
         type: string
+      registration_deadline:
+        type: string
+      registration_status:
+        $ref: '#/definitions/dto.RegistrationStatusShort'
+      registration_url:
+        type: string
       start_at:
         type: string
       state:
@@ -272,6 +278,9 @@ definitions:
         - UPCOMING
         - ACTIVE
         - FINISHED
+      team_role:
+        example: Developer
+        type: string
       team_size_max:
         example: 5
         type: integer
@@ -1151,6 +1160,16 @@ definitions:
       updated_at:
         type: string
     type: object
+  dto.OrganizerSuggestions:
+    properties:
+      items:
+        example:
+        - lablab.ai
+        - WeMakeDevs
+        items:
+          type: string
+        type: array
+    type: object
   dto.PageMeta:
     properties:
       has_next:
@@ -1640,6 +1659,12 @@ definitions:
       event_id:
         example: ev_gma9hq8a96q5
         type: string
+      kind:
+        allOf:
+        - $ref: '#/definitions/models.EventKind'
+        enum:
+        - HACKATHON
+        - MEETUP
       registration_deadline:
         type: string
       registration_status:
@@ -1656,6 +1681,8 @@ definitions:
         type: string
       title:
         example: National event
+        type: string
+      website_url:
         type: string
     type: object
   dto.SessionListResponse:
@@ -3191,6 +3218,11 @@ paths:
         Changing end_at increments the registration schedule_version, cancels stale
         pending notifications and triggers reconciliation. Violating the condition
         deadline_at <= end_at is rejected.
+
+        The kind is fixed once the event exists: a hackathon never becomes a meetup.
+        Sending the kind it already has is not an attempted change and is accepted;
+        sending a different one is refused with invalid_state_transition and leaves
+        the event as it was.
       parameters:
       - description: Event identifier
         example: ev_3k7d8gb9be
@@ -3224,7 +3256,8 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
         "409":
-          description: the registration deadline falls outside end_at
+          description: the kind was changed, or the registration deadline falls outside
+            end_at
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       security:
@@ -5133,6 +5166,11 @@ paths:
         in: query
         name: to
         type: string
+      - description: 'Participation filter: true keeps only the events the caller
+          takes part in, false only the rest. Omit it for every event.'
+        in: query
+        name: joined
+        type: boolean
       - default: start_at
         description: Sort field
         enum:
@@ -7892,6 +7930,42 @@ paths:
       summary: Background process status
       tags:
       - ops
+  /organizers:
+    get:
+      description: |-
+        The distinct organiser names already used by events the caller may see, offered
+        while an organiser is being typed. The field itself stays free text: a name that
+        is not on the list yet remains valid, so this is a suggestion list and not a
+        closed set of values.
+
+        Visibility follows the same rule as every other read. An administrator sees the
+        organisers of all events; anyone else sees only those of published, non-archived
+        ones, so an unpublished event is never disclosed through a suggestion.
+      parameters:
+      - description: Narrow the suggestions by substring
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.OrganizerSuggestions'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "429":
+          description: too many catalog requests
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Organizer suggestions
+      tags:
+      - catalog
   /profiles/{nickname}:
     get:
       description: |-

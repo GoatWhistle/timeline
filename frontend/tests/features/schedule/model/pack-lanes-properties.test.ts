@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { DAYS_PER_WEEK, packWeeks, type SpanInput } from '@/features/schedule/model/pack-lanes'
+import {
+  LANE_SEPARATION_DAYS,
+  packTimeline,
+  type SpanInput,
+} from '@/features/schedule/model/pack-lanes'
 
 function mulberry32(seed: number) {
   let state = seed
@@ -23,61 +27,66 @@ function randomSpans(random: () => number, count: number, dayCount: number): Spa
   })
 }
 
-describe('packWeeks over generated inputs', () => {
-  it('never puts two segments on one lane over the same day, over generated inputs', () => {
+describe('packTimeline over generated inputs', () => {
+  it('never puts two bars on one lane over the same day, over generated inputs', () => {
     const random = mulberry32(20260829)
 
     for (let round = 0; round < 400; round += 1) {
-      const weekCount = 1 + Math.floor(random() * 4)
-      const items = randomSpans(random, 1 + Math.floor(random() * 9), weekCount * DAYS_PER_WEEK)
-      const result = packWeeks(items, weekCount, 99)
+      const dayCount = 7 + Math.floor(random() * 60)
+      const items = randomSpans(random, 1 + Math.floor(random() * 12), dayCount)
+      const { packed } = packTimeline(items, dayCount, 99)
 
-      for (const week of result.weeks) {
-        const taken = new Map<string, string>()
-        for (const segment of week.segments) {
-          for (let offset = 0; offset < segment.span; offset += 1) {
-            const cell = `${segment.lane}:${segment.startColumn + offset}`
-            expect(taken.has(cell)).toBe(false)
-            taken.set(cell, segment.item.id)
-          }
+      const taken = new Map<string, string>()
+      for (const entry of packed) {
+        for (let day = entry.startDay; day <= entry.endDay; day += 1) {
+          const cell = `${entry.lane}:${day}`
+          expect(taken.has(cell)).toBe(false)
+          taken.set(cell, entry.item.id)
         }
       }
     }
   })
 
-  it('keeps one lane per item across all its weeks, over generated inputs', () => {
+  it('leaves a clear day between neighbours sharing a lane, over generated inputs', () => {
     const random = mulberry32(4242)
 
-    for (let round = 0; round < 300; round += 1) {
-      const weekCount = 2 + Math.floor(random() * 3)
-      const items = randomSpans(random, 1 + Math.floor(random() * 8), weekCount * DAYS_PER_WEEK)
-      const result = packWeeks(items, weekCount, 99)
+    for (let round = 0; round < 400; round += 1) {
+      const dayCount = 7 + Math.floor(random() * 60)
+      const items = randomSpans(random, 1 + Math.floor(random() * 12), dayCount)
+      const { packed } = packTimeline(items, dayCount, 99)
 
-      const lanes = new Map<string, Set<number>>()
-      for (const week of result.weeks) {
-        for (const segment of week.segments) {
-          const seen = lanes.get(segment.item.id) ?? new Set<number>()
-          seen.add(segment.lane)
-          lanes.set(segment.item.id, seen)
+      const byLane = new Map<number, typeof packed>()
+      for (const entry of packed) {
+        byLane.set(entry.lane, [...(byLane.get(entry.lane) ?? []), entry])
+      }
+
+      for (const lane of byLane.values()) {
+        const ordered = [...lane].sort((a, b) => a.startDay - b.startDay)
+        for (let index = 1; index < ordered.length; index += 1) {
+          const previous = ordered[index - 1]
+          const current = ordered[index]
+          if (!previous || !current) continue
+          expect(current.startDay - previous.endDay).toBeGreaterThan(LANE_SEPARATION_DAYS - 1)
         }
       }
-      for (const seen of lanes.values()) expect(seen.size).toBe(1)
     }
   })
 
-  it('keeps every segment inside its week, over generated inputs', () => {
-    const random = mulberry32(31337)
+  it('gives every item exactly one bar, over generated inputs', () => {
+    const random = mulberry32(909)
 
-    for (let round = 0; round < 300; round += 1) {
-      const weekCount = 1 + Math.floor(random() * 4)
-      const items = randomSpans(random, 1 + Math.floor(random() * 10), weekCount * DAYS_PER_WEEK)
+    for (let round = 0; round < 200; round += 1) {
+      const dayCount = 7 + Math.floor(random() * 40)
+      const items = randomSpans(random, 1 + Math.floor(random() * 8), dayCount)
+      const { packed, hidden } = packTimeline(items, dayCount, 99)
 
-      for (const week of packWeeks(items, weekCount, 99).weeks) {
-        for (const segment of week.segments) {
-          expect(segment.startColumn).toBeGreaterThanOrEqual(0)
-          expect(segment.startColumn + segment.span).toBeLessThanOrEqual(DAYS_PER_WEEK)
-        }
+      const counts = new Map<string, number>()
+      for (const entry of packed) {
+        counts.set(entry.item.id, (counts.get(entry.item.id) ?? 0) + 1)
       }
+
+      for (const count of counts.values()) expect(count).toBe(1)
+      expect(packed.length + hidden.length).toBe(items.length)
     }
   })
 })

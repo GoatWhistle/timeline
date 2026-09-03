@@ -30,6 +30,11 @@ type CatalogEvent struct {
 	EndAt           time.Time          `json:"end_at"`
 	State           models.EventState  `json:"state" enums:"UPCOMING,ACTIVE,FINISHED"`
 	Joined          bool               `json:"joined" example:"false"`
+
+	TeamRole             *string                  `json:"team_role,omitempty" example:"Developer"`
+	RegistrationURL      *string                  `json:"registration_url,omitempty"`
+	RegistrationDeadline *time.Time               `json:"registration_deadline,omitempty"`
+	RegistrationStatus   *RegistrationStatusShort `json:"registration_status,omitempty"`
 }
 
 type CatalogPlace struct {
@@ -46,6 +51,10 @@ type CatalogPage struct {
 	Meta  PageMeta       `json:"meta"`
 }
 
+type OrganizerSuggestions struct {
+	Items []string `json:"items" example:"lablab.ai,WeMakeDevs"`
+}
+
 type CatalogFilter struct {
 	Search  string
 	Origins []models.EventOrigin
@@ -54,6 +63,7 @@ type CatalogFilter struct {
 	States  []models.EventState
 	From    *time.Time
 	To      *time.Time
+	Joined  *bool
 	Sort    models.CatalogSort
 }
 

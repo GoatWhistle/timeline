@@ -2,6 +2,7 @@ import { resolveUrgency, URGENCY_KEY } from '@/entities/deadline/urgency/urgency
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
 import type { ScheduleRow } from '@/shared/api/types.gen'
+import { EVENT_KIND_KEY } from './event-kind'
 import type { RowItem } from './row-items'
 
 export type Translate = (key: string, values?: Record<string, unknown>) => string
@@ -15,7 +16,11 @@ export type SentenceContext = {
 
 export function rowSentence(row: ScheduleRow, items: readonly RowItem[], ctx: SentenceContext) {
   const { t, formatDate } = ctx
-  const parts = [`${row.title}.`, `${t(EVENT_STATE_KEY[row.state])}.`]
+  const parts = [
+    `${row.title}.`,
+    `${t(EVENT_KIND_KEY[row.kind])}.`,
+    `${t(EVENT_STATE_KEY[row.state])}.`,
+  ]
 
   const stages = items.filter((item) => item.kind === 'bar')
   if (stages.length > 0) {

@@ -51,6 +51,7 @@ export function HackathonForm({
     control,
     handleSubmit,
     setError,
+    setValue,
     trigger,
     watch,
     formState: { errors, isSubmitting },
@@ -95,6 +96,7 @@ export function HackathonForm({
       <EventStagePanel
         stage={stage}
         kind="HACKATHON"
+        kindLocked={!staged}
         onKindChange={onKindChange}
         control={control as unknown as Control<MeetupFormValues>}
         register={register as unknown as UseFormRegister<MeetupFormValues>}
@@ -102,6 +104,9 @@ export function HackathonForm({
         format={watch('format')}
         range={range}
         rangeError={rangeError}
+        onOrganizerPick={(value) =>
+          setValue('organizer', value, { shouldDirty: true, shouldValidate: true })
+        }
         onRangeChange={(nextRange) => {
           onRangeChange(nextRange)
           setRangeError(null)

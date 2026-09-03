@@ -67,6 +67,8 @@ type ScheduleRow struct {
 	EventID              string                   `json:"event_id" example:"ev_gma9hq8a96q5"`
 	EventUUID            uuid.UUID                `json:"-"`
 	Title                string                   `json:"title" example:"National event"`
+	Kind                 models.EventKind         `json:"kind" enums:"HACKATHON,MEETUP"`
+	WebsiteURL           *string                  `json:"website_url,omitempty"`
 	State                models.EventState        `json:"state"`
 	StartAt              time.Time                `json:"start_at"`
 	EndAt                time.Time                `json:"end_at"`

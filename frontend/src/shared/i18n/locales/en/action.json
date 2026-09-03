@@ -55,5 +55,8 @@
   "password": {
     "show": "Show password",
     "hide": "Hide password"
+  },
+  "suggest": {
+    "legend": "Suggestions"
   }
 }

@@ -9,7 +9,7 @@ const SRC = join(process.cwd(), 'src')
 
 const OWN_TABLIST = /role=["']tablist["']/
 
-const EXEMPT = ['features/schedule/ui/view-tabs/view-tabs.tsx']
+const EXEMPT: string[] = []
 
 function tsxFiles(dir: string): string[] {
   const found: string[] = []

@@ -87,6 +87,9 @@
   --color-urgency-waived: var(--urgency-waived);
   --color-urgency-foreground: var(--urgency-foreground);
 
+  --color-prize: var(--prize);
+  --color-joined: var(--joined);
+
   --color-event-tint: var(--event-tint);
   --color-event-fill: var(--event-fill);
   --color-event-fill-strong: var(--event-fill-strong);
@@ -108,12 +111,14 @@
   --spacing-row-roomy: var(--row-height-roomy);
   --spacing-sidebar: var(--pane-sidebar);
   --spacing-detail: var(--pane-detail);
+  --spacing-stage: var(--form-stage-panel);
 
   --ease-out: var(--ease-out);
   --ease-in: var(--ease-in);
   --ease-in-out: var(--ease-in-out);
 
   --animate-duration-instant: var(--duration-instant);
+  --animate-stage-in: stage-in var(--duration-base) var(--ease-out) both;
 
   --transition-duration-instant: var(--duration-instant);
   --transition-duration-fast: var(--duration-fast);
@@ -123,4 +128,15 @@
   --transition-duration-panel: var(--duration-panel);
   --transition-duration-zoom: var(--duration-zoom);
   --transition-duration-slow: var(--duration-slow);
+
+  @keyframes stage-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }

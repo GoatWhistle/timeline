@@ -11,6 +11,7 @@
     "endRequired": "Enter an end date",
     "endAfterStart": "The end must be later than the start",
     "kind": "Kind",
+    "kindFixed": "The kind is chosen when the event is created and does not change afterwards",
     "origin": "Scope",
     "originHint": "Where the event comes from, not where it is held",
     "originValue": {

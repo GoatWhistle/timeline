@@ -1,5 +1,3 @@
-import { DAYS_PER_WEEK } from './pack-lanes'
-
 export type NavigationAction =
   | { type: 'move'; index: number }
   | { type: 'today' }
@@ -8,10 +6,12 @@ export type NavigationAction =
   | { type: 'open' }
   | { type: 'moment'; delta: 1 | -1 }
   | { type: 'openMoment' }
+  | { type: 'scroll'; delta: 1 | -1; page: boolean }
 
 export type NavigableSpan = {
   id: string
   startDay: number
+  lane: number
 }
 
 export function clampIndex(spans: readonly NavigableSpan[], index: number): number {
@@ -46,9 +46,9 @@ export function resolveKey(
     case 'ArrowLeft':
       return { type: 'move', index: clampIndex(spans, current - 1) }
     case 'ArrowDown':
-      return { type: 'move', index: weekMove(spans, current, 1) }
+      return { type: 'move', index: laneMove(spans, current, 1) }
     case 'ArrowUp':
-      return { type: 'move', index: weekMove(spans, current, -1) }
+      return { type: 'move', index: laneMove(spans, current, -1) }
     case 'Home':
       return { type: 'move', index: 0 }
     case 'End':
@@ -56,8 +56,14 @@ export function resolveKey(
     case 'Enter':
       return { type: 'open' }
     case 'PageDown':
-      return { type: 'moment', delta: 1 }
+      return { type: 'scroll', delta: 1, page: true }
     case 'PageUp':
+      return { type: 'scroll', delta: -1, page: true }
+    case 'n':
+    case 'N':
+      return { type: 'moment', delta: 1 }
+    case 'p':
+    case 'P':
       return { type: 'moment', delta: -1 }
     case ' ':
     case 'Spacebar':
@@ -76,15 +82,21 @@ export function resolveKey(
   }
 }
 
-function weekMove(spans: readonly NavigableSpan[], index: number, delta: number): number {
+function laneMove(spans: readonly NavigableSpan[], index: number, delta: number): number {
   const anchor = spans[index]
   if (!anchor) return index
-  const target = anchor.startDay + delta * DAYS_PER_WEEK
+
   const candidates = spans.filter((span) =>
-    delta > 0 ? span.startDay > anchor.startDay : span.startDay < anchor.startDay,
+    delta > 0 ? span.lane > anchor.lane : span.lane < anchor.lane,
   )
   if (candidates.length === 0) return index
-  const nearest = candidates[nearestSpanByDay(candidates, target)]
+
+  const nearestLane = candidates.reduce((best, span) =>
+    Math.abs(span.lane - anchor.lane) < Math.abs(best.lane - anchor.lane) ? span : best,
+  )
+  const sameLane = candidates.filter((span) => span.lane === nearestLane.lane)
+  const nearest = sameLane[nearestSpanByDay(sameLane, anchor.startDay)]
+
   const found = nearest ? spans.findIndex((span) => span.id === nearest.id) : -1
   return found === -1 ? index : found
 }

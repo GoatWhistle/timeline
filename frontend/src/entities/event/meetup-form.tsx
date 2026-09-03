@@ -41,6 +41,7 @@ export function MeetupForm({
     control,
     handleSubmit,
     setError,
+    setValue,
     trigger,
     watch,
     formState: { errors, isSubmitting },
@@ -85,6 +86,7 @@ export function MeetupForm({
       <EventStagePanel
         stage={stage}
         kind="MEETUP"
+        kindLocked={!staged}
         onKindChange={onKindChange}
         control={control}
         register={register}
@@ -92,6 +94,9 @@ export function MeetupForm({
         format={watch('format')}
         range={range}
         rangeError={rangeError}
+        onOrganizerPick={(value) =>
+          setValue('organizer', value, { shouldDirty: true, shouldValidate: true })
+        }
         onRangeChange={(nextRange) => {
           onRangeChange(nextRange)
           setRangeError(null)

@@ -7,10 +7,10 @@ import {
 } from '@/features/schedule/model/grid-navigation'
 
 const SPANS: NavigableSpan[] = [
-  { id: 'a', startDay: 0 },
-  { id: 'b', startDay: 3 },
-  { id: 'c', startDay: 9 },
-  { id: 'd', startDay: 20 },
+  { id: 'a', startDay: 0, lane: 0 },
+  { id: 'b', startDay: 3, lane: 1 },
+  { id: 'c', startDay: 9, lane: 0 },
+  { id: 'd', startDay: 20, lane: 2 },
 ]
 
 describe('clampIndex', () => {
@@ -40,8 +40,8 @@ describe('nearestSpanByDay', () => {
     expect(
       nearestSpanByDay(
         [
-          { id: 'x', startDay: 0 },
-          { id: 'y', startDay: 4 },
+          { id: 'x', startDay: 0, lane: 0 },
+          { id: 'y', startDay: 4, lane: 0 },
         ],
         2,
       ),
@@ -64,13 +64,27 @@ describe('resolveKey', () => {
     expect(resolveKey('ArrowRight', SPANS, 3)).toEqual({ type: 'move', index: 3 })
   })
 
-  it('jumps roughly a week down and up', () => {
-    expect(resolveKey('ArrowDown', SPANS, 0)).toEqual({ type: 'move', index: 2 })
-    expect(resolveKey('ArrowUp', SPANS, 2)).toEqual({ type: 'move', index: 1 })
+  it('moves to the nearest event one lane down and back up', () => {
+    expect(resolveKey('ArrowDown', SPANS, 0)).toEqual({ type: 'move', index: 1 })
+    expect(resolveKey('ArrowUp', SPANS, 1)).toEqual({ type: 'move', index: 0 })
   })
 
-  it('holds still at the last event when moving down', () => {
+  it('holds still when no lane lies further down', () => {
     expect(resolveKey('ArrowDown', SPANS, 3)).toEqual({ type: 'move', index: 3 })
+  })
+
+  it('holds still when no lane lies further up', () => {
+    expect(resolveKey('ArrowUp', SPANS, 0)).toEqual({ type: 'move', index: 0 })
+  })
+
+  it('scrolls the viewport by a page on PageUp and PageDown', () => {
+    expect(resolveKey('PageDown', SPANS, 0)).toEqual({ type: 'scroll', delta: 1, page: true })
+    expect(resolveKey('PageUp', SPANS, 0)).toEqual({ type: 'scroll', delta: -1, page: true })
+  })
+
+  it('steps between the moments of an event on n and p', () => {
+    expect(resolveKey('n', SPANS, 0)).toEqual({ type: 'moment', delta: 1 })
+    expect(resolveKey('p', SPANS, 0)).toEqual({ type: 'moment', delta: -1 })
   })
 
   it('goes to the first and last event on Home and End', () => {

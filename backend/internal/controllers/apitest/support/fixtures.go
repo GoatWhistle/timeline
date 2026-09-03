@@ -166,6 +166,22 @@ func (c *Client) CreateEvent(t *testing.T, title string, start time.Time) string
 	return body.ID
 }
 
+func (c *Client) CreateMeetup(t *testing.T, title string, start time.Time) string {
+	t.Helper()
+	resp := c.Post("/admin/events", map[string]any{
+		"title":    title,
+		"kind":     "MEETUP",
+		"start_at": start.Format(time.RFC3339),
+		"end_at":   start.Add(48 * time.Hour).Format(time.RFC3339),
+	})
+	RequireStatus(t, resp, http.StatusCreated, "creating meetup "+title)
+	var body struct {
+		ID string `json:"id"`
+	}
+	resp.Decode(t, &body)
+	return body.ID
+}
+
 func (c *Client) Publish(t *testing.T, id string) {
 	t.Helper()
 	RequireStatus(t, c.Post("/admin/events/"+id+"/publish", nil),

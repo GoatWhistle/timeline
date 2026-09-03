@@ -55,6 +55,16 @@ func (s *CatalogService) List(ctx context.Context, actor models.Actor, filter dt
 	return s.catalog.List(ctx, actor.UserID, filter, page, s.now())
 }
 
+const organizerSuggestionLimit = 20
+
+func (s *CatalogService) Organizers(ctx context.Context, actor models.Actor,
+	search string) ([]string, error) {
+	if actor.UserID == uuid.Nil {
+		return nil, models.NewForbidden("organizer suggestions require an authenticated user")
+	}
+	return s.catalog.Organizers(ctx, actor.IsAdmin, search, organizerSuggestionLimit)
+}
+
 const catalogExportBatch = 500
 
 func (s *CatalogService) Stream(ctx context.Context, actor models.Actor, filter dto.CatalogFilter,

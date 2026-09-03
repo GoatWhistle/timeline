@@ -154,8 +154,7 @@ func TestTeamRoleIsRequiredForAHackathonAndOptionalForAMeetup(t *testing.T) {
 	f := s.Seed(t)
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
 
-	meetup := f.AdminClient.CreateEvent(t, "Community meetup", start)
-	support.SetEventTaxonomy(t, f.AdminClient, meetup, map[string]any{"kind": "MEETUP"})
+	meetup := f.AdminClient.CreateMeetup(t, "Community meetup", start)
 	f.AdminClient.Publish(t, meetup)
 
 	joiner := s.Session(t, f.Outsider)

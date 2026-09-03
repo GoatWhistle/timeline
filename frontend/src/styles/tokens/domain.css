@@ -26,6 +26,9 @@
   --urgency-done: var(--hue-green-500);
   --urgency-waived: var(--hue-slate-500);
   --urgency-foreground: var(--neutral-000);
+
+  --prize: var(--hue-green-500);
+  --joined: var(--hue-green-500);
 }
 
 [data-avatar] {

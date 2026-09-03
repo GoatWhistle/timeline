@@ -1,16 +1,16 @@
 import { type RefObject, useCallback, useEffect, useRef } from 'react'
-import type { CalendarGrid } from './calendar-grid'
-import { dayIndex } from './calendar-grid'
-import { type ScheduleScale, TODAY_TICK_MS, TODAY_VARIABLE } from './schedule-scale'
+import { TODAY_TICK_MS, TODAY_VARIABLE } from './schedule-scale'
+import type { TimelineGrid } from './timeline-grid'
+import { dayIndex } from './timeline-grid'
 
 export type TodayLineOptions = {
   target: RefObject<HTMLElement | null>
-  scale: ScheduleScale
-  grid: CalendarGrid
+  grid: TimelineGrid
+  dayWidth: number
   onVisibilityChange?: (visible: boolean) => void
 }
 
-export function useTodayLine({ target, scale, grid, onVisibilityChange }: TodayLineOptions) {
+export function useTodayLine({ target, grid, dayWidth, onVisibilityChange }: TodayLineOptions) {
   const visibleRef = useRef(false)
   const notifyRef = useRef(onVisibilityChange)
   notifyRef.current = onVisibilityChange
@@ -18,15 +18,19 @@ export function useTodayLine({ target, scale, grid, onVisibilityChange }: TodayL
   const write = useCallback(() => {
     const element = target.current
     if (!element) return
-    const index = dayIndex(grid, new Date())
+    const now = new Date()
+    const index = dayIndex(grid, now)
     const inside = index >= 0 && index < grid.dayCount
-    element.style.setProperty(TODAY_VARIABLE, `${index}`)
+    const fraction = (now.getHours() * 60 + now.getMinutes()) / 1440
+
+    element.style.setProperty(TODAY_VARIABLE, `${(index + fraction) * dayWidth}px`)
     element.dataset.todayVisible = inside ? 'true' : 'false'
+
     if (inside !== visibleRef.current) {
       visibleRef.current = inside
       notifyRef.current?.(inside)
     }
-  }, [target, grid])
+  }, [target, grid, dayWidth])
 
   const writeRef = useRef(write)
   writeRef.current = write
@@ -45,7 +49,7 @@ export function useTodayLine({ target, scale, grid, onVisibilityChange }: TodayL
     const start = () => {
       stop()
       tick()
-      timer = setInterval(tick, TODAY_TICK_MS[scale])
+      timer = setInterval(tick, TODAY_TICK_MS)
     }
 
     const onVisibility = () => {
@@ -62,7 +66,7 @@ export function useTodayLine({ target, scale, grid, onVisibilityChange }: TodayL
       stop()
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [target, scale])
+  }, [target])
 
   useEffect(write, [write])
 }

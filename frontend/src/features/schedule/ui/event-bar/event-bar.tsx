@@ -1,12 +1,15 @@
+import { ExternalLink } from 'lucide-react'
 import { memo } from 'react'
-import { EventColorMark, eventColorAttrs } from '@/entities/event/event-color'
+import { useTranslation } from 'react-i18next'
+import { eventColorAttrs, eventColorLabelKey } from '@/entities/event/event-color'
 import { STAGE_TYPE_ICON, STAGE_TYPE_PATTERNED } from '@/entities/stage/stage.labels'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/tooltip'
 import type { BarSummary } from '../../model/bar-summary'
 import type { CalendarSpan } from '../../model/calendar-items'
 import { marksWithin } from '../../model/calendar-items'
-import type { Segment } from '../../model/pack-lanes'
-import { BAR_HEIGHT, BAR_RADIUS, laneOffset, type ScheduleScale } from '../../model/schedule-scale'
+import { EVENT_KIND_ICON, EVENT_KIND_KEY } from '../../model/event-kind'
+import type { PackedSpan } from '../../model/pack-lanes'
+import { BAR_RADIUS } from '../../model/schedule-scale'
 import { primaryStageType, spanIsUnconfirmed } from '../../model/span-appearance'
 import { MomentMark } from '../moment-mark/moment-mark'
 import styles from './event-bar.module.css'
@@ -14,8 +17,10 @@ import styles from './event-bar.module.css'
 export const EventBar = memo(EventBarView)
 
 export type EventBarProps = {
-  segment: Segment<CalendarSpan>
-  scale: ScheduleScale
+  packed: PackedSpan<CalendarSpan>
+  dayWidth: number
+  barHeight: number
+  top: number
   sentence: string
   summary: BarSummary
   focused: boolean
@@ -27,8 +32,10 @@ export type EventBarProps = {
 }
 
 function EventBarView({
-  segment,
-  scale,
+  packed,
+  dayWidth,
+  barHeight,
+  top,
   sentence,
   summary,
   focused,
@@ -38,24 +45,30 @@ function EventBarView({
   onOpenItem,
   onOpenMoment,
 }: EventBarProps) {
-  const span = segment.item
+  const { t } = useTranslation()
+  const span = packed.item
   const { row } = span
 
-  const stageType = primaryStageType(span, segment)
+  const stageType = primaryStageType(span, packed)
   const unconfirmed = spanIsUnconfirmed(span)
-  const Icon = STAGE_TYPE_ICON[stageType]
-  const marks = marksWithin(span, segment.startDay, segment.endDay)
-  const roomy = scale !== 'quarter'
+  const StageIcon = STAGE_TYPE_ICON[stageType]
+  const KindIcon = EVENT_KIND_ICON[row.kind]
+  const marks = marksWithin(span, packed.startDay, packed.endDay)
+
+  const width = packed.span * dayWidth
+  const roomy = barHeight >= 44 && width >= 120
+  const showText = width >= 56
+  const kindLabel = t(EVENT_KIND_KEY[row.kind])
 
   return (
     <div
       {...eventColorAttrs(summary.color)}
       className={styles.slot}
       style={{
-        left: `calc(${segment.startColumn} * (100% / 7))`,
-        width: `calc(${segment.span} * (100% / 7))`,
-        top: laneOffset(scale, segment.lane),
-        ['--bar-height' as string]: `${BAR_HEIGHT[scale]}px`,
+        left: packed.startDay * dayWidth,
+        width,
+        top,
+        ['--bar-height' as string]: `${barHeight}px`,
         ['--bar-radius' as string]: `${BAR_RADIUS}px`,
       }}
     >
@@ -65,11 +78,11 @@ function EventBarView({
             type="button"
             tabIndex={-1}
             data-schedule-item={span.id}
-            data-schedule-segment={`${span.id}:${segment.week}`}
             data-unconfirmed={unconfirmed ? 'true' : 'false'}
+            data-kind={row.kind}
             data-patterned={STAGE_TYPE_PATTERNED[stageType] ? 'true' : 'false'}
-            data-clipped-start={segment.clippedStart ? 'true' : 'false'}
-            data-clipped-end={segment.clippedEnd ? 'true' : 'false'}
+            data-clipped-start={packed.clippedStart ? 'true' : 'false'}
+            data-clipped-end={packed.clippedEnd ? 'true' : 'false'}
             data-focused={focused ? 'true' : 'false'}
             data-state-name={row.state}
             data-urgency={summary.urgency}
@@ -79,19 +92,39 @@ function EventBarView({
             className={styles.bar}
           >
             <span className={styles.head}>
-              <EventColorMark color={summary.color} className={styles.colorMark} />
-              <Icon className={styles.icon} aria-hidden="true" />
-              <span className={styles.title}>{summary.title}</span>
+              <span {...eventColorAttrs(summary.color)} className="sr-only">
+                {t(eventColorLabelKey(summary.color))}
+              </span>
+              <KindIcon className={styles.kindIcon} aria-hidden="true" />
+              {showText && <span className={styles.title}>{summary.title}</span>}
+              {summary.websiteUrl && showText && (
+                <a
+                  href={summary.websiteUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  tabIndex={-1}
+                  data-schedule-website={span.id}
+                  className={styles.website}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <ExternalLink className={styles.websiteIcon} aria-hidden="true" />
+                  <span className="sr-only">
+                    {t('schedule.openWebsite', { name: summary.title })}
+                  </span>
+                </a>
+              )}
             </span>
 
             {roomy ? (
               <span className={styles.lines}>
-                <span className={styles.line}>{summary.dates}</span>
                 <span className={styles.line} data-registration={summary.urgency}>
                   {summary.registration}
                 </span>
                 {summary.nextStage ? (
-                  <span className={styles.line}>{summary.nextStage}</span>
+                  <span className={styles.line}>
+                    <StageIcon className={styles.stageIcon} aria-hidden="true" />
+                    {summary.nextStage}
+                  </span>
                 ) : null}
               </span>
             ) : null}
@@ -99,7 +132,9 @@ function EventBarView({
         </TooltipTrigger>
         <TooltipContent>
           <p className="font-medium">{summary.title}</p>
-          <p className="text-muted-foreground">{summary.state}</p>
+          <p className="text-muted-foreground">
+            {kindLabel} · {summary.state}
+          </p>
           <p className="text-muted-foreground">{sentence}</p>
         </TooltipContent>
       </Tooltip>
@@ -110,7 +145,7 @@ function EventBarView({
             key={mark.id}
             item={mark.moment}
             title={summary.title}
-            offset={(mark.dayIndex - segment.startDay + 0.5) / segment.span}
+            offset={(mark.dayIndex - packed.startDay + 0.5) / packed.span}
             highlighted={mark.id === highlightedId}
             now={now}
             onOpen={() => onOpenMoment(mark.id)}

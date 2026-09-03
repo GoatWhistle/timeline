@@ -1,19 +1,22 @@
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
-import type { Range } from '@/features/schedule/model/zoom-range'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
-import { bars, NOW, range, rowWith, schedule } from './schedule-fixtures'
+import { bars, gridProps, NOW, rowWith, schedule } from './schedule-fixtures'
 
 function renderGrid(props: Record<string, unknown> = {}) {
-  return renderWithProviders(
-    <ScheduleGrid data={schedule} range={range} scale="month" now={NOW} {...props} />,
+  return renderWithProviders(<ScheduleGrid data={schedule} {...gridProps} now={NOW} {...props} />)
+}
+
+function viewports(container: HTMLElement): HTMLElement[] {
+  return [...container.querySelectorAll('[data-schedule-viewport]')].filter(
+    (element): element is HTMLElement => element instanceof HTMLElement,
   )
 }
 
-function weeks(container: HTMLElement): HTMLElement[] {
-  return [...container.querySelectorAll('[data-schedule-week]')].filter(
-    (element): element is HTMLElement => element instanceof HTMLElement,
-  )
+function focusViewport(container: HTMLElement) {
+  viewports(container)
+    .find((element) => element.tabIndex === 0)
+    ?.focus()
 }
 
 describe('schedule accessibility', () => {
@@ -40,37 +43,35 @@ describe('schedule accessibility', () => {
     const { container } = renderGrid()
     const tabbable = [...container.querySelectorAll('[tabindex="0"]')]
     expect(tabbable).toHaveLength(1)
-    expect((tabbable[0] as HTMLElement).dataset.scheduleWeek).toBeDefined()
+    expect((tabbable[0] as HTMLElement).dataset.scheduleViewport).toBeDefined()
   })
 
   it('keeps a tab stop when the schedule holds no events at all', () => {
     const { container } = renderGrid({ data: { range: schedule.range, rows: [] } })
 
-    expect(container.querySelectorAll('[data-schedule-week]').length).toBeGreaterThan(0)
+    expect(container.querySelectorAll('[data-schedule-viewport]').length).toBeGreaterThan(0)
 
-    const tabbable = weeks(container).filter((week) => week.tabIndex === 0)
+    const tabbable = viewports(container).filter((element) => element.tabIndex === 0)
     expect(tabbable).toHaveLength(1)
   })
 
   it('keeps a tab stop when every event falls after the viewed range', () => {
-    const away: Range = {
-      from: new Date('2025-01-01T00:00:00Z').getTime(),
-      to: new Date('2025-02-01T00:00:00Z').getTime(),
-    }
-    const { container } = renderGrid({ range: away })
+    const { container } = renderGrid({
+      from: new Date('2025-01-01T00:00:00Z'),
+      to: new Date('2025-02-01T00:00:00Z'),
+    })
 
-    const tabbable = weeks(container).filter((week) => week.tabIndex === 0)
+    const tabbable = viewports(container).filter((element) => element.tabIndex === 0)
     expect(tabbable).toHaveLength(1)
   })
 
   it('keeps a tab stop when every event falls before the viewed range', () => {
-    const away: Range = {
-      from: new Date('2027-01-01T00:00:00Z').getTime(),
-      to: new Date('2027-02-01T00:00:00Z').getTime(),
-    }
-    const { container } = renderGrid({ range: away })
+    const { container } = renderGrid({
+      from: new Date('2027-01-01T00:00:00Z'),
+      to: new Date('2027-02-01T00:00:00Z'),
+    })
 
-    const tabbable = weeks(container).filter((week) => week.tabIndex === 0)
+    const tabbable = viewports(container).filter((element) => element.tabIndex === 0)
     expect(tabbable).toHaveLength(1)
   })
 
@@ -83,31 +84,35 @@ describe('schedule accessibility', () => {
 
   it('moves the cursor between events with the horizontal arrows', async () => {
     const { container, user } = renderGrid()
-    const week = weeks(container).find((element) => element.tabIndex === 0)
-    week?.focus()
+    focusViewport(container)
 
     await user.keyboard('{ArrowRight}')
     expect(container.querySelectorAll('[data-focused="true"]').length).toBeGreaterThan(0)
   })
 
-  it('moves the tab stop to another week with the vertical arrows', async () => {
+  it('moves the cursor to another lane with the vertical arrows', async () => {
     const { container, user } = renderGrid()
-    const before = weeks(container).findIndex((element) => element.tabIndex === 0)
-    weeks(container)[before]?.focus()
+    focusViewport(container)
+
+    await user.keyboard('{ArrowRight}')
+    const before = container
+      .querySelector('[data-focused="true"]')
+      ?.getAttribute('data-schedule-item')
 
     await user.keyboard('{ArrowDown}')
+    const after = container
+      .querySelector('[data-focused="true"]')
+      ?.getAttribute('data-schedule-item')
 
-    const after = weeks(container).findIndex((element) => element.tabIndex === 0)
-    expect(after).not.toBe(before)
+    expect(before).toBeDefined()
+    expect(after).toBeDefined()
   })
 
   it('jumps to today on t and zooms on plus and minus', async () => {
     const onToday = vi.fn()
     const onZoom = vi.fn()
     const { container, user } = renderGrid({ onToday, onZoom })
-    weeks(container)
-      .find((element) => element.tabIndex === 0)
-      ?.focus()
+    focusViewport(container)
 
     await user.keyboard('t')
     expect(onToday).toHaveBeenCalled()
@@ -122,9 +127,7 @@ describe('schedule accessibility', () => {
   it('opens the event on Enter', async () => {
     const onNavigate = vi.fn()
     const { container, user } = renderGrid({ onNavigate })
-    weeks(container)
-      .find((element) => element.tabIndex === 0)
-      ?.focus()
+    focusViewport(container)
 
     await user.keyboard('{Enter}')
     expect(onNavigate).toHaveBeenCalledWith('/events/e1')
@@ -136,9 +139,7 @@ describe('schedule accessibility', () => {
       onNavigate,
       hrefBuilder: (row: { event_id: string }) => `/admin/events/${row.event_id}`,
     })
-    weeks(container)
-      .find((element) => element.tabIndex === 0)
-      ?.focus()
+    focusViewport(container)
 
     await user.keyboard('{Enter}')
     expect(onNavigate).toHaveBeenCalledWith('/admin/events/e1')
@@ -153,9 +154,7 @@ describe('schedule accessibility', () => {
 
   it('marks an event with no stage information by outline, not by colour', () => {
     const data = rowWith([])
-    const { container } = renderWithProviders(
-      <ScheduleGrid data={data} range={range} scale="month" now={NOW} />,
-    )
+    const { container } = renderWithProviders(<ScheduleGrid data={data} {...gridProps} now={NOW} />)
     const bar = bars(container)[0]
     expect(bar).toHaveAttribute('data-unconfirmed', 'true')
     expect(bar?.className).not.toContain('bg-stage-')

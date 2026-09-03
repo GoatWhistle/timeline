@@ -104,3 +104,11 @@ export function useArchiveEvent(id: string) {
     },
   })
 }
+
+export function organizerSuggestionsQuery(search: string) {
+  return queryOptions({
+    queryKey: ['organizer-suggestions', search],
+    queryFn: () => unwrap(api.GET('/organizers', { params: { query: { search } } })),
+    staleTime: 60_000,
+  })
+}

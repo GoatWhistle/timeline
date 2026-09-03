@@ -112,6 +112,10 @@ func resolveUpdateFields(req *dto.UpdateEventRequest, before *models.Event) (res
 			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
 	}
 
+	if err := requireSameKind(req.Kind, before.Kind); err != nil {
+		return resolvedPlace{}, err
+	}
+
 	place, err := resolvePlace(req.Kind, req.Format, req.Origin, req.CountryCode, req.City,
 		resolvedPlace{kind: before.Kind, format: before.Format, origin: before.Origin,
 			countryCode: before.CountryCode, city: before.City})
@@ -137,6 +141,13 @@ func resolveUpdateFields(req *dto.UpdateEventRequest, before *models.Event) (res
 		return resolvedPlace{}, err
 	}
 	return place, nil
+}
+
+func requireSameKind(requested *models.EventKind, current models.EventKind) error {
+	if requested == nil || *requested == current {
+		return nil
+	}
+	return models.NewStateTransition("the kind of an event is fixed once it is created")
 }
 
 func (s *EventService) resetSchedule(ctx context.Context, id uuid.UUID) (bool, error) {

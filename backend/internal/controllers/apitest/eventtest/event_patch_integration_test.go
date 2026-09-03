@@ -39,7 +39,6 @@ func TestEventPatchWritesEveryFieldToItsOwnColumn(t *testing.T) {
 		"description":    "A description no other field carries",
 		"organizer":      "An organiser no other field carries",
 		"website_url":    "https://patched.example.com",
-		"kind":           "MEETUP",
 		"format":         "HYBRID",
 		"origin":         "WORLD",
 		"country_code":   "DE",
@@ -60,7 +59,7 @@ func TestEventPatchWritesEveryFieldToItsOwnColumn(t *testing.T) {
 	requireText(t, "description", got.Description, "A description no other field carries")
 	requireText(t, "organizer", got.Organizer, "An organiser no other field carries")
 	requireText(t, "website_url", got.WebsiteURL, "https://patched.example.com")
-	requireText(t, "kind", &got.Kind, "MEETUP")
+	requireText(t, "kind", &got.Kind, "HACKATHON")
 	requireText(t, "format", &got.Format, "HYBRID")
 	requireText(t, "origin", &got.Origin, "WORLD")
 	requireText(t, "country_code", got.CountryCode, "DE")

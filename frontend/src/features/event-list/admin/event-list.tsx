@@ -170,7 +170,7 @@ export function AdminEventsPage() {
       <AdminEventOverlay />
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>{t('list.newTitle')}</DialogTitle>
           </DialogHeader>

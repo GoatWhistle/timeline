@@ -1,6 +1,5 @@
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
-import type { Range } from '@/features/schedule/model/zoom-range'
 import type {
   EventState,
   Place,
@@ -26,9 +25,20 @@ export const deadlineName = new RegExp(
 
 export const NOW = new Date('2026-01-15T00:00:00Z')
 
-export const range: Range = {
+export const range = {
   from: new Date('2026-01-01T00:00:00Z').getTime(),
   to: new Date('2026-04-01T00:00:00Z').getTime(),
+}
+
+export const GRID_FROM = new Date('2026-01-01T00:00:00Z')
+export const GRID_TO = new Date('2026-04-01T00:00:00Z')
+export const DAY_WIDTH_MONTH = 40
+
+export const gridProps = {
+  from: GRID_FROM,
+  to: GRID_TO,
+  dayWidth: DAY_WIDTH_MONTH,
+  scale: 'month' as const,
 }
 
 export const schedule: ScheduleResponse = {
@@ -37,6 +47,8 @@ export const schedule: ScheduleResponse = {
     {
       event_id: 'e1',
       title: 'Winter Hackathon',
+      kind: 'HACKATHON',
+      website_url: 'https://example.com/winter',
       state: 'ACTIVE',
       start_at: '2026-01-10T00:00:00Z',
       end_at: '2026-02-10T00:00:00Z',
@@ -65,6 +77,7 @@ export const schedule: ScheduleResponse = {
     {
       event_id: 'e2',
       title: 'Spring Meetup',
+      kind: 'MEETUP',
       state: 'UPCOMING',
       start_at: '2026-03-01T00:00:00Z',
       end_at: '2026-03-02T00:00:00Z',
@@ -120,6 +133,7 @@ export function rowWith(
       {
         event_id: 'e1',
         title: 'Winter Hackathon',
+        kind: 'HACKATHON',
         state: 'ACTIVE',
         start_at: '2026-01-10T00:00:00Z',
         end_at: '2026-03-10T00:00:00Z',
@@ -155,6 +169,7 @@ export const longRunning: ScheduleResponse = {
     {
       event_id: 'e1',
       title: 'Long Marathon',
+      kind: 'HACKATHON',
       state: 'ACTIVE',
       start_at: '2026-01-05T00:00:00Z',
       end_at: '2026-02-08T00:00:00Z',
@@ -178,6 +193,7 @@ export const crowded: ScheduleResponse = {
   rows: Array.from({ length: 6 }, (_, index) => ({
     event_id: `c${index}`,
     title: `Crowded ${index}`,
+    kind: 'HACKATHON' as const,
     state: 'ACTIVE' as const,
     start_at: '2026-01-12T00:00:00Z',
     end_at: '2026-01-16T00:00:00Z',

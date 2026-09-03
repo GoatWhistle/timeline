@@ -8,9 +8,9 @@ import { i18n } from '@/shared/i18n/config'
 import {
   bars,
   checkpointStage,
+  gridProps,
   marks,
   NOW,
-  range,
   rowWith,
   schedule,
   slots,
@@ -26,9 +26,7 @@ function coloured(color: EventColor | undefined): ScheduleResponse {
 }
 
 function renderGrid(data: ScheduleResponse, props: Record<string, unknown> = {}) {
-  return renderWithProviders(
-    <ScheduleGrid data={data} range={range} scale="month" now={NOW} {...props} />,
-  )
+  return renderWithProviders(<ScheduleGrid data={data} {...gridProps} now={NOW} {...props} />)
 }
 
 describe('schedule strips consume the event colour seam', () => {
@@ -174,7 +172,7 @@ describe('schedule strips answer the keyboard', () => {
     const { container, user } = renderGrid(coloured(RU_COLOR))
     focusCalendar(container)
 
-    await user.keyboard('{PageDown}')
+    await user.keyboard('n')
     expect(document.activeElement).toHaveAttribute('data-schedule-mark')
   })
 
@@ -182,7 +180,7 @@ describe('schedule strips answer the keyboard', () => {
     const { container, user } = renderGrid(coloured(RU_COLOR))
     focusCalendar(container)
 
-    await user.keyboard('{PageDown}')
+    await user.keyboard('n')
     await user.keyboard(' ')
     expect(findPopover()).toBeInTheDocument()
   })
@@ -218,8 +216,8 @@ function findPopover(): HTMLElement | undefined {
 }
 
 function focusCalendar(container: HTMLElement): void {
-  const week = [...container.querySelectorAll('[data-schedule-week]')].find(
+  const viewport = [...container.querySelectorAll('[data-schedule-viewport]')].find(
     (element) => element instanceof HTMLElement && element.tabIndex === 0,
   )
-  if (week instanceof HTMLElement) week.focus()
+  if (viewport instanceof HTMLElement) viewport.focus()
 }

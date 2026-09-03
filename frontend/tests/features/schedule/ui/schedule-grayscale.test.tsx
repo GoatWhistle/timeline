@@ -4,7 +4,7 @@ import { URGENCY_KEY, type Urgency } from '@/entities/deadline/urgency/urgency'
 import { ScheduleGrid } from '@/features/schedule/ui/schedule-grid/schedule-grid'
 import type { Place, ScheduleResponse, StageType } from '@/shared/api/types.gen'
 import { i18n } from '@/shared/i18n/config'
-import { NOW, range } from './schedule-fixtures'
+import { gridProps, NOW } from './schedule-fixtures'
 
 const place: Place = { format: 'ONLINE', inherited: true }
 
@@ -16,6 +16,7 @@ function eventWith(
   return {
     event_id: id,
     title: `Event ${id}`,
+    kind: 'HACKATHON',
     state: 'ACTIVE',
     start_at: '2026-01-05T00:00:00Z',
     end_at: '2026-01-09T00:00:00Z',
@@ -55,6 +56,7 @@ const data: ScheduleResponse = {
     {
       event_id: 'guess',
       title: 'Unconfirmed span',
+      kind: 'HACKATHON',
       state: 'ACTIVE',
       start_at: '2026-01-19T00:00:00Z',
       end_at: '2026-01-23T00:00:00Z',
@@ -64,6 +66,7 @@ const data: ScheduleResponse = {
     {
       event_id: 'cp',
       title: 'Checkpoint carrier',
+      kind: 'HACKATHON',
       state: 'ACTIVE',
       start_at: '2026-02-02T00:00:00Z',
       end_at: '2026-02-06T00:00:00Z',
@@ -101,6 +104,7 @@ const urgencies: ScheduleResponse = {
   ).map(([id, deadline, start]) => ({
     event_id: id,
     title: `Deadline ${id}`,
+    kind: 'HACKATHON' as const,
     state: 'ACTIVE' as const,
     start_at: start,
     end_at: deadline,
@@ -112,7 +116,7 @@ const urgencies: ScheduleResponse = {
 
 function renderGrayscale(source: ScheduleResponse = data) {
   const view = renderWithProviders(
-    <ScheduleGrid data={source} range={range} scale="quarter" now={NOW} />,
+    <ScheduleGrid data={source} {...gridProps} scale="quarter" dayWidth={15} now={NOW} />,
   )
   view.container.style.filter = 'grayscale(1)'
   return view
