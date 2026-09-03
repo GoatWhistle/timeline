@@ -113,6 +113,9 @@
   --spacing-sidebar: var(--pane-sidebar);
   --spacing-detail: var(--pane-detail);
   --spacing-stage: var(--form-stage-panel);
+  --spacing-tap: var(--tap-target);
+  --spacing-bar-top: var(--bar-top);
+  --spacing-bar-bottom: var(--bar-bottom);
 
   --ease-out: var(--ease-out);
   --ease-in: var(--ease-in);
@@ -140,4 +143,21 @@
       transform: none;
     }
   }
+}
+
+@utility safe-pt {
+  padding-top: var(--safe-top);
+}
+
+@utility safe-pb {
+  padding-bottom: var(--safe-bottom);
+}
+
+@utility safe-px {
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+}
+
+@utility safe-inset-b {
+  padding-bottom: calc(var(--bar-bottom) + var(--safe-bottom));
 }

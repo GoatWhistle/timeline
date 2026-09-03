@@ -9,6 +9,7 @@ import type { MeResponse } from '@/shared/api/types.gen'
 import { useLocale } from '@/shared/i18n/i18n-context'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Wordmark } from '@/shared/ui/brand/wordmark'
+import { SAFE_BOTTOM, SAFE_TOP, TAP_TARGET } from '@/shared/ui/layout/mobile/mobile-state'
 import type { SidebarState } from '@/shared/ui/layout/sidebar/use-sidebar'
 import { ADMIN_NAV, CATALOG_NAV, MINE_NAV, NavSection } from './nav-section'
 
@@ -16,10 +17,12 @@ export function AppSidebar({
   user,
   isAdmin,
   sidebar,
+  phone = false,
 }: {
   user: MeResponse | undefined
   isAdmin: boolean
   sidebar: SidebarState
+  phone?: boolean
 }) {
   const { t } = useTranslation()
   const { locale } = useLocale()
@@ -83,7 +86,7 @@ export function AppSidebar({
         'flex w-sidebar shrink-0 flex-col justify-between overflow-y-auto border-border border-r bg-card p-2',
         'motion-safe:transition-[margin,translate] motion-safe:duration-base motion-safe:ease-out',
         'motion-safe:will-change-transform',
-        sidebar.overlay && 'fixed inset-y-0 left-0 z-50 shadow-lg',
+        sidebar.overlay && cn('fixed inset-y-0 left-0 z-50 shadow-lg', SAFE_TOP, SAFE_BOTTOM),
         sidebar.collapsed
           ? 'pointer-events-none -mr-sidebar translate-x-[calc(var(--pane-sidebar)*-1)]'
           : 'mr-0 translate-x-0',
@@ -99,7 +102,8 @@ export function AppSidebar({
             aria-expanded={!sidebar.collapsed}
             data-sidebar-toggle
             className={cn(
-              'flex size-6 shrink-0 items-center justify-center rounded-control text-muted-foreground',
+              'flex shrink-0 items-center justify-center rounded-control text-muted-foreground',
+              sidebar.overlay ? TAP_TARGET : 'size-6',
               'transition-colors duration-instant hover:bg-surface-2 hover:text-foreground',
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
             )}
@@ -114,7 +118,7 @@ export function AppSidebar({
         >
           {inAdmin ? (
             <NavSection items={ADMIN_NAV} />
-          ) : (
+          ) : phone ? null : (
             <NavSection items={[...CATALOG_NAV, ...MINE_NAV]} />
           )}
         </div>
