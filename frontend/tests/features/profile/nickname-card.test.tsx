@@ -12,7 +12,7 @@ function renderCard(props: { nickname?: string | null; profilePublic?: boolean }
 }
 
 function nicknameInput(): HTMLInputElement {
-  return screen.getByLabelText(i18n.t('profile.nicknameLinkLabel')) as HTMLInputElement
+  return screen.getByLabelText(i18n.t('profile.nickname')) as HTMLInputElement
 }
 
 function openLink(): HTMLAnchorElement | null {

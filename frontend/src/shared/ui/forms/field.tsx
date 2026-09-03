@@ -10,6 +10,7 @@ type FieldProps = {
   error?: string | undefined
   hint?: string | undefined
   hideLabel?: boolean
+  inline?: boolean
   required?: boolean
   children: React.ReactNode
   className?: string
@@ -36,6 +37,7 @@ export function Field({
   error,
   hint,
   hideLabel,
+  inline,
   required,
   children,
   className,
@@ -45,28 +47,48 @@ export function Field({
   const hintId = `${htmlFor}-hint`
   const message = error && KEY_PATTERN.test(error) ? t(error) : error
   const describedBy = message ? errorId : hint ? hintId : undefined
+  const control = describe(children, describedBy, message !== undefined && message !== '')
+
+  const labelNode = (
+    <Label htmlFor={htmlFor} className={hideLabel ? 'sr-only' : undefined}>
+      {label}
+      {required && (
+        <span aria-hidden="true" className="ml-0.5 text-destructive">
+          *
+        </span>
+      )}
+    </Label>
+  )
+  const hintText = hint && !message && (
+    <p id={hintId} className="text-caption text-muted-foreground">
+      {hint}
+    </p>
+  )
+  const errorText = message && (
+    <p id={errorId} role="alert" className="text-caption text-destructive">
+      {message}
+    </p>
+  )
+
+  if (inline) {
+    return (
+      <div className={cn('flex items-center justify-between gap-4', className)}>
+        <div className="flex min-w-0 flex-col gap-1">
+          {labelNode}
+          {hintText}
+          {errorText}
+        </div>
+        {control}
+      </div>
+    )
+  }
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <Label htmlFor={htmlFor} className={hideLabel ? 'sr-only' : undefined}>
-        {label}
-        {required && (
-          <span aria-hidden="true" className="ml-0.5 text-destructive">
-            *
-          </span>
-        )}
-      </Label>
-      {describe(children, describedBy, message !== undefined && message !== '')}
-      {hint && !message && (
-        <p id={hintId} className="text-caption text-muted-foreground">
-          {hint}
-        </p>
-      )}
-      {message && (
-        <p id={errorId} role="alert" className="text-caption text-destructive">
-          {message}
-        </p>
-      )}
+      {labelNode}
+      {control}
+      {hintText}
+      {errorText}
     </div>
   )
 }

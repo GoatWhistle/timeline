@@ -64,11 +64,13 @@ export function NicknameCard({
       <CardHeader>
         <CardTitle>{t('profile.nickname')}</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-6">
-        <form className="flex flex-col gap-3" onSubmit={form.handleSubmit(onSave)} noValidate>
+      <CardContent className="flex flex-col gap-4">
+        <form className="flex items-start gap-2" onSubmit={form.handleSubmit(onSave)} noValidate>
           <Field
-            label={t('profile.nicknameLinkLabel')}
+            label={t('profile.nickname')}
             htmlFor="nickname"
+            hideLabel
+            className="min-w-0 flex-1"
             error={form.formState.errors.nickname?.message}
           >
             <NicknameLinkField
@@ -82,30 +84,25 @@ export function NicknameCard({
               {...form.register('nickname')}
             />
           </Field>
-          <div className="flex justify-end">
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {t('action.save')}
-            </Button>
-          </div>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {t('action.save')}
+          </Button>
         </form>
 
-        <div className="flex items-start justify-between gap-4 border-border border-t pt-4">
-          <div className="min-w-0">
-            <p className="font-medium text-copy" id="profile-public-label">
-              {t('profile.visibilityLabel')}
-            </p>
-            <p className="mt-1 text-caption text-muted-foreground" id="profile-public-hint">
-              {saved === '' ? t('profile.nicknameEmpty') : t('profile.visibilityHint')}
-            </p>
-          </div>
+        <Field
+          label={t('profile.visibilityLabel')}
+          htmlFor="profile-public"
+          inline
+          hint={saved === '' ? t('profile.nicknameEmpty') : t('profile.visibilityHint')}
+          className="border-border border-t pt-4"
+        >
           <Switch
+            id="profile-public"
             checked={profilePublic}
             disabled={saved === ''}
-            aria-labelledby="profile-public-label"
-            aria-describedby="profile-public-hint"
             onCheckedChange={onToggleVisibility}
           />
-        </div>
+        </Field>
       </CardContent>
     </Card>
   )

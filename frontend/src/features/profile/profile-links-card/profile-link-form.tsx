@@ -56,52 +56,61 @@ export function ProfileLinkForm({
   }
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(submit)} noValidate>
-      <Field
-        label={t('profile.links.url')}
-        htmlFor={urlId}
-        error={form.formState.errors.url?.message}
-      >
-        <div className="relative">
-          <ServiceIcon
-            href={url}
-            className={cn(
-              '-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 text-muted-foreground',
-              'motion-safe:transition-colors motion-safe:duration-base motion-safe:ease-out',
-              detected !== null && 'text-foreground',
-            )}
-          />
-          <Input
-            id={urlId}
-            type="url"
-            inputMode="url"
-            autoComplete="off"
-            placeholder={t('profile.links.urlPlaceholder')}
-            aria-invalid={Boolean(form.formState.errors.url)}
-            aria-describedby={detectedId}
-            className="pl-9"
-            {...form.register('url')}
-          />
-        </div>
-        <p id={detectedId} aria-live="polite" className="min-h-5 text-meta text-muted-foreground">
-          {detected === null ? '' : t('profile.links.detected', { name: detected })}
-        </p>
-      </Field>
+    <form className="flex flex-col gap-3" onSubmit={form.handleSubmit(submit)} noValidate>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+        <Field
+          label={t('profile.links.url')}
+          htmlFor={urlId}
+          className="min-w-0 sm:flex-2"
+          error={form.formState.errors.url?.message}
+        >
+          <div className="relative">
+            <Input
+              id={urlId}
+              type="url"
+              inputMode="url"
+              autoComplete="off"
+              placeholder={t('profile.links.urlPlaceholder')}
+              aria-invalid={Boolean(form.formState.errors.url)}
+              aria-describedby={detectedId}
+              className="pr-9"
+              {...form.register('url')}
+            />
+            <ServiceIcon
+              href={url}
+              className={cn(
+                '-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 text-muted-foreground',
+                'motion-safe:transition-colors motion-safe:duration-base motion-safe:ease-out',
+                detected !== null && 'text-foreground',
+              )}
+            />
+          </div>
+        </Field>
 
-      <Field
-        label={t('profile.links.label')}
-        htmlFor={labelId}
-        error={form.formState.errors.label?.message}
+        <Field
+          label={t('profile.links.label')}
+          htmlFor={labelId}
+          className="min-w-0 sm:flex-1"
+          error={form.formState.errors.label?.message}
+        >
+          <Input
+            id={labelId}
+            autoComplete="off"
+            maxLength={100}
+            placeholder={detected ?? ''}
+            aria-invalid={Boolean(form.formState.errors.label)}
+            {...form.register('label')}
+          />
+        </Field>
+      </div>
+
+      <p
+        id={detectedId}
+        aria-live="polite"
+        className="text-meta text-muted-foreground empty:hidden"
       >
-        <Input
-          id={labelId}
-          autoComplete="off"
-          maxLength={100}
-          placeholder={detected ?? ''}
-          aria-invalid={Boolean(form.formState.errors.label)}
-          {...form.register('label')}
-        />
-      </Field>
+        {detected === null ? '' : t('profile.links.detected', { name: detected })}
+      </p>
 
       <div className="flex flex-wrap items-center justify-end gap-2">
         {footnote !== undefined && footnote !== '' && (
