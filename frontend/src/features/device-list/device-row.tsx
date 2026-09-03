@@ -1,11 +1,11 @@
-import { CircleDot, Laptop, Pencil, Smartphone, Tablet, Trash2 } from 'lucide-react'
+import { CircleDot, Laptop, Smartphone, Tablet } from 'lucide-react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type DeviceKind, describeDevice } from '@/entities/session/device-label'
 import type { SessionResponse } from '@/shared/api/types.gen'
 import { formatDateTime, formatRelative } from '@/shared/datetime/datetime'
 import { Badge } from '@/shared/ui/primitives/badge'
-import { Button } from '@/shared/ui/primitives/button'
+import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
 
 const KIND_ICON: Record<DeviceKind, ComponentType<{ className?: string }>> = {
   mobile: Smartphone,
@@ -73,27 +73,17 @@ export function DeviceRow({
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
+        <EditAction
           disabled={pending}
           onClick={onRename}
-          aria-label={t('devices.renameAria', { device: title })}
-        >
-          <Pencil className="size-4" aria-hidden="true" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
+          label={t('devices.renameAria', { device: title })}
+        />
+        <DeleteAction
           className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           disabled={pending}
           onClick={onRevoke}
-          aria-label={t('devices.revokeAria', { device: title })}
-        >
-          <Trash2 className="size-4" aria-hidden="true" />
-        </Button>
+          label={t('devices.revokeAria', { device: title })}
+        />
       </div>
     </li>
   )

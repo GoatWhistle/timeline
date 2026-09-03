@@ -143,13 +143,21 @@ describe('shortcut settings view', () => {
   })
 })
 
+function changeButtons(): HTMLElement[] {
+  const prefix = i18n
+    .t('common:shortcuts.changeOne', { name: '' })
+    .replace(/[«»""]/g, '')
+    .trim()
+  return screen
+    .getAllByRole('button')
+    .filter((node) => (node.getAttribute('aria-label') ?? '').startsWith(prefix))
+}
+
 describe('remapping from the settings screen', () => {
   it('offers a way to change every shortcut, not a read-only list', () => {
     renderWith(appRegistry())
 
-    expect(
-      screen.getByRole('button', { name: i18n.t('common:shortcuts.change') }),
-    ).toBeInTheDocument()
+    expect(changeButtons().length).toBeGreaterThan(0)
     expect(screen.queryByText(i18n.t('ops:readOnly'))).not.toBeInTheDocument()
   })
 
@@ -163,7 +171,7 @@ describe('remapping from the settings screen', () => {
   it('asks for the keys once recording starts', async () => {
     const { user } = renderWith(appRegistry())
 
-    await user.click(screen.getByRole('button', { name: i18n.t('common:shortcuts.change') }))
+    await user.click(changeButtons()[0] as HTMLElement)
     expect(screen.getByText(i18n.t('common:shortcuts.recording'))).toBeInTheDocument()
   })
 
@@ -176,7 +184,7 @@ describe('remapping from the settings screen', () => {
     })
     const { user } = renderWith(registry)
 
-    const buttons = screen.getAllByRole('button', { name: i18n.t('common:shortcuts.change') })
+    const buttons = changeButtons()
     await user.click(buttons[1] as HTMLElement)
     await user.keyboard('{Control>}k{/Control}')
 
@@ -188,7 +196,7 @@ describe('remapping from the settings screen', () => {
   it('refuses a combination the browser takes, and says so', async () => {
     const { user } = renderWith(appRegistry())
 
-    await user.click(screen.getByRole('button', { name: i18n.t('common:shortcuts.change') }))
+    await user.click(changeButtons()[0] as HTMLElement)
     await user.keyboard('{Control>}w{/Control}')
 
     expect(screen.getByRole('alert')).toHaveTextContent(i18n.t('common:shortcuts.reservedBrowser'))
@@ -197,7 +205,7 @@ describe('remapping from the settings screen', () => {
   it('refuses a key the interface needs to move focus', async () => {
     const { user } = renderWith(appRegistry())
 
-    await user.click(screen.getByRole('button', { name: i18n.t('common:shortcuts.change') }))
+    await user.click(changeButtons()[0] as HTMLElement)
     await user.keyboard('{Tab}')
 
     expect(screen.getByRole('alert')).toHaveTextContent(i18n.t('common:shortcuts.reservedFocus'))
@@ -232,7 +240,7 @@ describe('remapping from the settings screen', () => {
   it('stops recording when the user backs out with escape', async () => {
     const { user } = renderWith(appRegistry())
 
-    await user.click(screen.getByRole('button', { name: i18n.t('common:shortcuts.change') }))
+    await user.click(changeButtons()[0] as HTMLElement)
     expect(screen.getByText(i18n.t('common:shortcuts.recording'))).toBeInTheDocument()
 
     await user.keyboard('{Escape}')

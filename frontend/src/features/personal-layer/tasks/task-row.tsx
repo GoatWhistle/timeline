@@ -1,4 +1,3 @@
-import { Pencil, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { filled } from '@/entities/personal/personal-fields'
 import { taskTitle } from '@/entities/personal/task-title'
@@ -7,7 +6,7 @@ import { formatEventMoment, formatRelative } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Checkbox } from '@/shared/ui/forms/checkbox'
 import { Badge } from '@/shared/ui/primitives/badge'
-import { Button } from '@/shared/ui/primitives/button'
+import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
 
 function isOverdue(task: ParticipantTask): boolean {
   if (filled(task.done_at) || !filled(task.due_at)) return false
@@ -74,24 +73,8 @@ export function TaskRow({
         </p>
       </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={onEdit}
-        aria-label={t('personal.tasks.edit', { title: name })}
-      >
-        <Pencil className="size-4" aria-hidden="true" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={onRemove}
-        aria-label={t('personal.tasks.remove', { title: name })}
-      >
-        <Trash2 className="size-4" aria-hidden="true" />
-      </Button>
+      <EditAction onClick={onEdit} label={t('personal.tasks.edit', { title: name })} />
+      <DeleteAction onClick={onRemove} label={t('personal.tasks.remove', { title: name })} />
     </li>
   )
 }

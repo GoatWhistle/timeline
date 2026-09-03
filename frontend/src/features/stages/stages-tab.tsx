@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -27,6 +27,7 @@ import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/overlays/dialog'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { StageForm } from './stage-form'
 import { canMove, moveStage, sortedStages } from './stage-order'
@@ -138,22 +139,14 @@ export function StagesTab({ event }: { event: EventResponse }) {
                       >
                         <ArrowDown className="size-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={t('stages.editAria', { name: stage.name })}
+                      <EditAction
+                        label={t('stages.editAria', { name: stage.name })}
                         onClick={() => setEditing(stage)}
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={t('stages.deleteAria', { name: stage.name })}
+                      />
+                      <DeleteAction
+                        label={t('stages.deleteAria', { name: stage.name })}
                         onClick={() => setDeleting(stage)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
+                      />
                     </div>
                   </TableCell>
                 </TableRow>

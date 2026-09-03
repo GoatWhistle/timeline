@@ -180,6 +180,7 @@
     "emptyTitle": "No shortcuts",
     "emptyHint": "This screen has not registered any shortcuts.",
     "change": "Change",
+    "changeOne": "Change {{name}}",
     "cancel": "Cancel",
     "recording": "Press the keys…",
     "recordingChord": "{{key}} — press the second key",

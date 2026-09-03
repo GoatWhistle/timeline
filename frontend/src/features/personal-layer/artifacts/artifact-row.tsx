@@ -1,4 +1,3 @@
-import { Pencil, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ARTIFACT_KIND_ICON, ARTIFACT_KIND_KEY } from '@/entities/personal/personal.labels'
 import { filled } from '@/entities/personal/personal-fields'
@@ -8,7 +7,7 @@ import { Checkbox } from '@/shared/ui/forms/checkbox'
 import { Label } from '@/shared/ui/forms/label'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
-import { Button } from '@/shared/ui/primitives/button'
+import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
 
 export function ArtifactRow({
   artifact,
@@ -58,24 +57,8 @@ export function ArtifactRow({
         </div>
       </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={onEdit}
-        aria-label={t('personal.artifacts.edit', { title: name })}
-      >
-        <Pencil className="size-4" aria-hidden="true" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={onRemove}
-        aria-label={t('personal.artifacts.remove', { title: name })}
-      >
-        <Trash2 className="size-4" aria-hidden="true" />
-      </Button>
+      <EditAction onClick={onEdit} label={t('personal.artifacts.edit', { title: name })} />
+      <DeleteAction onClick={onRemove} label={t('personal.artifacts.remove', { title: name })} />
     </li>
   )
 }

@@ -5,6 +5,7 @@ import { KeyCap } from '@/shared/keyboard/key-cap'
 import type { BindingRejection, ShortcutPlatform } from '@/shared/keyboard/shortcut-bindings'
 import type { ShortcutDefinition } from '@/shared/keyboard/shortcut-registry'
 import { Button } from '@/shared/ui/primitives/button'
+import { EditAction } from '@/shared/ui/primitives/row-actions'
 import { useCaptureKeys } from './use-capture'
 
 export type RowProps = {
@@ -77,21 +78,20 @@ export function ShortcutRow({
         ) : (
           shortcut.keys.map((combo) => <KeyCap key={combo} combo={combo} platform={platform} />)
         )}
-        <Button
-          variant={recording ? 'secondary' : 'ghost'}
-          size="sm"
-          disabled={busy}
-          onClick={() => {
-            if (recording) {
-              stop()
-              return
-            }
-            setRecording(true)
-            onRecording(shortcut.id)
-          }}
-        >
-          {recording ? t('shortcuts.cancel') : t('shortcuts.change')}
-        </Button>
+        {recording ? (
+          <Button variant="secondary" size="sm" disabled={busy} onClick={stop}>
+            {t('shortcuts.cancel')}
+          </Button>
+        ) : (
+          <EditAction
+            label={t('shortcuts.changeOne', { name: t(shortcut.titleKey) })}
+            disabled={busy}
+            onClick={() => {
+              setRecording(true)
+              onRecording(shortcut.id)
+            }}
+          />
+        )}
         <Button
           variant="ghost"
           size="icon"

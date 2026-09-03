@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Pencil, Plus, PowerOff } from 'lucide-react'
+import { Plus, PowerOff } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -25,6 +25,7 @@ import {
 import { Switch } from '@/shared/ui/forms/switch'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { EditAction } from '@/shared/ui/primitives/row-actions'
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { AUTO_CHANNEL, type Direction, RuleDialog } from './rule-dialog/rule-dialog'
 
@@ -151,14 +152,10 @@ export function RulesEditor({ eventId }: { eventId: string }) {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={t('rules.edit', { slot: rule.slot_no })}
+                      <EditAction
+                        label={t('rules.edit', { slot: rule.slot_no })}
                         onClick={() => openDialog(rule)}
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
+                      />
                       <Switch
                         checked={rule.enabled}
                         aria-label={t('rules.toggle', { slot: rule.slot_no })}

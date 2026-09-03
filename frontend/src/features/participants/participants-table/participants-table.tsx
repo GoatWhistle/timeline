@@ -1,4 +1,4 @@
-import { Pencil, RotateCcw } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PARTICIPATION_STATUS_KEY } from '@/entities/participant/participant.labels'
 import {
@@ -20,6 +20,7 @@ import { Checkbox } from '@/shared/ui/forms/checkbox'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { Dot } from '@/shared/ui/primitives/dot'
+import { EditAction } from '@/shared/ui/primitives/row-actions'
 
 export function ParticipantsTable({
   items,
@@ -100,14 +101,10 @@ export function ParticipantsTable({
             </TableCell>
             <TableCell>
               <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t('participants.editRole', { name: item.user.display_name })}
+                <EditAction
+                  label={t('participants.editRole', { name: item.user.display_name })}
                   onClick={() => onEdit(item)}
-                >
-                  <Pencil className="size-4" />
-                </Button>
+                />
                 {item.participation_status === 'REMOVED' && (
                   <Button
                     variant="ghost"

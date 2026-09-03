@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, GripVertical, Pencil, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, GripVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ProfileLink } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -6,6 +6,7 @@ import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link
 import { linkHostname } from '@/shared/ui/navigation/service-link/detect-service'
 import { ServiceIcon, serviceLabel } from '@/shared/ui/navigation/service-link/service-icon'
 import { Button } from '@/shared/ui/primitives/button'
+import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
 
 export type ProfileLinkRowProps = {
   link: ProfileLink
@@ -91,25 +92,12 @@ export function ProfileLinkRow({
       >
         <ChevronDown className="size-4" aria-hidden="true" />
       </Button>
-      <Button
-        type="button"
-        variant={isEditing ? 'secondary' : 'ghost'}
-        size="icon"
+      <EditAction
         onClick={onEdit}
         aria-pressed={isEditing}
-        aria-label={t('profile.links.edit', { name })}
-      >
-        <Pencil className="size-4" aria-hidden="true" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={onRemove}
-        aria-label={t('profile.links.remove', { name })}
-      >
-        <Trash2 className="size-4" aria-hidden="true" />
-      </Button>
+        label={t('profile.links.edit', { name })}
+      />
+      <DeleteAction onClick={onRemove} label={t('profile.links.remove', { name })} />
     </li>
   )
 }
