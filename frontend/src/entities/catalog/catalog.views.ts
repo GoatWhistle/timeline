@@ -52,6 +52,10 @@ export function resolveLayout(value: string): CatalogLayout {
   return value === 'grid' ? 'grid' : 'table'
 }
 
+export function effectiveLayout(value: CatalogLayout, phone: boolean): CatalogLayout {
+  return phone ? 'grid' : value
+}
+
 export const CATALOG_SORTS = ['start_at', 'end_at', 'title'] as const
 export type CatalogSort = (typeof CATALOG_SORTS)[number]
 

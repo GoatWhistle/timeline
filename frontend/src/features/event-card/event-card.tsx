@@ -79,11 +79,19 @@ function EventCardBody({
       <EventCover
         coverUrl={event.cover_url}
         title={event.title}
-        className="aspect-[4/1] w-full rounded-surface"
+        className="aspect-[16/9] w-full rounded-surface sm:aspect-[3/1] xl:aspect-[4/1]"
       />
 
       <div className="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="flex min-w-0 flex-col gap-6">
+        <aside className="xl:sticky xl:top-4 xl:col-start-2 xl:row-start-1">
+          <Card>
+            <CardContent className="pt-6">
+              <EventFacts event={event} />
+            </CardContent>
+          </Card>
+        </aside>
+
+        <div className="flex min-w-0 flex-col gap-6 xl:col-start-1 xl:row-start-1">
           <Card>
             <CardHeader>
               <CardTitle>{t('card.participation')}</CardTitle>
@@ -136,14 +144,6 @@ function EventCardBody({
 
           <PersonalSection eventId={event.id} stages={card.stages} />
         </div>
-
-        <aside className="xl:sticky xl:top-4">
-          <Card>
-            <CardContent className="pt-6">
-              <EventFacts event={event} />
-            </CardContent>
-          </Card>
-        </aside>
       </div>
     </div>
   )

@@ -82,7 +82,11 @@ function CellContent({ event, column }: { event: CatalogEvent; column: CatalogCo
     case 'organizer':
       return <span className="block truncate">{event.organizer ?? DASH}</span>
     case 'track':
-      return <span className="block truncate">{event.track ?? DASH}</span>
+      return (
+        <span className="block truncate">
+          {event.tracks.length > 0 ? event.tracks.map((track) => track.name).join(', ') : DASH}
+        </span>
+      )
     case 'teamSize': {
       const size = teamSizeLabelKey(event)
       return <>{size ? t(size.key, size.values) : DASH}</>

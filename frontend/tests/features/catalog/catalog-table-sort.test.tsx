@@ -17,6 +17,7 @@ const items: CatalogEvent[] = [
     start_at: '2026-10-01T00:00:00Z',
     end_at: '2026-10-20T00:00:00Z',
     state: 'UPCOMING',
+    tracks: [],
     joined: false,
   },
 ]

@@ -118,7 +118,9 @@
       "remove": "Remove condition",
       "empty": "No conditions yet. Everything is shown.",
       "fieldAria": "Filter field",
-      "valueAria": "Filter value"
+      "valueAria": "Filter value",
+      "apply": "Show results",
+      "sheetHint": "Pick conditions — the catalog updates as you go."
     },
     "field": {
       "state": "State",

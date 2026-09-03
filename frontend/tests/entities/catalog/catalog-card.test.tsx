@@ -16,6 +16,7 @@ const base: CatalogEvent = {
   start_at: '2026-10-01T00:00:00Z',
   end_at: '2026-10-20T00:00:00Z',
   state: 'UPCOMING',
+  tracks: [],
   joined: false,
 }
 
@@ -104,7 +105,7 @@ describe('CatalogCard', () => {
         event={{
           ...base,
           organizer: 'Organising committee',
-          track: 'Smart city',
+          tracks: [{ id: 'tr_1', track_no: 1, name: 'Smart city', prize_total: '0' }],
           team_size_min: 3,
           team_size_max: 5,
         }}
@@ -117,6 +118,25 @@ describe('CatalogCard', () => {
     expect(
       screen.getByText(i18n.t('event:catalog.card.teamRange', { min: 3, max: 5 })),
     ).toBeInTheDocument()
+  })
+
+  it('counts the tracks instead of naming one when a hackathon has several', () => {
+    renderWithProviders(
+      <CatalogCard
+        event={{
+          ...base,
+          tracks: [
+            { id: 'tr_1', track_no: 1, name: 'Smart city', prize_total: '0' },
+            { id: 'tr_2', track_no: 2, name: 'Voice agents', prize_total: '0' },
+            { id: 'tr_3', track_no: 3, name: 'GraphRAG', prize_total: '0' },
+          ],
+        }}
+        selected={false}
+        onSelect={vi.fn()}
+      />,
+    )
+    expect(screen.getByText(i18n.t('event:card.trackCount', { count: 3 }))).toBeInTheDocument()
+    expect(screen.queryByText('Smart city')).toBeNull()
   })
 
   it('keeps the website link out of the option, so no button nests inside a button', () => {

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useCatalogColumns } from '@/entities/catalog/catalog.columns'
@@ -9,6 +9,7 @@ import { catalogQuery } from '@/entities/catalog/catalog.queries'
 import {
   type CatalogOrder,
   type CatalogSort,
+  effectiveLayout,
   resolveLayout,
   resolveOrder,
   resolveSort,
@@ -18,70 +19,44 @@ import { CatalogEventOverlay, useEventOverlay } from '@/features/event-overlay-c
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
+import {
+  CATALOG_DEFAULTS,
+  CATALOG_FILTER_FIELDS_URL,
+  endOfDay,
+  joinedParam,
+  listParam,
+  startOfDay,
+} from './catalog.params'
 import { CatalogEmpty } from './catalog-empty'
 import { activeFilterCount, type CatalogFilterValues } from './catalog-filter-conditions'
+import { CatalogFilterSheet } from './catalog-filter-sheet'
 import { CatalogTable } from './catalog-table'
 import { CatalogToolbar } from './catalog-toolbar'
+import { CatalogToolbarPhone } from './catalog-toolbar-phone'
 import { JoinEventDialog } from './join-event-dialog'
-
-const DEFAULTS = {
-  origin: '',
-  kind: '',
-  format: '',
-  state: '',
-  layout: 'table',
-  selected: '',
-  sort: '',
-  order: '',
-  joined: '',
-  from: '',
-  to: '',
-}
-
-const FILTER_FIELDS = ['state', 'format', 'kind', 'origin', 'joined', 'from', 'to'] as const
-
-function listParam<K extends 'origin' | 'kind' | 'format' | 'state'>(
-  value: string,
-): CatalogParams[K] {
-  return (value === '' ? undefined : value) as CatalogParams[K]
-}
-
-function joinedParam(value: string): boolean | undefined {
-  if (value === 'true') return true
-  if (value === 'false') return false
-  return undefined
-}
-
-function startOfDay(value: string): string | undefined {
-  if (value === '') return undefined
-  const parsed = new Date(`${value}T00:00:00`)
-  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString()
-}
-
-function endOfDay(value: string): string | undefined {
-  if (value === '') return undefined
-  const parsed = new Date(`${value}T23:59:59.999`)
-  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString()
-}
 
 export function CatalogPage() {
   const { t } = useTranslation('event')
-  const [filters, setFilters] = useUrlFilters(DEFAULTS)
+  const [filters, setFilters] = useUrlFilters(CATALOG_DEFAULTS)
   const [page, setPage] = usePageParam()
   const [joining, setJoining] = useState<CatalogEvent | null>(null)
+  const [filterSheet, setFilterSheet] = useState(false)
+  const filterTriggerRef = useRef<HTMLButtonElement>(null)
   const exportMutation = useCatalogExport()
   const { columns, toggle: toggleColumn, reset: resetColumns } = useCatalogColumns()
+  const phone = usePhoneViewport()
 
-  const layout = resolveLayout(filters.layout)
+  const layout = effectiveLayout(resolveLayout(filters.layout), phone)
   const sort = resolveSort(filters.sort)
   const order = resolveOrder(filters.order)
 
   const conditions = Object.fromEntries(
-    FILTER_FIELDS.map((field) => [field, filters[field]]),
+    CATALOG_FILTER_FIELDS_URL.map((field) => [field, filters[field]]),
   ) as CatalogFilterValues
 
   const params: CatalogParams = {
@@ -125,7 +100,7 @@ export function CatalogPage() {
   }
 
   function resetFilters() {
-    setFilters(Object.fromEntries(FILTER_FIELDS.map((field) => [field, undefined])))
+    setFilters(Object.fromEntries(CATALOG_FILTER_FIELDS_URL.map((field) => [field, undefined])))
   }
 
   function runExport() {
@@ -138,22 +113,34 @@ export function CatalogPage() {
   return (
     <ThreePane>
       <ListPane>
-        <CatalogToolbar
-          layout={layout}
-          sort={sort}
-          order={order}
-          filters={conditions}
-          columns={columns}
-          exporting={exportMutation.isPending}
-          onLayout={(value) => setFilters({ layout: value }, { resetPage: false })}
-          onSort={changeSort}
-          onOrder={(value: CatalogOrder) => setFilters({ order: value })}
-          onFilters={(patch) => setFilters(patch)}
-          onResetFilters={resetFilters}
-          onToggleColumn={toggleColumn}
-          onResetColumns={resetColumns}
-          onExport={runExport}
-        />
+        {phone ? (
+          <CatalogToolbarPhone
+            sort={sort}
+            order={order}
+            filters={conditions}
+            onSort={changeSort}
+            onOrder={(value: CatalogOrder) => setFilters({ order: value })}
+            onOpenFilters={() => setFilterSheet(true)}
+            filterTriggerRef={filterTriggerRef}
+          />
+        ) : (
+          <CatalogToolbar
+            layout={layout}
+            sort={sort}
+            order={order}
+            filters={conditions}
+            columns={columns}
+            exporting={exportMutation.isPending}
+            onLayout={(value) => setFilters({ layout: value }, { resetPage: false })}
+            onSort={changeSort}
+            onOrder={(value: CatalogOrder) => setFilters({ order: value })}
+            onFilters={(patch) => setFilters(patch)}
+            onResetFilters={resetFilters}
+            onToggleColumn={toggleColumn}
+            onResetColumns={resetColumns}
+            onExport={runExport}
+          />
+        )}
 
         <QueryBoundary
           isPending={query.isPending}
@@ -182,7 +169,7 @@ export function CatalogPage() {
                 <div
                   role="listbox"
                   aria-label={t('catalog.title')}
-                  className="grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] gap-4 p-4"
+                  className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-3 p-3 sm:gap-4 sm:p-4"
                 >
                   {items.map((item) => (
                     <CatalogCard
@@ -214,6 +201,17 @@ export function CatalogPage() {
           )
         }
       />
+
+      {phone && (
+        <CatalogFilterSheet
+          values={conditions}
+          onChange={(patch) => setFilters(patch)}
+          onReset={resetFilters}
+          open={filterSheet}
+          onOpenChange={setFilterSheet}
+          returnFocusTo={filterTriggerRef}
+        />
+      )}
 
       {joining && (
         <JoinEventDialog

@@ -103,9 +103,11 @@ export function CatalogCard({
           <PlaceLine event={event} />
 
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1">
-            {event.track && (
+            {event.tracks.length > 0 && (
               <Badge tone="neutral" className="max-w-full truncate">
-                {event.track}
+                {event.tracks.length === 1 && event.tracks[0]
+                  ? event.tracks[0].name
+                  : t('card.trackCount', { count: event.tracks.length })}
               </Badge>
             )}
             {teamSize && (
@@ -131,7 +133,8 @@ export function CatalogCard({
           showIcon={false}
           aria-label={t('catalog.card.websiteOf', { title: event.title })}
           className={cn(
-            'absolute top-4 right-4 flex size-7 items-center justify-center rounded-control',
+            'absolute top-3 right-3 flex size-11 items-center justify-center rounded-control',
+            'sm:top-4 sm:right-4 sm:size-7',
             'border border-border bg-card/90 text-muted-foreground backdrop-blur-sm',
             'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
             'hover:bg-accent-surface hover:text-accent-surface-foreground',

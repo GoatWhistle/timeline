@@ -41,7 +41,8 @@
     "archived": "The event is archived",
     "archiveFailed": "Could not archive the event",
     "saved": "Changes saved",
-    "savedHint": "The event card is updated"
+    "savedHint": "The event card is updated",
+    "tabTracks": "Tracks"
   },
   "place": {
     "format": {
@@ -114,5 +115,37 @@
     "title": "Event",
     "openFull": "Show the full statistics",
     "openAdmin": "Administrative card"
+  },
+  "tracks": {
+    "add": "Add a track",
+    "newTitle": "New track",
+    "editTitle": "Edit the track",
+    "emptyTitle": "No tracks yet",
+    "emptyHint": "Split the prize pool across directions: every track carries its own places and amounts.",
+    "hackathonOnly": "Only a hackathon can carry tracks.",
+    "noPool": "Set a prize pool and a currency on the General tab first — there is nothing to distribute yet.",
+    "noPrizes": "No places set",
+    "budgetTitle": "Prize pool distribution",
+    "budgetMeter": "Share of the prize pool distributed",
+    "formName": "Track name",
+    "formDescription": "Description",
+    "formPrizes": "Places and amounts",
+    "formPrizesEmpty": "No places added: a track may exist without prizes.",
+    "formPrizeAdd": "Add a place",
+    "formPrizeRemove": "Remove place {{place}}",
+    "formPrizeTotal": "Track total:",
+    "nameRequired": "Give the track a name",
+    "overBudget": "Over the prize pool by {{over}}. Lower the amounts or raise the event pool.",
+    "overBudgetServer": "The prizes of every track together do not fit the event prize pool. Lower the amounts or raise the pool on the General tab.",
+    "created": "Track created",
+    "saved": "Track saved",
+    "deleteFailed": "The track could not be deleted",
+    "reorderFailed": "The tracks could not be reordered",
+    "confirmDeleteTitle": "Delete the track?",
+    "confirmDeleteHint": "The track “{{name}}” and its prize places will be deleted. Teams that chose it stay entered, with no track.",
+    "moveUpAria": "Move track {{name}} up",
+    "moveDownAria": "Move track {{name}} down",
+    "editAria": "Edit track {{name}}",
+    "deleteAria": "Delete track {{name}}"
   }
 }
