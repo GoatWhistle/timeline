@@ -16,6 +16,7 @@ export type ScheduleBarProps = {
   clippedStart?: boolean
   clippedEnd?: boolean
   style?: CSSProperties
+  onFocusItem?: () => void
   onSelect: () => void
   onOpen: () => void
 }
@@ -28,6 +29,7 @@ export function ScheduleBar({
   clippedStart = false,
   clippedEnd = false,
   style,
+  onFocusItem,
   onSelect,
   onOpen,
 }: ScheduleBarProps) {
@@ -51,7 +53,7 @@ export function ScheduleBar({
             data-clipped-end={clippedEnd ? 'true' : 'false'}
             aria-current={selected ? 'true' : undefined}
             aria-label={sentence}
-            onFocus={onSelect}
+            onFocus={onFocusItem}
             onClick={onSelect}
             onDoubleClick={onOpen}
             onKeyDown={(event) => {

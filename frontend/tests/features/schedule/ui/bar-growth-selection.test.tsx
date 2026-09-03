@@ -156,11 +156,77 @@ describe('selecting an event marks it out among the rest', () => {
     expect(onOpenEvent).toHaveBeenCalled()
   })
 
+  it('opens on a double click without the first click having cleared the selection', async () => {
+    const onOpenEvent = vi.fn()
+    const { container, user } = renderMonth(2, { selectedId: 'e0', onOpenEvent })
+
+    const bar = container.querySelector<HTMLElement>('[data-schedule-item="e0"]')
+    if (bar) await user.dblClick(bar)
+
+    expect(onOpenEvent).toHaveBeenCalled()
+  })
+
   it('keeps selection separable from the joined state and the focus ring', () => {
     const { container } = renderMonth(3, { selectedId: 'e1' })
     const bar = container.querySelector('[data-schedule-item="e1"]')
 
     expect(bar).toHaveAttribute('data-selected', 'true')
     expect(bar).toHaveAttribute('data-focused', 'false')
+  })
+})
+
+describe('the selection can be taken off again', () => {
+  it('drops the selection when the selected bar is clicked a second time', async () => {
+    const onSelect = vi.fn()
+    const { container, user } = renderMonth(2, { selectedId: 'e0', onSelect })
+
+    const bar = container.querySelector<HTMLElement>('[data-schedule-item="e0"]')
+    if (bar) await user.click(bar)
+
+    expect(onSelect).toHaveBeenCalledWith(undefined)
+  })
+
+  it('moves the selection rather than dropping it when another bar is clicked', async () => {
+    const onSelect = vi.fn()
+    const { container, user } = renderMonth(2, { selectedId: 'e0', onSelect })
+
+    const other = container.querySelector<HTMLElement>('[data-schedule-item="e1"]')
+    if (other) await user.click(other)
+
+    expect(onSelect).toHaveBeenCalledWith('e1')
+  })
+
+  it('drops the selection on Escape from the day cell, without a pointer', async () => {
+    const onSelect = vi.fn()
+    const { container, user } = renderMonth(2, { selectedId: 'e0', onSelect })
+
+    const day = container.querySelector<HTMLElement>('[data-schedule-day][tabindex="0"]')
+    day?.focus()
+    await user.keyboard('{Escape}')
+
+    expect(onSelect).toHaveBeenCalledWith(undefined)
+  })
+
+  it('drops the selection when an empty day cell is clicked', async () => {
+    const onSelect = vi.fn()
+    const { container, user } = renderMonth(2, { selectedId: 'e0', onSelect })
+
+    const empty = [...container.querySelectorAll<HTMLElement>('[data-schedule-day]')].find(
+      (day) => day.dataset.scheduleDayBars === '0',
+    )
+    if (empty) await user.click(empty)
+
+    expect(onSelect).toHaveBeenCalledWith(undefined)
+  })
+
+  it('does not claim a selection was dropped when there was none to drop', async () => {
+    const onSelect = vi.fn()
+    const { container, user } = renderMonth(2, { onSelect })
+
+    const bar = container.querySelector<HTMLElement>('[data-schedule-item="e0"]')
+    if (bar) await user.click(bar)
+
+    expect(onSelect).toHaveBeenCalledWith('e0')
+    expect(onSelect).not.toHaveBeenCalledWith(undefined)
   })
 })

@@ -1,5 +1,5 @@
 import { ExternalLink } from 'lucide-react'
-import { memo } from 'react'
+import { type KeyboardEvent, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { eventColorAttrs } from '@/entities/event/event-color'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/tooltip'
@@ -17,11 +17,13 @@ export type WrappedBarProps = {
   barHeight: number
   top: number
   sentence: string
+  days: string
   focused: boolean
   selected: boolean
   onFocusItem: () => void
   onSelect: () => void
   onOpen: () => void
+  onKeyDown: (event: KeyboardEvent<HTMLElement>) => void
 }
 
 function WrappedBarView({
@@ -31,11 +33,13 @@ function WrappedBarView({
   barHeight,
   top,
   sentence,
+  days,
   focused,
   selected,
   onFocusItem,
   onSelect,
   onOpen,
+  onKeyDown,
 }: WrappedBarProps) {
   const { t } = useTranslation()
   const { row } = bar.span
@@ -65,6 +69,7 @@ function WrappedBarView({
             tabIndex={-1}
             className={styles.bar}
             data-schedule-item={bar.span.id}
+            data-schedule-bar-day={days}
             data-kind={row.kind}
             data-thin={barHeight < WRAPPED_ICON_BAR ? 'true' : 'false'}
             data-clipped-start={bar.clippedStart ? 'true' : 'false'}
@@ -76,11 +81,7 @@ function WrappedBarView({
             onFocus={onFocusItem}
             onClick={onSelect}
             onDoubleClick={onOpen}
-            onKeyDown={(event) => {
-              if (event.key !== 'Enter') return
-              event.preventDefault()
-              onOpen()
-            }}
+            onKeyDown={onKeyDown}
           >
             {showIcon && <KindIcon className={styles.barIcon} aria-hidden="true" />}
             {showTitle && <span className={styles.barTitle}>{row.title}</span>}

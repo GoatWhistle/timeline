@@ -5,7 +5,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { isAllDaySpan } from '@/features/schedule/model/calendar-items'
 import { hourWindow, packDayColumns } from '@/features/schedule/model/pack-lanes'
 import { WeekGrid } from '@/features/schedule/ui/week-grid/week-grid'
-import { entriesForDay, timedHeight, WEEK_HOUR_HEIGHT } from '@/features/schedule/ui/week-grid/week-layout'
+import {
+  entriesForDay,
+  timedHeight,
+  WEEK_HOUR_HEIGHT,
+} from '@/features/schedule/ui/week-grid/week-layout'
 import type { ScheduleResponse, ScheduleRow } from '@/shared/api/types.gen'
 
 const WEEK_FROM = new Date('2026-01-05T00:00:00')
@@ -32,14 +36,7 @@ function data(rows: ScheduleRow[]): ScheduleResponse {
 
 function renderWeek(rows: ScheduleRow[], props: Record<string, unknown> = {}) {
   return renderWithProviders(
-    <WeekGrid
-      data={data(rows)}
-      from={WEEK_FROM}
-      to={WEEK_TO}
-      locale={enUS}
-      now={NOW}
-      {...props}
-    />,
+    <WeekGrid data={data(rows)} from={WEEK_FROM} to={WEEK_TO} locale={enUS} now={NOW} {...props} />,
   )
 }
 
@@ -55,10 +52,10 @@ describe('the week separates all-day events from timed ones', () => {
 
     const { container } = renderWeek([hackathon])
 
-    expect(container.querySelector('[data-schedule-band] [data-schedule-item="hack"]')).not.toBeNull()
     expect(
-      container.querySelector('[data-schedule-column] [data-schedule-item="hack"]'),
-    ).toBeNull()
+      container.querySelector('[data-schedule-band] [data-schedule-item="hack"]'),
+    ).not.toBeNull()
+    expect(container.querySelector('[data-schedule-column] [data-schedule-item="hack"]')).toBeNull()
   })
 
   it('routes a two-hour meetup onto the hour grid, never into the all-day band', () => {
@@ -182,5 +179,68 @@ describe('the week view stays reachable and legible', () => {
 
     expect(onSelect).toHaveBeenCalledWith('meet')
     expect(onOpenEvent).not.toHaveBeenCalled()
+  })
+})
+
+describe('the week view lets the selection be taken off again', () => {
+  const meetup = row({ event_id: 'm1', title: 'Evening meetup' })
+
+  it('drops the selection when the selected bar is clicked a second time', async () => {
+    const onSelect = vi.fn()
+    const { container, user } = renderWeek([meetup], { selectedId: 'm1', onSelect })
+
+    const bar = container.querySelector<HTMLElement>('[data-schedule-item="m1"]')
+    if (bar) await user.click(bar)
+
+    expect(onSelect).toHaveBeenCalledWith(undefined)
+  })
+
+  it('drops the selection on Escape inside the week frame, without a pointer', async () => {
+    const onSelect = vi.fn()
+    const { container, user } = renderWeek([meetup], { selectedId: 'm1', onSelect })
+
+    const bar = container.querySelector<HTMLElement>('[data-schedule-item="m1"]')
+    bar?.focus()
+    await user.keyboard('{Escape}')
+
+    expect(onSelect).toHaveBeenCalledWith(undefined)
+  })
+
+  it('leaves Escape alone when nothing is selected, so it can reach an overlay above', async () => {
+    const onSelect = vi.fn()
+    const { container, user } = renderWeek([meetup], { onSelect })
+
+    const bar = container.querySelector<HTMLElement>('[data-schedule-item="m1"]')
+    bar?.focus()
+    await user.keyboard('{Escape}')
+
+    expect(onSelect).not.toHaveBeenCalledWith(undefined)
+  })
+
+  it('keeps Enter opening the event rather than clearing it', async () => {
+    const onOpenEvent = vi.fn()
+    const onSelect = vi.fn()
+    const { container, user } = renderWeek([meetup], {
+      selectedId: 'm1',
+      onOpenEvent,
+      onSelect,
+    })
+
+    const bar = container.querySelector<HTMLElement>('[data-schedule-item="m1"]')
+    bar?.focus()
+    await user.keyboard('{Enter}')
+
+    expect(onOpenEvent).toHaveBeenCalled()
+    expect(onSelect).not.toHaveBeenCalledWith(undefined)
+  })
+
+  it('keeps focusing a bar selecting it rather than toggling it away', async () => {
+    const onSelect = vi.fn()
+    const { container } = renderWeek([meetup], { selectedId: 'm1', onSelect })
+
+    container.querySelector<HTMLElement>('[data-schedule-item="m1"]')?.focus()
+
+    expect(onSelect).toHaveBeenCalledWith('m1')
+    expect(onSelect).not.toHaveBeenCalledWith(undefined)
   })
 })

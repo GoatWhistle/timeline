@@ -1,9 +1,8 @@
 import type { Locale } from 'date-fns'
 import { format } from 'date-fns'
-import { memo } from 'react'
+import { type KeyboardEvent, memo } from 'react'
 import type { CalendarSpan } from '../../model/calendar-items'
-import type { MonthBlock as MonthBlockData } from '../../model/month-grid'
-import { packMonthWeek } from '../../model/month-grid'
+import { dayKey, type MonthBlock as MonthBlockData, packMonthWeek } from '../../model/month-grid'
 import { DAYS_PER_WEEK } from '../../model/pack-lanes'
 import { wrappedBarHeight, wrappedLaneTop, wrappedRowHeight } from '../../model/schedule-scale'
 import { isToday } from '../../model/timeline-grid'
@@ -25,6 +24,10 @@ export type MonthBlockProps = {
   dayLabel: (date: Date, count: number) => string
   sentenceOf: (span: CalendarSpan) => string
   onFocusDay: (date: Date) => void
+  onDayKeyDown: (event: KeyboardEvent<HTMLElement>) => void
+  onBarKeyDown: (event: KeyboardEvent<HTMLElement>, id: string) => void
+  onClearSelection: () => void
+  onFocusSpan: (span: CalendarSpan) => void
   onSelectSpan: (span: CalendarSpan) => void
   onOpenSpan: (span: CalendarSpan) => void
 }
@@ -42,6 +45,10 @@ function MonthBlockView({
   dayLabel,
   sentenceOf,
   onFocusDay,
+  onDayKeyDown,
+  onBarKeyDown,
+  onClearSelection,
+  onFocusSpan,
   onSelectSpan,
   onOpenSpan,
 }: MonthBlockProps) {
@@ -88,9 +95,12 @@ function MonthBlockView({
                     data-schedule-day={day.key}
                     data-weekend={day.isWeekend ? 'true' : 'false'}
                     data-today={isToday(day.date, now) ? 'true' : 'false'}
+                    data-schedule-day-bars={covering}
                     tabIndex={focusedKey === day.key ? 0 : -1}
                     aria-label={dayLabel(day.date, covering)}
                     onFocus={() => onFocusDay(day.date)}
+                    onKeyDown={onDayKeyDown}
+                    onClick={onClearSelection}
                   >
                     <span className={styles.cellNumber} aria-hidden="true">
                       {day.date.getDate()}
@@ -110,11 +120,16 @@ function MonthBlockView({
                   barHeight={laneHeight}
                   top={wrappedLaneTop(bar.lane, laneHeight, barHeight)}
                   sentence={sentenceOf(bar.span)}
+                  days={week.days
+                    .slice(bar.startColumn, bar.startColumn + bar.columns)
+                    .map((day) => dayKey(day.date))
+                    .join(' ')}
                   focused={false}
                   selected={selectedId === bar.span.id}
-                  onFocusItem={() => onSelectSpan(bar.span)}
+                  onFocusItem={() => onFocusSpan(bar.span)}
                   onSelect={() => onSelectSpan(bar.span)}
                   onOpen={() => onOpenSpan(bar.span)}
+                  onKeyDown={(event) => onBarKeyDown(event, bar.span.id)}
                 />
               ))}
             </div>

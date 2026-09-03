@@ -1,6 +1,6 @@
-import { addDays, format, startOfMonth } from 'date-fns'
+import { format, startOfMonth } from 'date-fns'
 import { enUS, ru } from 'date-fns/locale'
-import { type KeyboardEvent, useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ScheduleResponse, ScheduleRow as ScheduleRowData } from '@/shared/api/types.gen'
 import { formatDate, formatRelative } from '@/shared/datetime/datetime'
@@ -14,6 +14,7 @@ import { GRID_GAP, GRID_PADDING } from '../../model/schedule-scale'
 import { buildTimelineGrid } from '../../model/timeline-grid'
 import { useAnnouncer } from '../../model/use-announcer'
 import { useElementWidth } from '../../model/use-element-width'
+import { useWrappedFocus } from '../../model/use-wrapped-focus'
 import { MonthBlock } from './month-block'
 import styles from './wrapped-grid.module.css'
 
@@ -84,56 +85,46 @@ export function WrappedGrid({
   )
 
   const dayLabel = useCallback(
-    (date: Date, count: number) =>
-      t('schedule.dayAria', { date: format(date, 'd LLLL yyyy', { locale }), count }),
+    (date: Date, count: number) => {
+      const named = t('schedule.dayAria', {
+        date: format(date, 'd LLLL yyyy', { locale }),
+        count,
+      })
+      return count > 0 ? `${named}. ${t('schedule.dayBarsHint')}` : named
+    },
     [t, locale],
   )
 
-  const [cursor, setCursor] = useState<Date>(() =>
-    now >= bounds.first && now <= bounds.last ? now : bounds.first,
-  )
+  const spanById = useCallback((id: string) => spans.find((span) => span.id === id), [spans])
 
-  const focusDay = useCallback((date: Date) => {
-    setCursor(date)
-    const target = containerRef.current?.querySelector(`[data-schedule-day="${dayKey(date)}"]`)
-    if (target instanceof HTMLElement) target.focus()
-  }, [])
-
-  const onKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
-      const moves: Record<string, number> = {
-        ArrowRight: 1,
-        ArrowLeft: -1,
-        ArrowDown: DAYS_PER_WEEK,
-        ArrowUp: -DAYS_PER_WEEK,
-      }
-
-      if (event.key in moves) {
-        event.preventDefault()
-        const next = addDays(cursor, moves[event.key] ?? 0)
-        if (next >= bounds.first && next <= bounds.last) focusDay(next)
-        return
-      }
-
-      if (event.key === 'Home' || event.key === 'End') {
-        event.preventDefault()
-        focusDay(event.key === 'Home' ? bounds.first : bounds.last)
-        return
-      }
-
-      if (event.key === 't' || event.key === 'T') {
-        event.preventDefault()
-        if (now >= bounds.first && now <= bounds.last) focusDay(now)
-      }
+  const openById = useCallback(
+    (id: string) => {
+      const span = spanById(id)
+      if (!span) return
+      announce(sentenceOf(span))
+      onOpenEvent?.(span.row)
     },
-    [cursor, bounds, focusDay, now],
+    [spanById, announce, sentenceOf, onOpenEvent],
   )
+
+  const { cursor, setCursor, onDayKeyDown, onBarKeyDown } = useWrappedFocus({
+    container: containerRef,
+    first: bounds.first,
+    last: bounds.last,
+    now,
+    onClear: () => onSelect?.(undefined),
+    onSelect: (id) => onSelect?.(id),
+    onOpen: openById,
+  })
 
   const cursorKey = dayKey(cursor)
   const known = blocks.some((block) =>
-    block.weeks.some((week) => week.days.some((day) => day.key === cursorKey)),
+    block.weeks.some((week) => week.days.some((day) => day.inMonth && day.key === cursorKey)),
   )
-  const fallbackKey = blocks[0]?.weeks[0]?.days[0]?.key
+  const fallbackKey = blocks
+    .flatMap((block) => block.weeks)
+    .flatMap((week) => week.days)
+    .find((day) => day.inMonth)?.key
 
   return (
     <TooltipProvider>
@@ -148,7 +139,9 @@ export function WrappedGrid({
           ['--schedule-cell' as string]: `${cellWidth}px`,
         }}
         aria-label={t('schedule.tableAria')}
-        onKeyDown={onKeyDown}
+        onPointerDown={(event) => {
+          if (event.target === event.currentTarget) onSelect?.(undefined)
+        }}
       >
         {blocks.map((block) => (
           <MonthBlock
@@ -165,11 +158,12 @@ export function WrappedGrid({
             dayLabel={dayLabel}
             sentenceOf={sentenceOf}
             onFocusDay={setCursor}
-            onSelectSpan={(span) => onSelect?.(span.id)}
-            onOpenSpan={(span) => {
-              announce(sentenceOf(span))
-              onOpenEvent?.(span.row)
-            }}
+            onDayKeyDown={onDayKeyDown}
+            onBarKeyDown={onBarKeyDown}
+            onClearSelection={() => onSelect?.(undefined)}
+            onFocusSpan={(span) => onSelect?.(span.id)}
+            onSelectSpan={(span) => onSelect?.(selectedId === span.id ? undefined : span.id)}
+            onOpenSpan={(span) => openById(span.id)}
           />
         ))}
       </div>

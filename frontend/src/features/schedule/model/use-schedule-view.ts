@@ -17,7 +17,6 @@ import { useCallback, useMemo } from 'react'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { WEEK_STARTS_ON } from './month-grid'
 import {
-  DAY_WIDTH,
   DEFAULT_SCALE,
   isScheduleScale,
   type ScheduleScale,
@@ -27,7 +26,6 @@ import {
 
 export type ScheduleView = {
   scale: ScheduleScale
-  dayWidth: number
   from: Date
   to: Date
   offset: number
@@ -106,7 +104,6 @@ export function useScheduleView(now: Date = new Date()): ScheduleView {
 
   return {
     scale,
-    dayWidth: DAY_WIDTH[scale],
     from,
     to,
     offset,

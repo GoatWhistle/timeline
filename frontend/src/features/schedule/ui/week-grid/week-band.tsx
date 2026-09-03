@@ -14,7 +14,9 @@ export type WeekBandProps = {
   emptyLabel: string
   selectedId?: string
   sentenceOf: (span: CalendarSpan) => string
-  onSelect?: (id: string | undefined) => void
+  onFocusItem: (id: string) => void
+  onSelect: (id: string) => void
+  onClear: () => void
   onOpen: (span: CalendarSpan) => void
 }
 
@@ -26,7 +28,9 @@ export function WeekBand({
   emptyLabel,
   selectedId,
   sentenceOf,
+  onFocusItem,
   onSelect,
+  onClear,
   onOpen,
 }: WeekBandProps) {
   const first = days[0]
@@ -51,6 +55,9 @@ export function WeekBand({
       className={styles.band}
       data-schedule-band
       style={{ ['--band-height' as string]: `${viewport}px` }}
+      onPointerDown={(event) => {
+        if (event.target === event.currentTarget) onClear()
+      }}
     >
       <span className={styles.bandLabel}>{label}</span>
 
@@ -83,7 +90,8 @@ export function WeekBand({
                 top: WEEK_BAND_GAP + bar.lane * (barHeight + WEEK_BAND_GAP),
                 height: barHeight,
               }}
-              onSelect={() => onSelect?.(bar.item.id)}
+              onFocusItem={() => onFocusItem(bar.item.id)}
+              onSelect={() => onSelect(bar.item.id)}
               onOpen={() => onOpen(bar.item.span)}
             />
           ))}

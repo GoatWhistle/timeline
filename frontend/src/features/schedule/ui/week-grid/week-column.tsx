@@ -17,7 +17,9 @@ export type WeekColumnProps = {
   nowMinute?: number
   selectedId?: string
   sentenceOf: (span: CalendarSpan) => string
-  onSelect?: (id: string | undefined) => void
+  onFocusItem: (id: string) => void
+  onSelect: (id: string) => void
+  onClear: () => void
   onOpen: (span: CalendarSpan) => void
 }
 
@@ -29,7 +31,9 @@ export function WeekColumn({
   nowMinute,
   selectedId,
   sentenceOf,
+  onFocusItem,
   onSelect,
+  onClear,
   onOpen,
 }: WeekColumnProps) {
   const height = hours.length * WEEK_HOUR_HEIGHT
@@ -44,6 +48,9 @@ export function WeekColumn({
       data-schedule-column
       data-weekend={weekend ? 'true' : 'false'}
       style={{ height }}
+      onPointerDown={(event) => {
+        if (event.target === event.currentTarget) onClear()
+      }}
     >
       {hours.map((hour, index) => (
         <span
@@ -77,7 +84,8 @@ export function WeekColumn({
             left: `calc(${entry.column} * (100% / ${entry.columns}) + 2px)`,
             width: `calc(100% / ${entry.columns} - 4px)`,
           }}
-          onSelect={() => onSelect?.(entry.item.id)}
+          onFocusItem={() => onFocusItem(entry.item.id)}
+          onSelect={() => onSelect(entry.item.id)}
           onOpen={() => onOpen(entry.item.span)}
         />
       ))}

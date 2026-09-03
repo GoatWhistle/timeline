@@ -86,12 +86,25 @@ export function WeekGrid({
     onOpenEvent?.(span.row)
   }
 
+  const toggle = (id: string) => onSelect?.(selectedId === id ? undefined : id)
+  const clear = () => onSelect?.(undefined)
+
   return (
     <TooltipProvider>
       <div
         className={styles.frame}
         data-schedule-week
         data-has-selection={selectedId ? 'true' : 'false'}
+        role="application"
+        aria-label={t('schedule.tableAria')}
+        onKeyDown={(event) => {
+          if (event.key !== 'Escape' || !selectedId) return
+          event.preventDefault()
+          clear()
+        }}
+        onPointerDown={(event) => {
+          if (event.target === event.currentTarget) clear()
+        }}
         style={{
           ['--week-axis' as string]: `${WEEK_AXIS_WIDTH}px`,
           ['--week-hour' as string]: `${WEEK_HOUR_HEIGHT}px`,
@@ -121,7 +134,9 @@ export function WeekGrid({
           emptyLabel={t('schedule.allDayEmpty')}
           selectedId={selectedId}
           sentenceOf={sentenceOf}
-          onSelect={onSelect}
+          onFocusItem={(id) => onSelect?.(id)}
+          onSelect={toggle}
+          onClear={clear}
           onOpen={open}
         />
 
@@ -152,7 +167,9 @@ export function WeekGrid({
               nowMinute={index === todayIndex ? nowMinute : undefined}
               selectedId={selectedId}
               sentenceOf={sentenceOf}
-              onSelect={onSelect}
+              onFocusItem={(id) => onSelect?.(id)}
+              onSelect={toggle}
+              onClear={clear}
               onOpen={open}
             />
           ))}

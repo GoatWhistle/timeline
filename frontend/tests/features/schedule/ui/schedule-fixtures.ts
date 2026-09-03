@@ -1,3 +1,4 @@
+import { enUS } from 'date-fns/locale'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
 import type {
@@ -30,16 +31,9 @@ export const range = {
   to: new Date('2026-04-01T00:00:00Z').getTime(),
 }
 
-export const GRID_FROM = new Date('2026-01-01T00:00:00Z')
-export const GRID_TO = new Date('2026-04-01T00:00:00Z')
-export const DAY_WIDTH_MONTH = 40
-
-export const gridProps = {
-  from: GRID_FROM,
-  to: GRID_TO,
-  dayWidth: DAY_WIDTH_MONTH,
-  scale: 'month' as const,
-}
+export const WEEK_FROM = new Date('2026-01-12T00:00:00')
+export const WEEK_TO = new Date('2026-01-18T23:59:59')
+export const weekLocale = enUS
 
 export const schedule: ScheduleResponse = {
   range: { from: '2026-01-01T00:00:00Z', to: '2026-04-01T00:00:00Z' },
