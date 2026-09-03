@@ -20,9 +20,6 @@ type QueryService interface {
 	) ([]dto.MyEventItem, int64, error)
 	EventCard(ctx context.Context, actor models.Actor, eventID uuid.UUID) (*dto.EventCard, error)
 	MySchedule(ctx context.Context, actor models.Actor, filter models.ScheduleFilter) (*dto.ScheduleResponse, error)
-	AdminSchedule(
-		ctx context.Context, actor models.Actor, filter models.ScheduleFilter,
-	) (*dto.ScheduleResponse, error)
 	Upcoming(
 		ctx context.Context, actor models.Actor, within time.Duration, page models.Page,
 	) ([]dto.DeadlineItem, int64, error)
@@ -120,41 +117,6 @@ func (c *QueryController) MySchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tl, err := c.svc.MySchedule(r.Context(), middleware.ActorFrom(r), filter)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusOK, tl)
-}
-
-// @Summary		Administrative schedule
-// @Description	All events with filters by state, participant and date range.
-// @Tags			queries
-// @Produce		json
-// @Security		CookieAuth
-// @Param			from				query		string	false	"Start of the period, RFC3339"
-// @Param			to					query		string	false	"End of the period, RFC3339"
-// @Param			state				query		string	false	"Comma-separated state filter"
-// @Param			participant_user_id	query		string	false	"Filter by participant"	format(uuid)
-// @Param			include_archived	query		bool	false	"Include archived records"
-// @Success		200					{object}	dto.ScheduleResponse
-// @Failure		400					{object}	dto.ErrorResponse
-// @Failure		403					{object}	dto.ErrorResponse
-// @Router			/admin/schedule [get]
-func (c *QueryController) AdminSchedule(w http.ResponseWriter, r *http.Request) {
-	filter, err := c.scheduleFilter(r)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	userID, err := httpx.QueryUUID(r, "participant_user_id")
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	filter.ParticipantUser = userID
-	filter.States = parseStates(httpx.QueryTrimmed(r, "state"))
-	tl, err := c.svc.AdminSchedule(r.Context(), middleware.ActorFrom(r), filter)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

@@ -125,7 +125,6 @@ func mountAdminRegistration(mux *http.ServeMux, rt *routes, api string,
 func mountAdminQueries(mux *http.ServeMux, rt *routes, api string,
 	queryC *event.QueryController, auditC *notification.AuditController, opsC *notification.OpsController,
 ) {
-	mux.Handle("GET "+api+"/admin/schedule", rt.admin(queryC.AdminSchedule))
 	mux.Handle("GET "+api+"/admin/queries/upcoming", rt.admin(queryC.Upcoming))
 	mux.Handle("GET "+api+"/admin/queries/overdue", rt.admin(queryC.Overdue))
 	mux.Handle("GET "+api+"/admin/queries/registration-coverage", rt.admin(queryC.RegistrationCoverage))

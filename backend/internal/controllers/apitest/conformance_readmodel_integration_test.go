@@ -218,7 +218,6 @@ func TestAdministrativeReadSurfacesNeverExposeAnInternalIdentifier(t *testing.T)
 		"/events/" + f.EventID + "/stages",
 		"/admin/users",
 		"/admin/invites",
-		"/admin/schedule",
 		"/admin/queries/upcoming?within_hours=720",
 		"/admin/queries/overdue",
 	} {

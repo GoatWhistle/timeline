@@ -35,7 +35,6 @@ export const MINE_NAV: NavItem[] = [
 
 export const ADMIN_NAV: NavItem[] = [
   { to: '/admin/events', labelKey: 'nav.adminEvents', icon: ClipboardList },
-  { to: '/admin/schedule', labelKey: 'nav.adminSchedule', icon: CalendarRange },
   { to: '/admin/deadlines', labelKey: 'nav.adminDeadlines', icon: AlarmClock },
   { to: '/admin/users', labelKey: 'nav.adminUsers', icon: Users },
   { to: '/admin/invites', labelKey: 'nav.adminInvites', icon: Send },

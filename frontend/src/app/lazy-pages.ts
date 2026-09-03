@@ -64,9 +64,6 @@ export const AdminEventsPage = lazy(() =>
   adminBundle().then((m) => ({ default: m.AdminEventsPage })),
 )
 export const AdminEventPage = lazy(() => adminBundle().then((m) => ({ default: m.AdminEventPage })))
-export const AdminSchedulePage = lazy(() =>
-  adminBundle().then((m) => ({ default: m.AdminSchedulePage })),
-)
 export const AdminDeadlinesPage = lazy(() =>
   adminBundle().then((m) => ({ default: m.AdminDeadlinesPage })),
 )

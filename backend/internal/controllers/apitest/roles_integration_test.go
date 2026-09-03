@@ -64,7 +64,6 @@ func adminRoutes(f support.Fixture) []adminRoute {
 		{"status batch preview", http.MethodPost,
 			"/admin/events/" + event + "/registration-statuses/batch-set/preview",
 			map[string]any{"participant_ids": []string{f.MemberPart}, "status": "DONE"}},
-		{"administrative schedule", http.MethodGet, "/admin/schedule", nil},
 		{"upcoming query", http.MethodGet, "/admin/queries/upcoming", nil},
 		{"overdue query", http.MethodGet, "/admin/queries/overdue", nil},
 		{"audit log", http.MethodGet, "/admin/audit", nil},
@@ -141,7 +140,6 @@ func TestAdministrativeRoutesSucceedForAdministrator(t *testing.T) {
 		{"status list", http.MethodGet, "/admin/events/" + f.EventID + "/registration-statuses", nil},
 		{"rule list", http.MethodGet, "/admin/events/" + f.EventID + "/registration/rules", nil},
 		{"audit log", http.MethodGet, "/admin/audit", nil},
-		{"administrative schedule", http.MethodGet, "/admin/schedule", nil},
 	} {
 		t.Run(route.name, func(t *testing.T) {
 			support.RequireStatus(t, f.AdminClient.Get(route.path), http.StatusOK, route.name)

@@ -148,21 +148,6 @@ func (s *QueryService) MySchedule(ctx context.Context, actor models.Actor,
 	}, nil
 }
 
-func (s *QueryService) AdminSchedule(ctx context.Context, actor models.Actor,
-	filter models.ScheduleFilter) (*dto.ScheduleResponse, error) {
-	if !actor.IsAdmin {
-		return nil, models.NewForbidden("the operation is restricted to administrators")
-	}
-	rows, err := s.queries.ScheduleRows(ctx, filter, nil, s.now())
-	if err != nil {
-		return nil, err
-	}
-	return &dto.ScheduleResponse{
-		Range: dto.TimeRange{From: filter.From, To: filter.To},
-		Rows:  rows,
-	}, nil
-}
-
 func (s *QueryService) Upcoming(ctx context.Context, actor models.Actor, within time.Duration,
 	page models.Page) ([]dto.DeadlineItem, int64, error) {
 	if !actor.IsAdmin {

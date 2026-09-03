@@ -105,14 +105,6 @@ describe('Contract compliance: reads', () => {
     assertMatchesContract('/admin/events/{id}/registration-statuses', 'get', 200, data)
   })
 
-  it('GET /admin/schedule', async () => {
-    const { data, response } = await api.GET('/admin/schedule', {
-      params: { query: { include_archived: true } },
-    })
-    expect(response.status).toBe(200)
-    assertMatchesContract('/admin/schedule', 'get', 200, data)
-  })
-
   it('GET /admin/users', async () => {
     const { data, response } = await api.GET('/admin/users', { params: { query: {} } })
     expect(response.status).toBe(200)

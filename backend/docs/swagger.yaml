@@ -4524,51 +4524,6 @@ paths:
       summary: Render a notification without sending it
       tags:
       - rules
-  /admin/schedule:
-    get:
-      description: All events with filters by state, participant and date range.
-      parameters:
-      - description: Start of the period, RFC3339
-        in: query
-        name: from
-        type: string
-      - description: End of the period, RFC3339
-        in: query
-        name: to
-        type: string
-      - description: Comma-separated state filter
-        in: query
-        name: state
-        type: string
-      - description: Filter by participant
-        format: uuid
-        in: query
-        name: participant_user_id
-        type: string
-      - description: Include archived records
-        in: query
-        name: include_archived
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ScheduleResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Administrative schedule
-      tags:
-      - queries
   /admin/stages/{id}:
     delete:
       parameters:

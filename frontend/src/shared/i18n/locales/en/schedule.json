@@ -2,7 +2,6 @@
   "schedule": {
     "title": "Schedule",
     "myTitle": "My schedule",
-    "adminDescription": "All published events",
     "stateAria": "State",
     "allStates": "All states",
     "participantAria": "Participant",
@@ -12,8 +11,6 @@
     "emptyHint": "Change the filters",
     "myEmpty": "You have no assigned events yet",
     "myEmptyHint": "Events you join will appear on this calendar.",
-    "adminEmptyTitle": "No events have been created yet",
-    "adminEmptyHint": "Published events will appear on this calendar.",
     "zoomLegend": "Schedule zoom",
     "month": "Month",
     "week": "Week",

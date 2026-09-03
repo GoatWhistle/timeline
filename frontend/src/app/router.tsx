@@ -12,7 +12,6 @@ import {
   AdminEventsPage,
   AdminInvitesPage,
   AdminOpsQueuePage,
-  AdminSchedulePage,
   AdminUsersPage,
   CatalogPage,
   EmailChangeConfirmPage,
@@ -119,7 +118,6 @@ export function AppRouter() {
 
               <Route element={<RequireAdmin />}>
                 <Route path="/admin/events/:id" element={<AdminEventPage />} />
-                <Route path="/admin/schedule" element={<AdminSchedulePage />} />
                 <Route path="/admin/deadlines" element={<AdminDeadlinesPage />} />
                 <Route path="/admin/users" element={<AdminUsersPage />} />
                 <Route path="/admin/invites" element={<AdminInvitesPage />} />
