@@ -4,6 +4,7 @@
 @import "./tokens/semantic.css";
 @import "./tokens/domain.css";
 @import "./tokens/event-palette.css";
+@import "./tokens/event-slots.css";
 @import "./tokens/typography.css";
 @import "./tokens/motion.css";
 @import "./tokens/dark.css";

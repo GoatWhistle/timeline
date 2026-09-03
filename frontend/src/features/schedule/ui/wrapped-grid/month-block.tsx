@@ -5,7 +5,7 @@ import type { CalendarSpan } from '../../model/calendar-items'
 import type { MonthBlock as MonthBlockData } from '../../model/month-grid'
 import { packMonthWeek } from '../../model/month-grid'
 import { DAYS_PER_WEEK } from '../../model/pack-lanes'
-import { wrappedBarHeight, wrappedLaneTop } from '../../model/schedule-scale'
+import { wrappedBarHeight, wrappedLaneTop, wrappedRowHeight } from '../../model/schedule-scale'
 import { isToday } from '../../model/timeline-grid'
 import { WrappedBar } from './wrapped-bar'
 import styles from './wrapped-grid.module.css'
@@ -18,11 +18,14 @@ export type MonthBlockProps = {
   locale: Locale
   now: Date
   barHeight: number
+  maxBar?: number
   cellWidth: number
   focusedKey?: string
+  selectedId?: string
   dayLabel: (date: Date, count: number) => string
   sentenceOf: (span: CalendarSpan) => string
   onFocusDay: (date: Date) => void
+  onSelectSpan: (span: CalendarSpan) => void
   onOpenSpan: (span: CalendarSpan) => void
 }
 
@@ -32,11 +35,14 @@ function MonthBlockView({
   locale,
   now,
   barHeight,
+  maxBar = barHeight,
   cellWidth,
   focusedKey,
+  selectedId,
   dayLabel,
   sentenceOf,
   onFocusDay,
+  onSelectSpan,
   onOpenSpan,
 }: MonthBlockProps) {
   const weekdays = block.weeks[0]?.days ?? []
@@ -55,10 +61,15 @@ function MonthBlockView({
 
       {block.weeks.map((week) => {
         const row = packMonthWeek(week, spans)
-        const laneHeight = wrappedBarHeight(cellWidth, barHeight, row.laneCount)
+        const laneHeight = wrappedBarHeight(cellWidth, barHeight, row.laneCount, maxBar)
+        const rowHeight = wrappedRowHeight(cellWidth, barHeight, row.laneCount, maxBar)
 
         return (
-          <div key={week.key} className={styles.week}>
+          <div
+            key={week.key}
+            className={styles.week}
+            style={{ ['--week-row-height' as string]: `${rowHeight}px` }}
+          >
             <div className={styles.cells}>
               {week.days.map((day, column) => {
                 if (!day.inMonth) {
@@ -100,7 +111,9 @@ function MonthBlockView({
                   top={wrappedLaneTop(bar.lane, laneHeight, barHeight)}
                   sentence={sentenceOf(bar.span)}
                   focused={false}
-                  onFocusItem={() => undefined}
+                  selected={selectedId === bar.span.id}
+                  onFocusItem={() => onSelectSpan(bar.span)}
+                  onSelect={() => onSelectSpan(bar.span)}
                   onOpen={() => onOpenSpan(bar.span)}
                 />
               ))}

@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-const EventColorSlots = 12
+const EventColorSlots = 24
 
 type EventColor struct {
 	Family string `json:"family" enums:"RU,WORLD"`

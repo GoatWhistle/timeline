@@ -1,25 +1,28 @@
 import {
   addDays,
+  addMonths,
+  addQuarters,
+  addWeeks,
+  addYears,
   endOfMonth,
   endOfQuarter,
-  startOfDay,
+  endOfWeek,
+  format,
+  type Locale,
   startOfMonth,
   startOfQuarter,
-  subDays,
+  startOfWeek,
 } from 'date-fns'
-import { useCallback, useMemo, useState } from 'react'
-import type { TimeRange } from '@/shared/api/types.gen'
+import { useCallback, useMemo } from 'react'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { WEEK_STARTS_ON } from './month-grid'
 import {
-  clampDayWidth,
   DAY_WIDTH,
   DEFAULT_SCALE,
   isScheduleScale,
-  SCALE_DAYS,
   type ScheduleScale,
   WRAPPED_SHAPE,
   type WrappedShape,
-  ZOOM_STEP,
 } from './schedule-scale'
 
 export type ScheduleView = {
@@ -27,76 +30,108 @@ export type ScheduleView = {
   dayWidth: number
   from: Date
   to: Date
+  offset: number
+  selectedId: string | undefined
   setScale: (next: ScheduleScale) => void
+  step: (direction: 1 | -1) => void
   goToday: () => void
-  zoom: (direction: 1 | -1) => void
-  setDayWidth: (next: number) => void
-  canZoom: boolean
+  select: (id: string | undefined) => void
+  atPresent: boolean
   wrapped: WrappedShape | undefined
 }
 
 const SCALE_KEY = 'scale'
-const DEFAULT_SPAN_DAYS = 180
+const OFFSET_KEY = 'period'
+const SELECTED_KEY = 'selected'
 
-export function scaleRange(scale: ScheduleScale, apiRange: TimeRange | undefined, now: Date) {
-  if (scale === 'all') {
-    if (!apiRange) {
-      return { from: subDays(now, DEFAULT_SPAN_DAYS), to: addDays(now, DEFAULT_SPAN_DAYS) }
-    }
-    return { from: new Date(apiRange.from), to: new Date(apiRange.to) }
-  }
-
-  if (scale === 'year') {
-    return { from: new Date(now.getFullYear(), 0, 1), to: new Date(now.getFullYear(), 11, 31) }
-  }
-  if (scale === 'month') return { from: startOfMonth(now), to: endOfMonth(now) }
-  if (scale === 'quarter') {
-    return { from: startOfQuarter(now), to: endOfQuarter(now) }
-  }
-  const days = SCALE_DAYS[scale]
-  return { from: startOfDay(now), to: addDays(startOfDay(now), days - 1) }
+const SHIFT: Record<ScheduleScale, (date: Date, amount: number) => Date> = {
+  week: addWeeks,
+  month: addMonths,
+  quarter: addQuarters,
+  year: addYears,
 }
 
-export function useScheduleView(apiRange: TimeRange | undefined): ScheduleView {
-  const [filters, setFilters] = useUrlFilters({ [SCALE_KEY]: DEFAULT_SCALE as string })
+export function periodStart(scale: ScheduleScale, now: Date, offset: number): Date {
+  const anchor = SHIFT[scale](now, offset)
+  if (scale === 'week') return startOfWeek(anchor, { weekStartsOn: WEEK_STARTS_ON })
+  if (scale === 'month') return startOfMonth(anchor)
+  if (scale === 'quarter') return startOfQuarter(anchor)
+  return new Date(anchor.getFullYear(), 0, 1)
+}
+
+export function scaleRange(scale: ScheduleScale, now: Date, offset = 0) {
+  const from = periodStart(scale, now, offset)
+  if (scale === 'week') return { from, to: endOfWeek(from, { weekStartsOn: WEEK_STARTS_ON }) }
+  if (scale === 'month') return { from, to: endOfMonth(from) }
+  if (scale === 'quarter') return { from, to: endOfQuarter(from) }
+  return { from, to: new Date(from.getFullYear(), 11, 31) }
+}
+
+export function parseOffset(value: string | undefined): number {
+  const parsed = Number.parseInt(value ?? '0', 10)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+export function useScheduleView(now: Date = new Date()): ScheduleView {
+  const [filters, setFilters] = useUrlFilters({
+    [SCALE_KEY]: DEFAULT_SCALE as string,
+    [OFFSET_KEY]: '0',
+    [SELECTED_KEY]: '',
+  })
+
   const scale = isScheduleScale(filters.scale) ? filters.scale : DEFAULT_SCALE
+  const offset = parseOffset(filters.period)
+  const selectedId = filters.selected ? filters.selected : undefined
 
-  const [anchor, setAnchor] = useState<number>(() => Date.now())
-  const [zoomWidth, setZoomWidth] = useState<number>(DAY_WIDTH.all)
-
-  const now = useMemo(() => new Date(anchor), [anchor])
-  const { from, to } = useMemo(() => scaleRange(scale, apiRange, now), [scale, apiRange, now])
-
-  const dayWidth = scale === 'all' ? zoomWidth : DAY_WIDTH[scale]
+  const anchor = useMemo(() => now.getTime(), [now])
+  const base = useMemo(() => new Date(anchor), [anchor])
+  const { from, to } = useMemo(() => scaleRange(scale, base, offset), [scale, base, offset])
 
   const setScale = useCallback(
-    (next: ScheduleScale) => setFilters({ [SCALE_KEY]: next }),
+    (next: ScheduleScale) => setFilters({ [SCALE_KEY]: next, [OFFSET_KEY]: undefined }),
     [setFilters],
   )
 
-  const goToday = useCallback(() => setAnchor(Date.now()), [])
+  const step = useCallback(
+    (direction: 1 | -1) => setFilters({ [OFFSET_KEY]: String(offset + direction) }),
+    [setFilters, offset],
+  )
 
-  const setDayWidth = useCallback((next: number) => setZoomWidth(clampDayWidth(next)), [])
+  const goToday = useCallback(() => setFilters({ [OFFSET_KEY]: undefined }), [setFilters])
 
-  const zoom = useCallback((direction: 1 | -1) => {
-    setZoomWidth((previous) =>
-      clampDayWidth(direction === 1 ? previous * ZOOM_STEP : previous / ZOOM_STEP),
-    )
-  }, [])
+  const select = useCallback(
+    (id: string | undefined) => setFilters({ [SELECTED_KEY]: id ?? undefined }),
+    [setFilters],
+  )
 
   return {
     scale,
-    dayWidth,
+    dayWidth: DAY_WIDTH[scale],
     from,
     to,
+    offset,
+    selectedId,
     setScale,
+    step,
     goToday,
-    zoom,
-    setDayWidth,
-    canZoom: scale === 'all',
+    select,
+    atPresent: offset === 0,
     wrapped:
       scale === 'year' || scale === 'quarter' || scale === 'month'
         ? WRAPPED_SHAPE[scale]
         : undefined,
   }
+}
+
+export function weekDays(from: Date): Date[] {
+  return Array.from({ length: 7 }, (_, index) => addDays(from, index))
+}
+
+export function periodLabel(scale: ScheduleScale, from: Date, to: Date, locale: Locale): string {
+  if (scale === 'year') return format(from, 'yyyy', { locale })
+  if (scale === 'quarter') return `${format(from, 'QQQ', { locale })} ${format(from, 'yyyy')}`
+  if (scale === 'month') return format(from, 'LLLL yyyy', { locale })
+  const sameMonth = from.getMonth() === to.getMonth()
+  const start = format(from, sameMonth ? 'd' : 'd MMM', { locale })
+  return `${start} — ${format(to, 'd MMM yyyy', { locale })}`
 }

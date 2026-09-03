@@ -1,6 +1,6 @@
 import type { EventColor, EventOrigin } from '@/shared/api/types.gen'
 
-export const EVENT_COLOR_SLOTS = 12
+export const EVENT_COLOR_SLOTS = 24
 
 export const EVENT_COLOR_FAMILIES = ['RU', 'WORLD'] as const
 

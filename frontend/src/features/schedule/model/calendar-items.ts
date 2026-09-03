@@ -47,3 +47,25 @@ export function buildCalendarSpans(data: ScheduleResponse, grid: TimelineGrid): 
 export function marksWithin(span: CalendarSpan, startDay: number, endDay: number): CalendarMark[] {
   return span.marks.filter((mark) => mark.dayIndex >= startDay && mark.dayIndex <= endDay)
 }
+
+export const ALL_DAY_MINUTES = 20 * 60
+
+export function isAllDaySpan(row: ScheduleRow): boolean {
+  const start = new Date(row.start_at).getTime()
+  const end = new Date(row.end_at).getTime()
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return true
+  return (end - start) / 60_000 >= ALL_DAY_MINUTES
+}
+
+export function splitByZone(spans: readonly CalendarSpan[]): {
+  allDay: CalendarSpan[]
+  timed: CalendarSpan[]
+} {
+  const allDay: CalendarSpan[] = []
+  const timed: CalendarSpan[] = []
+  for (const span of spans) {
+    if (isAllDaySpan(span.row)) allDay.push(span)
+    else timed.push(span)
+  }
+  return { allDay, timed }
+}

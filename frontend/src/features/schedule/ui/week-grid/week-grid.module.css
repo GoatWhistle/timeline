@@ -1,0 +1,183 @@
+.frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-surface);
+  background-color: var(--background);
+  overflow: hidden;
+}
+
+.head {
+  display: grid;
+  grid-template-columns: var(--week-axis) repeat(7, minmax(0, 1fr));
+  border-block-end: 1px solid var(--border);
+  background-color: var(--background);
+}
+
+.axisCorner {
+  border-inline-end: 1px solid var(--border);
+}
+
+.dayHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border-inline-start: 1px solid color-mix(in oklch, var(--border) 55%, transparent);
+  padding-block: 8px;
+}
+
+.dayName {
+  color: var(--muted-foreground);
+  font-size: var(--text-label);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dayHead[data-weekend="true"] .dayName {
+  color: color-mix(in oklch, var(--muted-foreground) 65%, transparent);
+}
+
+.dayNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: var(--radius-pill, 999px);
+  color: var(--foreground);
+  padding-inline: 6px;
+  font-size: var(--text-body);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.dayHead[data-today="true"] .dayNumber {
+  background-color: var(--urgency-today);
+  color: var(--background);
+  font-weight: 700;
+}
+
+.band {
+  display: grid;
+  grid-template-columns: var(--week-axis) repeat(7, minmax(0, 1fr));
+  border-block-end: 1px solid var(--border);
+  background-color: color-mix(in oklch, var(--muted) 22%, transparent);
+}
+
+.bandLabel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-inline-end: 1px solid var(--border);
+  color: var(--muted-foreground);
+  padding-inline-end: 8px;
+  padding-block: 6px;
+  font-size: var(--text-label);
+  line-height: 1.2;
+  text-align: end;
+}
+
+.bandScroll {
+  grid-column: 2 / -1;
+  overflow-y: auto;
+}
+
+.bandLanes {
+  position: relative;
+  min-height: var(--band-height);
+}
+
+.bandColumns {
+  display: grid;
+  position: absolute;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  inset: 0;
+  pointer-events: none;
+}
+
+.bandColumn {
+  border-inline-start: 1px solid color-mix(in oklch, var(--border) 45%, transparent);
+}
+
+.bandColumn:first-child {
+  border-inline-start: 0;
+}
+
+.bandColumn[data-weekend="true"] {
+  background-color: color-mix(in oklch, var(--muted) 16%, transparent);
+}
+
+.bandEmpty {
+  display: flex;
+  align-items: center;
+  color: var(--muted-foreground);
+  padding-inline-start: 10px;
+  font-size: var(--text-label);
+}
+
+.body {
+  display: grid;
+  position: relative;
+  grid-template-columns: var(--week-axis) repeat(7, minmax(0, 1fr));
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.axis {
+  position: relative;
+  border-inline-end: 1px solid var(--border);
+}
+
+.hourLabel {
+  display: block;
+  position: absolute;
+  inset-inline-end: 8px;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.column {
+  position: relative;
+  border-inline-start: 1px solid color-mix(in oklch, var(--border) 45%, transparent);
+}
+
+.column[data-weekend="true"] {
+  background-color: color-mix(in oklch, var(--muted) 16%, transparent);
+}
+
+.hourLine {
+  position: absolute;
+  inset-inline: 0;
+  height: 1px;
+  background-color: color-mix(in oklch, var(--border) 45%, transparent);
+  pointer-events: none;
+}
+
+.nowLine {
+  position: absolute;
+  z-index: 4;
+  inset-inline: 0;
+  height: 2px;
+  background-color: var(--urgency-today);
+  pointer-events: none;
+}
+
+.nowLine::before {
+  content: "";
+  position: absolute;
+  inset-block-start: -3px;
+  inset-inline-start: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill, 999px);
+  background-color: var(--urgency-today);
+}

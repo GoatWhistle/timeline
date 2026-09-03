@@ -26,7 +26,10 @@ export type WrappedGridProps = {
   columns: number
   minCell: number
   barHeight: number
+  maxBar?: number
+  selectedId?: string
   now?: Date
+  onSelect?: (id: string | undefined) => void
   onOpenEvent?: (row: ScheduleRowData) => void
 }
 
@@ -37,7 +40,10 @@ export function WrappedGrid({
   columns,
   minCell,
   barHeight,
+  maxBar = barHeight,
+  selectedId,
   now = new Date(),
+  onSelect,
   onOpenEvent,
 }: WrappedGridProps) {
   const { t, i18n } = useTranslation()
@@ -135,6 +141,7 @@ export function WrappedGrid({
         ref={containerRef}
         className={styles.grid}
         data-schedule-wrapped
+        data-has-selection={selectedId ? 'true' : 'false'}
         role="application"
         style={{
           ['--schedule-columns' as string]: `${columns}`,
@@ -151,11 +158,14 @@ export function WrappedGrid({
             locale={locale}
             now={now}
             barHeight={barHeight}
+            maxBar={maxBar}
             cellWidth={cellWidth}
             focusedKey={known ? cursorKey : fallbackKey}
+            selectedId={selectedId}
             dayLabel={dayLabel}
             sentenceOf={sentenceOf}
             onFocusDay={setCursor}
+            onSelectSpan={(span) => onSelect?.(span.id)}
             onOpenSpan={(span) => {
               announce(sentenceOf(span))
               onOpenEvent?.(span.row)

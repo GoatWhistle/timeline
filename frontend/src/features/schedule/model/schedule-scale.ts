@@ -1,6 +1,6 @@
-export type ScheduleScale = 'week' | 'month' | 'quarter' | 'year' | 'all'
+export type ScheduleScale = 'week' | 'month' | 'quarter' | 'year'
 
-export const SCHEDULE_SCALES: ScheduleScale[] = ['week', 'month', 'quarter', 'year', 'all']
+export const SCHEDULE_SCALES: ScheduleScale[] = ['week', 'month', 'quarter', 'year']
 
 export const DEFAULT_SCALE: ScheduleScale = 'month'
 
@@ -13,7 +13,6 @@ export const SCALE_DAYS: Record<ScheduleScale, number> = {
   month: 31,
   quarter: 92,
   year: 366,
-  all: 366,
 }
 
 export const DAY_WIDTH: Record<ScheduleScale, number> = {
@@ -21,7 +20,6 @@ export const DAY_WIDTH: Record<ScheduleScale, number> = {
   month: 40,
   quarter: 15,
   year: 4,
-  all: 40,
 }
 
 export const MIN_DAY_WIDTH = 2
@@ -32,7 +30,6 @@ export const LEGACY_BAR_HEIGHT: Record<ScheduleScale, number> = {
   month: 26,
   quarter: 18,
   year: 9,
-  all: 26,
 }
 
 export const BAR_HEIGHT: Record<ScheduleScale, number> = {
@@ -40,7 +37,6 @@ export const BAR_HEIGHT: Record<ScheduleScale, number> = {
   month: 60,
   quarter: 44,
   year: 22,
-  all: 60,
 }
 
 export const BAR_GAP = 10
@@ -60,14 +56,8 @@ export const TODAY_VARIABLE = '--schedule-today-x'
 
 export const TODAY_TICK_MS = 60_000
 
-export const ZOOM_STEP = 1.35
-
-export function barHeightFor(scale: ScheduleScale, dayWidth: number): number {
-  if (scale !== 'all') return BAR_HEIGHT[scale]
-  if (dayWidth <= DAY_WIDTH.year) return BAR_HEIGHT.year
-  if (dayWidth <= DAY_WIDTH.quarter) return BAR_HEIGHT.quarter
-  if (dayWidth <= DAY_WIDTH.month) return BAR_HEIGHT.month
-  return BAR_HEIGHT.week
+export function barHeightFor(scale: ScheduleScale): number {
+  return BAR_HEIGHT[scale]
 }
 
 export function laneOffset(barHeight: number, lane: number): number {
@@ -80,13 +70,8 @@ export function canvasHeight(barHeight: number, laneCount: number): number {
   return Math.max(MIN_CANVAS_HEIGHT, used)
 }
 
-export function fittedDayWidth(
-  scale: ScheduleScale,
-  requested: number,
-  measured: number,
-  dayCount: number,
-): number {
-  if (scale === 'all' || measured <= 0 || dayCount <= 0) return requested
+export function fittedDayWidth(requested: number, measured: number, dayCount: number): number {
+  if (measured <= 0 || dayCount <= 0) return requested
   return Math.max(requested, measured / dayCount)
 }
 
@@ -94,37 +79,59 @@ export function clampDayWidth(width: number): number {
   return Math.min(MAX_DAY_WIDTH, Math.max(MIN_DAY_WIDTH, width))
 }
 
-export const WRAPPED_LANE_GAP = 2
+export const WRAPPED_LANE_GAP = 3
 export const WRAPPED_HEADER = 28
 export const WRAPPED_COMPACT_HEADER = 20
-export const WRAPPED_MIN_BAR = 3
+export const WRAPPED_MIN_BAR = 6
 export const WRAPPED_TEXT_BAR = 14
 export const WRAPPED_ICON_BAR = 10
 export const GRID_PADDING = 18
 export const GRID_GAP = 20
+
+export const WRAPPED_ROW_PADDING = 4
 
 export type WrappedShape = {
   months: number
   columns: number
   minCell: number
   barHeight: number
+  maxBar: number
 }
 
 export const WRAPPED_SHAPE: Record<'year' | 'quarter' | 'month', WrappedShape> = {
-  year: { months: 12, columns: 4, minCell: 30, barHeight: 10 },
-  quarter: { months: 3, columns: 3, minCell: 54, barHeight: 14 },
-  month: { months: 1, columns: 1, minCell: 76, barHeight: 20 },
+  year: { months: 12, columns: 4, minCell: 30, barHeight: 10, maxBar: 18 },
+  quarter: { months: 3, columns: 3, minCell: 54, barHeight: 14, maxBar: 30 },
+  month: { months: 1, columns: 1, minCell: 76, barHeight: 20, maxBar: 56 },
 }
 
 export function wrappedHeader(barHeight: number): number {
   return barHeight >= WRAPPED_TEXT_BAR ? WRAPPED_HEADER : WRAPPED_COMPACT_HEADER
 }
 
-export function wrappedBarHeight(cellHeight: number, preferred: number, laneCount: number): number {
+export function wrappedBarHeight(
+  cellHeight: number,
+  preferred: number,
+  laneCount: number,
+  maxBar: number = preferred,
+): number {
   if (laneCount <= 0) return preferred
-  const usable = cellHeight - wrappedHeader(preferred) - 4
+  const usable = cellHeight - wrappedHeader(preferred) - WRAPPED_ROW_PADDING
   const perLane = (usable - (laneCount - 1) * WRAPPED_LANE_GAP) / laneCount
-  return Math.max(WRAPPED_MIN_BAR, Math.min(preferred, Math.floor(perLane)))
+  const ceiling = Math.max(preferred, maxBar)
+  return Math.max(WRAPPED_MIN_BAR, Math.min(ceiling, Math.floor(perLane)))
+}
+
+export function wrappedRowHeight(
+  cellHeight: number,
+  preferred: number,
+  laneCount: number,
+  maxBar: number = preferred,
+): number {
+  const bar = wrappedBarHeight(cellHeight, preferred, laneCount, maxBar)
+  const lanes = Math.max(1, laneCount)
+  const used =
+    wrappedHeader(preferred) + lanes * bar + (lanes - 1) * WRAPPED_LANE_GAP + WRAPPED_ROW_PADDING
+  return Math.min(cellHeight, Math.max(wrappedHeader(preferred) + preferred, used))
 }
 
 export function wrappedLaneTop(lane: number, barHeight: number, headerFor: number): number {

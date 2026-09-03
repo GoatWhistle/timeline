@@ -189,14 +189,14 @@ describe('ScheduleGrid', () => {
 
 describe('the timeline fills the width it is given', () => {
   it('stretches a fixed scale so the days span the measured viewport', () => {
-    expect(fittedDayWidth('week', 128, 1302, 7)).toBeCloseTo(1302 / 7)
+    expect(fittedDayWidth(128, 1302, 7)).toBeCloseTo(1302 / 7)
   })
 
   it('never shrinks a day below the width the scale asked for', () => {
-    expect(fittedDayWidth('week', 128, 210, 7)).toBe(128)
+    expect(fittedDayWidth(128, 210, 7)).toBe(128)
   })
 
-  it('leaves the freely zoomed scale under the control of the user', () => {
-    expect(fittedDayWidth('all', 40, 4000, 7)).toBe(40)
+  it('leaves the requested width alone when nothing has been measured', () => {
+    expect(fittedDayWidth(40, 0, 7)).toBe(40)
   })
 })

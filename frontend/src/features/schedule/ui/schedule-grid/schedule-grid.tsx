@@ -73,8 +73,8 @@ export function ScheduleGrid({
 
   const grid = useMemo(() => buildTimelineGrid(from, to), [from, to])
   const measured = useElementWidth(viewportRef)
-  const dayWidth = fittedDayWidth(scale, requestedDayWidth, measured, grid.dayCount)
-  const barHeight = barHeightFor(scale, dayWidth)
+  const dayWidth = fittedDayWidth(requestedDayWidth, measured, grid.dayCount)
+  const barHeight = barHeightFor(scale)
 
   useTodayLine({ target: canvasRef, grid, dayWidth })
   useZoomGesture({

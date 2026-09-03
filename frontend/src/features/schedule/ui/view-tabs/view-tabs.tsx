@@ -1,14 +1,9 @@
-import { Minus, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LocateFixed } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Segmented, type SegmentedOption } from '@/shared/ui/navigation/segmented'
 import { Button } from '@/shared/ui/primitives/button'
-import {
-  MAX_DAY_WIDTH,
-  MIN_DAY_WIDTH,
-  SCHEDULE_SCALES,
-  type ScheduleScale,
-} from '../../model/schedule-scale'
+import { SCHEDULE_SCALES, type ScheduleScale } from '../../model/schedule-scale'
 import styles from './view-tabs.module.css'
 
 const LABEL_KEY: Record<ScheduleScale, string> = {
@@ -16,18 +11,39 @@ const LABEL_KEY: Record<ScheduleScale, string> = {
   month: 'schedule.month',
   quarter: 'schedule.quarter',
   year: 'schedule.year',
-  all: 'schedule.all',
+}
+
+const PREVIOUS_KEY: Record<ScheduleScale, string> = {
+  week: 'schedule.previousWeek',
+  month: 'schedule.previousMonth',
+  quarter: 'schedule.previousQuarter',
+  year: 'schedule.previousYear',
+}
+
+const NEXT_KEY: Record<ScheduleScale, string> = {
+  week: 'schedule.nextWeek',
+  month: 'schedule.nextMonth',
+  quarter: 'schedule.nextQuarter',
+  year: 'schedule.nextYear',
 }
 
 export type ViewTabsProps = {
   value: ScheduleScale
   onChange: (next: ScheduleScale) => void
-  onZoom?: (direction: 1 | -1) => void
-  dayWidth?: number
-  canZoom?: boolean
+  period?: string
+  onStep?: (direction: 1 | -1) => void
+  onPresent?: () => void
+  atPresent?: boolean
 }
 
-export function ViewTabs({ value, onChange, onZoom, dayWidth, canZoom = false }: ViewTabsProps) {
+export function ViewTabs({
+  value,
+  onChange,
+  period,
+  onStep,
+  onPresent,
+  atPresent = true,
+}: ViewTabsProps) {
   const { t } = useTranslation()
 
   const options = useMemo<SegmentedOption<ScheduleScale>[]>(
@@ -41,33 +57,49 @@ export function ViewTabs({ value, onChange, onZoom, dayWidth, canZoom = false }:
         value={value}
         options={options}
         onChange={onChange}
-        label={t('schedule.zoomLegend')}
+        label={t('schedule.scaleLegend')}
       />
 
-      {canZoom && (
-        <div className={styles.zoom} data-schedule-zoom>
-          <span className={styles.hint}>{t('schedule.zoomHint')}</span>
+      {onStep && (
+        <nav className={styles.period} data-schedule-period aria-label={t('schedule.periodNav')}>
           <Button
             size="icon"
             variant="outline"
-            data-schedule-zoom-out
-            aria-label={t('schedule.zoomOut')}
-            disabled={dayWidth !== undefined && dayWidth <= MIN_DAY_WIDTH}
-            onClick={() => onZoom?.(-1)}
+            data-schedule-previous
+            aria-label={t(PREVIOUS_KEY[value])}
+            onClick={() => onStep(-1)}
           >
-            <Minus aria-hidden="true" />
+            <ChevronLeft aria-hidden="true" />
           </Button>
+
+          <button
+            type="button"
+            className={styles.present}
+            data-schedule-present
+            data-at-present={atPresent ? 'true' : 'false'}
+            aria-label={t('schedule.periodCurrent', { period })}
+            aria-disabled={atPresent ? 'true' : 'false'}
+            onClick={() => {
+              if (!atPresent) onPresent?.()
+            }}
+          >
+            <span className={styles.periodText} data-schedule-period-label>
+              {period}
+            </span>
+            {!atPresent && <LocateFixed className={styles.presentIcon} aria-hidden="true" />}
+            {!atPresent && <span className="sr-only">{t('schedule.backToPresent')}</span>}
+          </button>
+
           <Button
             size="icon"
             variant="outline"
-            data-schedule-zoom-in
-            aria-label={t('schedule.zoomIn')}
-            disabled={dayWidth !== undefined && dayWidth >= MAX_DAY_WIDTH}
-            onClick={() => onZoom?.(1)}
+            data-schedule-next
+            aria-label={t(NEXT_KEY[value])}
+            onClick={() => onStep(1)}
           >
-            <Plus aria-hidden="true" />
+            <ChevronRight aria-hidden="true" />
           </Button>
-        </div>
+        </nav>
       )}
     </div>
   )

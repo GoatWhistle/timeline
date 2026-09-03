@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/to
 import { EVENT_KIND_ICON, EVENT_KIND_KEY } from '../../model/event-kind'
 import type { MonthWeekBar } from '../../model/month-grid'
 import { WRAPPED_ICON_BAR, WRAPPED_TEXT_BAR } from '../../model/schedule-scale'
-import styles from './wrapped-grid.module.css'
+import styles from './wrapped-bar.module.css'
 
 export const WrappedBar = memo(WrappedBarView)
 
@@ -18,7 +18,9 @@ export type WrappedBarProps = {
   top: number
   sentence: string
   focused: boolean
+  selected: boolean
   onFocusItem: () => void
+  onSelect: () => void
   onOpen: () => void
 }
 
@@ -30,7 +32,9 @@ function WrappedBarView({
   top,
   sentence,
   focused,
+  selected,
   onFocusItem,
+  onSelect,
   onOpen,
 }: WrappedBarProps) {
   const { t } = useTranslation()
@@ -66,12 +70,21 @@ function WrappedBarView({
             data-clipped-start={bar.clippedStart ? 'true' : 'false'}
             data-clipped-end={bar.clippedEnd ? 'true' : 'false'}
             data-focused={focused ? 'true' : 'false'}
+            data-selected={selected ? 'true' : 'false'}
+            aria-current={selected ? 'true' : undefined}
             aria-label={sentence}
             onFocus={onFocusItem}
-            onClick={onOpen}
+            onClick={onSelect}
+            onDoubleClick={onOpen}
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter') return
+              event.preventDefault()
+              onOpen()
+            }}
           >
             {showIcon && <KindIcon className={styles.barIcon} aria-hidden="true" />}
             {showTitle && <span className={styles.barTitle}>{row.title}</span>}
+            {selected && <span className="sr-only">{t('schedule.selected')}</span>}
             {showWebsite && row.website_url && (
               <a
                 href={row.website_url}
@@ -92,6 +105,7 @@ function WrappedBarView({
           <p className="font-medium">{row.title}</p>
           <p className="text-muted-foreground">{kindLabel}</p>
           <p className="text-muted-foreground">{sentence}</p>
+          <p className="text-muted-foreground">{t('schedule.selectHint')}</p>
         </TooltipContent>
       </Tooltip>
     </div>
