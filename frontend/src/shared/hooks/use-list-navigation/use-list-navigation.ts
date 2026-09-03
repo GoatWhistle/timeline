@@ -82,8 +82,7 @@ export function useListNavigation({
     if (!row) return
     row.scrollIntoView({ block: 'nearest' })
     const active = document.activeElement
-    const inList =
-      active instanceof HTMLElement && active.closest('[data-event-row]') !== null
+    const inList = active instanceof HTMLElement && active.closest('[data-event-row]') !== null
     if (!fromKeyboard && !inList) return
     const target = focusTargetOf(row)
     if (target && target !== active) target.focus({ preventScroll: true })
