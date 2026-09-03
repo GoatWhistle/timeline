@@ -133,5 +133,14 @@
     "moveDown": "Move {{name}} down",
     "edit": "Change {{name}}",
     "remove": "Remove {{name}}"
+  },
+  "track": {
+    "title": "Track",
+    "none": "No track",
+    "placeholder": "Choose a track",
+    "hint": "Choosing a track is optional and can be changed until the event starts.",
+    "locked": "Fixed",
+    "lockedHint": "The event has started, so the track no longer changes.",
+    "saved": "The team track is saved"
   }
 }

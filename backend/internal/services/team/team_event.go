@@ -115,9 +115,10 @@ func (s *TeamService) ListEvents(ctx context.Context, actor models.Actor, teamID
 		if !ok {
 			return nil, models.NewNotFound("event not found")
 		}
+		tracks := listTracks(byEvent[entries[i].EventID], entries[i].TrackID)
+		tracks.locked = !label.StartAt.After(s.now())
 		items = append(items, buildEntryResponse(&entries[i], teamRow.DisplayID,
-			label, standings[entries[i].ID], rosters[entries[i].ID],
-			listTracks(byEvent[entries[i].EventID], entries[i].TrackID)))
+			label, standings[entries[i].ID], rosters[entries[i].ID], tracks))
 	}
 	return &dto.TeamEventEntryListResponse{Items: items}, nil
 }
@@ -194,7 +195,8 @@ func (s *TeamService) entryResponse(ctx context.Context, entry *models.TeamEvent
 	}
 	tracks.locked = s.trackChangeAllowed(eventRow) != nil
 	response := buildEntryResponse(entry, teamRow.DisplayID,
-		event.EventLabel{DisplayID: eventRow.DisplayID, Title: eventRow.Title}, standing, roster,
+		event.EventLabel{DisplayID: eventRow.DisplayID, Title: eventRow.Title,
+			StartAt: eventRow.StartAt}, standing, roster,
 		tracks)
 	return &response, nil
 }

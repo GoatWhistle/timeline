@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { TeamTrackPicker } from '@/features/tracks/team-track-picker'
 import type { TeamEventEntryResponse, TeamMemberResponse } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
@@ -45,6 +46,7 @@ export function TeamEventCard({
         </p>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
+        <TeamTrackPicker teamId={teamId} entry={entry} isLead={isLead} />
         <RosterTable teamId={teamId} entry={entry} members={members} isLead={isLead} />
         <TeamLinksCard teamId={teamId} eventId={entry.event_id} />
       </CardContent>

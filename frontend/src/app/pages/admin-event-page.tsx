@@ -17,6 +17,7 @@ import { ParticipantsTab } from '@/features/participants/participants-tab'
 import { RegistrationTab } from '@/features/registration/registration-tab'
 import { StatusesTab } from '@/features/registration/statuses-tab'
 import { StagesTab } from '@/features/stages/stages-tab'
+import { TracksTab } from '@/features/tracks/tracks-tab'
 import { formatDate } from '@/shared/datetime/datetime'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { Card, CardContent } from '@/shared/ui/layout/card'
@@ -26,7 +27,7 @@ import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
 
-const TABS = ['general', 'stages', 'participants', 'registration', 'statuses'] as const
+const TABS = ['general', 'stages', 'tracks', 'participants', 'registration', 'statuses'] as const
 const DEFAULTS = { tab: 'general' }
 
 export function AdminEventPage() {
@@ -34,8 +35,6 @@ export function AdminEventPage() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
-  const tab = (TABS as readonly string[]).includes(filters.tab) ? filters.tab : 'general'
-
   const query = useQuery(adminEventQuery(id))
   const update = useUpdateEvent(id)
   const publish = usePublishEvent(id)
@@ -45,6 +44,10 @@ export function AdminEventPage() {
   const [archiveOpen, setArchiveOpen] = useState(false)
 
   const event = query.data
+  const available = (TABS as readonly string[]).filter(
+    (name) => name !== 'tracks' || event?.kind === 'HACKATHON',
+  )
+  const tab = available.includes(filters.tab) ? filters.tab : 'general'
 
   return (
     <QueryBoundary
@@ -87,6 +90,9 @@ export function AdminEventPage() {
             <TabsList>
               <TabsTrigger value="general">{t('detail.tabGeneral')}</TabsTrigger>
               <TabsTrigger value="stages">{t('detail.tabStages')}</TabsTrigger>
+              {event.kind === 'HACKATHON' && (
+                <TabsTrigger value="tracks">{t('detail.tabTracks')}</TabsTrigger>
+              )}
               <TabsTrigger value="participants">{t('detail.tabParticipants')}</TabsTrigger>
               <TabsTrigger value="registration">{t('detail.tabRegistration')}</TabsTrigger>
               <TabsTrigger value="statuses">{t('detail.tabStatuses')}</TabsTrigger>
@@ -131,6 +137,10 @@ export function AdminEventPage() {
 
             <TabsContent value="stages">
               <StagesTab event={event} />
+            </TabsContent>
+
+            <TabsContent value="tracks">
+              <TracksTab event={event} />
             </TabsContent>
 
             <TabsContent value="participants">

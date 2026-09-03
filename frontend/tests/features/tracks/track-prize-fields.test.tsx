@@ -1,0 +1,74 @@
+import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { renderWithProviders } from '@tests/support/render'
+import { useState } from 'react'
+import { beforeAll, describe, expect, it } from 'vitest'
+import {
+  digitsOnly,
+  draftTotal,
+  nextPlace,
+  type PrizeDraft,
+  TrackPrizeFields,
+} from '@/features/tracks/track-prize-fields'
+import { i18n } from '@/shared/i18n/config'
+
+describe('an amount is whole: dots and commas never survive typing', () => {
+  it('strips a decimal point the way the prize pool field does', () => {
+    expect(digitsOnly('150000.75')).toBe('15000075')
+    expect(digitsOnly('150000,75')).toBe('15000075')
+  })
+
+  it('strips spaces, signs and letters', () => {
+    expect(digitsOnly('150 000')).toBe('150000')
+    expect(digitsOnly('-150000')).toBe('150000')
+    expect(digitsOnly('150000 RUB')).toBe('150000')
+  })
+
+  it('leaves an already whole amount untouched', () => {
+    expect(digitsOnly('150000')).toBe('150000')
+  })
+})
+
+describe('places are numbered and totalled', () => {
+  it('the next place follows the highest one taken, not the count', () => {
+    expect(nextPlace([])).toBe(1)
+    expect(nextPlace([{ place: 1, amount: '1' }])).toBe(2)
+    expect(nextPlace([{ place: 3, amount: '1' }])).toBe(4)
+  })
+
+  it('the total ignores places left blank', () => {
+    expect(
+      draftTotal([
+        { place: 1, amount: '200000' },
+        { place: 2, amount: '' },
+        { place: 3, amount: '50000' },
+      ]),
+    ).toBe(250000)
+  })
+})
+
+function Harness() {
+  const [prizes, setPrizes] = useState<PrizeDraft[]>([{ place: 1, amount: '' }])
+  return <TrackPrizeFields prizes={prizes} currency="RUB" idPrefix="probe" onChange={setPrizes} />
+}
+
+describe('the field itself refuses a fractional amount as it is typed', () => {
+  beforeAll(async () => {
+    await i18n.changeLanguage('en')
+  })
+
+  it('a typed dot never reaches the value', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<Harness />)
+    const input = screen.getByLabelText(i18n.t('event:place.trackPlace', { place: 1 }))
+    await user.type(input, '1500.50')
+    expect((input as HTMLInputElement).value).toBe('150050')
+  })
+
+  it('the running total is shown in whole money, with no kopecks', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<Harness />)
+    await user.type(screen.getByLabelText(i18n.t('event:place.trackPlace', { place: 1 })), '150000')
+    expect(screen.getByText('150,000 ₽')).toBeTruthy()
+  })
+})

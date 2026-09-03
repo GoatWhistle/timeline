@@ -81,6 +81,7 @@ func (r *Events) DisplayIDByID(ctx context.Context, id uuid.UUID) (string, error
 type EventLabel struct {
 	DisplayID string
 	Title     string
+	StartAt   time.Time
 }
 
 func (r *Events) LabelsByIDs(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID]EventLabel, error) {
@@ -89,7 +90,7 @@ func (r *Events) LabelsByIDs(ctx context.Context, ids []uuid.UUID) (map[uuid.UUI
 		return result, nil
 	}
 	rows, err := r.db.Q(ctx).Query(ctx,
-		`SELECT id, display_id, title FROM events WHERE id = ANY($1)`, ids)
+		`SELECT id, display_id, title, start_at FROM events WHERE id = ANY($1)`, ids)
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -100,7 +101,7 @@ func (r *Events) LabelsByIDs(ctx context.Context, ids []uuid.UUID) (map[uuid.UUI
 			id    uuid.UUID
 			label EventLabel
 		)
-		if err := rows.Scan(&id, &label.DisplayID, &label.Title); err != nil {
+		if err := rows.Scan(&id, &label.DisplayID, &label.Title, &label.StartAt); err != nil {
 			return nil, mapError(err)
 		}
 		result[id] = label
