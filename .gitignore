@@ -33,3 +33,5 @@ screenshots/
 !frontend/public/**/*.png
 !frontend/public/**/*.svg
 !docs/**/*.png
+
+TODO.md

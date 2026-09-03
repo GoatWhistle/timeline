@@ -18,7 +18,10 @@ RUN CGO_ENABLED=0 go build -trimpath \
     -o /out/timeline ./cmd/timeline
 
 FROM alpine:3.20 AS runtime
-RUN apk add --no-cache ca-certificates tzdata && adduser -D -u 10001 app
+RUN apk add --no-cache ca-certificates tzdata \
+    && adduser -D -u 10001 app \
+    && mkdir -p /var/lib/timeline/avatars /var/lib/timeline/covers \
+    && chown -R app:app /var/lib/timeline
 COPY --from=build /out/timeline /usr/local/bin/timeline
 USER app
 ENV HTTP_ADDR=:8080

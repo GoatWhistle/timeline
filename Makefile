@@ -54,7 +54,7 @@ export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME CON
 
 .PHONY: help endpoints \
 	docker-up docker-down docker-build docker-restart docker-status docker-logs \
-	docker-psql dev dev-down dev-restart dev-logs \
+	docker-psql dev dev-down dev-restart dev-logs seed \
 	install types types-check typecheck lint format test test-contract e2e verify build \
 	cyrillic baseline-cyrillic import-cycles lint-baseline baseline-lint \
 	package-size baseline-package-size screenshots \
@@ -99,6 +99,9 @@ dev: .env ## Bring up the stack in development mode: HMR and go run
 
 dev-down: ## Stop the development mode stack
 	@$(COMPOSE_DEV) down
+
+seed: ## Fill the running database with real hackathons
+	@$(COMPOSE) run --rm --no-deps backend seed
 
 dev-restart: ## Recompile and restart the backend
 	@$(COMPOSE_DEV) up -d --force-recreate --wait backend worker
