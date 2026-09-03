@@ -1,10 +1,10 @@
 import { ArrowUpRight, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
-import { formatPrize } from '@/entities/event/event-prize-format'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { formatDate, formatDateRange } from '@/shared/datetime/datetime'
+import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
@@ -41,12 +41,13 @@ export function CatalogCard({
   const { t } = useTranslation('event')
   const FormatIcon = EVENT_FORMAT_ICON[event.effective_format]
   const teamSize = teamSizeLabelKey(event)
-  const prize = formatPrize(event.prize_pool, event.prize_currency)
+  const prize = formatMoney(event.prize_pool, event.prize_currency)
 
   return (
     <div
       className={cn(
         'group relative flex h-full min-w-0 flex-col rounded-surface border bg-card',
+        'motion-safe:animate-stage-in',
         'motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-base',
         'motion-safe:ease-out',
         'focus-within:border-ring hover:motion-safe:-translate-y-0.5 hover:shadow-sm',
@@ -73,7 +74,7 @@ export function CatalogCard({
 
         <span className="flex min-w-0 items-start gap-2">
           <CatalogKindMark kind={event.kind} className="mt-0.5" />
-          <span className="min-w-0 flex-1 font-semibold text-heading leading-snug [text-wrap:balance]">
+          <span className="min-w-0 flex-1 font-semibold text-screen leading-snug [text-wrap:balance]">
             {event.title}
           </span>
           {event.joined && <CatalogJoinedMark className="mt-0.5" />}
@@ -114,7 +115,7 @@ export function CatalogCard({
               </span>
             )}
             {prize && (
-              <span className="ml-auto font-semibold text-meta text-prize tabular-nums">
+              <span className="ml-auto font-semibold text-heading text-prize tabular-nums">
                 {prize}
               </span>
             )}

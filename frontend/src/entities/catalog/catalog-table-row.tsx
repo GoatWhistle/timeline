@@ -7,20 +7,15 @@ import {
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { formatDateRange } from '@/shared/datetime/datetime'
+import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
-import { Badge } from '@/shared/ui/primitives/badge'
 import { Dot } from '@/shared/ui/primitives/dot'
+import { teamSizeLabelKey } from './catalog.facts'
 import { CATALOG_SCOPE_KEY, type CatalogColumn } from './catalog.views'
+import { CatalogJoinedMark } from './catalog-joined-mark'
 import { CatalogKindMark } from './catalog-kind-mark'
 
 const DASH = '—'
-
-function prizeLabel(event: CatalogEvent): string | null {
-  if (!event.prize_pool || !event.prize_currency) return null
-  const amount = Number(event.prize_pool)
-  const formatted = Number.isFinite(amount) ? amount.toLocaleString() : event.prize_pool
-  return `${formatted} ${event.prize_currency}`
-}
 
 function TitleCell({
   event,
@@ -50,11 +45,7 @@ function TitleCell({
         >
           {event.title}
         </button>
-        {event.joined && (
-          <Badge tone="primary" className="shrink-0">
-            {t('catalog.joined')}
-          </Badge>
-        )}
+        {event.joined && <CatalogJoinedMark />}
       </span>
       {selected && <span className="sr-only">{t('catalog.selected')}</span>}
     </td>
@@ -84,14 +75,27 @@ function CellContent({ event, column }: { event: CatalogEvent; column: CatalogCo
       )
     case 'period':
       return <>{formatDateRange(event.start_at, event.end_at)}</>
-    case 'prize':
-      return <>{prizeLabel(event) ?? DASH}</>
+    case 'prize': {
+      const prize = formatMoney(event.prize_pool, event.prize_currency)
+      return prize ? <span className="font-medium text-prize">{prize}</span> : DASH
+    }
     case 'organizer':
       return <span className="block truncate">{event.organizer ?? DASH}</span>
     case 'track':
       return <span className="block truncate">{event.track ?? DASH}</span>
-    case 'teamSize':
-      return <>{event.team_size_max ?? DASH}</>
+    case 'teamSize': {
+      const size = teamSizeLabelKey(event)
+      return <>{size ? t(size.key, size.values) : DASH}</>
+    }
+    case 'participation':
+      return event.joined ? (
+        <span className="flex items-center gap-1.5">
+          <CatalogJoinedMark />
+          <span className="truncate">{event.team_role ?? t('catalog.column.participation')}</span>
+        </span>
+      ) : (
+        DASH
+      )
     case 'origin':
       return <>{t(CATALOG_SCOPE_KEY[event.origin])}</>
     case 'state':
@@ -125,7 +129,8 @@ export function CatalogTableRow({
       aria-selected={selected}
       onClick={() => onSelect(event.id)}
       className={cn(
-        'cursor-pointer border-border/60 border-b transition-colors duration-instant',
+        'cursor-pointer border-border/60 border-b',
+        'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
         'focus-within:bg-surface-2',
         selected ? 'bg-accent-surface' : 'hover:bg-surface-2',
       )}

@@ -9,8 +9,10 @@ import type { SidebarState } from '@/shared/ui/layout/sidebar/use-sidebar'
 
 const SIDEBAR: SidebarState = {
   collapsed: false,
+  overlay: false,
   visibility: 'expanded',
   toggle: () => {},
+  close: () => {},
 }
 
 function user(isAdmin: boolean): MeResponse {

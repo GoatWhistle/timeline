@@ -27,6 +27,7 @@ const COLUMN_WIDTH: Record<CatalogColumn, string> = {
   teamSize: 'w-px whitespace-nowrap text-right',
   origin: 'w-px whitespace-nowrap',
   state: 'w-px whitespace-nowrap',
+  participation: 'w-40 max-w-40',
 }
 
 function SortIcon({ active, order }: { active: boolean; order: CatalogOrder }) {
@@ -84,7 +85,8 @@ export function CatalogTable({
                       type="button"
                       onClick={() => onSort(columnSort)}
                       className={cn(
-                        'inline-flex items-center gap-1 transition-colors duration-instant',
+                        'inline-flex items-center gap-1',
+                        'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
                         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
                         active ? 'text-foreground' : 'hover:text-foreground',
                       )}

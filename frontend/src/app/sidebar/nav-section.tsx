@@ -5,7 +5,6 @@ import {
   ClipboardList,
   Compass,
   History,
-  LayoutList,
   ScrollText,
   Send,
   Users,
@@ -27,7 +26,6 @@ export type NavItem = {
 export const CATALOG_NAV: NavItem[] = [{ to: '/catalog', labelKey: 'nav.catalog', icon: Compass }]
 
 export const MINE_NAV: NavItem[] = [
-  { to: '/events', labelKey: 'nav.events', icon: LayoutList },
   { to: '/schedule', labelKey: 'nav.schedule', icon: CalendarRange },
   { to: '/teams', labelKey: 'nav.teams', icon: UsersRound },
   { to: '/history', labelKey: 'nav.history', icon: History },

@@ -10,6 +10,7 @@ const NO_FILTERS: CatalogFilterValues = {
   format: '',
   kind: '',
   origin: '',
+  joined: '',
   from: '',
   to: '',
 }

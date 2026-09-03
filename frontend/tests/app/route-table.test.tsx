@@ -108,26 +108,28 @@ describe('an unknown address ends on the not-found page', () => {
   })
 })
 
-describe('my events answers on its own address', () => {
-  it('serves the page at /events', () => {
+describe('the catalog absorbed the separate my-events page', () => {
+  it('still answers at /events, so an old bookmark is not a 404', () => {
     expect(withPath('/events')).toHaveLength(1)
     expect(withPath('/events')[0]?.element).toBeDefined()
   })
 
-  it('does not mount the my-events page a second time at the root', () => {
+  it('answers there with a redirect into the catalog, not with a page of its own', () => {
     const [eventsRoute] = withPath('/events')
-    const rootRoutes = routes.filter((route) => route.path === undefined && route.element)
-    for (const route of rootRoutes) {
-      expect(elementType(route.element)).not.toBe(elementType(eventsRoute?.element))
-    }
+    expect(navigateTarget(eventsRoute?.element)).toBe('/catalog?joined=true')
   })
 
-  it('redirects the root to /events rather than answering there', () => {
+  it('carries the participation filter, so the redirect lands on the events of the viewer', () => {
+    const [eventsRoute] = withPath('/events')
+    expect(navigateTarget(eventsRoute?.element)).toContain('joined=true')
+  })
+
+  it('redirects the root to the catalog rather than answering there', () => {
     const rootRedirects = routes
       .filter((route) => route.path === undefined)
       .map((route) => navigateTarget(route.element))
       .filter((target): target is string => target !== undefined)
-    expect(rootRedirects).toContain('/events')
+    expect(rootRedirects).toContain('/catalog')
   })
 
   it('keeps the root a redirect, so a stale bookmark never lands on a 404', () => {

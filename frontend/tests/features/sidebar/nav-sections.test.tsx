@@ -19,7 +19,6 @@ describe('the sidebar shows one section at a time', () => {
   it('keeps the participant entries in their agreed order', () => {
     expect([...CATALOG_NAV, ...MINE_NAV].map((item) => item.to)).toEqual([
       '/catalog',
-      '/events',
       '/schedule',
       '/teams',
       '/history',
@@ -40,9 +39,10 @@ describe('the sidebar shows one section at a time', () => {
     }
   })
 
-  it('names the my-events entry after the address that serves it', () => {
-    const myEvents = MINE_NAV.find((item) => item.labelKey === 'nav.events')
-    expect(myEvents?.to).toBe('/events')
+  it('offers no separate my-events entry, the catalog having absorbed it', () => {
+    const targets = [...CATALOG_NAV, ...MINE_NAV].map((item) => item.to)
+    expect(targets).not.toContain('/events')
+    expect(targets.filter((to) => to.startsWith('/catalog'))).toHaveLength(1)
   })
 
   it('keeps the participant entries free of any admin destination', () => {

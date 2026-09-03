@@ -74,16 +74,16 @@ describe('a stretched column reaches the empty pane without a block box in betwe
     expect(stretches(className), `${file}: ${className}`).toBe(true)
   })
 
-  it.each([
-    'src/features/event-list/my/event-list.tsx',
-    'src/features/event-list/admin/event-list.tsx',
-  ])('stretches the padded wrapper that %s puts around its empty pane', (file) => {
-    const className = classAttribute(source(file), '<EmptyState')
+  it.each(['src/features/event-list/admin/event-list.tsx'])(
+    'stretches the padded wrapper that %s puts around its empty pane',
+    (file) => {
+      const className = classAttribute(source(file), '<EmptyState')
 
-    expect(isFlexColumn(className), `${file}: ${className}`).toBe(true)
-    expect(stretches(className), `${file}: ${className}`).toBe(true)
-    expect(className, `${file} keeps its padding`).toContain('p-4')
-  })
+      expect(isFlexColumn(className), `${file}: ${className}`).toBe(true)
+      expect(stretches(className), `${file}: ${className}`).toBe(true)
+      expect(className, `${file} keeps its padding`).toContain('p-4')
+    },
+  )
 
   it('leaves the pagination wrapper alone, because only the empty pane should stretch', () => {
     const text = source('src/features/event-list/admin/event-list.tsx')

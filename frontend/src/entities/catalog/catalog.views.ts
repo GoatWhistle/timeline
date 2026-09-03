@@ -36,6 +36,15 @@ export const CATALOG_FORMAT_KEY: Record<CatalogFormatFilter, string> = {
   HYBRID: 'catalog.format.hybrid',
 }
 
+export const CATALOG_PARTICIPATION = ['', 'true', 'false'] as const
+export type CatalogParticipationFilter = (typeof CATALOG_PARTICIPATION)[number]
+
+export const CATALOG_PARTICIPATION_KEY: Record<CatalogParticipationFilter, string> = {
+  '': 'catalog.participation.all',
+  true: 'catalog.participation.mine',
+  false: 'catalog.participation.others',
+}
+
 export const CATALOG_LAYOUTS = ['table', 'grid'] as const
 export type CatalogLayout = (typeof CATALOG_LAYOUTS)[number]
 
@@ -76,6 +85,7 @@ export const CATALOG_COLUMNS = [
   'teamSize',
   'origin',
   'state',
+  'participation',
 ] as const
 export type CatalogColumn = (typeof CATALOG_COLUMNS)[number]
 
@@ -91,6 +101,7 @@ export const CATALOG_COLUMN_KEY: Record<CatalogColumn, string> = {
   teamSize: 'catalog.column.teamSize',
   origin: 'catalog.column.origin',
   state: 'catalog.column.state',
+  participation: 'catalog.column.participation',
 }
 
 export const CATALOG_LOCKED_COLUMN: CatalogColumn = 'title'

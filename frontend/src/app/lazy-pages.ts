@@ -28,9 +28,6 @@ export const EmailChangeConfirmPage = lazy(() =>
   })),
 )
 
-export const MyEventsPage = lazy(() =>
-  import('@/features/event-list/my/event-list').then((m) => ({ default: m.MyEventsPage })),
-)
 export const CatalogPage = lazy(() =>
   import('@/features/catalog/catalog').then((m) => ({ default: m.CatalogPage })),
 )

@@ -7,7 +7,6 @@
     "searchPlaceholder": "Search",
     "stateAria": "State",
     "allStates": "All states",
-    "showArchived": "Show archived",
     "emptyTitle": "No event has been created yet",
     "emptyHint": "Create the first one and it shows up here.",
     "emptyFiltered": "No event matches these filters",
@@ -17,14 +16,7 @@
     "columnState": "State",
     "newTitle": "New event",
     "created": "Event created",
-    "createdHint": "It is not published yet",
-    "myTitle": "My events",
-    "myDescription": "Events you are assigned to",
-    "myEmpty": "You have no assigned events yet",
-    "myEmptyFiltered": "None of your events matches these filters",
-    "teamRole": "Team role:",
-    "nextStage": "Next stage: {{name}} ·",
-    "registrationDeadline": "Registration deadline {{relative}}"
+    "createdHint": "It is not published yet"
   },
   "catalog": {
     "title": "Catalog",
@@ -134,7 +126,8 @@
       "kind": "Kind",
       "origin": "Scope",
       "from": "Start date",
-      "to": "End date"
+      "to": "End date",
+      "joined": "Participation"
     },
     "operator": {
       "is": "is",
@@ -149,6 +142,11 @@
       "teamUpTo": "up to {{max}} in a team",
       "teamFrom": "from {{min}} in a team",
       "websiteOf": "Website of {{title}} (opens in a new tab)"
+    },
+    "participation": {
+      "all": "All",
+      "mine": "I take part",
+      "others": "I do not take part"
     }
   }
 }

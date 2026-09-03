@@ -37,16 +37,23 @@ const DEFAULTS = {
   selected: '',
   sort: '',
   order: '',
+  joined: '',
   from: '',
   to: '',
 }
 
-const FILTER_FIELDS = ['state', 'format', 'kind', 'origin', 'from', 'to'] as const
+const FILTER_FIELDS = ['state', 'format', 'kind', 'origin', 'joined', 'from', 'to'] as const
 
 function listParam<K extends 'origin' | 'kind' | 'format' | 'state'>(
   value: string,
 ): CatalogParams[K] {
   return (value === '' ? undefined : value) as CatalogParams[K]
+}
+
+function joinedParam(value: string): boolean | undefined {
+  if (value === 'true') return true
+  if (value === 'false') return false
+  return undefined
 }
 
 function startOfDay(value: string): string | undefined {
@@ -84,6 +91,7 @@ export function CatalogPage() {
     state: listParam<'state'>(filters.state),
     from: startOfDay(filters.from),
     to: endOfDay(filters.to),
+    joined: joinedParam(filters.joined),
     sort,
     order,
   }

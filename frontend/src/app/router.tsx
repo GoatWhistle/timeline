@@ -20,7 +20,6 @@ import {
   HistoryPage,
   InvitePage,
   LoginPage,
-  MyEventsPage,
   MySchedulePage,
   RegisterPage,
   ResetPasswordPage,
@@ -98,8 +97,8 @@ export function AppRouter() {
 
         <Route element={<RequireAuth />}>
           <Route element={<AppShell />}>
-            <Route index element={<Navigate to="/events" replace />} />
-            <Route path="/events" element={<MyEventsPage />} />
+            <Route index element={<Navigate to="/catalog" replace />} />
+            <Route path="/events" element={<Navigate to="/catalog?joined=true" replace />} />
             <Route path="/catalog" element={<CatalogPage />} />
 
             <Route element={<RequireAdmin />}>
@@ -110,7 +109,10 @@ export function AppRouter() {
               <Route path="/events/:id" element={<EventCardPage />} />
               <Route path="/schedule" element={<MySchedulePage />} />
               <Route path="/history" element={<HistoryPage />} />
-              <Route path="/profile" element={<Navigate to="/events?settings=profile" replace />} />
+              <Route
+                path="/profile"
+                element={<Navigate to="/catalog?settings=profile" replace />}
+              />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/teams" element={<TeamsPage />} />
               <Route path="/teams/:id" element={<TeamDetailPage />} />

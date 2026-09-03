@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { EVENT_KIND_ICON, EVENT_KIND_KEY } from '@/entities/event/event-kind'
 import type { EventKind } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { EVENT_KIND_ICON, EVENT_KIND_KEY } from './catalog.kind'
 
 export function CatalogKindMark({
   kind,

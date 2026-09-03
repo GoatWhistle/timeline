@@ -3,13 +3,23 @@ import {
   CATALOG_FORMATS,
   CATALOG_KIND_KEY,
   CATALOG_KINDS,
+  CATALOG_PARTICIPATION,
+  CATALOG_PARTICIPATION_KEY,
   CATALOG_SCOPE_KEY,
   CATALOG_SCOPES,
   CATALOG_STATE_KEY,
   CATALOG_STATES,
 } from '@/entities/catalog/catalog.views'
 
-export const CATALOG_FILTER_FIELDS = ['state', 'format', 'kind', 'origin', 'from', 'to'] as const
+export const CATALOG_FILTER_FIELDS = [
+  'state',
+  'format',
+  'kind',
+  'origin',
+  'joined',
+  'from',
+  'to',
+] as const
 export type CatalogFilterField = (typeof CATALOG_FILTER_FIELDS)[number]
 
 export const CATALOG_FILTER_FIELD_KEY: Record<CatalogFilterField, string> = {
@@ -17,6 +27,7 @@ export const CATALOG_FILTER_FIELD_KEY: Record<CatalogFilterField, string> = {
   format: 'catalog.field.format',
   kind: 'catalog.field.kind',
   origin: 'catalog.field.origin',
+  joined: 'catalog.field.joined',
   from: 'catalog.field.from',
   to: 'catalog.field.to',
 }
@@ -26,6 +37,7 @@ export const CATALOG_FILTER_OPERATOR_KEY: Record<CatalogFilterField, string> = {
   format: 'catalog.operator.is',
   kind: 'catalog.operator.is',
   origin: 'catalog.operator.is',
+  joined: 'catalog.operator.is',
   from: 'catalog.operator.onOrAfter',
   to: 'catalog.operator.onOrBefore',
 }
@@ -50,6 +62,10 @@ const CHOICES: Partial<Record<CatalogFilterField, readonly CatalogFilterOption[]
   origin: CATALOG_SCOPES.filter((value) => value !== '').map((value) => ({
     value,
     labelKey: CATALOG_SCOPE_KEY[value],
+  })),
+  joined: CATALOG_PARTICIPATION.filter((value) => value !== '').map((value) => ({
+    value,
+    labelKey: CATALOG_PARTICIPATION_KEY[value],
   })),
 }
 
