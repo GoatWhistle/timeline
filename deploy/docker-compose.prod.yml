@@ -7,10 +7,6 @@ x-backend-env: &backend-env
   LOG_COLOR: never
   PUBLIC_URL: ${PUBLIC_URL}
   CORS_ALLOWED_ORIGINS: ${PUBLIC_URL}
-  FIRST_ADMIN_EMAIL: ${ADMIN_EMAIL}
-  FIRST_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-  FIRST_ADMIN_NAME: ${ADMIN_NAME:-Administrator}
-  FIRST_ADMIN_NICKNAME: ${ADMIN_NICKNAME:-administrator}
   AVATAR_STORAGE_ROOT: /var/lib/timeline/avatars
   COVER_STORAGE_ROOT: /var/lib/timeline/covers
 
@@ -53,14 +49,6 @@ services:
         condition: service_healthy
     restart: "no"
 
-  bootstrap:
-    <<: *backend
-    command: ["admin", "create"]
-    depends_on:
-      migrations:
-        condition: service_completed_successfully
-    restart: "no"
-
   backend:
     <<: *backend
     command: ["serve"]
@@ -68,7 +56,7 @@ services:
       <<: *backend-env
       DATABASE_APP_ROLE: ${DATABASE_APP_ROLE:-timeline_app}
     depends_on:
-      bootstrap:
+      migrations:
         condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]

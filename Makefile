@@ -44,13 +44,9 @@ WEB_PORT      ?= 5173
 API_PORT      ?= 8080
 POSTGRES_PORT ?= 5432
 
-ADMIN_EMAIL    ?= admin@example.com
-ADMIN_PASSWORD ?= password123
-ADMIN_NAME     ?= Administrator
-
 CONTRACT_API_PORT ?= 55480
 
-export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME CONTRACT_API_PORT
+export WEB_PORT API_PORT POSTGRES_PORT CONTRACT_API_PORT
 
 .PHONY: help endpoints \
 	docker-up docker-down docker-build docker-restart docker-status docker-logs \
@@ -114,7 +110,6 @@ endpoints:
 	@echo ""
 	@echo "application -> http://localhost:$(WEB_PORT)"
 	@echo "API         -> http://localhost:$(API_PORT), Swagger UI /docs/"
-	@echo "login: $(ADMIN_EMAIL), password $(ADMIN_PASSWORD)"
 
 .env:
 	@cp .env.example .env
