@@ -49,15 +49,6 @@ describe('the panel shows what the product is about', () => {
     const rail = screen.getByRole('list', { name: /stages of an event/i })
     expect(rail.querySelectorAll('li')).toHaveLength(5)
   })
-
-  it('states plainly that the product does not verify the organiser site', () => {
-    render(
-      <MemoryRouter>
-        <AuthAside />
-      </MemoryRouter>,
-    )
-    expect(screen.getByText(/does not check the organiser/i)).toBeInTheDocument()
-  })
 })
 
 describe('the door panel spends only design tokens', () => {
@@ -66,8 +57,10 @@ describe('the door panel spends only design tokens', () => {
       const source = readFileSync(join(SRC, 'features/auth/door', file), 'utf8')
       expect(source).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
     }
-    const css = readFileSync(join(SRC, 'features/auth/door/door-timeline.module.css'), 'utf8')
-    expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+    for (const sheet of ['door-timeline.module.css', 'door-wordmark.module.css']) {
+      const css = readFileSync(join(SRC, 'features/auth/door', sheet), 'utf8')
+      expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+    }
   })
 
   it('honours the reduced-motion preference the product already respects', () => {

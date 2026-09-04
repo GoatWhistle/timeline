@@ -60,7 +60,7 @@ export function AdminEventPage() {
       skeleton={<SkeletonDetail />}
       action={
         <Button asChild variant="outline">
-          <Link to="/admin/events">{t('shell:nav.adminEvents')}</Link>
+          <Link to="/admin/events">{t('common:nav.adminEvents')}</Link>
         </Button>
       }
     >

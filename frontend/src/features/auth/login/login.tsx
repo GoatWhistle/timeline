@@ -10,7 +10,7 @@ import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { PasswordInput } from '@/shared/ui/forms/password-input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
 const schema = z.object({
@@ -51,7 +51,6 @@ export function LoginPage() {
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>{t('login.title')}</CardTitle>
-        <CardDescription>{t('login.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>

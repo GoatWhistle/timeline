@@ -1,6 +1,7 @@
-import { screen } from '@testing-library/react'
+import { screen, waitForElementToBeRemoved } from '@testing-library/react'
 import { text } from '@tests/support/dictionaries'
 import { renderWithProviders } from '@tests/support/render'
+import { Suspense } from 'react'
 import { Route, Routes } from 'react-router'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { PublicProfileRoute } from '@/app/public-profile-route'
@@ -13,17 +14,27 @@ import {
   publicProfilePath,
 } from '@/shared/routing/public-profile-path'
 
+const LAZY_CHUNK_TIMEOUT = 15_000
+
 async function renderAt(route: string, locale: Locale = 'ru') {
   writeStoredLocale(locale)
   await i18n.changeLanguage(locale)
-  return renderWithProviders(
+  const rendered = renderWithProviders(
     <I18nProvider>
-      <Routes>
-        <Route path="/:handle" element={<PublicProfileRoute />} />
-      </Routes>
+      <Suspense fallback={<div data-testid="route-pending" />}>
+        <Routes>
+          <Route path="/:handle" element={<PublicProfileRoute />} />
+        </Routes>
+      </Suspense>
     </I18nProvider>,
     { route },
   )
+  if (screen.queryByTestId('route-pending')) {
+    await waitForElementToBeRemoved(() => screen.queryByTestId('route-pending'), {
+      timeout: LAZY_CHUNK_TIMEOUT,
+    })
+  }
+  return rendered
 }
 
 function notFoundTitle(locale: Locale): string {
@@ -83,7 +94,7 @@ describe('an address with @ is still a profile', () => {
     async (route) => {
       await renderAt(route)
       expect(
-        await screen.findByRole('heading', { name: profileMissingTitle('ru') }, { timeout: 10000 }),
+        await screen.findByRole('heading', { name: profileMissingTitle('ru') }),
       ).toBeInTheDocument()
       expect(screen.queryByRole('heading', { name: notFoundTitle('ru') })).not.toBeInTheDocument()
     },
