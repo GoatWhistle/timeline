@@ -20,7 +20,6 @@ const COMMON: MeetupFormValues = {
 
 const VALID: HackathonFormValues = {
   ...COMMON,
-  track: '',
   prize_pool: '',
   prize_currency: '',
   team_size_min: 1,

@@ -43,6 +43,7 @@
 
 .week {
   position: relative;
+  min-height: var(--week-row-height);
   border-block-end: 1px solid color-mix(in oklch, var(--border) 55%, transparent);
 }
 
@@ -52,6 +53,8 @@
 
 .cells {
   display: flex;
+  align-items: stretch;
+  min-height: var(--week-row-height);
 }
 
 .cell,
@@ -59,7 +62,7 @@
   position: relative;
   flex: 1 1 0;
   min-width: 0;
-  aspect-ratio: 1;
+  min-height: var(--schedule-cell);
 }
 
 .cell {

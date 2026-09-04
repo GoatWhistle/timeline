@@ -162,3 +162,23 @@ describe('a keyboard user reaches the bars of a wrapped grid', () => {
     expect((document.activeElement as HTMLElement).dataset.scheduleItem).toBe(last)
   })
 })
+
+describe('Home and End reach the edges of the month', () => {
+  it('moves focus to the first day of the month on Home', async () => {
+    const { container, user } = renderMonth()
+    days(container)[10]?.focus()
+
+    await user.keyboard('{Home}')
+
+    expect((document.activeElement as HTMLElement).dataset.scheduleDay).toBe('2026-0-1')
+  })
+
+  it('moves focus to the last day of the month on End', async () => {
+    const { container, user } = renderMonth()
+    days(container)[0]?.focus()
+
+    await user.keyboard('{End}')
+
+    expect((document.activeElement as HTMLElement).dataset.scheduleDay).toBe('2026-0-31')
+  })
+})

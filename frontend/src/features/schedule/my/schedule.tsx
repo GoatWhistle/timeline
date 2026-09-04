@@ -6,11 +6,13 @@ import { Link } from 'react-router'
 import { myScheduleQuery } from '@/entities/schedule/schedule.queries'
 import { AssignedEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
 import { periodLabel, useScheduleView } from '@/features/schedule/model/use-schedule-view'
+import { PhoneSchedule } from '@/features/schedule/ui/phone-agenda/phone-schedule'
 import { ScheduleEmptyOverlay } from '@/features/schedule/ui/schedule-empty/schedule-empty'
 import { ViewTabs } from '@/features/schedule/ui/view-tabs/view-tabs'
 import { WeekGrid } from '@/features/schedule/ui/week-grid/week-grid'
 import { WrappedGrid } from '@/features/schedule/ui/wrapped-grid/wrapped-grid'
 import { DEFAULT_LOCALE, isLocale } from '@/shared/i18n/locale'
+import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { PageHeader } from '@/shared/ui/layout/page-header'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary } from '@/shared/ui/states'
@@ -22,6 +24,7 @@ export function MySchedulePage() {
   const { openEventCard } = useEventOverlay()
   const query = useQuery(myScheduleQuery({}))
   const view = useScheduleView()
+  const phone = usePhoneViewport()
 
   const language = i18n.language?.split('-')[0]
   const locale = DATE_FNS_LOCALES[isLocale(language) ? language : DEFAULT_LOCALE]
@@ -64,7 +67,16 @@ export function MySchedulePage() {
                 </Button>
               }
             >
-              {view.wrapped ? (
+              {view.wrapped && phone ? (
+                <PhoneSchedule
+                  data={query.data}
+                  from={view.from}
+                  months={view.wrapped.months}
+                  selectedId={view.selectedId}
+                  onSelect={view.select}
+                  onOpenEvent={(row) => openEventCard(row.event_id)}
+                />
+              ) : view.wrapped ? (
                 <WrappedGrid
                   data={query.data}
                   from={view.from}

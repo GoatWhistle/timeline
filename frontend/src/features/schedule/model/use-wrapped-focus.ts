@@ -13,6 +13,32 @@ export type WrappedFocusOptions = {
   onOpen: (id: string) => void
 }
 
+function parseDayKey(key: string): Date | undefined {
+  const parts = key.split('-').map(Number)
+  if (parts.length !== 3 || parts.some((part) => !Number.isFinite(part))) return undefined
+  return new Date(parts[0] as number, parts[1] as number, parts[2] as number)
+}
+
+function nearestDay(
+  container: HTMLElement | null,
+  target: Date,
+): { date: Date; element: HTMLElement } | undefined {
+  if (!container) return undefined
+  const wanted = target.getTime()
+  let best: { date: Date; element: HTMLElement; distance: number } | undefined
+
+  for (const element of container.querySelectorAll('[data-schedule-day]')) {
+    if (!(element instanceof HTMLElement)) continue
+    const key = element.dataset.scheduleDay
+    const date = key ? parseDayKey(key) : undefined
+    if (!date) continue
+    const distance = Math.abs(date.getTime() - wanted)
+    if (!best || distance < best.distance) best = { date, element, distance }
+  }
+
+  return best && { date: best.date, element: best.element }
+}
+
 function barsOfDay(container: HTMLElement | null, key: string): HTMLElement[] {
   if (!container) return []
   return [...container.querySelectorAll(`[data-schedule-bar-day~="${key}"]`)].filter(
@@ -33,9 +59,16 @@ export function useWrappedFocus({
 
   const focusDay = useCallback(
     (date: Date) => {
-      setCursor(date)
       const target = container.current?.querySelector(`[data-schedule-day="${dayKey(date)}"]`)
-      if (target instanceof HTMLElement) target.focus()
+      if (target instanceof HTMLElement) {
+        setCursor(date)
+        target.focus()
+        return
+      }
+      const nearest = nearestDay(container.current, date)
+      if (!nearest) return
+      setCursor(nearest.date)
+      nearest.element.focus()
     },
     [container],
   )

@@ -16,7 +16,6 @@ const EVERY_FIELD = [
   'event-end',
   'origin',
   'event-format',
-  'event-track',
   'event-prize-pool',
   'event-prize-currency',
   'event-team-size-min',
@@ -122,7 +121,7 @@ describe('editing an event on the admin card shows the fields directly', () => {
       />,
     )
     expect(document.querySelector('[data-stage-section="prize"]')).toBeNull()
-    for (const id of ['event-track', 'event-prize-pool', 'event-team-size-min']) {
+    for (const id of ['event-prize-pool', 'event-team-size-min']) {
       expect(document.getElementById(id), id).toBeNull()
     }
     expect(document.getElementById('event-title')).not.toBeNull()

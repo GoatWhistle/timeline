@@ -13,7 +13,7 @@ export type DayState = {
 }
 
 const BASE =
-  'relative flex size-9 items-center justify-center text-copy tabular-nums transition-colors motion-safe:duration-instant'
+  'relative flex size-tap items-center justify-center text-copy tabular-nums transition-colors motion-safe:duration-instant sm:size-9'
 
 function bandShape(day: DayState): string {
   const spans = day.rangeStart !== day.rangeEnd

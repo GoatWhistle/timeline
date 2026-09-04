@@ -125,7 +125,7 @@ describe('editing starts from what the server holds', () => {
     origin: 'WORLD',
     country_code: 'DE',
     city: 'Berlin',
-    track: 'Smart city',
+    tracks: [],
     prize_pool: '500000.00',
     prize_currency: 'EUR',
     team_size_min: 3,
@@ -145,7 +145,6 @@ describe('editing starts from what the server holds', () => {
     expect(values.origin).toBe('WORLD')
     expect(values.country_code).toBe('DE')
     expect(values.city).toBe('Berlin')
-    expect(values.track).toBe('Smart city')
     expect(values.prize_pool).toBe('500000.00')
     expect(values.prize_currency).toBe('EUR')
     expect(values.team_size_min).toBe(3)

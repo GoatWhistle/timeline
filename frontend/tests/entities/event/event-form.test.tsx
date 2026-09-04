@@ -16,7 +16,6 @@ import {
 fixMoscowClock()
 
 const HACKATHON_ONLY: [StageName, string][] = [
-  ['prize', 'event-track'],
   ['prize', 'event-prize-pool'],
   ['prize', 'event-prize-currency'],
   ['prize', 'event-team-size-min'],
@@ -69,7 +68,7 @@ describe('the meetup form offers no hackathon field', () => {
     await submitForm(user)
     const payload = onSubmit.mock.calls[0]?.[0]
     expect(payload.kind).toBe('MEETUP')
-    for (const key of ['prize_pool', 'prize_currency', 'track', 'team_size_min', 'team_size_max']) {
+    for (const key of ['prize_pool', 'prize_currency', 'team_size_min', 'team_size_max']) {
       expect(payload, key).not.toHaveProperty(key)
     }
   })
@@ -80,7 +79,7 @@ describe('the kind is the first stage and switching keeps what was typed', () =>
     renderWithProviders(<EventForm submitLabel="Save" onSubmit={vi.fn()} />)
     expect(document.querySelector('[data-event-stage]')).toHaveAttribute('data-event-stage', 'kind')
     expect(screen.getByTestId('kind')).toBeInTheDocument()
-    for (const id of ['event-title', 'event-prize-pool', 'event-track', 'event-start']) {
+    for (const id of ['event-title', 'event-prize-pool', 'event-start']) {
       expect(document.getElementById(id), id).toBeNull()
     }
   })

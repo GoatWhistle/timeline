@@ -153,7 +153,6 @@ describe('the stage model is the single source of the split', () => {
     const stages = stagesOf('HACKATHON')
     const prize = stages.find((stage) => stage.id === 'prize')
     expect(prize?.fields).toEqual([
-      'track',
       'prize_pool',
       'prize_currency',
       'team_size_min',
