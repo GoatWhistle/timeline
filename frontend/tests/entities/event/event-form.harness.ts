@@ -70,6 +70,14 @@ export function trigger(id: string): HTMLElement {
   return node
 }
 
+export function calendarButton(id: string): HTMLButtonElement {
+  const button = trigger(id).parentElement?.querySelector<HTMLButtonElement>(
+    'button[aria-haspopup="dialog"]',
+  )
+  if (!button) throw new Error(`no calendar button beside ${id}`)
+  return button
+}
+
 export function dayCells(): HTMLElement[] {
   return Array.from(document.querySelectorAll<HTMLElement>('button[data-date]'))
 }

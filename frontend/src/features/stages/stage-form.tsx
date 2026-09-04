@@ -6,12 +6,14 @@ import { z } from 'zod'
 import { STAGE_TYPE_KEY, STAGE_TYPES } from '@/entities/stage/stage.labels'
 import type { EventFormat, StageResponse, StageType } from '@/shared/api/types.gen'
 import { civilFromIso, civilToIso } from '@/shared/datetime/civil'
+import { serverRangeProblem } from '@/shared/forms/range-problem'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { isAcceptedUrl, normalizeFormUrl } from '@/shared/forms/url'
 import {
-  endBeforeStart,
   type MomentRange,
   MomentRangeFields,
+  type RangeProblem,
+  rangeProblem,
 } from '@/shared/ui/forms/calendar/moment-range'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
@@ -83,7 +85,7 @@ export function StageForm({
     start: civilFromIso(stage?.start_at),
     end: civilFromIso(stage?.end_at),
   }))
-  const [rangeError, setRangeError] = useState<string | null>(null)
+  const [rangeError, setRangeError] = useState<RangeProblem | null>(null)
   const {
     register,
     control,
@@ -119,12 +121,13 @@ export function StageForm({
       Date.parse(endAt) > Date.parse(eventRange.end_at))
 
   async function submit(values: FormValues) {
-    if (startAt === null || endAt === null) {
-      setRangeError('event:form.momentRequired')
+    const local = rangeProblem(range)
+    if (local !== null) {
+      setRangeError(local)
       return
     }
-    if (endBeforeStart(range)) {
-      setRangeError('event:form.endAfterStart')
+    if (startAt === null || endAt === null) {
+      setRangeError({ start: 'event:form.momentRequired' })
       return
     }
     setRangeError(null)
@@ -148,6 +151,8 @@ export function StageForm({
           : {}),
       })
     } catch (error) {
+      const named = serverRangeProblem(error)
+      if (named !== null) setRangeError(named)
       applyServerErrors(error, setError, [
         'name',
         'type',
@@ -192,7 +197,8 @@ export function StageForm({
       <MomentRangeFields
         idPrefix="stage"
         value={range}
-        endError={rangeError ?? undefined}
+        startError={rangeError?.start}
+        endError={rangeError?.end}
         onChange={(next) => {
           setRange(next)
           setRangeError(null)

@@ -15,6 +15,7 @@ export function MomentField({
   range = null,
   error,
   hint,
+  required,
   onChange,
 }: {
   id: string
@@ -24,6 +25,7 @@ export function MomentField({
   range?: RangeHighlight
   error?: string | undefined
   hint?: string | undefined
+  required?: boolean
   onChange: (next: Civil) => void
 }) {
   const { t } = useTranslation('event')
@@ -31,24 +33,28 @@ export function MomentField({
   const offset = zoneOffsetLabel(value, zone)
 
   return (
-    <Field label={label} htmlFor={id} error={error} hint={hint}>
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="min-w-48 flex-1">
-          <DatePicker
-            id={id}
-            value={value.date}
-            bounds={bounds}
-            range={range}
+    <Field label={label} htmlFor={id} error={error} hint={hint} required={required}>
+      <div className="flex flex-col gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="min-w-36 flex-1">
+            <DatePicker
+              id={id}
+              value={value.date}
+              bounds={bounds}
+              range={range}
+              invalid={Boolean(error)}
+              required={required}
+              onChange={(date) => onChange({ ...value, date })}
+            />
+          </div>
+          <TimeInput
+            id={`${id}-time`}
+            value={value.time}
             invalid={Boolean(error)}
-            onChange={(date) => onChange({ ...value, date })}
+            required={required}
+            onChange={(time) => onChange({ ...value, time })}
           />
         </div>
-        <TimeInput
-          id={`${id}-time`}
-          value={value.time}
-          invalid={Boolean(error)}
-          onChange={(time) => onChange({ ...value, time })}
-        />
         <span className="text-caption text-muted-foreground" data-testid={`${id}-zone`}>
           {t('calendar.zone', { zone, offset })}
         </span>

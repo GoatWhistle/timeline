@@ -6,12 +6,14 @@ export function TimeInput({
   value,
   invalid,
   describedBy,
+  required,
   onChange,
 }: {
   id: string
   value: string
   invalid?: boolean
   describedBy?: string | undefined
+  required?: boolean
   onChange: (time: string) => void
 }) {
   const { t } = useTranslation('event')
@@ -28,9 +30,10 @@ export function TimeInput({
       aria-label={t('calendar.timeAria')}
       aria-invalid={invalid ? true : undefined}
       aria-describedby={describedBy}
+      aria-required={required ? true : undefined}
       onChange={(event) => onChange(normalize(event.target.value))}
       className={cn(
-        'h-9 w-24 rounded-control border border-input bg-transparent px-3 text-copy tabular-nums shadow-xs',
+        'h-9 w-20 shrink-0 rounded-control border border-input bg-transparent px-3 text-copy tabular-nums shadow-xs',
         'transition-colors motion-safe:duration-instant',
         'placeholder:text-muted-foreground',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',

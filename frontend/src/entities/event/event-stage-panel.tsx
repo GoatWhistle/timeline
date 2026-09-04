@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react'
 import type { Control, FieldErrors, UseFormRegister } from 'react-hook-form'
 import type { EventKind } from '@/shared/api/types.gen'
-import { type MomentRange, MomentRangeFields } from '@/shared/ui/forms/calendar/moment-range'
+import {
+  type MomentRange,
+  MomentRangeFields,
+  type RangeProblem,
+} from '@/shared/ui/forms/calendar/moment-range'
 import { EventBasicsFields, EventOriginRow } from './event-common-fields'
 import type { MeetupFormValues } from './event-form.schema'
 import type { StageId } from './event-form.stages'
@@ -32,7 +36,7 @@ export function EventStagePanel({
   errors: FieldErrors<MeetupFormValues>
   format: MeetupFormValues['format']
   range: MomentRange
-  rangeError: string | null
+  rangeError: RangeProblem | null
   onRangeChange: (next: MomentRange) => void
   onOrganizerPick: (value: string) => void
   prize?: ReactNode
@@ -52,7 +56,8 @@ export function EventStagePanel({
     return (
       <MomentRangeFields
         value={range}
-        endError={rangeError ?? undefined}
+        startError={rangeError?.start}
+        endError={rangeError?.end}
         onChange={onRangeChange}
       />
     )

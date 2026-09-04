@@ -33,17 +33,17 @@ describe('a date is picked the same way everywhere, in the language of the app',
     expect(offenders(/type="datetime-local"/)).toEqual([])
   })
 
-  it('the shared picker spells the date through the app locale, not the browser one', () => {
+  it('the shared picker spells the date in one order everywhere, not the browser one', () => {
     const source = readFileSync(join(SRC, PICKER), 'utf8')
 
-    expect(source).toContain('toLocale(i18n.language)')
-    expect(source).toContain('shortDayLabel')
+    expect(source).toContain('DATE_TEXT_PATTERN')
+    expect(source).toContain('formatDateText')
   })
 
-  it('the shared picker is a button, so no user agent can impose a format on it', () => {
+  it('the shared picker holds a plain text field, which no user agent reformats', () => {
     const source = readFileSync(join(SRC, PICKER), 'utf8')
 
-    expect(source).toContain('type="button"')
+    expect(source).toContain('type="text"')
     expect(source).not.toContain('type="date"')
   })
 })

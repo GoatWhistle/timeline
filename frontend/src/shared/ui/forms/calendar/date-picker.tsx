@@ -1,15 +1,15 @@
 import { CalendarDays } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { isCivilDate } from '@/shared/datetime/civil'
-import { toLocale } from '@/shared/i18n/locale'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 import { FLOATING_SURFACE } from '@/shared/ui/overlays/overlay-chrome'
 import type { RangeHighlight } from './calendar-grid'
-import { shortDayLabel } from './calendar-labels'
 import { CalendarPanel } from './calendar-panel'
+import { acceptDateText, DATE_TEXT_PATTERN, formatDateText, parseDateText } from './date-text'
 import type { DayBounds } from './month-grid'
+import { panelHost, useAnchoredPanel } from './use-anchored-panel'
 
 export function DatePicker({
   id,
@@ -18,6 +18,7 @@ export function DatePicker({
   range = null,
   invalid,
   describedBy,
+  required,
   onChange,
 }: {
   id: string
@@ -26,13 +27,21 @@ export function DatePicker({
   range?: RangeHighlight
   invalid?: boolean
   describedBy?: string | undefined
+  required?: boolean
   onChange: (date: string) => void
 }) {
-  const { t, i18n } = useTranslation('event')
+  const { t } = useTranslation('event')
   const [open, setOpen] = useState(false)
+  const [text, setText] = useState(() => formatDateText(value))
+  const anchorRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const restoreFocus = useRef(false)
+  const placement = useAnchoredPanel(open, anchorRef, panelRef)
+
+  useEffect(() => {
+    setText((current) => (parseDateText(current) === value ? current : formatDateText(value)))
+  }, [value])
 
   function close(returnFocus: boolean) {
     restoreFocus.current = returnFocus
@@ -47,17 +56,16 @@ export function DatePicker({
 
   useEffect(() => {
     if (!open) return
+    function outside(target: Node): boolean {
+      const panel = panelRef.current
+      if (panel === null) return false
+      return !panel.contains(target) && !triggerRef.current?.contains(target)
+    }
     function onPointerDown(event: PointerEvent) {
-      const target = event.target as Node
-      if (panelRef.current?.contains(target)) return
-      if (triggerRef.current?.contains(target)) return
-      setOpen(false)
+      if (outside(event.target as Node)) setOpen(false)
     }
     function onFocusIn(event: FocusEvent) {
-      const target = event.target as Node
-      if (panelRef.current?.contains(target)) return
-      if (triggerRef.current?.contains(target)) return
-      setOpen(false)
+      if (outside(event.target as Node)) setOpen(false)
     }
     document.addEventListener('pointerdown', onPointerDown, true)
     document.addEventListener('focusin', onFocusIn, true)
@@ -67,66 +75,117 @@ export function DatePicker({
     }
   }, [open])
 
-  const text = isCivilDate(value)
-    ? shortDayLabel(value, toLocale(i18n.language))
-    : t('calendar.pickDate')
+  function commit(raw: string) {
+    const parsed = parseDateText(raw)
+    if (parsed !== null) {
+      setText(formatDateText(parsed))
+      if (parsed !== value) onChange(parsed)
+      return
+    }
+    if (raw.trim() === '') {
+      setText('')
+      if (value !== '') onChange('')
+      return
+    }
+    setText(formatDateText(value))
+  }
 
   return (
-    <div className="relative">
+    <div ref={anchorRef} className="flex items-center gap-2">
+      <input
+        id={id}
+        type="text"
+        inputMode="numeric"
+        autoComplete="off"
+        placeholder={DATE_TEXT_PATTERN}
+        maxLength={10}
+        value={text}
+        data-value={value || undefined}
+        aria-invalid={invalid ? true : undefined}
+        aria-describedby={describedBy}
+        aria-required={required ? true : undefined}
+        onChange={(event) => {
+          const next = acceptDateText(event.target.value)
+          setText(next)
+          const parsed = parseDateText(next)
+          if (parsed !== null && parsed !== value) onChange(parsed)
+        }}
+        onBlur={(event) => commit(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key !== 'Enter') return
+          event.preventDefault()
+          commit(event.currentTarget.value)
+        }}
+        className={cn(
+          'h-9 w-full min-w-0 flex-1 rounded-control border border-input bg-transparent px-3 text-copy tabular-nums shadow-xs',
+          'transition-colors motion-safe:duration-instant',
+          'placeholder:text-muted-foreground',
+          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+          'aria-invalid:border-destructive aria-invalid:outline-destructive',
+        )}
+      />
+
       <button
         ref={triggerRef}
-        id={id}
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-controls={open ? `${id}-calendar` : undefined}
+        aria-label={t('calendar.openCalendar')}
         aria-invalid={invalid ? true : undefined}
-        aria-describedby={describedBy}
-        data-value={value || undefined}
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          'flex h-9 w-full items-center gap-2 rounded-control border border-input bg-transparent px-3 text-copy shadow-xs',
+          'flex size-9 shrink-0 items-center justify-center rounded-control border border-input bg-transparent text-muted-foreground shadow-xs',
           TOUCH_REACH,
-          'transition-colors motion-safe:duration-instant hover:bg-accent-surface',
+          'transition-colors motion-safe:duration-instant hover:bg-accent-surface hover:text-foreground',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
           'aria-invalid:border-destructive aria-invalid:outline-destructive',
-          !isCivilDate(value) && 'text-muted-foreground',
         )}
       >
-        <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
-        <span className="truncate">{text}</span>
+        <CalendarDays className="size-4" aria-hidden="true" />
       </button>
 
-      {open && (
-        <div
-          ref={panelRef}
-          role="dialog"
-          aria-modal="false"
-          aria-label={t('calendar.dialogLabel')}
-          onKeyDown={(event) => {
-            if (event.key !== 'Escape') return
-            event.stopPropagation()
-            close(true)
-          }}
-          className={cn(
-            FLOATING_SURFACE,
-            'absolute top-full left-0 mt-2 w-max p-3',
-            'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95',
-            'motion-safe:duration-fast motion-safe:ease-out',
-          )}
-        >
-          <CalendarPanel
-            value={value}
-            bounds={bounds}
-            range={range}
-            open={open}
-            onPick={(date) => {
-              onChange(date)
+      {open &&
+        createPortal(
+          <div
+            ref={panelRef}
+            id={`${id}-calendar`}
+            role="dialog"
+            aria-modal="false"
+            aria-label={t('calendar.dialogLabel')}
+            data-escape-owner="true"
+            onKeyDown={(event) => {
+              if (event.key !== 'Escape') return
+              event.stopPropagation()
               close(true)
             }}
-            onClose={() => close(true)}
-          />
-        </div>
-      )}
+            style={{
+              top: placement?.top ?? 0,
+              left: placement?.left ?? 0,
+              opacity: placement === null ? 0 : undefined,
+            }}
+            className={cn(
+              FLOATING_SURFACE,
+              'pointer-events-auto fixed w-max max-w-[calc(100vw-1.5rem)] overflow-x-auto p-3',
+              'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95',
+              'motion-safe:duration-fast motion-safe:ease-out',
+            )}
+          >
+            <CalendarPanel
+              value={value}
+              bounds={bounds}
+              range={range}
+              open={open}
+              onPick={(date) => {
+                onChange(date)
+                setText(formatDateText(date))
+                close(true)
+              }}
+              onClose={() => close(true)}
+            />
+          </div>,
+          panelHost(anchorRef.current),
+        )}
     </div>
   )
 }

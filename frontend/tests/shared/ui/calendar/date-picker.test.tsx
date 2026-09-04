@@ -21,8 +21,14 @@ function Harness({ initial = '2026-05-13', bounds }: { initial?: string; bounds?
   )
 }
 
+function field(): HTMLInputElement {
+  const input = document.getElementById('pick')
+  if (!(input instanceof HTMLInputElement)) throw new Error('no date field')
+  return input
+}
+
 function open(): HTMLElement {
-  const trigger = document.getElementById('pick')
+  const trigger = document.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]')
   if (!trigger) throw new Error('no trigger')
   return trigger
 }
@@ -52,18 +58,18 @@ afterEach(async () => {
   await i18n.changeLanguage(initialLanguage)
 })
 
-describe('the trigger describes the current choice', () => {
-  it('shows the chosen day rather than a raw value', () => {
+describe('the field shows the current choice and takes a new one by hand', () => {
+  it('shows the chosen day in the shape it is typed, not the machine one', () => {
     renderWithProviders(<Harness />)
-    expect(open()).toHaveAttribute('data-value', '2026-05-13')
-    expect(open().textContent).not.toContain('2026-05-13')
-    expect(open().textContent?.trim().length).toBeGreaterThan(0)
+    expect(field()).toHaveAttribute('data-value', '2026-05-13')
+    expect(field().value).toBe('13.05.2026')
   })
 
-  it('invites a choice when nothing is chosen yet', () => {
+  it('stands empty and names the shape it wants when nothing is chosen', () => {
     renderWithProviders(<Harness initial="" />)
-    expect(open()).not.toHaveAttribute('data-value')
-    expect(open()).toHaveTextContent(i18n.t('event:calendar.pickDate'))
+    expect(field()).not.toHaveAttribute('data-value')
+    expect(field().value).toBe('')
+    expect(field()).toHaveAttribute('placeholder', 'dd.mm.yyyy')
   })
 
   it('reports its expanded state to assistive technology', async () => {
@@ -132,7 +138,7 @@ describe('the calendar is operated from the keyboard alone', () => {
     await user.click(open())
     await user.keyboard('{ArrowRight}{Enter}')
     expect(document.querySelector('table')).toBeNull()
-    expect(open()).toHaveAttribute('data-value', '2026-05-14')
+    expect(field()).toHaveAttribute('data-value', '2026-05-14')
     expect(open()).toHaveFocus()
   })
 

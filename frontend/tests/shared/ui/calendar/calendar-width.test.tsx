@@ -13,7 +13,7 @@ function Harness() {
 }
 
 async function openPanel(user: UserEvent): Promise<void> {
-  const trigger = document.getElementById('pick')
+  const trigger = document.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]')
   if (!trigger) throw new Error('no trigger')
   await user.click(trigger)
 }
