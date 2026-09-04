@@ -10,6 +10,9 @@ func (c *Config) validate() error {
 	if c.DB.DSN == "" {
 		return fmt.Errorf("DATABASE_URL is required")
 	}
+	if c.Telegram.WebhookURL != "" && c.Telegram.WebhookSecret == "" {
+		return fmt.Errorf("TELEGRAM_WEBHOOK_SECRET is required when TELEGRAM_WEBHOOK_URL is set")
+	}
 	if c.App.Env != "dev" && c.Auth.JWTSecret == "dev-insecure-secret-change-me" {
 		return fmt.Errorf("JWT_SECRET is required outside the dev environment")
 	}

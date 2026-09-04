@@ -8204,6 +8204,29 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/telegram/webhook": {
+            "post": {
+                "description": "Consumes a one-time /start token and binds the Telegram chat to its Timeline account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "telegram"
+                ],
+                "summary": "Telegram linking webhook",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
         }
     },
     "definitions": {

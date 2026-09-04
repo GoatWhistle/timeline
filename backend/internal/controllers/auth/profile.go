@@ -19,6 +19,7 @@ type ProfileService interface {
 	Get(ctx context.Context, userID uuid.UUID) (*models.User, error)
 	Update(ctx context.Context, actor models.Actor, req dto.UpdateProfileRequest) (*models.User, error)
 	StartTelegramLink(ctx context.Context, actor models.Actor) (string, time.Time, error)
+	CompleteTelegramLink(ctx context.Context, token, chatID string, username *string) error
 	UnlinkTelegram(ctx context.Context, actor models.Actor) error
 	UpdateShortcuts(ctx context.Context, actor models.Actor,
 		req dto.UpdateShortcutsRequest) (*models.User, error)

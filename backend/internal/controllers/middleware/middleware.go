@@ -110,7 +110,7 @@ func CORS(origins []string) func(http.Handler) http.Handler {
 
 func CSRF(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if safeMethod(r.Method) {
+		if safeMethod(r.Method) || r.URL.Path == "/api/v1/telegram/webhook" {
 			next.ServeHTTP(w, r)
 			return
 		}
