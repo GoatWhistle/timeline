@@ -73,7 +73,7 @@ function listHeightRule(): string {
 }
 
 beforeAll(async () => {
-  await i18n.changeLanguage('ru')
+  await i18n.changeLanguage('en')
   setTimeZone('Europe/Moscow')
 })
 
@@ -154,7 +154,7 @@ describe('timestamps follow the rest of the app', () => {
     await openPanel(user)
 
     const stamp = document.querySelector('time') as HTMLElement
-    expect(stamp.textContent ?? '').toMatch(/назад|через/)
+    expect(stamp.textContent ?? '').toMatch(/ago|in /)
   })
 
   it('keeps the exact moment reachable through the title, in the profile zone', async () => {
@@ -162,7 +162,7 @@ describe('timestamps follow the rest of the app', () => {
     await openPanel(user)
 
     const stamp = document.querySelector('time') as HTMLElement
-    expect(stamp).toHaveAttribute('title', '3 сентября 2026, 14:43')
+    expect(stamp).toHaveAttribute('title', '3 September 2026, 14:43')
     expect(stamp).toHaveAttribute('dateTime', QUEUE.created_at)
   })
 
@@ -172,7 +172,7 @@ describe('timestamps follow the rest of the app', () => {
     await openPanel(user)
 
     const stamp = document.querySelector('time') as HTMLElement
-    expect(stamp).toHaveAttribute('title', '3 сентября 2026, 20:43')
+    expect(stamp).toHaveAttribute('title', '3 September 2026, 20:43')
     setTimeZone('Europe/Moscow')
   })
 })

@@ -143,7 +143,7 @@ describe('the schedule under grayscale', () => {
 
     expect(selected).toHaveAttribute('data-selected', 'true')
     expect(selected).toHaveAttribute('aria-current', 'true')
-    expect(selected?.textContent).toMatch(/выделено|selected/i)
+    expect(selected?.textContent).toMatch(/selected/i)
   })
 
   it('carries no hardcoded colour of its own on a bar', () => {

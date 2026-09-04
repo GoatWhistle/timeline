@@ -124,7 +124,7 @@ describe('the phone surfaces keep the rules the screen cannot show a test', () =
     }
 
     renderWithProviders(<Harness />)
-    const trigger = screen.getByRole('button', { name: /Filters|Фильтры/ })
+    const trigger = screen.getByRole('button', { name: /Filters/ })
     await userEvent.click(trigger)
     await screen.findByRole('dialog')
 

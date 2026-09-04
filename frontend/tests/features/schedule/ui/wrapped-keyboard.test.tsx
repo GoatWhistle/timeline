@@ -61,14 +61,14 @@ describe('a keyboard user reaches the bars of a wrapped grid', () => {
     const carrying = days(container).find((day) => Number(day.dataset.scheduleDayBars) > 0)
 
     expect(carrying).toBeDefined()
-    expect(carrying?.getAttribute('aria-label')).toMatch(/событ|event/i)
+    expect(carrying?.getAttribute('aria-label')).toMatch(/event/i)
   })
 
   it('tells the day cell that Enter reaches its bars', () => {
     const { container } = renderMonth()
     const carrying = days(container).find((day) => Number(day.dataset.scheduleDayBars) > 0)
 
-    expect(carrying?.getAttribute('aria-label')).toMatch(/полоск|bars of the day/i)
+    expect(carrying?.getAttribute('aria-label')).toMatch(/bars of the day/i)
   })
 
   it('says nothing about bars on a day that carries none', () => {
@@ -76,7 +76,7 @@ describe('a keyboard user reaches the bars of a wrapped grid', () => {
     const empty = days(container).find((day) => day.dataset.scheduleDayBars === '0')
 
     expect(empty).toBeDefined()
-    expect(empty?.getAttribute('aria-label')).not.toMatch(/полоск|bars of the day/i)
+    expect(empty?.getAttribute('aria-label')).not.toMatch(/bars of the day/i)
   })
 
   it('moves focus from the day cell into its first bar on Enter', async () => {

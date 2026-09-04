@@ -17,18 +17,28 @@ tracked_and_new() {
 current() {
   tracked_and_new \
     | grep -vE '^(docs/|frontend/src/shared/i18n/|backend/internal/locale/messages/)' \
+    | grep -vE '^(CLAUDE|TODO)\.md$' \
     | grep -vE '[.](png|jpg|jpeg|gif|svg|ico|woff2?|ttf|otf|lock)$' \
     | grep -v '\.gen\.' \
     | grep -v 'schema\.d\.ts' \
     | grep -v 'swagger\.' \
     | grep -v '^backend/docs/' \
-    | while read -r file; do
-        [ -f "$file" ] || continue
-        hits=$(LC_ALL=C.UTF-8 grep -cP '\p{Cyrillic}' "$file" 2>/dev/null || true)
-        if [ -n "$hits" ] && [ "$hits" -gt 0 ]; then
-          printf '%s %s\n' "$hits" "$file"
-        fi
+    | while IFS= read -r file; do
+        [ -f "$file" ] && printf '%s\n' "$file"
       done \
+    | LC_ALL=C.UTF-8 xargs -d '\n' -r sh -c 'grep -cHP "\p{Cyrillic}" -- "$@" || [ $? -eq 1 ]' sh \
+    | awk '
+        {
+          pos = 0
+          for (i = length($0); i > 0; i--) {
+            if (substr($0, i, 1) == ":") { pos = i; break }
+          }
+          if (pos == 0) next
+          file = substr($0, 1, pos - 1)
+          hits = substr($0, pos + 1)
+          if (hits + 0 > 0) printf "%s %s\n", hits, file
+        }
+      ' \
     | sort -k2
 }
 
@@ -49,16 +59,27 @@ fi
 
 failed=0
 
-while read -r hits file; do
-  base=$(awk -v f="$file" '$2 == f { print $1 }' "$BASELINE")
-  if [ -z "$base" ]; then
-    echo "Cyrillic in a new file: $file ($hits lines)" >&2
-    failed=1
-  elif [ "$hits" -gt "$base" ]; then
-    echo "more Cyrillic than before: $file ($base -> $hits)" >&2
-    failed=1
-  fi
-done < <(current)
+report=$(current | awk '
+  NR == FNR {
+    if ($0 ~ /^#/ || NF == 0) next
+    base[$2] = $1
+    next
+  }
+  {
+    if (!($2 in base)) {
+      printf "Cyrillic in a new file: %s (%s lines)\n", $2, $1
+      next
+    }
+    if ($1 > base[$2]) {
+      printf "more Cyrillic than before: %s (%s -> %s)\n", $2, base[$2], $1
+    }
+  }
+' "$BASELINE" -)
+
+if [ -n "$report" ]; then
+  echo "$report" >&2
+  failed=1
+fi
 
 if [ "$failed" -ne 0 ]; then
   echo "" >&2

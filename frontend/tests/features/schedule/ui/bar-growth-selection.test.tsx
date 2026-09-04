@@ -104,7 +104,7 @@ describe('selecting an event marks it out among the rest', () => {
 
     const bar = container.querySelector('[data-schedule-item="e1"]')
     expect(bar).toHaveAttribute('aria-current', 'true')
-    expect(bar?.textContent).toMatch(/выделено|selected/i)
+    expect(bar?.textContent).toMatch(/selected/i)
   })
 
   it('leaves the unselected bars without the current marker', () => {

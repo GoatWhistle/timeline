@@ -91,7 +91,6 @@ describe('the team size is a named section and a slider with tick marks', () => 
     expect(document.getElementById('event-team-size-min-hint')).toBeNull()
     const region = within(section as HTMLElement)
     expect(region.queryByText(/member/i)).toBeNull()
-    expect(region.queryByText(/участник/i)).toBeNull()
     expect(region.queryByText(/1-10/)).toBeNull()
   })
 
@@ -137,7 +136,7 @@ describe('the kind choice carries no caption under it', () => {
     const options = choice.querySelectorAll('[data-kind-option]')
     expect(options).toHaveLength(2)
     for (const option of options) {
-      expect(option.textContent?.trim()).toMatch(/^(Hackathon|Meetup|Хакатон|Митап)$/)
+      expect(option.textContent?.trim()).toMatch(/^(Hackathon|Meetup)$/)
     }
   })
 

@@ -30,7 +30,7 @@ describe('paging the calendar keeps a tab stop in the grid', () => {
 
     expect(tabbableDays()).toHaveLength(1)
 
-    const next = screen.getByRole('button', { name: /next month|следующий месяц/i })
+    const next = screen.getByRole('button', { name: /next month/i })
     await user.click(next)
     expect(tabbableDays()).toHaveLength(1)
     await user.click(next)
@@ -43,7 +43,7 @@ describe('paging the calendar keeps a tab stop in the grid', () => {
     const user = userEvent.setup()
     renderPanel()
 
-    const previous = screen.getByRole('button', { name: /previous month|предыдущий месяц/i })
+    const previous = screen.getByRole('button', { name: /previous month/i })
     await user.click(previous)
     await user.click(previous)
     await user.click(previous)
@@ -55,7 +55,7 @@ describe('paging the calendar keeps a tab stop in the grid', () => {
     const user = userEvent.setup()
     renderPanel()
 
-    const next = screen.getByRole('button', { name: /next month|следующий месяц/i })
+    const next = screen.getByRole('button', { name: /next month/i })
     await user.click(next)
     await user.click(next)
 

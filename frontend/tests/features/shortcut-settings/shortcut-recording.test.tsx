@@ -132,7 +132,7 @@ describe('save, cancel and revert while recording', () => {
 
     const wipesEverything = screen
       .getAllByRole('button')
-      .filter((button) => /all|всё|все/i.test(button.textContent ?? ''))
+      .filter((button) => /all/i.test(button.textContent ?? ''))
 
     expect(wipesEverything).toEqual([])
   })
