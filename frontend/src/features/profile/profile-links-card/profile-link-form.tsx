@@ -80,7 +80,7 @@ export function ProfileLinkForm({
               href={url}
               className={cn(
                 '-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 text-muted-foreground',
-                'motion-safe:transition-colors motion-safe:duration-base motion-safe:ease-out',
+                'transition-colors duration-base ease-out',
                 detected !== null && 'text-foreground',
               )}
             />

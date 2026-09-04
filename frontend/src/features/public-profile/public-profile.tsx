@@ -5,6 +5,7 @@ import { fullName } from '@/entities/user/person-name/person-name'
 import { UserAvatar } from '@/entities/user/user-avatar/user-avatar'
 import { api, unwrap } from '@/shared/api/client'
 import type { PublicProfileResponse } from '@/shared/api/types.gen'
+import { formatDate } from '@/shared/datetime/datetime'
 import { useLocale } from '@/shared/i18n/i18n-context'
 import { profileNickname } from '@/shared/routing/public-profile-path'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
@@ -71,7 +72,7 @@ export function PublicProfilePage() {
                 <li key={event.id} className="flex flex-col">
                   <span className="font-medium text-copy">{event.title}</span>
                   <span className="text-caption text-muted-foreground">
-                    {new Date(event.start_at).toLocaleDateString(locale)}
+                    {formatDate(event.start_at, locale)}
                   </span>
                 </li>
               ))}

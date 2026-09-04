@@ -90,7 +90,7 @@ describe('every group of picture-and-label choices is built the same way', () =>
   it.each(GROUPS)('$name eases the selected look in with a property that exists', (group) => {
     group.mount()
     const chosen = selectedOption(group.attribute)
-    const eased = chosen.className.match(/motion-safe:transition-\[([^\]]+)\]/)?.[1]
+    const eased = chosen.className.match(/(?:motion-safe:)?transition-\[([^\]]+)\]/)?.[1]
     expect(eased, `${group.name} declares no transition property list`).toBeDefined()
 
     const CSS_PROPERTIES = new Set([
