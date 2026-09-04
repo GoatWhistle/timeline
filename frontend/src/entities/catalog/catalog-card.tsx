@@ -136,7 +136,7 @@ export function CatalogCard({
             'absolute top-3 right-3 flex size-11 items-center justify-center rounded-control',
             'sm:top-4 sm:right-4 sm:size-7',
             'border border-border bg-card/90 text-muted-foreground backdrop-blur-sm',
-            'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
+            'transition-colors duration-instant ease-out',
             'hover:bg-accent-surface hover:text-accent-surface-foreground',
             'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring',
           )}

@@ -66,8 +66,8 @@ export function EventStageNav({
                   aria-hidden="true"
                   className={cn(
                     'flex size-6 shrink-0 items-center justify-center rounded-pill border text-caption tabular-nums',
-                    'motion-safe:transition-[color,background-color,border-color]',
-                    'motion-safe:duration-base motion-safe:ease-out',
+                    'transition-[color,background-color,border-color]',
+                    'duration-base ease-out',
                     done && 'border-primary bg-primary text-primary-foreground',
                     !done && active && 'border-primary text-primary',
                     !done && !active && 'border-border',

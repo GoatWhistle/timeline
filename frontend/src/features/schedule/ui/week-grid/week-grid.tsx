@@ -128,6 +128,7 @@ export function WeekGrid({
           days={days}
           barHeight={WEEK_BAND_BAR}
           label={t('schedule.allDay')}
+          shortLabel={t('schedule.allDayShort')}
           emptyLabel={t('schedule.allDayEmpty')}
           selectedId={selectedId}
           sentenceOf={sentenceOf}

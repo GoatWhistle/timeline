@@ -27,7 +27,7 @@ export function RangeTickMarks({ bounds, value }: { bounds: RangeBounds; value: 
             style={{ left: `${ratioOf(tick, bounds) * 100}%` }}
             className={cn(
               '-translate-x-1/2 absolute top-1/2 size-1 -translate-y-1/2 rounded-pill',
-              'motion-safe:transition-colors motion-safe:duration-base motion-safe:ease-out',
+              'transition-colors duration-base ease-out',
               inside ? 'bg-primary-foreground/70' : 'bg-border-strong',
             )}
           />
@@ -50,7 +50,7 @@ export function RangeTickLabels({ bounds, value }: { bounds: RangeBounds; value:
             style={{ left: `${ratioOf(tick, bounds) * 100}%` }}
             className={cn(
               '-translate-x-1/2 absolute top-0 min-w-4 text-center text-caption tabular-nums',
-              'motion-safe:transition-colors motion-safe:duration-base motion-safe:ease-out',
+              'transition-colors duration-base ease-out',
               inside ? 'font-medium text-foreground' : 'text-muted-foreground',
             )}
           >

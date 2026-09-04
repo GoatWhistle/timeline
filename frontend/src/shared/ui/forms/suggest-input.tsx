@@ -119,7 +119,7 @@ export function SuggestInput({
             data-active={index === active ? 'true' : undefined}
             className={cn(
               'block w-full cursor-pointer truncate px-3 py-1.5 text-left text-copy',
-              'motion-safe:transition-colors motion-safe:duration-fast motion-safe:ease-out',
+              'transition-colors duration-fast ease-out',
               index === active ? 'bg-accent-surface text-foreground' : 'text-muted-foreground',
             )}
             onMouseDown={() => {

@@ -139,7 +139,7 @@ describe('the hour grid places and sizes a meetup by its real time', () => {
 describe('the week view stays reachable and legible', () => {
   it('names the all-day band so its purpose is not left to layout alone', () => {
     renderWeek([])
-    expect(screen.getByText(/all day/i)).toBeInTheDocument()
+    expect(screen.getByText('All day and multi-day')).toBeInTheDocument()
   })
 
   it('opens an event on Enter, so the keyboard is not left behind by the double click', async () => {

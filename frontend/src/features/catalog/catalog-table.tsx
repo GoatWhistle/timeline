@@ -89,7 +89,7 @@ export function CatalogTable({
                       className={cn(
                         'inline-flex items-center gap-1',
                         TOUCH_REACH,
-                        'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
+                        'transition-colors duration-instant ease-out',
                         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
                         active ? 'text-foreground' : 'hover:text-foreground',
                       )}

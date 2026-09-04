@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 import { LogoMark } from './logo-mark'
 import styles from './wordmark.module.css'
 
@@ -52,7 +53,7 @@ export function Wordmark({ className, to }: WordmarkProps) {
       <span
         data-travelling={travelling}
         onPointerDown={() => play()}
-        className={cn(styles.link, className)}
+        className={cn(styles.link, TOUCH_REACH, className)}
       >
         {content}
       </span>
@@ -70,7 +71,7 @@ export function Wordmark({ className, to }: WordmarkProps) {
       href={to}
       onClick={onClick}
       data-travelling={travelling}
-      className={cn(styles.link, className)}
+      className={cn(styles.link, TOUCH_REACH, className)}
     >
       {content}
     </a>

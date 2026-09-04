@@ -1,6 +1,7 @@
 {
   "schedule": {
     "allDay": "Весь день и несколько дней",
+    "allDayShort": "Весь день",
     "allDayEmpty": "На этой неделе событий на весь день нет",
     "allParticipants": "Все участники",
     "allStates": "Все состояния",

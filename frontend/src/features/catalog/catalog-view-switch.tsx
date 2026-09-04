@@ -34,7 +34,7 @@ export function CatalogViewSwitch({
             onClick={() => onLayout(value)}
             className={cn(
               'flex size-7 items-center justify-center rounded-control pointer-coarse:size-11',
-              'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
+              'transition-colors duration-instant ease-out',
               'focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-ring',
               active
                 ? 'bg-accent-surface text-accent-surface-foreground'

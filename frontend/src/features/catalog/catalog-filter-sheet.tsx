@@ -50,7 +50,7 @@ function ChoiceGroup({
               className={cn(
                 'flex items-center justify-center rounded-control border px-4 text-copy',
                 TAP_TARGET,
-                'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
+                'transition-colors duration-instant ease-out',
                 'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
                 active
                   ? 'border-ring bg-accent-surface text-accent-surface-foreground'

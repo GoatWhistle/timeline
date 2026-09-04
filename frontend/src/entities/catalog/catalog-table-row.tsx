@@ -135,7 +135,7 @@ export function CatalogTableRow({
       onClick={() => onSelect(event.id)}
       className={cn(
         'cursor-pointer border-border/60 border-b',
-        'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
+        'transition-colors duration-instant ease-out',
         'focus-within:bg-surface-2',
         selected ? 'bg-accent-surface' : 'hover:bg-surface-2',
       )}

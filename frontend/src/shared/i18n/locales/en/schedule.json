@@ -1,6 +1,7 @@
 {
   "schedule": {
     "allDay": "All day and multi-day",
+    "allDayShort": "All day",
     "allDayEmpty": "No all-day events this week",
     "allParticipants": "All participants",
     "allStates": "All states",

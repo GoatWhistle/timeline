@@ -36,6 +36,18 @@ export function teamEventsQuery(teamId: string) {
   })
 }
 
+export function teamEventEntryQuery(teamId: string, eventId: string) {
+  return queryOptions<TeamEventEntryResponse>({
+    queryKey: ['team-event', teamId, eventId],
+    queryFn: () =>
+      unwrap(
+        api.GET('/teams/{id}/events/{event_id}', {
+          params: { path: { id: teamId, event_id: eventId } },
+        }),
+      ),
+  })
+}
+
 function useInvalidateTeams() {
   const queryClient = useQueryClient()
   return (teamId?: string) => {
@@ -43,6 +55,7 @@ function useInvalidateTeams() {
     if (teamId === undefined) return
     queryClient.invalidateQueries({ queryKey: ['team', teamId] })
     queryClient.invalidateQueries({ queryKey: ['team-events', teamId] })
+    queryClient.invalidateQueries({ queryKey: ['team-event', teamId] })
   }
 }
 

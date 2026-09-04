@@ -2,6 +2,8 @@ export const PHONE_MAX_WIDTH = 768
 
 export const PHONE_QUERY = `(max-width: ${PHONE_MAX_WIDTH - 1}px)`
 
+export const TOUCH_QUERY = '(pointer: coarse)'
+
 export const SAFE_TOP = 'safe-pt'
 
 export const SAFE_BOTTOM = 'safe-pb'

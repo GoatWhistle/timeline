@@ -11,6 +11,7 @@ export type WeekBandProps = {
   days: readonly Date[]
   barHeight: number
   label: string
+  shortLabel: string
   emptyLabel: string
   selectedId?: string
   sentenceOf: (span: CalendarSpan) => string
@@ -25,6 +26,7 @@ export function WeekBand({
   days,
   barHeight,
   label,
+  shortLabel,
   emptyLabel,
   selectedId,
   sentenceOf,
@@ -59,7 +61,10 @@ export function WeekBand({
         if (event.target === event.currentTarget) onClear()
       }}
     >
-      <span className={styles.bandLabel}>{label}</span>
+      <span className={styles.bandLabel}>
+        <span aria-hidden="true">{shortLabel}</span>
+        <span className="sr-only">{label}</span>
+      </span>
 
       <div className={styles.bandScroll} style={{ maxHeight: viewport }}>
         <div className={styles.bandLanes} style={{ height }}>
