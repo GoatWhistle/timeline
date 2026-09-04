@@ -1,0 +1,134 @@
+name: timeline
+
+x-backend-env: &backend-env
+  DATABASE_URL: postgres://${POSTGRES_USER:-timeline}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-timeline}?sslmode=disable
+  HTTP_ADDR: ":8080"
+  LOG_FORMAT: ${LOG_FORMAT:-json}
+  LOG_COLOR: never
+  PUBLIC_URL: ${PUBLIC_URL}
+  CORS_ALLOWED_ORIGINS: ${PUBLIC_URL}
+  FIRST_ADMIN_EMAIL: ${ADMIN_EMAIL}
+  FIRST_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+  FIRST_ADMIN_NAME: ${ADMIN_NAME:-Administrator}
+  FIRST_ADMIN_NICKNAME: ${ADMIN_NICKNAME:-administrator}
+  AVATAR_STORAGE_ROOT: /var/lib/timeline/avatars
+  COVER_STORAGE_ROOT: /var/lib/timeline/covers
+
+x-backend: &backend
+  image: kaifarikmaninfuture/timeline-backend:${IMAGE_TAG:-latest}
+  pull_policy: always
+  env_file:
+    - .env
+  environment: *backend-env
+  volumes:
+    - avatars:/var/lib/timeline/avatars
+    - covers:/var/lib/timeline/covers
+  networks:
+    - timeline
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    pull_policy: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-timeline}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-timeline}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-timeline} -d ${POSTGRES_DB:-timeline}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - timeline
+
+  migrations:
+    <<: *backend
+    command: ["migrate", "up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  bootstrap:
+    <<: *backend
+    command: ["admin", "create"]
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+    restart: "no"
+
+  backend:
+    <<: *backend
+    command: ["serve"]
+    environment:
+      <<: *backend-env
+      DATABASE_APP_ROLE: ${DATABASE_APP_ROLE:-timeline_app}
+    depends_on:
+      bootstrap:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  worker:
+    <<: *backend
+    command: ["worker"]
+    environment:
+      <<: *backend-env
+      DATABASE_APP_ROLE: ${DATABASE_APP_ROLE:-timeline_app}
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  frontend:
+    image: kaifarikmaninfuture/timeline-frontend:${IMAGE_TAG:-latest}
+    pull_policy: always
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/nginx-health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - timeline
+
+  caddy:
+    image: caddy:2.10-alpine
+    pull_policy: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - timeline
+
+volumes:
+  pgdata:
+  avatars:
+  covers:
+  caddy_data:
+  caddy_config:
+
+networks:
+  timeline:
+    driver: bridge
