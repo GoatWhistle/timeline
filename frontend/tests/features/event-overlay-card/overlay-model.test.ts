@@ -105,6 +105,19 @@ describe('overlay model', () => {
     expect(card.status).toBeNull()
   })
 
+  it('carries the deadline and the status a joined catalog event already answers with', () => {
+    const card = fromCatalogEvent({
+      ...catalogEvent,
+      joined: true,
+      registration_deadline: '2026-10-20T12:00:00Z',
+      registration_status: { id: 'rs_2', status: 'TODO', todo_cycle: 1 },
+    })
+
+    expect(card.deadlineAt).toBe('2026-10-20T12:00:00Z')
+    expect(card.status).toBe('TODO')
+    expect(card.joined).toBe(true)
+  })
+
   it('reads the colour from the API rather than deriving one', () => {
     expect(fromCatalogEvent({ ...catalogEvent, color: undefined }).color).toBeNull()
     expect(

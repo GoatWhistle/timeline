@@ -23,6 +23,7 @@ const (
 	MissingTaskID   = "tk_zzzzzzzzzzzz"
 	MissingStatusID = "rs_zzzzzzzzzzzz"
 	MissingRuleID   = "nr_zzzzzzzzzzzz"
+	MissingTrackID  = "tr_zzzzzzzzzzzz"
 	MissingSessID   = "se_zzzzzzzzzzzz"
 )
 

@@ -20,7 +20,6 @@ type patchedEvent struct {
 	Origin        string  `json:"origin"`
 	CountryCode   *string `json:"country_code"`
 	City          *string `json:"city"`
-	Track         *string `json:"track"`
 	PrizePool     *string `json:"prize_pool"`
 	PrizeCurrency *string `json:"prize_currency"`
 	TeamSizeMin   *int    `json:"team_size_min"`
@@ -43,7 +42,6 @@ func TestEventPatchWritesEveryFieldToItsOwnColumn(t *testing.T) {
 		"origin":         "WORLD",
 		"country_code":   "DE",
 		"city":           "Berlin",
-		"track":          "A track no other field carries",
 		"prize_pool":     "1234.56",
 		"prize_currency": "EUR",
 		"team_size_min":  2,
@@ -64,7 +62,6 @@ func TestEventPatchWritesEveryFieldToItsOwnColumn(t *testing.T) {
 	requireText(t, "origin", &got.Origin, "WORLD")
 	requireText(t, "country_code", got.CountryCode, "DE")
 	requireText(t, "city", got.City, "Berlin")
-	requireText(t, "track", got.Track, "A track no other field carries")
 	requireText(t, "prize_pool", got.PrizePool, "1234.56")
 	requireText(t, "prize_currency", got.PrizeCurrency, "EUR")
 	requireNumber(t, "team_size_min", got.TeamSizeMin, 2)

@@ -9,6 +9,7 @@ import {
 } from '@/entities/audit/audit.labels'
 import { auditQuery } from '@/entities/audit/audit.queries'
 import type { AuditAction, AuditResponse, EntityType } from '@/shared/api/types.gen'
+import { dayEndIso, dayStartIso } from '@/shared/datetime/civil'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { AuditFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
@@ -68,8 +69,8 @@ export function AdminAuditPage() {
       page,
       ...(filters.action !== ALL ? { action: filters.action as AuditAction } : {}),
       ...(filters.entity !== ALL ? { entity_type: filters.entity as EntityType } : {}),
-      ...(filters.from ? { from: new Date(filters.from).toISOString() } : {}),
-      ...(filters.to ? { to: new Date(filters.to).toISOString() } : {}),
+      ...(dayStartIso(filters.from ?? '') ? { from: dayStartIso(filters.from ?? '') } : {}),
+      ...(dayEndIso(filters.to ?? '') ? { to: dayEndIso(filters.to ?? '') } : {}),
     }),
   )
 

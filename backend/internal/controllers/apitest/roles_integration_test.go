@@ -67,6 +67,11 @@ func adminRoutes(f support.Fixture) []adminRoute {
 		{"upcoming query", http.MethodGet, "/admin/queries/upcoming", nil},
 		{"overdue query", http.MethodGet, "/admin/queries/overdue", nil},
 		{"audit log", http.MethodGet, "/admin/audit", nil},
+		{"track creation", http.MethodPost, "/admin/events/" + event + "/tracks",
+			map[string]any{"name": "Injected", "prizes": []map[string]any{{"place": 1, "amount": "1"}}}},
+		{"track update", http.MethodPatch, "/admin/tracks/" + support.MissingTrackID,
+			map[string]any{"name": "Injected"}},
+		{"track deletion", http.MethodDelete, "/admin/tracks/" + support.MissingTrackID, nil},
 	}
 }
 
@@ -120,6 +125,12 @@ func TestAdministrativeStateSurvivesRefusedParticipantAttempts(t *testing.T) {
 	}
 	if !support.ContainsAll(string(roster.Body), `"status":"TODO"`) {
 		t.Fatalf("a refused participant request changed a status: %s", roster.Body)
+	}
+
+	tracks := f.AdminClient.Get("/events/" + f.EventID + "/tracks")
+	support.RequireStatus(t, tracks, http.StatusOK, "reading the tracks after the attempts")
+	if support.ContainsAll(string(tracks.Body), "Injected") {
+		t.Fatalf("a refused participant request created a track: %s", tracks.Body)
 	}
 
 	users := f.AdminClient.Get("/admin/users")

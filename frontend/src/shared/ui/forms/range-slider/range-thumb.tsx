@@ -37,7 +37,7 @@ export function RangeThumb({
       aria-describedby={describedBy}
       aria-orientation="horizontal"
       onKeyDown={(event) => {
-        const target = keyTarget(event.key, handle, value, bounds)
+        const target = keyTarget(event.key, handle, value, bounds, event.shiftKey)
         if (target === null) return
         event.preventDefault()
         onMove(handle, target)

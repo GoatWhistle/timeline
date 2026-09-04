@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { text } from '@tests/support/dictionaries'
 import { renderWithProviders } from '@tests/support/render'
 import { Route, Routes } from 'react-router'
@@ -82,9 +82,9 @@ describe('an address with @ is still a profile', () => {
     'does not render the not-found page at %s',
     async (route) => {
       await renderAt(route)
-      await waitFor(() => {
-        expect(document.body.textContent).not.toBe('')
-      })
+      expect(
+        await screen.findByRole('heading', { name: profileMissingTitle('ru') }, { timeout: 10000 }),
+      ).toBeInTheDocument()
       expect(screen.queryByRole('heading', { name: notFoundTitle('ru') })).not.toBeInTheDocument()
     },
   )

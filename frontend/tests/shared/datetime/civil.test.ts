@@ -4,6 +4,8 @@ import {
   civilToIso,
   compareCivil,
   compareCivilDates,
+  dayEndIso,
+  dayStartIso,
   isCivil,
   isCivilDate,
   isCivilTime,
@@ -117,5 +119,34 @@ describe('the zone is stated, never assumed', () => {
     setTimeZone('Europe/Berlin')
     expect(zoneOffsetLabel({ date: '2026-01-15', time: '10:00' })).toBe('GMT+1')
     expect(zoneOffsetLabel({ date: '2026-07-15', time: '10:00' })).toBe('GMT+2')
+  })
+})
+
+describe('a chosen day becomes a range in the profile timezone', () => {
+  it('opens the day at midnight of the profile zone, not the browser zone', () => {
+    setTimeZone('Europe/Moscow')
+    expect(dayStartIso('2026-09-04')).toBe('2026-09-03T21:00:00.000Z')
+
+    setTimeZone('UTC')
+    expect(dayStartIso('2026-09-04')).toBe('2026-09-04T00:00:00.000Z')
+  })
+
+  it('closes the day at its own end so the chosen day is not dropped', () => {
+    setTimeZone('UTC')
+    const end = dayEndIso('2026-09-04')
+
+    expect(end).toBe('2026-09-04T23:59:00.000Z')
+    expect(end && end > '2026-09-04T00:00:00.000Z').toBe(true)
+  })
+
+  it('closes the day in the profile zone too', () => {
+    setTimeZone('Europe/Moscow')
+    expect(dayEndIso('2026-09-04')).toBe('2026-09-04T20:59:00.000Z')
+  })
+
+  it('answers with nothing for an empty or malformed day', () => {
+    expect(dayStartIso('')).toBeUndefined()
+    expect(dayEndIso('')).toBeUndefined()
+    expect(dayStartIso('2026-13-01')).toBeUndefined()
   })
 })

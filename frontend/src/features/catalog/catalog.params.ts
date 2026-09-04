@@ -1,4 +1,5 @@
 import type { CatalogParams } from '@/entities/catalog/catalog.queries'
+import { dayEndIso, dayStartIso } from '@/shared/datetime/civil'
 
 export const CATALOG_DEFAULTS = {
   origin: '',
@@ -37,13 +38,9 @@ export function joinedParam(value: string): boolean | undefined {
 }
 
 export function startOfDay(value: string): string | undefined {
-  if (value === '') return undefined
-  const parsed = new Date(`${value}T00:00:00`)
-  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString()
+  return dayStartIso(value)
 }
 
 export function endOfDay(value: string): string | undefined {
-  if (value === '') return undefined
-  const parsed = new Date(`${value}T23:59:59.999`)
-  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString()
+  return dayEndIso(value)
 }

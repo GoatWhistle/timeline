@@ -5,6 +5,7 @@ import { todayInZone } from './calendar-labels'
 import { type CalendarCommand, resolveKey } from './keyboard-move'
 import {
   type CalendarMonth,
+  clampToMonth,
   type DayBounds,
   monthOf,
   nearestAllowed,
@@ -54,8 +55,14 @@ export function useCalendar({
   )
 
   const stepMonth = useCallback(
-    (amount: number) => setMonth((current) => shiftMonth(current, amount)),
-    [],
+    (amount: number) => {
+      setMonth((current) => {
+        const next = shiftMonth(current, amount)
+        setFocused((date) => nearestAllowed(clampToMonth(date, next), bounds))
+        return next
+      })
+    },
+    [bounds],
   )
 
   return { today, focused, month, moveTo, stepMonth, handleKeyDown }

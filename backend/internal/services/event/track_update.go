@@ -48,14 +48,8 @@ func (s *TrackService) Update(ctx context.Context, actor models.Actor, id uuid.U
 		if err != nil {
 			return err
 		}
-		if req.SetPrizes {
-			others, err := s.tracks.DistributedTotal(ctx, before.EventID, &id)
-			if err != nil {
-				return err
-			}
-			if err := checkPoolCoverage(target.PrizePool, others, total); err != nil {
-				return err
-			}
+		if err := s.checkTrackPool(ctx, target, before.EventID, id, req.SetPrizes, total); err != nil {
+			return err
 		}
 		if err := s.reorderTrackNo(ctx, before, req.TrackNo); err != nil {
 			return err
@@ -64,13 +58,7 @@ func (s *TrackService) Update(ctx context.Context, actor models.Actor, id uuid.U
 		if err != nil {
 			return err
 		}
-		if req.SetPrizes {
-			updated.Prizes, err = s.tracks.ReplacePrizes(ctx, id, before.EventID, prizes)
-		} else {
-			current, listErr := s.tracks.ListByEvent(ctx, before.EventID)
-			err = listErr
-			updated.Prizes = prizesOf(current, id)
-		}
+		updated.Prizes, err = s.settleTrackPrizes(ctx, before.EventID, id, req.SetPrizes, prizes)
 		if err != nil {
 			return err
 		}
@@ -169,5 +157,43 @@ func (s *TrackService) reorderTrackNo(ctx context.Context, before *models.EventT
 	if err := s.tracks.ParkTrackNo(ctx, before.EventID, before.ID); err != nil {
 		return err
 	}
-	return s.tracks.SetTrackNo(ctx, occupant, before.TrackNo)
+	if err := s.tracks.SetTrackNo(ctx, occupant, before.TrackNo); err != nil {
+		return err
+	}
+	return s.tracks.SetTrackNo(ctx, before.ID, *trackNo)
+}
+
+func (s *TrackService) swapWithOccupant(ctx context.Context, before *models.EventTrack,
+	occupant uuid.UUID, trackNo int) error {
+	if err := s.tracks.ParkTrackNo(ctx, before.EventID, before.ID); err != nil {
+		return err
+	}
+	if err := s.tracks.SetTrackNo(ctx, occupant, before.TrackNo); err != nil {
+		return err
+	}
+	return s.tracks.SetTrackNo(ctx, before.ID, trackNo)
+}
+
+func (s *TrackService) checkTrackPool(ctx context.Context, target *models.Event,
+	eventID, id uuid.UUID, setPrizes bool, total int64) error {
+	if !setPrizes {
+		return nil
+	}
+	others, err := s.tracks.DistributedTotal(ctx, eventID, &id)
+	if err != nil {
+		return err
+	}
+	return checkPoolCoverage(target.PrizePool, others, total)
+}
+
+func (s *TrackService) settleTrackPrizes(ctx context.Context, eventID, id uuid.UUID,
+	setPrizes bool, prizes []models.TrackPrize) ([]models.TrackPrize, error) {
+	if setPrizes {
+		return s.tracks.ReplacePrizes(ctx, id, eventID, prizes)
+	}
+	current, err := s.tracks.ListByEvent(ctx, eventID)
+	if err != nil {
+		return nil, err
+	}
+	return prizesOf(current, id), nil
 }

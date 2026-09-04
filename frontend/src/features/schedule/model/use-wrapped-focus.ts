@@ -144,6 +144,7 @@ export function useWrappedFocus({
       if (action.type === 'stepBar') {
         const found = barsOfDay(container.current, dayKey(cursor))
         const at = found.findIndex((element) => element.dataset.scheduleItem === id)
+        if (at === -1) return
         const next = found[at + action.delta]
         if (!next) return
         event.preventDefault()

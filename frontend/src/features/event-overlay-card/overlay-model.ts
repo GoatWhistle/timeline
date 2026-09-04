@@ -70,8 +70,8 @@ export function fromCatalogEvent(event: CatalogEvent): OverlayCard {
     state: event.state,
     startAt: event.start_at,
     endAt: event.end_at,
-    deadlineAt: null,
-    status: null,
+    deadlineAt: event.registration_deadline ?? null,
+    status: event.registration_status?.status ?? null,
     stages: event.offline_stages.map((stage) => ({
       id: stage.id,
       name: stage.name,

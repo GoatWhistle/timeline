@@ -44,10 +44,11 @@ export function keyTarget(
   handle: RangeHandle,
   value: RangeValue,
   bounds: RangeBounds,
+  shiftKey = false,
 ): number | null {
   if (key === 'Home') return bounds.min
   if (key === 'End') return bounds.max
-  const step = keyStep(key, false, bounds)
+  const step = keyStep(key, shiftKey, bounds)
   if (step === null) return null
   return (handle === 'low' ? value.low : value.high) + step
 }

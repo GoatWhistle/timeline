@@ -86,3 +86,13 @@ export function zoneOffsetLabel(value: Civil, zone = currentTimeZone()): string 
   }).formatToParts(at)
   return parts.find((part) => part.type === 'timeZoneName')?.value ?? ''
 }
+
+export function dayStartIso(date: string, zone = currentTimeZone()): string | undefined {
+  if (date === '') return undefined
+  return civilToIso({ date, time: '00:00' }, zone) ?? undefined
+}
+
+export function dayEndIso(date: string, zone = currentTimeZone()): string | undefined {
+  if (date === '') return undefined
+  return civilToIso({ date, time: '23:59' }, zone) ?? undefined
+}

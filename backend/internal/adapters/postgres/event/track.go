@@ -66,7 +66,8 @@ func (r *Tracks) ParkTrackNo(ctx context.Context, eventID uuid.UUID, id uuid.UUI
 		UPDATE event_tracks SET track_no = (
 			SELECT n FROM generate_series(1, 50) AS n
 			WHERE NOT EXISTS (
-				SELECT 1 FROM event_tracks WHERE event_id = $1 AND track_no = n
+				SELECT 1 FROM event_tracks
+				WHERE event_id = $1 AND track_no = n AND id <> $2
 			)
 			ORDER BY n LIMIT 1
 		) WHERE id = $2`, eventID, id)
