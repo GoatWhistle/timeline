@@ -17,17 +17,12 @@ import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { InviteMemberDialog } from './invite-member-dialog'
 import { memberStateTone } from './member-state'
+import { useTeamContext } from './team-context'
 
-export function TeamMembers({
-  teamId,
-  members,
-  isLead,
-}: {
-  teamId: string
-  members: TeamMemberResponse[]
-  isLead: boolean
-}) {
+export function TeamMembers() {
   const { t } = useTranslation('team')
+  const { teamId, detail, isLead } = useTeamContext()
+  const members = detail.members
   const [inviting, setInviting] = useState(false)
   const [pendingRemoval, setPendingRemoval] = useState<TeamMemberResponse | null>(null)
   const remove = useRemoveTeamMember(teamId)

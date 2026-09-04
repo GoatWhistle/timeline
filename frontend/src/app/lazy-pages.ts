@@ -48,8 +48,20 @@ export const SettingsPage = lazy(() =>
 export const TeamsPage = lazy(() =>
   import('@/features/teams/teams').then((m) => ({ default: m.TeamsPage })),
 )
-export const TeamDetailPage = lazy(() =>
-  import('@/features/teams/team-detail').then((m) => ({ default: m.TeamDetailPage })),
+export const TeamLayout = lazy(() =>
+  import('@/features/teams/team-layout').then((m) => ({ default: m.TeamLayout })),
+)
+export const TeamOverviewPage = lazy(() =>
+  import('@/features/teams/team-overview').then((m) => ({ default: m.TeamOverview })),
+)
+export const TeamMembersPage = lazy(() =>
+  import('@/features/teams/team-members').then((m) => ({ default: m.TeamMembers })),
+)
+export const TeamEventsPage = lazy(() =>
+  import('@/features/teams/team-events').then((m) => ({ default: m.TeamEvents })),
+)
+export const TeamEventDetailPage = lazy(() =>
+  import('@/features/teams/team-event-detail').then((m) => ({ default: m.TeamEventDetail })),
 )
 export const TeamJoinPage = lazy(() =>
   import('@/features/teams/team-join').then((m) => ({ default: m.TeamJoinPage })),

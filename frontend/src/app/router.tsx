@@ -24,8 +24,12 @@ import {
   RegisterPage,
   ResetPasswordPage,
   SettingsPage,
-  TeamDetailPage,
+  TeamEventDetailPage,
+  TeamEventsPage,
   TeamJoinPage,
+  TeamLayout,
+  TeamMembersPage,
+  TeamOverviewPage,
   TeamsPage,
   VerifyEmailPage,
 } from './lazy-pages'
@@ -115,7 +119,12 @@ export function AppRouter() {
               />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/teams" element={<TeamsPage />} />
-              <Route path="/teams/:id" element={<TeamDetailPage />} />
+              <Route path="/teams/:id" element={<TeamLayout />}>
+                <Route index element={<TeamOverviewPage />} />
+                <Route path="members" element={<TeamMembersPage />} />
+                <Route path="events" element={<TeamEventsPage />} />
+                <Route path="events/:eventId" element={<TeamEventDetailPage />} />
+              </Route>
               <Route path="/team-join/:token" element={<TeamJoinPage />} />
 
               <Route element={<RequireAdmin />}>

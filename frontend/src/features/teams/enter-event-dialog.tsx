@@ -3,8 +3,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { catalogQuery } from '@/entities/catalog/catalog.queries'
-import { useEnterEvent } from '@/entities/team/team.queries'
+import { teamEventsQuery, useEnterEvent } from '@/entities/team/team.queries'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
+import { cn } from '@/shared/styling/class-names/class-names'
 import { Input } from '@/shared/ui/forms/input'
 import { Label } from '@/shared/ui/forms/label'
 import {
@@ -15,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/ui/overlays/dialog'
+import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary } from '@/shared/ui/states'
 
@@ -36,6 +38,9 @@ export function EnterEventDialog({
     ...catalogQuery({ kind: 'HACKATHON', ...(debounced ? { search: debounced } : {}) }),
     enabled: open,
   })
+  const entered = useQuery(teamEventsQuery(teamId))
+
+  const enteredIds = new Set((entered.data?.items ?? []).map((entry) => entry.event_id))
 
   async function submit(eventId: string) {
     try {
@@ -75,18 +80,33 @@ export function EnterEventDialog({
           shape="unknown"
         >
           <ul className="flex max-h-80 flex-col gap-1 overflow-y-auto">
-            {(query.data?.items ?? []).map((item) => (
-              <li key={item.id}>
-                <Button
-                  variant="ghost"
-                  disabled={enter.isPending}
-                  onClick={() => submit(item.id)}
-                  className="h-auto w-full justify-start py-2 text-left"
-                >
-                  <span className="min-w-0 flex-1 truncate">{item.title}</span>
-                </Button>
-              </li>
-            ))}
+            {(query.data?.items ?? []).map((item) => {
+              const already = enteredIds.has(item.id)
+              return (
+                <li key={item.id}>
+                  <Button
+                    variant="ghost"
+                    aria-disabled={already || undefined}
+                    disabled={enter.isPending}
+                    onClick={() => {
+                      if (already) return
+                      submit(item.id)
+                    }}
+                    className={cn(
+                      'h-auto w-full justify-start gap-2 py-2 text-left',
+                      already && 'cursor-not-allowed opacity-60 hover:bg-transparent',
+                    )}
+                  >
+                    <span className="min-w-0 flex-1 truncate">{item.title}</span>
+                    {already && (
+                      <Badge tone="outline" className="shrink-0">
+                        {t('alreadyEntered')}
+                      </Badge>
+                    )}
+                  </Button>
+                </li>
+              )
+            })}
           </ul>
         </QueryBoundary>
 
