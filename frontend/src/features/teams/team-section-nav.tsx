@@ -23,7 +23,7 @@ const CELL = cn(
   'relative z-10 inline-flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap',
   'rounded-control px-3 font-medium text-copy',
   TOUCH_REACH,
-  'motion-safe:transition-colors motion-safe:duration-base motion-safe:ease-out',
+  'transition-colors duration-base ease-out',
   'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
 )
 

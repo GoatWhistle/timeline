@@ -6,8 +6,10 @@ import {
   REGISTRATION_STATUS_KEY,
   REGISTRATION_STATUS_SHAPE,
 } from '@/entities/registration/registration.labels'
+import { listName } from '@/entities/user/person-name/person-name'
 import type { ParticipantResponse } from '@/shared/api/types.gen'
 import { formatDate } from '@/shared/datetime/datetime'
+import { useLocale } from '@/shared/i18n/i18n-context'
 import {
   Table,
   TableBody,
@@ -42,6 +44,7 @@ export function ParticipantsTable({
   onReactivate: (item: ParticipantResponse) => void
 }) {
   const { t } = useTranslation('registration')
+  const { locale } = useLocale()
   return (
     <Table>
       <TableHeader>
@@ -65,14 +68,14 @@ export function ParticipantsTable({
           <TableRow key={item.id} data-state={selected.has(item.id) ? 'selected' : undefined}>
             <TableCell>
               <Checkbox
-                aria-label={t('participants.select', { name: item.user.display_name })}
+                aria-label={t('participants.select', { name: listName(item.user, locale) })}
                 disabled={item.participation_status !== 'ASSIGNED'}
                 checked={selected.has(item.id)}
                 onCheckedChange={(checked) => onToggleOne(item.id, checked === true)}
               />
             </TableCell>
             <TableCell>
-              <span className="font-medium">{item.user.display_name}</span>
+              <span className="font-medium">{listName(item.user, locale)}</span>
               <span className="ml-2 text-muted-foreground">{item.user.email}</span>
             </TableCell>
             <TableCell>{item.team_role}</TableCell>
@@ -102,14 +105,14 @@ export function ParticipantsTable({
             <TableCell>
               <div className="flex gap-1">
                 <EditAction
-                  label={t('participants.editRole', { name: item.user.display_name })}
+                  label={t('participants.editRole', { name: listName(item.user, locale) })}
                   onClick={() => onEdit(item)}
                 />
                 {item.participation_status === 'REMOVED' && (
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={t('participants.restore', { name: item.user.display_name })}
+                    aria-label={t('participants.restore', { name: listName(item.user, locale) })}
                     disabled={reactivatePending}
                     onClick={() => onReactivate(item)}
                   >

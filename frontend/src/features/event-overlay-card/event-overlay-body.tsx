@@ -13,6 +13,7 @@ import { formatDateRange, formatEventMoment, formatRelative } from '@/shared/dat
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
+import { OverlayFactList } from './overlay-facts'
 import type { OverlayCard } from './overlay-model'
 import { TeamProgressBar } from './team-progress/team-progress-bar'
 
@@ -56,6 +57,8 @@ export function EventOverlayBody({
 
       {card.organizer && <p className="text-meta text-muted-foreground">{card.organizer}</p>}
       {card.description && <p className="text-copy">{card.description}</p>}
+
+      <OverlayFactList facts={card.facts} />
 
       {card.deadlineAt && (
         <section className="flex flex-col gap-1.5">

@@ -71,7 +71,7 @@ export function TeamsPage() {
                   <Card
                     className={cn(
                       'flex items-center justify-between gap-4 p-4',
-                      'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
+                      'transition-colors duration-instant ease-out',
                       'hover:bg-surface-2',
                     )}
                   >

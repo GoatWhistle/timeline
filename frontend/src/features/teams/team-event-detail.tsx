@@ -35,7 +35,7 @@ export function TeamEventDetail() {
         to={`/teams/${teamId}/events`}
         className={cn(
           'inline-flex w-fit items-center gap-1.5 text-meta text-muted-foreground',
-          'hover:text-foreground motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
+          'hover:text-foreground transition-colors duration-instant ease-out',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         )}
       >

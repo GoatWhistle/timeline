@@ -3,9 +3,11 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useAddParticipants } from '@/entities/participant/participant.queries'
+import { listName } from '@/entities/user/person-name/person-name'
 import { reportBatchResult } from '@/shared/api/batch-result/batch-result'
 import { usersQuery } from '@/shared/api/directory'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
+import { useLocale } from '@/shared/i18n/i18n-context'
 import {
   Table,
   TableBody,
@@ -40,6 +42,7 @@ export function AddParticipantsDialog({
   onOpenChange: (open: boolean) => void
 }) {
   const { t } = useTranslation('registration')
+  const { locale } = useLocale()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<Map<string, string>>(new Map())
@@ -129,7 +132,7 @@ export function AddParticipantsDialog({
                       </TableCell>
                       <TableCell>
                         <Label htmlFor={`user-${item.id}`} className="cursor-pointer">
-                          <span className="font-medium">{item.display_name}</span>
+                          <span className="font-medium">{listName(item, locale)}</span>
                           <span className="ml-2 text-muted-foreground">{item.email}</span>
                         </Label>
                       </TableCell>
@@ -142,7 +145,7 @@ export function AddParticipantsDialog({
                       </TableCell>
                       <TableCell>
                         <Input
-                          aria-label={t('participants.roleFor', { name: item.display_name })}
+                          aria-label={t('participants.roleFor', { name: listName(item, locale) })}
                           disabled={!checked}
                           value={selected.get(item.id) ?? ''}
                           onChange={(event) => setRole(item.id, event.target.value)}

@@ -10,7 +10,7 @@ import { useTeamContext } from './team-context'
 
 const TILE = cn(
   'flex items-center justify-between gap-4 rounded-surface p-4',
-  'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
+  'transition-colors duration-instant ease-out',
   'hover:bg-surface-2',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
 )
@@ -49,6 +49,7 @@ export function TeamOverview() {
 
   const active = detail.members.filter((member) => member.state !== 'LEFT')
   const entries = events.data?.items ?? []
+  const invited = detail.team?.my_state === 'INVITED'
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
@@ -59,7 +60,7 @@ export function TeamOverview() {
             'text-meta text-muted-foreground',
           )}
         >
-          {t('readOnlyNotice')}
+          {t(invited ? 'invitedNotice' : 'readOnlyNotice')}
         </p>
       )}
 

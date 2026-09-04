@@ -53,6 +53,9 @@ export function useChooseTrack(teamId: string, eventId: string) {
           body,
         }),
       ),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team-events', teamId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team-events', teamId] })
+      queryClient.invalidateQueries({ queryKey: ['team-event', teamId] })
+    },
   })
 }

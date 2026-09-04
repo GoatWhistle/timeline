@@ -41,6 +41,7 @@ export function EnterEventDialog({
   const entered = useQuery(teamEventsQuery(teamId))
 
   const enteredIds = new Set((entered.data?.items ?? []).map((entry) => entry.event_id))
+  const openEvents = (query.data?.items ?? []).filter((item) => item.state !== 'FINISHED')
 
   async function submit(eventId: string) {
     try {
@@ -79,8 +80,11 @@ export function EnterEventDialog({
           hasData={query.data !== undefined}
           shape="unknown"
         >
+          {openEvents.length === 0 && (
+            <p className="py-2 text-meta text-muted-foreground">{t('enterNoneOpen')}</p>
+          )}
           <ul className="flex max-h-80 flex-col gap-1 overflow-y-auto">
-            {(query.data?.items ?? []).map((item) => {
+            {openEvents.map((item) => {
               const already = enteredIds.has(item.id)
               return (
                 <li key={item.id}>

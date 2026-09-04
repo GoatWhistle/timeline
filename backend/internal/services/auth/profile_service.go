@@ -101,7 +101,7 @@ func profileChanged(before, after map[string]any) bool {
 	if err != nil {
 		return true
 	}
-	return bytes.Equal(was, now)
+	return !bytes.Equal(was, now)
 }
 
 func profileSnapshot(u *models.User) map[string]any {

@@ -23,6 +23,14 @@ const card: OverlayCard = {
   endAt: '2026-10-03T18:00:00Z',
   deadlineAt: null,
   status: null,
+  facts: {
+    effectiveFormat: 'ONLINE',
+    prizePool: null,
+    prizeCurrency: null,
+    teamSizeMin: undefined,
+    teamSizeMax: undefined,
+    tracks: [],
+  },
   stages: [],
   joined: true,
 }

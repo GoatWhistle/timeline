@@ -2,8 +2,10 @@ import type {
   CatalogEvent,
   EventCard,
   EventColor,
+  EventFormat,
   EventResponse,
   EventState,
+  EventTrackSummary,
   StageType,
 } from '@/shared/api/types.gen'
 
@@ -15,9 +17,19 @@ export type OverlayStage = {
   end_at: string
 }
 
+export type OverlayFacts = {
+  effectiveFormat: EventFormat
+  prizePool: string | null
+  prizeCurrency: string | null
+  teamSizeMin: number | undefined
+  teamSizeMax: number | undefined
+  tracks: EventTrackSummary[]
+}
+
 export type OverlayCard = {
   id: string
   title: string
+  facts: OverlayFacts
   organizer: string | null
   description: string | null
   websiteUrl: string | null
@@ -32,11 +44,23 @@ export type OverlayCard = {
   joined: boolean
 }
 
+function facts(event: CatalogEvent | EventResponse): OverlayFacts {
+  return {
+    effectiveFormat: event.effective_format,
+    prizePool: event.prize_pool ?? null,
+    prizeCurrency: event.prize_currency ?? null,
+    teamSizeMin: event.team_size_min,
+    teamSizeMax: event.team_size_max,
+    tracks: event.tracks ?? [],
+  }
+}
+
 export function fromEventCard(card: EventCard): OverlayCard {
   const { event, registration, registration_status: status } = card
   return {
     id: event.id,
     title: event.title,
+    facts: facts(event),
     organizer: event.organizer ?? null,
     description: event.description ?? null,
     websiteUrl: event.website_url ?? null,
@@ -62,6 +86,7 @@ export function fromCatalogEvent(event: CatalogEvent): OverlayCard {
   return {
     id: event.id,
     title: event.title,
+    facts: facts(event),
     organizer: event.organizer ?? null,
     description: event.description ?? null,
     websiteUrl: event.website_url ?? null,
@@ -87,6 +112,7 @@ export function fromEventResponse(event: EventResponse): OverlayCard {
   return {
     id: event.id,
     title: event.title,
+    facts: facts(event),
     organizer: event.organizer ?? null,
     description: event.description ?? null,
     websiteUrl: event.website_url ?? null,
