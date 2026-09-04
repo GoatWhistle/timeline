@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useResetPassword } from '@/entities/session/session.queries'
+import { AuthExits } from '@/features/auth/door/auth-exits'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
@@ -59,9 +60,12 @@ export function PasswordResetConfirm() {
           <CardDescription>{t('reset.noTokenHint')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild variant="outline">
-            <Link to="/forgot-password">{t('reset.requestNew')}</Link>
-          </Button>
+          <AuthExits
+            exits={[
+              { to: '/forgot-password', label: t('reset.requestNew') },
+              { to: '/login', label: t('reset.backToLogin') },
+            ]}
+          />
         </CardContent>
       </Card>
     )
@@ -107,6 +111,8 @@ export function PasswordResetConfirm() {
               t('reset.confirmSubmit')
             )}
           </Button>
+
+          <AuthExits exits={[{ to: '/login', label: t('reset.backToLogin') }]} />
         </form>
       </CardContent>
     </Card>

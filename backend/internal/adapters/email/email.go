@@ -22,6 +22,9 @@ type Sender interface {
 }
 
 func New(cfg config.Email) Sender {
+	if cfg.Host == "" {
+		return &logSender{}
+	}
 	return &smtpSender{cfg: cfg}
 }
 

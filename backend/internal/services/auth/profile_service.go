@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -77,13 +79,29 @@ func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req dto
 				return err
 			}
 		}
+		was, now := profileSnapshot(before), profileSnapshot(updated)
+		if !profileChanged(was, now) {
+			return nil
+		}
 		return s.audit.Record(ctx, actor, models.AuditUserProfileChange, models.EntityUser, actor.UserID,
-			profileSnapshot(before), profileSnapshot(updated))
+			was, now)
 	})
 	if err != nil {
 		return nil, err
 	}
 	return updated, nil
+}
+
+func profileChanged(before, after map[string]any) bool {
+	was, err := json.Marshal(before)
+	if err != nil {
+		return true
+	}
+	now, err := json.Marshal(after)
+	if err != nil {
+		return true
+	}
+	return bytes.Equal(was, now)
 }
 
 func profileSnapshot(u *models.User) map[string]any {

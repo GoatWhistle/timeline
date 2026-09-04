@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { useResendVerification } from '@/entities/session/session.queries'
+import { AuthExits } from '@/features/auth/door/auth-exits'
 import { api, unwrap } from '@/shared/api/client'
 import { failureMessage } from '@/shared/api/failure'
 import { Spinner } from '@/shared/ui/data-display/spinner'
@@ -60,9 +61,7 @@ export function VerifyEmailPage() {
               {t('verify.resendSubmit')}
             </Button>
           </div>
-          <Button asChild variant="outline">
-            <Link to="/login">{t('invite.toLogin')}</Link>
-          </Button>
+          <AuthExits exits={[{ to: '/login', label: t('invite.toLogin') }]} />
         </CardContent>
       </Card>
     )
@@ -108,9 +107,7 @@ export function VerifyEmailPage() {
           </div>
         )}
 
-        <Button asChild variant="outline">
-          <Link to="/login">{t('invite.toLogin')}</Link>
-        </Button>
+        <AuthExits exits={[{ to: '/login', label: t('invite.toLogin') }]} />
       </CardContent>
     </Card>
   )

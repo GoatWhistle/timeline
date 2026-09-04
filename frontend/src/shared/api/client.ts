@@ -8,6 +8,7 @@ const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
 const NO_REFRESH = ['/auth/login', '/auth/refresh', '/auth/logout', '/auth/csrf']
 
 const CSRF_COOKIE = 'csrf_token'
+const CSRF_STATUS = 403
 
 let csrfToken: string | null = null
 let csrfHeader = 'X-CSRF-Token'
@@ -15,6 +16,7 @@ let csrfRequest: Promise<void> | null = null
 let refreshRequest: Promise<boolean> | null = null
 
 const retryClones = new WeakMap<Request, Request>()
+const csrfRetried = new WeakSet<Request>()
 
 let onUnauthenticated: () => void = () => {}
 
@@ -54,6 +56,21 @@ async function currentCsrfToken(): Promise<string | null> {
   }
   await ensureCsrfToken()
   return csrfToken
+}
+
+async function recoverFromCsrf(request: Request, response: Response): Promise<Response> {
+  const retry = retryClones.get(request)
+  if (!retry) return response
+  if (!MUTATING.has(retry.method)) return response
+  if (csrfRetried.has(request)) return response
+
+  csrfRetried.add(request)
+  resetCsrfToken()
+  const token = await currentCsrfToken()
+  if (!token) return response
+
+  retry.headers.set(csrfHeader, token)
+  return fetch(retry)
 }
 
 async function ensureCsrfToken(): Promise<void> {
@@ -98,6 +115,7 @@ const authMiddleware: Middleware = {
   },
 
   async onResponse({ request, response, schemaPath }) {
+    if (response.status === CSRF_STATUS) return recoverFromCsrf(request, response)
     if (response.status !== 401) return response
     if (NO_REFRESH.includes(schemaPath)) return response
 

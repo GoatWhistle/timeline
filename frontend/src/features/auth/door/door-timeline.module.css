@@ -1,0 +1,83 @@
+.rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rail::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--border) 40%, transparent),
+    var(--border-strong),
+    color-mix(in oklch, var(--border) 40%, transparent)
+  );
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  animation: arrive var(--duration-slow) var(--ease-out) forwards;
+  animation-delay: var(--delay);
+}
+
+.node {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--tone);
+  box-shadow: 0 0 0 3px var(--background);
+}
+
+.bar {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--tone),
+    color-mix(in oklch, var(--tone) 22%, transparent)
+  );
+  transform-origin: left center;
+  animation: extend var(--duration-slow) var(--ease-out) forwards;
+  animation-delay: var(--delay);
+  transform: scaleX(0);
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes extend {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step,
+  .bar {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

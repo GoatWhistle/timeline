@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import { z } from 'zod'
 import { useForgotPassword } from '@/entities/session/session.queries'
+import { AuthExits } from '@/features/auth/door/auth-exits'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
@@ -42,9 +42,7 @@ export function PasswordResetRequest() {
         {isSubmitSuccessful && !errors.root ? (
           <div className="flex flex-col gap-4">
             <p className="text-copy">{t('reset.requestSent')}</p>
-            <Button asChild variant="outline">
-              <Link to="/login">{t('reset.backToLogin')}</Link>
-            </Button>
+            <AuthExits exits={[{ to: '/login', label: t('reset.backToLogin') }]} />
           </div>
         ) : (
           <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -69,11 +67,7 @@ export function PasswordResetRequest() {
                 t('reset.requestSubmit')
               )}
             </Button>
-            <p className="text-center text-copy">
-              <Link className="text-primary hover:underline" to="/login">
-                {t('reset.backToLogin')}
-              </Link>
-            </p>
+            <AuthExits exits={[{ to: '/login', label: t('reset.backToLogin') }]} />
           </form>
         )}
       </CardContent>

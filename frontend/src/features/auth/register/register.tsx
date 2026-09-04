@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { z } from 'zod'
 import { useRegister } from '@/entities/session/session.queries'
+import { AuthExits } from '@/features/auth/door/auth-exits'
 import { nicknameProblem } from '@/shared/forms/nickname'
 import { applyServerErrors } from '@/shared/forms/server-errors'
-import { Wordmark } from '@/shared/ui/brand/wordmark'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
@@ -83,8 +83,8 @@ export function RegisterPage() {
     } catch (error) {
       applyServerErrors(error, setError, [
         'first_name',
-        'middle_name',
         'last_name',
+        'middle_name',
         'nickname',
         'email',
         'password',
@@ -95,10 +95,7 @@ export function RegisterPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <div className="flex items-center justify-between gap-3">
-          <CardTitle>{t('register.title')}</CardTitle>
-          <Wordmark />
-        </div>
+        <CardTitle>{t('register.title')}</CardTitle>
         <CardDescription>{t('register.description')}</CardDescription>
       </CardHeader>
       <CardContent>
@@ -132,6 +129,19 @@ export function RegisterPage() {
           </Field>
 
           <Field
+            label={t('field.middleName')}
+            htmlFor="middle_name"
+            error={errors.middle_name?.message}
+          >
+            <Input
+              id="middle_name"
+              autoComplete="additional-name"
+              aria-invalid={Boolean(errors.middle_name)}
+              {...register('middle_name')}
+            />
+          </Field>
+
+          <Field
             label={t('field.nickname')}
             htmlFor="nickname"
             required
@@ -144,19 +154,6 @@ export function RegisterPage() {
               autoCapitalize="off"
               aria-invalid={Boolean(errors.nickname)}
               {...register('nickname')}
-            />
-          </Field>
-
-          <Field
-            label={t('field.middleName')}
-            htmlFor="middle_name"
-            error={errors.middle_name?.message}
-          >
-            <Input
-              id="middle_name"
-              autoComplete="additional-name"
-              aria-invalid={Boolean(errors.middle_name)}
-              {...register('middle_name')}
             />
           </Field>
 
@@ -208,12 +205,7 @@ export function RegisterPage() {
             {isSubmitting ? <Spinner label={t('register.pending')} /> : t('register.submit')}
           </Button>
 
-          <p className="text-center text-copy">
-            {t('register.haveAccount')}{' '}
-            <Link className="text-primary hover:underline" to="/login">
-              {t('register.signIn')}
-            </Link>
-          </p>
+          <AuthExits exits={[{ to: '/login', label: t('register.signIn') }]} />
         </form>
       </CardContent>
     </Card>

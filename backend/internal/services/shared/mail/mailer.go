@@ -3,6 +3,7 @@ package mail
 import (
 	"context"
 	"log/slog"
+	"net/url"
 	"strings"
 	"time"
 
@@ -29,15 +30,15 @@ func NewMailer(sender EmailSender, publicURL string) *Mailer {
 }
 
 func (m *Mailer) SendVerification(ctx context.Context, to, displayName, lang, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, "email.verification", displayName, lang, m.link("/verify-email", token), ttl)
+	m.sendTemplate(ctx, to, "email.verification", displayName, lang, m.query("/verify-email", token), ttl)
 }
 
 func (m *Mailer) SendPasswordReset(ctx context.Context, to, displayName, lang, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, "email.password_reset", displayName, lang, m.link("/reset-password", token), ttl)
+	m.sendTemplate(ctx, to, "email.password_reset", displayName, lang, m.query("/reset-password", token), ttl)
 }
 
 func (m *Mailer) SendEmailChange(ctx context.Context, to, displayName, lang, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, "email.email_change", displayName, lang, m.link("/confirm-email", token), ttl)
+	m.sendTemplate(ctx, to, "email.email_change", displayName, lang, m.query("/email-change/confirm", token), ttl)
 }
 
 func (m *Mailer) SendInvite(ctx context.Context, to, invitedBy, lang, token string, ttl time.Duration) {
@@ -53,6 +54,10 @@ func (m *Mailer) sendTemplate(ctx context.Context, to, key, name, lang, link str
 
 func (m *Mailer) link(path, token string) string {
 	return m.publicURL + path + "/" + token
+}
+
+func (m *Mailer) query(path, token string) string {
+	return m.publicURL + path + "?token=" + url.QueryEscape(token)
 }
 
 func (m *Mailer) send(ctx context.Context, to, subject, body string) {

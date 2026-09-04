@@ -2,9 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { z } from 'zod'
 import { useAcceptInvite, useInvitePreview } from '@/entities/session/session.queries'
+import { AuthExits } from '@/features/auth/door/auth-exits'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { nicknameProblem } from '@/shared/forms/nickname'
 import { applyServerErrors } from '@/shared/forms/server-errors'
@@ -110,9 +111,7 @@ export function InvitePage() {
           <CardDescription>{t('invite.invalidHint')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild variant="outline">
-            <Link to="/login">{t('invite.toLogin')}</Link>
-          </Button>
+          <AuthExits exits={[{ to: '/login', label: t('invite.toLogin') }]} />
         </CardContent>
       </Card>
     )

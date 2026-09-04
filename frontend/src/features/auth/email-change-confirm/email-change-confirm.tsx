@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
+import { AuthExits } from '@/features/auth/door/auth-exits'
 import { api, unwrap } from '@/shared/api/client'
 import { failureMessage } from '@/shared/api/failure'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
-import { Button } from '@/shared/ui/primitives/button'
 
 export function EmailChangeConfirmPage() {
   const { t } = useTranslation('auth')
@@ -29,9 +29,7 @@ export function EmailChangeConfirmPage() {
           <CardDescription>{t('emailChange.noTokenHint')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild variant="outline">
-            <Link to="/?settings=account">{t('emailChange.toProfile')}</Link>
-          </Button>
+          <AuthExits exits={[{ to: '/?settings=account', label: t('emailChange.toProfile') }]} />
         </CardContent>
       </Card>
     )
@@ -59,9 +57,7 @@ export function EmailChangeConfirmPage() {
           </div>
         )}
 
-        <Button asChild variant="outline">
-          <Link to="/?settings=account">{t('emailChange.toProfile')}</Link>
-        </Button>
+        <AuthExits exits={[{ to: '/?settings=account', label: t('emailChange.toProfile') }]} />
       </CardContent>
     </Card>
   )

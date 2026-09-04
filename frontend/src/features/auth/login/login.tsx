@@ -1,16 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Link, useLocation, useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { z } from 'zod'
 import { useLogin } from '@/entities/session/session.queries'
+import { AuthExits } from '@/features/auth/door/auth-exits'
 import { applyServerErrors } from '@/shared/forms/server-errors'
-import { Wordmark } from '@/shared/ui/brand/wordmark'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { PasswordInput } from '@/shared/ui/forms/password-input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
 const schema = z.object({
@@ -50,10 +50,8 @@ export function LoginPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <div className="flex items-center justify-between gap-3">
-          <CardTitle>{t('login.title')}</CardTitle>
-          <Wordmark />
-        </div>
+        <CardTitle>{t('login.title')}</CardTitle>
+        <CardDescription>{t('login.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -88,14 +86,12 @@ export function LoginPage() {
             {isSubmitting ? <Spinner label={t('login.pending')} /> : t('login.submit')}
           </Button>
 
-          <div className="flex justify-between text-copy">
-            <Link className="text-primary hover:underline" to="/forgot-password">
-              {t('login.forgot')}
-            </Link>
-            <Link className="text-primary hover:underline" to="/register">
-              {t('login.register')}
-            </Link>
-          </div>
+          <AuthExits
+            exits={[
+              { to: '/forgot-password', label: t('login.forgot') },
+              { to: '/register', label: t('login.register') },
+            ]}
+          />
         </form>
       </CardContent>
     </Card>
