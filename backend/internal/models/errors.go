@@ -15,8 +15,14 @@ var (
 	ErrRateLimited     = errors.New("too many requests")
 )
 
+const (
+	FieldCodeRequired       = "required"
+	FieldCodeEndBeforeStart = "end_before_start"
+)
+
 type FieldError struct {
 	Field   string `json:"field" example:"email"`
+	Code    string `json:"code,omitempty" example:"required"`
 	Message string `json:"message" example:"invalid address"`
 }
 

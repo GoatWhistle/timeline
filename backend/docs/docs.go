@@ -12153,6 +12153,10 @@ const docTemplate = `{
         "models.FieldError": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "required"
+                },
                 "field": {
                     "type": "string",
                     "example": "email"

@@ -22,12 +22,18 @@ function describe(
   children: ReactNode,
   describedBy: string | undefined,
   invalid: boolean,
+  required: boolean,
 ): ReactNode {
   if (!isValidElement(children)) return children
-  const own = children.props as { 'aria-describedby'?: string; 'aria-invalid'?: boolean }
+  const own = children.props as {
+    'aria-describedby'?: string
+    'aria-invalid'?: boolean
+    'aria-required'?: boolean
+  }
   return cloneElement(children as React.ReactElement<Record<string, unknown>>, {
     'aria-describedby': own['aria-describedby'] ?? describedBy,
     'aria-invalid': own['aria-invalid'] ?? (invalid ? true : undefined),
+    'aria-required': own['aria-required'] ?? (required ? true : undefined),
   })
 }
 
@@ -47,14 +53,20 @@ export function Field({
   const hintId = `${htmlFor}-hint`
   const message = error && KEY_PATTERN.test(error) ? t(error) : error
   const describedBy = message ? errorId : hint ? hintId : undefined
-  const control = describe(children, describedBy, message !== undefined && message !== '')
+  const control = describe(
+    children,
+    describedBy,
+    message !== undefined && message !== '',
+    required === true,
+  )
 
   const labelNode = (
     <Label htmlFor={htmlFor} className={hideLabel ? 'sr-only' : undefined}>
       {label}
       {required && (
-        <span aria-hidden="true" className="ml-0.5 text-destructive">
-          *
+        <span className="ml-0.5 text-destructive" data-required-mark="">
+          <span aria-hidden="true">*</span>
+          <span className="sr-only"> ({t('common:validation.requiredMark')})</span>
         </span>
       )}
     </Label>

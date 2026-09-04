@@ -80,6 +80,8 @@
     "nextMonth": "Next month",
     "timeAria": "Time, hours and minutes",
     "zone": "{{zone}} ({{offset}})",
-    "keyboardHelp": "Arrows move by day, PageUp and PageDown by month, Home and End to the week, Escape closes"
+    "keyboardHelp": "Arrows move by day, PageUp and PageDown by month, Home and End to the week, Escape closes",
+    "openCalendar": "Open the calendar",
+    "dateFormatHint": "Day, month, year: dd.mm.yyyy"
   }
 }

@@ -41,7 +41,7 @@ describe('CloneEventDialog', () => {
   it('reports the shift and the recomputed end date once a new start is chosen', async () => {
     const { user } = open()
 
-    await user.click(screen.getByLabelText(/start/i))
+    await user.click(screen.getByRole('button', { name: /open the calendar/i }))
     await user.click(await screen.findByRole('button', { name: /October 31, 2026/i }))
 
     const summary = await screen.findByText(/Shift by 30 days/i)

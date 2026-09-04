@@ -44,12 +44,13 @@
     "summary": "Page {{page}} of {{pages}} · {{total}} total"
   },
   "validation": {
-    "invalidValue": "Invalid value",
-    "linkTooLong": "The address is too long",
-    "linkScheme": "This address cannot be opened in a browser",
     "bioTooLong": "The text is too long",
+    "invalidValue": "Invalid value",
+    "labelTooLong": "The caption is too long",
     "linkRequired": "Enter an address",
-    "labelTooLong": "The caption is too long"
+    "linkScheme": "This address cannot be opened in a browser",
+    "linkTooLong": "The address is too long",
+    "requiredMark": "required"
   },
   "password": {
     "show": "Show password",

@@ -1,9 +1,14 @@
 import { useState } from 'react'
 import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
 import { isApiError } from '@/shared/api/errors'
+import { serverRangeProblem } from '@/shared/forms/range-problem'
 import { applyServerErrors } from '@/shared/forms/server-errors'
-import { endBeforeStart, type MomentRange } from '@/shared/ui/forms/calendar/moment-range'
-import { type EventFormPayload, momentServerError } from './event-form.payload'
+import {
+  type MomentRange,
+  type RangeProblem,
+  rangeProblem,
+} from '@/shared/ui/forms/calendar/moment-range'
+import type { EventFormPayload } from './event-form.payload'
 import type { StageId } from './event-form.stages'
 
 export function useEventSubmit<Values extends FieldValues>({
@@ -23,17 +28,18 @@ export function useEventSubmit<Values extends FieldValues>({
   onProblem?: (stage: StageId) => void
   onServerFields?: (named: string[]) => void
 }) {
-  const [rangeError, setRangeError] = useState<string | null>(null)
+  const [rangeError, setRangeError] = useState<RangeProblem | null>(null)
 
   async function submit(values: Values) {
-    const payload = build(values, range)
-    if (payload === null) {
-      setRangeError('event:form.momentRequired')
+    const local = rangeProblem(range)
+    if (local !== null) {
+      setRangeError(local)
       onProblem?.('period')
       return
     }
-    if (endBeforeStart(range)) {
-      setRangeError('event:form.endAfterStart')
+    const payload = build(values, range)
+    if (payload === null) {
+      setRangeError({ start: 'event:form.momentRequired' })
       onProblem?.('period')
       return
     }
@@ -41,7 +47,7 @@ export function useEventSubmit<Values extends FieldValues>({
     try {
       await onSubmit(payload)
     } catch (error) {
-      const fromServer = momentServerError(error)
+      const fromServer = serverRangeProblem(error)
       if (fromServer !== null) {
         setRangeError(fromServer)
         onProblem?.('period')

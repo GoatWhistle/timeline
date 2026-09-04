@@ -10,6 +10,10 @@ type Form = { name: string; deadline_at: string; root: string }
 
 const KNOWN = ['name', 'deadline_at'] as const
 
+function field(name: string, message: string, code = ''): FieldError {
+  return { field: name, code, message }
+}
+
 function validation(fields: FieldError[], message = 'invalid request') {
   return new ApiError(400, { code: 'validation_failed', message, fields })
 }
@@ -17,11 +21,7 @@ function validation(fields: FieldError[], message = 'invalid request') {
 describe('applyServerErrors', () => {
   it('routes a server field error onto the matching form field', () => {
     const setError = vi.fn()
-    applyServerErrors<Form>(
-      validation([{ field: 'name', message: 'is required' }]),
-      setError,
-      KNOWN,
-    )
+    applyServerErrors<Form>(validation([field('name', 'is required')]), setError, KNOWN)
     expect(setError).toHaveBeenCalledTimes(1)
     expect(setError).toHaveBeenCalledWith('name', { message: 'is required' })
   })
@@ -30,8 +30,8 @@ describe('applyServerErrors', () => {
     const setError = vi.fn()
     applyServerErrors<Form>(
       validation([
-        { field: 'name', message: 'is required' },
-        { field: 'deadline_at', message: 'must be earlier than end_at' },
+        field('name', 'is required'),
+        field('deadline_at', 'must be earlier than end_at'),
       ]),
       setError,
       KNOWN,
@@ -42,16 +42,16 @@ describe('applyServerErrors', () => {
     })
   })
 
-  it('falls back to the root error when the server names a field the form does not have', () => {
+  it('carries the explanation to the root error when the form has no such field', () => {
     const setError = vi.fn()
     applyServerErrors<Form>(
-      validation([{ field: 'unknown_column', message: 'is required' }], 'invalid request'),
+      validation([field('unknown_column', 'the column is required')], 'invalid request'),
       setError,
       KNOWN,
     )
     expect(setError).toHaveBeenCalledTimes(1)
     expect(setError).toHaveBeenCalledWith('root', {
-      message: errorMessage('validation_failed'),
+      message: 'the column is required',
     })
   })
 
@@ -68,15 +68,12 @@ describe('applyServerErrors', () => {
   it('still reports the recognised field when another field is unknown', () => {
     const setError = vi.fn()
     applyServerErrors<Form>(
-      validation([
-        { field: 'unknown_column', message: 'ignored' },
-        { field: 'name', message: 'is required' },
-      ]),
+      validation([field('unknown_column', 'the column is wrong'), field('name', 'is required')]),
       setError,
       KNOWN,
     )
-    expect(setError).toHaveBeenCalledTimes(1)
     expect(setError).toHaveBeenCalledWith('name', { message: 'is required' })
+    expect(setError).toHaveBeenCalledWith('root', { message: 'the column is wrong' })
   })
 
   it('supplies a placeholder when the server sends a field without a message', () => {
@@ -84,7 +81,7 @@ describe('applyServerErrors', () => {
     const error = new ApiError(400, {
       code: 'validation_failed',
       message: 'invalid request',
-      fields: [{ field: 'name' } as FieldError],
+      fields: [{ field: 'name' } as unknown as FieldError],
     })
     applyServerErrors<Form>(error, setError, KNOWN)
     const [field, payload] = setError.mock.calls[0] as [string, { message: string }]

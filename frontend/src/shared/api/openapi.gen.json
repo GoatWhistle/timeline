@@ -10125,6 +10125,26 @@
           }
         }
       }
+    },
+    "/telegram/webhook": {
+      "post": {
+        "description": "Consumes a one-time /start token and binds the Telegram chat to its Timeline account.",
+        "tags": [
+          "telegram"
+        ],
+        "summary": "Telegram linking webhook",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
     }
   },
   "servers": [
@@ -14295,6 +14315,10 @@
       "models.FieldError": {
         "type": "object",
         "properties": {
+          "code": {
+            "type": "string",
+            "example": "required"
+          },
           "field": {
             "type": "string",
             "example": "email"
@@ -14305,6 +14329,7 @@
           }
         },
         "required": [
+          "code",
           "field",
           "message"
         ]

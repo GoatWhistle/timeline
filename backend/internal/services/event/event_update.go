@@ -110,9 +110,8 @@ func resolveUpdateFields(req *dto.UpdateEventRequest, before *models.Event) (res
 	if req.EndAt != nil {
 		end = req.EndAt.UTC()
 	}
-	if !end.After(start) {
-		return resolvedPlace{}, models.NewValidation("event end must be later than its start",
-			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
+	if err := (validation.Window{Start: start, End: end, Subject: "event"}).Validate(); err != nil {
+		return resolvedPlace{}, err
 	}
 
 	if err := requireSameKind(req.Kind, before.Kind); err != nil {

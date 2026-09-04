@@ -32,12 +32,13 @@ describe('ApiError', () => {
   it('reports a validation error only when 400 arrives with field errors', () => {
     const withFields = new ApiError(400, {
       code: 'validation_failed',
-      fields: [{ field: 'name', message: 'is required' }],
+      fields: [{ field: 'name', code: 'required', message: 'is required' }],
     })
     expect(withFields.isValidation).toBe(true)
     expect(new ApiError(400).isValidation).toBe(false)
     expect(
-      new ApiError(409, { fields: [{ field: 'name', message: 'is required' }] }).isValidation,
+      new ApiError(409, { fields: [{ field: 'name', code: 'required', message: 'is required' }] })
+        .isValidation,
     ).toBe(false)
   })
 

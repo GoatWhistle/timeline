@@ -5,9 +5,7 @@ import {
   commonDefaults,
   defaultRange,
   hackathonDefaults,
-  momentServerError,
 } from '@/entities/event/event-form.payload'
-import { ApiError } from '@/shared/api/errors'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { setTimeZone } from '@/shared/datetime/datetime'
 
@@ -183,27 +181,5 @@ describe('editing starts from what the server holds', () => {
       start: { date: '', time: '' },
       end: { date: '', time: '' },
     })
-  })
-})
-
-describe('a server complaint about the period reaches the calendar', () => {
-  it('picks out an error on the start or the end', () => {
-    const error = new ApiError(400, {
-      code: 'validation_failed',
-      fields: [{ field: 'end_at', message: 'must be later than start_at' }],
-    })
-    expect(momentServerError(error)).toBe('must be later than start_at')
-  })
-
-  it('ignores an error about another field', () => {
-    const error = new ApiError(400, {
-      code: 'validation_failed',
-      fields: [{ field: 'title', message: 'required' }],
-    })
-    expect(momentServerError(error)).toBeNull()
-  })
-
-  it('ignores anything that is not an API error', () => {
-    expect(momentServerError(new Error('offline'))).toBeNull()
   })
 })

@@ -81,6 +81,8 @@
     "nextMonth": "Следующий месяц",
     "timeAria": "Время, часы и минуты",
     "zone": "{{zone}} ({{offset}})",
-    "keyboardHelp": "Стрелки — день, PageUp и PageDown — месяц, Home и End — неделя, Escape — закрыть"
+    "keyboardHelp": "Стрелки — день, PageUp и PageDown — месяц, Home и End — неделя, Escape — закрыть",
+    "openCalendar": "Открыть календарь",
+    "dateFormatHint": "День, месяц, год: дд.мм.гггг"
   }
 }

@@ -1,0 +1,9 @@
+{
+  "field": {
+    "end_before_start": "The end must be later than the start. Move the end forward or the start back.",
+    "fallback": "This value was not accepted. Correct it and try again.",
+    "invalid_format": "This date could not be read. Pick it from the calendar.",
+    "out_of_range": "The date falls outside the event period. Pick a date inside it.",
+    "required": "This field is required."
+  }
+}

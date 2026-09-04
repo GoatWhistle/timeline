@@ -55,3 +55,47 @@ describe('a field tells assistive technology what is wrong', () => {
     expect(container.querySelector('#nick')?.getAttribute('aria-describedby')).toBe('custom-help')
   })
 })
+
+describe('a field says out loud that it is required', () => {
+  it('marks the control required, not only the label', () => {
+    const { container } = renderWithProviders(
+      <Field label="Nickname" htmlFor="nick" required>
+        <Input id="nick" />
+      </Field>,
+    )
+    expect(container.querySelector('#nick')?.getAttribute('aria-required')).toBe('true')
+  })
+
+  it('spells the obligation out for a screen reader beside the asterisk', () => {
+    const { container } = renderWithProviders(
+      <Field label="Nickname" htmlFor="nick" required>
+        <Input id="nick" />
+      </Field>,
+    )
+    const mark = container.querySelector('[data-required-mark]')
+    expect(mark).not.toBeNull()
+    expect(mark?.querySelector('[aria-hidden="true"]')?.textContent).toBe('*')
+    const spoken = mark?.querySelector('.sr-only')?.textContent ?? ''
+    expect(spoken.trim().length).toBeGreaterThan(1)
+    expect(spoken).not.toBe('*')
+  })
+
+  it('says nothing about obligation when the field is optional', () => {
+    const { container } = renderWithProviders(
+      <Field label="Nickname" htmlFor="nick">
+        <Input id="nick" />
+      </Field>,
+    )
+    expect(container.querySelector('[data-required-mark]')).toBeNull()
+    expect(container.querySelector('#nick')?.getAttribute('aria-required')).toBeNull()
+  })
+
+  it('leaves a control that states its own obligation alone', () => {
+    const { container } = renderWithProviders(
+      <Field label="Nickname" htmlFor="nick" required>
+        <Input id="nick" aria-required={false} />
+      </Field>,
+    )
+    expect(container.querySelector('#nick')?.getAttribute('aria-required')).toBe('false')
+  })
+})

@@ -2,7 +2,15 @@ import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
 import { EventForm } from '@/entities/event/event-form'
-import { day, dayCells, EVENT, fixMoscowClock, goToStage, trigger } from './event-form.harness'
+import {
+  calendarButton,
+  day,
+  dayCells,
+  EVENT,
+  fixMoscowClock,
+  goToStage,
+  trigger,
+} from './event-form.harness'
 
 fixMoscowClock()
 
@@ -12,7 +20,7 @@ describe('the end calendar begins at the start date', () => {
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
     await goToStage(user, 'period')
-    await user.click(trigger('event-end'))
+    await user.click(calendarButton('event-end'))
     expect(day('2026-04-30')).toHaveAttribute('aria-disabled', 'true')
     expect(day('2026-05-01')).toHaveAttribute('aria-disabled', 'false')
     expect(day('2026-05-02')).toHaveAttribute('aria-disabled', 'false')
@@ -23,7 +31,7 @@ describe('the end calendar begins at the start date', () => {
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
     await goToStage(user, 'period')
-    await user.click(trigger('event-start'))
+    await user.click(calendarButton('event-start'))
     expect(day('2026-05-04')).toHaveAttribute('aria-disabled', 'true')
   })
 
@@ -32,7 +40,7 @@ describe('the end calendar begins at the start date', () => {
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
     await goToStage(user, 'period')
-    await user.click(trigger('event-end'))
+    await user.click(calendarButton('event-end'))
     await user.click(day('2026-04-28'))
     expect(trigger('event-end')).toHaveAttribute('data-value', '2026-05-03')
   })
@@ -42,7 +50,7 @@ describe('the end calendar begins at the start date', () => {
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
     await goToStage(user, 'period')
-    await user.click(trigger('event-end'))
+    await user.click(calendarButton('event-end'))
     await user.keyboard('{ArrowUp}{ArrowUp}{ArrowUp}{ArrowLeft}{ArrowLeft}')
     const focusable = dayCells().filter((cell) => cell.tabIndex === 0)
     expect(focusable).toHaveLength(1)
@@ -56,7 +64,7 @@ describe('the end calendar begins at the start date', () => {
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
     await goToStage(user, 'period')
-    await user.click(trigger('event-end'))
+    await user.click(calendarButton('event-end'))
     await user.keyboard('{PageUp}')
     expect(dayCells().find((cell) => cell.tabIndex === 0)?.dataset.date).toBe('2026-05-01')
     await user.keyboard('{Home}')
@@ -77,7 +85,7 @@ describe('the end calendar begins at the start date', () => {
       <EventForm event={EVENT} submitLabel="Save" onSubmit={vi.fn()} />,
     )
     await goToStage(user, 'period')
-    await user.click(trigger('event-start'))
+    await user.click(calendarButton('event-start'))
     expect(day('2026-05-02')).toHaveAttribute('data-in-range', 'true')
     expect(day('2026-05-05')).not.toHaveAttribute('data-in-range')
   })

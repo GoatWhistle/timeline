@@ -1,4 +1,3 @@
-import { isApiError } from '@/shared/api/errors'
 import type { EventKind, EventResponse } from '@/shared/api/types.gen'
 import { civilFromIso, civilToIso } from '@/shared/datetime/civil'
 import { normalizeLinkableUrl } from '@/shared/forms/url'
@@ -6,7 +5,6 @@ import type { MomentRange } from '@/shared/ui/forms/calendar/moment-range'
 import {
   type HackathonFormValues,
   type MeetupFormValues,
-  MOMENT_FIELD_NAMES,
   TEAM_SIZE_MAX,
   TEAM_SIZE_MIN,
 } from './event-form.schema'
@@ -109,14 +107,4 @@ export function buildHackathonPayload(
     team_size_min: values.team_size_min,
     team_size_max: values.team_size_max,
   }
-}
-
-export function momentServerError(error: unknown): string | null {
-  if (!isApiError(error)) return null
-  for (const field of error.fields) {
-    if ((MOMENT_FIELD_NAMES as readonly string[]).includes(field.field ?? '')) {
-      return field.message ?? null
-    }
-  }
-  return null
 }

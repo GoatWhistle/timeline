@@ -58,7 +58,8 @@ func (s *RegistrationService) Create(ctx context.Context, actor models.Actor, ev
 	}
 	if req.DeadlineAt.IsZero() {
 		return nil, models.NewValidation("provide a registration deadline",
-			models.FieldError{Field: "deadline_at", Message: "required field"})
+			models.FieldError{Field: "deadline_at", Code: models.FieldCodeRequired,
+				Message: "required field"})
 	}
 
 	var created *models.Registration

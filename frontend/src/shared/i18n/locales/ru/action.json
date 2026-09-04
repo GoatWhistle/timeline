@@ -46,12 +46,13 @@
     "summary": "Страница {{page}} из {{pages}} · всего {{total}}"
   },
   "validation": {
-    "invalidValue": "Некорректное значение",
-    "linkTooLong": "Адрес слишком длинный",
-    "linkScheme": "Такой адрес нельзя открыть в браузере",
     "bioTooLong": "Текст слишком длинный",
+    "invalidValue": "Некорректное значение",
+    "labelTooLong": "Подпись слишком длинная",
     "linkRequired": "Введите адрес",
-    "labelTooLong": "Подпись слишком длинная"
+    "linkScheme": "Такой адрес нельзя открыть в браузере",
+    "linkTooLong": "Адрес слишком длинный",
+    "requiredMark": "обязательное поле"
   },
   "password": {
     "show": "Показать пароль",

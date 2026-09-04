@@ -72,9 +72,8 @@ func validateStageDraft(req dto.CreateStageRequest) (stageDraft, error) {
 		return out, models.NewValidation("invalid stage type",
 			models.FieldError{Field: "type", Message: "value is not allowed"})
 	}
-	if !req.EndAt.After(req.StartAt) {
-		return out, models.NewValidation("stage end must be later than its start",
-			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
+	if err := (validation.Window{Start: req.StartAt, End: req.EndAt, Subject: "stage"}).Validate(); err != nil {
+		return out, err
 	}
 	url, err := validation.OptionalURL("url", req.URL)
 	if err != nil {
@@ -177,11 +176,7 @@ func checkStageWindow(before *models.Stage, req dto.UpdateStageRequest) error {
 	if req.EndAt != nil {
 		end = req.EndAt.UTC()
 	}
-	if !end.After(start) {
-		return models.NewValidation("stage end must be later than its start",
-			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
-	}
-	return nil
+	return (validation.Window{Start: start, End: end, Subject: "stage"}).Validate()
 }
 
 func (s *StageService) Update(ctx context.Context, actor models.Actor, id uuid.UUID,

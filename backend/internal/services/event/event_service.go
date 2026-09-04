@@ -54,9 +54,8 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req dto.C
 	if err != nil {
 		return nil, err
 	}
-	if !req.EndAt.After(req.StartAt) {
-		return nil, models.NewValidation("event end must be later than its start",
-			models.FieldError{Field: "end_at", Message: "must be later than start_at"})
+	if err := (validation.Window{Start: req.StartAt, End: req.EndAt, Subject: "event"}).Validate(); err != nil {
+		return nil, err
 	}
 	website, err := validation.OptionalURL("website_url", req.WebsiteURL)
 	if err != nil {

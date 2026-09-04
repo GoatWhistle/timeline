@@ -21,7 +21,7 @@ export const BUNDLES: Record<Namespace, readonly string[]> = {
   registration: ['registration'],
   notification: ['notification'],
   auth: ['auth'],
-  errors: ['errors'],
+  errors: ['errors', 'field-errors'],
   ops: ['ops'],
   team: ['team'],
 }

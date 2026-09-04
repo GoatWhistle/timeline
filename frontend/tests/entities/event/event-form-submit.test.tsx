@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { EventForm } from '@/entities/event/event-form'
 import { ApiError } from '@/shared/api/errors'
 import {
+  calendarButton,
   day,
   EVENT,
   fixMoscowClock,
@@ -16,9 +17,9 @@ import {
 fixMoscowClock()
 
 async function fillPeriod(user: { click: (element: Element) => Promise<void> }) {
-  await user.click(trigger('event-start'))
+  await user.click(calendarButton('event-start'))
   await user.click(day('2026-05-01'))
-  await user.click(trigger('event-end'))
+  await user.click(calendarButton('event-end'))
   await user.click(day('2026-05-03'))
 }
 
@@ -56,14 +57,32 @@ describe('creating an event', () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
-  it('refuses to submit without a period', async () => {
+  it('refuses to submit without a period and names both empty moments', async () => {
     const onSubmit = vi.fn()
     const { user } = renderWithProviders(<EventForm submitLabel="Save" onSubmit={onSubmit} />)
     await goToStage(user, 'basics')
     await user.type(trigger('event-title'), 'National event')
     await submitForm(user)
     expect(onSubmit).not.toHaveBeenCalled()
-    expect(await screen.findByRole('alert')).toBeInTheDocument()
+    expect(await screen.findAllByRole('alert')).toHaveLength(2)
+    expect(document.getElementById('event-start-error')).not.toBeNull()
+    expect(document.getElementById('event-end-error')).not.toBeNull()
+  })
+
+  it('blames the start alone when only the start is missing', async () => {
+    const onSubmit = vi.fn()
+    const { user } = renderWithProviders(<EventForm submitLabel="Save" onSubmit={onSubmit} />)
+    await goToStage(user, 'basics')
+    await user.type(trigger('event-title'), 'National event')
+    await goToStage(user, 'period')
+    await user.clear(trigger('event-end'))
+    await user.type(trigger('event-end'), '03.05.2026')
+    await user.clear(timeField('event-end-time'))
+    await user.type(timeField('event-end-time'), '1800')
+    await submitForm(user)
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(document.getElementById('event-start-error')).not.toBeNull()
+    expect(document.getElementById('event-end-error')).toBeNull()
   })
 })
 
@@ -102,7 +121,7 @@ describe('editing an existing event', () => {
     const onSubmit = vi.fn().mockRejectedValue(
       new ApiError(400, {
         code: 'validation_failed',
-        fields: [{ field: 'title', message: 'already taken' }],
+        fields: [{ field: 'title', code: '', message: 'already taken' }],
       }),
     )
     const { user } = renderWithProviders(
@@ -113,11 +132,13 @@ describe('editing an existing event', () => {
     expect(await screen.findByText('already taken')).toBeInTheDocument()
   })
 
-  it('shows a server complaint about the period next to the period', async () => {
+  it('shows a server complaint about the period next to the end field', async () => {
     const onSubmit = vi.fn().mockRejectedValue(
       new ApiError(400, {
         code: 'validation_failed',
-        fields: [{ field: 'end_at', message: 'must be later than start_at' }],
+        fields: [
+          { field: 'end_at', code: 'end_before_start', message: 'must be later than start_at' },
+        ],
       }),
     )
     const { user } = renderWithProviders(
@@ -125,6 +146,24 @@ describe('editing an existing event', () => {
     )
     await submitForm(user)
     await goToStage(user, 'period')
-    expect(await screen.findByText('must be later than start_at')).toBeInTheDocument()
+    const complaint = document.getElementById('event-end-error')
+    expect(complaint).not.toBeNull()
+    expect(document.getElementById('event-start-error')).toBeNull()
+  })
+
+  it('shows a server complaint about the start next to the start field, not the end', async () => {
+    const onSubmit = vi.fn().mockRejectedValue(
+      new ApiError(400, {
+        code: 'validation_failed',
+        fields: [{ field: 'start_at', code: 'required', message: 'required field' }],
+      }),
+    )
+    const { user } = renderWithProviders(
+      <EventForm event={EVENT} submitLabel="Save" onSubmit={onSubmit} />,
+    )
+    await submitForm(user)
+    await goToStage(user, 'period')
+    expect(document.getElementById('event-start-error')).not.toBeNull()
+    expect(document.getElementById('event-end-error')).toBeNull()
   })
 })

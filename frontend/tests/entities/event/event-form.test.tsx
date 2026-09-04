@@ -3,6 +3,7 @@ import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
 import { EventForm } from '@/entities/event/event-form'
 import {
+  calendarButton,
   day,
   EVENT,
   fixMoscowClock,
@@ -92,11 +93,11 @@ describe('the kind is the first stage and switching keeps what was typed', () =>
     await user.type(trigger('event-title'), 'Shared title')
     await user.type(trigger('event-organizer'), 'Some club')
     await goToStage(user, 'period')
-    await user.click(trigger('event-start'))
+    await user.click(calendarButton('event-start'))
     await user.click(day('2026-05-01'))
     await user.clear(timeField('event-start-time'))
     await user.type(timeField('event-start-time'), '1000')
-    await user.click(trigger('event-end'))
+    await user.click(calendarButton('event-end'))
     await user.click(day('2026-05-03'))
     await user.clear(timeField('event-end-time'))
     await user.type(timeField('event-end-time'), '1800')

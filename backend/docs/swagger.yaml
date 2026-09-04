@@ -2695,6 +2695,9 @@ definitions:
     - EventArchived
   models.FieldError:
     properties:
+      code:
+        example: required
+        type: string
       field:
         example: email
         type: string
