@@ -13,8 +13,6 @@
     "yesterday": "Вчера, {{time}}"
   },
   "timezone": {
-    "legend": "Выбор часового пояса",
-    "placeholder": "Выберите пояс",
     "search": "Поиск города или пояса",
     "detected": "ваш",
     "nothingFound": "Ничего не нашлось",

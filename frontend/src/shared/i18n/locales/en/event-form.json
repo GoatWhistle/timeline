@@ -71,8 +71,7 @@
     "done": "Event cloned",
     "doneHint_one": "{{count}} stage moved by {{days}} days",
     "doneHint_other": "{{count}} stages moved by {{days}} days",
-    "failed": "Could not clone the event",
-    "action": "Clone"
+    "failed": "Could not clone the event"
   },
   "calendar": {
     "pickDate": "Pick a date",

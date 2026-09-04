@@ -32,7 +32,6 @@
   "noChannels": "No channel was available",
   "noError": "No message recorded",
   "requestedChannel": "Requested: {{channel}}",
-  "actualChannel": "Last used: {{channel}}",
   "attempts_one": "{{count}} attempt",
   "attempts_other": "{{count}} attempts",
   "emptyFailuresTitle": "No failures",

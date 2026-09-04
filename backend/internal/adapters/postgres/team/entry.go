@@ -65,25 +65,6 @@ func (r *Entries) ResolveDisplayID(ctx context.Context, displayID string) (uuid.
 	return id, nil
 }
 
-func (r *Entries) ListEventIDs(ctx context.Context, teamID uuid.UUID) ([]uuid.UUID, error) {
-	rows, err := r.db.Q(ctx).Query(ctx,
-		`SELECT event_id FROM team_event_entries WHERE team_id = $1 ORDER BY entered_at`, teamID)
-	if err != nil {
-		return nil, mapError(err)
-	}
-	defer rows.Close()
-
-	ids := make([]uuid.UUID, 0, 4)
-	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
-			return nil, mapError(err)
-		}
-		ids = append(ids, id)
-	}
-	return ids, mapError(rows.Err())
-}
-
 func (r *Entries) ListForTeam(ctx context.Context, teamID uuid.UUID) ([]models.TeamEventEntry, error) {
 	rows, err := r.db.Q(ctx).Query(ctx,
 		`SELECT `+entryColumns+` FROM team_event_entries WHERE team_id = $1 ORDER BY entered_at`,

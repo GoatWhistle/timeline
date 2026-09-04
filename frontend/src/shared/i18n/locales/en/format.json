@@ -13,8 +13,6 @@
     "yesterday": "Yesterday, {{time}}"
   },
   "timezone": {
-    "legend": "Time zone selection",
-    "placeholder": "Select a zone",
     "search": "Search a city or zone",
     "detected": "yours",
     "nothingFound": "Nothing matches",

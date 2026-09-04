@@ -7,11 +7,9 @@
     "tabArtifacts": "Submissions",
     "tabOutcome": "Outcome",
     "tabRetro": "Retrospective",
-    "private": "Private to you",
     "absent": "Nothing recorded here",
     "absentHint": "There is nothing to show. Records of other people are never listed here.",
     "tasks": {
-      "title": "My tasks",
       "empty": "No tasks yet",
       "emptyHint": "Small commitments of your own: put in the SDK, record the demo, submit the abstract.",
       "add": "Add a task",
@@ -22,7 +20,6 @@
       "dueHint": "A reminder reaches you before this moment, in the app only.",
       "stageLabel": "Stage",
       "noStage": "Whole event",
-      "done": "Done",
       "markDone": "Mark {{title}} done",
       "markUndone": "Mark {{title}} not done",
       "edit": "Edit {{title}}",
@@ -32,7 +29,6 @@
       "added": "Task added",
       "saved": "Task saved",
       "removed": "Task deleted",
-      "limitReached": "The task limit for this event is reached",
       "counter": "{{done}} of {{total}} done",
       "overdue": "Overdue",
       "titleRequired": "Give the task a title"
@@ -71,20 +67,15 @@
       }
     },
     "note": {
-      "title": "My note",
-      "empty": "No note yet",
-      "emptyHint": "One Markdown field for this event. It saves as you type.",
       "label": "Note",
       "placeholder": "Anything worth keeping about this event",
       "saving": "Saving",
       "saved": "Saved",
       "saveFailed": "Could not save the note",
       "tooLong": "The note is too long",
-      "clearHint": "Clearing the text deletes the note.",
-      "markdown": "Markdown is stored as you write it and rendered here."
+      "clearHint": "Clearing the text deletes the note."
     },
     "artifacts": {
-      "title": "What I submitted",
       "empty": "Nothing submitted yet",
       "emptyHint": "The repository, the demo video, the slides, the submission page.",
       "add": "Add a submission",
@@ -101,7 +92,6 @@
       "added": "Submission added",
       "saved": "Submission saved",
       "removed": "Submission deleted",
-      "limitReached": "The submission limit for this event is reached",
       "urlRequired": "Enter an address"
     },
     "artifactKind": {
@@ -113,7 +103,6 @@
       "OTHER": "Other"
     },
     "outcome": {
-      "title": "How it ended",
       "empty": "No outcome recorded",
       "emptyHint": "Taking part is a full outcome in itself. Record it when the event is over.",
       "record": "Record the outcome",
@@ -129,7 +118,6 @@
       "removeTitle": "Delete the outcome?",
       "removeHint": "The record is deleted for good.",
       "selfReport": "This is your own account of the result, not a verified standing.",
-      "placeNotAllowed": "A place goes only with a shortlisting, a win or a prize",
       "value": {
         "PARTICIPATED": "Took part",
         "SHORTLISTED": "Shortlisted",
@@ -138,7 +126,6 @@
       }
     },
     "retro": {
-      "title": "Retrospective",
       "empty": "No retrospective yet",
       "emptyHint": "Three questions, answered once the dust settles.",
       "write": "Write the retrospective",
@@ -164,8 +151,7 @@
       "artifacts_one": "{{count}} submission",
       "artifacts_other": "{{count}} submissions",
       "role": "Role",
-      "place": "Place",
-      "open": "Open the event"
+      "place": "Place"
     },
     "summary": {
       "title": "My layer",

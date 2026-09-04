@@ -61,30 +61,6 @@ func (r *Teams) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UU
 	return id, nil
 }
 
-func (r *Teams) ListForUser(ctx context.Context, userID uuid.UUID) ([]models.Team, error) {
-	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT t.id, t.display_id, t.name, t.lead_user_id, t.created_at, t.updated_at
-		FROM teams t
-		JOIN team_members m ON m.team_id = t.id
-		WHERE m.user_id = $1 AND m.state IN ('INVITED', 'ACTIVE')
-		ORDER BY lower(t.name), t.created_at`, userID)
-	if err != nil {
-		return nil, mapError(err)
-	}
-	defer rows.Close()
-
-	items := make([]models.Team, 0, 8)
-	for rows.Next() {
-		var t models.Team
-		if err := rows.Scan(&t.ID, &t.DisplayID, &t.Name, &t.LeadUserID,
-			&t.CreatedAt, &t.UpdatedAt); err != nil {
-			return nil, mapError(err)
-		}
-		items = append(items, t)
-	}
-	return items, mapError(rows.Err())
-}
-
 type TeamSummaryRow struct {
 	Team    models.Team
 	Lead    dto.UserSummary

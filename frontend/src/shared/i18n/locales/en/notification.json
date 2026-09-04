@@ -39,7 +39,6 @@
     "subtitle": "The text this recipient would receive. Nothing is sent, queued or logged by opening this.",
     "noSideEffects": "Preview only: no notification is created and no rule is switched on.",
     "rule": "Rule",
-    "primaryRule": "Primary notification (no rule)",
     "subject": "Subject",
     "body": "Body",
     "channel": "Channel",
@@ -51,9 +50,7 @@
     "channelNotReady": "No usable channel",
     "channelNotReadyHint": "This recipient has neither a linked Telegram account nor a verified email, so this notification would end as undeliverable.",
     "nothingTitle": "Nothing would be sent",
-    "nothingHint": "This status has no notification to render: the event, the registration or the assignment rules it out.",
-    "errorTitle": "Preview unavailable",
-    "close": "Close"
+    "nothingHint": "This status has no notification to render: the event, the registration or the assignment rules it out."
   },
   "matrix": {
     "title": "Event and channel",

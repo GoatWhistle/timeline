@@ -11,10 +11,3 @@ export const CURRENCIES: CurrencyOption[] = [
   { code: 'KZT', symbol: '₸' },
   { code: 'UAH', symbol: '₴' },
 ]
-
-export const CURRENCY_CODES = CURRENCIES.map((currency) => currency.code)
-
-export function currencySymbol(code: string): string | null {
-  const found = CURRENCIES.find((currency) => currency.code === code.toUpperCase())
-  return found ? found.symbol : null
-}

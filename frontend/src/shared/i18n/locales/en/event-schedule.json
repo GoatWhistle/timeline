@@ -22,8 +22,6 @@
     "deleteFailed": "Could not delete the stage",
     "formName": "Name",
     "formType": "Stage type",
-    "formStart": "Start",
-    "formEnd": "End",
     "formSortOrder": "Sort order",
     "formUrl": "Link",
     "formDescription": "Description",
@@ -53,15 +51,7 @@
     "soon": "due soon",
     "calm": "in good time",
     "done": "you marked it",
-    "waived": "not required",
-    "hint": {
-      "overdue": "The registration deadline has passed and you have not marked yourself as registered.",
-      "today": "Less than a day is left until the registration deadline.",
-      "soon": "Less than a week is left until the registration deadline.",
-      "calm": "More than a week is left until the registration deadline.",
-      "done": "You marked yourself as registered. The system does not check the external site.",
-      "waived": "Registration is not required for you — an administrator decided so. This is not the same as done."
-    }
+    "waived": "not required"
   },
   "teamProgress": {
     "title": "Team registration",

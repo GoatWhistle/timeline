@@ -9,20 +9,10 @@ import type {
 } from '@/shared/api/types.gen'
 
 export const eventKeys = {
-  mine: (params: Record<string, unknown>) => ['my-events', params] as const,
   card: (id: string) => ['event-card', id] as const,
   adminList: (params: Record<string, unknown>) => ['admin-events', params] as const,
   adminOne: (id: string) => ['admin-event', id] as const,
   tracks: (id: string) => ['event-tracks', id] as const,
-}
-
-export type MyEventsParams = QueryParams<'/me/events', 'get'>
-
-export function myEventsQuery(params: MyEventsParams) {
-  return queryOptions({
-    queryKey: eventKeys.mine(params),
-    queryFn: () => unwrap(api.GET('/me/events', { params: { query: params } })),
-  })
 }
 
 export function eventCardQuery(id: string) {

@@ -39,12 +39,6 @@ func (u *User) DisplayName(locale string) string {
 	return FormatFullName(locale, u.FirstName, u.MiddleName, u.LastName)
 }
 
-func (u *User) Initials() string {
-	return NameInitials(u.FirstName, u.LastName)
-}
-
-func (u *User) NameCorrected() bool { return u.LegacyDisplayName == nil }
-
 func (u *User) TelegramLinked() bool {
 	return u.TelegramChatID != nil && *u.TelegramChatID != ""
 }

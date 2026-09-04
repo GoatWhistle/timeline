@@ -22,17 +22,6 @@ export const STAGE_TYPE_KEY: Record<StageType, string> = {
   OTHER: 'event:stageType.OTHER',
 }
 
-export const STAGE_TYPE_COLOR: Record<StageType, string> = {
-  REGISTRATION: 'bg-stage-registration',
-  SELECTION: 'bg-stage-selection',
-  PARTICIPATION: 'bg-stage-participation',
-  CHECKPOINT: 'bg-stage-checkpoint',
-  SUBMISSION: 'bg-stage-submission',
-  DEMO: 'bg-stage-demo',
-  RESULTS: 'bg-stage-results',
-  OTHER: 'bg-stage-other',
-}
-
 export const STAGE_TYPE_TEXT: Record<StageType, string> = {
   REGISTRATION: 'text-stage-registration',
   SELECTION: 'text-stage-selection',
@@ -53,17 +42,6 @@ export const STAGE_TYPE_ICON: Record<StageType, React.ComponentType<{ className?
   DEMO: Presentation,
   RESULTS: Trophy,
   OTHER: Circle,
-}
-
-export const STAGE_TYPE_PATTERNED: Record<StageType, boolean> = {
-  REGISTRATION: false,
-  SELECTION: false,
-  PARTICIPATION: false,
-  CHECKPOINT: false,
-  SUBMISSION: false,
-  DEMO: true,
-  RESULTS: true,
-  OTHER: false,
 }
 
 export const STAGE_TYPES = Object.keys(STAGE_TYPE_KEY) as StageType[]

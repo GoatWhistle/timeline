@@ -1,7 +1,6 @@
 {
   "list": {
     "adminTitle": "Events",
-    "adminDescription": "Creation, publishing and archiving",
     "create": "Create",
     "searchAria": "Search by title or organizer",
     "searchPlaceholder": "Search",
@@ -10,10 +9,6 @@
     "emptyTitle": "No event has been created yet",
     "emptyHint": "Create the first one and it shows up here.",
     "emptyFiltered": "No event matches these filters",
-    "columnTitle": "Title",
-    "columnOrganizer": "Organizer",
-    "columnPeriod": "Period",
-    "columnState": "State",
     "newTitle": "New event",
     "created": "Event created",
     "createdHint": "It is not published yet"
@@ -56,8 +51,7 @@
       "submit": "Take part",
       "cancel": "Cancel",
       "done": "You are signed up",
-      "failed": "Could not sign up",
-      "finished": "The event has finished: only an administrator can add a participant now."
+      "failed": "Could not sign up"
     },
     "state": {
       "all": "All",
@@ -137,7 +131,6 @@
     },
     "card": {
       "noCover": "No cover image",
-      "prize": "{{amount}} {{currency}}",
       "teamExact": "{{size}} in a team",
       "teamRange": "{{min}}–{{max}} in a team",
       "teamUpTo": "up to {{max}} in a team",

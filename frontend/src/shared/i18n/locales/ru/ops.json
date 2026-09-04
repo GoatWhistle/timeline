@@ -32,7 +32,6 @@
   "noChannels": "Ни одного доступного канала не было",
   "noError": "Сообщение не записано",
   "requestedChannel": "Запрошен: {{channel}}",
-  "actualChannel": "Последний использованный: {{channel}}",
   "attempts_one": "{{count}} попытка",
   "attempts_few": "{{count}} попытки",
   "attempts_many": "{{count}} попыток",

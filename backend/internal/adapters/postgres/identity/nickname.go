@@ -65,15 +65,6 @@ func (r *Users) DropReservation(ctx context.Context, nickname string) error {
 	return mapError(err)
 }
 
-func (r *Users) PurgeReservations(ctx context.Context, now time.Time) (int64, error) {
-	tag, err := r.db.Q(ctx).Exec(ctx,
-		`DELETE FROM nickname_reservations WHERE released_at <= $1`, now)
-	if err != nil {
-		return 0, mapError(err)
-	}
-	return tag.RowsAffected(), nil
-}
-
 func (r *Users) PublicProfileEvents(ctx context.Context,
 	userID uuid.UUID) ([]dto.PublicProfileEvent, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `

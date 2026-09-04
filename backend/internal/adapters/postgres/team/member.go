@@ -83,25 +83,6 @@ func (r *Members) ResolveDisplayID(ctx context.Context, displayID string) (uuid.
 	return id, nil
 }
 
-func (r *Members) ListActiveUserIDs(ctx context.Context, teamID uuid.UUID) ([]uuid.UUID, error) {
-	rows, err := r.db.Q(ctx).Query(ctx,
-		`SELECT user_id FROM team_members WHERE team_id = $1 AND state = 'ACTIVE'`, teamID)
-	if err != nil {
-		return nil, mapError(err)
-	}
-	defer rows.Close()
-
-	ids := make([]uuid.UUID, 0, 8)
-	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
-			return nil, mapError(err)
-		}
-		ids = append(ids, id)
-	}
-	return ids, mapError(rows.Err())
-}
-
 func (r *Members) List(ctx context.Context, teamID uuid.UUID) ([]dto.TeamMemberResponse, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		SELECT m.display_id, t.display_id, m.state, m.invited_at, m.joined_at, m.left_at,
