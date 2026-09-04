@@ -25,8 +25,7 @@
       "title": "The catalog is empty",
       "hint": "There are no events yet. They will show up here once someone adds them.",
       "filteredTitle": "Nothing matches these conditions",
-      "filteredHint": "No event fits the filters you picked. Loosen them or reset them.",
-      "reset": "Reset the filters"
+      "filteredHint": "No event fits the filters you picked. Loosen them or reset them."
     },
     "layoutAria": "Layout",
     "scope": {

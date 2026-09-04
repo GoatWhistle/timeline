@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/ui/data-display/table'
-import { Input } from '@/shared/ui/forms/input'
+import { DatePicker } from '@/shared/ui/forms/calendar/date-picker'
 import { Label } from '@/shared/ui/forms/label'
 import {
   Select,
@@ -114,24 +114,24 @@ export function AdminAuditPage() {
 
         <div className="w-48">
           <Label htmlFor="audit-from">{t('audit.from')}</Label>
-          <Input
-            id="audit-from"
-            type="date"
-            className="mt-2"
-            value={filters.from}
-            onChange={(event) => setFilters({ from: event.target.value || undefined })}
-          />
+          <div className="mt-2">
+            <DatePicker
+              id="audit-from"
+              value={filters.from ?? ''}
+              onChange={(date) => setFilters({ from: date || undefined })}
+            />
+          </div>
         </div>
 
         <div className="w-48">
           <Label htmlFor="audit-to">{t('audit.to')}</Label>
-          <Input
-            id="audit-to"
-            type="date"
-            className="mt-2"
-            value={filters.to}
-            onChange={(event) => setFilters({ to: event.target.value || undefined })}
-          />
+          <div className="mt-2">
+            <DatePicker
+              id="audit-to"
+              value={filters.to ?? ''}
+              onChange={(date) => setFilters({ to: date || undefined })}
+            />
+          </div>
         </div>
       </div>
 

@@ -21,6 +21,7 @@ export function EmptyState({
   filtered = false,
   onReset,
   size = 'page',
+  heading = false,
 }: {
   title: string
   description?: string
@@ -29,9 +30,11 @@ export function EmptyState({
   filtered?: boolean
   onReset?: () => void
   size?: EmptySize
+  heading?: boolean
 }) {
   const { t } = useTranslation()
   const Figure = filtered ? FilterFigure : figure
+  const Title = heading ? 'h1' : 'p'
 
   return (
     <div
@@ -39,7 +42,7 @@ export function EmptyState({
     >
       {Figure && <Figure label={title} />}
       <div className="flex flex-col gap-2">
-        <p className="font-medium text-copy">{title}</p>
+        <Title className="font-medium text-copy">{title}</Title>
         {description && <p className="text-meta text-muted-foreground">{description}</p>}
       </div>
       {filtered && onReset ? (

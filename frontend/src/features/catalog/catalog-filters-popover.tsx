@@ -1,6 +1,6 @@
 import { Plus, SlidersHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Input } from '@/shared/ui/forms/input'
+import { DatePicker } from '@/shared/ui/forms/calendar/date-picker'
 import {
   Select,
   SelectContent,
@@ -68,13 +68,13 @@ function ConditionRow({
       </span>
 
       {isDateField(field) ? (
-        <Input
-          type="date"
-          value={values[field]}
-          aria-label={t('catalog.filters.valueAria')}
-          onChange={(e) => onValue(field, e.target.value)}
-          className="h-8 w-36"
-        />
+        <div className="w-36">
+          <DatePicker
+            id={`catalog-condition-${field}`}
+            value={values[field]}
+            onChange={(date) => onValue(field, date)}
+          />
+        </div>
       ) : (
         <Select value={values[field]} onValueChange={(next) => onValue(field, next)}>
           <SelectTrigger aria-label={t('catalog.filters.valueAria')} className="h-8 w-36">

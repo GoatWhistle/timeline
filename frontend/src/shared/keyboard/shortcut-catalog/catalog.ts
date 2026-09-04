@@ -17,7 +17,7 @@ export type GotoTarget = { id: string; path: string; titleKey: string; key: stri
 
 export const GOTO_USER: GotoTarget[] = [
   { id: 'catalog', path: '/catalog', key: 'c', titleKey: 'nav.catalog' },
-  { id: 'events', path: '/events', key: 'e', titleKey: 'nav.myEvents' },
+  { id: 'events', path: '/catalog?joined=true', key: 'e', titleKey: 'nav.myEvents' },
   { id: 'schedule', path: '/schedule', key: 's', titleKey: 'nav.schedule' },
 ]
 

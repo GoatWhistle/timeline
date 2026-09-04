@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
+import { DatePicker } from '@/shared/ui/forms/calendar/date-picker'
 import { Checkbox } from '@/shared/ui/forms/checkbox'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
@@ -68,12 +69,7 @@ export function CloneEventDialog({
           </Field>
 
           <Field label={t('clone.newStart')} htmlFor="clone-start" hint={t('clone.startHint')}>
-            <Input
-              id="clone-start"
-              type="date"
-              value={startInput}
-              onChange={(e) => setStartInput(e.target.value)}
-            />
+            <DatePicker id="clone-start" value={startInput} onChange={setStartInput} />
           </Field>
 
           <div className="flex items-center gap-2">

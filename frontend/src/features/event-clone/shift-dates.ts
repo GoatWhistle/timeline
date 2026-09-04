@@ -41,7 +41,6 @@ export function cloneEventPayload(
   if (event.origin) payload.origin = event.origin
   if (event.country_code) payload.country_code = event.country_code
   if (event.city) payload.city = event.city
-  if (event.track) payload.track = event.track
   if (event.prize_pool) payload.prize_pool = event.prize_pool
   if (event.prize_currency) payload.prize_currency = event.prize_currency
   if (typeof event.team_size_max === 'number') payload.team_size_max = event.team_size_max

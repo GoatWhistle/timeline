@@ -14,6 +14,7 @@ const eventCard: EventCard = {
     start_at: '2026-10-01T09:00:00Z',
     end_at: '2026-10-03T18:00:00Z',
     state: 'UPCOMING',
+    tracks: [],
     created_at: '2026-09-01T00:00:00Z',
     updated_at: '2026-09-01T00:00:00Z',
     color: { family: 'RU', slot: 4 },
@@ -47,6 +48,7 @@ const eventCard: EventCard = {
 const catalogEvent: CatalogEvent = {
   id: 'ev_2',
   title: 'Open hackathon',
+  tracks: [],
   kind: 'HACKATHON',
   format: 'OFFLINE',
   origin: 'WORLD',

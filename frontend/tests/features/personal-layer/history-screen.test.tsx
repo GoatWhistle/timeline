@@ -193,7 +193,6 @@ describe('the history page fills its pane like every other page', () => {
   const PAGES = [
     'src/features/personal-history/history.tsx',
     'src/features/schedule/my/schedule.tsx',
-    'src/features/event-list/my/event-list.tsx',
     'src/features/teams/teams.tsx',
   ]
 

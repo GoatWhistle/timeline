@@ -17,7 +17,7 @@ const event: EventResponse = {
   country_code: 'RU',
   city: 'Kazan',
   organizer: 'Committee',
-  track: 'Smart city',
+  tracks: [],
   prize_pool: '500000.00',
   prize_currency: 'RUB',
   team_size_max: 5,
@@ -81,17 +81,15 @@ describe('cloneEventPayload', () => {
       title: 'Copy',
       organizer: 'Committee',
       city: 'Kazan',
-      track: 'Smart city',
       prize_pool: '500000.00',
       team_size_max: 5,
     })
   })
 
   it('omits absent optional fields instead of sending empty values', () => {
-    const bare: EventResponse = { ...event, city: undefined, track: undefined }
+    const bare: EventResponse = { ...event, city: undefined }
     const payload = cloneEventPayload(bare, 'Copy', 0)
     expect('city' in payload).toBe(false)
-    expect('track' in payload).toBe(false)
   })
 })
 

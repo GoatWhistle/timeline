@@ -2,7 +2,7 @@ import { SlidersHorizontal } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
-import { Input } from '@/shared/ui/forms/input'
+import { DatePicker } from '@/shared/ui/forms/calendar/date-picker'
 import { TAP_TARGET } from '@/shared/ui/layout/mobile/mobile-state'
 import {
   Dialog,
@@ -83,13 +83,7 @@ function DateField({
       <label htmlFor={id} className="font-medium text-copy">
         {t(CATALOG_FILTER_FIELD_KEY[field])}
       </label>
-      <Input
-        id={id}
-        type="date"
-        value={value}
-        onChange={(e) => onValue(field, e.target.value)}
-        className={cn('w-full', TAP_TARGET)}
-      />
+      <DatePicker id={id} value={value} onChange={(date) => onValue(field, date)} />
     </div>
   )
 }

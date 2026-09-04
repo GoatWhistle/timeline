@@ -43,7 +43,7 @@ function MarkAllRead({ onMark }: { onMark: () => void }) {
   )
 }
 
-export function EventFeedBell() {
+export function EventFeedBell({ touch = false }: { touch?: boolean }) {
   const { t } = useTranslation('notification')
   const counter = useQuery(unreadCountQueryOptions)
   const feed = useQuery(eventFeedQueryOptions(false))
@@ -57,12 +57,13 @@ export function EventFeedBell() {
       <DropdownMenu.Trigger
         aria-label={t('feed.open')}
         className={cn(
-          'relative flex h-8 w-8 items-center justify-center rounded-control',
+          'relative flex items-center justify-center rounded-control',
+          touch ? 'size-tap' : 'h-8 w-8',
           'transition-colors duration-instant hover:bg-surface-2',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         )}
       >
-        <Bell className="h-4 w-4" aria-hidden />
+        <Bell className={touch ? 'h-5 w-5' : 'h-4 w-4'} aria-hidden />
         {unread > 0 && (
           <span className={styles.badge} aria-live="polite">
             {unread > 99 ? '99+' : unread}

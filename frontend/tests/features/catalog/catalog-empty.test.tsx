@@ -11,24 +11,20 @@ describe('catalog empty state', () => {
       <CatalogEmpty filtered={true} onResetFilters={onResetFilters} />,
     )
 
-    expect(
-      screen.getByRole('heading', { name: i18n.t('event:catalog.empty.filteredTitle') }),
-    ).toBeInTheDocument()
+    expect(screen.getByText(i18n.t('event:catalog.empty.filteredTitle'))).toBeInTheDocument()
     expect(screen.getByText(i18n.t('event:catalog.empty.filteredHint'))).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: i18n.t('event:catalog.empty.reset') }))
+    await user.click(screen.getByRole('button', { name: i18n.t('state.resetFilters') }))
     expect(onResetFilters).toHaveBeenCalledTimes(1)
   })
 
   it('says the catalog itself is empty and offers no reset when no filter is set', () => {
     renderWithProviders(<CatalogEmpty filtered={false} onResetFilters={vi.fn()} />)
 
-    expect(
-      screen.getByRole('heading', { name: i18n.t('event:catalog.empty.title') }),
-    ).toBeInTheDocument()
+    expect(screen.getByText(i18n.t('event:catalog.empty.title'))).toBeInTheDocument()
     expect(screen.getByText(i18n.t('event:catalog.empty.hint'))).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: i18n.t('event:catalog.empty.reset') }),
+      screen.queryByRole('button', { name: i18n.t('state.resetFilters') }),
     ).not.toBeInTheDocument()
   })
 

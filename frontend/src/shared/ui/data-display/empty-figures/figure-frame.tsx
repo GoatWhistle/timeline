@@ -1,12 +1,21 @@
 import type * as React from 'react'
+import { cn } from '@/shared/styling/class-names/class-names'
 
-export function FigureFrame({ label, children }: { label: string; children: React.ReactNode }) {
+export function FigureFrame({
+  label,
+  className,
+  children,
+}: {
+  label: string
+  className?: string
+  children: React.ReactNode
+}) {
   return (
     <svg
       viewBox="0 0 200 104"
       role="img"
       aria-label={label}
-      className="h-32 w-auto text-foreground"
+      className={cn('h-32 w-auto text-foreground', className)}
     >
       {children}
     </svg>

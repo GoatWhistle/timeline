@@ -11,7 +11,6 @@ const SRC = resolve(process.cwd(), 'src')
 
 const SURFACES: [string, string][] = [
   ['schedule', 'features/schedule/my/schedule.tsx'],
-  ['my events list', 'features/event-list/my/event-list.tsx'],
   ['admin events list', 'features/event-list/admin/event-list.tsx'],
   ['catalog table and tiles', 'features/catalog/catalog.tsx'],
 ]
@@ -55,9 +54,9 @@ describe('the card is one component reached the same way everywhere', () => {
   })
 
   it('keeps the assigned endpoint for the surfaces that only show assigned events', () => {
-    const myList = readFileSync(resolve(SRC, 'features/event-list/my/event-list.tsx'), 'utf8')
-    expect(myList).toContain('AssignedEventOverlay')
-    expect(myList).not.toContain('AdminEventOverlay')
+    const schedule = readFileSync(resolve(SRC, 'features/schedule/my/schedule.tsx'), 'utf8')
+    expect(schedule).toContain('AssignedEventOverlay')
+    expect(schedule).not.toContain('AdminEventOverlay')
   })
 
   it('mounts exactly one overlay per surface', () => {

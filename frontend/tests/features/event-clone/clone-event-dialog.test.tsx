@@ -14,6 +14,7 @@ const event: EventResponse = {
   start_at: '2026-10-01T09:00:00Z',
   end_at: '2026-10-20T18:00:00Z',
   state: 'UPCOMING',
+  tracks: [],
   created_at: '2026-09-01T00:00:00Z',
   updated_at: '2026-09-01T00:00:00Z',
 }
@@ -32,17 +33,16 @@ describe('CloneEventDialog', () => {
 
   it('starts from the source start date, meaning no shift', async () => {
     open()
-    const start = screen.getByLabelText(/start/i) as HTMLInputElement
-    expect(start.value).toBe('2026-10-01')
+    const start = screen.getByLabelText(/start/i)
+    expect(start.getAttribute('data-value')).toBe('2026-10-01')
     expect(await screen.findByText(/unchanged/i)).toBeInTheDocument()
   })
 
   it('reports the shift and the recomputed end date once a new start is chosen', async () => {
     const { user } = open()
-    const start = screen.getByLabelText(/start/i)
 
-    await user.clear(start)
-    await user.type(start, '2026-10-31')
+    await user.click(screen.getByLabelText(/start/i))
+    await user.click(await screen.findByRole('button', { name: /October 31, 2026/i }))
 
     const summary = await screen.findByText(/Shift by 30 days/i)
     expect(summary).toBeInTheDocument()

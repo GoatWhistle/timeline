@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -14,9 +15,11 @@ import {
 import { ChannelMatrix } from '@/features/channel-matrix/channel-matrix'
 import { isApiError } from '@/shared/api/errors'
 import type { EventResponse } from '@/shared/api/types.gen'
+import { type Civil, civilFromIso, civilToIso, isCivil } from '@/shared/datetime/civil'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { isAcceptedUrl, normalizeFormUrl } from '@/shared/forms/url'
+import { MomentField } from '@/shared/ui/forms/calendar/moment-field'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { Textarea } from '@/shared/ui/forms/textarea'
@@ -26,17 +29,10 @@ import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
 import { RulesEditor } from './rules-editor'
 
-function toLocalInput(iso: string | undefined): string {
-  if (!iso) return ''
-  const date = new Date(iso)
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
-}
-
 const schema = z.object({
   url: z.string().refine((value) => isAcceptedUrl(value), {
     message: 'event:form.urlInvalid',
   }),
-  deadline_at: z.string().min(1, 'registration:tab.deadlineRequired'),
   description: z.string().optional(),
 })
 
@@ -61,15 +57,23 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
     resolver: zodResolver(schema),
     values: {
       url: registration?.url ?? '',
-      deadline_at: toLocalInput(registration?.deadline_at),
       description: registration?.description ?? '',
     },
   })
 
+  const [deadline, setDeadline] = useState<Civil>(() => civilFromIso(registration?.deadline_at))
+  const [deadlineError, setDeadlineError] = useState<string | undefined>(undefined)
+
   async function submit(values: FormValues) {
+    const deadlineIso = isCivil(deadline) ? civilToIso(deadline) : null
+    if (!deadlineIso) {
+      setDeadlineError(t('tab.deadlineRequired'))
+      return
+    }
+    setDeadlineError(undefined)
     const payload = {
       url: normalizeFormUrl(values.url) ?? values.url,
-      deadline_at: new Date(values.deadline_at).toISOString(),
+      deadline_at: deadlineIso,
       ...(values.description ? { description: values.description } : {}),
     }
     try {
@@ -85,7 +89,11 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
         })
       }
     } catch (error) {
-      applyServerErrors(error, setError, ['url', 'deadline_at', 'description'])
+      applyServerErrors(error, setError, ['url', 'description'])
+      if (isApiError(error)) {
+        const failed = error.fields.find((item) => item.field === 'deadline_at')
+        if (failed) setDeadlineError(failed.message ?? t('tab.deadlineRequired'))
+      }
     }
   }
 
@@ -135,19 +143,14 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
                 <Input id="reg-url" aria-invalid={Boolean(errors.url)} {...register('url')} />
               </Field>
 
-              <Field
+              <MomentField
+                id="reg-deadline"
                 label={t('tab.deadlineLabel')}
-                htmlFor="reg-deadline"
-                error={errors.deadline_at?.message}
+                value={deadline}
+                error={deadlineError}
                 hint={t('tab.deadlineHint', { date: formatDateTime(event.end_at) })}
-              >
-                <Input
-                  id="reg-deadline"
-                  type="datetime-local"
-                  aria-invalid={Boolean(errors.deadline_at)}
-                  {...register('deadline_at')}
-                />
-              </Field>
+                onChange={setDeadline}
+              />
 
               <Field
                 label={t('tab.descriptionLabel')}
