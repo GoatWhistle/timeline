@@ -39,6 +39,7 @@
   "shortcut_reserved": "This shortcut belongs to the browser or the operating system.",
   "task_limit_reached": "The task limit for this event is reached.",
   "team_event_link_limit": "The maximum number of team links for this event is reached",
+  "track_slots_exhausted": "Every track number is taken. Free one before reordering.",
   "tracks_not_supported": "Only a hackathon can have tracks.",
   "transport_network": "The server did not respond. Check the connection and try again.",
   "transport_offline": "There is no network connection. The page will work again once it returns.",

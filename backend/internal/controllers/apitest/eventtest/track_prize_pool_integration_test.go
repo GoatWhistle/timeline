@@ -4,6 +4,7 @@ package eventtest_test
 
 import (
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 
@@ -105,6 +106,35 @@ func TestATrackTakesTheNumberItIsGivenAndSwapsWithWhoeverHeldIt(t *testing.T) {
 		map[string]any{"track_no": 9}), http.StatusOK,
 		"moving a track to the number it already has")
 	requireOrder(t, readTracks(t, f, id), []string{"Third", "Second", "First"})
+}
+
+func TestReorderingIsRefusedWhenEveryTrackNumberIsTaken(t *testing.T) {
+	s := support.NewStack(t)
+	f := s.Seed(t)
+
+	id := createPrizedEvent(t, f, "An event holding every track number", "")
+	ids := make([]string, 0, 50)
+	for i := 1; i <= 50; i++ {
+		ids = append(ids, createTrack(t, f, id, "Track "+strconv.Itoa(i)))
+	}
+
+	resp := f.AdminClient.Patch("/admin/tracks/"+ids[49], map[string]any{"track_no": 1})
+	support.RequireStatus(t, resp, http.StatusConflict,
+		"reordering with every track number taken")
+	var problem poolError
+	resp.Decode(t, &problem)
+	if problem.Error.Code != "track_slots_exhausted" {
+		t.Fatalf("expected track_slots_exhausted, got %q", problem.Error.Code)
+	}
+
+	after := readTracks(t, f, id)
+	if len(after.Items) != 50 {
+		t.Fatalf("the refused reorder changed the track count to %d", len(after.Items))
+	}
+	if after.Items[0].Name != "Track 1" || after.Items[49].Name != "Track 50" {
+		t.Fatalf("the refused reorder moved a track: first %q, last %q",
+			after.Items[0].Name, after.Items[49].Name)
+	}
 }
 
 func createPrizedEvent(t *testing.T, f support.Fixture, title, pool string) string {
