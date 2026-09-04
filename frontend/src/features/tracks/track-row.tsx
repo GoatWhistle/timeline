@@ -2,10 +2,9 @@ import { ArrowDown, ArrowUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { EventTrackResponse } from '@/shared/api/types.gen'
 import { formatMoney } from '@/shared/money/money'
-import { cn } from '@/shared/styling/class-names/class-names'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
-import { DeleteAction, EditAction, TOUCH_REACH } from '@/shared/ui/primitives/row-actions'
+import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
 
 export function TrackRow({
   track,
@@ -56,7 +55,7 @@ export function TrackRow({
           <Button
             variant="ghost"
             size="icon"
-            className={cn('size-8 shrink-0', TOUCH_REACH)}
+            className="size-8 shrink-0"
             aria-label={t('tracks.moveUpAria', { name: track.name })}
             disabled={!canUp || busy}
             onClick={onUp}
@@ -66,7 +65,7 @@ export function TrackRow({
           <Button
             variant="ghost"
             size="icon"
-            className={cn('size-8 shrink-0', TOUCH_REACH)}
+            className="size-8 shrink-0"
             aria-label={t('tracks.moveDownAria', { name: track.name })}
             disabled={!canDown || busy}
             onClick={onDown}

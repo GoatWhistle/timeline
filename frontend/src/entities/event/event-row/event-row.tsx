@@ -42,6 +42,7 @@ export function EventRow({
       onClick={() => onSelect(event.id)}
       className={cn(
         'flex h-row w-full shrink-0 items-center gap-3 border-border/60 border-b px-3 text-left',
+        'pointer-coarse:h-11',
         'transition-colors duration-instant',
         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
         selected ? 'bg-accent-surface' : 'hover:bg-surface-2',

@@ -33,7 +33,7 @@ export function CoverMissing({
       )}
     >
       <CoverMissingFigure label={label} />
-      {labelled ? <p className="text-caption text-muted-foreground">{label}</p> : null}
+      {labelled ? <p className="text-caption text-foreground">{label}</p> : null}
     </div>
   )
 }

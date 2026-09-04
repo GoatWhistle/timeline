@@ -2,6 +2,7 @@ import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown } from 'lucide-react'
 import type * as React from 'react'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 
 export const Select = SelectPrimitive.Root
 export const SelectValue = SelectPrimitive.Value
@@ -16,6 +17,7 @@ export function SelectTrigger({
       className={cn(
         'flex h-9 w-full items-center justify-between gap-2 rounded-control border border-input bg-transparent px-3 py-2 text-copy shadow-xs',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        TOUCH_REACH,
         'disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate',
         className,
       )}

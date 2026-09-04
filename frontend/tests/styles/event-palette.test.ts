@@ -20,6 +20,10 @@ const INK: Record<(typeof THEMES)[number], string> = {
 
 const FILL_ALPHA = 0.18
 
+const FILL_ALPHA_STRONG = 0.3
+
+const COVER_INK = '--foreground'
+
 const PALETTE = join(process.cwd(), 'src', 'styles', 'tokens', 'event-palette.css')
 
 function slotToken(family: string, slot: number): string {
@@ -118,6 +122,25 @@ describe.each(THEMES)('event palette contrast, %s theme', (theme) => {
       for (const b of world) expect(channelDistance(a, b)).toBeGreaterThanOrEqual(SEPARATION * 2)
     }
   })
+
+  it.each(slots.flatMap((s) => SURFACES.map((bg) => [s.token, bg] as const)))(
+    'the cover placeholder reads over the strong fill of %s on %s at 4.5:1',
+    (token, bg) => {
+      const background = resolve(tokens, `--${bg}`)
+      const fill = over(resolve(tokens, token), background, FILL_ALPHA_STRONG)
+      expect(contrastRatio(resolve(tokens, COVER_INK), fill)).toBeGreaterThanOrEqual(TEXT_AA)
+    },
+  )
+
+  it.each(slots.flatMap((s) => SURFACES.map((bg) => [s.token, bg] as const)))(
+    'the slot colour of %s would not carry the placeholder over its own fill on %s',
+    (token, bg) => {
+      const background = resolve(tokens, `--${bg}`)
+      const fill = over(resolve(tokens, token), background, FILL_ALPHA_STRONG)
+      const ink = contrastRatio(resolve(tokens, COVER_INK), fill)
+      expect(ink).toBeGreaterThanOrEqual(contrastRatio(resolve(tokens, token), fill))
+    },
+  )
 
   it('the unassigned fallback is a real colour and not a palette slot', () => {
     const fallback = resolve(tokens, '--event-unassigned')

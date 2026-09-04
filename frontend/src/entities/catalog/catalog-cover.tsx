@@ -44,7 +44,7 @@ export function CatalogCover({
         />
       ) : (
         <span className="flex h-full w-full items-center justify-center bg-event-fill-strong">
-          <span aria-hidden="true" className="font-semibold text-event-tint text-screen uppercase">
+          <span aria-hidden="true" className="font-semibold text-foreground text-screen uppercase">
             {initial}
           </span>
           <span className="sr-only">{t('catalog.card.noCover')}</span>

@@ -19,7 +19,7 @@ export function CatalogViewSwitch({
   const { t } = useTranslation('event')
 
   return (
-    <fieldset className="flex h-9 items-center gap-0.5 rounded-control border border-border p-0.5">
+    <fieldset className="flex h-9 items-center gap-0.5 rounded-control border border-border p-0.5 pointer-coarse:h-12">
       <legend className="sr-only">{t('catalog.layoutAria')}</legend>
       {CATALOG_LAYOUTS.map((value) => {
         const Icon = LAYOUT_ICON[value]
@@ -33,7 +33,7 @@ export function CatalogViewSwitch({
             title={t(`catalog.layout.${value}`)}
             onClick={() => onLayout(value)}
             className={cn(
-              'flex size-7 items-center justify-center rounded-control',
+              'flex size-7 items-center justify-center rounded-control pointer-coarse:size-11',
               'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
               'focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-ring',
               active
