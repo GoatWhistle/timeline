@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -24,12 +24,12 @@ type PreviewService interface {
 
 type PreviewController struct {
 	svc     PreviewService
-	limiter shared.Limiter
+	limiter httpsession.Limiter
 	limit   int
 	window  time.Duration
 }
 
-func NewPreviewController(svc PreviewService, limiter shared.Limiter, limit int,
+func NewPreviewController(svc PreviewService, limiter httpsession.Limiter, limit int,
 	window time.Duration) *PreviewController {
 	return &PreviewController{svc: svc, limiter: limiter, limit: limit, window: window}
 }

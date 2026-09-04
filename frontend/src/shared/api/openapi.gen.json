@@ -8161,14 +8161,14 @@
             "CookieAuth": []
           }
         ],
-        "description": "Only assigned, published, non-archived events. Each event is a separate row,\nstages are returned as intervals and the registration deadline as a separate marker.\nregistration_status is the participant's own self reported mark, never a fact the\nsystem verified against the external registration site.",
+        "description": "Only assigned, published, non-archived events. Each event is a separate row,\nstages are returned as intervals and the registration deadline as a separate marker.\nregistration_status is the participant's own self reported mark, never a fact the\nsystem verified against the external registration site.\nThe response is not paginated, so the period is capped at 366 days and a wider\none is rejected with 400 rather than answered with an unbounded document.",
         "tags": [
           "queries"
         ],
         "summary": "User schedule",
         "parameters": [
           {
-            "description": "Start of the period, RFC3339",
+            "description": "Start of the period, RFC3339. Defaults to one month ago",
             "name": "from",
             "in": "query",
             "schema": {
@@ -8176,7 +8176,7 @@
             }
           },
           {
-            "description": "End of the period, RFC3339",
+            "description": "End of the period, RFC3339. Defaults to three months ahead, at most 366 days after from",
             "name": "to",
             "in": "query",
             "schema": {

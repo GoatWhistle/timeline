@@ -4,22 +4,22 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type SessionController struct {
 	svc     AuthService
-	cookies shared.CookieOptions
-	limiter shared.Limiter
+	cookies httpsession.CookieOptions
+	limiter httpsession.Limiter
 	limit   int
 	window  time.Duration
 }
 
-func NewSessionController(svc AuthService, cookies shared.CookieOptions, limiter shared.Limiter,
+func NewSessionController(svc AuthService, cookies httpsession.CookieOptions, limiter httpsession.Limiter,
 	limit int, window time.Duration) *SessionController {
 	return &SessionController{svc: svc, cookies: cookies, limiter: limiter, limit: limit, window: window}
 }

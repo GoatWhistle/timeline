@@ -8,7 +8,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/presenter"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -57,7 +57,7 @@ func (c *RegistrationController) Get(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.RegistrationResponse(reg, r.PathValue("id")))
+	httpx.JSON(w, http.StatusOK, presenter.RegistrationResponse(reg, r.PathValue("id")))
 }
 
 // @Summary		Create a registration
@@ -93,7 +93,7 @@ func (c *RegistrationController) Create(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusCreated, shared.RegistrationResponse(reg, r.PathValue("id")))
+	httpx.JSON(w, http.StatusCreated, presenter.RegistrationResponse(reg, r.PathValue("id")))
 }
 
 // @Summary		Update a registration
@@ -128,7 +128,7 @@ func (c *RegistrationController) Update(w http.ResponseWriter, r *http.Request) 
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.RegistrationResponse(reg, r.PathValue("id")))
+	httpx.JSON(w, http.StatusOK, presenter.RegistrationResponse(reg, r.PathValue("id")))
 }
 
 // @Summary		Enable registration
@@ -173,5 +173,5 @@ func (c *RegistrationController) setState(w http.ResponseWriter, r *http.Request
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.RegistrationResponse(reg, r.PathValue("id")))
+	httpx.JSON(w, http.StatusOK, presenter.RegistrationResponse(reg, r.PathValue("id")))
 }

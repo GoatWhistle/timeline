@@ -1,4 +1,4 @@
-package shared
+package httpsession
 
 import (
 	"net/http"

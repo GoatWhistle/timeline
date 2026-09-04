@@ -124,17 +124,10 @@ func (s *TeamService) ListEvents(ctx context.Context, actor models.Actor, teamID
 }
 
 func listTracks(tracks []models.EventTrack, chosen *uuid.UUID) entryTracks {
-	out := entryTracks{available: make([]dto.EventTrackSummary, 0, len(tracks))}
+	out := entryTracks{available: dto.TrackSummaries(tracks)}
 	for i := range tracks {
-		summary := dto.EventTrackSummary{
-			ID:         tracks[i].DisplayID,
-			TrackNo:    tracks[i].TrackNo,
-			Name:       tracks[i].Name,
-			PrizeTotal: tracks[i].PrizeTotal(),
-		}
-		out.available = append(out.available, summary)
 		if chosen != nil && tracks[i].ID == *chosen {
-			match := summary
+			match := out.available[i]
 			out.chosen = &match
 		}
 	}

@@ -191,3 +191,16 @@ type UpdateEventTrackRequest struct {
 type ChooseTrackRequest struct {
 	TrackID *string `json:"track_id,omitempty" example:"tr_42ej2s5gh7e8"`
 }
+
+func TrackSummaries(tracks []models.EventTrack) []EventTrackSummary {
+	out := make([]EventTrackSummary, 0, len(tracks))
+	for i := range tracks {
+		out = append(out, EventTrackSummary{
+			ID:         tracks[i].DisplayID,
+			TrackNo:    tracks[i].TrackNo,
+			Name:       tracks[i].Name,
+			PrizeTotal: tracks[i].PrizeTotal(),
+		})
+	}
+	return out
+}

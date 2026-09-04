@@ -79,20 +79,35 @@ func (s *TrackService) writable(ctx context.Context, actor models.Actor,
 	return target, nil
 }
 
-func (s *TrackService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req dto.CreateEventTrackRequest) (*dto.EventTrackResponse, error) {
+type trackDraft struct {
+	name        string
+	description *string
+	prizes      []models.TrackPrize
+	total       int64
+}
+
+func validateTrackDraft(req dto.CreateEventTrackRequest) (trackDraft, error) {
 	name, err := validation.ValidateText("name", req.Name, 1, 120)
 	if err != nil {
-		return nil, err
+		return trackDraft{}, err
 	}
 	description, err := validation.OptionalText("description", req.Description, 4000)
 	if err != nil {
-		return nil, err
+		return trackDraft{}, err
 	}
 	if err := validateTrackNo(req.TrackNo); err != nil {
-		return nil, err
+		return trackDraft{}, err
 	}
 	prizes, total, err := validatePrizeInputs(req.Prizes)
+	if err != nil {
+		return trackDraft{}, err
+	}
+	return trackDraft{name: name, description: description, prizes: prizes, total: total}, nil
+}
+
+func (s *TrackService) Create(ctx context.Context, actor models.Actor, eventID uuid.UUID,
+	req dto.CreateEventTrackRequest) (*dto.EventTrackResponse, error) {
+	draft, err := validateTrackDraft(req)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +125,7 @@ func (s *TrackService) Create(ctx context.Context, actor models.Actor, eventID u
 		if err != nil {
 			return err
 		}
-		if err := checkPoolCoverage(target.PrizePool, others, total); err != nil {
+		if err := checkPoolCoverage(target.PrizePool, others, draft.total); err != nil {
 			return err
 		}
 		trackNo := req.TrackNo
@@ -122,12 +137,12 @@ func (s *TrackService) Create(ctx context.Context, actor models.Actor, eventID u
 			trackNo = &next
 		}
 		created, err = s.tracks.Create(ctx, &models.EventTrack{
-			EventID: eventID, TrackNo: *trackNo, Name: name, Description: description,
+			EventID: eventID, TrackNo: *trackNo, Name: draft.name, Description: draft.description,
 		})
 		if err != nil {
 			return err
 		}
-		created.Prizes, err = s.tracks.ReplacePrizes(ctx, created.ID, eventID, prizes)
+		created.Prizes, err = s.tracks.ReplacePrizes(ctx, created.ID, eventID, draft.prizes)
 		if err != nil {
 			return err
 		}

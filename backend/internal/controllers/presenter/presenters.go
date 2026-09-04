@@ -1,4 +1,4 @@
-package shared
+package presenter
 
 import (
 	"time"
@@ -60,7 +60,7 @@ func EventResponseWithStages(h *models.Event, stages []models.Stage, now time.Ti
 		CountryCode:     h.CountryCode,
 		City:            h.City,
 		EffectiveFormat: models.DeriveEventFormat(h, stages),
-		Tracks:          eventTrackSummaries(h),
+		Tracks:          dto.TrackSummaries(h.Tracks),
 		PrizePool:       h.PrizePool,
 		PrizeCurrency:   h.PrizeCurrency,
 		TeamSizeMin:     h.TeamSizeMin,
@@ -141,17 +141,4 @@ func InviteResponse(i *models.Invite) dto.InviteResponse {
 		RevokedAt:       i.RevokedAt,
 		CreatedAt:       i.CreatedAt,
 	}
-}
-
-func eventTrackSummaries(h *models.Event) []dto.EventTrackSummary {
-	out := make([]dto.EventTrackSummary, 0, len(h.Tracks))
-	for i := range h.Tracks {
-		out = append(out, dto.EventTrackSummary{
-			ID:         h.Tracks[i].DisplayID,
-			TrackNo:    h.Tracks[i].TrackNo,
-			Name:       h.Tracks[i].Name,
-			PrizeTotal: h.Tracks[i].PrizeTotal(),
-		})
-	}
-	return out
 }

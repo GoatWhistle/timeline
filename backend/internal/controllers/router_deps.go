@@ -6,12 +6,12 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/auth"
 	"github.com/GoatWhistle/timeline/internal/controllers/event"
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/notification"
 	"github.com/GoatWhistle/timeline/internal/controllers/participation"
 	"github.com/GoatWhistle/timeline/internal/controllers/personal"
 	"github.com/GoatWhistle/timeline/internal/controllers/realtime"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/controllers/team"
 )
 
@@ -48,7 +48,7 @@ type Deps struct {
 	Metrics       http.Handler
 	SwaggerUI     http.Handler
 
-	Limiter            shared.Limiter
+	Limiter            httpsession.Limiter
 	CatalogRate        int
 	CatalogRateWindow  time.Duration
 	PublicProfiles     auth.PublicProfileService
@@ -78,7 +78,7 @@ type Deps struct {
 	AvatarMaxBytes     int64
 	CoverMaxBytes      int64
 
-	Cookies      shared.CookieOptions
+	Cookies      httpsession.CookieOptions
 	PublicURL    string
 	CORSOrigins  []string
 	MetricsToken string

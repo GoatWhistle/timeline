@@ -7,9 +7,10 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/presenter"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -27,14 +28,14 @@ type InviteService interface {
 
 type InviteController struct {
 	svc       InviteService
-	cookies   shared.CookieOptions
+	cookies   httpsession.CookieOptions
 	publicURL string
 	csrfTTL   time.Duration
 	pageDef   int
 	pageMax   int
 }
 
-func NewInviteController(svc InviteService, cookies shared.CookieOptions, publicURL string,
+func NewInviteController(svc InviteService, cookies httpsession.CookieOptions, publicURL string,
 	csrfTTL time.Duration, pageDef, pageMax int,
 ) *InviteController {
 	return &InviteController{
@@ -69,7 +70,7 @@ func (c *InviteController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSON(w, http.StatusCreated, dto.CreateInviteResponse{
-		Invite:     shared.InviteResponse(invite),
+		Invite:     presenter.InviteResponse(invite),
 		AcceptLink: c.publicURL + "/invite/" + token,
 	})
 }
@@ -96,7 +97,7 @@ func (c *InviteController) List(w http.ResponseWriter, r *http.Request) {
 	}
 	out := make([]dto.InviteResponse, 0, len(items))
 	for i := range items {
-		out = append(out, shared.InviteResponse(&items[i]))
+		out = append(out, presenter.InviteResponse(&items[i]))
 	}
 	httpx.JSON(w, http.StatusOK, dto.InvitePage{Items: out, Meta: httpx.Meta(page, total)})
 }
@@ -165,7 +166,7 @@ func (c *InviteController) Accept(w http.ResponseWriter, r *http.Request) {
 	c.cookies.SetAuth(w, pair)
 	c.cookies.SetCSRF(w, randomToken(), time.Now().Add(c.csrfTTL))
 	httpx.JSON(w, http.StatusOK, dto.AuthResponse{
-		User:             shared.MeResponse(user),
+		User:             presenter.MeResponse(user),
 		AccessExpiresAt:  pair.AccessExpiresAt,
 		RefreshExpiresAt: pair.RefreshExpiresAt,
 	})

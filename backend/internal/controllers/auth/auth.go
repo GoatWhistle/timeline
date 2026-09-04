@@ -6,20 +6,21 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/presenter"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Controller struct {
 	svc     AuthService
-	cookies shared.CookieOptions
+	cookies httpsession.CookieOptions
 	csrfTTL time.Duration
 }
 
-func NewController(svc AuthService, cookies shared.CookieOptions, csrfTTL time.Duration) *Controller {
+func NewController(svc AuthService, cookies httpsession.CookieOptions, csrfTTL time.Duration) *Controller {
 	return &Controller{svc: svc, cookies: cookies, csrfTTL: csrfTTL}
 }
 
@@ -31,7 +32,7 @@ func (c *Controller) issue(w http.ResponseWriter, user *models.User, pair *model
 	c.cookies.SetAuth(w, pair)
 	c.cookies.SetCSRF(w, randomToken(), time.Now().Add(c.csrfTTL))
 	httpx.JSON(w, http.StatusOK, dto.AuthResponse{
-		User:             shared.MeResponse(user),
+		User:             presenter.MeResponse(user),
 		AccessExpiresAt:  pair.AccessExpiresAt,
 		RefreshExpiresAt: pair.RefreshExpiresAt,
 	})

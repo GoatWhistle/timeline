@@ -136,10 +136,8 @@ func NewStack(t *testing.T) *Stack {
 	profileSvc.WithCalendarFeeds(calendarRepo)
 
 	tracksRepo := event.NewTracks(db)
-	eventSvc := svcevent.NewEventService(db, events, registrations, notifier, scheduler, auditSvc)
-	eventSvc.WithTracks(tracksRepo)
-	querySvc := svcevent.NewQueryService(queries, events, stages, participants, registrations, statuses)
-	querySvc.WithTracks(tracksRepo)
+	eventSvc := svcevent.NewEventService(db, events, tracksRepo, registrations, notifier, scheduler, auditSvc)
+	querySvc := svcevent.NewQueryService(queries, events, stages, tracksRepo, participants, registrations, statuses)
 
 	deps := controllers.Deps{
 		Auth:           auth,

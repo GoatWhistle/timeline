@@ -8,9 +8,9 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -32,14 +32,14 @@ type CatalogService interface {
 
 type CatalogController struct {
 	catalog CatalogService
-	limiter shared.Limiter
+	limiter httpsession.Limiter
 	limit   int
 	window  time.Duration
 	pageDef int
 	pageMax int
 }
 
-func NewCatalogController(svc CatalogService, limiter shared.Limiter, limit int,
+func NewCatalogController(svc CatalogService, limiter httpsession.Limiter, limit int,
 	window time.Duration, pageDef, pageMax int) *CatalogController {
 	return &CatalogController{
 		catalog: svc, limiter: limiter, limit: limit, window: window,

@@ -172,9 +172,6 @@ func websiteChanged(before, after *string) bool {
 
 func (s *EventService) checkPoolCoversTracks(ctx context.Context, id uuid.UUID,
 	pool *string) error {
-	if s.tracks == nil {
-		return nil
-	}
 	distributed, err := s.tracks.DistributedTotal(ctx, id, nil)
 	if err != nil {
 		return err

@@ -66,6 +66,10 @@ jobs:
         working-directory: .
         run: bash scripts/check-import-cycles.sh
 
+      - name: Package subjects
+        working-directory: .
+        run: bash scripts/check-package-subject.sh
+
       - name: golangci-lint (PR changes)
         if: github.event_name == 'pull_request'
         uses: golangci/golangci-lint-action@v9

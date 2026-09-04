@@ -100,3 +100,24 @@ func TestEventCardShowsTheColourAndCoverTheAdministratorSet(t *testing.T) {
 			administrative.Color.Family, administrative.Color.Slot)
 	}
 }
+
+func TestScheduleRejectsAPeriodWiderThanTheCap(t *testing.T) {
+	s := support.NewStack(t)
+	f := s.Seed(t)
+
+	member := s.Session(t, f.Member)
+
+	resp := member.Get("/me/schedule?from=2020-01-01T00:00:00Z&to=2035-01-01T00:00:00Z")
+	support.RequireErrorCode(t, resp, http.StatusBadRequest, "validation_failed",
+		"asking for a fifteen year schedule")
+}
+
+func TestScheduleAcceptsAPeriodAtTheCap(t *testing.T) {
+	s := support.NewStack(t)
+	f := s.Seed(t)
+
+	member := s.Session(t, f.Member)
+
+	resp := member.Get("/me/schedule?from=2026-01-01T00:00:00Z&to=2027-01-01T00:00:00Z")
+	support.RequireStatus(t, resp, http.StatusOK, "asking for a schedule exactly at the cap")
+}

@@ -307,6 +307,10 @@ linters:
           - gocyclo
           - lll
 
+      - path: internal/controllers/router_mounts\.go
+        linters:
+          - dupl
+
       - path: internal/adapters/postgres/
         source: '^\s*(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN|LEFT|VALUES|ON CONFLICT|RETURNING|ORDER BY|GROUP BY)'
         linters:

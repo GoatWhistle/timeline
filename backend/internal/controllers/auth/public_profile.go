@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -17,12 +17,12 @@ type PublicProfileService interface {
 
 type PublicProfileController struct {
 	svc     PublicProfileService
-	limiter shared.Limiter
+	limiter httpsession.Limiter
 	limit   int
 	window  time.Duration
 }
 
-func NewPublicProfileController(svc PublicProfileService, limiter shared.Limiter,
+func NewPublicProfileController(svc PublicProfileService, limiter httpsession.Limiter,
 	limit int, window time.Duration) *PublicProfileController {
 	return &PublicProfileController{svc: svc, limiter: limiter, limit: limit, window: window}
 }

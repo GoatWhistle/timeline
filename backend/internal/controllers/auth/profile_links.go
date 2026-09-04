@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -28,12 +28,12 @@ type ProfileLinkService interface {
 
 type ProfileLinkController struct {
 	svc     ProfileLinkService
-	limiter shared.Limiter
+	limiter httpsession.Limiter
 	limit   int
 	window  time.Duration
 }
 
-func NewProfileLinkController(svc ProfileLinkService, limiter shared.Limiter,
+func NewProfileLinkController(svc ProfileLinkService, limiter httpsession.Limiter,
 	limit int, window time.Duration) *ProfileLinkController {
 	return &ProfileLinkController{svc: svc, limiter: limiter, limit: limit, window: window}
 }

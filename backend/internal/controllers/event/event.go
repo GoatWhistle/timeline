@@ -9,7 +9,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/presenter"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -78,7 +78,7 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UTC()
 	out := make([]dto.EventResponse, 0, len(items))
 	for i := range items {
-		out = append(out, shared.EventResponse(&items[i], now, true))
+		out = append(out, presenter.EventResponse(&items[i], now, true))
 	}
 	httpx.JSON(w, http.StatusOK, dto.EventPage{Items: out, Meta: httpx.Meta(page, total)})
 }
@@ -119,7 +119,7 @@ func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusCreated, shared.EventResponse(h, time.Now().UTC(), true))
+	httpx.JSON(w, http.StatusCreated, presenter.EventResponse(h, time.Now().UTC(), true))
 }
 
 // @Summary		The whole event
@@ -149,7 +149,7 @@ func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.EventResponseWithStages(h, stages, time.Now().UTC(), true))
+	httpx.JSON(w, http.StatusOK, presenter.EventResponseWithStages(h, stages, time.Now().UTC(), true))
 }
 
 // @Summary		Update an event
@@ -189,7 +189,7 @@ func (c *Controller) Update(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.EventResponse(h, time.Now().UTC(), true))
+	httpx.JSON(w, http.StatusOK, presenter.EventResponse(h, time.Now().UTC(), true))
 }
 
 // @Summary		Publish an event
@@ -215,7 +215,7 @@ func (c *Controller) Publish(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.EventResponse(h, time.Now().UTC(), true))
+	httpx.JSON(w, http.StatusOK, presenter.EventResponse(h, time.Now().UTC(), true))
 }
 
 // @Summary		Archive an event
@@ -240,5 +240,5 @@ func (c *Controller) Archive(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.EventResponse(h, time.Now().UTC(), true))
+	httpx.JSON(w, http.StatusOK, presenter.EventResponse(h, time.Now().UTC(), true))
 }

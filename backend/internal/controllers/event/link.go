@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -41,12 +41,12 @@ type ResourceLinkService interface {
 
 type ResourceLinkController struct {
 	links   ResourceLinkService
-	limiter shared.Limiter
+	limiter httpsession.Limiter
 	limit   int
 	window  time.Duration
 }
 
-func NewResourceLinkController(svc ResourceLinkService, limiter shared.Limiter, limit int,
+func NewResourceLinkController(svc ResourceLinkService, limiter httpsession.Limiter, limit int,
 	window time.Duration) *ResourceLinkController {
 	return &ResourceLinkController{links: svc, limiter: limiter, limit: limit, window: window}
 }

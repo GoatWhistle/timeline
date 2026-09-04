@@ -5,7 +5,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/presenter"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -24,7 +24,7 @@ func (c *ProfileController) Shortcuts(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, dto.ShortcutsResponse{Shortcuts: shared.Shortcuts(user.Shortcuts)})
+	httpx.JSON(w, http.StatusOK, dto.ShortcutsResponse{Shortcuts: presenter.Shortcuts(user.Shortcuts)})
 }
 
 // @Summary		Replace your own keyboard shortcut overrides
@@ -56,7 +56,7 @@ func (c *ProfileController) UpdateShortcuts(w http.ResponseWriter, r *http.Reque
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, dto.ShortcutsResponse{Shortcuts: shared.Shortcuts(user.Shortcuts)})
+	httpx.JSON(w, http.StatusOK, dto.ShortcutsResponse{Shortcuts: presenter.Shortcuts(user.Shortcuts)})
 }
 
 // @Summary	Reset every keyboard shortcut to its default
@@ -77,5 +77,5 @@ func (c *ProfileController) ResetShortcuts(w http.ResponseWriter, r *http.Reques
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, dto.ShortcutsResponse{Shortcuts: shared.Shortcuts(user.Shortcuts)})
+	httpx.JSON(w, http.StatusOK, dto.ShortcutsResponse{Shortcuts: presenter.Shortcuts(user.Shortcuts)})
 }

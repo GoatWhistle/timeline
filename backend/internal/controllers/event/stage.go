@@ -5,7 +5,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/presenter"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
@@ -32,7 +32,7 @@ func (c *Controller) ListStages(w http.ResponseWriter, r *http.Request) {
 	}
 	out := make([]dto.StageResponse, 0, len(items))
 	for i := range items {
-		out = append(out, shared.StageResponse(&items[i], event))
+		out = append(out, presenter.StageResponse(&items[i], event))
 	}
 	httpx.JSON(w, http.StatusOK, out)
 }
@@ -67,7 +67,7 @@ func (c *Controller) CreateStage(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusCreated, shared.StageResponse(s, event))
+	httpx.JSON(w, http.StatusCreated, presenter.StageResponse(s, event))
 }
 
 // @Summary	Update a stage
@@ -98,7 +98,7 @@ func (c *Controller) UpdateStage(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.StageResponse(s, event))
+	httpx.JSON(w, http.StatusOK, presenter.StageResponse(s, event))
 }
 
 // @Summary	Delete a stage

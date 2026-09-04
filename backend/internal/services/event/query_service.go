@@ -26,16 +26,14 @@ type QueryService struct {
 }
 
 func NewQueryService(queries *query.Timeline, events *event.Events,
-	stages *event.Stages, participants *participation.Participants,
+	stages *event.Stages, tracks *event.Tracks, participants *participation.Participants,
 	registrations *participation.Registrations, statuses *participation.Statuses) *QueryService {
 	return &QueryService{
-		queries: queries, events: events, stages: stages, participants: participants,
+		queries: queries, events: events, stages: stages, tracks: tracks, participants: participants,
 		registrations: registrations, statuses: statuses,
 		now: func() time.Time { return time.Now().UTC() },
 	}
 }
-
-func (s *QueryService) WithTracks(t *event.Tracks) { s.tracks = t }
 
 func (s *QueryService) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
 	return s.events.ResolveDisplayID(ctx, displayID)
@@ -79,11 +77,9 @@ func (s *QueryService) EventCard(ctx context.Context, actor models.Actor,
 	if err != nil {
 		return nil, err
 	}
-	if s.tracks != nil {
-		event.Tracks, err = s.tracks.ListByEvent(ctx, eventID)
-		if err != nil {
-			return nil, err
-		}
+	event.Tracks, err = s.tracks.ListByEvent(ctx, eventID)
+	if err != nil {
+		return nil, err
 	}
 	nextStage, err := s.queries.NextStage(ctx, eventID, now)
 	if err != nil {

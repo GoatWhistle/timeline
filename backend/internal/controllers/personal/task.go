@@ -4,23 +4,23 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type Controller struct {
 	personal PersonalService
-	limiter  shared.Limiter
+	limiter  httpsession.Limiter
 	limit    int
 	window   time.Duration
 	pageDef  int
 	pageMax  int
 }
 
-func NewController(svc PersonalService, limiter shared.Limiter, limit int,
+func NewController(svc PersonalService, limiter httpsession.Limiter, limit int,
 	window time.Duration, pageDef, pageMax int) *Controller {
 	return &Controller{
 		personal: svc, limiter: limiter, limit: limit, window: window,

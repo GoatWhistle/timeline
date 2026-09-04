@@ -32,11 +32,11 @@ type EventService struct {
 	now           func() time.Time
 }
 
-func NewEventService(db *postgres.DB, events *event.Events,
+func NewEventService(db *postgres.DB, events *event.Events, tracks *event.Tracks,
 	registrations *participation.Registrations, notifier Notifier,
 	reconciler Reconciler, audit *audit.AuditService) *EventService {
 	return &EventService{
-		db: db, events: events, registrations: registrations, notifier: notifier,
+		db: db, events: events, tracks: tracks, registrations: registrations, notifier: notifier,
 		reconciler: reconciler, audit: audit, now: func() time.Time { return time.Now().UTC() },
 	}
 }
@@ -113,8 +113,6 @@ func (s *EventService) Create(ctx context.Context, actor models.Actor, req dto.C
 	return created, nil
 }
 
-func (s *EventService) WithTracks(t *event.Tracks) { s.tracks = t }
-
 func (s *EventService) Get(ctx context.Context, actor models.Actor, id uuid.UUID) (*models.Event, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
@@ -128,7 +126,7 @@ func (s *EventService) Get(ctx context.Context, actor models.Actor, id uuid.UUID
 
 func (s *EventService) loadTracks(ctx context.Context, items []models.Event,
 	single *models.Event) error {
-	if s.tracks == nil || len(items) == 0 {
+	if len(items) == 0 {
 		return nil
 	}
 	ids := make([]uuid.UUID, 0, len(items))

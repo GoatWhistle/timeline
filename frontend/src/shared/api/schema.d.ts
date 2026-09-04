@@ -8035,13 +8035,15 @@ export interface paths {
          *     stages are returned as intervals and the registration deadline as a separate marker.
          *     registration_status is the participant's own self reported mark, never a fact the
          *     system verified against the external registration site.
+         *     The response is not paginated, so the period is capped at 366 days and a wider
+         *     one is rejected with 400 rather than answered with an unbounded document.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Start of the period, RFC3339 */
+                    /** @description Start of the period, RFC3339. Defaults to one month ago */
                     from?: string;
-                    /** @description End of the period, RFC3339 */
+                    /** @description End of the period, RFC3339. Defaults to three months ahead, at most 366 days after from */
                     to?: string;
                 };
                 header?: never;

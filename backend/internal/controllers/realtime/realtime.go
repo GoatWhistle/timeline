@@ -10,9 +10,9 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -31,14 +31,14 @@ type Controller struct {
 	sessions SessionChecker
 	origins  []string
 	ping     time.Duration
-	limiter  shared.Limiter
+	limiter  httpsession.Limiter
 	limit    int
 	window   time.Duration
 	now      func() time.Time
 }
 
 func NewController(hub RealtimeHub, sessions SessionChecker, origins []string,
-	ping time.Duration, limiter shared.Limiter, limit int, window time.Duration) *Controller {
+	ping time.Duration, limiter httpsession.Limiter, limit int, window time.Duration) *Controller {
 	if ping <= 0 {
 		ping = 30 * time.Second
 	}

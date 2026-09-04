@@ -12,7 +12,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/presenter"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/blobstore"
@@ -42,7 +42,7 @@ func (c *CoverController) eventID(r *http.Request) (uuid.UUID, error) {
 }
 
 func (c *CoverController) respond(w http.ResponseWriter, event *models.Event) {
-	httpx.JSON(w, http.StatusOK, shared.EventResponse(event, time.Now().UTC(), true))
+	httpx.JSON(w, http.StatusOK, presenter.EventResponse(event, time.Now().UTC(), true))
 }
 
 // @Summary		Upload or replace the event cover

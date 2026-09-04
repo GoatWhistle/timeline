@@ -61,20 +61,25 @@ func (r *Tracks) OccupantOfTrackNo(ctx context.Context, eventID uuid.UUID, id uu
 	return occupant, nil
 }
 
-func (r *Tracks) ParkTrackNo(ctx context.Context, eventID uuid.UUID, id uuid.UUID) error {
-	_, err := r.db.Q(ctx).Exec(ctx, `
+func (r *Tracks) ParkTrackNo(ctx context.Context, eventID uuid.UUID, id uuid.UUID) (bool, error) {
+	tag, err := r.db.Q(ctx).Exec(ctx, `
 		UPDATE event_tracks SET track_no = (
 			SELECT n FROM generate_series(1, 50) AS n
 			WHERE NOT EXISTS (
-				SELECT 1 FROM event_tracks
-				WHERE event_id = $1 AND track_no = n AND id <> $2
+				SELECT 1 FROM event_tracks WHERE event_id = $1 AND track_no = n
 			)
 			ORDER BY n LIMIT 1
-		) WHERE id = $2`, eventID, id)
+		)
+		WHERE id = $2 AND EXISTS (
+			SELECT 1 FROM generate_series(1, 50) AS n
+			WHERE NOT EXISTS (
+				SELECT 1 FROM event_tracks WHERE event_id = $1 AND track_no = n
+			)
+		)`, eventID, id)
 	if err != nil {
-		return mapError(err)
+		return false, mapError(err)
 	}
-	return nil
+	return tag.RowsAffected() > 0, nil
 }
 
 func (r *Tracks) SetTrackNo(ctx context.Context, id uuid.UUID, trackNo int) error {

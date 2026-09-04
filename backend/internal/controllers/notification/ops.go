@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -25,7 +25,7 @@ type OpsController struct {
 	svc          OpsService
 	metricsToken string
 	metrics      http.Handler
-	limiter      shared.Limiter
+	limiter      httpsession.Limiter
 	limit        int
 	window       time.Duration
 	pageDef      int
@@ -33,7 +33,7 @@ type OpsController struct {
 }
 
 func NewOpsController(svc OpsService, metricsToken string, metrics http.Handler,
-	limiter shared.Limiter, limit int, window time.Duration, pageDef, pageMax int) *OpsController {
+	limiter httpsession.Limiter, limit int, window time.Duration, pageDef, pageMax int) *OpsController {
 	return &OpsController{svc: svc, metricsToken: metricsToken, metrics: metrics,
 		limiter: limiter, limit: limit, window: window, pageDef: pageDef, pageMax: pageMax}
 }

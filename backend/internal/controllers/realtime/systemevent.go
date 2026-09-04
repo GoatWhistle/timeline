@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -25,14 +25,14 @@ type SystemEventService interface {
 
 type SystemEventController struct {
 	svc     SystemEventService
-	limiter shared.Limiter
+	limiter httpsession.Limiter
 	limit   int
 	window  time.Duration
 	pageDef int
 	pageMax int
 }
 
-func NewSystemEventController(svc SystemEventService, limiter shared.Limiter, limit int,
+func NewSystemEventController(svc SystemEventService, limiter httpsession.Limiter, limit int,
 	window time.Duration, pageDef, pageMax int) *SystemEventController {
 	return &SystemEventController{svc: svc, limiter: limiter, limit: limit, window: window,
 		pageDef: pageDef, pageMax: pageMax}

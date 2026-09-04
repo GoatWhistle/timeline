@@ -13,6 +13,8 @@ import (
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
+const maxScheduleSpan = 366 * 24 * time.Hour
+
 type QueryService interface {
 	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	MyEvents(
@@ -101,11 +103,13 @@ func (c *QueryController) EventCard(w http.ResponseWriter, r *http.Request) {
 // @Description	stages are returned as intervals and the registration deadline as a separate marker.
 // @Description	registration_status is the participant's own self reported mark, never a fact the
 // @Description	system verified against the external registration site.
+// @Description	The response is not paginated, so the period is capped at 366 days and a wider
+// @Description	one is rejected with 400 rather than answered with an unbounded document.
 // @Tags			queries
 // @Produce		json
 // @Security		CookieAuth
-// @Param			from	query		string	false	"Start of the period, RFC3339"
-// @Param			to		query		string	false	"End of the period, RFC3339"
+// @Param			from	query		string	false	"Start of the period, RFC3339. Defaults to one month ago"
+// @Param			to		query		string	false	"End of the period, RFC3339. Defaults to three months ahead, at most 366 days after from"
 // @Success		200		{object}	dto.ScheduleResponse
 // @Failure		400		{object}	dto.ErrorResponse
 // @Failure		401		{object}	dto.ErrorResponse
@@ -146,6 +150,9 @@ func (c *QueryController) scheduleFilter(r *http.Request) (models.ScheduleFilter
 	}
 	if !filter.To.After(filter.From) {
 		return filter, models.NewValidation("to must be later than from")
+	}
+	if filter.To.Sub(filter.From) > maxScheduleSpan {
+		return filter, models.NewValidation("the period must not exceed 366 days")
 	}
 	archived, err := httpx.QueryBool(r, "include_archived")
 	if err != nil {

@@ -150,9 +150,8 @@ func newContainer(ctx context.Context) (*container, error) {
 		return nil, err
 	}
 	c.users = svcauth.NewUserService(db, c.repos.users, c.repos.sessions, c.notifier, c.audit, c.cfg)
-	c.events = svcevent.NewEventService(db, c.repos.events, c.repos.registrations,
+	c.events = svcevent.NewEventService(db, c.repos.events, c.repos.tracks, c.repos.registrations,
 		c.notifier, c.scheduler, c.audit)
-	c.events.WithTracks(c.repos.tracks)
 	if err := c.wireCovers(cfg); err != nil {
 		return nil, err
 	}
@@ -162,8 +161,15 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.catalog = svcevent.NewCatalogService(db, c.repos.catalog, c.repos.events, c.repos.participants,
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
 	c.queries = svcevent.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
-		c.repos.participants, c.repos.registrations, c.repos.statuses)
-	c.queries.WithTracks(c.repos.tracks)
+		c.repos.tracks, c.repos.participants, c.repos.registrations, c.repos.statuses)
+	c.wireDelivery(cfg)
+	c.wireTeams(cfg)
+	c.wireRealtime()
+	return c, nil
+}
+
+func (c *container) wireDelivery(cfg *config.Config) {
+	db := c.db
 	c.delivery = svcdelivery.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
 		c.repos.rules, c.repos.audit, c.telegram, c.email, cfg)
 	c.personal = svcpersonal.NewPersonalService(db, c.repos.tasks, c.repos.notes, c.repos.artifacts,
@@ -176,9 +182,6 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.hub = svcrealtime.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
 	c.calendar = svcauth.NewCalendarFeedService(db, c.repos.calendarFeeds, c.repos.users,
 		c.repos.queries, c.audit, cfg.App.PublicURL)
-	c.wireTeams(cfg)
-	c.wireRealtime()
-	return c, nil
 }
 
 func (c *container) wireParticipation(cfg *config.Config) {

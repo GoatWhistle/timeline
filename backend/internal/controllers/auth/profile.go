@@ -7,9 +7,10 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/presenter"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -28,13 +29,13 @@ type ProfileService interface {
 
 type ProfileController struct {
 	svc     ProfileService
-	cookies shared.CookieOptions
-	limiter shared.Limiter
+	cookies httpsession.CookieOptions
+	limiter httpsession.Limiter
 	limit   int
 	window  time.Duration
 }
 
-func NewProfileController(svc ProfileService, cookies shared.CookieOptions, limiter shared.Limiter,
+func NewProfileController(svc ProfileService, cookies httpsession.CookieOptions, limiter httpsession.Limiter,
 	limit int, window time.Duration) *ProfileController {
 	return &ProfileController{svc: svc, cookies: cookies, limiter: limiter,
 		limit: limit, window: window}
@@ -69,7 +70,7 @@ func (c *ProfileController) Get(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.MeResponse(user))
+	httpx.JSON(w, http.StatusOK, presenter.MeResponse(user))
 }
 
 // @Summary		Update your own profile
@@ -99,7 +100,7 @@ func (c *ProfileController) Update(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.MeResponse(user))
+	httpx.JSON(w, http.StatusOK, presenter.MeResponse(user))
 }
 
 // @Summary		Telegram link URL

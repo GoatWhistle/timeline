@@ -1,7 +1,7 @@
 package controllers
 
-import "github.com/GoatWhistle/timeline/internal/controllers/shared"
+import "github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 
-type CookieOptions = shared.CookieOptions
+type CookieOptions = httpsession.CookieOptions
 
-type Limiter = shared.Limiter
+type Limiter = httpsession.Limiter

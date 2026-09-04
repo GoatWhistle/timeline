@@ -8,7 +8,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/presenter"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -56,7 +56,7 @@ func (c *NotificationRuleController) ListRules(w http.ResponseWriter, r *http.Re
 	}
 	out := make([]dto.NotificationRuleResponse, 0, len(items))
 	for i := range items {
-		out = append(out, shared.RuleResponse(&items[i]))
+		out = append(out, presenter.RuleResponse(&items[i]))
 	}
 	httpx.JSON(w, http.StatusOK, out)
 }
@@ -93,7 +93,7 @@ func (c *NotificationRuleController) CreateRule(w http.ResponseWriter, r *http.R
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusCreated, shared.RuleResponse(rule))
+	httpx.JSON(w, http.StatusCreated, presenter.RuleResponse(rule))
 }
 
 // @Summary		Update a reminder rule
@@ -127,7 +127,7 @@ func (c *NotificationRuleController) UpdateRule(w http.ResponseWriter, r *http.R
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.RuleResponse(rule))
+	httpx.JSON(w, http.StatusOK, presenter.RuleResponse(rule))
 }
 
 // @Summary		Disable a reminder rule

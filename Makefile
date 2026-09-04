@@ -57,7 +57,7 @@ export WEB_PORT API_PORT POSTGRES_PORT ADMIN_EMAIL ADMIN_PASSWORD ADMIN_NAME CON
 	docker-psql dev dev-down dev-restart dev-logs seed \
 	install types types-check typecheck lint format test test-contract e2e verify build \
 	cyrillic baseline-cyrillic import-cycles lint-baseline baseline-lint \
-	package-size baseline-package-size screenshots \
+	package-size baseline-package-size package-subject screenshots \
 	back-fmt back-vet back-test back-test-integration back-build back-cover back-cover-integration back-docs clean
 
 .DEFAULT_GOAL := help
@@ -215,6 +215,9 @@ cyrillic: ## Code language is English, Cyrillic only in dictionaries (ratchet)
 import-cycles: ## No import cycles between internal packages, tests included
 	@bash scripts/check-import-cycles.sh
 
+package-subject: ## Every package is named by its subject, never "shared" or "utils"
+	@bash scripts/check-package-subject.sh
+
 screenshots: ## Images only in screenshots/, assets and docs
 	@bash scripts/check-screenshots.sh
 
@@ -244,6 +247,7 @@ verify: ## Full check of both parts: contract, types, linter, tests, build
 	@$(MAKE) --no-print-directory file-length
 	@$(MAKE) --no-print-directory cyrillic
 	@$(MAKE) --no-print-directory import-cycles
+	@$(MAKE) --no-print-directory package-subject
 	@$(MAKE) --no-print-directory screenshots
 	@cd $(FRONTEND) && npm run verify
 	@$(MAKE) --no-print-directory test-contract

@@ -18,10 +18,6 @@
   --font-sans: "Geist Variable", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono Variable", "Geist Mono Fallback", ui-monospace, monospace;
 
-  --radius-sm: var(--radius-badge);
-  --radius-md: var(--radius-control);
-  --radius-lg: var(--radius-surface);
-
   --radius-badge: var(--radius-badge);
   --radius-control: var(--radius-control);
   --radius-surface: var(--radius-surface);

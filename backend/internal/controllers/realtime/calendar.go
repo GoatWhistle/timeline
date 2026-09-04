@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -21,14 +21,14 @@ type CalendarFeedService interface {
 
 type CalendarFeedController struct {
 	feeds       CalendarFeedService
-	limiter     shared.Limiter
+	limiter     httpsession.Limiter
 	manageLimit int
 	manageWin   time.Duration
 	feedLimit   int
 	feedWin     time.Duration
 }
 
-func NewCalendarFeedController(svc CalendarFeedService, limiter shared.Limiter,
+func NewCalendarFeedController(svc CalendarFeedService, limiter httpsession.Limiter,
 	manageLimit int, manageWin time.Duration, feedLimit int,
 	feedWin time.Duration) *CalendarFeedController {
 	return &CalendarFeedController{feeds: svc, limiter: limiter,

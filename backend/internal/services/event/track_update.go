@@ -103,23 +103,6 @@ func TrackResponse(target *models.Event, track *models.EventTrack) dto.EventTrac
 	}
 }
 
-func TrackSummary(track *models.EventTrack) dto.EventTrackSummary {
-	return dto.EventTrackSummary{
-		ID:         track.DisplayID,
-		TrackNo:    track.TrackNo,
-		Name:       track.Name,
-		PrizeTotal: sumPrizes(track.Prizes),
-	}
-}
-
-func TrackSummaries(tracks []models.EventTrack) []dto.EventTrackSummary {
-	out := make([]dto.EventTrackSummary, 0, len(tracks))
-	for i := range tracks {
-		out = append(out, TrackSummary(&tracks[i]))
-	}
-	return out
-}
-
 func mustWhole(value string) int64 {
 	amount, err := parseWholeAmount("amount", value)
 	if err != nil {
@@ -154,24 +137,18 @@ func (s *TrackService) reorderTrackNo(ctx context.Context, before *models.EventT
 	if occupant == uuid.Nil {
 		return nil
 	}
-	if err := s.tracks.ParkTrackNo(ctx, before.EventID, before.ID); err != nil {
+	parked, err := s.tracks.ParkTrackNo(ctx, before.EventID, before.ID)
+	if err != nil {
 		return err
+	}
+	if !parked {
+		return models.NewConflict("track_slots_exhausted",
+			"free a track number before reordering")
 	}
 	if err := s.tracks.SetTrackNo(ctx, occupant, before.TrackNo); err != nil {
 		return err
 	}
 	return s.tracks.SetTrackNo(ctx, before.ID, *trackNo)
-}
-
-func (s *TrackService) swapWithOccupant(ctx context.Context, before *models.EventTrack,
-	occupant uuid.UUID, trackNo int) error {
-	if err := s.tracks.ParkTrackNo(ctx, before.EventID, before.ID); err != nil {
-		return err
-	}
-	if err := s.tracks.SetTrackNo(ctx, occupant, before.TrackNo); err != nil {
-		return err
-	}
-	return s.tracks.SetTrackNo(ctx, before.ID, trackNo)
 }
 
 func (s *TrackService) checkTrackPool(ctx context.Context, target *models.Event,

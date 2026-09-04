@@ -8,9 +8,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
-	"github.com/GoatWhistle/timeline/internal/controllers/shared"
+	"github.com/GoatWhistle/timeline/internal/controllers/presenter"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/services/shared/blobstore"
 )
@@ -23,13 +24,13 @@ type AvatarService interface {
 
 type AvatarController struct {
 	svc      AvatarService
-	limiter  shared.Limiter
+	limiter  httpsession.Limiter
 	limit    int
 	window   time.Duration
 	maxBytes int64
 }
 
-func NewAvatarController(svc AvatarService, limiter shared.Limiter, limit int,
+func NewAvatarController(svc AvatarService, limiter httpsession.Limiter, limit int,
 	window time.Duration, maxBytes int64) *AvatarController {
 	return &AvatarController{svc: svc, limiter: limiter, limit: limit,
 		window: window, maxBytes: maxBytes}
@@ -90,7 +91,7 @@ func (c *AvatarController) Upload(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.MeResponse(user))
+	httpx.JSON(w, http.StatusOK, presenter.MeResponse(user))
 }
 
 // @Summary		Remove your avatar
@@ -108,7 +109,7 @@ func (c *AvatarController) Remove(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shared.MeResponse(user))
+	httpx.JSON(w, http.StatusOK, presenter.MeResponse(user))
 }
 
 // @Summary		Fetch a stored avatar

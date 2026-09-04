@@ -20,7 +20,7 @@ func eventView(h *models.Event, stages []models.Stage, now time.Time) dto.EventR
 		CountryCode:     h.CountryCode,
 		City:            h.City,
 		EffectiveFormat: models.DeriveEventFormat(h, stages),
-		Tracks:          eventTrackSummaries(h),
+		Tracks:          dto.TrackSummaries(h.Tracks),
 		PrizePool:       h.PrizePool,
 		PrizeCurrency:   h.PrizeCurrency,
 		TeamSizeMin:     h.TeamSizeMin,
@@ -58,17 +58,4 @@ func stageView(s *models.Stage, event *models.Event) dto.StageResponse {
 		CreatedAt:   s.CreatedAt,
 		UpdatedAt:   s.UpdatedAt,
 	}
-}
-
-func eventTrackSummaries(h *models.Event) []dto.EventTrackSummary {
-	out := make([]dto.EventTrackSummary, 0, len(h.Tracks))
-	for i := range h.Tracks {
-		out = append(out, dto.EventTrackSummary{
-			ID:         h.Tracks[i].DisplayID,
-			TrackNo:    h.Tracks[i].TrackNo,
-			Name:       h.Tracks[i].Name,
-			PrizeTotal: h.Tracks[i].PrizeTotal(),
-		})
-	}
-	return out
 }
