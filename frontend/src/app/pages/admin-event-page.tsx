@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Archive, Send } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import {
   adminEventQuery,
@@ -58,6 +58,11 @@ export function AdminEventPage() {
       onRetry={() => query.refetch()}
       hasData={event !== undefined}
       skeleton={<SkeletonDetail />}
+      action={
+        <Button asChild variant="outline">
+          <Link to="/admin/events">{t('shell:nav.adminEvents')}</Link>
+        </Button>
+      }
     >
       {event && (
         <div>

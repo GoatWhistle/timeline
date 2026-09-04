@@ -69,7 +69,6 @@ var (
 	DisplayKindUser               = DisplayKind{Prefix: "us", Entity: "user"}
 	DisplayKindTask               = DisplayKind{Prefix: "tk", Entity: "task"}
 	DisplayKindResourceLink       = DisplayKind{Prefix: "rl", Entity: "resource link"}
-	DisplayKindParticipantLink    = DisplayKind{Prefix: "pl", Entity: "personal link"}
 	DisplayKindProfileLink        = DisplayKind{Prefix: "pf", Entity: "profile link"}
 	DisplayKindSession            = DisplayKind{Prefix: "se", Entity: "session"}
 	DisplayKindInvite             = DisplayKind{Prefix: "in", Entity: "invite"}

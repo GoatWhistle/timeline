@@ -16,6 +16,8 @@ import (
 // @Description	lineup for this event from the team's active members, and the team's size limits
 // @Description	apply to that lineup, not to the whole team. Entering registers nobody: registration
 // @Description	stays the self-report of each member and the system never checks the external site.
+// @Description	An event that has already finished no longer accepts an entry and is refused with
+// @Description	409 invalid_state_transition.
 // @Description	A track may be chosen here when the hackathon declares any; the choice is optional
 // @Description	and can be changed until the event starts.
 // @Tags			teams

@@ -143,6 +143,14 @@
   opacity: 1;
 }
 
+@media (pointer: coarse) {
+  .website {
+    align-self: stretch;
+    min-width: calc(var(--tap-target) / 2);
+    justify-content: center;
+  }
+}
+
 .website:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 1px;

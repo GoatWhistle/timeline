@@ -5,7 +5,6 @@ import "strings"
 const redactedSegment = "[redacted]"
 
 var secretSegments = map[string]bool{
-	"calendar":  true,
 	"team-join": true,
 }
 

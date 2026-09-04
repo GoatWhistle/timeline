@@ -16,7 +16,6 @@ export const ENTITY_TYPES: EntityType[] = [
   'REGISTRATION_STATUS',
   'NOTIFICATION_RULE',
   'RESOURCE_LINK',
-  'CALENDAR_FEED',
 ]
 
 export const AUDIT_ACTIONS: AuditAction[] = [
@@ -67,8 +66,6 @@ export const AUDIT_ACTIONS: AuditAction[] = [
   'RESOURCE_LINK_CREATE',
   'RESOURCE_LINK_UPDATE',
   'RESOURCE_LINK_DELETE',
-  'CALENDAR_FEED_ISSUE',
-  'CALENDAR_FEED_REVOKE',
 ]
 
 export function entityTypeKey(value: EntityType): string {

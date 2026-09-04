@@ -71,9 +71,9 @@ func TestAccessLogColorsStatusAndDuration(t *testing.T) {
 func TestAccessLogRendersPathVerbatimSoScrubbingSurvives(t *testing.T) {
 	buf := &strings.Builder{}
 	out := logAccess(buf, false,
-		"method", "GET", "path", "/api/v1/calendar/[redacted]/feed.ics", "status", 200)
+		"method", "GET", "path", "/api/v1/team-join/[redacted]", "status", 200)
 
-	if !strings.Contains(out, "/api/v1/calendar/[redacted]/feed.ics") {
+	if !strings.Contains(out, "/api/v1/team-join/[redacted]") {
 		t.Fatalf("scrubbed path must pass through unchanged: %q", out)
 	}
 }

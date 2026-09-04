@@ -9,7 +9,6 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/notification"
 	"github.com/GoatWhistle/timeline/internal/controllers/participation"
 	"github.com/GoatWhistle/timeline/internal/controllers/personal"
-	"github.com/GoatWhistle/timeline/internal/controllers/realtime"
 	"github.com/GoatWhistle/timeline/internal/controllers/team"
 )
 
@@ -63,13 +62,11 @@ import (
 // @tag.name					audit
 // @tag.description			Log of administrative changes
 // @tag.name					personal
-// @tag.description			The participant's own layer: tasks, notes, artifacts, outcome and bookmarks
+// @tag.description			The participant's own layer: tasks, notes, artifacts and outcome
 // @tag.name					events-feed
 // @tag.description			The system event bus: an in-app mirror of what happened, not a delivery channel
 // @tag.name					realtime
 // @tag.description			The WebSocket channel that tells a client what went stale
-// @tag.name					calendar
-// @tag.description			The participant's own schedule as an iCalendar feed served by a secret token
 // @tag.name					teams
 // @tag.description			Teams: a lead, their members and the hackathons a team entered
 // @tag.name					ops
@@ -107,8 +104,6 @@ func NewRouter(deps Deps) http.Handler {
 	linkC := event.NewResourceLinkController(deps.Links, deps.Limiter, deps.LinkRate,
 		deps.LinkRateWindow)
 	teamC := team.NewController(deps.Teams)
-	calendarC := realtime.NewCalendarFeedController(deps.CalendarFeeds, deps.Limiter,
-		deps.CalendarRate, deps.CalendarRateWindow, deps.ICSRate, deps.ICSRateWindow)
 
 	rt := &routes{authn: deps.Authenticator}
 	mux := http.NewServeMux()
@@ -121,7 +116,6 @@ func NewRouter(deps Deps) http.Handler {
 	mountPersonal(mux, rt, api, personalC)
 	mountTeams(mux, rt, api, teamC)
 	mountResourceLinks(mux, rt, api, linkC)
-	mountCalendarFeed(mux, rt, api, calendarC)
 	mountRealtime(mux, rt, api, deps)
 	mountAdminIdentity(mux, rt, api, userC, inviteC, eventC)
 	mountAdminRegistration(mux, rt, api, partC, regC, statusC, ruleC, previewC)

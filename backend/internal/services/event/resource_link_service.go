@@ -20,7 +20,6 @@ import (
 type ResourceLinkService struct {
 	db           *postgres.DB
 	links        *resourcelink.Links
-	personal     *resourcelink.PersonalLinks
 	events       *event.Events
 	stages       *event.Stages
 	participants *participation.Participants
@@ -30,11 +29,11 @@ type ResourceLinkService struct {
 }
 
 func NewResourceLinkService(db *postgres.DB, links *resourcelink.Links,
-	personal *resourcelink.PersonalLinks, events *event.Events, stages *event.Stages,
+	events *event.Events, stages *event.Stages,
 	participants *participation.Participants, audit *audit.AuditService,
 	limits config.ResourceLinks) *ResourceLinkService {
 	return &ResourceLinkService{
-		db: db, links: links, personal: personal, events: events, stages: stages,
+		db: db, links: links, events: events, stages: stages,
 		participants: participants, audit: audit, limits: limits,
 		now: func() time.Time { return time.Now().UTC() },
 	}
@@ -54,11 +53,6 @@ func (s *ResourceLinkService) List(ctx context.Context, actor models.Actor,
 
 func (s *ResourceLinkService) ResolveLinkDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
 	return s.links.ResolveDisplayID(ctx, displayID)
-}
-
-func (s *ResourceLinkService) ResolvePersonalLinkDisplayID(ctx context.Context,
-	displayID string) (uuid.UUID, error) {
-	return s.personal.ResolveDisplayID(ctx, displayID)
 }
 
 func (s *ResourceLinkService) ResolveStageDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {

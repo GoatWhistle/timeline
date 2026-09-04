@@ -21,7 +21,6 @@ type PersonalService struct {
 	notes        *personal.Notes
 	artifacts    *personal.Artifacts
 	outcomes     *personal.Outcomes
-	bookmarks    *personal.Bookmarks
 	templates    *personal.Templates
 	history      *personal.History
 	retros       *personal.Retrospectives
@@ -33,13 +32,13 @@ type PersonalService struct {
 }
 
 func NewPersonalService(db *postgres.DB, tasks *personal.Tasks, notes *personal.Notes,
-	artifacts *personal.Artifacts, outcomes *personal.Outcomes, bookmarks *personal.Bookmarks,
+	artifacts *personal.Artifacts, outcomes *personal.Outcomes,
 	templates *personal.Templates, history *personal.History, events *event.Events,
 	stages *event.Stages, participants *participation.Participants,
 	limits config.Personal) *PersonalService {
 	return &PersonalService{
 		db: db, tasks: tasks, notes: notes, artifacts: artifacts, outcomes: outcomes,
-		bookmarks: bookmarks, templates: templates, history: history, events: events,
+		templates: templates, history: history, events: events,
 		stages: stages, participants: participants, limits: limits,
 		now: func() time.Time { return time.Now().UTC() },
 	}

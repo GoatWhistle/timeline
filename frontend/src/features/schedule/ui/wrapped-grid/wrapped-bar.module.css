@@ -136,6 +136,14 @@
   opacity: 1;
 }
 
+@media (pointer: coarse) {
+  .barWebsite {
+    align-self: stretch;
+    min-width: calc(var(--tap-target) / 2);
+    justify-content: center;
+  }
+}
+
 .barWebsite:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 1px;

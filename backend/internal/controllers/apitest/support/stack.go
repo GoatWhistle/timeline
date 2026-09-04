@@ -49,7 +49,6 @@ type Stack struct {
 	events   *event.Events
 	feed     *svcrealtime.SystemEventService
 	feedRepo *systemevent.Events
-	calendar *identity.CalendarFeeds
 	hub      *svcrealtime.RealtimeHub
 }
 
@@ -67,8 +66,6 @@ func NewStack(t *testing.T) *Stack {
 	t.Setenv("ARGON2_PARALLELISM", "1")
 	t.Setenv("RATE_LIMIT_CATALOG_REQUESTS", "3")
 	t.Setenv("RATE_LIMIT_CATALOG_WINDOW", "1m")
-	t.Setenv("RATE_LIMIT_ICS_REQUESTS", "4")
-	t.Setenv("RATE_LIMIT_ICS_WINDOW", "1m")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -95,11 +92,9 @@ func NewStack(t *testing.T) *Stack {
 	notesRepo := personal.NewNotes(db)
 	artifactsRepo := personal.NewArtifacts(db)
 	outcomesRepo := personal.NewOutcomes(db)
-	bookmarksRepo := personal.NewBookmarks(db)
 	templatesRepo := personal.NewTemplates(db)
 	historyRepo := personal.NewHistory(db)
 	retrosRepo := personal.NewRetrospectives(db)
-	calendarRepo := identity.NewCalendarFeeds(db)
 	teamsRepo := team.NewTeams(db)
 	teamMembersRepo := team.NewMembers(db)
 	teamEntriesRepo := team.NewEntries(db)
@@ -115,11 +110,10 @@ func NewStack(t *testing.T) *Stack {
 
 	auditSvc := sharedaudit.NewAuditService(auditRepo)
 	personalSvc := svcpersonal.NewPersonalService(db, tasksRepo, notesRepo, artifactsRepo,
-		outcomesRepo, bookmarksRepo, templatesRepo, historyRepo,
+		outcomesRepo, templatesRepo, historyRepo,
 		events, stages, participants, cfg.Personal)
 	personalSvc.WithRetrospectives(retrosRepo)
 	linksRepo := resourcelink.NewLinks(db)
-	userLinksRepo := resourcelink.NewPersonalLinks(db)
 	notifier := svcnotification.NewNotificationService(notifications, cfg)
 	scheduler := svcscheduler.NewSchedulerService(db, scheduleRepo, rules, statuses, notifier, cfg)
 	auth := svcauth.NewAuthService(db, users, sessions, tokens, invites,
@@ -132,8 +126,6 @@ func NewStack(t *testing.T) *Stack {
 	auth.WithRealtime(hub)
 	profileSvc.WithRealtime(hub)
 	userSvc.WithRealtime(hub)
-	userSvc.WithCalendarFeeds(calendarRepo)
-	profileSvc.WithCalendarFeeds(calendarRepo)
 
 	tracksRepo := event.NewTracks(db)
 	eventSvc := svcevent.NewEventService(db, events, tracksRepo, registrations, notifier, scheduler, auditSvc)
@@ -162,12 +154,9 @@ func NewStack(t *testing.T) *Stack {
 		Ops:      svcdelivery.NewOpsService(db, scheduleRepo, notifications, cfg),
 		Previews: scheduler,
 		Personal: personalSvc,
-		Links: svcevent.NewResourceLinkService(db, linksRepo, userLinksRepo,
+		Links: svcevent.NewResourceLinkService(db, linksRepo,
 			events, stages, participants, auditSvc, cfg.Links),
 		Feed: feed,
-		CalendarFeeds: svcauth.NewCalendarFeedService(db, calendarRepo, users,
-			queries, auditSvc, cfg.App.PublicURL),
-		Notifications: notifier,
 		Teams: svcteam.NewTeamService(db, teamsRepo, teamMembersRepo, teamEntriesRepo, teamRostersRepo, teamLinksRepo,
 			teamEventLinksRepo, events, tracksRepo, participants, registrations, statuses, users, notifier, auditSvc, cfg),
 		Realtime: hub,
@@ -196,10 +185,6 @@ func NewStack(t *testing.T) *Stack {
 		RealtimeRate:       cfg.RateLim.RealtimeAttempts,
 		RealtimeRateWindow: cfg.RateLim.RealtimeWindow,
 		RealtimePing:       cfg.Realtime.PingInterval,
-		CalendarRate:       cfg.RateLim.CalendarRequests,
-		CalendarRateWindow: cfg.RateLim.CalendarWindow,
-		ICSRate:            cfg.RateLim.ICSRequests,
-		ICSRateWindow:      cfg.RateLim.ICSWindow,
 
 		Cookies:      controllers.CookieOptions{},
 		PublicURL:    cfg.App.PublicURL,
@@ -215,7 +200,7 @@ func NewStack(t *testing.T) *Stack {
 	return &Stack{
 		server: server, db: db, cfg: cfg,
 		users: users, sessions: sessions, events: events,
-		feed: feed, feedRepo: feedRepo, hub: hub, calendar: calendarRepo,
+		feed: feed, feedRepo: feedRepo, hub: hub,
 	}
 }
 
@@ -236,8 +221,6 @@ func (s *Stack) Feed() *svcrealtime.SystemEventService { return s.feed }
 func (s *Stack) FeedRepo() *systemevent.Events { return s.feedRepo }
 
 func (s *Stack) Hub() *svcrealtime.RealtimeHub { return s.hub }
-
-func (s *Stack) Calendar() *identity.CalendarFeeds { return s.calendar }
 
 func (s *Stack) Users() *identity.Users { return s.users }
 

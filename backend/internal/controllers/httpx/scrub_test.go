@@ -7,36 +7,36 @@ import (
 
 const scrubSecret = "9Qk3TmVvV3JkT2ZUaGVEYXlJc0hlcmVOb3c"
 
-func TestScrubPathRemovesTheCalendarToken(t *testing.T) {
+func TestScrubPathRemovesTheTeamJoinToken(t *testing.T) {
 	cases := []struct {
 		name string
 		path string
 		want string
 	}{
 		{
-			"the mounted feed route",
-			"/api/v1/calendar/" + scrubSecret + "/feed.ics",
-			"/api/v1/calendar/[redacted]/feed.ics",
+			"the mounted join route",
+			"/api/v1/team-join/" + scrubSecret,
+			"/api/v1/team-join/[redacted]",
 		},
 		{
 			"a future API version",
-			"/api/v2/calendar/" + scrubSecret + "/feed.ics",
-			"/api/v2/calendar/[redacted]/feed.ics",
+			"/api/v2/team-join/" + scrubSecret,
+			"/api/v2/team-join/[redacted]",
 		},
 		{
-			"no trailing segment",
-			"/api/v1/calendar/" + scrubSecret,
-			"/api/v1/calendar/[redacted]",
+			"a trailing segment after the token",
+			"/api/v1/team-join/" + scrubSecret + "/accept",
+			"/api/v1/team-join/[redacted]/accept",
 		},
 		{
 			"a trailing slash leaves nothing to redact",
-			"/api/v1/calendar/",
-			"/api/v1/calendar/",
+			"/api/v1/team-join/",
+			"/api/v1/team-join/",
 		},
 		{
 			"the bare segment",
-			"/api/v1/calendar",
-			"/api/v1/calendar",
+			"/api/v1/team-join",
+			"/api/v1/team-join",
 		},
 		{
 			"an unrelated path is untouched",
@@ -44,24 +44,14 @@ func TestScrubPathRemovesTheCalendarToken(t *testing.T) {
 			"/api/v1/me/schedule",
 		},
 		{
-			"the management route carries no secret and keeps its shape",
-			"/api/v1/me/calendar-feed",
-			"/api/v1/me/calendar-feed",
-		},
-		{
-			"a token that itself contains the segment name",
-			"/api/v1/calendar/calendar/feed.ics",
-			"/api/v1/calendar/[redacted]/feed.ics",
-		},
-		{
-			"the team join link",
-			"/api/v1/team-join/" + scrubSecret,
-			"/api/v1/team-join/[redacted]",
-		},
-		{
 			"the team listing carries no secret",
 			"/api/v1/teams",
 			"/api/v1/teams",
+		},
+		{
+			"a token that itself contains the segment name",
+			"/api/v1/team-join/team-join",
+			"/api/v1/team-join/[redacted]",
 		},
 	}
 	for _, tc := range cases {

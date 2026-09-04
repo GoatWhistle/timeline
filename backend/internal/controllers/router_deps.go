@@ -37,11 +37,9 @@ type Deps struct {
 	Previews      notification.PreviewService
 	Personal      personal.PersonalService
 	Feed          realtime.SystemEventService
-	Notifications notification.NotificationHistoryService
 	Realtime      realtime.RealtimeHub
 	Sessions      realtime.SessionChecker
 	Links         event.ResourceLinkService
-	CalendarFeeds realtime.CalendarFeedService
 	Teams         team.TeamService
 
 	Authenticator middleware.Authenticator
@@ -66,10 +64,6 @@ type Deps struct {
 	PersonalRateWindow time.Duration
 	FeedRate           int
 	FeedRateWindow     time.Duration
-	CalendarRate       int
-	CalendarRateWindow time.Duration
-	ICSRate            int
-	ICSRateWindow      time.Duration
 	RealtimeRate       int
 	RealtimeRateWindow time.Duration
 	RealtimePing       time.Duration

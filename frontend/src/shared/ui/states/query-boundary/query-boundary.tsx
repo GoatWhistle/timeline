@@ -12,6 +12,7 @@ export function QueryBoundary({
   isError = false,
   error,
   onRetry,
+  action,
   hasData = false,
   shape = 'known',
   skeleton,
@@ -23,6 +24,7 @@ export function QueryBoundary({
   isError?: boolean
   error?: unknown
   onRetry?: () => void
+  action?: ReactNode
   hasData?: boolean
   shape?: LoadingShape
   skeleton?: ReactNode
@@ -31,7 +33,7 @@ export function QueryBoundary({
 }) {
   const indicator = useLoadingIndicator({ isPending, isFetching, hasData, shape })
 
-  if (isError) return <ErrorState error={error} onRetry={onRetry} size={size} />
+  if (isError) return <ErrorState error={error} onRetry={onRetry} action={action} size={size} />
 
   if (indicator === 'skeleton') return <>{skeleton}</>
 

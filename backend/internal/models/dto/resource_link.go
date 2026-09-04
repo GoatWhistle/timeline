@@ -40,33 +40,6 @@ type ResourceLinkListResponse struct {
 	Items []models.ResourceLink `json:"items"`
 }
 
-type CreateParticipantLinkRequest struct {
-	Kind      string  `json:"kind" example:"OTHER"`
-	URL       string  `json:"url" example:"https://example.org/my-notes"`
-	Title     *string `json:"title,omitempty" example:"My scratch notes"`
-	SortOrder *int    `json:"sort_order,omitempty" example:"0"`
-}
-
-type UpdateParticipantLinkRequest struct {
-	Kind       *string `json:"kind,omitempty" example:"OTHER"`
-	URL        *string `json:"url,omitempty" example:"https://example.org/my-notes"`
-	Title      *string `json:"title,omitempty" example:"My scratch notes"`
-	ClearTitle bool    `json:"clear_title,omitempty" example:"false"`
-	SortOrder  *int    `json:"sort_order,omitempty" example:"0"`
-}
-
-type ParticipantLinkPatch struct {
-	Kind      *models.LinkKind
-	URL       *string
-	Title     *string
-	TitleSet  bool
-	SortOrder *int
-}
-
-type ParticipantLinkListResponse struct {
-	Items []models.ParticipantLink `json:"items"`
-}
-
 type CreateProfileLinkRequest struct {
 	URL   string  `json:"url" example:"https://github.com/ivan"`
 	Label *string `json:"label,omitempty" example:"My repositories"`

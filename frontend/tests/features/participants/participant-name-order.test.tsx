@@ -7,9 +7,9 @@ import { LOCALE_STORAGE_KEY } from '@/shared/i18n/locale'
 
 const PERSON = {
   id: 'us_42ej2s5gh7e8',
-  first_name: 'Олег',
-  last_name: 'Кузнецов',
-  display_name: 'Кузнецов Олег',
+  first_name: 'Oleg',
+  last_name: 'Kuznetsov',
+  display_name: 'Kuznetsov Oleg',
   nickname: 'oleg',
   email: 'oleg@example.com',
   is_active: true,
@@ -45,8 +45,8 @@ describe('a person is named the same way everywhere the interface names them', (
         <AddParticipantsDialog eventId="ev_gma9hq8a96q5" open onOpenChange={vi.fn()} />
       </I18nProvider>,
     )
-    expect(await screen.findByText('Олег Кузнецов')).toBeTruthy()
-    expect(screen.queryByText('Кузнецов Олег')).toBeNull()
+    expect(await screen.findByText('Oleg Kuznetsov')).toBeTruthy()
+    expect(screen.queryByText('Kuznetsov Oleg')).toBeNull()
   })
 
   it('writes the name in Russian order while the interface is Russian', async () => {
@@ -57,7 +57,7 @@ describe('a person is named the same way everywhere the interface names them', (
         <AddParticipantsDialog eventId="ev_gma9hq8a96q5" open onOpenChange={vi.fn()} />
       </I18nProvider>,
     )
-    expect(await screen.findByText('Кузнецов Олег')).toBeTruthy()
+    expect(await screen.findByText('Kuznetsov Oleg')).toBeTruthy()
   })
 
   it('writes the same name in the same order in the roster of a hackathon', async () => {
@@ -90,7 +90,7 @@ describe('a person is named the same way everywhere the interface names them', (
         />
       </I18nProvider>,
     )
-    expect(await screen.findByText('Олег Кузнецов')).toBeTruthy()
-    expect(screen.queryByText('Кузнецов Олег')).toBeNull()
+    expect(await screen.findByText('Oleg Kuznetsov')).toBeTruthy()
+    expect(screen.queryByText('Kuznetsov Oleg')).toBeNull()
   })
 })

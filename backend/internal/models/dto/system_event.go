@@ -27,17 +27,6 @@ type MarkReadRequest struct {
 	IDs []string `json:"ids" example:"sy_42ej2s5gh7e8"`
 }
 
-type CalendarFeedResponse struct {
-	Enabled    bool       `json:"enabled" example:"true"`
-	CreatedAt  *time.Time `json:"created_at,omitempty"`
-	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
-}
-
-type CalendarFeedSecretResponse struct {
-	URL       string    `json:"url" example:"https://timeline.example.com/api/v1/calendar/9Qk3.../feed.ics"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
 type InvalidationKey []string
 
 const (

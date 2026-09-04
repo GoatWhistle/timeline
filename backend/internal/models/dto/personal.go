@@ -92,11 +92,6 @@ type SaveOutcomeRequest struct {
 	Note    *string         `json:"note,omitempty"`
 }
 
-type BookmarkListResponse struct {
-	Items []CatalogEvent `json:"items"`
-	Meta  PageMeta       `json:"meta"`
-}
-
 type HistoryItem struct {
 	EventID    string                       `json:"event_id" example:"ev_gma9hq8a96q5"`
 	Title      string                       `json:"title" example:"National event"`

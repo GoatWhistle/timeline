@@ -8,7 +8,7 @@ import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
 const forgotSchema = z.object({ email: z.email('auth:validation.email') })
@@ -36,7 +36,6 @@ export function PasswordResetRequest() {
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>{t('reset.requestTitle')}</CardTitle>
-        <CardDescription>{t('reset.requestHint')}</CardDescription>
       </CardHeader>
       <CardContent>
         {isSubmitSuccessful && !errors.root ? (

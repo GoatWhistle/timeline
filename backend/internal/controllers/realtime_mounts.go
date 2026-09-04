@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/GoatWhistle/timeline/internal/controllers/notification"
 	"github.com/GoatWhistle/timeline/internal/controllers/realtime"
 )
 
@@ -13,12 +12,6 @@ func mountRealtime(mux *http.ServeMux, rt *routes, api string, deps Deps) {
 	mux.Handle("GET "+api+"/me/events-feed", rt.authd(feedC.List))
 	mux.Handle("GET "+api+"/me/events-feed/unread-count", rt.authd(feedC.UnreadCount))
 	mux.Handle("POST "+api+"/me/events-feed/read", rt.authd(feedC.MarkRead))
-
-	if deps.Notifications != nil {
-		historyC := notification.NewNotificationHistoryController(deps.Notifications, deps.Limiter,
-			deps.FeedRate, deps.FeedRateWindow, deps.PageDefault, deps.PageMax)
-		mux.Handle("GET "+api+"/me/notifications", rt.authd(historyC.List))
-	}
 
 	if deps.Realtime == nil || deps.Sessions == nil {
 		return

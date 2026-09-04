@@ -45,9 +45,6 @@ type PersonalService interface {
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.SaveOutcomeRequest,
 	) (*models.ParticipantOutcome, error)
 	DeleteOutcome(ctx context.Context, actor models.Actor, eventID uuid.UUID) error
-	AddBookmark(ctx context.Context, actor models.Actor, eventID uuid.UUID) error
-	RemoveBookmark(ctx context.Context, actor models.Actor, eventID uuid.UUID) error
-	ListBookmarks(ctx context.Context, actor models.Actor, page models.Page) ([]dto.CatalogEvent, int64, error)
 	History(ctx context.Context, actor models.Actor, page models.Page) ([]dto.HistoryItem, int64, error)
 	GetRetrospective(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID,

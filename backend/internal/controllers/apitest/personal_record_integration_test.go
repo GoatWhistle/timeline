@@ -49,9 +49,6 @@ func seedPersonal(c *support.Client, t *testing.T, eventID string) personalRecor
 	support.RequireStatus(t, put(c, "/me/events/"+eventID+"/outcome",
 		map[string]any{"outcome": "WINNER", "place": 1}), http.StatusOK, "recording an outcome")
 
-	support.RequireStatus(t, put(c, "/me/bookmarks/"+eventID, nil),
-		http.StatusNoContent, "bookmarking the event")
-
 	return personalRecords{taskID: task.ID, artifactID: artifact.ID}
 }
 
@@ -129,45 +126,6 @@ func TestOutcomeDefaultsToParticipatedAndGuardsPlace(t *testing.T) {
 	if !support.ContainsAll(string(good.Body), `"outcome":"WINNER"`, `"place":1`) {
 		t.Fatalf("the placing outcome was not stored: %s", good.Body)
 	}
-}
-
-func TestBookmarkIsNotParticipation(t *testing.T) {
-	s := support.NewStack(t)
-	f := s.Seed(t)
-
-	outsider := s.Session(t, f.Outsider)
-	participantsBefore := countRows(s, t, "event_participants")
-	statusesBefore := countRows(s, t, "registration_statuses")
-	notifyBefore := countRows(s, t, "notifications")
-
-	support.RequireStatus(t, put(outsider, "/me/bookmarks/"+f.EventID, nil),
-		http.StatusNoContent, "bookmarking an event the caller has not joined")
-	support.RequireStatus(t, put(outsider, "/me/bookmarks/"+f.EventID, nil),
-		http.StatusNoContent, "bookmarking the same event again")
-
-	if after := countRows(s, t, "event_participants"); after != participantsBefore {
-		t.Fatalf("bookmarking created a participant assignment")
-	}
-	if after := countRows(s, t, "registration_statuses"); after != statusesBefore {
-		t.Fatalf("bookmarking created a registration status")
-	}
-	if after := countRows(s, t, "notifications"); after != notifyBefore {
-		t.Fatalf("bookmarking queued a notification")
-	}
-	if total := countRows(s, t, "event_bookmarks"); total != 1 {
-		t.Fatalf("bookmarking twice produced %d rows, expected 1", total)
-	}
-
-	list := outsider.Get("/me/bookmarks")
-	support.RequireStatus(t, list, http.StatusOK, "listing bookmarks")
-	if !support.ContainsAll(string(list.Body), f.EventID, `"joined":false`) {
-		t.Fatalf("the bookmark listing does not show the event as not joined: %s", list.Body)
-	}
-
-	support.RequireStatus(t, outsider.Delete("/me/bookmarks/"+f.EventID),
-		http.StatusNoContent, "removing the bookmark")
-	support.RequireStatus(t, outsider.Delete("/me/bookmarks/"+f.EventID),
-		http.StatusNotFound, "removing a bookmark that is already gone")
 }
 
 func TestHistoryShowsOnlyOwnRecords(t *testing.T) {

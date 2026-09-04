@@ -182,31 +182,17 @@ func TestClosedProfileIsIndistinguishableFromAMissingOne(t *testing.T) {
 	}
 }
 
-func TestCalendarFeedNeverExposesAnInternalIdentifier(t *testing.T) {
-	s := support.NewStack(t)
-	f := s.Seed(t)
-
-	secret := issueFeed(s.Session(t, f.Member), t)
-	body := fetchFeed(s, t, secret, http.StatusOK)
-	if !support.ContainsAll(body, "UID:event-"+f.EventID+"@timeline") {
-		t.Fatalf("the feed does not identify the event by its display identifier: %s", body)
-	}
-	requireNoUUID(t, []byte(body), "the unauthenticated calendar feed")
-}
-
 func TestOwnSurfacesNeverExposeAnInternalIdentifier(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
 	member := s.Session(t, f.Member)
-	bookmark := member.Mutate(http.MethodPut, "/me/bookmarks/"+f.EventID, nil)
-	support.RequireStatus(t, bookmark, http.StatusNoContent, "bookmarking an event")
 	joined := member.Post("/events/"+f.OtherEvent+"/join", map[string]any{"team_role": "Developer"})
 	support.RequireStatus(t, joined, http.StatusCreated, "joining the open event")
 	requireNoUUID(t, joined.Body, "the self-signup support.Response")
 
-	for _, path := range []string{"/me", "/me/bookmarks", "/me/events", "/me/history",
-		"/me/sessions", "/me/notifications", "/me/events-feed", "/catalog",
+	for _, path := range []string{"/me", "/me/events", "/me/history",
+		"/me/sessions", "/me/events-feed", "/catalog",
 		"/events/" + f.EventID, "/events/" + f.EventID + "/stages"} {
 		resp := member.Get(path)
 		support.RequireStatus(t, resp, http.StatusOK, "reading "+path)

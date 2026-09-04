@@ -32,6 +32,9 @@ func (s *TeamService) EnterEvent(ctx context.Context, actor models.Actor, teamID
 		if eventRow.Kind != models.EventKindHackathon {
 			return models.NewStateTransition("only a hackathon accepts a team entry")
 		}
+		if err := s.entryWindowOpen(eventRow); err != nil {
+			return err
+		}
 
 		if _, err := s.entries.GetByTeamEvent(ctx, teamID, eventID); err == nil {
 			return models.NewConflict("already_entered", "the team already entered this event")

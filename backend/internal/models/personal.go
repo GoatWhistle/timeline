@@ -97,11 +97,6 @@ type ParticipantOutcome struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
-type EventBookmark struct {
-	EventID   uuid.UUID `json:"event_id"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
 type ChecklistTemplate struct {
 	ID    string                  `json:"id" example:"preparation"`
 	Items []ChecklistTemplateItem `json:"items"`

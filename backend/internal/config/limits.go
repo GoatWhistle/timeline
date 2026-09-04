@@ -23,8 +23,7 @@ type Digest struct {
 }
 
 type ResourceLinks struct {
-	MaxPerEvent         int
-	MaxPersonalPerEvent int
+	MaxPerEvent int
 }
 
 type Avatar struct {
@@ -74,8 +73,7 @@ func loadAvatar() Avatar {
 
 func loadResourceLinks() ResourceLinks {
 	return ResourceLinks{
-		MaxPerEvent:         envInt("RESOURCE_LINKS_MAX_PER_EVENT", 50),
-		MaxPersonalPerEvent: envInt("RESOURCE_LINKS_MAX_PERSONAL_PER_EVENT", 20),
+		MaxPerEvent: envInt("RESOURCE_LINKS_MAX_PER_EVENT", 50),
 	}
 }
 

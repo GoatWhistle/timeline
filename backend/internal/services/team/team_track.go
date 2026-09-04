@@ -34,6 +34,13 @@ func (s *TeamService) resolveTrack(ctx context.Context, eventRow *models.Event,
 	return &trackID, nil
 }
 
+func (s *TeamService) entryWindowOpen(eventRow *models.Event) error {
+	if eventRow.State(s.now()) == models.EventFinished {
+		return models.NewStateTransition("the event has finished and no longer accepts a team entry")
+	}
+	return nil
+}
+
 func (s *TeamService) trackChangeAllowed(eventRow *models.Event) error {
 	if !eventRow.StartAt.After(s.now()) {
 		return models.NewStateTransition("the track cannot be changed once the event has started")

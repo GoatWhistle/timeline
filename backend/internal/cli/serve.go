@@ -97,10 +97,6 @@ func applyRateLimits(deps *controllers.Deps, c *container) {
 	deps.RealtimeRate = c.cfg.RateLim.RealtimeAttempts
 	deps.RealtimeRateWindow = c.cfg.RateLim.RealtimeWindow
 	deps.RealtimePing = c.cfg.Realtime.PingInterval
-	deps.CalendarRate = c.cfg.RateLim.CalendarRequests
-	deps.CalendarRateWindow = c.cfg.RateLim.CalendarWindow
-	deps.ICSRate = c.cfg.RateLim.ICSRequests
-	deps.ICSRateWindow = c.cfg.RateLim.ICSWindow
 }
 
 func newRouter(c *container) http.Handler {
@@ -128,9 +124,7 @@ func newRouter(c *container) http.Handler {
 		Personal:       c.personal,
 		Links:          c.links,
 		Feed:           c.feed,
-		CalendarFeeds:  c.calendar,
 		Teams:          c.teams,
-		Notifications:  c.notifier,
 
 		Authenticator: c.auth,
 		Metrics:       promhttp.Handler(),

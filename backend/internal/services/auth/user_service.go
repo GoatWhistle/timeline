@@ -20,7 +20,6 @@ type UserService struct {
 	sessions *identity.Sessions
 	notifier Notifier
 	audit    *audit.AuditService
-	feeds    *identity.CalendarFeeds
 	realtime SessionDropper
 	avatars  AvatarPurger
 	cfg      *config.Config
@@ -51,7 +50,7 @@ func (s *UserService) SetActive(ctx context.Context, actor models.Actor, userID 
 		return models.NewForbidden("the operation is restricted to administrators")
 	}
 	if !active {
-		if err := deactivateUser(ctx, s.db, s.users, s.sessions, s.feeds, s.notifier,
+		if err := deactivateUser(ctx, s.db, s.users, s.sessions, s.notifier,
 			s.audit, actor, userID); err != nil {
 			return err
 		}
@@ -94,11 +93,6 @@ func (s *UserService) Delete(ctx context.Context, actor models.Actor, userID uui
 		}
 		if err := s.sessions.RevokeAllForUser(ctx, userID); err != nil {
 			return err
-		}
-		if s.feeds != nil {
-			if _, err := s.feeds.RevokeAllForUser(ctx, userID); err != nil {
-				return err
-			}
 		}
 		if err := s.notifier.CancelForRecipient(ctx, userID); err != nil {
 			return err

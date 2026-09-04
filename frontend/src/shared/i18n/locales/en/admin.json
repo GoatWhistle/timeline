@@ -36,7 +36,6 @@
       "TEAM_EVENT_ENTRY": "Team entry",
       "TEAM_JOIN_LINK": "Team join link",
       "RESOURCE_LINK": "Resource link",
-      "CALENDAR_FEED": "Calendar feed",
       "EVENT_TRACK": "Event track",
       "TEAM_EVENT_LINK": "Team link"
     },
@@ -80,8 +79,6 @@
       "RESOURCE_LINK_CREATE": "Link added",
       "RESOURCE_LINK_UPDATE": "Link updated",
       "RESOURCE_LINK_DELETE": "Link removed",
-      "CALENDAR_FEED_ISSUE": "Calendar feed issued",
-      "CALENDAR_FEED_REVOKE": "Calendar feed revoked",
       "TRACK_CREATE": "Track created",
       "TRACK_UPDATE": "Track changed",
       "TRACK_DELETE": "Track deleted",

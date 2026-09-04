@@ -18,7 +18,6 @@ type ResourceLinkService interface {
 	ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	ResolveStageDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	ResolveLinkDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
-	ResolvePersonalLinkDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
 	List(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ResourceLink, error)
 	Create(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.CreateResourceLinkRequest,
@@ -29,14 +28,6 @@ type ResourceLinkService interface {
 		stageID *uuid.UUID,
 	) (*models.ResourceLink, error)
 	Delete(ctx context.Context, actor models.Actor, eventID, linkID uuid.UUID) error
-	ListPersonal(ctx context.Context, actor models.Actor, eventID uuid.UUID) ([]models.ParticipantLink, error)
-	CreatePersonal(
-		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.CreateParticipantLinkRequest,
-	) (*models.ParticipantLink, error)
-	UpdatePersonal(
-		ctx context.Context, actor models.Actor, linkID uuid.UUID, req dto.UpdateParticipantLinkRequest,
-	) (*models.ParticipantLink, error)
-	DeletePersonal(ctx context.Context, actor models.Actor, linkID uuid.UUID) error
 }
 
 type ResourceLinkController struct {

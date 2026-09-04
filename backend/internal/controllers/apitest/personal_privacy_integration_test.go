@@ -47,12 +47,6 @@ func TestPersonalRecordsAreInvisibleToAnotherParticipant(t *testing.T) {
 
 	outcome := intruder.Get("/me/events/" + f.EventID + "/outcome")
 	support.RequireStatus(t, outcome, http.StatusNotFound, "another participant reads the outcome")
-
-	bookmarks := intruder.Get("/me/bookmarks")
-	support.RequireStatus(t, bookmarks, http.StatusOK, "another participant lists bookmarks")
-	if strings.Contains(string(bookmarks.Body), f.EventID) {
-		t.Fatalf("the bookmark of another user leaked: %s", bookmarks.Body)
-	}
 }
 
 func TestForeignPersonalRecordAnswersNotFoundNotForbidden(t *testing.T) {
@@ -137,8 +131,6 @@ func TestPersonalRecordsReachNeitherAuditLogNorNotifications(t *testing.T) {
 		http.StatusNoContent, "deleting the artifact")
 	support.RequireStatus(t, owner.Delete("/me/events/"+f.EventID+"/outcome"),
 		http.StatusNoContent, "deleting the outcome")
-	support.RequireStatus(t, owner.Delete("/me/bookmarks/"+f.EventID),
-		http.StatusNoContent, "removing the bookmark")
 
 	if after := countRows(s, t, "audit_log"); after != auditBefore {
 		t.Fatalf("the personal layer wrote %d audit rows, specification 5.4 forbids any",

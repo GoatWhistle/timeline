@@ -59,17 +59,14 @@ type container struct {
 		notes          *personal.Notes
 		artifacts      *personal.Artifacts
 		outcomes       *personal.Outcomes
-		bookmarks      *personal.Bookmarks
 		templates      *personal.Templates
 		history        *personal.History
 		retros         *personal.Retrospectives
 		reminders      *personal.Reminders
 		links          *resourcelink.Links
-		userLinks      *resourcelink.PersonalLinks
 		queries        *query.Timeline
 		digests        *query.Digests
 		feed           *systemevent.Events
-		calendarFeeds  *identity.CalendarFeeds
 		teams          *team.Teams
 		teamMembers    *team.Members
 		teamEntries    *team.Entries
@@ -108,7 +105,6 @@ type container struct {
 	delivery      *svcdelivery.DeliveryService
 	ops           *svcdelivery.OpsService
 	feed          *svcrealtime.SystemEventService
-	calendar      *svcauth.CalendarFeedService
 	reminders     *svcreminder.Service
 	digest        *svcdigest.DigestService
 	hub           *svcrealtime.RealtimeHub
@@ -173,15 +169,13 @@ func (c *container) wireDelivery(cfg *config.Config) {
 	c.delivery = svcdelivery.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
 		c.repos.rules, c.repos.audit, c.telegram, c.email, cfg)
 	c.personal = svcpersonal.NewPersonalService(db, c.repos.tasks, c.repos.notes, c.repos.artifacts,
-		c.repos.outcomes, c.repos.bookmarks, c.repos.templates, c.repos.history,
+		c.repos.outcomes, c.repos.templates, c.repos.history,
 		c.repos.events, c.repos.stages, c.repos.participants, cfg.Personal)
-	c.links = svcevent.NewResourceLinkService(db, c.repos.links, c.repos.userLinks,
+	c.links = svcevent.NewResourceLinkService(db, c.repos.links,
 		c.repos.events, c.repos.stages, c.repos.participants, c.audit, cfg.Links)
 	c.ops = svcdelivery.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
 	c.feed = svcrealtime.NewSystemEventService(db, c.repos.feed)
 	c.hub = svcrealtime.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
-	c.calendar = svcauth.NewCalendarFeedService(db, c.repos.calendarFeeds, c.repos.users,
-		c.repos.queries, c.audit, cfg.App.PublicURL)
 }
 
 func (c *container) wireParticipation(cfg *config.Config) {
@@ -213,8 +207,6 @@ func (c *container) wireRealtime() {
 	c.profile.WithRealtime(c.hub)
 	c.users.WithAvatars(c.avatars)
 	c.profile.WithAvatars(c.avatars)
-	c.users.WithCalendarFeeds(c.repos.calendarFeeds)
-	c.profile.WithCalendarFeeds(c.repos.calendarFeeds)
 }
 
 func (c *container) Close() { c.db.Close() }
