@@ -167,3 +167,41 @@ describe('schedule accessibility', () => {
     expect(bars(container)[0]).toHaveAttribute('data-state', 'closed')
   })
 })
+
+describe('the week view carries the keyboard on its bars, having no day cells to rove', () => {
+  it('renders no day cell at all, which is why it owns no roving tab stop', () => {
+    const { container } = renderWeek()
+
+    expect(days(container)).toHaveLength(0)
+    expect(container.querySelectorAll('[data-schedule-day-head]').length).toBeGreaterThan(0)
+  })
+
+  it('leaves every bar in the tab order, since nothing else can carry the keyboard', () => {
+    const { container } = renderWeek()
+    const found = bars(container)
+
+    expect(found.length).toBeGreaterThan(0)
+    for (const bar of found) expect(bar).not.toHaveAttribute('tabindex', '-1')
+  })
+
+  it('strands no bar of either zone outside the tab order', () => {
+    const { container } = renderWeek()
+    const found = bars(container)
+    const band = found.filter((bar) => bar.closest('[data-schedule-band]'))
+    const hours = found.filter((bar) => bar.closest('[data-schedule-column]'))
+
+    expect(band.length + hours.length).toBe(found.length)
+    for (const bar of found) {
+      expect(bar.tagName).toBe('BUTTON')
+      expect(bar).not.toHaveAttribute('disabled')
+    }
+  })
+
+  it('keeps the day heading out of the tab order, being a label and not a cell', () => {
+    const { container } = renderWeek()
+    for (const head of container.querySelectorAll('[data-schedule-day-head]')) {
+      expect(head).not.toHaveAttribute('tabindex')
+      expect(head.tagName).not.toBe('BUTTON')
+    }
+  })
+})

@@ -29,8 +29,8 @@ function TitleCell({
   const { t } = useTranslation('event')
 
   return (
-    <td className="w-full max-w-0 px-3 py-2">
-      <span className="flex min-w-0 items-center gap-2">
+    <td className="w-full max-w-0 px-3 py-2 pointer-coarse:py-0">
+      <span className="flex min-w-0 items-center gap-2 pointer-coarse:h-11">
         <CatalogKindMark kind={event.kind} />
         <button
           type="button"
@@ -40,6 +40,7 @@ function TitleCell({
           }}
           className={cn(
             'min-w-0 truncate text-left font-medium text-copy',
+            'pointer-coarse:self-stretch',
             'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
           )}
         >

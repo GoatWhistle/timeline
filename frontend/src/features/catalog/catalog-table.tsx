@@ -9,6 +9,7 @@ import {
 import { CatalogTableRow } from '@/entities/catalog/catalog-table-row'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 
 const COLUMN_SORT: Partial<Record<CatalogColumn, CatalogSort>> = {
   title: 'title',
@@ -77,6 +78,7 @@ export function CatalogTable({
                   aria-sort={active ? (order === 'asc' ? 'ascending' : 'descending') : undefined}
                   className={cn(
                     'h-row px-3 text-left align-middle font-medium text-meta text-muted-foreground',
+                    'pointer-coarse:h-11',
                     COLUMN_WIDTH[column],
                   )}
                 >
@@ -86,6 +88,7 @@ export function CatalogTable({
                       onClick={() => onSort(columnSort)}
                       className={cn(
                         'inline-flex items-center gap-1',
+                        TOUCH_REACH,
                         'motion-safe:transition-colors motion-safe:duration-instant motion-safe:ease-out',
                         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
                         active ? 'text-foreground' : 'hover:text-foreground',

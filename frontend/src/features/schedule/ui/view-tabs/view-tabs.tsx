@@ -1,6 +1,8 @@
 import { ChevronLeft, ChevronRight, LocateFixed } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/shared/styling/class-names/class-names'
+import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 import { Segmented, type SegmentedOption } from '@/shared/ui/navigation/segmented'
 import { Button } from '@/shared/ui/primitives/button'
 import { SCHEDULE_SCALES, type ScheduleScale } from '../../model/schedule-scale'
@@ -74,7 +76,7 @@ export function ViewTabs({
 
           <button
             type="button"
-            className={styles.present}
+            className={cn(styles.present, TOUCH_REACH)}
             data-schedule-present
             data-at-present={atPresent ? 'true' : 'false'}
             aria-label={t('schedule.periodCurrent', { period })}
