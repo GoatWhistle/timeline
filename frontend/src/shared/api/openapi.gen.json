@@ -166,6 +166,43 @@
             }
           },
           {
+            "description": "Comma-separated kind filter",
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "HACKATHON",
+                "MEETUP"
+              ]
+            }
+          },
+          {
+            "description": "Comma-separated origin filter",
+            "name": "origin",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "RU",
+                "WORLD"
+              ]
+            }
+          },
+          {
+            "description": "Comma-separated format filter",
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ONLINE",
+                "OFFLINE",
+                "HYBRID"
+              ]
+            }
+          },
+          {
             "description": "Include archived records",
             "name": "include_archived",
             "in": "query",
@@ -6013,6 +6050,16 @@
           },
           "409": {
             "description": "address is already taken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {

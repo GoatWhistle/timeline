@@ -45,6 +45,46 @@ func (r *Tracks) Update(ctx context.Context, id uuid.UUID, name *string,
 		RETURNING `+trackColumns, id, name, description, trackNo))
 }
 
+func (r *Tracks) OccupantOfTrackNo(ctx context.Context, eventID uuid.UUID, id uuid.UUID,
+	trackNo int) (uuid.UUID, error) {
+	var occupant uuid.UUID
+	err := r.db.Q(ctx).QueryRow(ctx, `
+		SELECT id FROM event_tracks
+		WHERE event_id = $1 AND track_no = $3 AND id <> $2 FOR UPDATE`,
+		eventID, id, trackNo).Scan(&occupant)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return uuid.Nil, nil
+	}
+	if err != nil {
+		return uuid.Nil, mapError(err)
+	}
+	return occupant, nil
+}
+
+func (r *Tracks) ParkTrackNo(ctx context.Context, eventID uuid.UUID, id uuid.UUID) error {
+	_, err := r.db.Q(ctx).Exec(ctx, `
+		UPDATE event_tracks SET track_no = (
+			SELECT n FROM generate_series(1, 50) AS n
+			WHERE NOT EXISTS (
+				SELECT 1 FROM event_tracks WHERE event_id = $1 AND track_no = n
+			)
+			ORDER BY n LIMIT 1
+		) WHERE id = $2`, eventID, id)
+	if err != nil {
+		return mapError(err)
+	}
+	return nil
+}
+
+func (r *Tracks) SetTrackNo(ctx context.Context, id uuid.UUID, trackNo int) error {
+	_, err := r.db.Q(ctx).Exec(ctx,
+		`UPDATE event_tracks SET track_no = $2 WHERE id = $1`, id, trackNo)
+	if err != nil {
+		return mapError(err)
+	}
+	return nil
+}
+
 func (r *Tracks) Delete(ctx context.Context, id uuid.UUID) error {
 	tag, err := r.db.Q(ctx).Exec(ctx, `DELETE FROM event_tracks WHERE id = $1`, id)
 	if err != nil {

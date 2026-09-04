@@ -57,6 +57,9 @@ func (s *TrackService) Update(ctx context.Context, actor models.Actor, id uuid.U
 				return err
 			}
 		}
+		if err := s.reorderTrackNo(ctx, before, req.TrackNo); err != nil {
+			return err
+		}
 		updated, err = s.tracks.Update(ctx, id, req.Name, req.Description, req.TrackNo)
 		if err != nil {
 			return err
@@ -149,4 +152,22 @@ func wholePool(pool *string) *string {
 		return nil
 	}
 	return pointerWhole(mustWhole(*pool))
+}
+
+func (s *TrackService) reorderTrackNo(ctx context.Context, before *models.EventTrack,
+	trackNo *int) error {
+	if trackNo == nil || *trackNo == before.TrackNo {
+		return nil
+	}
+	occupant, err := s.tracks.OccupantOfTrackNo(ctx, before.EventID, before.ID, *trackNo)
+	if err != nil {
+		return err
+	}
+	if occupant == uuid.Nil {
+		return nil
+	}
+	if err := s.tracks.ParkTrackNo(ctx, before.EventID, before.ID); err != nil {
+		return err
+	}
+	return s.tracks.SetTrackNo(ctx, occupant, before.TrackNo)
 }

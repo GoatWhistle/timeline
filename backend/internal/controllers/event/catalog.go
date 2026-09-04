@@ -130,13 +130,13 @@ func (c *CatalogController) Join(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, models.NewRateLimited("too many join attempts"))
 		return
 	}
-	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.catalog.ResolveDisplayID)
-	if err != nil {
+	var req dto.JoinEventRequest
+	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	var req dto.JoinEventRequest
-	if err := httpx.Decode(r, &req); err != nil {
+	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindEvent, c.catalog.ResolveDisplayID)
+	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}

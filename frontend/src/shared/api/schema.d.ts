@@ -91,8 +91,14 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    /** @description Comma-separated format filter */
+                    format?: "ONLINE" | "OFFLINE" | "HYBRID";
                     /** @description Include archived records */
                     include_archived?: boolean;
+                    /** @description Comma-separated kind filter */
+                    kind?: "HACKATHON" | "MEETUP";
+                    /** @description Comma-separated origin filter */
+                    origin?: "RU" | "WORLD";
                     /** @description Page number */
                     page?: number;
                     /** @description Page size */
@@ -5985,6 +5991,15 @@ export interface paths {
                 };
                 /** @description address is already taken */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
                     headers: {
                         [name: string]: unknown;
                     };

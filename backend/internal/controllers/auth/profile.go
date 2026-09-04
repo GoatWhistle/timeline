@@ -146,8 +146,13 @@ func (c *ProfileController) TelegramUnlink(w http.ResponseWriter, r *http.Reques
 // @Failure		400		{object}	dto.ErrorResponse
 // @Failure		401		{object}	dto.ErrorResponse
 // @Failure		409		{object}	dto.ErrorResponse	"address is already taken"
+// @Failure		429		{object}	dto.ErrorResponse
 // @Router			/me/email-change [post]
 func (c *ProfileController) ChangeEmail(w http.ResponseWriter, r *http.Request) {
+	if !c.allow(r) {
+		httpx.Error(w, r, models.NewRateLimited("too many email change requests, try again later"))
+		return
+	}
 	var req dto.ChangeEmailRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, r, err)

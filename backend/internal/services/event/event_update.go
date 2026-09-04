@@ -37,6 +37,9 @@ func (s *EventService) Update(ctx context.Context, actor models.Actor, id uuid.U
 		if err != nil {
 			return err
 		}
+		if err := s.checkPoolCoversTracks(ctx, id, req.PrizePool); err != nil {
+			return err
+		}
 
 		updated, err = s.events.Update(ctx, id, req, dto.EventPlacePatch{
 			CountrySet: true, CountryCode: place.countryCode,
@@ -165,4 +168,23 @@ func websiteChanged(before, after *string) bool {
 		return before != after
 	}
 	return *before != *after
+}
+
+func (s *EventService) checkPoolCoversTracks(ctx context.Context, id uuid.UUID,
+	pool *string) error {
+	if s.tracks == nil {
+		return nil
+	}
+	distributed, err := s.tracks.DistributedTotal(ctx, id, nil)
+	if err != nil {
+		return err
+	}
+	total, err := parseWholeAmount("prizes", distributed)
+	if err != nil {
+		return err
+	}
+	if total == 0 {
+		return nil
+	}
+	return checkPoolCoverage(pool, "0", total)
 }

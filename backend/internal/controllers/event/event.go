@@ -42,6 +42,9 @@ func (c *Controller) stageID(r *http.Request, name string) (uuid.UUID, error) {
 // @Security		CookieAuth
 // @Param			search				query		string	false	"Search by title and organiser"
 // @Param			state				query		string	false	"Comma-separated state filter"	Enums(UNPUBLISHED,UPCOMING,ACTIVE,FINISHED,ARCHIVED)
+// @Param			kind				query		string	false	"Comma-separated kind filter"	Enums(HACKATHON,MEETUP)
+// @Param			origin				query		string	false	"Comma-separated origin filter"	Enums(RU,WORLD)
+// @Param			format				query		string	false	"Comma-separated format filter"	Enums(ONLINE,OFFLINE,HYBRID)
 // @Param			include_archived	query		bool	false	"Include archived records"
 // @Param			page				query		int		false	"Page number"	default(1)
 // @Param			page_size			query		int		false	"Page size"		default(50)
@@ -62,6 +65,9 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 	filter := models.EventFilter{
 		Search:          httpx.QueryTrimmed(r, "search"),
 		States:          parseStates(httpx.QueryTrimmed(r, "state")),
+		Kinds:           parseKinds(httpx.QueryTrimmed(r, "kind")),
+		Origins:         parseOrigins(httpx.QueryTrimmed(r, "origin")),
+		Formats:         parseFormats(httpx.QueryTrimmed(r, "format")),
 		IncludeArchived: archived,
 	}
 	items, total, err := c.events.List(r.Context(), middleware.ActorFrom(r), filter, page)

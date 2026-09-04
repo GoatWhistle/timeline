@@ -3297,6 +3297,28 @@ paths:
         in: query
         name: state
         type: string
+      - description: Comma-separated kind filter
+        enum:
+        - HACKATHON
+        - MEETUP
+        in: query
+        name: kind
+        type: string
+      - description: Comma-separated origin filter
+        enum:
+        - RU
+        - WORLD
+        in: query
+        name: origin
+        type: string
+      - description: Comma-separated format filter
+        enum:
+        - ONLINE
+        - OFFLINE
+        - HYBRID
+        in: query
+        name: format
+        type: string
       - description: Include archived records
         in: query
         name: include_archived
@@ -6653,6 +6675,10 @@ paths:
             $ref: '#/definitions/dto.ErrorResponse'
         "409":
           description: address is already taken
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "429":
+          description: Too Many Requests
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       security:

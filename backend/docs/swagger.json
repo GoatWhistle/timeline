@@ -146,6 +146,37 @@
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "HACKATHON",
+                            "MEETUP"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated kind filter",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "RU",
+                            "WORLD"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated origin filter",
+                        "name": "origin",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "ONLINE",
+                            "OFFLINE",
+                            "HYBRID"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated format filter",
+                        "name": "format",
+                        "in": "query"
+                    },
+                    {
                         "type": "boolean",
                         "description": "Include archived records",
                         "name": "include_archived",
@@ -4940,6 +4971,12 @@
                     },
                     "409": {
                         "description": "address is already taken",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }

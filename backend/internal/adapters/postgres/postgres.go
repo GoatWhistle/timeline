@@ -36,6 +36,13 @@ func Connect(ctx context.Context, cfg config.DB) (*DB, error) {
 	poolCfg.MaxConns = cfg.MaxConns
 	poolCfg.MinConns = cfg.MinConns
 	poolCfg.MaxConnLifetime = cfg.MaxConnLifetime
+	if cfg.AppRole != "" {
+		role := pgx.Identifier{cfg.AppRole}.Sanitize()
+		poolCfg.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+			_, err := conn.Exec(ctx, "SET ROLE "+role)
+			return err
+		}
+	}
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
 	if err != nil {
