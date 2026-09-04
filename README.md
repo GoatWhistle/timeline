@@ -235,6 +235,9 @@ Commit messages are `type: description` in Russian (`feat`, `fix`, `docs`,
 
 ## Documentation
 
+* [docs/run.md](docs/run.md) - the Russian step-by-step guide to running and
+  updating the project locally.
+
 Priority order when sources disagree:
 
 1. [CLAUDE.md](CLAUDE.md) - domain rules, states and transitions, the 403/404

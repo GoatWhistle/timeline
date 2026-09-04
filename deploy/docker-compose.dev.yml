@@ -9,8 +9,6 @@ services:
       - log_timezone=UTC
 
   migrations:
-    build:
-      target: dev
     command: ["go", "run", "./cmd/timeline", "migrate", "up"]
     environment:
       LOG_FORMAT: ${LOG_FORMAT:-pretty}
@@ -21,8 +19,6 @@ services:
       - gocache:/root/.cache/go-build
 
   bootstrap:
-    build:
-      target: dev
     command: ["go", "run", "./cmd/timeline", "admin", "create"]
     environment:
       LOG_FORMAT: ${LOG_FORMAT:-pretty}
@@ -49,8 +45,6 @@ services:
       retries: 30
 
   worker:
-    build:
-      target: dev
     command: ["go", "run", "./cmd/timeline", "worker"]
     environment:
       LOG_FORMAT: ${LOG_FORMAT:-pretty}
