@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { failureKind, failureMessage, isRetryable, requestIdOf } from '@/shared/api/failure'
+import { cn } from '@/shared/styling/class-names/class-names'
 import { Button } from '@/shared/ui/primitives/button'
 import {
   DeniedFigure,
@@ -9,7 +10,7 @@ import {
   ServerFigure,
   TimeoutFigure,
 } from './empty-figures/failure-figures'
-import type { EmptyFigure } from './empty-state'
+import { EMPTY_SIZES, type EmptyFigure, type EmptySize } from './empty-state'
 
 function figureFor(error: unknown): EmptyFigure {
   switch (failureKind(error)) {
@@ -37,10 +38,12 @@ export function ErrorState({
   error,
   onRetry,
   action,
+  size = 'page',
 }: {
   error: unknown
   onRetry?: () => void
   action?: React.ReactNode
+  size?: EmptySize
 }) {
   const { t } = useTranslation()
   const Figure = figureFor(error)
@@ -51,7 +54,10 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className="flex min-h-[24rem] flex-1 flex-col items-center justify-center gap-6 px-6 text-center"
+      className={cn(
+        'flex flex-1 flex-col items-center justify-center text-center',
+        EMPTY_SIZES[size],
+      )}
     >
       <Figure label={message} />
       <div className="flex flex-col gap-2">

@@ -1,7 +1,7 @@
 {
   "audit": {
     "title": "Audit",
-    "description": "History of administrative changes. File export is not supported in the MVP.",
+    "description": "History of administrative changes. File export is not available yet.",
     "action": "Action",
     "allActions": "All actions",
     "entity": "Entity type",
@@ -11,7 +11,7 @@
     "empty": "No records",
     "emptyFiltered": "No record matches these filters",
     "columnTime": "Time",
-    "columnActor": "Actor",
+    "columnActor": "Who",
     "columnAction": "Action",
     "columnEntity": "Entity",
     "columnChanges": "Changes",

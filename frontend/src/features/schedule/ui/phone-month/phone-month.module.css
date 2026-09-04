@@ -30,10 +30,6 @@
   letter-spacing: 0.04em;
 }
 
-.weekday[data-weekend="true"] {
-  color: color-mix(in oklch, var(--muted-foreground) 65%, transparent);
-}
-
 .weeks {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));

@@ -1,20 +1,40 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import type * as React from 'react'
+import { createContext, useContext } from 'react'
+import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { CloseButton } from '@/shared/ui/primitives/close-button'
 import { PANEL_MOTION, PANEL_SURFACE, SCRIM } from './overlay-chrome'
 
-export const Dialog = DialogPrimitive.Root
+const ReturnFocusContext = createContext<((event?: Event) => void) | null>(null)
+
+export function Dialog({
+  open,
+  children,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Root>) {
+  const returnFocus = useReturnFocus(open ?? false)
+
+  return (
+    <DialogPrimitive.Root open={open} {...props}>
+      <ReturnFocusContext.Provider value={returnFocus}>{children}</ReturnFocusContext.Provider>
+    </DialogPrimitive.Root>
+  )
+}
 
 export function DialogContent({
   className,
   children,
+  onCloseAutoFocus,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
+  const returnFocus = useContext(ReturnFocusContext)
+
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className={SCRIM} />
       <DialogPrimitive.Content
+        onCloseAutoFocus={onCloseAutoFocus ?? returnFocus ?? undefined}
         className={cn(
           'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 p-6',
           'max-h-[90vh] overflow-y-auto',

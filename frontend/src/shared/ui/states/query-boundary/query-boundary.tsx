@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/shared/styling/class-names/class-names'
+import type { EmptySize } from '@/shared/ui/data-display/empty-state'
 import { ErrorState } from '@/shared/ui/data-display/error-state'
 import { Spinner } from '@/shared/ui/data-display/spinner'
 import type { LoadingShape } from '../loading-policy/loading-policy'
@@ -14,6 +15,7 @@ export function QueryBoundary({
   hasData = false,
   shape = 'known',
   skeleton,
+  size = 'page',
   children,
 }: {
   isPending: boolean
@@ -24,11 +26,12 @@ export function QueryBoundary({
   hasData?: boolean
   shape?: LoadingShape
   skeleton?: ReactNode
+  size?: EmptySize
   children: ReactNode
 }) {
   const indicator = useLoadingIndicator({ isPending, isFetching, hasData, shape })
 
-  if (isError) return <ErrorState error={error} onRetry={onRetry} />
+  if (isError) return <ErrorState error={error} onRetry={onRetry} size={size} />
 
   if (indicator === 'skeleton') return <>{skeleton}</>
 

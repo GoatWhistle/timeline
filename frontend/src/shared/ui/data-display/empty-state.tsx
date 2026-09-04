@@ -8,7 +8,7 @@ export type EmptyFigure = (props: { label: string }) => React.ReactElement
 
 export type EmptySize = 'page' | 'card'
 
-const SIZES: Record<EmptySize, string> = {
+export const EMPTY_SIZES: Record<EmptySize, string> = {
   page: 'min-h-[24rem] gap-6 px-6',
   card: 'min-h-[10rem] gap-3 px-4',
 }
@@ -38,7 +38,10 @@ export function EmptyState({
 
   return (
     <div
-      className={cn('flex flex-1 flex-col items-center justify-center text-center', SIZES[size])}
+      className={cn(
+        'flex flex-1 flex-col items-center justify-center text-center',
+        EMPTY_SIZES[size],
+      )}
     >
       {Figure && <Figure label={title} />}
       <div className="flex flex-col gap-2">
