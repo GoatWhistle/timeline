@@ -8797,6 +8797,22 @@ paths:
       summary: Accept an invitation
       tags:
       - teams
+  /telegram/webhook:
+    post:
+      consumes:
+      - application/json
+      description: Consumes a one-time /start token and binds the Telegram chat to
+        its Timeline account.
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+      summary: Telegram linking webhook
+      tags:
+      - telegram
 schemes:
 - http
 - https

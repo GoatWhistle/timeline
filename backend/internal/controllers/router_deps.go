@@ -42,9 +42,10 @@ type Deps struct {
 	Links         event.ResourceLinkService
 	Teams         team.TeamService
 
-	Authenticator middleware.Authenticator
-	Metrics       http.Handler
-	SwaggerUI     http.Handler
+	Authenticator         middleware.Authenticator
+	Metrics               http.Handler
+	SwaggerUI             http.Handler
+	TelegramWebhookSecret string
 
 	Limiter            httpsession.Limiter
 	CatalogRate        int

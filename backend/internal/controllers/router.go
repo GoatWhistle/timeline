@@ -71,12 +71,15 @@ import (
 // @tag.description			Teams: a lead, their members and the hackathons a team entered
 // @tag.name					ops
 // @tag.description			Service probes and metrics
+// @tag.name					telegram
+// @tag.description			Telegram account linking
 func NewRouter(deps Deps) http.Handler {
 	authC := auth.NewController(deps.Auth, deps.Cookies, deps.CSRFTTL)
 	inviteC := auth.NewInviteController(deps.Invites, deps.Cookies, deps.PublicURL,
 		deps.CSRFTTL, deps.PageDefault, deps.PageMax)
 	profileC := auth.NewProfileController(deps.Profile, deps.Cookies, deps.Limiter,
 		deps.ProfileRate, deps.ProfileRateWindow)
+	telegramC := auth.NewTelegramWebhookController(deps.Profile, deps.TelegramWebhookSecret)
 	publicProfileC := auth.NewPublicProfileController(deps.PublicProfiles, deps.Limiter,
 		deps.PublicRate, deps.PublicRateWindow)
 	userC := auth.NewUserController(deps.Users, deps.UserPageSize, deps.PageMax)
@@ -110,6 +113,7 @@ func NewRouter(deps Deps) http.Handler {
 	const api = "/api/v1"
 
 	mountAuth(mux, rt, api, authC, inviteC)
+	mux.Handle("POST "+api+"/telegram/webhook", http.HandlerFunc(telegramC.Handle))
 	mountPublicProfile(mux, api, publicProfileC)
 	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC, profileLinkC, avatarC)
 	mountCovers(mux, rt, api, coverC)

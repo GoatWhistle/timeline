@@ -102,10 +102,12 @@ type Retention struct {
 }
 
 type Telegram struct {
-	BotToken string
-	BotName  string
-	APIBase  string
-	Timeout  time.Duration
+	BotToken      string
+	BotName       string
+	APIBase       string
+	Timeout       time.Duration
+	WebhookURL    string
+	WebhookSecret string
 }
 
 type Email struct {
@@ -204,10 +206,12 @@ func Load() (*Config, error) {
 			Interval:            envDuration("RETENTION_INTERVAL", 24*time.Hour),
 		},
 		Telegram: Telegram{
-			BotToken: env("TELEGRAM_BOT_TOKEN", ""),
-			BotName:  env("TELEGRAM_BOT_NAME", "timeline_bot"),
-			APIBase:  env("TELEGRAM_API_BASE", "https://api.telegram.org"),
-			Timeout:  envDuration("TELEGRAM_TIMEOUT", 10*time.Second),
+			BotToken:      env("TELEGRAM_BOT_TOKEN", ""),
+			BotName:       env("TELEGRAM_BOT_NAME", "timeline_bot"),
+			APIBase:       env("TELEGRAM_API_BASE", "https://api.telegram.org"),
+			Timeout:       envDuration("TELEGRAM_TIMEOUT", 10*time.Second),
+			WebhookURL:    env("TELEGRAM_WEBHOOK_URL", ""),
+			WebhookSecret: env("TELEGRAM_WEBHOOK_SECRET", ""),
 		},
 		Email: Email{
 			Host:     env("SMTP_HOST", ""),
