@@ -1,3 +1,5 @@
+import { DAYS_PER_WEEK } from './pack-lanes'
+
 export type ScheduleScale = 'week' | 'month' | 'quarter' | 'year'
 
 export const SCHEDULE_SCALES: ScheduleScale[] = ['week', 'month', 'quarter', 'year']
@@ -20,6 +22,17 @@ export const GRID_PADDING = 18
 export const GRID_GAP = 20
 
 export const WRAPPED_ROW_PADDING = 4
+
+export const TOUCH_CELL = 44
+
+export function touchColumns(preferred: number, width: number, touch: boolean): number {
+  if (!touch || width <= 0) return preferred
+  for (let columns = preferred; columns > 1; columns -= 1) {
+    const available = width - GRID_PADDING * 2 - GRID_GAP * (columns - 1)
+    if (available / (columns * DAYS_PER_WEEK) >= TOUCH_CELL) return columns
+  }
+  return 1
+}
 
 export type WrappedShape = {
   months: number

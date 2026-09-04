@@ -5,12 +5,13 @@ import { useTranslation } from 'react-i18next'
 import type { ScheduleResponse, ScheduleRow as ScheduleRowData } from '@/shared/api/types.gen'
 import { formatDate, formatRelative } from '@/shared/datetime/datetime'
 import { DEFAULT_LOCALE, isLocale } from '@/shared/i18n/locale'
+import { useTouchViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
 import { buildCalendarSpans, type CalendarSpan } from '../../model/calendar-items'
 import { buildMonthBlocks, dayKey } from '../../model/month-grid'
 import { DAYS_PER_WEEK } from '../../model/pack-lanes'
 import { rowSentence } from '../../model/row-sentence'
-import { GRID_GAP, GRID_PADDING } from '../../model/schedule-scale'
+import { GRID_GAP, GRID_PADDING, touchColumns } from '../../model/schedule-scale'
 import { buildTimelineGrid } from '../../model/timeline-grid'
 import { useAnnouncer } from '../../model/use-announcer'
 import { useElementWidth } from '../../model/use-element-width'
@@ -69,8 +70,10 @@ export function WrappedGrid({
   )
 
   const width = useElementWidth(containerRef)
-  const available = width - GRID_PADDING * 2 - GRID_GAP * (columns - 1)
-  const measured = available / (columns * DAYS_PER_WEEK)
+  const touch = useTouchViewport()
+  const fitted = touchColumns(columns, width, touch)
+  const available = width - GRID_PADDING * 2 - GRID_GAP * (fitted - 1)
+  const measured = available / (fitted * DAYS_PER_WEEK)
   const cellWidth = Math.max(minCell, measured)
 
   const sentenceOf = useCallback(
@@ -135,7 +138,7 @@ export function WrappedGrid({
         data-has-selection={selectedId ? 'true' : 'false'}
         role="application"
         style={{
-          ['--schedule-columns' as string]: `${columns}`,
+          ['--schedule-columns' as string]: `${fitted}`,
           ['--schedule-cell' as string]: `${cellWidth}px`,
         }}
         aria-label={t('schedule.tableAria')}

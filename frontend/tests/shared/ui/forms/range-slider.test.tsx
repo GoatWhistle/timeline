@@ -1,9 +1,10 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { renderWithProviders } from '@tests/support/render'
 import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { RangeSlider, type RangeValue } from '@/shared/ui/forms/range-slider/range-slider'
-import { nearestHandle, withHandle } from '@/shared/ui/forms/range-slider/range-value'
+import { keyTarget, nearestHandle, withHandle } from '@/shared/ui/forms/range-slider/range-value'
 
 const BOUNDS = { min: 1, max: 10 }
 
@@ -124,5 +125,58 @@ describe('the handles carry no visible label of their own', () => {
     const shown = screen.getByText('2-6 members')
     expect(shown).toHaveAttribute('aria-hidden', 'true')
     expect(shown.closest('[role="slider"]')).toBeNull()
+  })
+})
+
+describe('paging jumps a tenth of the range and twice that with shift', () => {
+  const wide = { min: 0, max: 100 }
+  const value = { low: 40, high: 60 }
+
+  it('pages the low handle by a tenth and by a fifth with shift held', () => {
+    expect(keyTarget('PageUp', 'low', value, wide)).toBe(50)
+    expect(keyTarget('PageUp', 'low', value, wide, true)).toBe(60)
+    expect(keyTarget('PageDown', 'low', value, wide)).toBe(30)
+    expect(keyTarget('PageDown', 'low', value, wide, true)).toBe(20)
+  })
+
+  it('pages the high handle by the same amounts', () => {
+    expect(keyTarget('PageUp', 'high', value, wide)).toBe(70)
+    expect(keyTarget('PageUp', 'high', value, wide, true)).toBe(80)
+  })
+
+  it('leaves the arrow keys at a single step whether or not shift is held', () => {
+    expect(keyTarget('ArrowRight', 'low', value, wide)).toBe(41)
+    expect(keyTarget('ArrowRight', 'low', value, wide, true)).toBe(41)
+  })
+})
+
+describe('the thumb forwards the shift modifier it is pressed with', () => {
+  function WideHarness() {
+    const [value, setValue] = useState<RangeValue>({ low: 10, high: 100 })
+    return (
+      <RangeSlider
+        id="wide"
+        bounds={{ min: 0, max: 100 }}
+        value={value}
+        lowLabel="Smallest"
+        highLabel="Largest"
+        summary={`${value.low}-${value.high} members`}
+        valueText={(amount) => `${amount} members`}
+        onChange={setValue}
+      />
+    )
+  }
+
+  it('pages twice as far when shift is held down on the handle', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<WideHarness />)
+    const low = screen.getByRole('slider', { name: 'Smallest' })
+
+    low.focus()
+    await user.keyboard('{PageUp}')
+    expect(low).toHaveAttribute('aria-valuenow', '20')
+
+    await user.keyboard('{Shift>}{PageUp}{/Shift}')
+    expect(low).toHaveAttribute('aria-valuenow', '40')
   })
 })

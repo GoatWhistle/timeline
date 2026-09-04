@@ -6,6 +6,9 @@ type RowActionProps = {
   label: string
 } & Omit<React.ComponentProps<typeof Button>, 'size' | 'variant' | 'children'>
 
+export const TOUCH_REACH =
+  'relative after:absolute after:content-[""] pointer-coarse:after:-inset-1.5'
+
 export function EditAction({ label, className, ...props }: RowActionProps) {
   return (
     <Button
@@ -15,7 +18,7 @@ export function EditAction({ label, className, ...props }: RowActionProps) {
       data-row-action="edit"
       aria-label={label}
       title={label}
-      className={cn('size-8 shrink-0', className)}
+      className={cn('size-8 shrink-0', TOUCH_REACH, className)}
       {...props}
     >
       <Pencil className="size-4" aria-hidden="true" />
@@ -34,6 +37,7 @@ export function DeleteAction({ label, className, ...props }: RowActionProps) {
       title={label}
       className={cn(
         'size-8 shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive',
+        TOUCH_REACH,
         className,
       )}
       {...props}

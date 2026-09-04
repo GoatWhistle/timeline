@@ -65,6 +65,13 @@
   min-height: var(--schedule-cell);
 }
 
+@media (pointer: coarse) {
+  .cell,
+  .blank {
+    min-height: max(var(--schedule-cell), var(--tap-target));
+  }
+}
+
 .cell {
   border: 0;
   border-radius: var(--radius-badge);

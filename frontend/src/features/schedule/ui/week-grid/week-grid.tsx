@@ -105,10 +105,7 @@ export function WeekGrid({
         onPointerDown={(event) => {
           if (event.target === event.currentTarget) clear()
         }}
-        style={{
-          ['--week-axis' as string]: `${WEEK_AXIS_WIDTH}px`,
-          ['--week-hour' as string]: `${WEEK_HOUR_HEIGHT}px`,
-        }}
+        style={{ ['--week-axis' as string]: `${WEEK_AXIS_WIDTH}px` }}
       >
         <div className={styles.head}>
           <span className={styles.axisCorner} aria-hidden="true" />
