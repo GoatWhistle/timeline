@@ -17,7 +17,6 @@ export type RibbonBandProps = {
   start: Date
   dayCount: number
   dayWidth: number
-  selectedId?: string
   sentenceOf: (span: CalendarSpan) => string
   onSelect?: (id: string | undefined) => void
   onOpen: (span: CalendarSpan) => void
@@ -28,7 +27,6 @@ export function RibbonBand({
   start,
   dayCount,
   dayWidth,
-  selectedId,
   sentenceOf,
   onSelect,
   onOpen,
@@ -57,7 +55,7 @@ export function RibbonBand({
           key={bar.item.id}
           span={bar.item.span}
           sentence={sentenceOf(bar.item.span)}
-          selected={selectedId === bar.item.span.id}
+          selected={false}
           clippedStart={bar.clippedStart}
           clippedEnd={bar.clippedEnd}
           style={{

@@ -22,7 +22,6 @@ export const RIBBON_HOUR_HEIGHT = WEEK_HOUR_HEIGHT
 export const RIBBON_AXIS_WIDTH = WEEK_AXIS_WIDTH
 export const RIBBON_MONTH_RULE = 26
 export const RIBBON_DAY_RULE = 22
-export const RIBBON_DENSITY_TRACK = 34
 export const RIBBON_MIN_TIMED_WIDTH = 10
 
 export function ribbonDayWidth(viewportWidth: number): number {
@@ -152,29 +151,4 @@ export function timedClippedStart(startMinute: number): boolean {
 
 export function timedClippedEnd(endMinute: number): boolean {
   return endMinute > RIBBON_HOUR_END * MINUTES_PER_HOUR
-}
-
-export function densityByDay(
-  band: readonly CalendarSpan[],
-  timed: readonly TimedPlacement[],
-  dayCount: number,
-): number[] {
-  const counts = new Array<number>(Math.max(0, dayCount)).fill(0)
-
-  for (const span of band) {
-    const from = Math.max(0, span.startDay)
-    const to = Math.min(dayCount - 1, span.endDay)
-    for (let day = from; day <= to; day += 1) counts[day] = (counts[day] ?? 0) + 1
-  }
-
-  for (const entry of timed) {
-    if (entry.dayIndex < 0 || entry.dayIndex >= dayCount) continue
-    counts[entry.dayIndex] = (counts[entry.dayIndex] ?? 0) + 1
-  }
-
-  return counts
-}
-
-export function densityPeak(counts: readonly number[]): number {
-  return counts.reduce((peak, count) => Math.max(peak, count), 0)
 }

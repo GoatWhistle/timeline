@@ -179,10 +179,10 @@ describe('the ribbon says where in the year the reader is', () => {
     expect(within(container, '[data-ribbon-month]').length).toBeGreaterThan(6)
   })
 
-  it('shows how crowded each day is', () => {
+  it('draws no strip of its own beneath the hours, where the season should show through', () => {
     const { container } = renderRibbon()
 
-    expect(within(container, '[data-ribbon-density-day]').length).toBeGreaterThan(0)
+    expect(container.querySelector('[data-ribbon-density]')).toBeNull()
   })
 
   it('names the season the reader is looking at', () => {

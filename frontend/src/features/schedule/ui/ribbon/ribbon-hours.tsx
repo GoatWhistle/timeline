@@ -20,7 +20,6 @@ export type RibbonHoursProps = {
   placements: readonly TimedPlacement[]
   dayWidth: number
   label: string
-  selectedId?: string
   sentenceOf: (span: CalendarSpan) => string
   onSelect?: (id: string | undefined) => void
   onOpen: (span: CalendarSpan) => void
@@ -30,7 +29,6 @@ export function RibbonHours({
   placements,
   dayWidth,
   label,
-  selectedId,
   sentenceOf,
   onSelect,
   onOpen,
@@ -76,7 +74,7 @@ export function RibbonHours({
           key={entry.id}
           span={entry.span}
           sentence={sentenceOf(entry.span)}
-          selected={selectedId === entry.span.id}
+          selected={false}
           timed
           clippedStart={timedClippedStart(entry.startMinute)}
           clippedEnd={timedClippedEnd(entry.endMinute)}

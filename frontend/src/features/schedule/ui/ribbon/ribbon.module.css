@@ -176,20 +176,6 @@
   transform: none;
 }
 
-.density {
-  position: relative;
-  height: var(--ribbon-density-track);
-  background-color: color-mix(in oklch, var(--muted) 20%, transparent);
-}
-
-.densityBar {
-  position: absolute;
-  inset-block-end: 0;
-  border-start-start-radius: 2px;
-  border-start-end-radius: 2px;
-  background-color: color-mix(in oklch, var(--accent) 55%, transparent);
-}
-
 .nowLine {
   position: absolute;
   z-index: 6;

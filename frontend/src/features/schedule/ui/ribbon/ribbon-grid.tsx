@@ -6,8 +6,6 @@ import { formatDate, formatRelative } from '@/shared/datetime/datetime'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
 import { buildCalendarSpans, type CalendarSpan } from '../../model/calendar-items'
 import {
-  densityByDay,
-  densityPeak,
   minuteOffset,
   placeTimed,
   RIBBON_DAY_RULE,
@@ -27,14 +25,13 @@ import styles from './ribbon.module.css'
 import { RibbonBand } from './ribbon-band'
 import { RibbonControls } from './ribbon-controls'
 import { RibbonHours } from './ribbon-hours'
-import { RibbonDays, RibbonDensity, RibbonMonths, RibbonSeasons } from './ribbon-rulers'
+import { RibbonDays, RibbonMonths, RibbonSeasons } from './ribbon-rulers'
 
 export type RibbonGridProps = {
   data: ScheduleResponse
   window: RibbonWindow
   locale: Locale
   now?: Date
-  selectedId?: string
   onSelect?: (id: string | undefined) => void
   onOpenEvent?: (row: ScheduleRowData) => void
 }
@@ -44,7 +41,6 @@ export function RibbonGrid({
   window,
   locale,
   now = new Date(),
-  selectedId,
   onSelect,
   onOpenEvent,
 }: RibbonGridProps) {
@@ -67,12 +63,6 @@ export function RibbonGrid({
     () => placeTimed(tiers.timed, window.start, grid.dayCount),
     [tiers.timed, window.start, grid.dayCount],
   )
-
-  const counts = useMemo(
-    () => densityByDay(tiers.band, placements, grid.dayCount),
-    [tiers.band, placements, grid.dayCount],
-  )
-  const peak = useMemo(() => densityPeak(counts), [counts])
 
   const seasons = useMemo(
     () => seasonBands(window.start, grid.dayCount),
@@ -150,7 +140,6 @@ export function RibbonGrid({
               start={window.start}
               dayCount={grid.dayCount}
               dayWidth={dayWidth}
-              selectedId={selectedId}
               sentenceOf={sentenceOf}
               onSelect={onSelect}
               onOpen={open}
@@ -160,18 +149,9 @@ export function RibbonGrid({
               placements={placements}
               dayWidth={dayWidth}
               label={t('schedule.hours')}
-              selectedId={selectedId}
               sentenceOf={sentenceOf}
               onSelect={onSelect}
               onOpen={open}
-            />
-
-            <RibbonDensity
-              grid={grid}
-              counts={counts}
-              peak={peak}
-              dayWidth={dayWidth}
-              label={t('schedule.densityAria')}
             />
 
             {todayIndex >= 0 && todayIndex < grid.dayCount && (
