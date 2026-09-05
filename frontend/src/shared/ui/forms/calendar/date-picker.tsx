@@ -64,6 +64,16 @@ export function DatePicker({
   }, [open])
 
   useEffect(() => {
+    if (placement === null) return
+    const panel = panelRef.current
+    if (!panel || panel.contains(document.activeElement)) return
+    const timer = window.setTimeout(() => {
+      panel.querySelector<HTMLElement>('[tabindex="0"]')?.focus({ preventScroll: true })
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [placement])
+
+  useEffect(() => {
     if (!open) return
     function outside(target: Node): boolean {
       const panel = panelRef.current

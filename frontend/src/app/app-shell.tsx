@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Suspense, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router'
 import { unreadCountQueryOptions } from '@/entities/event-feed/event-feed.queries'
@@ -40,16 +40,31 @@ export function AppShell() {
   useProfileTimezone()
   useProfileShortcuts(useShortcutBindings())
 
+  useEffect(() => {
+    function focusMain() {
+      mainRef.current?.focus()
+    }
+    function onClick(event: MouseEvent) {
+      const target = event.target
+      if (target instanceof Element && target.closest('a[href="#main"]')) focusMain()
+    }
+    function onHashChange() {
+      if (window.location.hash === '#main') focusMain()
+    }
+    document.addEventListener('click', onClick)
+    window.addEventListener('hashchange', onHashChange)
+    return () => {
+      document.removeEventListener('click', onClick)
+      window.removeEventListener('hashchange', onHashChange)
+    }
+  }, [])
+
   const drawerScrim = !phone && sidebar.overlay && !sidebar.collapsed
 
   return (
     <div className="relative flex h-screen overflow-hidden">
       <a
         href="#main"
-        onClick={(event) => {
-          event.preventDefault()
-          mainRef.current?.focus()
-        }}
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-control focus:border focus:border-border-strong focus:bg-popover focus:px-3 focus:py-2 focus:text-copy focus:text-popover-foreground"
       >
         {t('app.skipToContent')}

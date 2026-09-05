@@ -14,16 +14,16 @@ function renderSelect(value = 'Europe/Moscow'): View {
 }
 
 function trigger(): HTMLElement {
-  return document.querySelector('[aria-haspopup="menu"]') as HTMLElement
+  return document.querySelector('[aria-haspopup="dialog"]') as HTMLElement
 }
 
 async function openList(user: View['user']): Promise<HTMLElement> {
   await user.click(trigger())
-  return await screen.findByRole('menu')
+  return await screen.findByRole('dialog')
 }
 
 function zoneRows(): HTMLElement[] {
-  return within(screen.getByRole('menu'))
+  return within(screen.getByRole('dialog'))
     .queryAllByRole('button')
     .filter((node) => /\d{2}:\d{2}/.test(node.textContent ?? ''))
 }
