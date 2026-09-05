@@ -78,14 +78,14 @@ describe('an empty schedule offers the catalog once, then says nothing at all', 
     expect(screen.getByRole('table', { name: 'calendar' }).closest('.opacity-45')).toBeNull()
   })
 
-  it('states the account is bare on a year without pitching the catalog again', () => {
+  it('says nothing at all on a bare account once the offer has been spent', () => {
     renderWithProviders(
       <ScheduleEmpty reason="account">
         <Grid />
       </ScheduleEmpty>,
     )
 
-    expect(screen.getByText('You have no assigned events yet')).toBeInTheDocument()
+    expect(screen.queryByText('You have no assigned events yet')).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /catalog/i })).not.toBeInTheDocument()
   })
 

@@ -30,11 +30,6 @@ export function ScheduleEmpty({
           }
         />
       )}
-      {reason === 'account' && (
-        <p className={styles.note} role="status">
-          {t('schedule.myEmpty')}
-        </p>
-      )}
       {children}
     </div>
   )
