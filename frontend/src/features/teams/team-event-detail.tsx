@@ -79,7 +79,7 @@ export function TeamEventDetail() {
             </div>
 
             <Card>
-              <CardContent className="flex flex-col gap-6 pt-6">
+              <CardContent className="flex flex-col gap-6">
                 <TeamTrackPicker teamId={teamId} entry={entry} isLead={isLead} />
                 <RosterTable
                   teamId={teamId}
@@ -91,7 +91,7 @@ export function TeamEventDetail() {
             </Card>
 
             <Card>
-              <CardContent className="pt-6">
+              <CardContent>
                 <TeamLinksCard teamId={teamId} eventId={entry.event_id} />
               </CardContent>
             </Card>

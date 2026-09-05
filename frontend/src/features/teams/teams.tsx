@@ -7,12 +7,14 @@ import { teamsQuery } from '@/entities/team/team.queries'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { TeamFigure } from '@/shared/ui/data-display/empty-figures/people-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
+import { ListFootnote } from '@/shared/ui/data-display/list-footnote/list-footnote'
 import { Card } from '@/shared/ui/layout/card'
 import { PageHeader } from '@/shared/ui/layout/page-header'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary } from '@/shared/ui/states'
 import { CreateTeamDialog } from './create-team-dialog'
+import { TeamsSummary } from './teams-summary'
 
 export function TeamsPage() {
   const { t } = useTranslation('team')
@@ -58,40 +60,44 @@ export function TeamsPage() {
             }
           />
         ) : (
-          <ul className="flex flex-col gap-3">
-            {(query.data?.items ?? []).map((team) => (
-              <li key={team.id}>
-                <NavLink
-                  to={`/teams/${team.id}`}
-                  className={cn(
-                    'block rounded-surface',
-                    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                  )}
-                >
-                  <Card
+          <div className="flex flex-col gap-4">
+            <TeamsSummary teams={query.data?.items ?? []} />
+            <ul className="flex flex-col gap-3">
+              {(query.data?.items ?? []).map((team) => (
+                <li key={team.id}>
+                  <NavLink
+                    to={`/teams/${team.id}`}
                     className={cn(
-                      'flex items-center justify-between gap-4 p-4',
-                      'transition-colors duration-instant ease-out',
-                      'hover:bg-surface-2',
+                      'block rounded-surface',
+                      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                     )}
                   >
-                    <div className="min-w-0">
-                      <p className="truncate font-medium text-copy">{team.name}</p>
-                      <p className="truncate text-meta text-muted-foreground">
-                        {t('lead')}: {team.lead.display_name}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      {team.my_state === 'INVITED' && (
-                        <Badge tone="primary">{t('stateInvited')}</Badge>
+                    <Card
+                      className={cn(
+                        'flex items-center justify-between gap-4 p-4',
+                        'transition-colors duration-instant ease-out',
+                        'hover:bg-surface-2',
                       )}
-                      {team.is_lead && <Badge tone="outline">{t('lead')}</Badge>}
-                    </div>
-                  </Card>
-                </NavLink>
-              </li>
-            ))}
-          </ul>
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-copy">{team.name}</p>
+                        <p className="truncate text-meta text-muted-foreground">
+                          {t('lead')}: {team.lead.display_name}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        {team.my_state === 'INVITED' && (
+                          <Badge tone="primary">{t('stateInvited')}</Badge>
+                        )}
+                        {team.is_lead && <Badge tone="outline">{t('lead')}</Badge>}
+                      </div>
+                    </Card>
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+            <ListFootnote text={t('footnote')} />
+          </div>
         )}
       </QueryBoundary>
 

@@ -5,11 +5,13 @@ import { Link } from 'react-router'
 import { historyQuery } from '@/entities/personal/history.queries'
 import { HistoryFigure } from '@/shared/ui/data-display/empty-figures/personal-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
+import { ListFootnote } from '@/shared/ui/data-display/list-footnote/list-footnote'
 import { PageHeader } from '@/shared/ui/layout/page-header'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
 import { HistoryRow } from './history-row'
+import { HistorySummary } from './history-summary'
 
 export function HistoryPage() {
   const { t } = useTranslation('event')
@@ -47,12 +49,14 @@ export function HistoryPage() {
           />
         ) : (
           <div className="flex flex-col gap-4">
+            <HistorySummary items={items} meta={query.data?.meta} />
             <ul className="flex flex-col gap-3">
               {items.map((item) => (
                 <HistoryRow key={item.event_id} item={item} />
               ))}
             </ul>
             <Pagination meta={query.data?.meta} onPageChange={setPage} />
+            <ListFootnote text={t('personal.history.footnote')} />
           </div>
         )}
       </QueryBoundary>
