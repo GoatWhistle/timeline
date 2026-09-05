@@ -1,6 +1,7 @@
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
+import { EVENT_FORMAT_KEY } from '@/entities/stage/stage.place'
 import { EVENT_KIND_KEY } from '@/features/schedule/model/event-kind'
 import { BarTooltip } from '@/features/schedule/ui/schedule-bar/bar-tooltip'
 import type { ScheduleRow } from '@/shared/api/types.gen'
@@ -36,14 +37,20 @@ describe('the hover card of a schedule bar', () => {
     expect(getByText(TITLE)).toBeInTheDocument()
   })
 
-  it('shows the prize pool under its own label', () => {
-    const { getByText } = renderWithProviders(<BarTooltip row={rowWithCover()} />)
+  it('shows the prize as a bare figure, with no label spelling it out', () => {
+    const { container, getByText } = renderWithProviders(<BarTooltip row={rowWithCover()} />)
 
-    expect(getByText(i18n.t('schedule.prizePool'))).toBeInTheDocument()
     expect(getByText('500,000 ₽')).toBeInTheDocument()
+    expect(container.textContent ?? '').not.toContain(i18n.t('schedule.prizePool'))
   })
 
-  it('carries nothing but cover, title and prize: no kind, no dates, no key hint', () => {
+  it('names the format the event runs in', () => {
+    const { getByText } = renderWithProviders(<BarTooltip row={rowWithCover()} />)
+
+    expect(getByText(i18n.t(EVENT_FORMAT_KEY.ONLINE))).toBeInTheDocument()
+  })
+
+  it('carries nothing but cover, title, format and prize: no kind, no dates, no key hint', () => {
     const { container } = renderWithProviders(<BarTooltip row={rowWithCover()} />)
     const text = container.textContent ?? ''
 

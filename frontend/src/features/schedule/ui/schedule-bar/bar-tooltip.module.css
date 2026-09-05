@@ -37,15 +37,24 @@
   text-wrap: balance;
 }
 
-.prize {
+.facts {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
 }
 
-.prizeLabel {
+.format {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   color: var(--muted-foreground);
+}
+
+.formatIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .prizeValue {
