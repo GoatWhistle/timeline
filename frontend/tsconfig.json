@@ -28,5 +28,12 @@
       "@tests/*": ["./tests/*"]
     }
   },
-  "include": ["src", "tests", "tests-contract", "vite.config.ts", "vitest.config.ts", "vitest.contract.config.ts"]
+  "include": [
+    "src",
+    "tests",
+    "tests-contract",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vitest.contract.config.ts"
+  ]
 }
