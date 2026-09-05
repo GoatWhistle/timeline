@@ -10938,13 +10938,6 @@
       "dto.CreateRuleRequest": {
         "type": "object",
         "properties": {
-          "channel_override": {
-            "type": "string",
-            "enum": [
-              "TELEGRAM",
-              "EMAIL"
-            ]
-          },
           "enabled": {
             "type": "boolean",
             "example": true
@@ -11748,11 +11741,14 @@
             "type": "string",
             "example": "jsmith"
           },
+          "notification_channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.Channel"
+            }
+          },
           "pending_email": {
             "type": "string"
-          },
-          "preferred_channel": {
-            "$ref": "#/components/schemas/models.Channel"
           },
           "profile_public": {
             "type": "boolean",
@@ -11788,6 +11784,7 @@
           "is_admin",
           "last_name",
           "locale",
+          "notification_channels",
           "profile_public",
           "shortcuts",
           "telegram_linked",
@@ -11887,12 +11884,15 @@
           "body": {
             "type": "string"
           },
-          "channel": {
-            "$ref": "#/components/schemas/models.Channel"
-          },
           "channel_ready": {
             "type": "boolean",
             "example": true
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.Channel"
+            }
           },
           "deadline_local": {
             "type": "string",
@@ -11935,8 +11935,8 @@
         },
         "required": [
           "body",
-          "channel",
           "channel_ready",
+          "channels",
           "deadline_local",
           "deadline_utc",
           "event_title",
@@ -11952,9 +11952,6 @@
       "dto.NotificationRuleResponse": {
         "type": "object",
         "properties": {
-          "channel_override": {
-            "$ref": "#/components/schemas/models.Channel"
-          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -13713,12 +13710,15 @@
             "type": "string",
             "example": "jsmith"
           },
-          "preferred_channel": {
-            "type": "string",
-            "enum": [
-              "TELEGRAM",
-              "EMAIL"
-            ]
+          "notification_channels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "TELEGRAM",
+                "EMAIL"
+              ]
+            }
           },
           "profile_public": {
             "type": "boolean",
@@ -13789,13 +13789,6 @@
       "dto.UpdateRuleRequest": {
         "type": "object",
         "properties": {
-          "channel_override": {
-            "type": "string",
-            "enum": [
-              "TELEGRAM",
-              "EMAIL"
-            ]
-          },
           "enabled": {
             "type": "boolean"
           },

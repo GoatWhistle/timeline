@@ -6,6 +6,7 @@ import { NavLink } from 'react-router'
 import { teamEventsQuery } from '@/entities/team/team.queries'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { ListFootnote } from '@/shared/ui/data-display/list-footnote/list-footnote'
+import { Note } from '@/shared/ui/data-display/note/note'
 import { Card } from '@/shared/ui/layout/card'
 import { useTeamContext } from './team-context'
 
@@ -54,16 +55,7 @@ export function TeamOverview() {
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
-      {!isLead && (
-        <p
-          className={cn(
-            'rounded-surface border border-border border-dashed bg-surface-2 px-4 py-3',
-            'text-meta text-muted-foreground',
-          )}
-        >
-          {t(invited ? 'invitedNotice' : 'readOnlyNotice')}
-        </p>
-      )}
+      {!isLead && <Note>{t(invited ? 'invitedNotice' : 'readOnlyNotice')}</Note>}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Tile

@@ -41,25 +41,19 @@ func TestChannelNotSelectedIsNeverScheduled(t *testing.T) {
 	}
 }
 
-func TestNoChannelCreatesNoNotification(t *testing.T) {
+func TestNoChannelBecomesUndeliverable(t *testing.T) {
 	w := newWorld(t)
 	w.setChannels(false, false)
 	telegram, email := newSender(), newSender()
-	r := newRig(t, w, telegram, email)
-	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
+	r, n := seedOneDue(t, w, telegram, email)
 
-	result := r.reconcile()
-	if result.Primary != 0 {
-		t.Fatalf("no deliverable channel must create no notification, got %+v", result)
-	}
-	if got := w.countAll(); got != 0 {
-		t.Fatalf("expected no notifications, got %d (%v)", got, w.keys())
-	}
+	r.work()
 
-	w.setChannels(true, false)
-	again := r.reconcile()
-	if again.Primary != 1 {
-		t.Fatalf("a channel becoming available must let reconciliation create a notification, got %+v", again)
+	after := r.load(n.ID)
+	requireStatus(t, after, models.NotificationUndeliverable)
+	requireAttempts(t, after, 0)
+	if telegram.count()+email.count() != 0 {
+		t.Fatalf("no provider call may be made without an available channel")
 	}
 
 	var status string

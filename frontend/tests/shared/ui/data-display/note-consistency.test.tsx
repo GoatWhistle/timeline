@@ -29,12 +29,19 @@ function classLists(source: string): string[] {
 const has = (classes: string, ...needles: string[]) =>
   needles.every((needle) => classes.includes(needle))
 
+const hasBaseToken = (classes: string, token: string) => classes.split(' ').includes(token)
+
 function handRolledNotes(source: string): string[] {
-  return classLists(source).filter(
-    (classes) =>
-      has(classes, 'items-start', 'rounded-control', 'border', 'px-3', 'py-2') &&
-      (classes.includes('bg-surface-2') || classes.includes('bg-destructive/5')),
-  )
+  return classLists(source).filter((classes) => {
+    const filled =
+      hasBaseToken(classes, 'bg-surface-2') || hasBaseToken(classes, 'bg-destructive/5')
+    if (!filled || !has(classes, 'border')) return false
+    const strict = has(classes, 'items-start', 'rounded-control', 'px-3', 'py-2')
+    const filledAdvisory =
+      has(classes, 'border-dashed') &&
+      (classes.includes('text-muted-foreground') || classes.includes('text-copy'))
+    return strict || filledAdvisory
+  })
 }
 
 describe('an explanatory strip beside a control is one surface, not one per screen', () => {

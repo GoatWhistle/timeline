@@ -122,6 +122,16 @@ func (c RecipientChannels) Deliverable(occasion NotificationOccasion) ChannelSet
 	return out
 }
 
+func (c RecipientChannels) Wanted(occasion NotificationOccasion) ChannelSet {
+	out := make(ChannelSet, 0, len(c.Selected))
+	for _, ch := range AllChannels {
+		if c.Selected.Has(ch) && c.Preferences.Allows(occasion, ch) {
+			out = append(out, ch)
+		}
+	}
+	return out
+}
+
 func (c RecipientChannels) Available(ch Channel) bool {
 	switch ch {
 	case ChannelTelegram:

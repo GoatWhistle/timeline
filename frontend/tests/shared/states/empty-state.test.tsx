@@ -20,7 +20,6 @@ import {
 import {
   AuditFigure,
   DeviceFigure,
-  MatrixFigure,
   PreviewFigure,
   QueueFigure,
   RuleFigure,
@@ -39,7 +38,6 @@ const FIGURES = {
   eventList: EventListFigure,
   filter: FilterFigure,
   invite: InviteFigure,
-  matrix: MatrixFigure,
   preview: PreviewFigure,
   queue: QueueFigure,
   roster: RosterFigure,

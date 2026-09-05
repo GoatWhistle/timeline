@@ -40,41 +40,41 @@ type container struct {
 	db  *postgres.DB
 
 	repos struct {
-		users          *identity.Users
-		profileLinks   *identity.ProfileLinks
-		sessions       *identity.Sessions
-		tokens         *identity.Tokens
-		invites        *identity.Invites
-		events         *event.Events
-		stages         *event.Stages
-		tracks         *event.Tracks
-		participants   *participation.Participants
-		registrations  *participation.Registrations
-		statuses       *participation.Statuses
+		users                   *identity.Users
+		profileLinks            *identity.ProfileLinks
+		sessions                *identity.Sessions
+		tokens                  *identity.Tokens
+		invites                 *identity.Invites
+		events                  *event.Events
+		stages                  *event.Stages
+		tracks                  *event.Tracks
+		participants            *participation.Participants
+		registrations           *participation.Registrations
+		statuses                *participation.Statuses
 		rules                   *participation.Rules
 		notifications           *notification.Notifications
 		notificationPreferences *notification.Preferences
 		scheduler               *notification.Scheduler
-		catalog        *query.Catalog
-		tasks          *personal.Tasks
-		notes          *personal.Notes
-		artifacts      *personal.Artifacts
-		outcomes       *personal.Outcomes
-		templates      *personal.Templates
-		history        *personal.History
-		retros         *personal.Retrospectives
-		reminders      *personal.Reminders
-		links          *resourcelink.Links
-		queries        *query.Timeline
-		digests        *query.Digests
-		feed           *systemevent.Events
-		teams          *team.Teams
-		teamMembers    *team.Members
-		teamEntries    *team.Entries
-		teamRosters    *team.Rosters
-		teamLinks      *team.JoinLinks
-		teamEventLinks *team.EventLinks
-		audit          *audit.Audit
+		catalog                 *query.Catalog
+		tasks                   *personal.Tasks
+		notes                   *personal.Notes
+		artifacts               *personal.Artifacts
+		outcomes                *personal.Outcomes
+		templates               *personal.Templates
+		history                 *personal.History
+		retros                  *personal.Retrospectives
+		reminders               *personal.Reminders
+		links                   *resourcelink.Links
+		queries                 *query.Timeline
+		digests                 *query.Digests
+		feed                    *systemevent.Events
+		teams                   *team.Teams
+		teamMembers             *team.Members
+		teamEntries             *team.Entries
+		teamRosters             *team.Rosters
+		teamLinks               *team.JoinLinks
+		teamEventLinks          *team.EventLinks
+		audit                   *audit.Audit
 	}
 
 	telegram telegram.Sender

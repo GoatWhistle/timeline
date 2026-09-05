@@ -22,6 +22,7 @@ const USER: MeResponse = {
   is_admin: false,
   locale: 'ru',
   telegram_linked: false,
+  notification_channels: ['TELEGRAM', 'EMAIL'],
   shortcuts: {},
   timezone: 'Europe/Moscow',
   created_at: '2026-01-10T10:00:00Z',
@@ -86,14 +87,16 @@ describe('account against profile', () => {
     ).toBeInTheDocument()
   })
 
-  it('leaves notifications with the channel preference only', () => {
+  it('leaves notifications with the channel selection only', () => {
     renderSection('notifications')
 
     expect(
       screen.queryByRole('button', { name: i18n.t('common:account.telegramLink') }),
     ).not.toBeInTheDocument()
     expect(screen.queryByText('member@example.com')).not.toBeInTheDocument()
-    expect(screen.getByText(i18n.t('notification:card.preferred'))).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: i18n.t('notification:card.title') }),
+    ).toBeInTheDocument()
   })
 
   it('answers what arrives and when, not only which channel', () => {

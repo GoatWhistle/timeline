@@ -35,18 +35,6 @@ export function QueueFigure({ label }: { label: string }) {
   )
 }
 
-export function MatrixFigure({ label }: { label: string }) {
-  return (
-    <FigureFrame label={label}>
-      <DashedRect x={12} y={20} width={30} height={30} rx={6} />
-      <DashedRect x={12} y={58} width={30} height={30} rx={6} />
-      <DashedRect x={158} y={20} width={30} height={30} rx={6} />
-      <DashedRect x={158} y={58} width={30} height={30} rx={6} />
-      <BrandMark />
-    </FigureFrame>
-  )
-}
-
 export function RuleFigure({ label }: { label: string }) {
   return (
     <FigureFrame label={label}>

@@ -1,6 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { CHANNEL_KEY } from '@/entities/notification/notification.labels'
-import type { Channel } from '@/shared/api/types.gen'
 import { formatOffsetMinutes } from '@/shared/datetime/datetime'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
@@ -20,8 +18,6 @@ import {
 } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
 
-export const AUTO_CHANNEL = 'AUTO'
-
 export type Direction = 'before' | 'after'
 
 export function RuleDialog({
@@ -30,13 +26,11 @@ export function RuleDialog({
   direction,
   days,
   hours,
-  channel,
   pending,
   onOpenChange,
   onDirectionChange,
   onDaysChange,
   onHoursChange,
-  onChannelChange,
   onCancel,
   onSubmit,
 }: {
@@ -45,13 +39,11 @@ export function RuleDialog({
   direction: Direction
   days: string
   hours: string
-  channel: Channel | typeof AUTO_CHANNEL
   pending: boolean
   onOpenChange: (open: boolean) => void
   onDirectionChange: (value: Direction) => void
   onDaysChange: (value: string) => void
   onHoursChange: (value: string) => void
-  onChannelChange: (value: Channel | typeof AUTO_CHANNEL) => void
   onCancel: () => void
   onSubmit: () => void
 }) {
@@ -102,29 +94,6 @@ export function RuleDialog({
               />
             </Field>
           </div>
-
-          <Field
-            label={t('ruleDialog.channel')}
-            htmlFor="rule-channel"
-            hint={t('ruleDialog.channelHint')}
-          >
-            <Select
-              value={channel}
-              onValueChange={(value) => onChannelChange(value as Channel | typeof AUTO_CHANNEL)}
-            >
-              <SelectTrigger id="rule-channel">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={AUTO_CHANNEL}>{t('ruleDialog.channelDefault')}</SelectItem>
-                {(Object.keys(CHANNEL_KEY) as Channel[]).map((item) => (
-                  <SelectItem key={item} value={item}>
-                    {t(CHANNEL_KEY[item])}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
 
           <p className="rounded-control border border-dashed p-3 text-copy">
             {t('ruleDialog.willFire')}{' '}

@@ -43,7 +43,6 @@ func newLinkFixture(t *testing.T) linkFixture {
 	t.Helper()
 	ctx := context.Background()
 	pool := testsupport.Pool(t)
-	testsupport.Truncate(t, pool)
 
 	f := linkFixture{
 		lead:     seedLinkUser(t, pool, "lead-links@example.com", "leadlinks"),

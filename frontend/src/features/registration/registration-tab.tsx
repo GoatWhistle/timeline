@@ -11,7 +11,6 @@ import {
   useToggleRegistration,
   useUpdateRegistration,
 } from '@/entities/registration/registration.queries'
-import { ChannelMatrix } from '@/features/channel-matrix/channel-matrix'
 import { isApiError } from '@/shared/api/errors'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { type Civil, civilFromIso, civilToIso, isCivil } from '@/shared/datetime/civil'
@@ -186,23 +185,15 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
             </Card>
 
             {registration && (
-              <div className="grid items-start gap-6 @7xl:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{t('rules.title')}</CardTitle>
-                    <CardDescription>{t('rules.hint')}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <RulesEditor eventId={event.id} />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent>
-                    <ChannelMatrix eventId={event.id} />
-                  </CardContent>
-                </Card>
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('rules.title')}</CardTitle>
+                  <CardDescription>{t('rules.hint')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RulesEditor eventId={event.id} />
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>

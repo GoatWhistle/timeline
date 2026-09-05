@@ -30,14 +30,14 @@
     "timingNote": "Sending is checked every few minutes, so a notification can arrive slightly after the moment it was due. A message may also arrive twice: delivery guarantees at least one attempt, not exactly one."
   },
   "card": {
-    "title": "Notification channel",
-    "hint": "If the selected channel is unavailable, the system falls back in the order Telegram → Email.",
-    "preferred": "Preferred channel",
-    "autoPlaceholder": "Automatic choice",
+    "title": "Notification channels",
+    "hint": "Pick every channel that should receive your notifications. Both can be selected at once.",
     "unavailable": " — unavailable",
-    "channelUpdated": "Preferred channel updated",
-    "channelFailed": "Could not change the channel",
-    "setUpInAccount": "Channels are set up in the Account section, together with the email address and Telegram."
+    "channelUpdated": "Notification channels updated",
+    "channelFailed": "Could not change the channels",
+    "setUpInAccount": "Telegram and the email address are set up in the Account section.",
+    "emptyTitle": "No channel selected",
+    "emptyHint": "Notifications will not reach you anywhere until you pick at least one channel."
   },
   "feed": {
     "open": "Open notifications",

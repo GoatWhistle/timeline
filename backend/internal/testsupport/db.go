@@ -99,9 +99,14 @@ func Pool(t *testing.T) *pgxpool.Pool {
 	}
 	t.Cleanup(pool.Close)
 
-	lock(t, dsn)
-	Truncate(t, pool)
+	LockAndTruncate(t, pool)
 	return pool
+}
+
+func LockAndTruncate(t *testing.T, pool *pgxpool.Pool) {
+	t.Helper()
+	lock(t, DSN(t))
+	truncate(t, pool)
 }
 
 const exclusiveLockID = 8721340951
@@ -131,7 +136,7 @@ func DB(t *testing.T) *postgres.DB {
 	return postgres.NewDB(Pool(t))
 }
 
-func Truncate(t *testing.T, pool *pgxpool.Pool) {
+func truncate(t *testing.T, pool *pgxpool.Pool) {
 	t.Helper()
 	ctx := context.Background()
 	stmt := "TRUNCATE TABLE " + join(tables) + " RESTART IDENTITY CASCADE"

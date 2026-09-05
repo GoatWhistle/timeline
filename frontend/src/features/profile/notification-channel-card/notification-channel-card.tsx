@@ -5,16 +5,12 @@ import { toast } from 'sonner'
 import { CHANNEL_KEY } from '@/entities/notification/notification.labels'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
 import type { Channel, MeResponse } from '@/shared/api/types.gen'
-import { Field } from '@/shared/ui/forms/field'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/forms/select'
+import { Note } from '@/shared/ui/data-display/note/note'
+import { Checkbox } from '@/shared/ui/forms/checkbox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { TelegramMark } from '@/shared/ui/navigation/service-link/service-icon'
+
+const ALL_CHANNELS: Channel[] = ['TELEGRAM', 'EMAIL']
 
 const CHANNEL_ICON: Record<Channel, React.ComponentType<{ className?: string }>> = {
   TELEGRAM: TelegramMark,
@@ -30,9 +26,14 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
     EMAIL: user.email_verified,
   }
 
-  async function onChangeChannel(value: string) {
+  const selected = new Set(user.notification_channels)
+
+  async function toggle(channel: Channel, checked: boolean) {
+    const next = new Set(selected)
+    if (checked) next.add(channel)
+    else next.delete(channel)
     try {
-      await updateProfile.mutateAsync({ preferred_channel: value as Channel })
+      await updateProfile.mutateAsync({ notification_channels: [...next] })
       toast.success(t('card.channelUpdated'))
     } catch {
       toast.error(t('card.channelFailed'))
@@ -46,31 +47,40 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
         <CardDescription>{t('card.hint')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <Field label={t('card.preferred')} htmlFor="preferred_channel">
-          <Select value={user.preferred_channel ?? ''} onValueChange={onChangeChannel}>
-            <SelectTrigger id="preferred_channel">
-              <SelectValue placeholder={t('card.autoPlaceholder')} />
-            </SelectTrigger>
-            <SelectContent>
-              {(Object.keys(CHANNEL_KEY) as Channel[]).map((channel) => {
-                const Icon = CHANNEL_ICON[channel]
-                return (
-                  <SelectItem
-                    key={channel}
-                    value={channel}
-                    disabled={!channelAvailability[channel]}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <Icon className="size-4 shrink-0" />
-                      {t(CHANNEL_KEY[channel])}
-                      {!channelAvailability[channel] && t('card.unavailable')}
-                    </span>
-                  </SelectItem>
-                )
-              })}
-            </SelectContent>
-          </Select>
-        </Field>
+        <fieldset className="flex flex-col gap-3">
+          <legend className="sr-only">{t('card.hint')}</legend>
+          {ALL_CHANNELS.map((channel) => {
+            const Icon = CHANNEL_ICON[channel]
+            const available = channelAvailability[channel]
+            return (
+              <label
+                key={channel}
+                htmlFor={`notification-channel-${channel}`}
+                className="flex items-center gap-3 text-copy"
+              >
+                <Checkbox
+                  id={`notification-channel-${channel}`}
+                  checked={selected.has(channel)}
+                  disabled={!available || updateProfile.isPending}
+                  onCheckedChange={(checked) => toggle(channel, checked === true)}
+                />
+                <Icon className="size-4 shrink-0" />
+                <span>
+                  {t(CHANNEL_KEY[channel])}
+                  {!available && (
+                    <span className="text-muted-foreground">{t('card.unavailable')}</span>
+                  )}
+                </span>
+              </label>
+            )
+          })}
+        </fieldset>
+
+        {selected.size === 0 && (
+          <Note tone="warning" title={t('card.emptyTitle')}>
+            {t('card.emptyHint')}
+          </Note>
+        )}
 
         <p className="text-meta text-muted-foreground">{t('card.setUpInAccount')}</p>
       </CardContent>

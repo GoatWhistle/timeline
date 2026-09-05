@@ -40,7 +40,6 @@ vi.mock('@/entities/registration/registration.queries', async () => {
 })
 
 vi.mock('@/features/registration/rules-editor', () => ({ RulesEditor: () => null }))
-vi.mock('@/features/channel-matrix/channel-matrix', () => ({ ChannelMatrix: () => null }))
 
 const EVENT = {
   id: 'ev_1',

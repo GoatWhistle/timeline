@@ -28,7 +28,6 @@ func newTrackFixture(t *testing.T, startOffset string) trackFixture {
 	t.Helper()
 	ctx := context.Background()
 	pool := testsupport.Pool(t)
-	testsupport.Truncate(t, pool)
 
 	f := trackFixture{lead: seedLinkUser(t, pool, "lead-track@example.com", "leadtrack")}
 

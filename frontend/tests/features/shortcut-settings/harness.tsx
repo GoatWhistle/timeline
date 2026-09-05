@@ -19,6 +19,7 @@ function session(shortcuts: Shortcuts): MeResponse {
     is_admin: false,
     locale: 'ru',
     telegram_linked: false,
+    notification_channels: ['TELEGRAM', 'EMAIL'],
     timezone: 'Europe/Moscow',
     shortcuts,
     created_at: '2026-01-01T00:00:00Z',

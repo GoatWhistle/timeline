@@ -55,12 +55,19 @@ func (s *NotificationService) recipientChannels(ctx context.Context, c *models.R
 	return nil
 }
 
+func wantedOrDefault(channels models.ChannelSet) models.ChannelSet {
+	if len(channels) > 0 {
+		return channels
+	}
+	return models.ChannelSet{models.ChannelEmail}
+}
+
 func (s *NotificationService) CreatePrimary(ctx context.Context, c models.ReconcileCandidate,
 ) (int, error) {
 	if err := s.recipientChannels(ctx, &c); err != nil {
 		return 0, err
 	}
-	channels := c.RecipientChannels.Deliverable(models.NotificationRequired)
+	channels := wantedOrDefault(c.RecipientChannels.Wanted(models.NotificationRequired))
 	now := s.now()
 	created := 0
 	for _, channel := range channels {
@@ -95,7 +102,7 @@ func (s *NotificationService) CreateForRule(ctx context.Context, c models.Reconc
 		return 0, err
 	}
 	kind := rule.NotificationType()
-	channels := c.RecipientChannels.Deliverable(kind)
+	channels := wantedOrDefault(c.RecipientChannels.Wanted(kind))
 	now := s.now()
 	ruleID := rule.ID
 	created := 0

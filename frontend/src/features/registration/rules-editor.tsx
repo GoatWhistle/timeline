@@ -3,7 +3,7 @@ import { Plus, PowerOff } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { CHANNEL_KEY, NOTIFICATION_TYPE_KEY } from '@/entities/notification/notification.labels'
+import { NOTIFICATION_TYPE_KEY } from '@/entities/notification/notification.labels'
 import {
   rulesQuery,
   useCreateRule,
@@ -11,7 +11,7 @@ import {
   useUpdateRule,
 } from '@/entities/registration/registration.queries'
 import { failureMessage } from '@/shared/api/failure'
-import type { Channel, NotificationRuleResponse } from '@/shared/api/types.gen'
+import type { NotificationRuleResponse } from '@/shared/api/types.gen'
 import { formatOffsetMinutes } from '@/shared/datetime/datetime'
 import { RuleFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
@@ -29,7 +29,7 @@ import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { EditAction } from '@/shared/ui/primitives/row-actions'
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
-import { AUTO_CHANNEL, type Direction, RuleDialog } from './rule-dialog/rule-dialog'
+import { type Direction, RuleDialog } from './rule-dialog/rule-dialog'
 
 const MAX_RULES = 10
 
@@ -45,7 +45,6 @@ export function RulesEditor({ eventId }: { eventId: string }) {
   const [direction, setDirection] = useState<Direction>('before')
   const [days, setDays] = useState('1')
   const [hours, setHours] = useState('0')
-  const [channel, setChannel] = useState<Channel | typeof AUTO_CHANNEL>(AUTO_CHANNEL)
 
   function openDialog(rule: NotificationRuleResponse | null) {
     setEditing(rule)
@@ -54,12 +53,10 @@ export function RulesEditor({ eventId }: { eventId: string }) {
       setDirection(rule.offset_minutes < 0 ? 'after' : 'before')
       setDays(String(Math.floor(magnitude / 1440)))
       setHours(String(Math.floor((magnitude % 1440) / 60)))
-      setChannel(rule.channel_override ?? AUTO_CHANNEL)
     } else {
       setDirection('before')
       setDays('1')
       setHours('0')
-      setChannel(AUTO_CHANNEL)
     }
     setOpen(true)
   }
@@ -74,20 +71,13 @@ export function RulesEditor({ eventId }: { eventId: string }) {
       if (editing) {
         await update.mutateAsync({
           id: editing.id,
-          body: {
-            offset_minutes: offset,
-            channel_override: channel === AUTO_CHANNEL ? undefined : channel,
-          },
+          body: { offset_minutes: offset },
         })
         toast.success(t('rules.changed'), {
           description: t('rules.changedHint'),
         })
       } else {
-        await create.mutateAsync({
-          offset_minutes: offset,
-          enabled: true,
-          ...(channel !== AUTO_CHANNEL ? { channel_override: channel } : {}),
-        })
+        await create.mutateAsync({ offset_minutes: offset, enabled: true })
         toast.success(t('rules.created'), { description: t('rules.createdHint') })
       }
       setOpen(false)
@@ -118,7 +108,7 @@ export function RulesEditor({ eventId }: { eventId: string }) {
         error={query.error}
         onRetry={() => query.refetch()}
         hasData={query.data !== undefined}
-        skeleton={<SkeletonTable rows={3} columns={5} density="action" />}
+        skeleton={<SkeletonTable rows={3} columns={4} density="action" />}
       >
         {rules.length === 0 ? (
           <EmptyState
@@ -133,7 +123,6 @@ export function RulesEditor({ eventId }: { eventId: string }) {
                 <TableHead className="w-16">{t('rules.slot')}</TableHead>
                 <TableHead>{t('rules.when')}</TableHead>
                 <TableHead>{t('rules.type')}</TableHead>
-                <TableHead>{t('rules.channel')}</TableHead>
                 <TableHead className="w-40">{t('rules.enabled')}</TableHead>
               </TableRow>
             </TableHeader>
@@ -148,11 +137,6 @@ export function RulesEditor({ eventId }: { eventId: string }) {
                     <Badge tone={rule.offset_minutes < 0 ? 'danger' : 'neutral'}>
                       {t(NOTIFICATION_TYPE_KEY[rule.type])}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {rule.channel_override
-                      ? t(CHANNEL_KEY[rule.channel_override])
-                      : t('rules.defaultChannel')}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -198,13 +182,11 @@ export function RulesEditor({ eventId }: { eventId: string }) {
         direction={direction}
         days={days}
         hours={hours}
-        channel={channel}
         pending={create.isPending || update.isPending}
         onOpenChange={setOpen}
         onDirectionChange={setDirection}
         onDaysChange={setDays}
         onHoursChange={setHours}
-        onChannelChange={setChannel}
         onCancel={() => setOpen(false)}
         onSubmit={submit}
       />

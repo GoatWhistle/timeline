@@ -19,6 +19,7 @@ const USER: MeResponse = {
   is_admin: false,
   locale: 'ru',
   telegram_linked: false,
+  notification_channels: ['TELEGRAM', 'EMAIL'],
   shortcuts: {},
   timezone: 'Europe/Moscow',
   created_at: '2026-01-10T10:00:00Z',

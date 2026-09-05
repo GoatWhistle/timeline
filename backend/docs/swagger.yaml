@@ -479,11 +479,6 @@ definitions:
     type: object
   dto.CreateRuleRequest:
     properties:
-      channel_override:
-        enum:
-        - TELEGRAM
-        - EMAIL
-        type: string
       enabled:
         example: true
         type: boolean
@@ -1010,14 +1005,15 @@ definitions:
       nickname:
         example: jsmith
         type: string
+      notification_channels:
+        items:
+          $ref: '#/definitions/models.Channel'
+          enum:
+          - TELEGRAM
+          - EMAIL
+        type: array
       pending_email:
         type: string
-      preferred_channel:
-        allOf:
-        - $ref: '#/definitions/models.Channel'
-        enum:
-        - TELEGRAM
-        - EMAIL
       profile_public:
         example: false
         type: boolean
@@ -1089,15 +1085,16 @@ definitions:
     properties:
       body:
         type: string
-      channel:
-        allOf:
-        - $ref: '#/definitions/models.Channel'
-        enum:
-        - TELEGRAM
-        - EMAIL
       channel_ready:
         example: true
         type: boolean
+      channels:
+        items:
+          $ref: '#/definitions/models.Channel'
+          enum:
+          - TELEGRAM
+          - EMAIL
+        type: array
       deadline_local:
         example: 14.09.2026 18:00
         type: string
@@ -1128,12 +1125,6 @@ definitions:
     type: object
   dto.NotificationRuleResponse:
     properties:
-      channel_override:
-        allOf:
-        - $ref: '#/definitions/models.Channel'
-        enum:
-        - TELEGRAM
-        - EMAIL
       created_at:
         type: string
       enabled:
@@ -2226,11 +2217,13 @@ definitions:
       nickname:
         example: jsmith
         type: string
-      preferred_channel:
-        enum:
-        - TELEGRAM
-        - EMAIL
-        type: string
+      notification_channels:
+        items:
+          enum:
+          - TELEGRAM
+          - EMAIL
+          type: string
+        type: array
       profile_public:
         example: false
         type: boolean
@@ -2279,11 +2272,6 @@ definitions:
     type: object
   dto.UpdateRuleRequest:
     properties:
-      channel_override:
-        enum:
-        - TELEGRAM
-        - EMAIL
-        type: string
       enabled:
         type: boolean
       offset_minutes:

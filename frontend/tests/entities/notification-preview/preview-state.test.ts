@@ -6,7 +6,7 @@ import type { NotificationPreviewResponse } from '@/shared/api/types.gen'
 const PREVIEW: NotificationPreviewResponse = {
   subject: 'Timeline: register for the event',
   body: 'The deadline is close.',
-  channel: 'EMAIL',
+  channels: ['EMAIL'],
   channel_ready: true,
   deadline_local: '14.09.2026 18:00',
   deadline_utc: '2026-09-14T15:00:00Z',

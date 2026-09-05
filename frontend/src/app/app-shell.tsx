@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Suspense, useState } from 'react'
+import { Suspense, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router'
 import { unreadCountQueryOptions } from '@/entities/event-feed/event-feed.queries'
@@ -34,6 +34,7 @@ export function AppShell() {
   const phone = usePhoneViewport()
   const location = useLocation()
   const [moreOpen, setMoreOpen] = useState(false)
+  const mainRef = useRef<HTMLElement>(null)
   const unread = useQuery({ ...unreadCountQueryOptions, enabled: user !== undefined })
   useProfileLocale()
   useProfileTimezone()
@@ -45,6 +46,10 @@ export function AppShell() {
     <div className="relative flex h-screen overflow-hidden">
       <a
         href="#main"
+        onClick={(event) => {
+          event.preventDefault()
+          mainRef.current?.focus()
+        }}
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-control focus:border focus:border-border-strong focus:bg-popover focus:px-3 focus:py-2 focus:text-copy focus:text-popover-foreground"
       >
         {t('app.skipToContent')}
@@ -71,8 +76,10 @@ export function AppShell() {
 
       <main
         id="main"
+        ref={mainRef}
+        tabIndex={-1}
         className={cn(
-          'flex min-w-0 flex-1 flex-col overflow-hidden',
+          'flex min-w-0 flex-1 flex-col overflow-hidden outline-none',
           phone ? BAR_INSET_BOTTOM : 'pl-2',
         )}
       >

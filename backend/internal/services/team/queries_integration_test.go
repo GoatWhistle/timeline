@@ -12,13 +12,11 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
-	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
 func TestListEventsQueryCount(t *testing.T) {
 	counter := &queryCounter{}
 	pool := countingPool(t, counter)
-	testsupport.Truncate(t, pool)
 	teamID, lead := seedTeamWithEvents(t, pool)
 
 	db := postgres.NewDB(pool)
@@ -62,7 +60,6 @@ func TestListEventsQueryCount(t *testing.T) {
 func TestListTeamsQueryCount(t *testing.T) {
 	counter := &queryCounter{}
 	pool := countingPool(t, counter)
-	testsupport.Truncate(t, pool)
 	_, lead := seedTeamWithEvents(t, pool)
 
 	ctx := context.Background()
@@ -104,7 +101,6 @@ func TestListTeamsQueryCount(t *testing.T) {
 func TestListEventsMatchesPerEntryStanding(t *testing.T) {
 	counter := &queryCounter{}
 	pool := countingPool(t, counter)
-	testsupport.Truncate(t, pool)
 	teamID, lead := seedTeamWithEvents(t, pool)
 
 	db := postgres.NewDB(pool)

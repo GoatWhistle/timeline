@@ -50,6 +50,7 @@ func countingPool(t *testing.T, counter *queryCounter) *pgxpool.Pool {
 		t.Fatalf("connecting: %v", err)
 	}
 	t.Cleanup(pool.Close)
+	testsupport.LockAndTruncate(t, pool)
 	return pool
 }
 

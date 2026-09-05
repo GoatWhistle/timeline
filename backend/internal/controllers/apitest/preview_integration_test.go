@@ -11,17 +11,17 @@ import (
 )
 
 type previewBody struct {
-	Type            string  `json:"type"`
-	RuleID          *string `json:"rule_id"`
-	Language        string  `json:"language"`
-	Subject         string  `json:"subject"`
-	Body            string  `json:"body"`
-	Channel         *string `json:"channel"`
-	ChannelReady    bool    `json:"channel_ready"`
-	EventTitle      string  `json:"event_title"`
-	RegistrationURL string  `json:"registration_url"`
-	DeadlineLocal   string  `json:"deadline_local"`
-	ScheduledAt     *string `json:"scheduled_at"`
+	Type            string   `json:"type"`
+	RuleID          *string  `json:"rule_id"`
+	Language        string   `json:"language"`
+	Subject         string   `json:"subject"`
+	Body            string   `json:"body"`
+	Channels        []string `json:"channels"`
+	ChannelReady    bool     `json:"channel_ready"`
+	EventTitle      string   `json:"event_title"`
+	RegistrationURL string   `json:"registration_url"`
+	DeadlineLocal   string   `json:"deadline_local"`
+	ScheduledAt     *string  `json:"scheduled_at"`
 }
 
 func previewPath(statusID string, ruleID *string) string {
@@ -192,7 +192,7 @@ func TestNotificationPreviewReportsTheAbsenceOfAChannel(t *testing.T) {
 	f := s.Seed(t)
 
 	preview := previewOf(f.AdminClient, t, f.StatusID, nil)
-	if preview.ChannelReady || preview.Channel != nil {
+	if preview.ChannelReady || len(preview.Channels) != 0 {
 		t.Fatalf("an unverified recipient without Telegram was reported as reachable: %+v", preview)
 	}
 
@@ -202,7 +202,7 @@ func TestNotificationPreviewReportsTheAbsenceOfAChannel(t *testing.T) {
 	}
 
 	reachable := previewOf(f.AdminClient, t, f.StatusID, nil)
-	if !reachable.ChannelReady || reachable.Channel == nil || *reachable.Channel != "EMAIL" {
+	if !reachable.ChannelReady || len(reachable.Channels) != 1 || reachable.Channels[0] != "EMAIL" {
 		t.Fatalf("a verified recipient was not reported as reachable by email: %+v", reachable)
 	}
 }

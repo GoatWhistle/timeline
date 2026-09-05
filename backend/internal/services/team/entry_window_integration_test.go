@@ -30,7 +30,6 @@ func newEntryWindowFixture(t *testing.T, startOffset, endOffset string) entryWin
 	t.Helper()
 	ctx := context.Background()
 	pool := testsupport.Pool(t)
-	testsupport.Truncate(t, pool)
 
 	f := entryWindowFixture{
 		pool: pool,

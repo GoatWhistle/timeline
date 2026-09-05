@@ -10332,8 +10332,6 @@ export interface components {
             url?: string;
         };
         "dto.CreateRuleRequest": {
-            /** @enum {string} */
-            channel_override?: "TELEGRAM" | "EMAIL";
             /** @example true */
             enabled?: boolean;
             /** @example 1440 */
@@ -10646,8 +10644,8 @@ export interface components {
             middle_name?: string;
             /** @example jsmith */
             nickname?: string;
+            notification_channels: components["schemas"]["models.Channel"][];
             pending_email?: string;
-            preferred_channel?: components["schemas"]["models.Channel"];
             /** @example false */
             profile_public: boolean;
             shortcuts: components["schemas"]["models.Shortcuts"];
@@ -10689,9 +10687,9 @@ export interface components {
         };
         "dto.NotificationPreviewResponse": {
             body: string;
-            channel: components["schemas"]["models.Channel"];
             /** @example true */
             channel_ready: boolean;
+            channels: components["schemas"]["models.Channel"][];
             /** @example 14.09.2026 18:00 */
             deadline_local: string;
             deadline_utc: string;
@@ -10712,7 +10710,6 @@ export interface components {
             type: components["schemas"]["models.NotificationType"];
         };
         "dto.NotificationRuleResponse": {
-            channel_override?: components["schemas"]["models.Channel"];
             /** Format: date-time */
             created_at: string;
             /** @example true */
@@ -11354,8 +11351,7 @@ export interface components {
             middle_name?: string;
             /** @example jsmith */
             nickname?: string;
-            /** @enum {string} */
-            preferred_channel?: "TELEGRAM" | "EMAIL";
+            notification_channels?: ("TELEGRAM" | "EMAIL")[];
             /** @example false */
             profile_public?: boolean;
             /** @example @ivan */
@@ -11388,8 +11384,6 @@ export interface components {
             url?: string;
         };
         "dto.UpdateRuleRequest": {
-            /** @enum {string} */
-            channel_override?: "TELEGRAM" | "EMAIL";
             enabled?: boolean;
             offset_minutes?: number;
         };

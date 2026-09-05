@@ -8966,13 +8966,6 @@ const docTemplate = `{
         "dto.CreateRuleRequest": {
             "type": "object",
             "properties": {
-                "channel_override": {
-                    "type": "string",
-                    "enum": [
-                        "TELEGRAM",
-                        "EMAIL"
-                    ]
-                },
                 "enabled": {
                     "type": "boolean",
                     "example": true
@@ -9748,19 +9741,18 @@ const docTemplate = `{
                     "type": "string",
                     "example": "jsmith"
                 },
+                "notification_channels": {
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "TELEGRAM",
+                            "EMAIL"
+                        ],
+                        "$ref": "#/definitions/models.Channel"
+                    }
+                },
                 "pending_email": {
                     "type": "string"
-                },
-                "preferred_channel": {
-                    "enum": [
-                        "TELEGRAM",
-                        "EMAIL"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Channel"
-                        }
-                    ]
                 },
                 "profile_public": {
                     "type": "boolean",
@@ -9868,20 +9860,19 @@ const docTemplate = `{
                 "body": {
                     "type": "string"
                 },
-                "channel": {
-                    "enum": [
-                        "TELEGRAM",
-                        "EMAIL"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Channel"
-                        }
-                    ]
-                },
                 "channel_ready": {
                     "type": "boolean",
                     "example": true
+                },
+                "channels": {
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "TELEGRAM",
+                            "EMAIL"
+                        ],
+                        "$ref": "#/definitions/models.Channel"
+                    }
                 },
                 "deadline_local": {
                     "type": "string",
@@ -9925,17 +9916,6 @@ const docTemplate = `{
         "dto.NotificationRuleResponse": {
             "type": "object",
             "properties": {
-                "channel_override": {
-                    "enum": [
-                        "TELEGRAM",
-                        "EMAIL"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Channel"
-                        }
-                    ]
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -11558,12 +11538,15 @@ const docTemplate = `{
                     "type": "string",
                     "example": "jsmith"
                 },
-                "preferred_channel": {
-                    "type": "string",
-                    "enum": [
-                        "TELEGRAM",
-                        "EMAIL"
-                    ]
+                "notification_channels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "TELEGRAM",
+                            "EMAIL"
+                        ]
+                    }
                 },
                 "profile_public": {
                     "type": "boolean",
@@ -11633,13 +11616,6 @@ const docTemplate = `{
         "dto.UpdateRuleRequest": {
             "type": "object",
             "properties": {
-                "channel_override": {
-                    "type": "string",
-                    "enum": [
-                        "TELEGRAM",
-                        "EMAIL"
-                    ]
-                },
                 "enabled": {
                     "type": "boolean"
                 },

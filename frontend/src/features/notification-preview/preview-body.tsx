@@ -21,7 +21,7 @@ function Line({ label, value }: { label: string; value: React.ReactNode }) {
   )
 }
 
-function ChannelNotice({ ready, channel }: { ready: boolean; channel: string }) {
+function ChannelNotice({ ready, channels }: { ready: boolean; channels: string }) {
   const { t } = useTranslation('notification')
 
   return (
@@ -29,7 +29,7 @@ function ChannelNotice({ ready, channel }: { ready: boolean; channel: string }) 
       tone={ready ? 'neutral' : 'warning'}
       icon={ready ? CircleCheck : undefined}
       title={`${ready ? t('preview.channelReady') : t('preview.channelNotReady')}${
-        ready ? ` — ${channel}` : ''
+        ready ? ` — ${channels}` : ''
       }`}
       data-ready={ready ? 'yes' : 'no'}
       role={ready ? undefined : 'status'}
@@ -48,7 +48,7 @@ function Rendered({ preview }: { preview: NotificationPreviewResponse }) {
 
       <ChannelNotice
         ready={preview.channel_ready === true}
-        channel={preview.channel ? t(CHANNEL_KEY[preview.channel]) : ''}
+        channels={(preview.channels ?? []).map((channel) => t(CHANNEL_KEY[channel])).join(', ')}
       />
 
       <div className="rounded-control border border-border">

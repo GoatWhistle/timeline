@@ -102,7 +102,7 @@ func (s *DeliveryService) handleSendError(ctx context.Context, n *models.Notific
 }
 
 func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) error {
-	_, settled, err := s.resolveCandidate(ctx, n)
+	candidate, settled, err := s.resolveCandidate(ctx, n)
 	if err != nil || settled {
 		return err
 	}
@@ -114,7 +114,7 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 
 	channel := n.RequestedChannel
 	attempts := n.AttemptCount
-	ok := !n.ChannelFailed(channel)
+	ok := !n.ChannelFailed(channel) && candidate.RecipientChannels.Available(channel)
 	if settled, err := s.settleBeforeCall(ctx, n, ok, attempts); settled || err != nil {
 		return err
 	}
