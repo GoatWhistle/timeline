@@ -347,7 +347,7 @@ with`, ссылку на инструмент или пояснение в те�
 
 * **Состояния и переходы.** Event: `UNPUBLISHED → PUBLISHED → ARCHIVED`,
   архив терминален. Registration: `ACTIVE ↔ DISABLED`. RegistrationStatus:
-  `TODO → DONE | WAIVED | NOT_REQUIRED`, и переход `NOT_REQUIRED → DONE`
+  `TODO → DONE | NOT_REQUIRED`, и переход `NOT_REQUIRED → DONE`
   запрещён — он отвергается с `409 invalid_state_transition`, а не
   выполняется молча. Participant: `ASSIGNED ↔ REMOVED` с ростом
   `assignment_version` при реактивации. **Недопустимый переход обязан
