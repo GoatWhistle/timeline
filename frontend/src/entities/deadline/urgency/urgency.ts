@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns'
 
-export type Urgency = 'overdue' | 'today' | 'soon' | 'calm' | 'done' | 'waived'
+export type Urgency = 'overdue' | 'today' | 'soon' | 'calm' | 'done' | 'notRequired'
 
 export type RegistrationStatus = 'TODO' | 'DONE' | 'NOT_REQUIRED'
 
@@ -14,7 +14,7 @@ export const DAY_MS = 86_400_000
 const SOON_DAYS = 7
 
 export function resolveUrgency({ deadlineAt, status, now = new Date() }: UrgencyInput): Urgency {
-  if (status === 'NOT_REQUIRED') return 'waived'
+  if (status === 'NOT_REQUIRED') return 'notRequired'
   if (status === 'DONE') return 'done'
   if (!deadlineAt) return 'calm'
 
@@ -28,7 +28,7 @@ export function resolveUrgency({ deadlineAt, status, now = new Date() }: Urgency
   return 'calm'
 }
 
-export const URGENCY_ORDER: Urgency[] = ['overdue', 'today', 'soon', 'calm', 'done', 'waived']
+export const URGENCY_ORDER: Urgency[] = ['overdue', 'today', 'soon', 'calm', 'done', 'notRequired']
 
 export const URGENCY_TEXT: Record<Urgency, string> = {
   overdue: 'font-semibold text-urgency-overdue',
@@ -36,7 +36,7 @@ export const URGENCY_TEXT: Record<Urgency, string> = {
   soon: 'text-urgency-soon',
   calm: 'text-muted-foreground',
   done: 'text-urgency-done',
-  waived: 'text-urgency-waived',
+  notRequired: 'text-urgency-not-required',
 }
 
 export const URGENCY_KEY: Record<Urgency, string> = {
@@ -45,5 +45,5 @@ export const URGENCY_KEY: Record<Urgency, string> = {
   soon: 'event:urgency.soon',
   calm: 'event:urgency.calm',
   done: 'event:urgency.done',
-  waived: 'event:urgency.waived',
+  notRequired: 'event:urgency.notRequired',
 }

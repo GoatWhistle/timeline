@@ -80,7 +80,7 @@
   --urgency-today: var(--hue-orange-300);
   --urgency-overdue: var(--hue-crimson-300);
   --urgency-done: var(--hue-green-300);
-  --urgency-waived: var(--hue-slate-300);
+  --urgency-not-required: var(--hue-slate-300);
   --urgency-foreground: var(--linear-void);
 
   --prize: var(--hue-green-300);

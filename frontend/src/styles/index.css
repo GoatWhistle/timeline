@@ -86,7 +86,7 @@
   --color-urgency-today: var(--urgency-today);
   --color-urgency-overdue: var(--urgency-overdue);
   --color-urgency-done: var(--urgency-done);
-  --color-urgency-waived: var(--urgency-waived);
+  --color-urgency-not-required: var(--urgency-not-required);
   --color-urgency-foreground: var(--urgency-foreground);
 
   --color-prize: var(--prize);

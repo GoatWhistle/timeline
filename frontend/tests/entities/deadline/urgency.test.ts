@@ -36,15 +36,15 @@ describe('resolveUrgency', () => {
 
   it('separates a self reported mark from an administrative waiver', () => {
     const done = resolveUrgency({ deadlineAt: at(-DAY), status: 'DONE', now: NOW })
-    const waived = resolveUrgency({ deadlineAt: at(-DAY), status: 'NOT_REQUIRED', now: NOW })
+    const notRequired = resolveUrgency({ deadlineAt: at(-DAY), status: 'NOT_REQUIRED', now: NOW })
     expect(done).toBe('done')
-    expect(waived).toBe('waived')
-    expect(done).not.toBe(waived)
+    expect(notRequired).toBe('notRequired')
+    expect(done).not.toBe(notRequired)
   })
 
   it('keeps a waiver out of the overdue bucket even past the deadline', () => {
     expect(resolveUrgency({ deadlineAt: at(-DAY * 30), status: 'NOT_REQUIRED', now: NOW })).toBe(
-      'waived',
+      'notRequired',
     )
   })
 
@@ -68,7 +68,7 @@ describe('urgency presentation tables', () => {
   })
 
   it('paints a waiver with its own neutral token rather than the done green', () => {
-    expect(URGENCY_TEXT.waived).toContain('urgency-waived')
-    expect(URGENCY_TEXT.waived).not.toContain('urgency-done')
+    expect(URGENCY_TEXT.notRequired).toContain('urgency-not-required')
+    expect(URGENCY_TEXT.notRequired).not.toContain('urgency-done')
   })
 })

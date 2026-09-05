@@ -38,7 +38,7 @@ const URGENCY = [
   'urgency-today',
   'urgency-overdue',
   'urgency-done',
-  'urgency-waived',
+  'urgency-not-required',
 ]
 
 const FILLED = [
@@ -133,10 +133,12 @@ describe.each(THEMES)('avatar initials contrast, %s theme', (theme) => {
 })
 
 describe('domain state distinctness', () => {
-  it('a waived registration is not painted as a completed one', () => {
+  it('a not-required registration is not painted as a completed one', () => {
     for (const theme of THEMES) {
       const tokens = loadTheme(theme)
-      expect(resolve(tokens, '--urgency-waived')).not.toEqual(resolve(tokens, '--urgency-done'))
+      expect(resolve(tokens, '--urgency-not-required')).not.toEqual(
+        resolve(tokens, '--urgency-done'),
+      )
     }
   })
 

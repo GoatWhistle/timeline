@@ -55,7 +55,7 @@ const TEXT_COLORS = [
   'urgency-today',
   'urgency-overdue',
   'urgency-done',
-  'urgency-waived',
+  'urgency-not-required',
   'urgency-foreground',
 ] as const
 

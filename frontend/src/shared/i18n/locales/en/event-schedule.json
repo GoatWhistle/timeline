@@ -51,7 +51,7 @@
     "soon": "due soon",
     "calm": "in good time",
     "done": "you marked it",
-    "waived": "not required"
+    "notRequired": "not required"
   },
   "teamProgress": {
     "title": "Team registration",

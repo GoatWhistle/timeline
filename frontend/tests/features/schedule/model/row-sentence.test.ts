@@ -62,13 +62,13 @@ describe('the deadline sentence honours what the participant reported', () => {
     expect(sentence).not.toContain('event:urgency.overdue')
   })
 
-  it('never nags about a registration that was waived', () => {
+  it('never nags about a registration that is not required', () => {
     const r = row({
       ...past,
       registration_status: { id: 'r2', status: 'NOT_REQUIRED', todo_cycle: 1 },
     })
     const sentence = rowSentence(r, [], { ...ctx, now })
-    expect(sentence).toContain('event:urgency.waived')
+    expect(sentence).toContain('event:urgency.notRequired')
     expect(sentence).not.toContain('event:urgency.overdue')
   })
 })
