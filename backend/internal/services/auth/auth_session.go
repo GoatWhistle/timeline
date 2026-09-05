@@ -79,9 +79,12 @@ func (s *AuthService) Refresh(ctx context.Context, refreshToken string,
 		next, err := s.sessions.Rotate(ctx, session, &models.Session{
 			UserID:           user.ID,
 			RefreshTokenHash: crypto.HashSecret(secret),
+			DeviceHash:       session.DeviceHash,
+			Label:            session.Label,
 			UserAgent:        optionalString(meta.UserAgent),
 			IP:               optionalString(meta.IP),
 			ExpiresAt:        now.Add(s.cfg.Auth.RefreshTTL),
+			LastUsedAt:       &now,
 		})
 		if err != nil {
 			return err

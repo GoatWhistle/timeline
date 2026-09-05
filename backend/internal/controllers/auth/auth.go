@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"net/http"
 	"time"
 
@@ -25,25 +23,19 @@ func NewController(svc AuthService, cookies httpsession.CookieOptions, csrfTTL t
 }
 
 func sessionMeta(r *http.Request) models.SessionMeta {
-	return models.SessionMeta{UserAgent: r.UserAgent(), IP: httpx.ClientIP(r)}
+	return models.SessionMeta{UserAgent: r.UserAgent(), IP: httpx.ClientIP(r), DeviceID: deviceID(r)}
 }
 
-func (c *Controller) issue(w http.ResponseWriter, user *models.User, pair *models.TokenPair) {
+func (c *Controller) issue(w http.ResponseWriter, user *models.User, pair *models.TokenPair,
+	meta models.SessionMeta) {
 	c.cookies.SetAuth(w, pair)
+	c.cookies.SetDevice(w, meta.DeviceID, time.Now())
 	c.cookies.SetCSRF(w, randomToken(), time.Now().Add(c.csrfTTL))
 	httpx.JSON(w, http.StatusOK, dto.AuthResponse{
 		User:             presenter.MeResponse(user),
 		AccessExpiresAt:  pair.AccessExpiresAt,
 		RefreshExpiresAt: pair.RefreshExpiresAt,
 	})
-}
-
-func randomToken() string {
-	buf := make([]byte, 32)
-	if _, err := rand.Read(buf); err != nil {
-		panic("failed to obtain random data: " + err.Error())
-	}
-	return hex.EncodeToString(buf)
 }
 
 // @Summary		Register a user
@@ -65,12 +57,13 @@ func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	user, pair, err := c.svc.Register(r.Context(), req, sessionMeta(r))
+	meta := sessionMeta(r)
+	user, pair, err := c.svc.Register(r.Context(), req, meta)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	c.issue(w, user, pair)
+	c.issue(w, user, pair, meta)
 }
 
 // @Summary		Sign in with email and password
@@ -91,12 +84,13 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	user, pair, err := c.svc.Login(r.Context(), req, sessionMeta(r))
+	meta := sessionMeta(r)
+	user, pair, err := c.svc.Login(r.Context(), req, meta)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
-	c.issue(w, user, pair)
+	c.issue(w, user, pair, meta)
 }
 
 // @Summary		Refresh the session
@@ -112,13 +106,14 @@ func (c *Controller) Refresh(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, models.NewUnauthorized("refresh token is missing"))
 		return
 	}
-	user, pair, err := c.svc.Refresh(r.Context(), cookie.Value, sessionMeta(r))
+	meta := sessionMeta(r)
+	user, pair, err := c.svc.Refresh(r.Context(), cookie.Value, meta)
 	if err != nil {
 		c.cookies.Clear(w)
 		httpx.Error(w, r, err)
 		return
 	}
-	c.issue(w, user, pair)
+	c.issue(w, user, pair, meta)
 }
 
 // @Summary		Sign out of the current session

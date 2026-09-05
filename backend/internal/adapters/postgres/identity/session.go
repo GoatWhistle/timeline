@@ -16,12 +16,12 @@ type Sessions struct{ db *postgres.DB }
 
 func NewSessions(db *postgres.DB) *Sessions { return &Sessions{db: db} }
 
-const sessionColumns = `id, display_id, user_id, family_id, refresh_token_hash, user_agent, ip,
+const sessionColumns = `id, display_id, user_id, family_id, refresh_token_hash, device_hash, user_agent, ip,
 	label, expires_at, last_used_at, revoked_at, created_at`
 
 func scanSession(row pgx.Row) (*models.Session, error) {
 	var s models.Session
-	err := row.Scan(&s.ID, &s.DisplayID, &s.UserID, &s.FamilyID, &s.RefreshTokenHash, &s.UserAgent, &s.IP,
+	err := row.Scan(&s.ID, &s.DisplayID, &s.UserID, &s.FamilyID, &s.RefreshTokenHash, &s.DeviceHash, &s.UserAgent, &s.IP,
 		&s.Label, &s.ExpiresAt, &s.LastUsedAt, &s.RevokedAt, &s.CreatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -31,15 +31,36 @@ func scanSession(row pgx.Row) (*models.Session, error) {
 
 func (r *Sessions) Create(ctx context.Context, s *models.Session) (*models.Session, error) {
 	return scanSession(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO sessions (user_id, family_id, refresh_token_hash, user_agent, ip, expires_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO sessions (user_id, family_id, refresh_token_hash, device_hash, user_agent, ip,
+			label, expires_at, last_used_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING `+sessionColumns,
-		s.UserID, s.FamilyID, s.RefreshTokenHash, s.UserAgent, s.IP, s.ExpiresAt))
+		s.UserID, s.FamilyID, s.RefreshTokenHash, s.DeviceHash, s.UserAgent, s.IP, s.Label,
+		s.ExpiresAt, s.LastUsedAt))
 }
 
 func (r *Sessions) GetByHash(ctx context.Context, hash string) (*models.Session, error) {
 	return scanSession(r.db.Q(ctx).QueryRow(ctx,
 		`SELECT `+sessionColumns+` FROM sessions WHERE refresh_token_hash = $1`, hash))
+}
+
+func (r *Sessions) GetReusableByDevice(ctx context.Context, userID uuid.UUID, deviceHash string,
+	now time.Time) (*models.Session, error) {
+	return scanSession(r.db.Q(ctx).QueryRow(ctx,
+		`SELECT `+sessionColumns+` FROM sessions
+		 WHERE user_id = $1 AND device_hash = $2 AND expires_at > $3
+		 ORDER BY coalesce(last_used_at, created_at) DESC, created_at DESC
+		 LIMIT 1`, userID, deviceHash, now))
+}
+
+func (r *Sessions) Reissue(ctx context.Context, id uuid.UUID, next *models.Session) (*models.Session, error) {
+	return scanSession(r.db.Q(ctx).QueryRow(ctx,
+		`UPDATE sessions
+		 SET family_id = $2, refresh_token_hash = $3, user_agent = $4, ip = $5,
+		     expires_at = $6, last_used_at = $7, revoked_at = NULL
+		 WHERE id = $1
+		 RETURNING `+sessionColumns,
+		id, next.FamilyID, next.RefreshTokenHash, next.UserAgent, next.IP, next.ExpiresAt, next.LastUsedAt))
 }
 
 func (r *Sessions) Revoke(ctx context.Context, id uuid.UUID) error {

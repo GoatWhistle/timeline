@@ -158,12 +158,14 @@ func (c *InviteController) Accept(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	user, pair, err := c.svc.Accept(r.Context(), req, sessionMeta(r))
+	meta := sessionMeta(r)
+	user, pair, err := c.svc.Accept(r.Context(), req, meta)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
 	}
 	c.cookies.SetAuth(w, pair)
+	c.cookies.SetDevice(w, meta.DeviceID, time.Now())
 	c.cookies.SetCSRF(w, randomToken(), time.Now().Add(c.csrfTTL))
 	httpx.JSON(w, http.StatusOK, dto.AuthResponse{
 		User:             presenter.MeResponse(user),

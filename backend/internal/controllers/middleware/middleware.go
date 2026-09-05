@@ -21,6 +21,7 @@ const (
 	AccessCookie  = "access_token"
 	RefreshCookie = "refresh_token"
 	CSRFCookie    = "csrf_token"
+	DeviceCookie  = "device_id"
 	CSRFHeader    = "X-CSRF-Token"
 	RequestHeader = "X-Request-Id"
 )

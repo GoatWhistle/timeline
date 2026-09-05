@@ -37,6 +37,7 @@ func (a Actor) Source() ChangeSource {
 type SessionMeta struct {
 	UserAgent string
 	IP        string
+	DeviceID  string
 }
 
 type TokenPair struct {

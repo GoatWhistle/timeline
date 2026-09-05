@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
@@ -57,14 +58,17 @@ func (s *AuthService) startSession(ctx context.Context, user *models.User,
 	if err != nil {
 		return nil, err
 	}
-	session, err := s.sessions.Create(ctx, &models.Session{
+	next := &models.Session{
 		UserID:           user.ID,
 		FamilyID:         uuid.New(),
 		RefreshTokenHash: crypto.HashSecret(secret),
+		DeviceHash:       deviceHash(meta.DeviceID),
 		UserAgent:        optionalString(meta.UserAgent),
 		IP:               optionalString(meta.IP),
 		ExpiresAt:        now.Add(s.cfg.Auth.RefreshTTL),
-	})
+		LastUsedAt:       &now,
+	}
+	session, err := s.adoptDevice(ctx, next, now)
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +82,37 @@ func (s *AuthService) startSession(ctx context.Context, user *models.User,
 		RefreshToken:     secret,
 		RefreshExpiresAt: session.ExpiresAt,
 	}, nil
+}
+
+func (s *AuthService) adoptDevice(ctx context.Context, next *models.Session,
+	now time.Time) (*models.Session, error) {
+	if next.DeviceHash == nil {
+		return s.sessions.Create(ctx, next)
+	}
+	current, err := s.sessions.GetReusableByDevice(ctx, next.UserID, *next.DeviceHash, now)
+	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			return s.sessions.Create(ctx, next)
+		}
+		return nil, err
+	}
+	reissued, err := s.sessions.Reissue(ctx, current.ID, next)
+	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			return s.sessions.Create(ctx, next)
+		}
+		return nil, err
+	}
+	return reissued, nil
+}
+
+func deviceHash(deviceID string) *string {
+	trimmed := strings.TrimSpace(deviceID)
+	if !models.ValidDeviceID(trimmed) {
+		return nil
+	}
+	hashed := crypto.HashSecret(trimmed)
+	return &hashed
 }
 
 func optionalString(value string) *string {

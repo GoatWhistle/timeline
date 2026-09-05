@@ -53,6 +53,7 @@ type Session struct {
 	UserID           uuid.UUID  `json:"user_id"`
 	FamilyID         uuid.UUID  `json:"-"`
 	RefreshTokenHash string     `json:"-"`
+	DeviceHash       *string    `json:"-"`
 	UserAgent        *string    `json:"user_agent,omitempty"`
 	IP               *string    `json:"ip,omitempty"`
 	Label            *string    `json:"label,omitempty"`
@@ -63,6 +64,20 @@ type Session struct {
 }
 
 const SessionLabelMaxLength = 64
+
+const DeviceIDLength = 32
+
+func ValidDeviceID(value string) bool {
+	if len(value) != DeviceIDLength {
+		return false
+	}
+	for _, r := range value {
+		if (r < '0' || r > '9') && (r < 'a' || r > 'f') {
+			return false
+		}
+	}
+	return true
+}
 
 func (s *Session) Active(now time.Time) bool {
 	return s.RevokedAt == nil && s.ExpiresAt.After(now)
