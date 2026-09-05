@@ -2,7 +2,7 @@ import { Lock } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { StageResponse } from '@/shared/api/types.gen'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/navigation/tabs'
 import { ArtifactPanel } from '../artifacts/artifact-panel'
 import { NotePanel } from '../note/note-panel'
@@ -35,7 +35,7 @@ export function PersonalSection({ eventId, stages }: { eventId: string; stages: 
           <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
           {t('personal.title')}
         </CardTitle>
-        <p className="text-meta text-muted-foreground">{t('personal.subtitle')}</p>
+        <CardDescription>{t('personal.subtitle')}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs value={tab} onValueChange={(next) => setTab(next as PersonalTab)}>

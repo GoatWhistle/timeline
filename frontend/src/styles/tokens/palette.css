@@ -1,7 +1,8 @@
 :root {
+  --linear-pitch: oklch(0.06 0.0029 246.3);
   --linear-void: oklch(0.139 0.0029 246.3);
-  --linear-carbon: oklch(0.1723 0.0026 248);
-  --linear-obsidian: oklch(0.2039 0.0025 248);
+  --linear-carbon: oklch(0.185 0.0026 248);
+  --linear-obsidian: oklch(0.225 0.0025 248);
   --linear-graphite: oklch(0.2645 0.0098 268.3);
   --linear-smoke: oklch(0.351 0.0081 255.5);
   --linear-steel: oklch(0.55 0.012 262);

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { MinusCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { SUMMARY_SHELL } from '@/shared/ui/data-display/summary-bar/summary-bar'
 import { Skeleton } from '@/shared/ui/states'
 import { registrationCoverageQuery } from '../admin-stats.queries'
 
@@ -11,8 +12,6 @@ export function formatShare(share: number): string {
   return `${Math.round(percent)}%`
 }
 
-const SHELL = 'flex min-w-24 flex-col gap-0.5 rounded-control px-2.5 py-1.5'
-
 export function CoverageMetric() {
   const { t } = useTranslation('event')
   const coverage = useQuery(registrationCoverageQuery())
@@ -20,7 +19,7 @@ export function CoverageMetric() {
 
   if (coverage.isPending) {
     return (
-      <div className={SHELL}>
+      <div className={SUMMARY_SHELL}>
         <span className="text-caption text-muted-foreground">{t('stats.coverage')}</span>
         <Skeleton className="mt-0.5 h-4 w-10" />
       </div>
@@ -29,7 +28,7 @@ export function CoverageMetric() {
 
   if (!data?.applicable || data.share === undefined || data.share === null) {
     return (
-      <div className={SHELL} title={t('stats.coverageEmptyHint')}>
+      <div className={SUMMARY_SHELL} title={t('stats.coverageEmptyHint')}>
         <span className="text-caption text-muted-foreground">{t('stats.coverage')}</span>
         <span className="flex items-center gap-1 text-copy text-muted-foreground">
           <MinusCircle className="size-3.5 shrink-0" aria-hidden="true" />
@@ -41,7 +40,7 @@ export function CoverageMetric() {
 
   return (
     <div
-      className={SHELL}
+      className={SUMMARY_SHELL}
       title={t('stats.coverageHint', {
         count: data.total,
         done: data.self_reported_done,

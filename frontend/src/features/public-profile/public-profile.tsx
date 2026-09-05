@@ -43,7 +43,7 @@ export function PublicProfilePage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-6">
       <Card>
-        <CardContent className="flex items-center gap-4 pt-6">
+        <CardContent className="flex items-center gap-4">
           <UserAvatar
             seed={profile.nickname}
             firstName={profile.first_name}
