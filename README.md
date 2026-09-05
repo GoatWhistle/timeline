@@ -134,29 +134,6 @@ The API and the SPA are served from one origin, so the session cookie needs no
 CORS and no `SameSite=None`. The scheduler and the worker are one separate process
 beside the API, reading the same database.
 
-### States
-
-```mermaid
-flowchart LR
-    subgraph Event
-      U["UNPUBLISHED"] --> P["PUBLISHED"] --> A["ARCHIVED"]
-    end
-    subgraph RegistrationStatus
-      T["TODO"] --> D["DONE"]
-      D --> T
-      T --> N["NOT_REQUIRED"]
-      D --> N
-      N --> T
-      N -. rejected .-> D
-    end
-```
-
-`ARCHIVED` is terminal. `NOT_REQUIRED → DONE` is refused with
-`409 invalid_state_transition` rather than performed quietly — an invalid
-transition must be rejected *and* leave the state untouched. A status must return
-through `TODO` first, because "not required" and "done" are different claims and
-neither implies the other.
-
 ## Running it
 
 Everything runs in containers: Go, Node and PostgreSQL are not needed on the
