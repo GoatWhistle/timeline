@@ -2,7 +2,9 @@ package email
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/tls"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -111,11 +113,35 @@ func (s *smtpSender) compose(msg models.OutboundMessage) string {
 		fmt.Fprintf(&b, "Message-ID: <%s@event-tracker>\r\n", msg.IdempotencyKey)
 	}
 	b.WriteString("MIME-Version: 1.0\r\n")
-	b.WriteString("Content-Type: text/plain; charset=UTF-8\r\n")
-	b.WriteString("Content-Transfer-Encoding: 8bit\r\n\r\n")
-	b.WriteString(msg.Body)
-	b.WriteString("\r\n")
+	if msg.HTML == "" {
+		b.WriteString("Content-Type: text/plain; charset=UTF-8\r\n")
+		b.WriteString("Content-Transfer-Encoding: 8bit\r\n\r\n")
+		b.WriteString(msg.Body)
+		b.WriteString("\r\n")
+		return b.String()
+	}
+	boundary := alternativeBoundary()
+	fmt.Fprintf(&b, "Content-Type: multipart/alternative; boundary=%q\r\n\r\n", boundary)
+	writePart(&b, boundary, "text/plain; charset=UTF-8", msg.Body)
+	writePart(&b, boundary, "text/html; charset=UTF-8", msg.HTML)
+	fmt.Fprintf(&b, "--%s--\r\n", boundary)
 	return b.String()
+}
+
+func writePart(b *strings.Builder, boundary, contentType, content string) {
+	fmt.Fprintf(b, "--%s\r\n", boundary)
+	fmt.Fprintf(b, "Content-Type: %s\r\n", contentType)
+	b.WriteString("Content-Transfer-Encoding: 8bit\r\n\r\n")
+	b.WriteString(strings.ReplaceAll(strings.ReplaceAll(content, "\r\n", "\n"), "\n", "\r\n"))
+	b.WriteString("\r\n")
+}
+
+func alternativeBoundary() string {
+	buf := make([]byte, 16)
+	if _, err := rand.Read(buf); err != nil {
+		return "tl-boundary-fallback-separator"
+	}
+	return "tl-" + hex.EncodeToString(buf)
 }
 
 func classify(err error, reason string) error {

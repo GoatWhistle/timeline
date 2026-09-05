@@ -11,6 +11,8 @@ import (
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
+const inviteKey = "email.invite"
+
 type EmailSender interface {
 	Send(ctx context.Context, msg models.OutboundMessage) error
 }
@@ -42,14 +44,12 @@ func (m *Mailer) SendEmailChange(ctx context.Context, to, displayName, lang, tok
 }
 
 func (m *Mailer) SendInvite(ctx context.Context, to, invitedBy, lang, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, "email.invite", invitedBy, lang, m.link("/invite", token), ttl)
+	m.sendTemplate(ctx, to, inviteKey, PersonalName(invitedBy), lang, m.link("/invite", token), ttl)
 }
 
-func (m *Mailer) sendTemplate(ctx context.Context, to, key, name, lang, link string, ttl time.Duration) {
+func (m *Mailer) sendTemplate(ctx context.Context, to, key, name, lang string, link string, ttl time.Duration) {
 	lang = locale.Normalize(lang)
-	args := []string{"name", name, "link", link, "ttl", humanDuration(lang, ttl)}
-	m.send(ctx, to, locale.Message(lang, key+".subject", args...),
-		locale.Message(lang, key+".body", args...))
+	m.send(ctx, to, compose(lang, key, name, link, humanDuration(lang, ttl)))
 }
 
 func (m *Mailer) link(path, token string) string {
@@ -60,12 +60,35 @@ func (m *Mailer) query(path, token string) string {
 	return m.publicURL + path + "?token=" + url.QueryEscape(token)
 }
 
-func (m *Mailer) send(ctx context.Context, to, subject, body string) {
-	err := m.sender.Send(ctx, models.OutboundMessage{Recipient: to, Subject: subject, Body: body})
+func (m *Mailer) send(ctx context.Context, to string, l letter) {
+	body, err := l.html()
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to render the email body", "error", err, "subject", l.Subject)
+	}
+	err = m.sender.Send(ctx, models.OutboundMessage{
+		Recipient: to,
+		Subject:   l.Subject,
+		Body:      l.text(),
+		HTML:      body,
+	})
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to send authentication email",
-			"error", err, "subject", subject)
+			"error", err, "subject", l.Subject)
 	}
+}
+
+func PersonalName(name string) string {
+	fields := strings.Fields(name)
+	if len(fields) == 0 {
+		return ""
+	}
+	first := fields[0]
+	for _, field := range fields[1:] {
+		if !strings.EqualFold(field, first) {
+			return strings.Join(fields, " ")
+		}
+	}
+	return first
 }
 
 func humanDuration(lang string, d time.Duration) string {

@@ -126,6 +126,7 @@ type OutboundMessage struct {
 	Recipient      string
 	Subject        string
 	Body           string
+	HTML           string
 }
 
 type DeliveryError struct {
