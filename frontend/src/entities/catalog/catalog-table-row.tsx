@@ -1,15 +1,14 @@
 import { useTranslation } from 'react-i18next'
+import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import {
-  EVENT_STATE_COLOR,
-  EVENT_STATE_KEY,
-  EVENT_STATE_SHAPE,
-} from '@/entities/event/event.labels'
+  EVENT_STATE_TEXT,
+  EventStateSign,
+} from '@/entities/event/event-state-mark/event-state-sign'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { formatDateRange } from '@/shared/datetime/datetime'
 import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
-import { Dot } from '@/shared/ui/primitives/dot'
 import { teamSizeLabelKey } from './catalog.facts'
 import { CATALOG_SCOPE_KEY, type CatalogColumn } from './catalog.views'
 import { CatalogJoinedMark } from './catalog-joined-mark'
@@ -105,8 +104,8 @@ function CellContent({ event, column }: { event: CatalogEvent; column: CatalogCo
       return <>{t(CATALOG_SCOPE_KEY[event.origin])}</>
     case 'state':
       return (
-        <span className="flex items-center gap-1.5">
-          <Dot shape={EVENT_STATE_SHAPE[event.state]} className={EVENT_STATE_COLOR[event.state]} />
+        <span className={cn('flex items-center gap-1.5', EVENT_STATE_TEXT[event.state])}>
+          {event.state === 'ACTIVE' && <EventStateSign state={event.state} />}
           <span className="truncate">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>
         </span>
       )

@@ -66,3 +66,23 @@ describe('every place that can be empty says what kind of empty it is', () => {
     expect(mismatched).toEqual([])
   })
 })
+
+describe('an empty state is part of the page, never a floating dialog', () => {
+  const OVERLAY_CHROME = join(SOURCE_ROOT, 'shared', 'ui', 'overlays', 'overlay-chrome.ts')
+
+  it('keeps the dialog surface out of every screen that draws an empty state', () => {
+    const borrowed = callSites()
+      .filter((entry) => entry.source.includes('PANEL_SURFACE'))
+      .map((entry) => relative(SOURCE_ROOT, entry.file))
+
+    expect(borrowed).toEqual([])
+  })
+
+  it('keeps the floating shadow of an overlay off the shared empty state', () => {
+    expect(readFileSync(SHELL, 'utf8')).not.toContain('shadow-floating')
+  })
+
+  it('still spells that dialog surface once, where overlays take it from', () => {
+    expect(readFileSync(OVERLAY_CHROME, 'utf8')).toContain('shadow-floating')
+  })
+})

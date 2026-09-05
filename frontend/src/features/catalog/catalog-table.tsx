@@ -63,7 +63,7 @@ export function CatalogTable({
   }
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full overflow-x-auto rounded-surface border">
       <table className="w-full border-collapse text-copy">
         <caption className="sr-only">{t('catalog.title')}</caption>
         <thead>
@@ -105,7 +105,7 @@ export function CatalogTable({
             })}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="[&_tr:last-child]:border-0">
           {items.map((item) => (
             <CatalogTableRow
               key={item.id}

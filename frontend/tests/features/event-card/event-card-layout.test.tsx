@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { PAGE_WIDTH } from '@/shared/ui/layout/page-width'
 
 const source = readFileSync(
   resolve(process.cwd(), 'src/features/event-card/event-card.tsx'),
@@ -13,7 +14,8 @@ describe('the event page fills a wide screen instead of a narrow column', () => 
   })
 
   it('gives the page a width that a wide screen can use', () => {
-    expect(source).toMatch(/max-w-\[1400px\]/)
+    expect(source).toMatch(/className=\{PAGE_WIDTH\}/)
+    expect(PAGE_WIDTH).toMatch(/max-w-\[\d+px\]/)
   })
 })
 

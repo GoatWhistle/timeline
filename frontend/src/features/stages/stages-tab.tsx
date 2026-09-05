@@ -103,9 +103,11 @@ export function StagesTab({ event }: { event: EventResponse }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {stages.map((stage) => (
+              {stages.map((stage, position) => (
                 <TableRow key={stage.id}>
-                  <TableCell className="text-muted-foreground">{stage.sort_order}</TableCell>
+                  <TableCell className="text-muted-foreground tabular-nums">
+                    {position + 1}
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <StageTypeMark type={stage.type} labelled={false} />

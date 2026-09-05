@@ -22,6 +22,7 @@ import { formatDate } from '@/shared/datetime/datetime'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { Card, CardContent } from '@/shared/ui/layout/card'
 import { PageHeader } from '@/shared/ui/layout/page-header'
+import { PAGE_WIDTH } from '@/shared/ui/layout/page-width'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/navigation/tabs'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Button } from '@/shared/ui/primitives/button'
@@ -65,7 +66,7 @@ export function AdminEventPage() {
       }
     >
       {event && (
-        <div>
+        <div className={PAGE_WIDTH}>
           <PageHeader
             title={event.title}
             description={`${formatDate(event.start_at)} — ${formatDate(event.end_at)}`}
@@ -105,8 +106,8 @@ export function AdminEventPage() {
 
             <TabsContent value="general">
               <div className="@container">
-                <div className="grid items-start gap-6 @6xl:grid-cols-[minmax(0,1fr)_320px]">
-                  <aside className="@6xl:sticky @6xl:top-4 @6xl:col-start-2 @6xl:row-start-1">
+                <div className="grid items-start gap-6 @5xl:grid-cols-[minmax(0,1fr)_320px]">
+                  <aside className="@5xl:sticky @5xl:top-4 @5xl:col-start-2 @5xl:row-start-1">
                     <Card>
                       <CardContent className="pt-6">
                         <CoverField
@@ -120,7 +121,7 @@ export function AdminEventPage() {
                     </Card>
                   </aside>
 
-                  <div className="flex min-w-0 flex-col gap-6 @6xl:col-start-1 @6xl:row-start-1">
+                  <div className="flex min-w-0 flex-col gap-6 @5xl:col-start-1 @5xl:row-start-1">
                     <Card>
                       <CardContent className="pt-6">
                         <EventForm

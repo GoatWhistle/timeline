@@ -172,6 +172,12 @@ export function formatEventMoment(
   return `${format(date, EVENT_DAY_PATTERN[locale], options)}, ${time}`
 }
 
+export function formatEventDay(iso: string | null | undefined, locale = currentLocale()): string {
+  const date = toZoned(iso)
+  if (!date) return '—'
+  return format(date, EVENT_DAY_PATTERN[locale], { locale: dateFnsLocale(locale) })
+}
+
 export function formatDateRange(
   startIso: string | null | undefined,
   endIso: string | null | undefined,

@@ -5,7 +5,8 @@ import { eventColorAttrs, eventColorLabelKey } from '@/entities/event/event-colo
 import { formatEventMoment } from '@/shared/datetime/datetime'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/tooltip'
 import type { CalendarSpan } from '../../model/calendar-items'
-import { EVENT_KIND_ICON, EVENT_KIND_KEY } from '../../model/event-kind'
+import { EVENT_KIND_ICON } from '../../model/event-kind'
+import { BarTooltip } from './bar-tooltip'
 import styles from './schedule-bar.module.css'
 
 export type ScheduleBarProps = {
@@ -36,7 +37,6 @@ export function ScheduleBar({
   const { t } = useTranslation()
   const { row } = span
   const KindIcon = EVENT_KIND_ICON[row.kind]
-  const kindLabel = t(EVENT_KIND_KEY[row.kind])
 
   return (
     <div {...eventColorAttrs(row.color ?? null)} className={styles.slot} style={style}>
@@ -88,10 +88,7 @@ export function ScheduleBar({
           </button>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="font-medium">{row.title}</p>
-          <p className="text-muted-foreground">{kindLabel}</p>
-          <p className="text-muted-foreground">{sentence}</p>
-          <p className="text-muted-foreground">{t('schedule.selectHint')}</p>
+          <BarTooltip row={row} />
         </TooltipContent>
       </Tooltip>
     </div>

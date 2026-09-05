@@ -27,6 +27,8 @@
     "create": "Create registration",
     "enable": "Enable",
     "disable": "Disable",
+    "versionsTitle": "Notification versions",
+    "versionsHint": "Bump when you change the link, the deadline or the state; they keep repeat notifications apart.",
     "scheduleVersion": "Schedule version",
     "activationVersion": "Activation version",
     "contentVersion": "Content version",

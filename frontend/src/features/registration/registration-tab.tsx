@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { REGISTRATION_STATE_KEY } from '@/entities/registration/registration.labels'
 import {
   registrationQuery,
   useCreateRegistration,
@@ -25,9 +24,9 @@ import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { Textarea } from '@/shared/ui/forms/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
-import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
+import { RegistrationFacts } from './registration-facts'
 import { RulesEditor } from './rules-editor'
 
 const schema = z.object({
@@ -108,114 +107,98 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
       hasData={registration !== undefined || missing}
       skeleton={<SkeletonDetail />}
     >
-      <div className="flex max-w-3xl flex-col gap-6">
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <CardTitle>{t('tab.title')}</CardTitle>
-                <CardDescription>{t('tab.hint')}</CardDescription>
-              </div>
-              {registration && (
-                <div className="flex shrink-0 items-center gap-2">
-                  <Badge tone={registration.state === 'ACTIVE' ? 'primary' : 'danger'}>
-                    {t(REGISTRATION_STATE_KEY[registration.state])}
-                  </Badge>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={toggle.isPending}
-                    onClick={() =>
+      <div className="@container">
+        <div className="grid items-start gap-6 @5xl:grid-cols-[minmax(0,1fr)_320px]">
+          {registration && (
+            <aside className="@5xl:sticky @5xl:top-4 @5xl:col-start-2 @5xl:row-start-1">
+              <Card>
+                <CardContent className="pt-6">
+                  <RegistrationFacts
+                    registration={registration}
+                    busy={toggle.isPending}
+                    onToggle={() =>
                       toggle
                         .mutateAsync(registration.state === 'ACTIVE' ? 'disable' : 'enable')
                         .then(() => toast.success(t('tab.stateChanged')))
                         .catch(() => toast.error(t('tab.stateFailed')))
                     }
+                  />
+                </CardContent>
+              </Card>
+            </aside>
+          )}
+
+          <div className="flex min-w-0 flex-col gap-6 @5xl:col-start-1 @5xl:row-start-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('tab.title')}</CardTitle>
+                <CardDescription>{t('tab.hint')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)} noValidate>
+                  <div className="grid gap-4 @2xl:grid-cols-2">
+                    <Field label={t('tab.urlLabel')} htmlFor="reg-url" error={errors.url?.message}>
+                      <Input id="reg-url" aria-invalid={Boolean(errors.url)} {...register('url')} />
+                    </Field>
+
+                    <MomentField
+                      id="reg-deadline"
+                      label={t('tab.deadlineLabel')}
+                      value={deadline}
+                      error={deadlineError}
+                      hint={t('tab.deadlineHint', { date: formatDateTime(event.end_at) })}
+                      required
+                      onChange={(next) => {
+                        setDeadline(next)
+                        setDeadlineError(undefined)
+                      }}
+                    />
+                  </div>
+
+                  <Field
+                    label={t('tab.descriptionLabel')}
+                    htmlFor="reg-description"
+                    error={errors.description?.message}
                   >
-                    {registration.state === 'ACTIVE' ? t('tab.disable') : t('tab.enable')}
-                  </Button>
-                </div>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)} noValidate>
-              <Field label={t('tab.urlLabel')} htmlFor="reg-url" error={errors.url?.message}>
-                <Input id="reg-url" aria-invalid={Boolean(errors.url)} {...register('url')} />
-              </Field>
+                    <Textarea id="reg-description" {...register('description')} />
+                  </Field>
 
-              <MomentField
-                id="reg-deadline"
-                label={t('tab.deadlineLabel')}
-                value={deadline}
-                error={deadlineError}
-                hint={t('tab.deadlineHint', { date: formatDateTime(event.end_at) })}
-                required
-                onChange={(next) => {
-                  setDeadline(next)
-                  setDeadlineError(undefined)
-                }}
-              />
+                  {errors.root && (
+                    <p role="alert" className="text-destructive text-copy">
+                      {errors.root.message}
+                    </p>
+                  )}
 
-              <Field
-                label={t('tab.descriptionLabel')}
-                htmlFor="reg-description"
-                error={errors.description?.message}
-              >
-                <Textarea id="reg-description" {...register('description')} />
-              </Field>
-
-              {errors.root && (
-                <p role="alert" className="text-destructive text-copy">
-                  {errors.root.message}
-                </p>
-              )}
-
-              <div className="flex justify-end">
-                <Button type="submit" disabled={isSubmitting}>
-                  {registration ? t('common:action.save') : t('tab.create')}
-                </Button>
-              </div>
-            </form>
+                  <div className="flex justify-end">
+                    <Button type="submit" disabled={isSubmitting}>
+                      {registration ? t('common:action.save') : t('tab.create')}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
 
             {registration && (
-              <dl className="mt-6 grid grid-cols-3 gap-4 border-t pt-4 text-copy">
-                <div>
-                  <dt className="text-muted-foreground">{t('tab.scheduleVersion')}</dt>
-                  <dd className="font-medium">{registration.schedule_version}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">{t('tab.activationVersion')}</dt>
-                  <dd className="font-medium">{registration.activation_version}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">{t('tab.contentVersion')}</dt>
-                  <dd className="font-medium">{registration.notification_content_version}</dd>
-                </div>
-              </dl>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('rules.title')}</CardTitle>
+                  <CardDescription>{t('rules.hint')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RulesEditor eventId={event.id} />
+                </CardContent>
+              </Card>
             )}
-          </CardContent>
-        </Card>
 
-        {registration && (
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('rules.title')}</CardTitle>
-              <CardDescription>{t('rules.hint')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RulesEditor eventId={event.id} />
-            </CardContent>
-          </Card>
-        )}
-
-        {registration && (
-          <Card>
-            <CardContent className="pt-6">
-              <ChannelMatrix eventId={event.id} />
-            </CardContent>
-          </Card>
-        )}
+            {registration && (
+              <Card>
+                <CardContent className="pt-6">
+                  <ChannelMatrix eventId={event.id} />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </div>
     </QueryBoundary>
   )

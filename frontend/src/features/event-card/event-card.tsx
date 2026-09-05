@@ -12,6 +12,7 @@ import type { EventCard } from '@/shared/api/types.gen'
 import { formatDate } from '@/shared/datetime/datetime'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { PageHeader } from '@/shared/ui/layout/page-header'
+import { PAGE_WIDTH } from '@/shared/ui/layout/page-width'
 import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
 import { EventFacts } from './event-facts'
 import { EventPlaceSummary } from './event-place-summary'
@@ -88,7 +89,7 @@ function EventCardBody({
   const { event } = card
 
   return (
-    <div className="mx-auto w-full max-w-[1400px]">
+    <div className={PAGE_WIDTH}>
       <PageHeader title={event.title} actions={<EventStateBadge state={event.state} />} />
 
       <EventCover

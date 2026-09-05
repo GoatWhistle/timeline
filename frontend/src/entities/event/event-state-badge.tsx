@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
+import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import {
-  EVENT_STATE_COLOR,
-  EVENT_STATE_KEY,
-  EVENT_STATE_SHAPE,
-} from '@/entities/event/event.labels'
+  EVENT_STATE_TEXT,
+  EventStateSign,
+} from '@/entities/event/event-state-mark/event-state-sign'
 import {
   REGISTRATION_STATUS_COLOR,
   REGISTRATION_STATUS_KEY,
@@ -17,8 +17,8 @@ export function EventStateBadge({ state }: { state: EventState }) {
   const { t } = useTranslation()
 
   return (
-    <Badge tone="outline">
-      <Dot shape={EVENT_STATE_SHAPE[state]} className={EVENT_STATE_COLOR[state]} />
+    <Badge tone="outline" data-event-state={state} className={EVENT_STATE_TEXT[state]}>
+      {state === 'ACTIVE' && <EventStateSign state={state} />}
       {t(EVENT_STATE_KEY[state])}
     </Badge>
   )

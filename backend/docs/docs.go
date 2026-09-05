@@ -10690,6 +10690,10 @@ const docTemplate = `{
                 "color": {
                     "$ref": "#/definitions/models.EventColor"
                 },
+                "cover_url": {
+                    "type": "string",
+                    "example": "/api/v1/covers/abc.png"
+                },
                 "effective_format": {
                     "enum": [
                         "ONLINE",
@@ -10719,6 +10723,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.EventKind"
                         }
                     ]
+                },
+                "prize_currency": {
+                    "type": "string",
+                    "example": "RUB"
+                },
+                "prize_pool": {
+                    "type": "string",
+                    "example": "500000.00"
                 },
                 "registration_deadline": {
                     "type": "string"

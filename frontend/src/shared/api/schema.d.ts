@@ -10990,12 +10990,18 @@ export interface components {
         };
         "dto.ScheduleRow": {
             color?: components["schemas"]["models.EventColor"];
+            /** @example /api/v1/covers/abc.png */
+            cover_url?: string;
             effective_format: components["schemas"]["models.EventFormat"];
             /** Format: date-time */
             end_at: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
             kind: components["schemas"]["models.EventKind"];
+            /** @example RUB */
+            prize_currency?: string;
+            /** @example 500000.00 */
+            prize_pool?: string;
             /** Format: date-time */
             registration_deadline?: string;
             registration_status?: components["schemas"]["dto.RegistrationStatusShort"];

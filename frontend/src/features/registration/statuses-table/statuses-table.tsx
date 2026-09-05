@@ -6,8 +6,10 @@ import {
   REGISTRATION_STATUS_KEY,
   REGISTRATION_STATUS_SHAPE,
 } from '@/entities/registration/registration.labels'
+import { listName } from '@/entities/user/person-name/person-name'
 import type { RegistrationStatusResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
+import { useLocale } from '@/shared/i18n/i18n-context'
 import {
   Table,
   TableBody,
@@ -36,6 +38,7 @@ export function StatusesTable({
   onPreview?: (statusId: string) => void
 }) {
   const { t } = useTranslation('registration')
+  const { locale } = useLocale()
   return (
     <Table>
       <TableHeader>
@@ -60,13 +63,13 @@ export function StatusesTable({
           <TableRow key={item.id}>
             <TableCell>
               <Checkbox
-                aria-label={t('statuses.select', { name: item.user.display_name })}
+                aria-label={t('statuses.select', { name: listName(item.user, locale) })}
                 checked={selected.has(item.participant_id)}
                 onCheckedChange={(checked) => onToggleOne(item.participant_id, checked === true)}
               />
             </TableCell>
             <TableCell>
-              <span className="font-medium">{item.user.display_name}</span>
+              <span className="font-medium">{listName(item.user, locale)}</span>
               <span className="ml-2 text-muted-foreground">{item.user.email}</span>
               {item.note && (
                 <p className="text-muted-foreground text-caption">

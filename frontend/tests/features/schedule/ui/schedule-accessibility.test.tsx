@@ -3,7 +3,17 @@ import { describe, expect, it } from 'vitest'
 import { WRAPPED_SHAPE } from '@/features/schedule/model/schedule-scale'
 import { WeekGrid } from '@/features/schedule/ui/week-grid/week-grid'
 import { WrappedGrid } from '@/features/schedule/ui/wrapped-grid/wrapped-grid'
-import { bars, NOW, rowWith, schedule, WEEK_FROM, WEEK_TO, weekLocale } from './schedule-fixtures'
+import { i18n } from '@/shared/i18n/config'
+import {
+  bars,
+  eventStateText,
+  NOW,
+  rowWith,
+  schedule,
+  WEEK_FROM,
+  WEEK_TO,
+  weekLocale,
+} from './schedule-fixtures'
 
 const MONTH_FROM = new Date('2026-01-01T00:00:00')
 
@@ -60,6 +70,18 @@ describe('schedule accessibility', () => {
     expect(sentence).toContain('Participant registration')
     expect(sentence).toContain('Application Review')
     expect(sentence.split('.').filter((part) => part.trim()).length).toBeGreaterThan(2)
+  })
+
+  it('keeps state, deadline and the key hint spoken, the hover card having dropped them', () => {
+    const { container } = renderMonth()
+    const sentence =
+      bars(container)
+        .find((bar) => bar.getAttribute('aria-label')?.includes('Winter Hackathon'))
+        ?.getAttribute('aria-label') ?? ''
+
+    expect(sentence).toContain(eventStateText('ACTIVE'))
+    expect(sentence).toContain(i18n.t('schedule.selectHint'))
+    expect(sentence).toMatch(/2026/)
   })
 
   it('gives the wrapped calendar exactly one tab stop', () => {

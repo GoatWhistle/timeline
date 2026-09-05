@@ -78,6 +78,9 @@ type ScheduleRow struct {
 	RegistrationDeadline *time.Time               `json:"registration_deadline,omitempty"`
 	RegistrationStatus   *RegistrationStatusShort `json:"registration_status,omitempty"`
 	Color                *models.EventColor       `json:"color,omitempty"`
+	CoverURL             *string                  `json:"cover_url,omitempty" example:"/api/v1/covers/abc.png"`
+	PrizePool            *string                  `json:"prize_pool,omitempty" example:"500000.00"`
+	PrizeCurrency        *string                  `json:"prize_currency,omitempty" example:"RUB"`
 }
 
 type ScheduleResponse struct {

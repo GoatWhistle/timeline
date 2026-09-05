@@ -12768,6 +12768,10 @@
           "color": {
             "$ref": "#/components/schemas/models.EventColor"
           },
+          "cover_url": {
+            "type": "string",
+            "example": "/api/v1/covers/abc.png"
+          },
           "effective_format": {
             "$ref": "#/components/schemas/models.EventFormat"
           },
@@ -12781,6 +12785,14 @@
           },
           "kind": {
             "$ref": "#/components/schemas/models.EventKind"
+          },
+          "prize_currency": {
+            "type": "string",
+            "example": "RUB"
+          },
+          "prize_pool": {
+            "type": "string",
+            "example": "500000.00"
           },
           "registration_deadline": {
             "type": "string",

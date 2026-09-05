@@ -156,15 +156,17 @@ export function CatalogPage() {
           ) : (
             <>
               {layout === 'table' ? (
-                <CatalogTable
-                  items={items}
-                  columns={columns}
-                  selected={selected}
-                  sort={sort}
-                  order={order}
-                  onSelect={select}
-                  onSort={changeSort}
-                />
+                <div className="p-3 sm:p-4">
+                  <CatalogTable
+                    items={items}
+                    columns={columns}
+                    selected={selected}
+                    sort={sort}
+                    order={order}
+                    onSelect={select}
+                    onSort={changeSort}
+                  />
+                </div>
               ) : (
                 <div
                   role="listbox"

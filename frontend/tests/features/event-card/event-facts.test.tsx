@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { EventFacts } from '@/features/event-card/event-facts'
 import { FIGURE_LIMIT, figureSlots, teamSizeRange } from '@/features/event-card/team-size-figures'
 import type { EventResponse } from '@/shared/api/types.gen'
-import { formatDateRange } from '@/shared/datetime/datetime'
+import { formatEventDay } from '@/shared/datetime/datetime'
 import { i18n } from '@/shared/i18n/config'
 
 const base: EventResponse = {
@@ -220,11 +220,13 @@ describe('the facts panel carries the event basics', () => {
     expect(screen.queryByText('Voice agents')).not.toBeInTheDocument()
   })
 
-  it('states the period the header no longer carries', () => {
+  it('states both ends of the period and places the reader on a track between them', () => {
     renderWithProviders(<EventFacts event={base} />)
-    const label = screen.getByText(i18n.t('event:place.period'))
-    const value = label.parentElement?.querySelector('dd')
-    expect(value?.textContent).toBe(formatDateRange(base.start_at, base.end_at))
+    const value = screen.getByText(i18n.t('event:place.period')).parentElement?.querySelector('dd')
+
+    expect(value?.textContent).toContain(formatEventDay(base.start_at))
+    expect(value?.textContent).toContain(formatEventDay(base.end_at))
+    expect(value?.querySelector('[data-event-period-track]')).not.toBeNull()
   })
 
   it('states the organizer the header no longer carries', () => {

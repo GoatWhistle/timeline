@@ -19,7 +19,18 @@
     "trackCount_one": "{{count}} трек",
     "trackCount_few": "{{count}} трека",
     "trackCount_many": "{{count}} треков",
-    "trackCount_other": "{{count}} трека"
+    "trackCount_other": "{{count}} трека",
+    "periodAfter_few": "Завершилось {{count}} дня назад",
+    "periodAfter_many": "Завершилось {{count}} дней назад",
+    "periodAfter_one": "Завершилось {{count}} день назад",
+    "periodBefore_few": "Начнётся через {{count}} дня",
+    "periodBefore_many": "Начнётся через {{count}} дней",
+    "periodBefore_one": "Начнётся через {{count}} день",
+    "periodDuring_few": "Осталось {{count}} дня",
+    "periodDuring_many": "Осталось {{count}} дней",
+    "periodDuring_one": "Остался {{count}} день",
+    "periodElapsed": "Прошло",
+    "periodUnknown": "Даты не заданы"
   },
   "detail": {
     "registration": "Регистрация",

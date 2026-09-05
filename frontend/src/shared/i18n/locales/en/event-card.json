@@ -17,7 +17,15 @@
     "markedHint": "You will get no more reminders about this event",
     "markFailed": "Could not change the status",
     "trackCount_one": "{{count}} track",
-    "trackCount_other": "{{count}} tracks"
+    "trackCount_other": "{{count}} tracks",
+    "periodAfter_one": "Ended {{count}} day ago",
+    "periodAfter_other": "Ended {{count}} days ago",
+    "periodBefore_one": "Starts in {{count}} day",
+    "periodBefore_other": "Starts in {{count}} days",
+    "periodDuring_one": "{{count}} day left",
+    "periodDuring_other": "{{count}} days left",
+    "periodElapsed": "Elapsed",
+    "periodUnknown": "Dates not set"
   },
   "detail": {
     "registration": "Registration",

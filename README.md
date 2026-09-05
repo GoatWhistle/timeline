@@ -45,7 +45,7 @@ A participant sees what they are assigned to, and marks for themselves that they
 have registered. Reminders go out over Telegram or email.
 
 <p align="center">
-  <img src="docs/screenshot-event.png" alt="Event card as a participant sees it" width="100%"/><br/>
+  <img src="docs/readme/event.png" alt="Event card as a participant sees it" width="100%"/><br/>
   <sub>The participant's event card. The badge reads <b>You marked it</b>, and the line under the
   form repeats why: the system does not check the external site.</sub>
 </p>
@@ -60,7 +60,7 @@ retrospective against every event they took part in.
 
 **Catalog**
 
-<img src="docs/screenshot-catalog.png" alt="Event catalog" width="100%"/>
+<img src="docs/readme/catalog.png" alt="Event catalog" width="100%"/>
 
 Every event, as tiles or as a sortable table with the columns you pick. Filters,
 CSV export, and a tick on the ones you are in.
@@ -70,7 +70,7 @@ CSV export, and a tick on the ones you are in.
 
 **Schedule**
 
-<img src="docs/screenshot-schedule.png" alt="Personal schedule" width="100%"/>
+<img src="docs/readme/schedule.png" alt="Personal schedule" width="100%"/>
 
 Your assignments over a week, month, quarter or year. Each event keeps one colour
 so a crowded month still reads.
@@ -82,7 +82,7 @@ so a crowded month still reads.
 
 **Stages**
 
-<img src="docs/screenshot-stages.png" alt="Stage editor" width="100%"/>
+<img src="docs/readme/stages.png" alt="Stage editor" width="100%"/>
 
 Applications, selection, build, checkpoint, submission, demo, results. A stage may
 sit outside the event period — that is allowed, and only warns.
@@ -92,7 +92,7 @@ sit outside the event period — that is allowed, and only warns.
 
 **Registration statuses**
 
-<img src="docs/screenshot-statuses.png" alt="Registration statuses" width="100%"/>
+<img src="docs/readme/statuses.png" alt="Registration statuses" width="100%"/>
 
 Who reported, who did not, and who set it: the source column separates the
 participant from an administrator from the system.

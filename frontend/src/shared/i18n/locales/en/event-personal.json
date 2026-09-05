@@ -141,7 +141,7 @@
       "tooLong": "The text is too long"
     },
     "history": {
-      "title": "My history",
+      "title": "History",
       "subtitle": "Everything you took part in, with your outcomes and submissions.",
       "empty": "No history yet",
       "emptyHint": "Events you were assigned to show up here once they are under way.",

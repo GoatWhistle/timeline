@@ -144,18 +144,24 @@ export function AdminEventsPage() {
             </div>
           ) : (
             <>
-              <div role="listbox" aria-label={t('list.adminTitle')} className="flex flex-col">
-                {items.map((item) => (
-                  <EventRow
-                    key={item.id}
-                    event={item}
-                    selected={item.id === selected}
-                    onSelect={(id) => {
-                      setFilters({ selected: id }, { resetPage: false })
-                      openEventCard(id)
-                    }}
-                  />
-                ))}
+              <div className="p-3 sm:p-4">
+                <div
+                  role="listbox"
+                  aria-label={t('list.adminTitle')}
+                  className="flex flex-col overflow-hidden rounded-surface border [&>*:last-child]:border-b-0"
+                >
+                  {items.map((item) => (
+                    <EventRow
+                      key={item.id}
+                      event={item}
+                      selected={item.id === selected}
+                      onSelect={(id) => {
+                        setFilters({ selected: id }, { resetPage: false })
+                        openEventCard(id)
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
               {query.data && (
                 <div className="p-4">

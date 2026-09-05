@@ -15,8 +15,8 @@ function renderMarks() {
   return view
 }
 
-function shapeOf(node: Element): string {
-  return (node.querySelector('[aria-hidden="true"]') as HTMLElement).className
+function glyphOf(node: Element): string {
+  return node.querySelector('svg')?.innerHTML ?? ''
 }
 
 describe('event state under grayscale', () => {
@@ -29,24 +29,22 @@ describe('event state under grayscale', () => {
     expect(container.querySelectorAll('[data-event-state]')).toHaveLength(EVENT_STATES.length)
   })
 
-  it('gives every state a shape no other state shares, so colour is never the only signal', () => {
+  it('gives every state a glyph no other state shares, so colour is never the only signal', () => {
     const { container } = renderMarks()
-    const shapes = [...container.querySelectorAll('[data-event-state]')].map(shapeOf)
-    expect(new Set(shapes).size).toBe(EVENT_STATES.length)
+    const glyphs = [...container.querySelectorAll('[data-event-state]')].map(glyphOf)
+
+    expect(glyphs.every((glyph) => glyph.length > 0)).toBe(true)
+    expect(new Set(glyphs).size).toBe(EVENT_STATES.length)
   })
 
-  it('separates the states by form and fill, not by hue alone', () => {
+  it('marks the one live state apart, and marks only that one', () => {
     const { container } = renderMarks()
-    const signatures = [...container.querySelectorAll('[data-event-state]')].map((node) => {
-      const shape = shapeOf(node)
-      return [
-        shape.includes('rounded-pill') ? 'round' : 'square',
-        shape.includes('bg-current') ? 'filled' : 'hollow',
-        shape.includes('border-dashed') ? 'dashed' : 'solid',
-        shape.includes('size-2') ? 'large' : 'small',
-      ].join('/')
-    })
-    expect(new Set(signatures).size).toBe(EVENT_STATES.length)
+    const haloed = [...container.querySelectorAll('[data-event-state]')].filter(
+      (node) => node.querySelector('[data-event-state-sign] > span[aria-hidden="true"]') !== null,
+    )
+
+    expect(haloed).toHaveLength(1)
+    expect(haloed[0]?.getAttribute('data-event-state')).toBe('ACTIVE')
   })
 
   it('spells the state out for a screen reader on every mark', () => {

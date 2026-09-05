@@ -1648,6 +1648,9 @@ definitions:
     properties:
       color:
         $ref: '#/definitions/models.EventColor'
+      cover_url:
+        example: /api/v1/covers/abc.png
+        type: string
       effective_format:
         allOf:
         - $ref: '#/definitions/models.EventFormat'
@@ -1666,6 +1669,12 @@ definitions:
         enum:
         - HACKATHON
         - MEETUP
+      prize_currency:
+        example: RUB
+        type: string
+      prize_pool:
+        example: "500000.00"
+        type: string
       registration_deadline:
         type: string
       registration_status:

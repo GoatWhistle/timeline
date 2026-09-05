@@ -3,9 +3,10 @@ import { type KeyboardEvent, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { eventColorAttrs } from '@/entities/event/event-color'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/overlays/tooltip'
-import { EVENT_KIND_ICON, EVENT_KIND_KEY } from '../../model/event-kind'
+import { EVENT_KIND_ICON } from '../../model/event-kind'
 import type { MonthWeekBar } from '../../model/month-grid'
 import { WRAPPED_ICON_BAR, WRAPPED_TEXT_BAR } from '../../model/schedule-scale'
+import { BarTooltip } from '../schedule-bar/bar-tooltip'
 import styles from './wrapped-bar.module.css'
 
 export const WrappedBar = memo(WrappedBarView)
@@ -44,7 +45,6 @@ function WrappedBarView({
   const { t } = useTranslation()
   const { row } = bar.span
   const KindIcon = EVENT_KIND_ICON[row.kind]
-  const kindLabel = t(EVENT_KIND_KEY[row.kind])
 
   const width = bar.columns * cellWidth
   const showTitle = barHeight >= WRAPPED_TEXT_BAR && width >= 64
@@ -103,10 +103,7 @@ function WrappedBarView({
           </button>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="font-medium">{row.title}</p>
-          <p className="text-muted-foreground">{kindLabel}</p>
-          <p className="text-muted-foreground">{sentence}</p>
-          <p className="text-muted-foreground">{t('schedule.selectHint')}</p>
+          <BarTooltip row={row} />
         </TooltipContent>
       </Tooltip>
     </div>

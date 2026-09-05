@@ -1,13 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import {
-  EVENT_STATE_COLOR,
-  EVENT_STATE_KEY,
-  EVENT_STATE_SHAPE,
-} from '@/entities/event/event.labels'
+import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
+import { EventStateSign } from '@/entities/event/event-state-mark/event-state-sign'
 import type { EventState } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
-import { Dot, type DotShape } from '@/shared/ui/primitives/dot'
 import { Skeleton } from '@/shared/ui/states'
 import { COUNTED_STATES, eventStateCountsQuery, overdueCountQuery } from './admin-stats.queries'
 import { CoverageMetric } from './coverage-metric/coverage-metric'
@@ -16,8 +12,7 @@ function Metric({
   label,
   value,
   pending,
-  dot,
-  dotShape,
+  state,
   tone,
   onSelect,
   active,
@@ -25,8 +20,7 @@ function Metric({
   label: string
   value: number | undefined
   pending: boolean
-  dot?: string
-  dotShape?: DotShape
+  state?: EventState
   tone?: string
   onSelect?: () => void
   active?: boolean
@@ -35,7 +29,7 @@ function Metric({
   const body = (
     <>
       <span className="flex items-center gap-1.5">
-        {dot && <Dot shape={dotShape} className={cn('size-1.5', dot)} />}
+        {state && <EventStateSign state={state} />}
         <span className="text-caption text-muted-foreground">{label}</span>
       </span>
       {pending ? (
@@ -91,8 +85,7 @@ export function AdminStats({
           label={t(EVENT_STATE_KEY[state])}
           value={counts.data?.[state]}
           pending={counts.isPending}
-          dot={EVENT_STATE_COLOR[state]}
-          dotShape={EVENT_STATE_SHAPE[state]}
+          state={state}
           active={activeState === state}
           onSelect={onSelectState ? () => onSelectState(state) : undefined}
         />

@@ -67,6 +67,8 @@ export function rowSentence(row: ScheduleRow, items: readonly RowItem[], ctx: Se
     )
   }
 
+  parts.push(`${t('schedule.selectHint')}.`)
+
   return parts.join(' ')
 }
 

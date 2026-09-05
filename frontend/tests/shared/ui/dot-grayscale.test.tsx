@@ -1,7 +1,8 @@
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
-import { EVENT_STATE_COLOR, EVENT_STATE_SHAPE, EVENT_STATES } from '@/entities/event/event.labels'
+import { EVENT_STATES } from '@/entities/event/event.labels'
 import { EventStateBadge, RegistrationStatusBadge } from '@/entities/event/event-state-badge'
+import { EVENT_STATE_TEXT } from '@/entities/event/event-state-mark/event-state-sign'
 import {
   REGISTRATION_STATUS_COLOR,
   REGISTRATION_STATUS_SHAPE,
@@ -35,7 +36,7 @@ function geometryOf(container: HTMLElement): string[] {
   )
 }
 
-describe('event state dots under grayscale', () => {
+describe('event state badges under grayscale', () => {
   function renderAll() {
     return grayscale(
       renderWithProviders(
@@ -52,25 +53,24 @@ describe('event state dots under grayscale', () => {
     expect(renderAll().container.style.filter).toBe('grayscale(1)')
   })
 
-  it('renders one dot per state', () => {
-    expect(shapesOf(renderAll().container)).toHaveLength(EVENT_STATES.length)
-  })
-
-  it('gives every state a shape no other state shares', () => {
-    const shapes = shapesOf(renderAll().container)
-    expect(new Set(shapes).size).toBe(EVENT_STATES.length)
-  })
-
-  it('renders that shape as distinct geometry, not only as a data attribute', () => {
-    const geometry = geometryOf(renderAll().container)
-    expect(new Set(geometry).size).toBe(EVENT_STATES.length)
-  })
-
-  it('names the state in words beside every dot', () => {
+  it('renders one badge per state', () => {
     const { container } = renderAll()
-    for (const badge of container.querySelectorAll('span:has(> [data-dot-shape])')) {
+    expect(container.querySelectorAll('[data-event-state]')).toHaveLength(EVENT_STATES.length)
+  })
+
+  it('names the state in words, so the badge never leans on a glyph beside it', () => {
+    const { container } = renderAll()
+    for (const badge of container.querySelectorAll('[data-event-state]')) {
       expect(badge.textContent?.trim().length ?? 0).toBeGreaterThan(0)
     }
+  })
+
+  it('repeats no mark beside the word, the word already carrying the state', () => {
+    const { container } = renderAll()
+    const signed = container.querySelectorAll('[data-event-state-sign]')
+
+    expect(signed).toHaveLength(1)
+    expect(signed[0]?.getAttribute('data-event-state-sign')).toBe('ACTIVE')
   })
 })
 
@@ -151,11 +151,12 @@ describe('the dot primitive itself', () => {
   })
 
   it('never lets a colour map outnumber the shapes that separate it', () => {
-    expect(new Set(Object.values(EVENT_STATE_SHAPE)).size).toBe(
-      Object.keys(EVENT_STATE_COLOR).length,
-    )
     expect(new Set(Object.values(REGISTRATION_STATUS_SHAPE)).size).toBe(
       Object.keys(REGISTRATION_STATUS_COLOR).length,
     )
+  })
+
+  it('gives event state its own colour per state, the glyph carrying the rest', () => {
+    expect(new Set(Object.values(EVENT_STATE_TEXT)).size).toBe(EVENT_STATES.length)
   })
 })

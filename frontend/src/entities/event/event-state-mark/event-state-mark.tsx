@@ -2,22 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import type { EventState } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
-
-const STATE_SHAPE: Record<EventState, string> = {
-  UNPUBLISHED: 'size-1.5 rounded-[1px] border border-current bg-transparent',
-  UPCOMING: 'size-1.5 rounded-pill border border-current bg-transparent',
-  ACTIVE: 'size-2 rounded-pill border-2 border-current bg-current',
-  FINISHED: 'size-1.5 rounded-[1px] border border-current bg-current',
-  ARCHIVED: 'size-1.5 rounded-[1px] border border-current border-dashed bg-transparent',
-}
-
-const STATE_TEXT: Record<EventState, string> = {
-  UNPUBLISHED: 'text-state-unpublished',
-  UPCOMING: 'text-state-upcoming',
-  ACTIVE: 'text-state-active',
-  FINISHED: 'text-state-finished',
-  ARCHIVED: 'text-state-archived',
-}
+import { EventStateSign } from './event-state-sign'
 
 export function EventStateMark({
   state,
@@ -31,11 +16,8 @@ export function EventStateMark({
   const { t } = useTranslation()
 
   return (
-    <span
-      data-event-state={state}
-      className={cn('inline-flex shrink-0 items-center', STATE_TEXT[state], className)}
-    >
-      <span aria-hidden="true" className={cn('shrink-0', STATE_SHAPE[state])} />
+    <span data-event-state={state} className={cn('inline-flex shrink-0 items-center', className)}>
+      <EventStateSign state={state} />
       {labelled ? <span className="sr-only">{t(EVENT_STATE_KEY[state])}</span> : null}
     </span>
   )

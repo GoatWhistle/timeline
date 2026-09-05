@@ -3,10 +3,10 @@ import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY } from '@/entities/stage/stage.place'
 import type { EventResponse } from '@/shared/api/types.gen'
-import { formatDateRange } from '@/shared/datetime/datetime'
 import { formatMoney } from '@/shared/money/money'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { linkHost } from '@/shared/ui/navigation/external-link/external-url'
+import { EventPeriodFact } from './event-period-fact'
 import { TeamSizeFigures } from './team-size-figures'
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
@@ -26,7 +26,9 @@ export function EventFacts({ event }: { event: EventResponse }) {
 
   return (
     <dl className="flex flex-col">
-      <Fact label={t('place.period')}>{formatDateRange(event.start_at, event.end_at)}</Fact>
+      <Fact label={t('place.period')}>
+        <EventPeriodFact startAt={event.start_at} endAt={event.end_at} />
+      </Fact>
 
       {event.organizer && <Fact label={t('place.organizer')}>{event.organizer}</Fact>}
 
