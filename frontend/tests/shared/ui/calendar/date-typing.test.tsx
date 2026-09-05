@@ -77,14 +77,14 @@ describe('someone who knows the date types it instead of hunting for it', () => 
     expect(field().value).toBe('03.07.2026')
   })
 
-  it('keeps the day it had when the typing cannot be a date', async () => {
+  it('refuses to keep a day that cannot be a date, and leaves the typing to be corrected', async () => {
     const { user } = renderWithProviders(<Harness initial="2026-05-13" />)
     await user.clear(field())
     await user.keyboard('31.02.2026')
     await user.tab()
 
-    expect(screen.getByTestId('value')).toHaveTextContent('2026-05-13')
-    expect(field().value).toBe('13.05.2026')
+    expect(screen.getByTestId('value')).toHaveTextContent('')
+    expect(field().value).toBe('31.02.2026')
   })
 
   it('lets an emptied field mean no date at all', async () => {

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type Civil, zoneOffsetLabel } from '@/shared/datetime/civil'
 import { currentTimeZone } from '@/shared/datetime/datetime'
@@ -29,11 +30,13 @@ export function MomentField({
   onChange: (next: Civil) => void
 }) {
   const { t } = useTranslation('event')
+  const [unreadable, setUnreadable] = useState(false)
   const zone = currentTimeZone()
   const offset = zoneOffsetLabel(value, zone)
+  const shown = unreadable ? 'errors:field.invalid_format' : error
 
   return (
-    <Field label={label} htmlFor={id} error={error} hint={hint} required={required}>
+    <Field label={label} htmlFor={id} error={shown} hint={hint} required={required}>
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-2">
           <div className="min-w-36 flex-1">
@@ -42,9 +45,11 @@ export function MomentField({
               value={value.date}
               bounds={bounds}
               range={range}
-              invalid={Boolean(error)}
+              invalid={Boolean(shown)}
+              describedBy={shown ? `${id}-error` : undefined}
               required={required}
               onChange={(date) => onChange({ ...value, date })}
+              onUnreadable={setUnreadable}
             />
           </div>
           <TimeInput

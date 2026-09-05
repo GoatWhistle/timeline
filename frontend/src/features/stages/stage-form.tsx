@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { STAGE_TYPE_KEY, STAGE_TYPES } from '@/entities/stage/stage.labels'
 import type { EventFormat, StageResponse, StageType } from '@/shared/api/types.gen'
 import { civilFromIso, civilToIso } from '@/shared/datetime/civil'
-import { serverRangeProblem } from '@/shared/forms/range-problem'
+import { MOMENT_FIELDS, serverRangeProblem } from '@/shared/forms/range-problem'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { isAcceptedUrl, normalizeFormUrl } from '@/shared/forms/url'
 import {
@@ -52,6 +52,18 @@ const schema = z.object({
 })
 
 type FormValues = z.input<typeof schema>
+
+const OWN_FIELDS: readonly (keyof FormValues)[] = [
+  'name',
+  'type',
+  'description',
+  'url',
+  'format',
+  'country_code',
+  'city',
+  'venue',
+  'online_url',
+]
 
 export type StagePayload = {
   name: string
@@ -110,6 +122,7 @@ export function StageForm({
   })
 
   const format = watch('format')
+  const sortError = errors.sort_order?.message
 
   const startAt = civilToIso(range.start)
   const endAt = civilToIso(range.end)
@@ -153,17 +166,7 @@ export function StageForm({
     } catch (error) {
       const named = serverRangeProblem(error)
       if (named !== null) setRangeError(named)
-      applyServerErrors(error, setError, [
-        'name',
-        'type',
-        'description',
-        'url',
-        'format',
-        'country_code',
-        'city',
-        'venue',
-        'online_url',
-      ])
+      applyServerErrors(error, setError, OWN_FIELDS, MOMENT_FIELDS)
     }
   }
 
@@ -211,11 +214,7 @@ export function StageForm({
         </p>
       )}
 
-      <Field
-        label={t('stages.formSortOrder')}
-        htmlFor="stage-sort"
-        error={errors.sort_order?.message}
-      >
+      <Field label={t('stages.formSortOrder')} htmlFor="stage-sort" error={sortError}>
         <Input id="stage-sort" type="number" min={0} {...register('sort_order')} />
       </Field>
 

@@ -72,8 +72,10 @@ func (s *RegistrationService) Create(ctx context.Context, actor models.Actor, ev
 			return models.NewStateTransition("registration cannot be created for an archived event")
 		}
 		if req.DeadlineAt.After(event.EndAt) {
-			return models.NewConflict("deadline_after_end",
-				"the registration deadline must not be later than the event end")
+			return models.NewConflictField("deadline_after_end",
+				"the registration deadline must not be later than the event end",
+				models.FieldError{Field: "deadline_at", Code: models.FieldCodeOutOfRange,
+					Message: "must not be later than the event end"})
 		}
 
 		created, err = s.registrations.Create(ctx, eventID, url, req.DeadlineAt.UTC(), req.Description)
@@ -157,8 +159,10 @@ func (s *RegistrationService) Update(ctx context.Context, actor models.Actor, ev
 		if req.DeadlineAt != nil && !req.DeadlineAt.UTC().Equal(before.DeadlineAt) {
 			value := req.DeadlineAt.UTC()
 			if value.After(event.EndAt) {
-				return models.NewConflict("deadline_after_end",
-					"the registration deadline must not be later than the event end")
+				return models.NewConflictField("deadline_after_end",
+					"the registration deadline must not be later than the event end",
+					models.FieldError{Field: "deadline_at", Code: models.FieldCodeOutOfRange,
+						Message: "must not be later than the event end"})
 			}
 			deadline = &value
 			bumpSchedule = true

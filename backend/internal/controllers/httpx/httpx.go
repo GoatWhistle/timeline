@@ -1,6 +1,7 @@
 package httpx
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
@@ -55,13 +56,17 @@ func Decode(r *http.Request, dst any) error {
 		return models.NewValidation("empty request body")
 	}
 	r.Body = http.MaxBytesReader(nil, r.Body, MaxBodyBytes)
-	dec := json.NewDecoder(r.Body)
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return models.NewValidationf("malformed JSON: %v", err)
+	}
+	dec := json.NewDecoder(bytes.NewReader(body))
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(dst); err != nil {
 		if errors.Is(err, io.EOF) {
 			return models.NewValidation("empty request body")
 		}
-		return models.NewValidationf("malformed JSON: %v", err)
+		return decodeError(body, err)
 	}
 	return nil
 }

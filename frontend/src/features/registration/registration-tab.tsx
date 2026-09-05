@@ -17,6 +17,7 @@ import { isApiError } from '@/shared/api/errors'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { type Civil, civilFromIso, civilToIso, isCivil } from '@/shared/datetime/civil'
 import { formatDateTime } from '@/shared/datetime/datetime'
+import { fieldMessage } from '@/shared/forms/field-message'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { isAcceptedUrl, normalizeFormUrl } from '@/shared/forms/url'
 import { MomentField } from '@/shared/ui/forms/calendar/moment-field'
@@ -67,7 +68,7 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
   async function submit(values: FormValues) {
     const deadlineIso = isCivil(deadline) ? civilToIso(deadline) : null
     if (!deadlineIso) {
-      setDeadlineError(t('tab.deadlineRequired'))
+      setDeadlineError('errors:field.required')
       return
     }
     setDeadlineError(undefined)
@@ -89,10 +90,10 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
         })
       }
     } catch (error) {
-      applyServerErrors(error, setError, ['url', 'description'])
+      applyServerErrors(error, setError, ['url', 'description'], ['deadline_at'])
       if (isApiError(error)) {
         const failed = error.fields.find((item) => item.field === 'deadline_at')
-        if (failed) setDeadlineError(failed.message ?? t('tab.deadlineRequired'))
+        if (failed) setDeadlineError(fieldMessage(failed))
       }
     }
   }
@@ -149,7 +150,11 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
                 value={deadline}
                 error={deadlineError}
                 hint={t('tab.deadlineHint', { date: formatDateTime(event.end_at) })}
-                onChange={setDeadline}
+                required
+                onChange={(next) => {
+                  setDeadline(next)
+                  setDeadlineError(undefined)
+                }}
               />
 
               <Field

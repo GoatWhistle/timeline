@@ -20,6 +20,7 @@ export function DatePicker({
   describedBy,
   required,
   onChange,
+  onUnreadable,
 }: {
   id: string
   value: string
@@ -29,6 +30,7 @@ export function DatePicker({
   describedBy?: string | undefined
   required?: boolean
   onChange: (date: string) => void
+  onUnreadable?: (unreadable: boolean) => void
 }) {
   const { t } = useTranslation('event')
   const [open, setOpen] = useState(false)
@@ -37,11 +39,18 @@ export function DatePicker({
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const restoreFocus = useRef(false)
+  const unreadable = useRef(false)
   const placement = useAnchoredPanel(open, anchorRef, panelRef)
 
   useEffect(() => {
+    if (unreadable.current) return
     setText((current) => (parseDateText(current) === value ? current : formatDateText(value)))
   }, [value])
+
+  function report(problem: boolean) {
+    unreadable.current = problem
+    onUnreadable?.(problem)
+  }
 
   function close(returnFocus: boolean) {
     restoreFocus.current = returnFocus
@@ -79,15 +88,18 @@ export function DatePicker({
     const parsed = parseDateText(raw)
     if (parsed !== null) {
       setText(formatDateText(parsed))
+      report(false)
       if (parsed !== value) onChange(parsed)
       return
     }
     if (raw.trim() === '') {
       setText('')
+      report(false)
       if (value !== '') onChange('')
       return
     }
-    setText(formatDateText(value))
+    report(true)
+    if (value !== '') onChange('')
   }
 
   return (
@@ -108,7 +120,10 @@ export function DatePicker({
           const next = acceptDateText(event.target.value)
           setText(next)
           const parsed = parseDateText(next)
-          if (parsed !== null && parsed !== value) onChange(parsed)
+          if (parsed !== null) {
+            report(false)
+            if (parsed !== value) onChange(parsed)
+          }
         }}
         onBlur={(event) => commit(event.target.value)}
         onKeyDown={(event) => {
@@ -179,6 +194,7 @@ export function DatePicker({
               onPick={(date) => {
                 onChange(date)
                 setText(formatDateText(date))
+                report(false)
                 close(true)
               }}
               onClose={() => close(true)}

@@ -7,6 +7,7 @@ export function applyServerErrors<T extends FieldValues>(
   error: unknown,
   setError: UseFormSetError<T>,
   knownFields: readonly Path<T>[],
+  shownElsewhere: readonly string[] = [],
 ): void {
   if (!isApiError(error)) {
     setError('root' as Path<T>, { message: failureMessage(error) })
@@ -17,6 +18,10 @@ export function applyServerErrors<T extends FieldValues>(
   let matched = false
   for (const field of error.fields) {
     if (!field.field) continue
+    if (shownElsewhere.includes(field.field)) {
+      matched = true
+      continue
+    }
     const name = field.field as Path<T>
     if (knownFields.includes(name)) {
       setError(name, { message: fieldMessage(field) })

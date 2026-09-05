@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
 import { isApiError } from '@/shared/api/errors'
-import { serverRangeProblem } from '@/shared/forms/range-problem'
+import { MOMENT_FIELDS, serverRangeProblem } from '@/shared/forms/range-problem'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import {
   type MomentRange,
@@ -55,7 +55,7 @@ export function useEventSubmit<Values extends FieldValues>({
         const named = error.fields.map((field) => field.field ?? '').filter(Boolean)
         if (named.length > 0) onServerFields?.(named)
       }
-      applyServerErrors(error, setError, fieldNames)
+      applyServerErrors(error, setError, fieldNames, MOMENT_FIELDS)
     }
   }
 

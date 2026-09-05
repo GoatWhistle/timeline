@@ -18,6 +18,8 @@ var (
 const (
 	FieldCodeRequired       = "required"
 	FieldCodeEndBeforeStart = "end_before_start"
+	FieldCodeInvalidFormat  = "invalid_format"
+	FieldCodeOutOfRange     = "out_of_range"
 )
 
 type FieldError struct {
@@ -52,6 +54,10 @@ func NewValidationf(format string, args ...any) *DomainError {
 
 func NewConflict(code, message string) *DomainError {
 	return &DomainError{Base: ErrConflict, Code: code, Message: message}
+}
+
+func NewConflictField(code, message string, fields ...FieldError) *DomainError {
+	return &DomainError{Base: ErrConflict, Code: code, Message: message, Fields: fields}
 }
 
 func NewNotFound(message string) *DomainError {

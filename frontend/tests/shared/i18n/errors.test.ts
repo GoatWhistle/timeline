@@ -51,7 +51,7 @@ function readStable(file: string): string | undefined {
 function serverCodes(): Set<string> {
   const codes = new Set<string>()
   const patterns = [
-    /NewConflict\(\s*"([a-z_]+)"/g,
+    /NewConflict(?:Field)?\(\s*"([a-z_]+)"/g,
     /Code:\s*"([a-z_]+)"/g,
     /simple\(\s*"([a-z_]+)"/g,
   ]
