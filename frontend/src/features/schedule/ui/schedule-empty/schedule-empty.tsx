@@ -16,25 +16,25 @@ export function ScheduleEmpty({
 }) {
   const { t } = useTranslation()
 
-  if (reason === 'invitation' || reason === 'account') {
-    return (
-      <EmptyState
-        title={t('schedule.myEmpty')}
-        description={reason === 'invitation' ? t('schedule.myEmptyHint') : undefined}
-        figure={ScheduleFigure}
-        action={
-          reason === 'invitation' ? (
+  return (
+    <div className={styles.frame} data-schedule-empty={reason === 'none' ? 'none' : reason}>
+      {reason === 'invitation' && (
+        <EmptyState
+          title={t('schedule.myEmpty')}
+          description={t('schedule.myEmptyHint')}
+          figure={ScheduleFigure}
+          action={
             <Button asChild variant="outline">
               <Link to="/catalog">{t('action.browseCatalog')}</Link>
             </Button>
-          ) : undefined
-        }
-      />
-    )
-  }
-
-  return (
-    <div className={styles.frame} data-schedule-empty={reason === 'period' ? 'period' : 'none'}>
+          }
+        />
+      )}
+      {reason === 'account' && (
+        <p className={styles.note} role="status">
+          {t('schedule.myEmpty')}
+        </p>
+      )}
       {children}
     </div>
   )

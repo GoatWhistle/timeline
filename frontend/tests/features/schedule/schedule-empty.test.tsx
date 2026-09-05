@@ -89,6 +89,26 @@ describe('an empty schedule offers the catalog once, then says nothing at all', 
     expect(screen.queryByRole('link', { name: /catalog/i })).not.toBeInTheDocument()
   })
 
+  it('still draws the grid on a bare account instead of replacing the year with a notice', () => {
+    renderWithProviders(
+      <ScheduleEmpty reason="account">
+        <Grid />
+      </ScheduleEmpty>,
+    )
+
+    expect(screen.getByRole('table', { name: 'calendar' })).toBeInTheDocument()
+  })
+
+  it('draws the grid behind the catalog pitch too, so no view is ever swapped out', () => {
+    renderWithProviders(
+      <ScheduleEmpty reason="invitation">
+        <Grid />
+      </ScheduleEmpty>,
+    )
+
+    expect(screen.getByRole('table', { name: 'calendar' })).toBeInTheDocument()
+  })
+
   it('adds nothing at all once the period has rows to show', () => {
     renderWithProviders(
       <ScheduleEmpty reason="none">
