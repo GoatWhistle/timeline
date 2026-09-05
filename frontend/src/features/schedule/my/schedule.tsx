@@ -7,8 +7,10 @@ import { AssignedEventOverlay, useEventOverlay } from '@/features/event-overlay-
 import { emptyReason, rowsInPeriod } from '@/features/schedule/model/empty-reason'
 import { useInvitationOnce } from '@/features/schedule/model/use-invitation-once'
 import { periodLabel, useScheduleView } from '@/features/schedule/model/use-schedule-view'
+import { useSwapDirection } from '@/features/schedule/model/use-swap-direction'
 import { PhoneSchedule } from '@/features/schedule/ui/phone-agenda/phone-schedule'
 import { ScheduleEmpty } from '@/features/schedule/ui/schedule-empty/schedule-empty'
+import { ViewSwap } from '@/features/schedule/ui/view-swap/view-swap'
 import { ViewTabs } from '@/features/schedule/ui/view-tabs/view-tabs'
 import { WeekGrid } from '@/features/schedule/ui/week-grid/week-grid'
 import { WrappedGrid } from '@/features/schedule/ui/wrapped-grid/wrapped-grid'
@@ -25,6 +27,7 @@ export function MySchedulePage() {
   const query = useQuery(myScheduleQuery({}))
   const view = useScheduleView()
   const phone = usePhoneViewport()
+  const direction = useSwapDirection(view.scale, view.offset)
 
   const language = i18n.language?.split('-')[0]
   const locale = DATE_FNS_LOCALES[isLocale(language) ? language : DEFAULT_LOCALE]
@@ -75,39 +78,41 @@ export function MySchedulePage() {
               atPresent={view.atPresent}
             />
             <ScheduleEmpty reason={reason}>
-              {view.wrapped && phone ? (
-                <PhoneSchedule
-                  data={query.data}
-                  from={view.from}
-                  months={view.wrapped.months}
-                  selectedId={view.selectedId}
-                  onSelect={view.select}
-                  onOpenEvent={(row) => openEventCard(row.event_id)}
-                />
-              ) : view.wrapped ? (
-                <WrappedGrid
-                  data={query.data}
-                  from={view.from}
-                  months={view.wrapped.months}
-                  columns={view.wrapped.columns}
-                  minCell={view.wrapped.minCell}
-                  barHeight={view.wrapped.barHeight}
-                  maxBar={view.wrapped.maxBar}
-                  selectedId={view.selectedId}
-                  onSelect={view.select}
-                  onOpenEvent={(row) => openEventCard(row.event_id)}
-                />
-              ) : (
-                <WeekGrid
-                  data={query.data}
-                  from={view.from}
-                  to={view.to}
-                  locale={locale}
-                  selectedId={view.selectedId}
-                  onSelect={view.select}
-                  onOpenEvent={(row) => openEventCard(row.event_id)}
-                />
-              )}
+              <ViewSwap token={`${view.scale}:${view.offset}`} direction={direction}>
+                {view.wrapped && phone ? (
+                  <PhoneSchedule
+                    data={query.data}
+                    from={view.from}
+                    months={view.wrapped.months}
+                    selectedId={view.selectedId}
+                    onSelect={view.select}
+                    onOpenEvent={(row) => openEventCard(row.event_id)}
+                  />
+                ) : view.wrapped ? (
+                  <WrappedGrid
+                    data={query.data}
+                    from={view.from}
+                    months={view.wrapped.months}
+                    columns={view.wrapped.columns}
+                    minCell={view.wrapped.minCell}
+                    barHeight={view.wrapped.barHeight}
+                    maxBar={view.wrapped.maxBar}
+                    selectedId={view.selectedId}
+                    onSelect={view.select}
+                    onOpenEvent={(row) => openEventCard(row.event_id)}
+                  />
+                ) : (
+                  <WeekGrid
+                    data={query.data}
+                    from={view.from}
+                    to={view.to}
+                    locale={locale}
+                    selectedId={view.selectedId}
+                    onSelect={view.select}
+                    onOpenEvent={(row) => openEventCard(row.event_id)}
+                  />
+                )}
+              </ViewSwap>
             </ScheduleEmpty>
             <AssignedEventOverlay />
           </div>

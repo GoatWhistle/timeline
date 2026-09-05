@@ -28,7 +28,7 @@
     "outOfRange": "The stage falls outside the event period. That is allowed — saving is not blocked."
   },
   "deadlines": {
-    "title": "Registration deadlines",
+    "title": "Deadlines",
     "description": "Participants who have not marked their registration yet",
     "window24": "next 24 hours",
     "window72": "next 3 days",

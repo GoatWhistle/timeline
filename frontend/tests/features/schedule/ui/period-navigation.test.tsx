@@ -102,31 +102,55 @@ describe('the period label is the only anchor left, so it must say where we are'
   })
 })
 
-describe('returning to the present lives inside the navigation', () => {
+describe('returning to the present is its own button, not the label wearing a second hat', () => {
   it('offers no separate today tab', () => {
     const { container } = renderTabs()
     expect(container.querySelector('[data-schedule-today]')).toBeNull()
   })
 
-  it('turns the label itself into the way back once the view has drifted', async () => {
+  it('keeps the home button on screen whether or not the view has drifted', () => {
+    for (const atPresent of [true, false]) {
+      const { container, unmount } = renderTabs({ atPresent })
+      expect(container.querySelector('[data-schedule-home]')).not.toBeNull()
+      unmount()
+    }
+  })
+
+  it('never turns the period label into a control', () => {
+    const { container } = renderTabs({ atPresent: false })
+    const label = container.querySelector('[data-schedule-present]')
+
+    expect(label?.tagName).not.toBe('BUTTON')
+    expect(label?.querySelector('button')).toBeNull()
+    expect(label?.querySelector('svg')).toBeNull()
+  })
+
+  it('goes back to the present when the home button is pressed', async () => {
     const onPresent = vi.fn()
     const { container, user } = renderTabs({ atPresent: false, onPresent })
 
-    const anchor = container.querySelector<HTMLElement>('[data-schedule-present]')
-    expect(anchor).not.toBeNull()
-    if (anchor) await user.click(anchor)
+    const home = container.querySelector<HTMLElement>('[data-schedule-home]')
+    expect(home).not.toBeNull()
+    if (home) await user.click(home)
 
     expect(onPresent).toHaveBeenCalled()
   })
 
-  it('does not pretend the label is actionable while already in the present', async () => {
+  it('disables the home button while the view already shows the present', async () => {
     const onPresent = vi.fn()
     const { container, user } = renderTabs({ atPresent: true, onPresent })
 
-    const anchor = container.querySelector<HTMLElement>('[data-schedule-present]')
-    if (anchor) await user.click(anchor)
+    const home = container.querySelector<HTMLButtonElement>('[data-schedule-home]')
+    expect(home?.disabled).toBe(true)
+    if (home) await user.click(home)
 
     expect(onPresent).not.toHaveBeenCalled()
-    expect(anchor).toHaveAttribute('aria-disabled', 'true')
+  })
+
+  it('names the home button for a screen reader even though it shows only a glyph', () => {
+    renderTabs({ atPresent: false })
+    expect(
+      screen.getByRole('button', { name: i18n.t('schedule.backToPresent') }),
+    ).toBeInTheDocument()
   })
 })
