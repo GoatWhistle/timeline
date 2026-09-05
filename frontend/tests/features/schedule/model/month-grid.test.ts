@@ -97,3 +97,41 @@ describe('bar height answers the room the week has', () => {
     expect(wrappedBarHeight(400, 10, 1)).toBe(10)
   })
 })
+
+describe('a bar stops at the edge of the month it is drawn in', () => {
+  const september = new Date('2026-09-15T00:00:00Z')
+  const block = buildMonthBlock(september)
+  const firstWeek = block.weeks[0]
+  const lastWeek = block.weeks[block.weeks.length - 1]
+
+  it('never paints an event onto the trailing days of the month before', () => {
+    if (!firstWeek) throw new Error('september has a first week')
+    const outside = firstWeek.days.filter((day) => !day.inMonth).length
+    const row = packMonthWeek(firstWeek, [
+      span('northwind', '2026-09-01T09:00:00Z', '2026-09-10T18:00:00Z'),
+    ])
+
+    expect(outside).toBeGreaterThan(0)
+    for (const bar of row.bars) expect(bar.startColumn).toBeGreaterThanOrEqual(outside)
+  })
+
+  it('never runs past the last day into numbers the month does not have', () => {
+    if (!lastWeek) throw new Error('september has a last week')
+    const inMonth = lastWeek.days.filter((day) => day.inMonth).length
+    const row = packMonthWeek(lastWeek, [
+      span('long', '2026-09-20T09:00:00Z', '2026-10-12T18:00:00Z'),
+    ])
+
+    for (const bar of row.bars) expect(bar.startColumn + bar.columns).toBeLessThanOrEqual(inMonth)
+  })
+
+  it('still draws an event that lives wholly inside the month', () => {
+    if (!firstWeek) throw new Error('september has a first week')
+    const row = packMonthWeek(firstWeek, [
+      span('inside', '2026-09-02T09:00:00Z', '2026-09-04T18:00:00Z'),
+    ])
+
+    expect(row.bars).toHaveLength(1)
+    expect(row.bars[0]?.columns).toBe(3)
+  })
+})

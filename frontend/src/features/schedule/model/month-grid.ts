@@ -89,8 +89,14 @@ export function packMonthWeek(week: MonthWeek, spans: readonly CalendarSpan[]): 
   const last = week.days[week.days.length - 1]?.date
   if (!first || !last) return { bars: [], laneCount: 0 }
 
-  const weekStart = startOfDay(first)
-  const weekEnd = startOfDay(last)
+  const inMonthDays = week.days.filter((day) => day.inMonth)
+  const firstInMonth = inMonthDays[0]?.date
+  const lastInMonth = inMonthDays[inMonthDays.length - 1]?.date
+  if (!firstInMonth || !lastInMonth) return { bars: [], laneCount: 0 }
+
+  const weekStart = startOfDay(firstInMonth)
+  const weekEnd = startOfDay(lastInMonth)
+  const columnOffset = differenceInCalendarDays(weekStart, startOfDay(first))
 
   const touching = spans
     .map((span) => {
@@ -99,8 +105,12 @@ export function packMonthWeek(week: MonthWeek, spans: readonly CalendarSpan[]): 
       if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime())) return undefined
       if (end < weekStart || start > weekEnd) return undefined
 
-      const startColumn = Math.max(0, differenceInCalendarDays(start, weekStart))
-      const endColumn = Math.min(DAYS_PER_WEEK - 1, differenceInCalendarDays(end, weekStart))
+      const lastColumn = columnOffset + differenceInCalendarDays(weekEnd, weekStart)
+      const startColumn = Math.max(
+        columnOffset,
+        columnOffset + differenceInCalendarDays(start, weekStart),
+      )
+      const endColumn = Math.min(lastColumn, columnOffset + differenceInCalendarDays(end, weekStart))
 
       return {
         span,
