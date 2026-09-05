@@ -45,6 +45,14 @@
   inset-block: 0;
 }
 
+.todayColumn {
+  position: absolute;
+  z-index: 1;
+  inset-block: 0;
+  background-color: color-mix(in oklch, var(--urgency-today) 12%, transparent);
+  pointer-events: none;
+}
+
 .season[data-season="winter"] {
   background-color: var(--season-winter);
 }

@@ -34,3 +34,21 @@ describe('a ribbon day is half the day the week view draws', () => {
     expect(ribbonDayWidth(1440)).toBeGreaterThan(RIBBON_DAY_MIN_WIDTH * 2)
   })
 })
+
+describe('centring on today waits for a measured viewport', () => {
+  it('would land on the wrong day if the floor width were used before measuring', () => {
+    const todayIndex = 124
+    const client = 1132
+
+    const beforeMeasuring = todayIndex * ribbonDayWidth(0) - client / 2
+    const afterMeasuring = todayIndex * ribbonDayWidth(client) - client / 2
+
+    expect(beforeMeasuring).not.toBe(afterMeasuring)
+    expect(afterMeasuring - beforeMeasuring).toBeGreaterThan(client)
+  })
+
+  it('reads a real width the moment the container is measured', () => {
+    expect(ribbonDayWidth(0)).toBe(RIBBON_DAY_MIN_WIDTH)
+    expect(ribbonDayWidth(1132)).toBeGreaterThan(RIBBON_DAY_MIN_WIDTH * 2)
+  })
+})

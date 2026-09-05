@@ -185,6 +185,13 @@ describe('the ribbon says where in the year the reader is', () => {
     expect(container.querySelector('[data-ribbon-density]')).toBeNull()
   })
 
+  it('marks today as a column and a line, the way the week view does', () => {
+    const { container } = renderRibbon()
+
+    expect(container.querySelector('[data-ribbon-today-column]')).not.toBeNull()
+    expect(container.querySelector('[data-ribbon-now]')).not.toBeNull()
+  })
+
   it('names the season the reader is looking at', () => {
     const { container } = renderRibbon()
 

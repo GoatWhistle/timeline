@@ -103,10 +103,10 @@ export function RibbonGrid({
   const currentSeason = useMemo(() => bandAtDay(seasons, centreDay), [seasons, centreDay])
 
   useEffect(() => {
-    if (centred.current) return
+    if (centred.current || viewportWidth <= 0) return
     centred.current = true
     centreOnToday(false)
-  }, [centreOnToday])
+  }, [centreOnToday, viewportWidth])
 
   const open = (span: CalendarSpan) => {
     announce(sentenceOf(span))
@@ -131,6 +131,15 @@ export function RibbonGrid({
         >
           <div className={styles.canvas} style={{ ['--ribbon-width' as string]: `${width}px` }}>
             <RibbonSeasons bands={seasons} dayWidth={dayWidth} />
+
+            {todayIndex >= 0 && todayIndex < grid.dayCount && (
+              <span
+                className={styles.todayColumn}
+                data-ribbon-today-column
+                aria-hidden="true"
+                style={{ left: todayIndex * dayWidth, width: dayWidth }}
+              />
+            )}
 
             <RibbonMonths grid={grid} dayWidth={dayWidth} locale={locale} />
             <RibbonDays grid={grid} dayWidth={dayWidth} todayIndex={todayIndex} />
