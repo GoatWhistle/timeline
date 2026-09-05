@@ -64,7 +64,7 @@
 
 .bar[data-selected="true"] {
   border-width: 2px;
-  background-color: color-mix(in oklch, var(--event-tint) 62%, var(--background));
+  background-color: var(--event-tint);
   box-shadow:
     0 0 0 1px color-mix(in oklch, var(--event-tint) 55%, transparent),
     0 6px 14px -6px color-mix(in oklch, var(--event-tint) 70%, transparent);
