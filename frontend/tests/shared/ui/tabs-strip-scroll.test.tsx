@@ -69,7 +69,6 @@ const NOT_A_STRIP = [
   'app/sidebar/bottom-nav.tsx',
   'app/sidebar/nav-section.tsx',
   'entities/event/event-stage-nav.tsx',
-  'features/settings-overlay/settings-overlay.tsx',
   'shared/ui/navigation/tabs.tsx',
 ]
 
