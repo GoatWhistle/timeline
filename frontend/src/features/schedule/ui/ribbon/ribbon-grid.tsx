@@ -11,9 +11,9 @@ import {
   minuteOffset,
   placeTimed,
   RIBBON_DAY_RULE,
-  RIBBON_DAY_WIDTH,
   RIBBON_MONTH_RULE,
   RIBBON_VIEWPORT_MAX,
+  ribbonDayWidth,
   splitRibbonTiers,
 } from '../../model/ribbon/ribbon-layout'
 import { bandAtDay, seasonBands } from '../../model/ribbon/ribbon-season'
@@ -54,7 +54,7 @@ export function RibbonGrid({
   const centred = useRef(false)
   const { message, announce } = useAnnouncer()
   const viewportWidth = useElementWidth(viewportRef)
-  const dayWidth = RIBBON_DAY_WIDTH
+  const dayWidth = useMemo(() => ribbonDayWidth(viewportWidth), [viewportWidth])
 
   const grid = useMemo(
     () => buildTimelineGrid(window.start, addDays(window.start, window.dayCount - 1)),
@@ -103,7 +103,7 @@ export function RibbonGrid({
       }
       element.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' })
     },
-    [todayIndex],
+    [todayIndex, dayWidth],
   )
 
   const { scrollLeft } = useRibbonScroll(viewportRef)

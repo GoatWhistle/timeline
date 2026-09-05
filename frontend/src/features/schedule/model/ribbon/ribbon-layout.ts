@@ -7,7 +7,12 @@ import type { CalendarSpan } from '../calendar-items'
 import { RESTING_HOUR_END, RESTING_HOUR_START } from '../pack-lanes'
 import { MINUTES_PER_DAY, MINUTES_PER_HOUR } from './ribbon-window'
 
-export const RIBBON_DAY_WIDTH = 34
+export const RIBBON_DAY_MIN_WIDTH = 34
+
+export const WEEK_COLUMNS = 7
+
+export const RIBBON_WEEK_FRACTION = 2
+
 export const RIBBON_BAND_BAR = 22
 export const RIBBON_BAND_GAP = 4
 export const RIBBON_BAND_MAX_LANES = 6
@@ -20,6 +25,12 @@ export const RIBBON_MONTH_RULE = 26
 export const RIBBON_DAY_RULE = 22
 export const RIBBON_DENSITY_TRACK = 34
 export const RIBBON_MIN_TIMED_WIDTH = 10
+
+export function ribbonDayWidth(viewportWidth: number): number {
+  if (viewportWidth <= 0) return RIBBON_DAY_MIN_WIDTH
+  const weekDay = (viewportWidth - RIBBON_AXIS_WIDTH) / WEEK_COLUMNS
+  return Math.max(RIBBON_DAY_MIN_WIDTH, Math.round(weekDay / RIBBON_WEEK_FRACTION))
+}
 
 export function ribbonZoned(value: Date | string): Date {
   return new TZDate(typeof value === 'string' ? new Date(value) : value, currentTimeZone())

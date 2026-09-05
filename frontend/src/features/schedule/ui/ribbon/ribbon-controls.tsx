@@ -21,7 +21,6 @@ export function RibbonControls({ season }: RibbonControlsProps) {
           {t(SEASON_KEY[season.season])} {season.year}
         </span>
       )}
-
     </div>
   )
 }
