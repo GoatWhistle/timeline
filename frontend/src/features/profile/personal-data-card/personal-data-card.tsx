@@ -106,7 +106,7 @@ export function PersonalDataCard({
           avatarUrl={avatarUrl}
         />
         <form
-          className="mt-4 flex flex-col gap-3"
+          className="mt-4 flex flex-col gap-4"
           onSubmit={profileForm.handleSubmit(onSaveProfile)}
           noValidate
         >

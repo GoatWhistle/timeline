@@ -56,8 +56,8 @@ export function ProfileLinkForm({
   }
 
   return (
-    <form className="flex flex-col gap-3" onSubmit={form.handleSubmit(submit)} noValidate>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+    <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(submit)} noValidate>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <Field
           label={t('profile.links.url')}
           htmlFor={urlId}

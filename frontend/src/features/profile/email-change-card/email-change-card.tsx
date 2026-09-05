@@ -50,7 +50,7 @@ export function EmailChangeCard({ pendingEmail }: { pendingEmail?: string }) {
           </p>
         )}
         <form
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-4"
           onSubmit={emailForm.handleSubmit(onChangeEmail)}
           noValidate
         >

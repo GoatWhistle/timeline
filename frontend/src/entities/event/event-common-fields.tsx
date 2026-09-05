@@ -68,7 +68,7 @@ export function EventBasicsFields({
   const { t } = useTranslation('event')
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4">
       <Field label={t('form.title')} htmlFor="event-title" error={errors.title?.message} required>
         <Input id="event-title" aria-invalid={Boolean(errors.title)} {...register('title')} />
       </Field>
