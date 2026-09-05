@@ -1,99 +1,102 @@
 import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
-import { ScheduleEmptyOverlay } from '@/features/schedule/ui/schedule-empty/schedule-empty'
+import { ScheduleEmpty } from '@/features/schedule/ui/schedule-empty/schedule-empty'
 
 function Grid() {
   return (
     <table aria-label="calendar">
       <tbody>
-        <tr data-schedule-week="0" tabIndex={0}>
+        <tr>
           <td>1</td>
-        </tr>
-        <tr data-schedule-week="1" tabIndex={-1}>
-          <td>8</td>
         </tr>
       </tbody>
     </table>
   )
 }
 
-describe('an empty schedule still shows the calendar it is empty of', () => {
-  it('keeps the grid on screen rather than replacing it with a message', () => {
+describe('an empty schedule offers the catalog once, then says nothing at all', () => {
+  it('pitches the catalog the one time the account has nothing at all', () => {
     renderWithProviders(
-      <ScheduleEmptyOverlay empty title="Nothing assigned">
+      <ScheduleEmpty reason="invitation">
         <Grid />
-      </ScheduleEmptyOverlay>,
+      </ScheduleEmpty>,
+    )
+
+    expect(screen.getByRole('link', { name: /catalog/i })).toBeInTheDocument()
+  })
+
+  it('drops the catalog pitch on every later empty period of the same session', () => {
+    renderWithProviders(
+      <ScheduleEmpty reason="period">
+        <Grid />
+      </ScheduleEmpty>,
+    )
+
+    expect(screen.queryByRole('link', { name: /catalog/i })).not.toBeInTheDocument()
+  })
+
+  it('spells out nothing over a bare period, leaving the empty grid to say it', () => {
+    const { container } = renderWithProviders(
+      <ScheduleEmpty reason="period">
+        <Grid />
+      </ScheduleEmpty>,
+    )
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(container.querySelector('p')).toBeNull()
+  })
+
+  it('keeps the calendar on screen for a bare period rather than replacing it', () => {
+    renderWithProviders(
+      <ScheduleEmpty reason="period">
+        <Grid />
+      </ScheduleEmpty>,
     )
 
     expect(screen.getByRole('table', { name: 'calendar' })).toBeInTheDocument()
-    expect(screen.getAllByRole('row')).toHaveLength(2)
   })
 
-  it('says what is missing and why the grid is bare', () => {
-    renderWithProviders(
-      <ScheduleEmptyOverlay empty title="Nothing assigned" description="Join one to see it here">
-        <Grid />
-      </ScheduleEmptyOverlay>,
-    )
-
-    expect(screen.getByRole('status')).toHaveTextContent('Nothing assigned')
-    expect(screen.getByRole('status')).toHaveTextContent('Join one to see it here')
-  })
-
-  it('offers the way forward and leaves it clickable above the grid', async () => {
-    let pressed = 0
-    const { user } = renderWithProviders(
-      <ScheduleEmptyOverlay
-        empty
-        title="Nothing assigned"
-        action={
-          <button type="button" onClick={() => pressed++}>
-            Browse
-          </button>
-        }
-      >
-        <Grid />
-      </ScheduleEmptyOverlay>,
-    )
-
-    await user.click(screen.getByRole('button', { name: 'Browse' }))
-    expect(pressed).toBe(1)
-  })
-
-  it('leaves the grid its single tab stop, so it is neither dead nor a trap', () => {
+  it('marks the bare period on the frame, so the empty grid is styled on purpose', () => {
     const { container } = renderWithProviders(
-      <ScheduleEmptyOverlay empty title="Nothing assigned">
+      <ScheduleEmpty reason="period">
         <Grid />
-      </ScheduleEmptyOverlay>,
+      </ScheduleEmpty>,
     )
 
-    const weeks = [...container.querySelectorAll('[data-schedule-week]')]
-    expect(weeks).toHaveLength(2)
-    expect(weeks.filter((week) => week.getAttribute('tabindex') === '0')).toHaveLength(1)
+    expect(container.querySelector('[data-schedule-empty="period"]')).not.toBeNull()
   })
 
-  it('never hides the grid from assistive tech while it stays focusable', () => {
+  it('never covers the calendar with a floating panel, the way the old overlay did', () => {
     const { container } = renderWithProviders(
-      <ScheduleEmptyOverlay empty title="Nothing assigned">
+      <ScheduleEmpty reason="period">
         <Grid />
-      </ScheduleEmptyOverlay>,
+      </ScheduleEmpty>,
     )
 
-    const table = screen.getByRole('table', { name: 'calendar' })
-    expect(table.closest('[aria-hidden="true"]')).toBeNull()
-    expect(container.querySelector('[aria-hidden="true"] [tabindex="0"]')).toBeNull()
+    expect(container.querySelector('.absolute')).toBeNull()
+    expect(screen.getByRole('table', { name: 'calendar' }).closest('.opacity-45')).toBeNull()
   })
 
-  it('adds nothing at all once the schedule has rows to show', () => {
+  it('states the account is bare on a year without pitching the catalog again', () => {
     renderWithProviders(
-      <ScheduleEmptyOverlay empty={false} title="Nothing assigned">
+      <ScheduleEmpty reason="account">
         <Grid />
-      </ScheduleEmptyOverlay>,
+      </ScheduleEmpty>,
+    )
+
+    expect(screen.getByText('You have no assigned events yet')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /catalog/i })).not.toBeInTheDocument()
+  })
+
+  it('adds nothing at all once the period has rows to show', () => {
+    renderWithProviders(
+      <ScheduleEmpty reason="none">
+        <Grid />
+      </ScheduleEmpty>,
     )
 
     expect(screen.getByRole('table', { name: 'calendar' })).toBeInTheDocument()
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
-    expect(screen.queryByText('Nothing assigned')).not.toBeInTheDocument()
   })
 })
