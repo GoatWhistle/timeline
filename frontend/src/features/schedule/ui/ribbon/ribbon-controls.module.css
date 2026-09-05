@@ -1,0 +1,82 @@
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-block-end: 1px solid var(--border);
+  background-color: var(--background);
+  padding-inline: 8px;
+  padding-block: 6px;
+}
+
+.control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-badge);
+  background-color: transparent;
+  color: var(--accent);
+  padding: 4px;
+  cursor: pointer;
+  transition:
+    color var(--duration-base) var(--ease-out),
+    background-color var(--duration-base) var(--ease-out);
+}
+
+.control:hover {
+  background-color: var(--accent-surface);
+  color: var(--accent-surface-foreground);
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.controlIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.reading {
+  color: var(--muted-foreground);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--season-edge);
+  border-radius: var(--radius-pill);
+  padding-inline: 10px;
+  padding-block: 3px;
+  color: var(--foreground);
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.marker[data-season="winter"] {
+  background-color: var(--season-winter);
+}
+
+.marker[data-season="spring"] {
+  background-color: var(--season-spring);
+}
+
+.marker[data-season="summer"] {
+  background-color: var(--season-summer);
+}
+
+.marker[data-season="autumn"] {
+  background-color: var(--season-autumn);
+}

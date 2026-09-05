@@ -21,18 +21,30 @@ function renderTabs(props: Record<string, unknown> = {}) {
   )
 }
 
-describe('the scale list no longer carries an ALL tab', () => {
-  it('offers exactly the four calendar scales', () => {
-    expect(SCHEDULE_SCALES).toEqual(['week', 'month', 'quarter', 'year'])
+describe('the scale list carries the four calendar scales and the ribbon last', () => {
+  it('offers the calendar scales in order, with the ribbon after the year', () => {
+    expect(SCHEDULE_SCALES).toEqual(['week', 'month', 'quarter', 'year', 'all'])
   })
 
-  it('names no tab All', () => {
+  it('gives every scale a tab of its own', () => {
+    renderTabs()
+    expect(screen.getAllByRole('tab')).toHaveLength(SCHEDULE_SCALES.length)
+  })
+
+  it('names the ribbon tab All', () => {
     renderTabs()
     const names = screen.getAllByRole('tab').map((tab) => tab.textContent?.trim().toLowerCase())
-    expect(names).not.toContain('all')
-    expect(names).toHaveLength(4)
+    expect(names).toContain(i18n.t('schedule.all').toLowerCase())
   })
 })
+
+const STEP_KEYS: Record<(typeof SCHEDULE_SCALES)[number], { previous: string; next: string }> = {
+  week: { previous: 'schedule.previousWeek', next: 'schedule.nextWeek' },
+  month: { previous: 'schedule.previousMonth', next: 'schedule.nextMonth' },
+  quarter: { previous: 'schedule.previousQuarter', next: 'schedule.nextQuarter' },
+  year: { previous: 'schedule.previousYear', next: 'schedule.nextYear' },
+  all: { previous: 'schedule.earlier', next: 'schedule.later' },
+}
 
 describe('every scale can be stepped backwards and forwards', () => {
   it.each(SCHEDULE_SCALES)(
@@ -40,8 +52,8 @@ describe('every scale can be stepped backwards and forwards', () => {
     (scale) => {
       renderWithProviders(<ViewTabs value={scale} onChange={vi.fn()} period="x" onStep={vi.fn()} />)
 
-      const previous = i18n.t(`schedule.previous${scale[0]?.toUpperCase()}${scale.slice(1)}`)
-      const next = i18n.t(`schedule.next${scale[0]?.toUpperCase()}${scale.slice(1)}`)
+      const previous = i18n.t(STEP_KEYS[scale].previous)
+      const next = i18n.t(STEP_KEYS[scale].next)
 
       expect(screen.getByRole('button', { name: previous })).toBeInTheDocument()
       expect(screen.getByRole('button', { name: next })).toBeInTheDocument()

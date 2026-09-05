@@ -54,6 +54,7 @@
   --border-strong: var(--linear-steel);
   --input: var(--linear-steel);
   --ring: var(--brand-amber-300);
+  --telegram: var(--brand-telegram-300);
 
   --stage-registration: var(--hue-blue-300);
   --stage-selection: var(--hue-violet-300);
@@ -90,4 +91,9 @@
   --medal-silver: var(--hue-silver-300);
   --medal-bronze: var(--hue-bronze-300);
   --medal-plain: var(--hue-slate-300);
+
+  --season-winter: oklch(0.196 0.024 240);
+  --season-spring: oklch(0.199 0.028 145);
+  --season-summer: oklch(0.203 0.03 95);
+  --season-autumn: oklch(0.198 0.03 55);
 }

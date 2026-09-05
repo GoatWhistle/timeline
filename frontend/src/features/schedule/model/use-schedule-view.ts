@@ -16,6 +16,7 @@ import {
 import { useCallback, useMemo } from 'react'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { WEEK_STARTS_ON } from './month-grid'
+import { ribbonWindow } from './ribbon/ribbon-window'
 import {
   DEFAULT_SCALE,
   isScheduleScale,
@@ -47,10 +48,12 @@ const SHIFT: Record<ScheduleScale, (date: Date, amount: number) => Date> = {
   month: addMonths,
   quarter: addQuarters,
   year: addYears,
+  all: addYears,
 }
 
 export function periodStart(scale: ScheduleScale, now: Date, offset: number): Date {
   const anchor = SHIFT[scale](now, offset)
+  if (scale === 'all') return ribbonWindow(now, offset).start
   if (scale === 'week') return startOfWeek(anchor, { weekStartsOn: WEEK_STARTS_ON })
   if (scale === 'month') return startOfMonth(anchor)
   if (scale === 'quarter') return startOfQuarter(anchor)
@@ -59,6 +62,10 @@ export function periodStart(scale: ScheduleScale, now: Date, offset: number): Da
 
 export function scaleRange(scale: ScheduleScale, now: Date, offset = 0) {
   const from = periodStart(scale, now, offset)
+  if (scale === 'all') {
+    const window = ribbonWindow(now, offset)
+    return { from, to: addDays(from, window.dayCount - 1) }
+  }
   if (scale === 'week') return { from, to: endOfWeek(from, { weekStartsOn: WEEK_STARTS_ON }) }
   if (scale === 'month') return { from, to: endOfMonth(from) }
   if (scale === 'quarter') return { from, to: endOfQuarter(from) }

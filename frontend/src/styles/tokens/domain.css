@@ -34,6 +34,11 @@
   --medal-silver: var(--hue-silver-500);
   --medal-bronze: var(--hue-bronze-500);
   --medal-plain: var(--hue-slate-500);
+
+  --season-winter: oklch(0.943 0.026 240);
+  --season-spring: oklch(0.951 0.032 145);
+  --season-summer: oklch(0.957 0.038 95);
+  --season-autumn: oklch(0.944 0.036 55);
 }
 
 [data-avatar] {

@@ -1,8 +1,8 @@
 import { DAYS_PER_WEEK } from './pack-lanes'
 
-export type ScheduleScale = 'week' | 'month' | 'quarter' | 'year'
+export type ScheduleScale = 'week' | 'month' | 'quarter' | 'year' | 'all'
 
-export const SCHEDULE_SCALES: ScheduleScale[] = ['week', 'month', 'quarter', 'year']
+export const SCHEDULE_SCALES: ScheduleScale[] = ['week', 'month', 'quarter', 'year', 'all']
 
 export const DEFAULT_SCALE: ScheduleScale = 'month'
 

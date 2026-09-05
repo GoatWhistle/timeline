@@ -12,6 +12,7 @@ const LABEL_KEY: Record<ScheduleScale, string> = {
   month: 'schedule.month',
   quarter: 'schedule.quarter',
   year: 'schedule.year',
+  all: 'schedule.all',
 }
 
 const PREVIOUS_KEY: Record<ScheduleScale, string> = {
@@ -19,6 +20,7 @@ const PREVIOUS_KEY: Record<ScheduleScale, string> = {
   month: 'schedule.previousMonth',
   quarter: 'schedule.previousQuarter',
   year: 'schedule.previousYear',
+  all: 'schedule.earlier',
 }
 
 const NEXT_KEY: Record<ScheduleScale, string> = {
@@ -26,6 +28,7 @@ const NEXT_KEY: Record<ScheduleScale, string> = {
   month: 'schedule.nextMonth',
   quarter: 'schedule.nextQuarter',
   year: 'schedule.nextYear',
+  all: 'schedule.later',
 }
 
 export type ViewTabsProps = {

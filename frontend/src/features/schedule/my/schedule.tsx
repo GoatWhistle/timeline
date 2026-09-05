@@ -5,10 +5,12 @@ import { useTranslation } from 'react-i18next'
 import { myScheduleQuery } from '@/entities/schedule/schedule.queries'
 import { AssignedEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
 import { emptyReason, rowsInPeriod } from '@/features/schedule/model/empty-reason'
+import { ribbonWindow, windowRange } from '@/features/schedule/model/ribbon/ribbon-window'
 import { useInvitationOnce } from '@/features/schedule/model/use-invitation-once'
 import { periodLabel, useScheduleView } from '@/features/schedule/model/use-schedule-view'
 import { useSwapDirection } from '@/features/schedule/model/use-swap-direction'
 import { PhoneSchedule } from '@/features/schedule/ui/phone-agenda/phone-schedule'
+import { RibbonGrid } from '@/features/schedule/ui/ribbon/ribbon-grid'
 import { ScheduleEmpty } from '@/features/schedule/ui/schedule-empty/schedule-empty'
 import { ViewSwap } from '@/features/schedule/ui/view-swap/view-swap'
 import { ViewTabs } from '@/features/schedule/ui/view-tabs/view-tabs'
@@ -24,8 +26,13 @@ const DATE_FNS_LOCALES = { ru, en: enUS }
 export function MySchedulePage() {
   const { t, i18n } = useTranslation()
   const { openEventCard } = useEventOverlay()
-  const query = useQuery(myScheduleQuery({}))
   const view = useScheduleView()
+  const ribbon = view.scale === 'all'
+  const window = useMemo(() => ribbonWindow(new Date(), view.offset), [view.offset])
+  const query = useQuery({
+    ...myScheduleQuery(ribbon ? windowRange(window) : {}),
+    placeholderData: (previous) => previous,
+  })
   const phone = usePhoneViewport()
   const direction = useSwapDirection(view.scale, view.offset)
 
@@ -42,6 +49,8 @@ export function MySchedulePage() {
     () => (query.data ? rowsInPeriod(query.data, view.from, view.to) : 0),
     [query.data, view.from, view.to],
   )
+
+  const swapToken = ribbon ? view.scale : `${view.scale}:${view.offset}`
 
   const invitationShown = useInvitationOnce(
     totalRows === 0 && query.data !== undefined,
@@ -78,7 +87,7 @@ export function MySchedulePage() {
               atPresent={view.atPresent}
             />
             <ScheduleEmpty reason={reason}>
-              <ViewSwap token={`${view.scale}:${view.offset}`} direction={direction}>
+              <ViewSwap token={swapToken} direction={direction}>
                 {view.wrapped && phone ? (
                   <PhoneSchedule
                     data={query.data}
@@ -97,6 +106,15 @@ export function MySchedulePage() {
                     minCell={view.wrapped.minCell}
                     barHeight={view.wrapped.barHeight}
                     maxBar={view.wrapped.maxBar}
+                    selectedId={view.selectedId}
+                    onSelect={view.select}
+                    onOpenEvent={(row) => openEventCard(row.event_id)}
+                  />
+                ) : ribbon ? (
+                  <RibbonGrid
+                    data={query.data}
+                    window={window}
+                    locale={locale}
                     selectedId={view.selectedId}
                     onSelect={view.select}
                     onOpenEvent={(row) => openEventCard(row.event_id)}

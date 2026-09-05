@@ -1,0 +1,205 @@
+.frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-surface);
+  background-color: var(--background);
+  overflow: hidden;
+}
+
+.viewport {
+  position: relative;
+  max-height: var(--ribbon-viewport-max);
+  overflow: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.viewport:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.canvas {
+  position: relative;
+  width: var(--ribbon-width);
+  min-width: 100%;
+}
+
+.seasons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.season {
+  position: absolute;
+  border-inline-start: 1px solid var(--season-edge);
+  inset-block: 0;
+}
+
+.season[data-season="winter"] {
+  background-color: var(--season-winter);
+}
+
+.season[data-season="spring"] {
+  background-color: var(--season-spring);
+}
+
+.season[data-season="summer"] {
+  background-color: var(--season-summer);
+}
+
+.season[data-season="autumn"] {
+  background-color: var(--season-autumn);
+}
+
+.months {
+  display: flex;
+  position: sticky;
+  z-index: 7;
+  inset-block-start: 0;
+  background-color: var(--background);
+  height: var(--ribbon-month-rule);
+  border-block-end: 1px solid var(--border);
+}
+
+.month {
+  display: flex;
+  position: absolute;
+  align-items: center;
+  border-inline-start: 1px solid var(--border);
+  inset-block: 0;
+  color: var(--foreground);
+  padding-inline-start: 8px;
+  overflow: hidden;
+  font-size: var(--text-label);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.month[data-quarter-start="true"] {
+  border-inline-start-color: var(--border-strong);
+  border-inline-start-width: 2px;
+}
+
+.monthYear {
+  color: var(--muted-foreground);
+  margin-inline-start: 5px;
+  font-weight: 500;
+}
+
+.days {
+  display: flex;
+  position: sticky;
+  z-index: 7;
+  inset-block-start: var(--ribbon-month-rule);
+  background-color: var(--background);
+  height: var(--ribbon-day-rule);
+  border-block-end: 1px solid var(--border);
+}
+
+.day {
+  display: flex;
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  inset-block: 0;
+  color: var(--muted-foreground);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.day[data-weekend="true"] {
+  background-color: color-mix(in oklch, var(--muted) 30%, transparent);
+}
+
+.day[data-today="true"] {
+  background-color: var(--urgency-today);
+  color: var(--urgency-foreground);
+  font-weight: 700;
+}
+
+.band {
+  position: sticky;
+  z-index: 6;
+  inset-block-start: calc(var(--ribbon-month-rule) + var(--ribbon-day-rule));
+  background-color: var(--background);
+  border-block-end: 1px solid var(--border);
+  min-height: var(--ribbon-band-height);
+}
+
+.timed {
+  position: relative;
+  height: var(--ribbon-hour-track);
+  border-block-end: 1px solid var(--border);
+}
+
+.hourLine {
+  position: absolute;
+  inset-inline: 0;
+  height: 1px;
+  background-color: color-mix(in oklch, var(--border) 45%, transparent);
+  pointer-events: none;
+}
+
+.axis {
+  position: sticky;
+  z-index: 5;
+  inset-inline-start: 0;
+  width: var(--ribbon-axis);
+  border-inline-end: 1px solid var(--border);
+  background-color: var(--background);
+}
+
+.hourLabel {
+  display: block;
+  position: absolute;
+  inset-inline-end: 8px;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.hourLabel:first-child {
+  transform: none;
+}
+
+.density {
+  position: relative;
+  height: var(--ribbon-density-track);
+  background-color: color-mix(in oklch, var(--muted) 20%, transparent);
+}
+
+.densityBar {
+  position: absolute;
+  inset-block-end: 0;
+  border-start-start-radius: 2px;
+  border-start-end-radius: 2px;
+  background-color: color-mix(in oklch, var(--accent) 55%, transparent);
+}
+
+.nowLine {
+  position: absolute;
+  z-index: 6;
+  inset-block: 0;
+  width: 2px;
+  background-color: var(--urgency-today);
+  pointer-events: none;
+}
+
+.nowLine::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--urgency-today);
+}
