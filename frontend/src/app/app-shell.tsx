@@ -1,6 +1,8 @@
-import { Suspense } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Suspense, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
+import { unreadCountQueryOptions } from '@/entities/event-feed/event-feed.queries'
 import { useShortcutBindings } from '@/entities/user/shortcuts.queries'
 import { AppShortcuts } from '@/features/app-shortcuts/app-shortcuts'
 import { VerificationBanner } from '@/features/auth/verification-banner/verification-banner'
@@ -20,6 +22,7 @@ import { AppSidebar } from './sidebar/app-sidebar'
 import { BottomNav } from './sidebar/bottom-nav'
 import { MobileTopBar } from './sidebar/mobile-top-bar'
 import { CATALOG_NAV, MINE_NAV } from './sidebar/nav-section'
+import { PhoneMoreSheet } from './sidebar/phone-more-sheet'
 import { useProfileLocale } from './use-profile-locale'
 
 const PHONE_NAV = [...CATALOG_NAV, ...MINE_NAV]
@@ -29,9 +32,14 @@ export function AppShell() {
   const { t } = useTranslation()
   const sidebar = useSidebar()
   const phone = usePhoneViewport()
+  const location = useLocation()
+  const [moreOpen, setMoreOpen] = useState(false)
+  const unread = useQuery({ ...unreadCountQueryOptions, enabled: user !== undefined })
   useProfileLocale()
   useProfileTimezone()
   useProfileShortcuts(useShortcutBindings())
+
+  const drawerScrim = !phone && sidebar.overlay && !sidebar.collapsed
 
   return (
     <div className="relative flex h-screen overflow-hidden">
@@ -44,9 +52,9 @@ export function AppShell() {
 
       <AppShortcuts targets={isAdmin ? [...GOTO_USER, ...GOTO_ADMIN] : GOTO_USER} />
 
-      <AppSidebar user={user} isAdmin={isAdmin} sidebar={sidebar} phone={phone} />
+      {!phone && <AppSidebar user={user} isAdmin={isAdmin} sidebar={sidebar} />}
 
-      {sidebar.overlay && !sidebar.collapsed && (
+      {drawerScrim && (
         <button
           type="button"
           tabIndex={-1}
@@ -83,11 +91,22 @@ export function AppShell() {
       </main>
 
       {phone && (
-        <BottomNav
-          items={PHONE_NAV}
-          onOpenMore={sidebar.toggle}
-          moreExpanded={!sidebar.collapsed}
-        />
+        <>
+          <BottomNav
+            items={PHONE_NAV}
+            user={user}
+            unread={unread.data?.unread ?? 0}
+            onOpenMore={() => setMoreOpen(true)}
+            moreExpanded={moreOpen}
+          />
+          <PhoneMoreSheet
+            user={user}
+            isAdmin={isAdmin}
+            inAdmin={isAdmin && location.pathname.startsWith('/admin')}
+            open={moreOpen}
+            onOpenChange={setMoreOpen}
+          />
+        </>
       )}
 
       <SettingsOverlay />

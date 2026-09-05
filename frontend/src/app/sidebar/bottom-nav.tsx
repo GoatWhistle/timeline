@@ -1,6 +1,8 @@
 import { Menu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
+import { UserAvatar } from '@/entities/user/user-avatar/user-avatar'
+import type { MeResponse } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
 import {
   BAR_SURFACE,
@@ -10,6 +12,7 @@ import {
 } from '@/shared/ui/layout/mobile/mobile-state'
 import { SlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/sliding-indicator'
 import { useSlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/use-sliding-indicator'
+import styles from './bottom-nav.module.css'
 import type { NavItem } from './nav-section'
 
 const CELL = cn(
@@ -22,10 +25,14 @@ const CELL = cn(
 
 export function BottomNav({
   items,
+  user,
+  unread,
   onOpenMore,
   moreExpanded,
 }: {
   items: NavItem[]
+  user: MeResponse | undefined
+  unread: number
   onOpenMore: () => void
   moreExpanded: boolean
 }) {
@@ -67,13 +74,30 @@ export function BottomNav({
           type="button"
           onClick={onOpenMore}
           aria-expanded={moreExpanded}
-          aria-haspopup="menu"
-          data-sidebar-toggle
+          aria-haspopup="dialog"
           data-bottom-more
           className={cn(CELL, 'text-muted-foreground')}
         >
-          <Menu className="size-5 shrink-0" aria-hidden="true" />
-          <span className="max-w-full truncate">{t('app.more')}</span>
+          <span className={styles.mark}>
+            {user ? (
+              <UserAvatar
+                seed={user.id}
+                firstName={user.first_name}
+                lastName={user.last_name}
+                avatarUrl={user.avatar_url}
+                className="size-5 text-label"
+              />
+            ) : (
+              <Menu className="size-5 shrink-0" aria-hidden="true" />
+            )}
+            {unread > 0 && (
+              <span data-bottom-badge className={styles.badge} aria-hidden="true">
+                {unread > 9 ? '9+' : unread}
+              </span>
+            )}
+          </span>
+          <span className="max-w-full truncate">{t('app.account')}</span>
+          {unread > 0 && <span className="sr-only">{t('app.unread', { count: unread })}</span>}
         </button>
       </div>
     </nav>

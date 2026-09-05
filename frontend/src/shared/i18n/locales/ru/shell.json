@@ -6,6 +6,10 @@
     "collapseSidebar": "Свернуть боковую панель",
     "expandSidebar": "Развернуть боковую панель",
     "more": "Ещё",
+    "account": "Аккаунт",
+    "unread_one": "{{count}} непрочитанное уведомление",
+    "unread_few": "{{count}} непрочитанных уведомления",
+    "unread_many": "{{count}} непрочитанных уведомлений",
     "primaryNav": "Разделы"
   },
   "nav": {

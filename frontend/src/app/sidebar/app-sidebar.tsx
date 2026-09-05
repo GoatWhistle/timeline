@@ -17,12 +17,10 @@ export function AppSidebar({
   user,
   isAdmin,
   sidebar,
-  phone = false,
 }: {
   user: MeResponse | undefined
   isAdmin: boolean
   sidebar: SidebarState
-  phone?: boolean
 }) {
   const { t } = useTranslation()
   const { locale } = useLocale()
@@ -116,11 +114,7 @@ export function AppSidebar({
           key={inAdmin ? 'admin' : 'user'}
           className="motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-left-2 motion-safe:duration-base motion-safe:ease-out"
         >
-          {inAdmin ? (
-            <NavSection items={ADMIN_NAV} />
-          ) : phone ? null : (
-            <NavSection items={[...CATALOG_NAV, ...MINE_NAV]} />
-          )}
+          <NavSection items={inAdmin ? ADMIN_NAV : [...CATALOG_NAV, ...MINE_NAV]} />
         </div>
       </nav>
 

@@ -1,0 +1,21 @@
+.mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 0.875rem;
+  padding: 0 0.1875rem;
+  border-radius: var(--radius-pill);
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  font-size: var(--text-label);
+  font-weight: var(--weight-medium);
+  line-height: 0.875rem;
+  text-align: center;
+}

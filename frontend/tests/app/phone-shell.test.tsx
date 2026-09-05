@@ -1,9 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { waitFor } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { AppSidebar } from '@/app/sidebar/app-sidebar'
 import { BottomNav } from '@/app/sidebar/bottom-nav'
 import { CATALOG_NAV, MINE_NAV } from '@/app/sidebar/nav-section'
 import type { MeResponse } from '@/shared/api/types.gen'
@@ -11,52 +9,27 @@ import { I18nProvider } from '@/shared/i18n/i18n-context'
 import { ShortcutProvider } from '@/shared/keyboard/shortcut-registry'
 import {
   BAR_INSET_BOTTOM,
-  PHONE_MAX_WIDTH,
-  PHONE_QUERY,
   SAFE_BOTTOM,
   SAFE_SIDES,
   SAFE_TOP,
   TAP_TARGET,
 } from '@/shared/ui/layout/mobile/mobile-state'
-import { OVERLAY_QUERY } from '@/shared/ui/layout/sidebar/sidebar-state'
-import { useSidebar } from '@/shared/ui/layout/sidebar/use-sidebar'
 
 const styles = readFileSync(join(process.cwd(), 'src', 'styles', 'index.css'), 'utf8')
 const tokens = readFileSync(
   join(process.cwd(), 'src', 'styles', 'tokens', 'typography.css'),
   'utf8',
 )
+const shell = readFileSync(join(process.cwd(), 'src', 'app', 'app-shell.tsx'), 'utf8')
 
-function person(): MeResponse {
+function person(admin = false): MeResponse {
   return {
     id: 'usr_1',
     email: 'someone@example.com',
     first_name: 'Some',
     last_name: 'One',
-    is_admin: false,
+    is_admin: admin,
   } as MeResponse
-}
-
-function setViewport(width: number) {
-  window.matchMedia = ((query: string) => {
-    const narrow = (query === PHONE_QUERY || query === OVERLAY_QUERY) && width < PHONE_MAX_WIDTH
-    return {
-      matches: narrow,
-      media: query,
-      onchange: null,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      addListener: () => {},
-      removeListener: () => {},
-      dispatchEvent: () => false,
-    }
-  }) as typeof window.matchMedia
-}
-
-function Bar() {
-  return (
-    <BottomNav items={[...CATALOG_NAV, ...MINE_NAV]} onOpenMore={() => {}} moreExpanded={false} />
-  )
 }
 
 function Harness({ children }: { children: React.ReactNode }) {
@@ -67,24 +40,60 @@ function Harness({ children }: { children: React.ReactNode }) {
   )
 }
 
-const original = window.matchMedia
+function Bar({ user, unread = 0 }: { user?: MeResponse; unread?: number } = {}) {
+  return (
+    <Harness>
+      <BottomNav
+        items={[...CATALOG_NAV, ...MINE_NAV]}
+        user={user}
+        unread={unread}
+        onOpenMore={() => {}}
+        moreExpanded={false}
+      />
+    </Harness>
+  )
+}
+
+function badgeText(): string | null {
+  return document.querySelector('[data-bottom-more] [data-bottom-badge]')?.textContent ?? null
+}
 
 beforeEach(() => {
   localStorage.clear()
 })
 
 afterEach(() => {
-  window.matchMedia = original
   localStorage.clear()
+})
+
+describe('the phone has no sidebar and nothing that opens one', () => {
+  it('never mounts the sidebar pane while the phone bar is the navigation', () => {
+    expect(shell).toMatch(/\{!phone && <AppSidebar/)
+  })
+
+  it('keeps the sidebar scrim off the phone, since there is no drawer to dim behind', () => {
+    expect(shell).toMatch(/const drawerScrim = !phone && sidebar\.overlay && !sidebar\.collapsed/)
+  })
+
+  it('leaves no sidebar toggle in the phone bar for a thumb to find', () => {
+    renderWithProviders(<Bar />)
+
+    const bar = document.querySelector('[data-bottom-nav]') as HTMLElement
+    expect(bar.querySelector('[data-sidebar-toggle]')).toBeNull()
+  })
+
+  it('opens a sheet from the bar rather than the drawer the desktop uses', () => {
+    renderWithProviders(<Bar />)
+
+    const more = document.querySelector('[data-bottom-more]') as HTMLElement
+    expect(more.getAttribute('aria-haspopup')).toBe('dialog')
+    expect(more.hasAttribute('data-sidebar-toggle')).toBe(false)
+  })
 })
 
 describe('the phone reaches every section without opening a drawer', () => {
   it('puts each participant destination in the bar, so none costs an extra tap', () => {
-    renderWithProviders(
-      <Harness>
-        <Bar />
-      </Harness>,
-    )
+    renderWithProviders(<Bar />)
 
     const bar = document.querySelector('[data-bottom-nav]') as HTMLElement
     const targets = [...bar.querySelectorAll('a')].map((link) => link.getAttribute('href'))
@@ -92,11 +101,7 @@ describe('the phone reaches every section without opening a drawer', () => {
   })
 
   it('names the bar as its own landmark, distinct from the drawer', () => {
-    renderWithProviders(
-      <Harness>
-        <Bar />
-      </Harness>,
-    )
+    renderWithProviders(<Bar />)
 
     const bar = document.querySelector('[data-bottom-nav]') as HTMLElement
     expect(bar.tagName).toBe('NAV')
@@ -106,69 +111,46 @@ describe('the phone reaches every section without opening a drawer', () => {
   })
 
   it('keeps the bar within the five-destination ceiling a thumb can hit', () => {
-    renderWithProviders(
-      <Harness>
-        <Bar />
-      </Harness>,
-    )
+    renderWithProviders(<Bar />)
 
     const bar = document.querySelector('[data-bottom-nav]') as HTMLElement
     expect(bar.querySelectorAll('a, button').length).toBeLessThanOrEqual(5)
   })
-
-  it('offers the drawer from the bar and says whether it is open', () => {
-    renderWithProviders(
-      <Harness>
-        <Bar />
-      </Harness>,
-    )
-
-    const more = document.querySelector('[data-bottom-more]') as HTMLElement
-    expect(more.getAttribute('aria-expanded')).toBe('false')
-    expect(more.hasAttribute('data-sidebar-toggle')).toBe(true)
-  })
 })
 
-describe('the phone drawer stops repeating what the bar already shows', () => {
-  it('drops the four bar destinations from the drawer on a phone', async () => {
-    setViewport(390)
+describe('the last bar cell is the person, not a hamburger', () => {
+  it('shows the signed-in face so the cell reads as an account, not a menu', () => {
+    renderWithProviders(<Bar user={person()} />)
 
-    function Pane() {
-      const sidebar = useSidebar()
-      return <AppSidebar user={person()} isAdmin={false} sidebar={sidebar} phone />
-    }
-
-    renderWithProviders(
-      <Harness>
-        <Pane />
-      </Harness>,
-    )
-
-    const pane = document.querySelector('aside') as HTMLElement
-    await waitFor(() => expect(pane.dataset.sidebarOverlay).toBe('true'))
-    const hrefs = [...pane.querySelectorAll('nav a')].map((a) => a.getAttribute('href'))
-    expect(hrefs).not.toContain('/teams')
-    expect(hrefs).not.toContain('/history')
+    const more = document.querySelector('[data-bottom-more]') as HTMLElement
+    expect(more.querySelector('[data-avatar]')).not.toBeNull()
   })
 
-  it('still lists them in the drawer on a desktop, where there is no bar', async () => {
-    setViewport(1440)
+  it('carries the unread count on that cell, so the badge survives without a sidebar', () => {
+    renderWithProviders(<Bar user={person()} unread={7} />)
 
-    function Pane() {
-      const sidebar = useSidebar()
-      return <AppSidebar user={person()} isAdmin={false} sidebar={sidebar} />
-    }
+    expect(badgeText()).toBe('7')
+  })
 
-    renderWithProviders(
-      <Harness>
-        <Pane />
-      </Harness>,
-    )
+  it('caps the drawn badge instead of stretching the cell', () => {
+    renderWithProviders(<Bar user={person()} unread={140} />)
 
-    const pane = document.querySelector('aside') as HTMLElement
-    const hrefs = [...pane.querySelectorAll('nav a')].map((a) => a.getAttribute('href'))
-    expect(hrefs).toContain('/teams')
-    expect(hrefs).toContain('/history')
+    expect(badgeText()).toBe('9+')
+  })
+
+  it('still tells a screen reader the true count the badge had to shorten', () => {
+    renderWithProviders(<Bar user={person()} unread={140} />)
+
+    const more = document.querySelector('[data-bottom-more]') as HTMLElement
+    expect(more.textContent).toContain('140')
+  })
+
+  it('draws no badge at all when there is nothing unread', () => {
+    renderWithProviders(<Bar user={person()} unread={0} />)
+
+    expect(badgeText()).toBeNull()
+    const more = document.querySelector('[data-bottom-more]') as HTMLElement
+    expect(more.textContent).not.toMatch(/\d/)
   })
 })
 
@@ -187,11 +169,7 @@ describe('fixed chrome keeps clear of the notch and the home indicator', () => {
   })
 
   it('pads the bar below itself so labels clear the home indicator', () => {
-    renderWithProviders(
-      <Harness>
-        <Bar />
-      </Harness>,
-    )
+    renderWithProviders(<Bar />)
 
     const bar = document.querySelector('[data-bottom-nav]') as HTMLElement
     expect(bar.className).toContain(SAFE_BOTTOM)
@@ -219,11 +197,7 @@ describe('a finger gets a target it can actually hit', () => {
   })
 
   it('gives every bar destination that floor, not the desktop row height', () => {
-    renderWithProviders(
-      <Harness>
-        <Bar />
-      </Harness>,
-    )
+    renderWithProviders(<Bar user={person()} />)
 
     const cells = document.querySelectorAll('[data-bottom-nav] a, [data-bottom-nav] button')
     expect(cells.length).toBeGreaterThan(0)

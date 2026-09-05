@@ -6,6 +6,9 @@
     "collapseSidebar": "Collapse the sidebar",
     "expandSidebar": "Expand the sidebar",
     "more": "More",
+    "account": "Account",
+    "unread_one": "{{count}} unread notification",
+    "unread_other": "{{count}} unread notifications",
     "primaryNav": "Sections"
   },
   "nav": {
