@@ -2,7 +2,7 @@
   <a href="https://github.com/GoatWhistle/GoatWhistle">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="docs/brand/wordmark-dark.svg"/>
-      <img src="docs/brand/wordmark-light.svg" alt="Timeline" width="272" height="62"/>
+      <img src="docs/brand/wordmark-light.svg" alt="Timeline" width="263" height="62"/>
     </picture>
   </a>
 </p>
