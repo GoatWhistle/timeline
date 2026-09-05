@@ -114,7 +114,7 @@ export function TrackForm({
         </p>
       )}
 
-      <div>
+      <div className="flex justify-end">
         <Button type="submit" disabled={isSubmitting || overBudget}>
           {submitLabel}
         </Button>

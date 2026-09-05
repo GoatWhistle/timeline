@@ -65,10 +65,13 @@ export function EventStagePanel({
 
   if (stage === 'place') {
     return (
-      <div className="flex flex-col gap-5">
-        <EventOriginRow control={control} />
-        <EventPlaceFields control={control} register={register} errors={errors} format={format} />
-      </div>
+      <EventPlaceFields
+        control={control}
+        register={register}
+        errors={errors}
+        format={format}
+        side={<EventOriginRow control={control} />}
+      />
     )
   }
 

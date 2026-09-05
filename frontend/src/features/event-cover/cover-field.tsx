@@ -68,13 +68,13 @@ export function CoverField({
   }
 
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-3">
+    <section aria-labelledby={headingId} className="@container flex flex-col gap-3">
       <h3 id={headingId} className="font-medium text-copy">
         {t('cover.title')}
       </h3>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-        <div className="relative w-full max-w-64 shrink-0">
+      <div className="flex flex-col gap-4 @lg:flex-row @lg:items-start">
+        <div className="relative w-full max-w-64 shrink-0 @lg:w-64">
           <EventCover coverUrl={coverUrl} title={title} className="aspect-video" />
           {coverSource === 'MANUAL' ? (
             <Button
@@ -85,7 +85,7 @@ export function CoverField({
               title={t('cover.remove')}
               disabled={busy}
               onClick={clear}
-              className="-right-1 -top-1 absolute size-6 rounded-pill border shadow-sm"
+              className="-right-1 -top-1 absolute size-6 rounded-pill border shadow-raised"
             >
               <X className="size-3" />
             </Button>

@@ -171,7 +171,7 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
                 </p>
               )}
 
-              <div>
+              <div className="flex justify-end">
                 <Button type="submit" disabled={isSubmitting}>
                   {registration ? t('common:action.save') : t('tab.create')}
                 </Button>

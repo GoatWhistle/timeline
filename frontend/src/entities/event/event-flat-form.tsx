@@ -4,6 +4,14 @@ import type { EventKind } from '@/shared/api/types.gen'
 import { Button } from '@/shared/ui/primitives/button'
 import type { StageDefinition } from './event-form.stages'
 
+const LEADING: readonly string[] = ['kind', 'basics']
+
+function columns(stages: StageDefinition[]): StageDefinition[][] {
+  const lead = stages.filter((stage) => LEADING.includes(stage.id))
+  const rest = stages.filter((stage) => !LEADING.includes(stage.id))
+  return rest.length === 0 ? [lead] : [lead, rest]
+}
+
 export function EventFlatForm({
   kind,
   stages,
@@ -27,29 +35,39 @@ export function EventFlatForm({
 
   return (
     <form
-      className="flex flex-col gap-8"
+      className="@container flex flex-col gap-8"
       data-event-form={kind}
       data-event-layout="flat"
       onSubmit={onSubmit}
       noValidate
     >
-      {stages.map((stage) => {
-        const headingId = `event-section-${stage.id}-heading`
-        return (
-          <section
-            key={stage.id}
-            aria-labelledby={headingId}
-            data-stage-section={stage.id}
-            className="flex flex-col gap-5"
+      <div className="grid items-start gap-8 @3xl:grid-cols-2 @3xl:gap-x-10">
+        {columns(stages).map((column, index) => (
+          <div
+            key={column.map((stage) => stage.id).join('-')}
+            data-form-column={index}
+            className="flex min-w-0 flex-col gap-8"
           >
-            <h3 id={headingId} className="font-semibold text-heading">
-              {t(stage.labelKey)}
-            </h3>
-            {renderStage(stage)}
-            {stage.id === 'basics' && cover}
-          </section>
-        )
-      })}
+            {column.map((stage) => {
+              const headingId = `event-section-${stage.id}-heading`
+              return (
+                <section
+                  key={stage.id}
+                  aria-labelledby={headingId}
+                  data-stage-section={stage.id}
+                  className="flex min-w-0 flex-col gap-5"
+                >
+                  <h3 id={headingId} className="font-semibold text-heading">
+                    {t(stage.labelKey)}
+                  </h3>
+                  {renderStage(stage)}
+                  {stage.id === 'basics' && cover}
+                </section>
+              )
+            })}
+          </div>
+        ))}
+      </div>
 
       {rootError && (
         <p role="alert" className="text-copy text-destructive">
@@ -57,7 +75,7 @@ export function EventFlatForm({
         </p>
       )}
 
-      <div className="flex items-center gap-2 border-border border-t pt-4">
+      <div className="flex items-center justify-end gap-2 border-border border-t pt-4">
         <Button type="submit" disabled={busy}>
           {submitLabel}
         </Button>

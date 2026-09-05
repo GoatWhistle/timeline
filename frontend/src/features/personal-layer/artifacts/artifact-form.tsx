@@ -99,15 +99,15 @@ export function ArtifactForm({
         />
       </Field>
 
-      <div className="flex flex-wrap gap-2">
-        <Button type="submit" disabled={pending}>
-          {submitLabel}
-        </Button>
+      <div className="flex flex-wrap justify-end gap-2">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
             {t('common:action.cancel')}
           </Button>
         )}
+        <Button type="submit" disabled={pending}>
+          {submitLabel}
+        </Button>
       </div>
     </form>
   )

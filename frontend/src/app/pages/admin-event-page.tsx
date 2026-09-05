@@ -104,39 +104,40 @@ export function AdminEventPage() {
             </TabsList>
 
             <TabsContent value="general">
-              <div className="flex max-w-5xl flex-col gap-6">
-                <Card>
-                  <CardContent className="pt-6">
-                    <EventForm
-                      event={event}
-                      mode="edit"
-                      submitLabel={t('common:action.save')}
-                      onSubmit={async (payload) => {
-                        await update.mutateAsync(payload)
-                        toast.success(t('detail.saved'), {
-                          description: t('detail.savedHint'),
-                        })
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-6">
-                    <CoverField
-                      eventId={event.id}
-                      title={event.title}
-                      coverUrl={event.cover_url}
-                      coverSource={event.cover_source}
-                      hasWebsite={Boolean(event.website_url)}
-                    />
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="flex flex-col gap-4 pt-6">
-                    <h2 className="font-semibold text-heading">{t('detail.tabStages')}</h2>
-                    <StagesTab event={event} />
-                  </CardContent>
-                </Card>
+              <div className="@container">
+                <div className="grid items-start gap-6 @6xl:grid-cols-[minmax(0,1fr)_320px]">
+                  <aside className="@6xl:sticky @6xl:top-4 @6xl:col-start-2 @6xl:row-start-1">
+                    <Card>
+                      <CardContent className="pt-6">
+                        <CoverField
+                          eventId={event.id}
+                          title={event.title}
+                          coverUrl={event.cover_url}
+                          coverSource={event.cover_source}
+                          hasWebsite={Boolean(event.website_url)}
+                        />
+                      </CardContent>
+                    </Card>
+                  </aside>
+
+                  <div className="flex min-w-0 flex-col gap-6 @6xl:col-start-1 @6xl:row-start-1">
+                    <Card>
+                      <CardContent className="pt-6">
+                        <EventForm
+                          event={event}
+                          mode="edit"
+                          submitLabel={t('common:action.save')}
+                          onSubmit={async (payload) => {
+                            await update.mutateAsync(payload)
+                            toast.success(t('detail.saved'), {
+                              description: t('detail.savedHint'),
+                            })
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 

@@ -132,7 +132,7 @@ export function OutcomeForm({
         />
       </Field>
 
-      <div>
+      <div className="flex justify-end">
         <Button type="submit" disabled={pending}>
           {t('common:action.save')}
         </Button>

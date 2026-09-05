@@ -238,7 +238,7 @@ export function StageForm({
         </p>
       )}
 
-      <div>
+      <div className="flex justify-end">
         <Button type="submit" disabled={isSubmitting}>
           {submitLabel}
         </Button>
