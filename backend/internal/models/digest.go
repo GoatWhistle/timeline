@@ -21,11 +21,12 @@ type DigestRecipient struct {
 }
 
 type DigestItem struct {
-	Kind       DigestItemKind
-	EventID    uuid.UUID
-	EventTitle string
-	Title      string
-	At         time.Time
+	Kind           DigestItemKind
+	EventID        uuid.UUID
+	EventDisplayID string
+	EventTitle     string
+	Title          string
+	At             time.Time
 }
 
 type WeeklyDigest struct {

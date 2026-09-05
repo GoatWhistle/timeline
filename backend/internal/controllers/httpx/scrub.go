@@ -6,6 +6,7 @@ const redactedSegment = "[redacted]"
 
 var secretSegments = map[string]bool{
 	"team-join": true,
+	"invites":   true,
 }
 
 func ScrubPath(path string) string {

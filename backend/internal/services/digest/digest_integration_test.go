@@ -172,3 +172,42 @@ func TestWeeklyDigestSkipsDeactivatedRecipients(t *testing.T) {
 		t.Fatalf("a deactivated recipient has %d digest rows, want 0", got)
 	}
 }
+
+func TestWeeklyDigestCarriesTheDisplayIDAndNotTheInternalUUID(t *testing.T) {
+	d := newDigestStack(t)
+	ctx := context.Background()
+	now := time.Now().UTC()
+
+	owner := d.user(t, "Europe/Moscow")
+	eventID := d.event(t, now.Add(-24*time.Hour), now.Add(30*24*time.Hour))
+	d.task(t, owner, eventID, thisWeek(t, "Europe/Moscow"))
+
+	var displayID string
+	if err := d.db.Pool().QueryRow(ctx,
+		`SELECT display_id FROM events WHERE id = $1`, eventID).Scan(&displayID); err != nil {
+		t.Fatalf("reading the event display id: %v", err)
+	}
+
+	if _, err := d.svc.Run(ctx); err != nil {
+		t.Fatalf("running the digest pass: %v", err)
+	}
+
+	stored := d.digests(t, owner)
+	if len(stored) != 1 {
+		t.Fatalf("stored %d digest rows, want 1", len(stored))
+	}
+	entries, _ := stored[0]["items"].([]any)
+	if len(entries) != 1 {
+		t.Fatalf("the digest carries %d items, want 1", len(entries))
+	}
+	entry, _ := entries[0].(map[string]any)
+	got, _ := entry["event_id"].(string)
+	if got == eventID.String() {
+		t.Fatalf("the digest payload carries the internal UUID %q; the feed serves this "+
+			"payload verbatim, so only the display id may leave the process", got)
+	}
+	if got != displayID {
+		t.Fatalf("the digest payload carries event_id=%q, want the display id %q",
+			got, displayID)
+	}
+}

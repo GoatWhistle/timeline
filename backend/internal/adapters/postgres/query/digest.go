@@ -43,7 +43,7 @@ func (r *Digests) Recipients(ctx context.Context, after uuid.UUID,
 func (r *Digests) Items(ctx context.Context, userID uuid.UUID, from, until time.Time,
 	limit int) ([]models.DigestItem, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT 'REGISTRATION_DEADLINE', e.id, e.title, e.title, reg.deadline_at
+		SELECT 'REGISTRATION_DEADLINE', e.id, e.display_id, e.title, e.title, reg.deadline_at
 		FROM registration_statuses s
 		JOIN registrations reg ON reg.id = s.registration_id
 		JOIN events e ON e.id = s.event_id
@@ -59,7 +59,7 @@ func (r *Digests) Items(ctx context.Context, userID uuid.UUID, from, until time.
 
 		UNION ALL
 
-		SELECT 'STAGE_START', e.id, e.title, st.name, st.start_at
+		SELECT 'STAGE_START', e.id, e.display_id, e.title, st.name, st.start_at
 		FROM stages st
 		JOIN events e ON e.id = st.event_id
 		JOIN event_participants p ON p.event_id = e.id
@@ -72,7 +72,7 @@ func (r *Digests) Items(ctx context.Context, userID uuid.UUID, from, until time.
 
 		UNION ALL
 
-		SELECT 'PERSONAL_TASK', e.id, e.title, t.title, t.due_at
+		SELECT 'PERSONAL_TASK', e.id, e.display_id, e.title, t.title, t.due_at
 		FROM participant_tasks t
 		JOIN events e ON e.id = t.event_id
 		WHERE t.user_id = $1
@@ -82,7 +82,7 @@ func (r *Digests) Items(ctx context.Context, userID uuid.UUID, from, until time.
 		  AND t.due_at >= $2
 		  AND t.due_at < $3
 
-		ORDER BY 5, 3, 4
+		ORDER BY 6, 4, 5
 		LIMIT $4`, userID, from, until, limit)
 	if err != nil {
 		return nil, mapError(err)
@@ -92,7 +92,7 @@ func (r *Digests) Items(ctx context.Context, userID uuid.UUID, from, until time.
 	items := make([]models.DigestItem, 0, limit)
 	for rows.Next() {
 		var c models.DigestItem
-		if err := rows.Scan(&c.Kind, &c.EventID, &c.EventTitle, &c.Title, &c.At); err != nil {
+		if err := rows.Scan(&c.Kind, &c.EventID, &c.EventDisplayID, &c.EventTitle, &c.Title, &c.At); err != nil {
 			return nil, mapError(err)
 		}
 		items = append(items, c)

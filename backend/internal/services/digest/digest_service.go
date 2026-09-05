@@ -132,7 +132,7 @@ func digestPayload(digest *models.WeeklyDigest, location *time.Location) map[str
 	for _, item := range digest.Items {
 		entries = append(entries, map[string]any{
 			"kind":        string(item.Kind),
-			"event_id":    item.EventID.String(),
+			"event_id":    item.EventDisplayID,
 			"event_title": item.EventTitle,
 			"title":       item.Title,
 			"at":          item.At.UTC().Format(time.RFC3339),

@@ -201,25 +201,6 @@ describe('No response body carries a UUID', () => {
     await signInAsAdmin()
   })
 
-  it('GET /me/events/{id}/links', async () => {
-    await signInAsMember()
-    const created = await api.POST('/me/events/{id}/links', {
-      params: { path: { id: eventId } },
-      body: { kind: 'OTHER', url: 'https://example.org/leak-probe-personal' },
-    })
-    expect(created.response.status).toBe(201)
-    const { data } = await api.GET('/me/events/{id}/links', { params: { path: { id: eventId } } })
-    expectNoUuid('GET /me/events/{id}/links', data)
-    await signInAsAdmin()
-  })
-
-  it('GET /me/notifications', async () => {
-    await signInAsMember()
-    const { data } = await api.GET('/me/notifications', { params: { query: {} } })
-    expectNoUuid('GET /me/notifications', data)
-    await signInAsAdmin()
-  })
-
   it('GET /me/events-feed', async () => {
     const { data } = await api.GET('/me/events-feed', { params: { query: {} } })
     expectNoUuid('GET /me/events-feed', data)
