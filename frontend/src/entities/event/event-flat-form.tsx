@@ -41,7 +41,7 @@ export function EventFlatForm({
       onSubmit={onSubmit}
       noValidate
     >
-      <div className="grid items-start gap-8 @3xl:grid-cols-2 @3xl:gap-x-10">
+      <div className="grid items-start gap-8 @2xl:grid-cols-2 @2xl:gap-x-10">
         {columns(stages).map((column, index) => (
           <div
             key={column.map((stage) => stage.id).join('-')}

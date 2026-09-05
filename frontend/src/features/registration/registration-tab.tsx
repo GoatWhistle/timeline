@@ -61,8 +61,15 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
     },
   })
 
-  const [deadline, setDeadline] = useState<Civil>(() => civilFromIso(registration?.deadline_at))
+  const loadedDeadline = registration?.deadline_at ?? null
+  const [deadline, setDeadline] = useState<Civil>(() => civilFromIso(loadedDeadline))
+  const [syncedDeadline, setSyncedDeadline] = useState<string | null>(loadedDeadline)
   const [deadlineError, setDeadlineError] = useState<string | undefined>(undefined)
+
+  if (loadedDeadline !== syncedDeadline) {
+    setSyncedDeadline(loadedDeadline)
+    setDeadline(civilFromIso(loadedDeadline))
+  }
 
   async function submit(values: FormValues) {
     const deadlineIso = isCivil(deadline) ? civilToIso(deadline) : null
@@ -110,9 +117,9 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
       <div className="@container">
         <div className="grid items-start gap-6 @5xl:grid-cols-[minmax(0,1fr)_320px]">
           {registration && (
-            <aside className="@5xl:sticky @5xl:top-4 @5xl:col-start-2 @5xl:row-start-1">
+            <aside className="order-last @5xl:order-none @5xl:sticky @5xl:top-4 @5xl:col-start-2 @5xl:row-start-1">
               <Card>
-                <CardContent className="pt-6">
+                <CardContent>
                   <RegistrationFacts
                     registration={registration}
                     busy={toggle.isPending}
@@ -192,7 +199,7 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
 
             {registration && (
               <Card>
-                <CardContent className="pt-6">
+                <CardContent>
                   <ChannelMatrix eventId={event.id} />
                 </CardContent>
               </Card>

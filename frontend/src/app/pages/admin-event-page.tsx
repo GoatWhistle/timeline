@@ -107,9 +107,9 @@ export function AdminEventPage() {
             <TabsContent value="general">
               <div className="@container">
                 <div className="grid items-start gap-6 @5xl:grid-cols-[minmax(0,1fr)_320px]">
-                  <aside className="@5xl:sticky @5xl:top-4 @5xl:col-start-2 @5xl:row-start-1">
+                  <aside className="order-last @5xl:order-none @5xl:sticky @5xl:top-4 @5xl:col-start-2 @5xl:row-start-1">
                     <Card>
-                      <CardContent className="pt-6">
+                      <CardContent>
                         <CoverField
                           eventId={event.id}
                           title={event.title}
@@ -123,7 +123,7 @@ export function AdminEventPage() {
 
                   <div className="flex min-w-0 flex-col gap-6 @5xl:col-start-1 @5xl:row-start-1">
                     <Card>
-                      <CardContent className="pt-6">
+                      <CardContent>
                         <EventForm
                           event={event}
                           mode="edit"
