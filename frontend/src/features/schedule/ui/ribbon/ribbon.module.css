@@ -17,6 +17,11 @@
   scrollbar-width: thin;
 }
 
+.viewport[data-ribbon-dragging="true"] {
+  cursor: grabbing;
+  user-select: none;
+}
+
 .viewport:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: -2px;

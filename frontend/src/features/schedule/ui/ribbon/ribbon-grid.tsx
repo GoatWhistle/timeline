@@ -17,6 +17,7 @@ import {
 } from '../../model/ribbon/ribbon-layout'
 import { bandAtDay, seasonBands } from '../../model/ribbon/ribbon-season'
 import { dayIndexIn, MINUTES_PER_DAY, type RibbonWindow } from '../../model/ribbon/ribbon-window'
+import { useRibbonDrag } from '../../model/ribbon/use-ribbon-drag'
 import { useRibbonScroll } from '../../model/ribbon/use-ribbon-scroll'
 import { rowSentence } from '../../model/row-sentence'
 import { buildTimelineGrid } from '../../model/timeline-grid'
@@ -106,6 +107,7 @@ export function RibbonGrid({
   )
 
   const { scrollLeft } = useRibbonScroll(viewportRef)
+  const dragging = useRibbonDrag(viewportRef)
 
   const centreDay = Math.round((scrollLeft + viewportWidth / 2) / dayWidth)
   const currentSeason = useMemo(() => bandAtDay(seasons, centreDay), [seasons, centreDay])
@@ -129,6 +131,7 @@ export function RibbonGrid({
         <div
           className={styles.viewport}
           data-ribbon-viewport
+          data-ribbon-dragging={dragging ? 'true' : undefined}
           id={paneId}
           ref={viewportRef}
           style={{
