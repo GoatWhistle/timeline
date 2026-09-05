@@ -35,8 +35,9 @@ export function usePointerAnchor(): {
       const host = anchor?.parentElement
       if (!anchor || !host) return
       const box = host.getBoundingClientRect()
+      const bar = event.currentTarget.getBoundingClientRect()
       anchor.style.left = `${event.clientX - box.left}px`
-      anchor.style.top = `${event.clientY - box.top}px`
+      anchor.style.top = `${bar.top - box.top}px`
       setFromPointer(true)
       if (open || timer.current !== null) return
       timer.current = setTimeout(() => {

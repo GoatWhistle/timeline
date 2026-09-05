@@ -33,7 +33,6 @@ describe('a schedule bar shows its card at the pointer, not at the middle of the
 
     const hook = readFileSync(join(SCHEDULE, 'schedule-bar/use-pointer-anchor.ts'), 'utf8')
     expect(hook).toContain('event.clientX')
-    expect(hook).toContain('event.clientY')
   })
 
   it('falls back to the bar when there is no pointer, so keyboard focus still places the card', () => {
@@ -43,7 +42,7 @@ describe('a schedule bar shows its card at the pointer, not at the middle of the
 
     for (const file of BARS) {
       const source = readFileSync(file, 'utf8')
-      expect(source, named(file)).toContain("fromPointer ? styles.anchorPoint : styles.anchorBar")
+      expect(source, named(file)).toContain('fromPointer ? styles.anchorPoint : styles.anchorBar')
     }
   })
 
