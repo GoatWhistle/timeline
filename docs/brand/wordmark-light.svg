@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="263" height="62" viewBox="0 0 263 62" role="img" aria-label="Timeline">
   <title>Timeline</title>
-  <g transform="translate(12.0 12.0) scale(1.5833)" fill="#9f4e02">
-    <path d="M4 12h16" fill="none" stroke="#9f4e02" stroke-width="2.5" stroke-linecap="round" opacity="0.75"/>
-    <circle cx="4" cy="12" r="2.5" opacity="0.75"/>
-    <circle cx="20" cy="12" r="2.5" opacity="0.75"/>
+  <g transform="translate(12.0 12.0) scale(1.5833)" fill="#ba5e00">
+    <path d="M4 12h16" fill="none" stroke="#ba5e00" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+    <circle cx="4" cy="12" r="2.5" opacity="0.9"/>
+    <circle cx="20" cy="12" r="2.5" opacity="0.9"/>
     <circle cx="12" cy="12" r="5.5"/>
   </g>
-  <g fill="#08090a">
+  <g fill="#1e1a14">
     <path transform="translate(60.02 43.07) scale(0.03400 -0.03400)" d="M226.6 0.0V596.8H11.2V710.0H572.4V596.8H357.0V0.0Z"/>
     <path transform="translate(84.64 43.07) scale(0.03400 -0.03400)" d="M80.0 0.0V710.0H210.0V0.0Z"/>
     <path transform="translate(99.26 43.07) scale(0.03400 -0.03400)" d="M80.0 0.0V710.0H255.2L451.4 160.0L647.0 710.0H822.2V0.0H692.2V490.0L513.2 1.2H388.6L210.0 490.0V0.0Z"/>
     <path transform="translate(134.69 43.07) scale(0.03400 -0.03400)" d="M80.0 0.0V710.0H558.0V596.8H210.0V411.8H546.0V300.2H210.0V113.2H566.0V0.0Z"/>
   </g>
-  <g fill="#9f4e02">
+  <g fill="#ba5e00">
     <path transform="translate(160.36 43.07) scale(0.03400 -0.03400)" d="M80.0 0.0V710.0H210.0V40.4L139.4 113.2H546.6V0.0Z"/>
     <path transform="translate(185.04 43.07) scale(0.03400 -0.03400)" d="M80.0 0.0V710.0H210.0V0.0Z"/>
     <path transform="translate(199.66 43.07) scale(0.03400 -0.03400)" d="M80.0 0.0V710.0H232.4L537.8 175.6V710.0H667.8V0.0H511.8L210.0 519.2V0.0Z"/>

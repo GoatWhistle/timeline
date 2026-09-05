@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Timeline">
   <title>Timeline</title>
   <style>
-    .mark { fill: #9f4e02; stroke: #9f4e02; }
-    .track { opacity: 0.75; }
+    .mark { fill: #ba5e00; stroke: #ba5e00; }
+    .track { opacity: 0.9; }
     @media (prefers-color-scheme: dark) {
       .mark { fill: #f4a34b; stroke: #f4a34b; }
       .track { opacity: 0.55; }
