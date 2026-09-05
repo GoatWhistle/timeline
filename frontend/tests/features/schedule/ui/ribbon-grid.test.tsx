@@ -133,21 +133,36 @@ describe('the lower tier carries a real hour scale, like the week view', () => {
   })
 })
 
-describe('the ribbon spends its height only on tiers that carry something', () => {
+describe('the ribbon always carries an hour scale, even with nothing timed to show', () => {
   it('draws the hour track when a short event needs it', () => {
     const { container } = renderRibbon()
 
     expect(container.querySelector('[data-ribbon-hours]')).not.toBeNull()
   })
 
-  it('drops the hour track entirely when nothing in the window is short', () => {
+  it('keeps the hour track standing when every event in the window is multi-day', () => {
     const { container } = renderRibbon({
       ...data,
       rows: data.rows.filter((entry) => entry.event_id === 'hack'),
     })
 
     expect(container.querySelector('[data-ribbon-band]')).not.toBeNull()
-    expect(container.querySelector('[data-ribbon-hours]')).toBeNull()
+    expect(container.querySelector('[data-ribbon-hours]')).not.toBeNull()
+  })
+
+  it('gives the empty hour track the same height as one holding an event', () => {
+    const full = renderRibbon()
+    const empty = renderRibbon({
+      ...data,
+      rows: data.rows.filter((entry) => entry.event_id === 'hack'),
+    })
+
+    const fullHours = full.container.querySelector<HTMLElement>('[data-ribbon-hours]')
+    const emptyHours = empty.container.querySelector<HTMLElement>('[data-ribbon-hours]')
+
+    expect(emptyHours?.style.getPropertyValue('--ribbon-hour-track')).toBe(
+      fullHours?.style.getPropertyValue('--ribbon-hour-track'),
+    )
   })
 })
 

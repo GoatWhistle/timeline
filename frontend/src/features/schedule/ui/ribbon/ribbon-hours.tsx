@@ -9,6 +9,8 @@ import {
   type TimedPlacement,
   timedBarHeight,
   timedBarTop,
+  timedClippedEnd,
+  timedClippedStart,
 } from '../../model/ribbon/ribbon-layout'
 import { MINUTES_PER_DAY } from '../../model/ribbon/ribbon-window'
 import { ScheduleBar } from '../schedule-bar/schedule-bar'
@@ -33,10 +35,8 @@ export function RibbonHours({
   onSelect,
   onOpen,
 }: RibbonHoursProps) {
-  if (placements.length === 0) return null
-
   const hours = ribbonHours()
-  const height = hourTrackHeight(placements)
+  const height = hourTrackHeight()
 
   return (
     <section
@@ -78,6 +78,8 @@ export function RibbonHours({
           sentence={sentenceOf(entry.span)}
           selected={selectedId === entry.span.id}
           timed
+          clippedStart={timedClippedStart(entry.startMinute)}
+          clippedEnd={timedClippedEnd(entry.endMinute)}
           style={{
             position: 'absolute',
             left: minuteOffset(entry.dayIndex, entry.startMinute, dayWidth),

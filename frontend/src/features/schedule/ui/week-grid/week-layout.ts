@@ -88,10 +88,30 @@ export function bandViewportHeight(laneCount: number): number {
   return bandHeight(Math.min(Math.max(1, laneCount), WEEK_BAND_MAX_LANES))
 }
 
-export function timedTop(startMinute: number, startHour: number): number {
-  return ((startMinute - startHour * MINUTES_PER_HOUR) / MINUTES_PER_HOUR) * WEEK_HOUR_HEIGHT
+export function clampToHourWindow(minute: number, startHour: number, endHour: number): number {
+  return Math.min(endHour * MINUTES_PER_HOUR, Math.max(startHour * MINUTES_PER_HOUR, minute))
 }
 
-export function timedHeight(startMinute: number, endMinute: number): number {
-  return ((endMinute - startMinute) / MINUTES_PER_HOUR) * WEEK_HOUR_HEIGHT
+export function timedTop(startMinute: number, startHour: number, endHour: number): number {
+  const from = clampToHourWindow(startMinute, startHour, endHour)
+  return ((from - startHour * MINUTES_PER_HOUR) / MINUTES_PER_HOUR) * WEEK_HOUR_HEIGHT
+}
+
+export function timedHeight(
+  startMinute: number,
+  endMinute: number,
+  startHour: number,
+  endHour: number,
+): number {
+  const from = clampToHourWindow(startMinute, startHour, endHour)
+  const to = clampToHourWindow(Math.max(endMinute, startMinute), startHour, endHour)
+  return ((to - from) / MINUTES_PER_HOUR) * WEEK_HOUR_HEIGHT
+}
+
+export function timedClippedStart(startMinute: number, startHour: number): boolean {
+  return startMinute < startHour * MINUTES_PER_HOUR
+}
+
+export function timedClippedEnd(endMinute: number, endHour: number): boolean {
+  return endMinute > endHour * MINUTES_PER_HOUR
 }

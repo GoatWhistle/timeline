@@ -4,6 +4,8 @@ import styles from './week-grid.module.css'
 import {
   type DayColumn,
   MINUTES_PER_HOUR,
+  timedClippedEnd,
+  timedClippedStart,
   timedHeight,
   timedTop,
   WEEK_HOUR_HEIGHT,
@@ -13,6 +15,7 @@ export type WeekColumnProps = {
   column: DayColumn
   hours: readonly number[]
   startHour: number
+  endHour: number
   weekend: boolean
   nowMinute?: number
   sentenceOf: (span: CalendarSpan) => string
@@ -23,6 +26,7 @@ export function WeekColumn({
   column,
   hours,
   startHour,
+  endHour,
   weekend,
   nowMinute,
   sentenceOf,
@@ -54,7 +58,7 @@ export function WeekColumn({
         <span
           className={styles.nowLine}
           data-schedule-now
-          style={{ top: timedTop(nowMinute, startHour) }}
+          style={{ top: timedTop(nowMinute, startHour, endHour) }}
           aria-hidden="true"
         />
       )}
@@ -66,10 +70,15 @@ export function WeekColumn({
           sentence={sentenceOf(entry.item.span)}
           selected={false}
           timed
+          clippedStart={timedClippedStart(entry.startMinute, startHour)}
+          clippedEnd={timedClippedEnd(entry.endMinute, endHour)}
           style={{
             position: 'absolute',
-            top: timedTop(entry.startMinute, startHour),
-            height: Math.max(18, timedHeight(entry.startMinute, entry.endMinute) - 2),
+            top: timedTop(entry.startMinute, startHour, endHour),
+            height: Math.max(
+              18,
+              timedHeight(entry.startMinute, entry.endMinute, startHour, endHour) - 2,
+            ),
             left: `calc(${entry.column} * (100% / ${entry.columns}) + 2px)`,
             width: `calc(100% / ${entry.columns} - 4px)`,
           }}

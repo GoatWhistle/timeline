@@ -126,13 +126,13 @@ export function packDayColumns<T extends TimedInput>(items: readonly T[]): Packe
   return result
 }
 
-export const DAY_HOUR_START = 0
-export const DAY_HOUR_END = 24
+export const GRID_HOUR_START = 6
+export const GRID_HOUR_END = 24
 export const RESTING_HOUR_START = 8
 export const RESTING_HOUR_END = 22
 
 export function hourWindow(): { startHour: number; endHour: number } {
-  return { startHour: DAY_HOUR_START, endHour: DAY_HOUR_END }
+  return { startHour: GRID_HOUR_START, endHour: GRID_HOUR_END }
 }
 
 export function restingHour(
@@ -148,5 +148,5 @@ export function restingHour(
   if (earliest !== undefined) candidates.push(earliest)
   if (nowMinute !== undefined) candidates.push(Math.floor(nowMinute / 60) - 1)
   const target = Math.min(...candidates)
-  return Math.max(DAY_HOUR_START, Math.min(RESTING_HOUR_END, target))
+  return Math.max(GRID_HOUR_START, Math.min(RESTING_HOUR_END, target))
 }

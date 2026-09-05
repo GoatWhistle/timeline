@@ -135,8 +135,8 @@ export function ribbonHours(): number[] {
   )
 }
 
-export function hourTrackHeight(placements: readonly TimedPlacement[]): number {
-  return placements.length === 0 ? 0 : ribbonHours().length * RIBBON_HOUR_HEIGHT
+export function hourTrackHeight(): number {
+  return ribbonHours().length * RIBBON_HOUR_HEIGHT
 }
 
 export function clampToHourWindow(minute: number): number {

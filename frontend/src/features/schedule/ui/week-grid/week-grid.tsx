@@ -160,6 +160,7 @@ export function WeekGrid({ data, from, to, locale, now = new Date(), onOpenEvent
               column={column}
               hours={hours}
               startHour={window.startHour}
+              endHour={window.endHour}
               weekend={column.day.getDay() === 0 || column.day.getDay() === 6}
               nowMinute={index === todayIndex ? nowMinute : undefined}
               sentenceOf={sentenceOf}

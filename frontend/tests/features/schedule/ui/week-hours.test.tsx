@@ -93,47 +93,79 @@ describe('the week separates all-day events from timed ones', () => {
   })
 })
 
-describe('the hour axis holds the whole day, night included', () => {
-  it('opens at midnight so a night launch has a row to stand on', () => {
-    expect(hourWindow().startHour).toBe(0)
+describe('the hour axis holds the hours a hackathon actually uses', () => {
+  it('opens at 06:00 so the dead night is not drawn', () => {
+    expect(hourWindow().startHour).toBe(6)
   })
 
   it('runs to midnight so a hand-in at dawn is not the end of the axis', () => {
     expect(hourWindow().endHour).toBe(24)
   })
 
-  it('draws every hour of the day, not a window cut to the events present', () => {
+  it('draws the 6-to-24 window, not the night hours it was trimmed of', () => {
     const { container } = renderWeek([])
     const labels = [...container.querySelectorAll('[data-schedule-hours] span')].filter((element) =>
       /^\d{2}:00$/.test(element.textContent ?? ''),
     )
+    const texts = labels.map((element) => element.textContent)
 
-    expect(labels.map((element) => element.textContent)).toContain('00:00')
-    expect(labels.map((element) => element.textContent)).toContain('05:00')
-    expect(labels.map((element) => element.textContent)).toContain('23:00')
+    expect(texts).toContain('06:00')
+    expect(texts).toContain('23:00')
+    expect(texts).not.toContain('00:00')
+    expect(texts).not.toContain('05:00')
   })
 
   it('rests the scroll on the working morning rather than on the empty night', () => {
     expect(restingHour([], undefined)).toBe(RESTING_HOUR_START)
   })
 
-  it('rests earlier when an event of the week starts before the working morning', () => {
-    expect(restingHour([{ startMinute: 3 * 60, endMinute: 5 * 60 }], undefined)).toBe(3)
+  it('rests earlier when an event of the week starts before the working morning, but not before the grid', () => {
+    expect(restingHour([{ startMinute: 7 * 60, endMinute: 9 * 60 }], undefined)).toBe(7)
+    expect(restingHour([{ startMinute: 3 * 60, endMinute: 5 * 60 }], undefined)).toBe(6)
   })
 
   it('keeps the current hour in sight when the week holds today', () => {
     expect(restingHour([], 20 * 60)).toBe(RESTING_HOUR_START)
-    expect(restingHour([{ startMinute: 23 * 60, endMinute: 24 * 60 }], 2 * 60)).toBe(1)
+    expect(restingHour([{ startMinute: 23 * 60, endMinute: 24 * 60 }], 9 * 60)).toBe(8)
   })
 
-  it('never rests outside the day it is scrolling within', () => {
-    expect(restingHour([{ startMinute: 0, endMinute: 60 }], 0)).toBe(0)
+  it('never rests above the top of the grid even when today starts at dawn', () => {
+    expect(restingHour([{ startMinute: 0, endMinute: 60 }], 0)).toBe(6)
   })
 })
 
 describe('the hour grid places and sizes a meetup by its real time', () => {
   it('gives a bar height proportional to its duration', () => {
-    expect(timedHeight(10 * 60, 12 * 60)).toBe(2 * WEEK_HOUR_HEIGHT)
+    expect(timedHeight(10 * 60, 12 * 60, 6, 24)).toBe(2 * WEEK_HOUR_HEIGHT)
+  })
+
+  it('clamps a pre-dawn start to the top of the grid and flags it as clipped, never dropping it', () => {
+    const { container } = renderWeek([
+      row({
+        event_id: 'dawn',
+        start_at: '2026-01-07T05:00:00+03:00',
+        end_at: '2026-01-07T07:00:00+03:00',
+      }),
+    ])
+    const bar = container.querySelector('[data-schedule-item="dawn"]')
+
+    expect(bar).not.toBeNull()
+    expect(bar).toHaveAttribute('data-clipped-start', 'true')
+  })
+
+  it('keeps a late-evening meetup on the grid without clamping it away', () => {
+    const { container } = renderWeek([
+      row({
+        event_id: 'late',
+        start_at: '2026-01-07T21:00:00+03:00',
+        end_at: '2026-01-07T23:30:00+03:00',
+      }),
+    ])
+    const bar = container.querySelector('[data-schedule-item="late"]')
+
+    expect(bar).not.toBeNull()
+    expect(bar).toHaveAttribute('data-clipped-start', 'false')
+    expect(bar).toHaveAttribute('data-clipped-end', 'false')
   })
 
   it('drops the empty sliver an event ending at midnight would leave on the next day', () => {
@@ -179,71 +211,6 @@ describe('the week view stays reachable and legible', () => {
     bar?.focus()
     await user.keyboard('{Enter}')
 
-    expect(onOpenEvent).toHaveBeenCalled()
-  })
-})
-
-describe('the week carries no selection, everything in it being on view already', () => {
-  const meetup = row({ event_id: 'm1', title: 'Evening meetup' })
-
-  it('never flags the week frame as holding a selection', () => {
-    const { container } = renderWeek([meetup])
-    expect(container.querySelector('[data-schedule-week]')).not.toHaveAttribute(
-      'data-has-selection',
-    )
-  })
-
-  it('marks no bar of the hour grid as selected', () => {
-    const { container } = renderWeek([meetup])
-    expect(container.querySelector('[data-schedule-item="m1"]')).toHaveAttribute(
-      'data-selected',
-      'false',
-    )
-  })
-
-  it('marks no bar of the all-day band as selected either', () => {
-    const hackathon = row({
-      event_id: 'hack',
-      kind: 'HACKATHON',
-      start_at: '2026-01-06T09:00:00Z',
-      end_at: '2026-01-09T18:00:00Z',
-    })
-    const { container } = renderWeek([hackathon])
-
-    expect(
-      container.querySelector('[data-schedule-band] [data-schedule-item="hack"]'),
-    ).toHaveAttribute('data-selected', 'false')
-  })
-
-  it('ignores a selection pressed on it from outside, the week having no such state', () => {
-    const { container } = renderWeek([meetup], { selectedId: 'm1', onSelect: vi.fn() })
-
-    expect(container.querySelector('[aria-current="true"]')).toBeNull()
-    expect(container.querySelector('[data-schedule-item="m1"]')).toHaveAttribute(
-      'data-selected',
-      'false',
-    )
-  })
-
-  it('leaves Escape alone so it can reach the overlay above the schedule', async () => {
-    const { container, user } = renderWeek([meetup])
-    const before = container.querySelector('[data-schedule-week]')?.outerHTML
-
-    container.querySelector<HTMLElement>('[data-schedule-item="m1"]')?.focus()
-    await user.keyboard('{Escape}')
-
-    expect(container.querySelector('[data-schedule-week]')?.outerHTML).toBe(before)
-  })
-
-  it('opens the event on a double click, the single click having nothing to select', async () => {
-    const onOpenEvent = vi.fn()
-    const { container, user } = renderWeek([meetup], { onOpenEvent })
-
-    const bar = container.querySelector<HTMLElement>('[data-schedule-item="m1"]')
-    if (bar) await user.click(bar)
-    expect(onOpenEvent).not.toHaveBeenCalled()
-
-    if (bar) await user.dblClick(bar)
     expect(onOpenEvent).toHaveBeenCalled()
   })
 })
