@@ -192,9 +192,9 @@ describe('the ribbon leaves period navigation to the one bar that owns it', () =
     expect(container.querySelector('[data-ribbon-today]')).toBeNull()
   })
 
-  it('still reads its own season and hint, which no other bar carries', () => {
+  it('still names the season it is showing, which no other bar carries', () => {
     const { container } = renderRibbon()
 
-    expect(container.querySelector('[data-ribbon-hint]')).not.toBeNull()
+    expect(container.querySelector('[data-ribbon-marker]')).not.toBeNull()
   })
 })

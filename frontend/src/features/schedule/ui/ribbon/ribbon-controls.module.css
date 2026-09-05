@@ -38,17 +38,6 @@
   height: 18px;
 }
 
-.spacer {
-  flex: 1;
-}
-
-.reading {
-  color: var(--muted-foreground);
-  font-size: var(--text-label);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
 .marker {
   display: inline-flex;
   align-items: center;

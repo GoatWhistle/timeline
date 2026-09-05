@@ -22,11 +22,6 @@ export function RibbonControls({ season }: RibbonControlsProps) {
         </span>
       )}
 
-      <span className={controls.spacer} />
-
-      <span className={controls.reading} data-ribbon-hint>
-        {t('schedule.ribbonHint')}
-      </span>
     </div>
   )
 }
