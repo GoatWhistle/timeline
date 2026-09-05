@@ -1,16 +1,27 @@
 import { useTranslation } from 'react-i18next'
-import type { NotificationType } from '@/shared/api/types.gen'
+import type { NotificationOccasion, NotificationPreference } from '@/shared/api/types.gen'
 import { Note } from '@/shared/ui/data-display/note/note'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { NotificationOccasionRow } from './notification-occasion-row'
 
-const EXPLAINED_TYPES: NotificationType[] = [
+const EXPLAINED_TYPES: NotificationOccasion[] = [
   'REGISTRATION_REQUIRED',
   'REGISTRATION_REMINDER',
   'REGISTRATION_OVERDUE',
 ]
 
-export function NotificationExplainerCard() {
+export function NotificationExplainerCard({
+  preferences,
+}: {
+  preferences: NotificationPreference[]
+}) {
   const { t } = useTranslation('notification')
+
+  const allOff = EXPLAINED_TYPES.filter(
+    (occasion) =>
+      preferences.some((p) => p.occasion === occasion) &&
+      preferences.every((p) => p.occasion !== occasion || !p.enabled),
+  )
 
   return (
     <Card>
@@ -20,17 +31,15 @@ export function NotificationExplainerCard() {
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <dl className="divide-y divide-border">
-          {EXPLAINED_TYPES.map((type) => (
-            <div key={type} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
-              <dt className="font-medium text-copy" data-explainer-type={type}>
-                {t(`explainer.type.${type}.name`)}
-              </dt>
-              <dd className="max-w-prose text-meta text-muted-foreground">
-                {t(`explainer.type.${type}.when`)}
-              </dd>
-            </div>
+          {EXPLAINED_TYPES.map((occasion) => (
+            <NotificationOccasionRow key={occasion} occasion={occasion} preferences={preferences} />
           ))}
         </dl>
+        {allOff.map((occasion) => (
+          <Note key={occasion} tone="warning" title={t('explainer.allOffTitle')}>
+            {t('explainer.allOffHint')}
+          </Note>
+        ))}
 
         <Note title={t('explainer.stopTitle')}>{t('explainer.stopHint')}</Note>
 

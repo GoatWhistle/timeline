@@ -6800,6 +6800,125 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your own per-occasion notification preferences
+         * @description One entry per occasion and channel pair. A missing pair defaults to enabled,
+         *     so an account that never touched this endpoint keeps receiving everything
+         *     its channel set already allows.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.NotificationPreferencesResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/notification-preferences/{occasion}/{channel}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Switch one occasion off or on for one channel
+         * @description This flag decides whether the occasion is sent at all, independently of the channel set
+         *     in your profile: an empty channel set means no route exists anywhere, this flag means
+         *     you do not want this particular notification even on a route that does exist.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Channel */
+                    channel: "TELEGRAM" | "EMAIL";
+                    /** @description Occasion */
+                    occasion: "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE";
+                };
+                cookie?: never;
+            };
+            /** @description Desired state */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.UpdateNotificationPreferenceRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.NotificationPreferencesResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/profile-links": {
         parameters: {
             query?: never;
@@ -10685,6 +10804,9 @@ export interface components {
             items: components["schemas"]["dto.MyEventItem"][];
             meta: components["schemas"]["dto.PageMeta"];
         };
+        "dto.NotificationPreferencesResponse": {
+            preferences: components["schemas"]["models.NotificationPreference"][];
+        };
         "dto.NotificationPreviewResponse": {
             body: string;
             /** @example true */
@@ -11327,6 +11449,10 @@ export interface components {
             set_prizes?: boolean;
             track_no?: number;
         };
+        "dto.UpdateNotificationPreferenceRequest": {
+            /** @example false */
+            enabled?: boolean;
+        };
         "dto.UpdateProfileLinkRequest": {
             /** @example false */
             clear_label?: boolean;
@@ -11536,6 +11662,13 @@ export interface components {
         };
         /** @enum {string} */
         "models.LinkKind": "WEBSITE" | "RULES" | "REGISTRATION" | "SUBMISSION" | "CHAT" | "DATASET" | "API_DOCS" | "JUDGING" | "MENTORS" | "RESULTS" | "SPONSOR" | "OTHER";
+        /** @enum {string} */
+        "models.NotificationOccasion": "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE";
+        "models.NotificationPreference": {
+            channel: components["schemas"]["models.Channel"];
+            enabled: boolean;
+            occasion: components["schemas"]["models.NotificationOccasion"];
+        };
         /** @enum {string} */
         "models.NotificationStatus": "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "CANCELLED" | "UNDELIVERABLE";
         /** @enum {string} */

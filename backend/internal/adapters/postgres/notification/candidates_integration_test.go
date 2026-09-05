@@ -4,6 +4,7 @@ package notification_test
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
 	"github.com/google/uuid"
@@ -53,7 +54,7 @@ func TestCandidatesForEventMatchesTheFilteredScan(t *testing.T) {
 				eventID, len(scoped), len(expected))
 		}
 		for i := range scoped {
-			if scoped[i] != expected[i] {
+			if !reflect.DeepEqual(scoped[i], expected[i]) {
 				t.Fatalf("event %s row %d differs:\n scoped=%+v\n filtered=%+v",
 					eventID, i, scoped[i], expected[i])
 			}

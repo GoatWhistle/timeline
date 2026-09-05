@@ -55,6 +55,9 @@ func mountMe(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("PUT "+api+"/me/profile-links/order", rt.authd(profileLinkC.Reorder))
 	mux.Handle("PATCH "+api+"/me/profile-links/{id}", rt.authd(profileLinkC.Update))
 	mux.Handle("DELETE "+api+"/me/profile-links/{id}", rt.authd(profileLinkC.Delete))
+	mux.Handle("GET "+api+"/me/notification-preferences", rt.authd(profileC.NotificationPreferences))
+	mux.Handle("PUT "+api+"/me/notification-preferences/{occasion}/{channel}",
+		rt.authd(profileC.SetNotificationPreference))
 	mux.Handle("GET "+api+"/me/sessions", rt.authd(sessionC.List))
 	mux.Handle("PATCH "+api+"/me/sessions/{id}", rt.authd(sessionC.Rename))
 	mux.Handle("DELETE "+api+"/me/sessions/{id}", rt.authd(sessionC.Revoke))

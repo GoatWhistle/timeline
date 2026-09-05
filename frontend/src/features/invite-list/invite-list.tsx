@@ -121,10 +121,16 @@ export function AdminInvitesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead>{t('invites.columnState')}</TableHead>
-                  <TableHead>{t('invites.columnValidUntil')}</TableHead>
-                  <TableHead className="w-32">{t('invites.columnActions')}</TableHead>
+                  <TableHead className="w-full">Email</TableHead>
+                  <TableHead className="w-px whitespace-nowrap">
+                    {t('invites.columnState')}
+                  </TableHead>
+                  <TableHead className="w-px whitespace-nowrap">
+                    {t('invites.columnValidUntil')}
+                  </TableHead>
+                  <TableHead className="w-px whitespace-nowrap">
+                    {t('invites.columnActions')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -133,13 +139,13 @@ export function AdminInvitesPage() {
                   return (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">{item.email}</TableCell>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <Badge tone={state.tone}>{t(state.labelKey)}</Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="whitespace-nowrap text-muted-foreground">
                         {formatDateTime(item.expires_at)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <Button
                           variant="ghost"
                           size="sm"

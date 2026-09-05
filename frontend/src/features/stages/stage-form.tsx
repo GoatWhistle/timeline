@@ -154,7 +154,7 @@ export function StageForm({
         ...(values.description ? { description: values.description } : {}),
         ...(values.url ? { url: normalizeFormUrl(values.url) ?? values.url } : {}),
         ...(values.format === INHERIT
-          ? { clear_format: true }
+          ? { ...(stage !== undefined && { clear_format: true }) }
           : { format: values.format as EventFormat }),
         ...(values.country_code ? { country_code: values.country_code } : {}),
         ...(values.city ? { city: values.city } : {}),

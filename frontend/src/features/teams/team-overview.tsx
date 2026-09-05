@@ -57,7 +57,7 @@ export function TeamOverview() {
     <div className="flex min-w-0 flex-col gap-6">
       {!isLead && <Note>{t(invited ? 'invitedNotice' : 'readOnlyNotice')}</Note>}
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid max-w-2xl gap-3 sm:grid-cols-2">
         <Tile
           to={`/teams/${teamId}/members`}
           icon={UsersRound}

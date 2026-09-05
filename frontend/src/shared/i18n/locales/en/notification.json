@@ -10,7 +10,7 @@
   },
   "explainer": {
     "title": "What arrives and when",
-    "hint": "Notifications are about one thing only: marking a registration as done. An organizer sets the deadline and the reminders for each event; you cannot add your own.",
+    "hint": "Three occasions, both channels below. A switch decides whether that occasion reaches you on that channel at all.",
     "type": {
       "REGISTRATION_REQUIRED": {
         "name": "Registration required",
@@ -25,9 +25,14 @@
         "when": "After the deadline, if the organizer set such a reminder. It stops once the event ends."
       }
     },
+    "toggleUpdated": "Notification setting updated",
+    "toggleFailed": "Could not change the setting",
+    "toggleLabel": "{{occasion}} by {{channel}}",
     "stopTitle": "Mark yourself registered and the reminders stop",
     "stopHint": "Reminders go only to people whose registration is still unmarked. Open the event and press \"I registered\". You set it yourself — the system does not check the external site. Nothing else switches them off for one event.",
-    "timingNote": "Sending is checked every few minutes, so a notification can arrive slightly after the moment it was due. A message may also arrive twice: delivery guarantees at least one attempt, not exactly one."
+    "timingNote": "Sending is checked every few minutes, so a notification can arrive slightly after the moment it was due. A message may also arrive twice: delivery guarantees at least one attempt, not exactly one.",
+    "allOffTitle": "Every switch for this occasion is off",
+    "allOffHint": "You chose not to receive this notification anywhere. This is separate from the channel list above: even if you later add a channel there, this occasion stays off until you switch it back on here."
   },
   "card": {
     "title": "Notification channels",
@@ -37,7 +42,7 @@
     "channelFailed": "Could not change the channels",
     "setUpInAccount": "Telegram and the email address are set up in the Account section.",
     "emptyTitle": "No channel selected",
-    "emptyHint": "Notifications will not reach you anywhere until you pick at least one channel."
+    "emptyHint": "You have no delivery route at all: nothing below can reach you until you pick at least one channel here, whatever its own switches say."
   },
   "feed": {
     "open": "Open notifications",

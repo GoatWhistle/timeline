@@ -161,11 +161,17 @@ export function AdminAuditPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('audit.columnTime')}</TableHead>
-                  <TableHead>{t('audit.columnActor')}</TableHead>
-                  <TableHead>{t('audit.columnAction')}</TableHead>
-                  <TableHead>{t('audit.columnEntity')}</TableHead>
-                  <TableHead className="w-32">{t('audit.columnChanges')}</TableHead>
+                  <TableHead className="w-px whitespace-nowrap">{t('audit.columnTime')}</TableHead>
+                  <TableHead className="w-full">{t('audit.columnActor')}</TableHead>
+                  <TableHead className="w-px whitespace-nowrap">
+                    {t('audit.columnAction')}
+                  </TableHead>
+                  <TableHead className="w-px whitespace-nowrap">
+                    {t('audit.columnEntity')}
+                  </TableHead>
+                  <TableHead className="w-px whitespace-nowrap">
+                    {t('audit.columnChanges')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -175,11 +181,13 @@ export function AdminAuditPage() {
                       {formatDateTime(item.created_at)}
                     </TableCell>
                     <TableCell>{item.actor_email ?? t('audit.system')}</TableCell>
-                    <TableCell>{t(auditActionKey(item.action))}</TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="whitespace-nowrap">
+                      {t(auditActionKey(item.action))}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">
                       {t(entityTypeKey(item.entity_type))}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="whitespace-nowrap">
                       <Button variant="ghost" size="sm" onClick={() => setDetail(item)}>
                         {t('audit.show')}
                       </Button>

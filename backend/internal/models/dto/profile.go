@@ -72,6 +72,14 @@ type ShortcutsResponse struct {
 	Shortcuts models.Shortcuts `json:"shortcuts"`
 }
 
+type NotificationPreferencesResponse struct {
+	Preferences []models.NotificationPreference `json:"preferences"`
+}
+
+type UpdateNotificationPreferenceRequest struct {
+	Enabled bool `json:"enabled" example:"false"`
+}
+
 type ChangeEmailRequest struct {
 	NewEmail string `json:"new_email" example:"new@example.com"`
 	Password string `json:"password" example:"correct-horse-battery"`

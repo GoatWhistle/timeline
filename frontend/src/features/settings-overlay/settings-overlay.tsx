@@ -2,6 +2,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { ArrowLeft } from 'lucide-react'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNotificationPreferences } from '@/entities/notification/notification-preferences.queries'
 import { useSession } from '@/shared/api/session'
 import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -9,6 +10,7 @@ import { SAFE_BOTTOM, SAFE_TOP, TAP_TARGET } from '@/shared/ui/layout/mobile/mob
 import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { PANEL_MOTION, PANEL_SURFACE, SCRIM } from '@/shared/ui/overlays/overlay-chrome'
 import { CloseButton } from '@/shared/ui/primitives/close-button'
+import { QueryBoundary } from '@/shared/ui/states'
 import { SETTINGS_SECTIONS } from './sections'
 import { SettingsIndex, SettingsRail } from './settings-nav'
 import { SettingsPanel } from './settings-panels'
@@ -18,6 +20,7 @@ export function SettingsOverlay() {
   const { t } = useTranslation()
   const { user } = useSession()
   const { open, section, atIndex, setSection, showIndex, closeSettings } = useSettingsOverlay()
+  const notificationPreferences = useNotificationPreferences(open && section === 'notifications')
   const phone = usePhoneViewport()
   const activeRef = useRef<HTMLButtonElement>(null)
   const returnFocus = useReturnFocus(open)
@@ -96,7 +99,22 @@ export function SettingsOverlay() {
             ) : (
               <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5 [scrollbar-gutter:stable_both-edges]">
                 <div className="mx-auto max-w-2xl">
-                  <SettingsPanel section={section} user={user} />
+                  <QueryBoundary
+                    isPending={section === 'notifications' && notificationPreferences.isPending}
+                    isFetching={notificationPreferences.isFetching}
+                    isError={section === 'notifications' && notificationPreferences.isError}
+                    error={notificationPreferences.error}
+                    onRetry={() => notificationPreferences.refetch()}
+                    hasData={
+                      section !== 'notifications' || notificationPreferences.data !== undefined
+                    }
+                  >
+                    <SettingsPanel
+                      section={section}
+                      user={user}
+                      notificationPreferences={notificationPreferences.data ?? []}
+                    />
+                  </QueryBoundary>
                 </div>
               </div>
             )}

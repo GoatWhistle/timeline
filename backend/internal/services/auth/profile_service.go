@@ -10,6 +10,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
@@ -25,6 +26,7 @@ type ProfileService struct {
 	tokens   *identity.Tokens
 	sessions *identity.Sessions
 	notifier Notifier
+	prefs    *notification.Preferences
 	audit    *audit.AuditService
 	hasher   *crypto.PasswordHasher
 	mailer   *mail.Mailer
@@ -37,10 +39,11 @@ type ProfileService struct {
 
 func NewProfileService(db *postgres.DB, users *identity.Users,
 	tokens *identity.Tokens, sessions *identity.Sessions,
-	notifier Notifier, audit *audit.AuditService, hasher *crypto.PasswordHasher, mailer *mail.Mailer,
+	notifier Notifier, prefs *notification.Preferences,
+	audit *audit.AuditService, hasher *crypto.PasswordHasher, mailer *mail.Mailer,
 	telegram mail.TelegramSender, cfg *config.Config) *ProfileService {
 	return &ProfileService{
-		db: db, users: users, tokens: tokens, sessions: sessions, notifier: notifier,
+		db: db, users: users, tokens: tokens, sessions: sessions, notifier: notifier, prefs: prefs,
 		audit: audit, hasher: hasher, mailer: mailer, telegram: telegram, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() },
 	}

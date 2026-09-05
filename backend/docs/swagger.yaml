@@ -1081,6 +1081,13 @@ definitions:
       meta:
         $ref: '#/definitions/dto.PageMeta'
     type: object
+  dto.NotificationPreferencesResponse:
+    properties:
+      preferences:
+        items:
+          $ref: '#/definitions/models.NotificationPreference'
+        type: array
+    type: object
   dto.NotificationPreviewResponse:
     properties:
       body:
@@ -2182,6 +2189,12 @@ definitions:
       track_no:
         type: integer
     type: object
+  dto.UpdateNotificationPreferenceRequest:
+    properties:
+      enabled:
+        example: false
+        type: boolean
+    type: object
   dto.UpdateProfileLinkRequest:
     properties:
       clear_label:
@@ -2731,6 +2744,25 @@ definitions:
     - LinkResults
     - LinkSponsor
     - LinkOther
+  models.NotificationOccasion:
+    enum:
+    - REGISTRATION_REQUIRED
+    - REGISTRATION_REMINDER
+    - REGISTRATION_OVERDUE
+    type: string
+    x-enum-varnames:
+    - NotificationRequired
+    - NotificationReminder
+    - NotificationOverdue
+  models.NotificationPreference:
+    properties:
+      channel:
+        $ref: '#/definitions/models.Channel'
+      enabled:
+        type: boolean
+      occasion:
+        $ref: '#/definitions/models.NotificationOccasion'
+    type: object
   models.NotificationStatus:
     enum:
     - PENDING
@@ -7018,6 +7050,80 @@ paths:
       summary: Own participation history
       tags:
       - personal
+  /me/notification-preferences:
+    get:
+      description: |-
+        One entry per occasion and channel pair. A missing pair defaults to enabled,
+        so an account that never touched this endpoint keeps receiving everything
+        its channel set already allows.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NotificationPreferencesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Your own per-occasion notification preferences
+      tags:
+      - profile
+  /me/notification-preferences/{occasion}/{channel}:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        This flag decides whether the occasion is sent at all, independently of the channel set
+        in your profile: an empty channel set means no route exists anywhere, this flag means
+        you do not want this particular notification even on a route that does exist.
+      parameters:
+      - description: Occasion
+        enum:
+        - REGISTRATION_REQUIRED
+        - REGISTRATION_REMINDER
+        - REGISTRATION_OVERDUE
+        in: path
+        name: occasion
+        required: true
+        type: string
+      - description: Channel
+        enum:
+        - TELEGRAM
+        - EMAIL
+        in: path
+        name: channel
+        required: true
+        type: string
+      - description: Desired state
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateNotificationPreferenceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NotificationPreferencesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Switch one occasion off or on for one channel
+      tags:
+      - profile
   /me/profile-links:
     get:
       description: |-

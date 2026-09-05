@@ -87,25 +87,29 @@ export function AdminUsersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('users.columnName')}</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>{t('users.columnState')}</TableHead>
-                  <TableHead className="w-72">{t('users.columnActions')}</TableHead>
+                  <TableHead className="w-full">{t('users.columnName')}</TableHead>
+                  <TableHead className="w-px whitespace-nowrap">Email</TableHead>
+                  <TableHead className="w-px whitespace-nowrap">{t('users.columnState')}</TableHead>
+                  <TableHead className="w-px whitespace-nowrap">
+                    {t('users.columnActions')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {(query.data?.items ?? []).map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{listName(item, locale)}</TableCell>
-                    <TableCell className="text-muted-foreground">{item.email}</TableCell>
-                    <TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                      {item.email}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
                       {item.is_active ? (
                         <Badge tone="primary">{t('users.active')}</Badge>
                       ) : (
                         <Badge tone="danger">{t('users.deactivated')}</Badge>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="whitespace-nowrap">
                       <div className="flex gap-2">
                         {item.is_active ? (
                           <Button

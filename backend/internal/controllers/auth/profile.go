@@ -24,6 +24,10 @@ type ProfileService interface {
 	UpdateShortcuts(ctx context.Context, actor models.Actor,
 		req dto.UpdateShortcutsRequest) (*models.User, error)
 	ResetShortcuts(ctx context.Context, actor models.Actor) (*models.User, error)
+	NotificationPreferences(ctx context.Context, userID uuid.UUID) ([]models.NotificationPreference, error)
+	SetNotificationPreference(ctx context.Context, actor models.Actor,
+		occasion models.NotificationOccasion, channel models.Channel, enabled bool,
+	) ([]models.NotificationPreference, error)
 	RequestEmailChange(ctx context.Context, actor models.Actor, req dto.ChangeEmailRequest) error
 	Deactivate(ctx context.Context, actor models.Actor) error
 }

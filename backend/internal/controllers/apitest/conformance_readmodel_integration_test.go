@@ -62,8 +62,8 @@ func TestRegistrationOnAnUnpublishedEventDefersEveryNotificationUntilPublication
 	f.AdminClient.Publish(t, draft)
 
 	afterPublish := notificationsOfEvent(s, t, draft)
-	if afterPublish != 1 {
-		t.Fatalf("publishing raised %d notifications instead of exactly one", afterPublish)
+	if afterPublish != 2 {
+		t.Fatalf("publishing raised %d notifications instead of one per default channel (2)", afterPublish)
 	}
 
 	support.RequireStatus(t, f.AdminClient.Patch("/admin/events/"+draft,

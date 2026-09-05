@@ -12,7 +12,7 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div className="min-w-min flex-1">
-        <h1 className="font-semibold text-screen">{title}</h1>
+        <h1 className="break-all font-semibold text-screen">{title}</h1>
         {description && (
           <p className="mt-1 max-w-prose text-meta text-muted-foreground">{description}</p>
         )}

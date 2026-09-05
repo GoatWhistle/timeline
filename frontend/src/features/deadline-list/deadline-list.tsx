@@ -63,13 +63,15 @@ function DeadlineTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t('deadlines.columnParticipant')}</TableHead>
-            <TableHead>{t('deadlines.columnEvent')}</TableHead>
-            <TableHead>{t('deadlines.columnDeadline')}</TableHead>
-            <TableHead>
+            <TableHead className="w-full">{t('deadlines.columnParticipant')}</TableHead>
+            <TableHead className="w-full">{t('deadlines.columnEvent')}</TableHead>
+            <TableHead className="w-px whitespace-nowrap">
+              {t('deadlines.columnDeadline')}
+            </TableHead>
+            <TableHead className="w-px whitespace-nowrap">
               {showOverdue ? t('deadlines.columnOverdue') : t('deadlines.columnLeft')}
             </TableHead>
-            <TableHead>{t('deadlines.columnStatus')}</TableHead>
+            <TableHead className="w-px whitespace-nowrap">{t('deadlines.columnStatus')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -95,7 +97,7 @@ function DeadlineTable({
                   ? formatDuration(item.overdue_minutes)
                   : formatRelative(item.deadline_at)}
               </TableCell>
-              <TableCell>
+              <TableCell className="whitespace-nowrap">
                 <span className="inline-flex items-center gap-1.5">
                   <Dot
                     shape={REGISTRATION_STATUS_SHAPE[item.status]}

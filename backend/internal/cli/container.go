@@ -141,7 +141,7 @@ func newContainer(ctx context.Context) (*container, error) {
 		c.notifier, c.audit, c.hasher, issuer, mailer, limiter, cfg)
 	c.invites = svcauth.NewInviteService(db, c.repos.invites, c.repos.users, c.auth, c.audit, mailer, limiter, cfg)
 	c.profile = svcauth.NewProfileService(db, c.repos.users, c.repos.tokens, c.repos.sessions,
-		c.notifier, c.audit, c.hasher, mailer, c.telegram, cfg)
+		c.notifier, c.repos.notificationPreferences, c.audit, c.hasher, mailer, c.telegram, cfg)
 	c.profileLinks = svcauth.NewProfileLinkService(db, c.repos.profileLinks)
 	if err := c.wireAvatars(cfg); err != nil {
 		return nil, err

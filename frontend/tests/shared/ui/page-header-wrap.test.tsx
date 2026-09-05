@@ -53,6 +53,12 @@ describe('a page title keeps its room when actions sit beside it', () => {
     expect(row.lastElementChild?.className).toContain('shrink-0')
   })
 
+  it('lets an unbroken long title break instead of forcing the row past min-content', () => {
+    const long = 'A'.repeat(200)
+    const { container } = render(<PageHeader title={long} actions={<div>action</div>} />)
+    expect(container.querySelector('h1')?.className).toContain('break-all')
+  })
+
   it('never lets a screen rebuild the title-beside-actions row without letting it wrap', () => {
     const offenders: string[] = []
     for (const file of tsxFiles(SRC)) {

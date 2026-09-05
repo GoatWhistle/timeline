@@ -3,10 +3,26 @@ import { renderWithProviders } from '@tests/support/render'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { SETTINGS_SECTIONS, type SettingsSectionId } from '@/features/settings-overlay/sections'
 import { SettingsPanel } from '@/features/settings-overlay/settings-panels'
-import type { MeResponse } from '@/shared/api/types.gen'
+import type {
+  Channel,
+  MeResponse,
+  NotificationOccasion,
+  NotificationPreference,
+} from '@/shared/api/types.gen'
 import { i18n } from '@/shared/i18n/config'
 import { ShortcutProvider } from '@/shared/keyboard/shortcut-registry'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
+
+const OCCASIONS: NotificationOccasion[] = [
+  'REGISTRATION_REQUIRED',
+  'REGISTRATION_REMINDER',
+  'REGISTRATION_OVERDUE',
+]
+const CHANNELS: Channel[] = ['TELEGRAM', 'EMAIL']
+
+const NOTIFICATION_PREFERENCES: NotificationPreference[] = OCCASIONS.flatMap((occasion) =>
+  CHANNELS.map((channel) => ({ occasion, channel, enabled: true })),
+)
 
 const USER: MeResponse = {
   id: '4b7a7cf5-3f45-4b7e-a3d9-9f27b8a1c2d3',
@@ -33,7 +49,11 @@ function renderSection(section: SettingsSectionId) {
   return renderWithProviders(
     <ShortcutProvider>
       <TooltipProvider>
-        <SettingsPanel section={section} user={USER} />
+        <SettingsPanel
+          section={section}
+          user={USER}
+          notificationPreferences={NOTIFICATION_PREFERENCES}
+        />
       </TooltipProvider>
     </ShortcutProvider>,
   )

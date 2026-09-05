@@ -5704,6 +5704,111 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/notification-preferences": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "One entry per occasion and channel pair. A missing pair defaults to enabled,\nso an account that never touched this endpoint keeps receiving everything\nits channel set already allows.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Your own per-occasion notification preferences",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NotificationPreferencesResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/notification-preferences/{occasion}/{channel}": {
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "This flag decides whether the occasion is sent at all, independently of the channel set\nin your profile: an empty channel set means no route exists anywhere, this flag means\nyou do not want this particular notification even on a route that does exist.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Switch one occasion off or on for one channel",
+                "parameters": [
+                    {
+                        "enum": [
+                            "REGISTRATION_REQUIRED",
+                            "REGISTRATION_REMINDER",
+                            "REGISTRATION_OVERDUE"
+                        ],
+                        "type": "string",
+                        "description": "Occasion",
+                        "name": "occasion",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "TELEGRAM",
+                            "EMAIL"
+                        ],
+                        "type": "string",
+                        "description": "Channel",
+                        "name": "channel",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Desired state",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateNotificationPreferenceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NotificationPreferencesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me/profile-links": {
             "get": {
                 "security": [
@@ -9854,6 +9959,17 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.NotificationPreferencesResponse": {
+            "type": "object",
+            "properties": {
+                "preferences": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.NotificationPreference"
+                    }
+                }
+            }
+        },
         "dto.NotificationPreviewResponse": {
             "type": "object",
             "properties": {
@@ -11490,6 +11606,15 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdateNotificationPreferenceRequest": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
         "dto.UpdateProfileLinkRequest": {
             "type": "object",
             "properties": {
@@ -12203,6 +12328,33 @@ const docTemplate = `{
                 "LinkSponsor",
                 "LinkOther"
             ]
+        },
+        "models.NotificationOccasion": {
+            "type": "string",
+            "enum": [
+                "REGISTRATION_REQUIRED",
+                "REGISTRATION_REMINDER",
+                "REGISTRATION_OVERDUE"
+            ],
+            "x-enum-varnames": [
+                "NotificationRequired",
+                "NotificationReminder",
+                "NotificationOverdue"
+            ]
+        },
+        "models.NotificationPreference": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "$ref": "#/definitions/models.Channel"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "occasion": {
+                    "$ref": "#/definitions/models.NotificationOccasion"
+                }
+            }
         },
         "models.NotificationStatus": {
             "type": "string",

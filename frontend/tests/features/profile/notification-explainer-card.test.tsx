@@ -4,9 +4,21 @@ import { renderWithProviders } from '@tests/support/render'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { NOTIFICATION_TYPE_KEY } from '@/entities/notification/notification.labels'
 import { NotificationExplainerCard } from '@/features/profile/notification-explainer-card/notification-explainer-card'
+import type { Channel, NotificationOccasion, NotificationPreference } from '@/shared/api/types.gen'
 import { ensureLocale, i18n, i18nReady } from '@/shared/i18n/config'
 
 const TYPES = Object.keys(NOTIFICATION_TYPE_KEY)
+
+const OCCASIONS: NotificationOccasion[] = [
+  'REGISTRATION_REQUIRED',
+  'REGISTRATION_REMINDER',
+  'REGISTRATION_OVERDUE',
+]
+const CHANNELS: Channel[] = ['TELEGRAM', 'EMAIL']
+
+const ALL_ENABLED: NotificationPreference[] = OCCASIONS.flatMap((occasion) =>
+  CHANNELS.map((channel) => ({ occasion, channel, enabled: true })),
+)
 
 beforeAll(async () => {
   await i18nReady
@@ -20,7 +32,7 @@ afterAll(async () => {
 describe('the notification explainer names every type the domain can send', () => {
   it('explains each of the three types, none left as a machine code', async () => {
     await i18n.changeLanguage('en')
-    renderWithProviders(<NotificationExplainerCard />)
+    renderWithProviders(<NotificationExplainerCard preferences={ALL_ENABLED} />)
 
     for (const type of TYPES) {
       const term = document.querySelector(`[data-explainer-type="${type}"]`)
@@ -48,7 +60,7 @@ describe('the notification explainer names every type the domain can send', () =
 describe('the explainer tells the truth about the domain', () => {
   it('says marking the registration is what stops the reminders', async () => {
     await i18n.changeLanguage('en')
-    renderWithProviders(<NotificationExplainerCard />)
+    renderWithProviders(<NotificationExplainerCard preferences={ALL_ENABLED} />)
 
     expect(screen.getByText(i18n.t('notification:explainer.stopTitle'))).toBeInTheDocument()
     expect(screen.getByText(i18n.t('notification:explainer.stopHint'))).toBeInTheDocument()
@@ -56,7 +68,7 @@ describe('the explainer tells the truth about the domain', () => {
 
   it('promises at least one delivery rather than exactly one', async () => {
     await i18n.changeLanguage('en')
-    renderWithProviders(<NotificationExplainerCard />)
+    renderWithProviders(<NotificationExplainerCard preferences={ALL_ENABLED} />)
 
     const note = screen.getByText(i18n.t('notification:explainer.timingNote'))
     expect(note.textContent ?? '').toMatch(/at least one/i)

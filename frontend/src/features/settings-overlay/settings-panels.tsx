@@ -17,7 +17,7 @@ import { PersonalDataCard } from '@/features/profile/personal-data-card/personal
 import { ProfileLinksCard } from '@/features/profile/profile-links-card/profile-links-card'
 import { TelegramLinkCard } from '@/features/profile/telegram-link-card/telegram-link-card'
 import { ShortcutSettings } from '@/features/shortcut-settings/shortcut-settings'
-import type { MeResponse } from '@/shared/api/types.gen'
+import type { MeResponse, NotificationPreference } from '@/shared/api/types.gen'
 import { SYSTEM_TIME_ZONE } from '@/shared/datetime/datetime'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { TimezoneSelect } from '@/shared/ui/primitives/timezone-select/timezone-select'
@@ -80,7 +80,30 @@ function AccountPanel({ user }: { user: MeResponse }) {
   )
 }
 
-export function SettingsPanel({ section, user }: { section: SettingsSectionId; user: MeResponse }) {
+function NotificationsPanel({
+  user,
+  notificationPreferences,
+}: {
+  user: MeResponse
+  notificationPreferences: NotificationPreference[]
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <NotificationChannelCard user={user} />
+      <NotificationExplainerCard preferences={notificationPreferences} />
+    </div>
+  )
+}
+
+export function SettingsPanel({
+  section,
+  user,
+  notificationPreferences,
+}: {
+  section: SettingsSectionId
+  user: MeResponse
+  notificationPreferences: NotificationPreference[]
+}) {
   if (section === 'appearance') return <AppearancePanel user={user} />
 
   if (section === 'account') return <AccountPanel user={user} />
@@ -88,12 +111,7 @@ export function SettingsPanel({ section, user }: { section: SettingsSectionId; u
   if (section === 'shortcuts') return <ShortcutSettings />
 
   if (section === 'notifications') {
-    return (
-      <div className="flex flex-col gap-4">
-        <NotificationChannelCard user={user} />
-        <NotificationExplainerCard />
-      </div>
-    )
+    return <NotificationsPanel user={user} notificationPreferences={notificationPreferences} />
   }
 
   if (section === 'sessions') {
