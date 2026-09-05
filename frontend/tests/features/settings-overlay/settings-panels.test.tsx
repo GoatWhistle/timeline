@@ -96,6 +96,18 @@ describe('account against profile', () => {
     expect(screen.getByText(i18n.t('notification:card.preferred'))).toBeInTheDocument()
   })
 
+  it('answers what arrives and when, not only which channel', () => {
+    renderSection('notifications')
+
+    expect(screen.getByText(i18n.t('notification:explainer.title'))).toBeInTheDocument()
+    expect(screen.getByText(i18n.t('notification:explainer.stopTitle'))).toBeInTheDocument()
+    for (const type of ['REGISTRATION_REQUIRED', 'REGISTRATION_REMINDER', 'REGISTRATION_OVERDUE'])
+      expect(
+        document.querySelector(`[data-explainer-type="${type}"]`),
+        `type ${type} is unexplained`,
+      ).not.toBeNull()
+  })
+
   it('does not repeat the display name in account', () => {
     renderSection('account')
     expect(screen.queryByLabelText(i18n.t('common:profile.name'))).not.toBeInTheDocument()

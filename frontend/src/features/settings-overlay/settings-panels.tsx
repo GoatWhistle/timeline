@@ -12,6 +12,7 @@ import { AccountIdentityCard } from '@/features/profile/account-identity-card/ac
 import { EmailChangeCard } from '@/features/profile/email-change-card/email-change-card'
 import { NicknameCard } from '@/features/profile/nickname-card/nickname-card'
 import { NotificationChannelCard } from '@/features/profile/notification-channel-card/notification-channel-card'
+import { NotificationExplainerCard } from '@/features/profile/notification-explainer-card/notification-explainer-card'
 import { PersonalDataCard } from '@/features/profile/personal-data-card/personal-data-card'
 import { ProfileLinksCard } from '@/features/profile/profile-links-card/profile-links-card'
 import { TelegramLinkCard } from '@/features/profile/telegram-link-card/telegram-link-card'
@@ -90,6 +91,7 @@ export function SettingsPanel({ section, user }: { section: SettingsSectionId; u
     return (
       <div className="flex flex-col gap-4">
         <NotificationChannelCard user={user} />
+        <NotificationExplainerCard />
       </div>
     )
   }

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Plus, PowerOff } from 'lucide-react'
+import { Info, Plus, PowerOff } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -98,6 +98,14 @@ export function RulesEditor({ eventId }: { eventId: string }) {
 
   return (
     <div className="flex flex-col gap-4">
+      <p className="flex items-start gap-2 rounded-control border border-border bg-surface-2 px-3 py-2 text-meta">
+        <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <span className="min-w-0">
+          <span className="font-medium text-copy">{t('rules.audienceTitle')}</span>
+          <span className="mt-0.5 block text-muted-foreground">{t('rules.audienceHint')}</span>
+        </span>
+      </p>
+
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground text-copy">
           {t('rules.count', { count: rules.length, max: MAX_RULES })}

@@ -35,12 +35,13 @@
     "created": "Registration created",
     "createdHint": "Assigned participants received the \"not done\" status",
     "stateChanged": "Registration state changed",
-    "stateFailed": "Could not change the state",
-    "deadlineRequired": "Set a deadline"
+    "stateFailed": "Could not change the state"
   },
   "rules": {
     "title": "Reminder rules",
     "hint": "No more than 10 rules. A rule with a negative offset notifies about an overdue registration and does not fire after the event ends.",
+    "audienceTitle": "Only unmarked participants are reminded",
+    "audienceHint": "Every rule here skips anyone who already marked the registration as done, was waived or does not need it. Assigned participants who are still unmarked also get one \"registration required\" notification when you publish the event, without any rule.",
     "add": "Add rule",
     "emptyTitle": "No reminder rules",
     "emptyHint": "Without rules participants will only get the initial notification",

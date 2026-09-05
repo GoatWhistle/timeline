@@ -8,6 +8,27 @@
     "REGISTRATION_REMINDER": "Reminder",
     "REGISTRATION_OVERDUE": "Overdue"
   },
+  "explainer": {
+    "title": "What arrives and when",
+    "hint": "Notifications are about one thing only: marking a registration as done. An organizer sets the deadline and the reminders for each hackathon; you cannot add your own.",
+    "type": {
+      "REGISTRATION_REQUIRED": {
+        "name": "Registration required",
+        "when": "Once, soon after an organizer assigns you to a hackathon that has an open registration. It carries the link and the deadline."
+      },
+      "REGISTRATION_REMINDER": {
+        "name": "Reminder before the deadline",
+        "when": "At each interval the organizer set before the deadline — for example a day before. There may be several, or none at all."
+      },
+      "REGISTRATION_OVERDUE": {
+        "name": "The deadline has passed",
+        "when": "After the deadline, if the organizer set such a reminder. It stops once the hackathon ends."
+      }
+    },
+    "stopTitle": "Mark yourself registered and the reminders stop",
+    "stopHint": "Reminders go only to people whose registration is still unmarked. Open the hackathon and press \"I registered\". You set it yourself — the system does not check the external site. Nothing else switches them off for one hackathon.",
+    "timingNote": "Sending is checked every few minutes, so a notification can arrive slightly after the moment it was due. A message may also arrive twice: delivery guarantees at least one attempt, not exactly one."
+  },
   "card": {
     "title": "Notification channel",
     "hint": "If the selected channel is unavailable, the system falls back in the order Telegram → Email.",
