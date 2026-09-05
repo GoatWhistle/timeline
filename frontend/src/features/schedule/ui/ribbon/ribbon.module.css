@@ -187,8 +187,8 @@
 .nowLine {
   position: absolute;
   z-index: 6;
-  inset-block: 0;
-  width: 2px;
+  inset-inline: 0;
+  height: 2px;
   background-color: var(--urgency-today);
   pointer-events: none;
 }
@@ -196,7 +196,7 @@
 .nowLine::before {
   content: "";
   position: absolute;
-  inset-block-start: 0;
+  inset-block-start: -3px;
   inset-inline-start: -3px;
   width: 8px;
   height: 8px;

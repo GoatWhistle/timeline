@@ -6,7 +6,6 @@ import { formatDate, formatRelative } from '@/shared/datetime/datetime'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
 import { buildCalendarSpans, type CalendarSpan } from '../../model/calendar-items'
 import {
-  minuteOffset,
   placeTimed,
   RIBBON_DAY_RULE,
   RIBBON_MONTH_RULE,
@@ -14,7 +13,7 @@ import {
   splitRibbonTiers,
 } from '../../model/ribbon/ribbon-layout'
 import { bandAtDay, seasonBands } from '../../model/ribbon/ribbon-season'
-import { dayIndexIn, MINUTES_PER_DAY, type RibbonWindow } from '../../model/ribbon/ribbon-window'
+import { dayIndexIn, type RibbonWindow } from '../../model/ribbon/ribbon-window'
 import { useRibbonDrag } from '../../model/ribbon/use-ribbon-drag'
 import { useRibbonScroll } from '../../model/ribbon/use-ribbon-scroll'
 import { rowSentence } from '../../model/row-sentence'
@@ -158,25 +157,11 @@ export function RibbonGrid({
               placements={placements}
               dayWidth={dayWidth}
               label={t('schedule.hours')}
+              now={now}
               sentenceOf={sentenceOf}
               onSelect={onSelect}
               onOpen={open}
             />
-
-            {todayIndex >= 0 && todayIndex < grid.dayCount && (
-              <span
-                className={styles.nowLine}
-                data-ribbon-now
-                aria-hidden="true"
-                style={{
-                  left: minuteOffset(
-                    todayIndex,
-                    (now.getHours() * 60 + now.getMinutes()) % MINUTES_PER_DAY,
-                    dayWidth,
-                  ),
-                }}
-              />
-            )}
           </div>
         </div>
       </div>

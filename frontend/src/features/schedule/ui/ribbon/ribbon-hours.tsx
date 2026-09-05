@@ -4,6 +4,8 @@ import {
   hourTrackHeight,
   minuteOffset,
   RIBBON_AXIS_WIDTH,
+  RIBBON_HOUR_END,
+  RIBBON_HOUR_START,
   RIBBON_MIN_TIMED_WIDTH,
   ribbonHours,
   type TimedPlacement,
@@ -12,7 +14,7 @@ import {
   timedClippedEnd,
   timedClippedStart,
 } from '../../model/ribbon/ribbon-layout'
-import { MINUTES_PER_DAY } from '../../model/ribbon/ribbon-window'
+import { MINUTES_PER_DAY, MINUTES_PER_HOUR } from '../../model/ribbon/ribbon-window'
 import { ScheduleBar } from '../schedule-bar/schedule-bar'
 import styles from './ribbon.module.css'
 
@@ -20,6 +22,7 @@ export type RibbonHoursProps = {
   placements: readonly TimedPlacement[]
   dayWidth: number
   label: string
+  now: Date
   sentenceOf: (span: CalendarSpan) => string
   onSelect?: (id: string | undefined) => void
   onOpen: (span: CalendarSpan) => void
@@ -29,12 +32,15 @@ export function RibbonHours({
   placements,
   dayWidth,
   label,
+  now,
   sentenceOf,
   onSelect,
   onOpen,
 }: RibbonHoursProps) {
   const hours = ribbonHours()
   const height = hourTrackHeight()
+  const nowHour = now.getHours() + now.getMinutes() / MINUTES_PER_HOUR
+  const nowInWindow = nowHour >= RIBBON_HOUR_START && nowHour <= RIBBON_HOUR_END
 
   return (
     <section
@@ -55,6 +61,15 @@ export function RibbonHours({
           aria-hidden="true"
         />
       ))}
+
+      {nowInWindow && (
+        <span
+          className={styles.nowLine}
+          data-ribbon-now
+          style={{ top: hourLineTop(nowHour) }}
+          aria-hidden="true"
+        />
+      )}
 
       <div className={styles.axis} data-ribbon-axis aria-hidden="true" style={{ height }}>
         {hours.map((hour) => (
