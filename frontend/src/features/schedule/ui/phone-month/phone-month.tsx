@@ -1,12 +1,15 @@
 import type { Locale } from 'date-fns'
 import { format } from 'date-fns'
-import { type KeyboardEvent, memo } from 'react'
+import { type KeyboardEvent, memo, useRef } from 'react'
 import { eventColorAttrs } from '@/entities/event/event-color'
 import type { CalendarSpan } from '../../model/calendar-items'
 import type { MonthBlock as MonthBlockData } from '../../model/month-grid'
 import { AGENDA_MAX_DOTS, spansOfDay } from '../../model/phone-agenda'
+import { phoneDayCell } from '../../model/phone-scale'
 import { isToday } from '../../model/timeline-grid'
+import { useElementWidth } from '../../model/use-element-width'
 import styles from './phone-month.module.css'
+import { useRoomBelow } from './use-room-below'
 
 export const PhoneMonth = memo(PhoneMonthView)
 
@@ -36,9 +39,19 @@ function PhoneMonthView({
   onDayKeyDown,
 }: PhoneMonthProps) {
   const weekdays = block.weeks[0]?.days ?? []
+  const monthRef = useRef<HTMLElement>(null)
+  const width = useElementWidth(monthRef)
+  const room = useRoomBelow(monthRef)
+  const cell = phoneDayCell(width, room, block.weeks.length)
 
   return (
-    <section className={styles.month} data-schedule-month={block.key}>
+    <section
+      ref={monthRef}
+      className={styles.month}
+      data-schedule-month={block.key}
+      data-schedule-phone-cell={cell}
+      style={{ ['--phone-day-cell' as string]: `${cell}px` }}
+    >
       <h3 className={styles.name}>{format(block.date, 'LLLL yyyy', { locale })}</h3>
 
       <div className={styles.weekdays} aria-hidden="true">

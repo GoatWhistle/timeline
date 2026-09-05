@@ -88,6 +88,20 @@
   min-height: var(--band-height);
 }
 
+@media (pointer: coarse) {
+  .bandLanes [data-schedule-item]::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    width: 100%;
+    min-width: var(--tap-target);
+    height: 100%;
+    min-height: var(--tap-target);
+    transform: translate(-50%, -50%);
+  }
+}
+
 .bandColumns {
   display: grid;
   position: absolute;

@@ -1,8 +1,14 @@
 export const PHONE_MAX_WIDTH = 768
 
-export const PHONE_QUERY = `(max-width: ${PHONE_MAX_WIDTH - 1}px)`
+export const PHONE_MAX_HEIGHT = 540
 
 export const TOUCH_QUERY = '(pointer: coarse)'
+
+export const PHONE_PORTRAIT_QUERY = `(max-width: ${PHONE_MAX_WIDTH - 1}px)`
+
+export const PHONE_LANDSCAPE_QUERY = `(max-height: ${PHONE_MAX_HEIGHT - 1}px) and ${TOUCH_QUERY}`
+
+export const PHONE_QUERY = `${PHONE_PORTRAIT_QUERY}, ${PHONE_LANDSCAPE_QUERY}`
 
 export const SAFE_TOP = 'safe-pt'
 

@@ -16,9 +16,9 @@
 
 .section[data-empty="true"] {
   gap: 0;
-  border-color: color-mix(in oklch, var(--border) 55%, transparent);
+  border-color: transparent;
   background-color: transparent;
-  padding-block: 8px;
+  padding-block: 2px;
 }
 
 .heading {

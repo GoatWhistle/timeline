@@ -2,11 +2,12 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-surface);
   background-color: var(--background);
-  padding: 10px;
+  padding: 12px 8px 8px;
 }
 
 .name {
-  margin-block-end: 8px;
+  margin-block-end: 10px;
+  padding-inline: 4px;
   color: var(--foreground);
   font-size: var(--text-body);
   font-weight: 600;
@@ -18,7 +19,7 @@
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   border-block-end: 1px solid var(--border);
-  padding-block-end: 6px;
+  padding-block-end: 8px;
 }
 
 .weekday {
@@ -33,10 +34,11 @@
 .weeks {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
+  padding-block-start: 4px;
 }
 
 .blank {
-  min-height: var(--tap-target);
+  min-height: var(--phone-day-cell);
 }
 
 .cell {
@@ -45,9 +47,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 5px;
   min-width: var(--tap-target);
-  min-height: var(--tap-target);
+  min-height: var(--phone-day-cell);
   border: 0;
   border-radius: var(--radius-badge);
   background-color: transparent;
@@ -68,8 +70,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  height: 24px;
+  min-width: 30px;
+  height: 30px;
   border-radius: var(--radius-pill, 999px);
   color: var(--foreground);
   font-size: var(--text-body);
@@ -96,13 +98,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  height: 6px;
+  gap: 4px;
+  height: 7px;
 }
 
 .dot {
-  width: 5px;
-  height: 5px;
+  width: 7px;
+  height: 7px;
   border-radius: var(--radius-pill, 999px);
   background-color: var(--event-tint);
 }

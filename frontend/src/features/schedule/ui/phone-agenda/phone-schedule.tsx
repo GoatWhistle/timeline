@@ -143,6 +143,10 @@ export function PhoneSchedule({
     [onSelect],
   )
 
+  const revealPanel = useCallback((node: HTMLElement | null) => {
+    node?.scrollIntoView({ block: 'nearest' })
+  }, [])
+
   const onCellKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
       if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
@@ -184,7 +188,12 @@ export function PhoneSchedule({
         ))}
 
       {singleMonth && pickedDate && (
-        <section className={styles.dayPanel} data-schedule-day-agenda={pickedKey}>
+        <section
+          key={pickedKey}
+          ref={revealPanel}
+          className={styles.dayPanel}
+          data-schedule-day-agenda={pickedKey}
+        >
           <h3 className={styles.heading}>
             {format(pickedDate, 'd LLLL yyyy', { locale })}
             <span className={styles.count}>{dayAgenda.length}</span>
