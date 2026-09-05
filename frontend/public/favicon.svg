@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Timeline">
   <title>Timeline</title>
   <style>
-    .mark { fill: #994a00; stroke: #994a00; }
+    .mark { fill: #ac4600; stroke: #ac4600; }
     .track { opacity: 0.75; }
     @media (prefers-color-scheme: dark) {
       .mark { fill: #f4a34b; stroke: #f4a34b; }
