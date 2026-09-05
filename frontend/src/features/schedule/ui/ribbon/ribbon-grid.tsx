@@ -12,7 +12,6 @@ import {
   placeTimed,
   RIBBON_DAY_RULE,
   RIBBON_MONTH_RULE,
-  RIBBON_VIEWPORT_MAX,
   ribbonDayWidth,
   splitRibbonTiers,
 } from '../../model/ribbon/ribbon-layout'
@@ -133,7 +132,6 @@ export function RibbonGrid({
           id={paneId}
           ref={viewportRef}
           style={{
-            ['--ribbon-viewport-max' as string]: `${RIBBON_VIEWPORT_MAX}px`,
             ['--ribbon-month-rule' as string]: `${RIBBON_MONTH_RULE}px`,
             ['--ribbon-day-rule' as string]: `${RIBBON_DAY_RULE}px`,
           }}

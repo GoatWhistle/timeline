@@ -4,7 +4,7 @@ import type { ScheduleRow } from '@/shared/api/types.gen'
 import { currentTimeZone } from '@/shared/datetime/datetime'
 import { WEEK_AXIS_WIDTH, WEEK_HOUR_HEIGHT } from '../../ui/week-grid/week-layout'
 import type { CalendarSpan } from '../calendar-items'
-import { RESTING_HOUR_END, RESTING_HOUR_START } from '../pack-lanes'
+import { GRID_HOUR_END, GRID_HOUR_START } from '../pack-lanes'
 import { MINUTES_PER_DAY, MINUTES_PER_HOUR } from './ribbon-window'
 
 export const RIBBON_DAY_MIN_WIDTH = 34
@@ -16,11 +16,10 @@ export const RIBBON_WEEK_FRACTION = 2
 export const RIBBON_BAND_BAR = 22
 export const RIBBON_BAND_GAP = 4
 export const RIBBON_BAND_MAX_LANES = 6
-export const RIBBON_HOUR_START = RESTING_HOUR_START
-export const RIBBON_HOUR_END = RESTING_HOUR_END
+export const RIBBON_HOUR_START = GRID_HOUR_START
+export const RIBBON_HOUR_END = GRID_HOUR_END
 export const RIBBON_HOUR_HEIGHT = WEEK_HOUR_HEIGHT
 export const RIBBON_AXIS_WIDTH = WEEK_AXIS_WIDTH
-export const RIBBON_VIEWPORT_MAX = 620
 export const RIBBON_MONTH_RULE = 26
 export const RIBBON_DAY_RULE = 22
 export const RIBBON_DENSITY_TRACK = 34
@@ -145,6 +144,14 @@ export function clampToHourWindow(minute: number): number {
     RIBBON_HOUR_END * MINUTES_PER_HOUR,
     Math.max(RIBBON_HOUR_START * MINUTES_PER_HOUR, minute),
   )
+}
+
+export function timedClippedStart(startMinute: number): boolean {
+  return startMinute < RIBBON_HOUR_START * MINUTES_PER_HOUR
+}
+
+export function timedClippedEnd(endMinute: number): boolean {
+  return endMinute > RIBBON_HOUR_END * MINUTES_PER_HOUR
 }
 
 export function densityByDay(

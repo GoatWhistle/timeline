@@ -10,7 +10,8 @@
 
 .viewport {
   position: relative;
-  max-height: var(--ribbon-viewport-max);
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: thin;

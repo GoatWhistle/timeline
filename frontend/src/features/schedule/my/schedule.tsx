@@ -82,7 +82,7 @@ export function MySchedulePage() {
               value={view.scale}
               onChange={view.setScale}
               period={label}
-              onStep={view.step}
+              onStep={view.scale === 'all' ? undefined : view.step}
               onPresent={view.goToday}
               atPresent={view.atPresent}
             />
