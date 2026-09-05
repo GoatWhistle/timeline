@@ -17,14 +17,14 @@ func NewRules(db *postgres.DB) *Rules { return &Rules{db: db} }
 
 const RuleColumns = `id, display_id, registration_id,
 	(SELECT rg.display_id FROM registrations rg WHERE rg.id = registration_id),
-	offset_minutes, enabled, slot_no, channel_override,
+	offset_minutes, enabled, slot_no,
 	created_at, updated_at`
 
 func ScanRule(row pgx.Row) (*models.NotificationRule, error) {
 	var r models.NotificationRule
 	err := row.Scan(&r.ID, &r.DisplayID, &r.RegistrationID, &r.RegistrationDisplayID,
 		&r.OffsetMinutes, &r.Enabled, &r.SlotNo,
-		&r.ChannelOverride, &r.CreatedAt, &r.UpdatedAt)
+		&r.CreatedAt, &r.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -33,10 +33,10 @@ func ScanRule(row pgx.Row) (*models.NotificationRule, error) {
 
 func (r *Rules) Create(ctx context.Context, rule *models.NotificationRule) (*models.NotificationRule, error) {
 	return ScanRule(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO notification_rules (registration_id, offset_minutes, enabled, slot_no, channel_override)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO notification_rules (registration_id, offset_minutes, enabled, slot_no)
+		VALUES ($1, $2, $3, $4)
 		RETURNING `+RuleColumns,
-		rule.RegistrationID, rule.OffsetMinutes, rule.Enabled, rule.SlotNo, rule.ChannelOverride))
+		rule.RegistrationID, rule.OffsetMinutes, rule.Enabled, rule.SlotNo))
 }
 
 func (r *Rules) ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
@@ -57,14 +57,13 @@ func (r *Rules) GetByID(ctx context.Context, id uuid.UUID) (*models.Notification
 }
 
 func (r *Rules) Update(ctx context.Context, id uuid.UUID, offset *int, enabled *bool,
-	channel *models.Channel, clearChannel bool) (*models.NotificationRule, error) {
+) (*models.NotificationRule, error) {
 	return ScanRule(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE notification_rules SET
 			offset_minutes = COALESCE($2, offset_minutes),
-			enabled = COALESCE($3, enabled),
-			channel_override = CASE WHEN $5 THEN NULL ELSE COALESCE($4, channel_override) END
+			enabled = COALESCE($3, enabled)
 		WHERE id = $1
-		RETURNING `+RuleColumns, id, offset, enabled, channel, clearChannel))
+		RETURNING `+RuleColumns, id, offset, enabled))
 }
 
 func (r *Rules) Disable(ctx context.Context, id uuid.UUID) error {
@@ -91,7 +90,7 @@ func (r *Rules) ListByRegistration(ctx context.Context, registrationID uuid.UUID
 		var rule models.NotificationRule
 		if err := rows.Scan(&rule.ID, &rule.DisplayID, &rule.RegistrationID, &rule.RegistrationDisplayID,
 			&rule.OffsetMinutes, &rule.Enabled,
-			&rule.SlotNo, &rule.ChannelOverride, &rule.CreatedAt, &rule.UpdatedAt); err != nil {
+			&rule.SlotNo, &rule.CreatedAt, &rule.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}
 		items = append(items, rule)

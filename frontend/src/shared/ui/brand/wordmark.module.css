@@ -12,42 +12,63 @@
   transition: transform var(--duration-fast) var(--ease-out);
 }
 
-.link:hover .mark {
-  transform: scale(1.08);
+.mark :global(rect) {
+  transform-box: fill-box;
+  transform-origin: left center;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.link:hover .mark :global(rect):nth-child(1) {
+  transform: scaleX(1.1);
+}
+
+.link:hover .mark :global(rect):nth-child(2) {
+  transform: scaleX(1.06);
+}
+
+.link:hover .mark :global(rect):nth-child(3) {
+  transform: scaleX(1.14);
 }
 
 .link:active .mark {
-  transform: scale(0.94);
+  transform: scale(0.96);
 }
 
-.link[data-travelling="true"] .mark {
-  animation: travel var(--duration-slow) var(--ease-in-out);
+.link[data-travelling="true"] .mark :global(rect):nth-child(1) {
+  animation: sweep var(--duration-base) var(--ease-out);
 }
 
-@keyframes travel {
+.link[data-travelling="true"] .mark :global(rect):nth-child(2) {
+  animation: sweep var(--duration-base) var(--ease-out) 55ms both;
+}
+
+.link[data-travelling="true"] .mark :global(rect):nth-child(3) {
+  animation: sweep var(--duration-base) var(--ease-out) 110ms both;
+}
+
+@keyframes sweep {
   0% {
-    transform: translateX(0) scale(1);
+    transform: scaleX(1);
   }
-  40% {
-    transform: translateX(3px) scale(1.12);
-  }
-  70% {
-    transform: translateX(-2px) scale(0.96);
+  45% {
+    transform: scaleX(0.34);
   }
   100% {
-    transform: translateX(0) scale(1);
+    transform: scaleX(1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mark,
+  .mark :global(rect),
   .link:hover .mark,
+  .link:hover .mark :global(rect),
   .link:active .mark {
     transition: none;
     transform: none;
   }
 
-  .link[data-travelling="true"] .mark {
+  .link[data-travelling="true"] .mark :global(rect) {
     animation: none;
   }
 }

@@ -69,17 +69,13 @@ func (s *RuleService) Create(ctx context.Context, actor models.Actor, eventID uu
 	if err := s.validateOffset(req.OffsetMinutes); err != nil {
 		return nil, err
 	}
-	channel, err := optionalChannel("channel_override", req.ChannelOverride)
-	if err != nil {
-		return nil, err
-	}
 	enabled := true
 	if req.Enabled != nil {
 		enabled = *req.Enabled
 	}
 
 	var created *models.NotificationRule
-	err = s.db.WithTx(ctx, func(ctx context.Context) error {
+	err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		registration, err := s.registrations.GetByEventForUpdate(ctx, eventID)
 		if err != nil {
 			return notFoundRegistration(err)
@@ -91,11 +87,10 @@ func (s *RuleService) Create(ctx context.Context, actor models.Actor, eventID uu
 		}
 
 		created, err = s.rules.Create(ctx, &models.NotificationRule{
-			RegistrationID:  registration.ID,
-			OffsetMinutes:   req.OffsetMinutes,
-			Enabled:         enabled,
-			SlotNo:          slot,
-			ChannelOverride: channel,
+			RegistrationID: registration.ID,
+			OffsetMinutes:  req.OffsetMinutes,
+			Enabled:        enabled,
+			SlotNo:         slot,
 		})
 		if err != nil {
 			return err
@@ -126,9 +121,8 @@ func ruleScheduleChanged(req dto.UpdateRuleRequest, before *models.NotificationR
 
 func ruleAuditState(rule *models.NotificationRule) map[string]any {
 	return map[string]any{
-		"offset_minutes":   rule.OffsetMinutes,
-		"enabled":          rule.Enabled,
-		"channel_override": rule.ChannelOverride,
+		"offset_minutes": rule.OffsetMinutes,
+		"enabled":        rule.Enabled,
 	}
 }
 
@@ -149,17 +143,12 @@ func (s *RuleService) Update(ctx context.Context, actor models.Actor, ruleID uui
 			return nil, err
 		}
 	}
-	channel, err := optionalChannel("channel_override", req.ChannelOverride)
-	if err != nil {
-		return nil, err
-	}
-	clearChannel := req.ChannelOverride != nil && *req.ChannelOverride == ""
 
 	var (
 		updated *models.NotificationRule
 		eventID uuid.UUID
 	)
-	err = s.db.WithTx(ctx, func(ctx context.Context) error {
+	err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		before, err := s.rules.GetByID(ctx, ruleID)
 		if err != nil {
 			return err
@@ -170,7 +159,7 @@ func (s *RuleService) Update(ctx context.Context, actor models.Actor, ruleID uui
 		}
 		eventID = reg.EventID
 
-		updated, err = s.rules.Update(ctx, ruleID, req.OffsetMinutes, req.Enabled, channel, clearChannel)
+		updated, err = s.rules.Update(ctx, ruleID, req.OffsetMinutes, req.Enabled)
 		if err != nil {
 			return err
 		}
@@ -234,15 +223,4 @@ func (s *RuleService) reconcile(ctx context.Context, eventID uuid.UUID) {
 	if err := s.reconciler.ReconcileEvent(ctx, eventID); err != nil {
 		reconcile.LogReconcileFailure(ctx, eventID, err)
 	}
-}
-
-func optionalChannel(field string, value *string) (*models.Channel, error) {
-	if value == nil || *value == "" {
-		return nil, nil
-	}
-	channel, err := validation.ParseChannel(field, *value)
-	if err != nil {
-		return nil, err
-	}
-	return &channel, nil
 }

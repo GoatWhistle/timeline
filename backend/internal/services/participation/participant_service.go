@@ -154,7 +154,7 @@ func (s *ParticipantService) ensureStatusAndNotification(ctx context.Context, ev
 	}
 
 	candidate := reconcile.BuildCandidate(event, registration, participant, status.ID, status.TodoCycle, user)
-	_, _, err = s.notifier.CreatePrimary(ctx, candidate)
+	_, err = s.notifier.CreatePrimary(ctx, candidate)
 	return err
 }
 

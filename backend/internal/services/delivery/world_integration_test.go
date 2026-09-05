@@ -94,8 +94,9 @@ func (w *world) newUser(email string, telegram, verified bool) uuid.UUID {
 		verifiedAt = "now()"
 	}
 	return w.scanUUID(`
-		INSERT INTO users (first_name, last_name, email, password_hash, telegram_chat_id, email_verified_at)
-		VALUES ('Test', 'User', $1, 'hash', $2, `+verifiedAt+`) RETURNING id`, email, chatID)
+		INSERT INTO users (first_name, last_name, email, password_hash, telegram_chat_id, email_verified_at,
+			notification_channels)
+		VALUES ('Test', 'User', $1, 'hash', $2, `+verifiedAt+`, '{TELEGRAM}') RETURNING id`, email, chatID)
 }
 
 func (w *world) scanUUID(query string, args ...any) uuid.UUID {
@@ -114,30 +115,30 @@ func (w *world) exec(query string, args ...any) {
 	}
 }
 
-func (w *world) addRule(offsetMinutes, slot int, override *models.Channel) uuid.UUID {
+func (w *world) addRule(offsetMinutes, slot int) uuid.UUID {
 	w.t.Helper()
 	return w.scanUUID(`
-		INSERT INTO notification_rules (registration_id, offset_minutes, slot_no, channel_override)
-		VALUES ($1, $2, $3, $4) RETURNING id`, w.RegistrationID, offsetMinutes, slot, override)
-}
-
-func (w *world) setPreferredChannel(ch models.Channel) {
-	w.t.Helper()
-	w.exec(`UPDATE users SET preferred_channel = $2 WHERE id = $1`, w.UserID, string(ch))
+		INSERT INTO notification_rules (registration_id, offset_minutes, slot_no)
+		VALUES ($1, $2, $3) RETURNING id`, w.RegistrationID, offsetMinutes, slot)
 }
 
 func (w *world) setChannels(telegram, verified bool) {
 	w.t.Helper()
 	var chatID *string
+	selected := make([]string, 0, 2)
 	if telegram {
 		value := "chat-primary"
 		chatID = &value
+		selected = append(selected, "TELEGRAM")
 	}
 	if verified {
-		w.exec(`UPDATE users SET telegram_chat_id = $2, email_verified_at = now() WHERE id = $1`, w.UserID, chatID)
+		selected = append(selected, "EMAIL")
+		w.exec(`UPDATE users SET telegram_chat_id = $2, email_verified_at = now(), notification_channels = $3
+			WHERE id = $1`, w.UserID, chatID, selected)
 		return
 	}
-	w.exec(`UPDATE users SET telegram_chat_id = $2, email_verified_at = NULL WHERE id = $1`, w.UserID, chatID)
+	w.exec(`UPDATE users SET telegram_chat_id = $2, email_verified_at = NULL, notification_channels = $3
+		WHERE id = $1`, w.UserID, chatID, selected)
 }
 
 func (w *world) setStatus(value models.RegistrationStatusValue) {

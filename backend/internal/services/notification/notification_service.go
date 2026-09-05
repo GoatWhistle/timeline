@@ -15,103 +15,115 @@ import (
 )
 
 type NotificationService struct {
-	repo *notification.Notifications
-	cfg  *config.Config
-	now  func() time.Time
+	repo  *notification.Notifications
+	prefs *notification.Preferences
+	cfg   *config.Config
+	now   func() time.Time
 }
 
-func NewNotificationService(repo *notification.Notifications, cfg *config.Config) *NotificationService {
-	return &NotificationService{repo: repo, cfg: cfg, now: func() time.Time { return time.Now().UTC() }}
+func NewNotificationService(repo *notification.Notifications, prefs *notification.Preferences,
+	cfg *config.Config) *NotificationService {
+	return &NotificationService{repo: repo, prefs: prefs, cfg: cfg,
+		now: func() time.Time { return time.Now().UTC() }}
 }
 
-func PrimaryKey(participantID uuid.UUID, assignmentVersion, activationVersion, contentVersion int) string {
-	return fmt.Sprintf("required:%s:av%d:rv%d:cv%d",
-		participantID, assignmentVersion, activationVersion, contentVersion)
+func PrimaryKey(participantID uuid.UUID, assignmentVersion, activationVersion, contentVersion int,
+	channel models.Channel) string {
+	return fmt.Sprintf("required:%s:av%d:rv%d:cv%d:ch%s",
+		participantID, assignmentVersion, activationVersion, contentVersion, channel)
 }
 
 func RuleKey(kind models.NotificationType, statusID, ruleID uuid.UUID, scheduleVersion, todoCycle, contentVersion int,
-) string {
+	channel models.Channel) string {
 	prefix := "reminder"
 	if kind == models.NotificationOverdue {
 		prefix = "overdue"
 	}
-	return fmt.Sprintf("%s:%s:%s:sv%d:tc%d:cv%d", prefix, statusID, ruleID, scheduleVersion, todoCycle, contentVersion)
+	return fmt.Sprintf("%s:%s:%s:sv%d:tc%d:cv%d:ch%s",
+		prefix, statusID, ruleID, scheduleVersion, todoCycle, contentVersion, channel)
 }
 
-func ChooseChannel(channels models.RecipientChannels, override *models.Channel, exclude []models.Channel,
-) (models.Channel, bool) {
-	available := func(ch models.Channel) bool {
-		for _, failed := range exclude {
-			if failed == ch {
-				return false
-			}
-		}
-		return channels.Available(ch)
+func (s *NotificationService) recipientChannels(ctx context.Context, c *models.ReconcileCandidate) error {
+	if s.prefs == nil || c.RecipientChannels.Preferences != nil {
+		return nil
 	}
-
-	if override != nil && available(*override) {
-		return *override, true
+	prefs, err := s.prefs.Muted(ctx, c.RecipientID)
+	if err != nil {
+		return err
 	}
-	if channels.PreferredChannel != nil && available(*channels.PreferredChannel) {
-		return *channels.PreferredChannel, true
-	}
-	for _, ch := range []models.Channel{models.ChannelTelegram, models.ChannelEmail} {
-		if available(ch) {
-			return ch, true
-		}
-	}
-	return "", false
+	c.RecipientChannels.Preferences = prefs
+	return nil
 }
 
 func (s *NotificationService) CreatePrimary(ctx context.Context, c models.ReconcileCandidate,
-) (*models.Notification, bool, error) {
-	channel, ok := ChooseChannel(c.RecipientChannels, nil, nil)
-	if !ok {
-		channel = models.ChannelEmail
+) (int, error) {
+	if err := s.recipientChannels(ctx, &c); err != nil {
+		return 0, err
 	}
+	channels := c.RecipientChannels.Deliverable(models.NotificationRequired)
 	now := s.now()
-	notification := &models.Notification{
-		NotificationType:           models.NotificationRequired,
-		RecipientUserID:            c.RecipientID,
-		RegistrationStatusID:       c.StatusID,
-		AssignmentVersion:          &c.AssignmentVersion,
-		ActivationVersion:          &c.ActivationVersion,
-		NotificationContentVersion: c.ContentVersion,
-		LogicalKey: PrimaryKey(
-			c.ParticipantID, c.AssignmentVersion, c.ActivationVersion, c.ContentVersion),
-		RequestedChannel: channel,
-		ScheduledAt:      now,
-		NextAttemptAt:    &now,
-		Payload:          s.payload(models.NotificationRequired, c),
+	created := 0
+	for _, channel := range channels {
+		notification := &models.Notification{
+			NotificationType:           models.NotificationRequired,
+			RecipientUserID:            c.RecipientID,
+			RegistrationStatusID:       c.StatusID,
+			AssignmentVersion:          &c.AssignmentVersion,
+			ActivationVersion:          &c.ActivationVersion,
+			NotificationContentVersion: c.ContentVersion,
+			LogicalKey: PrimaryKey(
+				c.ParticipantID, c.AssignmentVersion, c.ActivationVersion, c.ContentVersion, channel),
+			RequestedChannel: channel,
+			ScheduledAt:      now,
+			NextAttemptAt:    &now,
+			Payload:          s.payload(models.NotificationRequired, c),
+		}
+		_, ok, err := s.repo.Insert(ctx, notification)
+		if err != nil {
+			return created, err
+		}
+		if ok {
+			created++
+		}
 	}
-	return s.repo.Insert(ctx, notification)
+	return created, nil
 }
 
 func (s *NotificationService) CreateForRule(ctx context.Context, c models.ReconcileCandidate,
-	rule models.NotificationRule, scheduledAt time.Time) (*models.Notification, bool, error) {
-	kind := rule.NotificationType()
-	channel, ok := ChooseChannel(c.RecipientChannels, rule.ChannelOverride, nil)
-	if !ok {
-		channel = models.ChannelEmail
+	rule models.NotificationRule, scheduledAt time.Time) (int, error) {
+	if err := s.recipientChannels(ctx, &c); err != nil {
+		return 0, err
 	}
+	kind := rule.NotificationType()
+	channels := c.RecipientChannels.Deliverable(kind)
 	now := s.now()
 	ruleID := rule.ID
-	notification := &models.Notification{
-		NotificationType:           kind,
-		RecipientUserID:            c.RecipientID,
-		RegistrationStatusID:       c.StatusID,
-		RuleID:                     &ruleID,
-		ScheduleVersion:            &c.ScheduleVersion,
-		TodoCycle:                  &c.TodoCycle,
-		NotificationContentVersion: c.ContentVersion,
-		LogicalKey: RuleKey(
-			kind, c.StatusID, rule.ID, c.ScheduleVersion, c.TodoCycle, c.ContentVersion),
-		RequestedChannel: channel,
-		ScheduledAt:      scheduledAt,
-		NextAttemptAt:    &now,
-		Payload:          s.payload(kind, c),
+	created := 0
+	for _, channel := range channels {
+		notification := &models.Notification{
+			NotificationType:           kind,
+			RecipientUserID:            c.RecipientID,
+			RegistrationStatusID:       c.StatusID,
+			RuleID:                     &ruleID,
+			ScheduleVersion:            &c.ScheduleVersion,
+			TodoCycle:                  &c.TodoCycle,
+			NotificationContentVersion: c.ContentVersion,
+			LogicalKey: RuleKey(
+				kind, c.StatusID, rule.ID, c.ScheduleVersion, c.TodoCycle, c.ContentVersion, channel),
+			RequestedChannel: channel,
+			ScheduledAt:      scheduledAt,
+			NextAttemptAt:    &now,
+			Payload:          s.payload(kind, c),
+		}
+		_, ok, err := s.repo.Insert(ctx, notification)
+		if err != nil {
+			return created, err
+		}
+		if ok {
+			created++
+		}
 	}
-	return s.repo.Insert(ctx, notification)
+	return created, nil
 }
 
 func (s *NotificationService) Render(kind models.NotificationType, c models.ReconcileCandidate,

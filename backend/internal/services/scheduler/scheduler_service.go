@@ -130,11 +130,11 @@ func (s *SchedulerService) processBatch(ctx context.Context, candidates []models
 
 func (s *SchedulerService) reconcileCandidate(ctx context.Context, c models.ReconcileCandidate,
 	rules []models.NotificationRule, now time.Time, result *ReconcileResult) error {
-	if _, created, err := s.notifier.CreatePrimary(ctx, c); err != nil {
+	created, err := s.notifier.CreatePrimary(ctx, c)
+	if err != nil {
 		return err
-	} else if created {
-		result.Primary++
 	}
+	result.Primary += created
 
 	for _, rule := range rules {
 		trigger := rule.TriggerAt(c.DeadlineAt)
@@ -144,17 +144,14 @@ func (s *SchedulerService) reconcileCandidate(ctx context.Context, c models.Reco
 		if !s.ruleApplies(rule, c, now) {
 			continue
 		}
-		_, created, err := s.CreateRuleNotification(ctx, c, rule, trigger)
+		created, err := s.CreateRuleNotification(ctx, c, rule, trigger)
 		if err != nil {
 			return err
 		}
-		if !created {
-			continue
-		}
 		if rule.NotificationType() == models.NotificationOverdue {
-			result.Overdue++
+			result.Overdue += created
 		} else {
-			result.Reminder++
+			result.Reminder += created
 		}
 	}
 	return nil
@@ -169,7 +166,7 @@ func (s *SchedulerService) ruleApplies(rule models.NotificationRule, c models.Re
 }
 
 func (s *SchedulerService) CreateRuleNotification(ctx context.Context, c models.ReconcileCandidate,
-	rule models.NotificationRule, scheduledAt time.Time) (*models.Notification, bool, error) {
+	rule models.NotificationRule, scheduledAt time.Time) (int, error) {
 	return s.notifier.CreateForRule(ctx, c, rule, scheduledAt)
 }
 

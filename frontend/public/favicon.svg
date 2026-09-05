@@ -1,17 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Timeline">
   <title>Timeline</title>
   <style>
-    .mark { fill: #ac4600; stroke: #ac4600; }
+    .mark { fill: #ac4600; }
     .track { opacity: 0.75; }
     @media (prefers-color-scheme: dark) {
-      .mark { fill: #f4a34b; stroke: #f4a34b; }
+      .mark { fill: #f4a34b; }
       .track { opacity: 0.55; }
     }
   </style>
   <g class="mark">
-    <path class="track" d="M4 12h16" fill="none" stroke-width="2.5" stroke-linecap="round"/>
-    <circle class="track" cx="4" cy="12" r="2.5" stroke="none"/>
-    <circle class="track" cx="20" cy="12" r="2.5" stroke="none"/>
-    <circle cx="12" cy="12" r="5.5" stroke="none"/>
+    <rect class="track" x="2.5" y="4.6" width="12" height="4.4" rx="2.2"/>
+    <rect x="7" y="9.8" width="14.5" height="4.4" rx="2.2"/>
+    <rect class="track" x="4.5" y="15" width="9.5" height="4.4" rx="2.2"/>
   </g>
 </svg>

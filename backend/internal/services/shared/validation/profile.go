@@ -14,16 +14,17 @@ func ProfilePatch(req dto.UpdateProfileRequest) (dto.ProfilePatch, error) {
 	if err := profileName(req, &patch); err != nil {
 		return patch, err
 	}
-	if req.PreferredChannel != nil {
-		if *req.PreferredChannel == "" {
-			patch.ClearPreferredChannel = true
-		} else {
-			value, err := ParseChannel("preferred_channel", *req.PreferredChannel)
+	if req.NotificationChannels != nil {
+		channels := make(models.ChannelSet, 0, len(req.NotificationChannels))
+		for _, raw := range req.NotificationChannels {
+			value, err := ParseChannel("notification_channels", raw)
 			if err != nil {
 				return patch, err
 			}
-			patch.PreferredChannel = &value
+			channels = append(channels, value)
 		}
+		normalized := models.NormalizeChannelSet(channels)
+		patch.NotificationChannels = &normalized
 	}
 	if req.TelegramUsername != nil {
 		if *req.TelegramUsername == "" {

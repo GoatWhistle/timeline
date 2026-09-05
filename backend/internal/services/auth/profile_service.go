@@ -105,16 +105,16 @@ func profileChanged(before, after map[string]any) bool {
 
 func profileSnapshot(u *models.User) map[string]any {
 	return map[string]any{
-		"first_name":        u.FirstName,
-		"middle_name":       u.MiddleName,
-		"last_name":         u.LastName,
-		"nickname":          u.Nickname,
-		"profile_public":    u.ProfilePublic,
-		"preferred_channel": u.PreferredChannel,
-		"locale":            u.Locale,
-		"timezone":          u.Timezone,
-		"avatar_url":        u.AvatarURL,
-		"bio_set":           u.Bio != nil,
+		"first_name":            u.FirstName,
+		"middle_name":           u.MiddleName,
+		"last_name":             u.LastName,
+		"nickname":              u.Nickname,
+		"profile_public":        u.ProfilePublic,
+		"notification_channels": u.NotificationChannels,
+		"locale":                u.Locale,
+		"timezone":              u.Timezone,
+		"avatar_url":            u.AvatarURL,
+		"bio_set":               u.Bio != nil,
 	}
 }
 

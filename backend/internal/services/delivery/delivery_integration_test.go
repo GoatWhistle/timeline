@@ -17,10 +17,9 @@ func seedOneDue(t *testing.T, w *world, telegram, email *recordingSender) (*rig,
 	return r, r.only()
 }
 
-func TestFallbackToEmailWhenTelegramUnavailable(t *testing.T) {
+func TestChannelNotSelectedIsNeverScheduled(t *testing.T) {
 	w := newWorld(t)
 	w.setChannels(false, true)
-	w.setPreferredChannel(models.ChannelTelegram)
 	telegram, email := newSender(), newSender()
 	r, n := seedOneDue(t, w, telegram, email)
 
@@ -35,26 +34,32 @@ func TestFallbackToEmailWhenTelegramUnavailable(t *testing.T) {
 	requireChannel(t, after, models.ChannelEmail)
 	requireAttempts(t, after, 1)
 	if telegram.count() != 0 {
-		t.Fatalf("an unavailable Telegram channel must not cost a provider call")
+		t.Fatalf("an unselected Telegram channel must not cost a provider call")
 	}
 	if email.count() != 1 {
 		t.Fatalf("expected exactly one email call, got %d", email.count())
 	}
 }
 
-func TestNoChannelBecomesUndeliverable(t *testing.T) {
+func TestNoChannelCreatesNoNotification(t *testing.T) {
 	w := newWorld(t)
 	w.setChannels(false, false)
 	telegram, email := newSender(), newSender()
-	r, n := seedOneDue(t, w, telegram, email)
+	r := newRig(t, w, telegram, email)
+	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 
-	r.work()
+	result := r.reconcile()
+	if result.Primary != 0 {
+		t.Fatalf("no deliverable channel must create no notification, got %+v", result)
+	}
+	if got := w.countAll(); got != 0 {
+		t.Fatalf("expected no notifications, got %d (%v)", got, w.keys())
+	}
 
-	after := r.load(n.ID)
-	requireStatus(t, after, models.NotificationUndeliverable)
-	requireAttempts(t, after, 0)
-	if telegram.count()+email.count() != 0 {
-		t.Fatalf("no provider call may be made without an available channel")
+	w.setChannels(true, false)
+	again := r.reconcile()
+	if again.Primary != 1 {
+		t.Fatalf("a channel becoming available must let reconciliation create a notification, got %+v", again)
 	}
 
 	var status string
@@ -134,49 +139,50 @@ func TestRetryExhaustionFails(t *testing.T) {
 	}
 }
 
-func TestPermanentErrorSwitchesChannelWithoutBackoff(t *testing.T) {
+func TestPermanentErrorMakesOnlyItsOwnRowUndeliverable(t *testing.T) {
 	w := newWorld(t)
 	w.setChannels(true, true)
-	w.setPreferredChannel(models.ChannelTelegram)
-	telegram := newSender(models.NewPermanentDeliveryError("chat is blocked", nil))
+	permanent := models.NewPermanentDeliveryError("chat is blocked", nil)
+	telegram := newSender(permanent)
 	email := newSender()
-	r, n := seedOneDue(t, w, telegram, email)
-
-	if n.RequestedChannel != models.ChannelTelegram {
-		t.Fatalf("expected requested_channel TELEGRAM, got %s", n.RequestedChannel)
+	r := newRig(t, w, telegram, email)
+	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
+	result := r.reconcile()
+	if result.Primary != 2 {
+		t.Fatalf("expected one row per selected channel, got %+v", result)
 	}
 
-	before := r.clock.at
+	r.work()
 	r.work()
 
-	after := r.load(n.ID)
-	requireStatus(t, after, models.NotificationSent)
-	requireChannel(t, after, models.ChannelEmail)
-	requireAttempts(t, after, 2)
-	if telegram.count() != 1 || email.count() != 1 {
-		t.Fatalf("expected one call per channel, got telegram=%d email=%d", telegram.count(), email.count())
+	telegramRow := r.byKey(r.primaryKey(models.ChannelTelegram))
+	requireStatus(t, telegramRow, models.NotificationUndeliverable)
+	emailRow := r.byKey(r.primaryKey(models.ChannelEmail))
+	requireStatus(t, emailRow, models.NotificationSent)
+	requireChannel(t, emailRow, models.ChannelEmail)
+
+	if telegram.count() != 1 {
+		t.Fatalf("expected exactly one telegram call, got %d", telegram.count())
 	}
-	if after.SentAt == nil || after.SentAt.Sub(before) != 0 {
-		t.Fatalf("the channel switch must not apply backoff, sent_at delta %v", after.SentAt)
-	}
-	if !after.ChannelFailed(models.ChannelTelegram) {
-		t.Fatalf("the permanently failed channel was not recorded: %v", after.FailedChannels)
+	if email.count() != 1 {
+		t.Fatalf("the sibling channel's row must still be delivered, email calls %d", email.count())
 	}
 }
 
 func TestPermanentErrorOnAllChannelsBecomesUndeliverable(t *testing.T) {
 	w := newWorld(t)
 	w.setChannels(true, true)
-	w.setPreferredChannel(models.ChannelTelegram)
 	permanent := models.NewPermanentDeliveryError("address is rejected", nil)
 	telegram, email := newSender(permanent), newSender(permanent)
-	r, n := seedOneDue(t, w, telegram, email)
+	r := newRig(t, w, telegram, email)
+	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
+	r.reconcile()
 
 	r.work()
+	r.work()
 
-	after := r.load(n.ID)
-	requireStatus(t, after, models.NotificationUndeliverable)
-	requireAttempts(t, after, 2)
+	requireStatus(t, r.byKey(r.primaryKey(models.ChannelTelegram)), models.NotificationUndeliverable)
+	requireStatus(t, r.byKey(r.primaryKey(models.ChannelEmail)), models.NotificationUndeliverable)
 	if telegram.count() != 1 || email.count() != 1 {
 		t.Fatalf("expected one call per channel, got telegram=%d email=%d", telegram.count(), email.count())
 	}
@@ -191,47 +197,48 @@ func TestPermanentErrorOnAllChannelsBecomesUndeliverable(t *testing.T) {
 	}
 }
 
-func TestUndeliverableStaysTerminalAfterNewChannelAppears(t *testing.T) {
+func TestUndeliverableRowStaysTerminalAfterChannelReappears(t *testing.T) {
 	w := newWorld(t)
-	w.setChannels(false, false)
-	telegram, email := newSender(), newSender()
-	r, n := seedOneDue(t, w, telegram, email)
+	w.setChannels(true, false)
+	permanent := models.NewPermanentDeliveryError("chat is blocked", nil)
+	telegram := newSender(permanent)
+	r, n := seedOneDue(t, w, telegram, newSender())
 
 	r.work()
 	requireStatus(t, r.load(n.ID), models.NotificationUndeliverable)
 
-	w.setChannels(true, true)
+	w.exec(`UPDATE users SET telegram_chat_id = 'chat-primary' WHERE id = $1`, w.UserID)
 	r.clock.Advance(time.Hour)
 	r.work()
 	r.reconcile()
 
 	after := r.load(n.ID)
 	requireStatus(t, after, models.NotificationUndeliverable)
-	if telegram.count()+email.count() != 0 {
-		t.Fatalf("a terminal notification was resent after a channel appeared")
+	if telegram.count() != 1 {
+		t.Fatalf("a terminal row was resent after the channel reappeared, calls: %d", telegram.count())
 	}
 	if got := w.countByKey(n.LogicalKey); got != 1 {
 		t.Fatalf("reconciliation duplicated a terminal logical key: %d rows", got)
 	}
 }
 
-func TestChannelOverrideWins(t *testing.T) {
+func TestRuleFollowsRecipientSelectionWithNoChannelChoiceOfItsOwn(t *testing.T) {
 	w := newWorld(t)
 	w.setChannels(true, true)
-	w.setPreferredChannel(models.ChannelTelegram)
-	override := models.ChannelEmail
-	w.addRule(60, 1, &override)
-	telegram, email := newSender(), newSender()
-	r := newRig(t, w, telegram, email)
+	rule := w.addRule(60, 1)
+	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
-	r.reconcile()
-
-	r.work()
-
-	if telegram.count() != 1 {
-		t.Fatalf("the primary notification must follow the preferred channel, telegram calls %d", telegram.count())
+	result := r.reconcile()
+	if result.Primary != 2 {
+		t.Fatalf("expected one primary row per selected profile channel, got %+v", result)
 	}
-	if email.count() != 1 {
-		t.Fatalf("the rule override must force EMAIL, email calls %d", email.count())
+	if result.Reminder != 2 {
+		t.Fatalf("a rule has no channel of its own: it must fan out across every selected "+
+			"profile channel just like the primary occasion, got %+v", result)
 	}
+
+	requireStatus(t, r.byKey(r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)),
+		models.NotificationPending)
+	requireStatus(t, r.byKey(r.ruleKey(models.NotificationReminder, rule, models.ChannelEmail)),
+		models.NotificationPending)
 }

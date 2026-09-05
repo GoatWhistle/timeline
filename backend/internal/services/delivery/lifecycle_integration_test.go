@@ -15,7 +15,7 @@ func TestActivationVersionBumpProducesNewPrimaryKey(t *testing.T) {
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
-	firstKey := r.primaryKey()
+	firstKey := r.primaryKey(models.ChannelTelegram)
 
 	w.exec(`UPDATE registrations SET state = 'DISABLED' WHERE id = $1`, w.RegistrationID)
 	if err := r.notifier.CancelForRegistration(w.ctx, w.RegistrationID); err != nil {
@@ -32,7 +32,7 @@ func TestActivationVersionBumpProducesNewPrimaryKey(t *testing.T) {
 	if result.Primary != 1 {
 		t.Fatalf("expected a fresh primary notification after reactivation, got %+v", result)
 	}
-	if r.primaryKey() == firstKey {
+	if r.primaryKey(models.ChannelTelegram) == firstKey {
 		t.Fatalf("the activation version bump did not change the key")
 	}
 }
@@ -43,7 +43,7 @@ func TestEventTitleChangeDoesNotRewriteSnapshot(t *testing.T) {
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	existing := r.byKey(r.primaryKey())
+	existing := r.byKey(r.primaryKey(models.ChannelTelegram))
 	if existing.Payload.EventTitle != "Test event" {
 		t.Fatalf("unexpected snapshot title: %s", existing.Payload.EventTitle)
 	}
@@ -61,7 +61,7 @@ func TestEventTitleChangeDoesNotRewriteSnapshot(t *testing.T) {
 		WHERE id = $1`, w.RegistrationID)
 	r.reconcile()
 
-	fresh := r.byKey(r.primaryKey())
+	fresh := r.byKey(r.primaryKey(models.ChannelTelegram))
 	if fresh.Payload.EventTitle != "Renamed event" {
 		t.Fatalf("a fresh notification must use the current title, got %s", fresh.Payload.EventTitle)
 	}
@@ -69,7 +69,7 @@ func TestEventTitleChangeDoesNotRewriteSnapshot(t *testing.T) {
 
 func TestArchivedEventStopsReconciliation(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(60, 1, nil)
+	w.addRule(60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
@@ -98,12 +98,12 @@ func TestArchivedEventStopsReconciliation(t *testing.T) {
 
 func TestRetentionKeepsLogicalKeyAndBlocksRecreation(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1, nil)
+	rule := w.addRule(60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	key := r.ruleKey(models.NotificationReminder, rule)
+	key := r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
 	old := r.byKey(key)
 	w.exec(`UPDATE notifications SET status = 'SENT', sent_at = now(), created_at = now() - interval '120 days'
 		WHERE id = $1`, old.ID)
@@ -136,7 +136,7 @@ func TestNotificationRowsCannotBeDeleted(t *testing.T) {
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	n := r.byKey(r.primaryKey())
+	n := r.byKey(r.primaryKey(models.ChannelTelegram))
 	if _, err := w.pool.Exec(w.ctx, `DELETE FROM notifications WHERE id = $1`, n.ID); err == nil {
 		t.Fatalf("deleting a notification must be forbidden by the trigger")
 	}

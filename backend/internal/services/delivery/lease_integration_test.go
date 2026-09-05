@@ -14,7 +14,7 @@ import (
 func TestConcurrentWorkersClaimEachEntryOnce(t *testing.T) {
 	w := newWorld(t)
 	w.setChannels(false, true)
-	rule := w.addRule(60, 1, nil)
+	rule := w.addRule(60, 1)
 	seed := newRig(t, w, newSender(), newSender())
 	seed.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	seed.reconcile()

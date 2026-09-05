@@ -83,6 +83,7 @@ func NewStack(t *testing.T) *Stack {
 	statuses := participation.NewStatuses(db)
 	rules := participation.NewRules(db)
 	notifications := notification.NewNotifications(db)
+	notificationPreferences := notification.NewPreferences(db)
 	scheduleRepo := notification.NewScheduler(db)
 	catalogRepo := query.NewCatalog(db)
 	queries := query.NewTimeline(db)
@@ -114,7 +115,7 @@ func NewStack(t *testing.T) *Stack {
 		events, stages, participants, cfg.Personal)
 	personalSvc.WithRetrospectives(retrosRepo)
 	linksRepo := resourcelink.NewLinks(db)
-	notifier := svcnotification.NewNotificationService(notifications, cfg)
+	notifier := svcnotification.NewNotificationService(notifications, notificationPreferences, cfg)
 	scheduler := svcscheduler.NewSchedulerService(db, scheduleRepo, rules, statuses, notifier, cfg)
 	auth := svcauth.NewAuthService(db, users, sessions, tokens, invites,
 		notifier, auditSvc, hasher, issuer, mailer, limiter, cfg)

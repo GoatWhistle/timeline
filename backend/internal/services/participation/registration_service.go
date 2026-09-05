@@ -118,7 +118,7 @@ func (s *RegistrationService) seedStatuses(ctx context.Context, event *models.Ev
 			continue
 		}
 		candidate := reconcile.BuildCandidate(event, registration, &participant, status.ID, status.TodoCycle, user)
-		if _, _, err := s.notifier.CreatePrimary(ctx, candidate); err != nil {
+		if _, err := s.notifier.CreatePrimary(ctx, candidate); err != nil {
 			return err
 		}
 	}

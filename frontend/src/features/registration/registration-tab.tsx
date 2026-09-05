@@ -186,23 +186,23 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
             </Card>
 
             {registration && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t('rules.title')}</CardTitle>
-                  <CardDescription>{t('rules.hint')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RulesEditor eventId={event.id} />
-                </CardContent>
-              </Card>
-            )}
+              <div className="grid items-start gap-6 @7xl:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t('rules.title')}</CardTitle>
+                    <CardDescription>{t('rules.hint')}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <RulesEditor eventId={event.id} />
+                  </CardContent>
+                </Card>
 
-            {registration && (
-              <Card>
-                <CardContent>
-                  <ChannelMatrix eventId={event.id} />
-                </CardContent>
-              </Card>
+                <Card>
+                  <CardContent>
+                    <ChannelMatrix eventId={event.id} />
+                  </CardContent>
+                </Card>
+              </div>
             )}
           </div>
         </div>

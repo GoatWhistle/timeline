@@ -8,7 +8,6 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
-	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 )
 
 func (s *SchedulerService) PreviewNotification(ctx context.Context, actor models.Actor,
@@ -48,18 +47,15 @@ func (s *SchedulerService) PreviewNotification(ctx context.Context, actor models
 		TimezoneID:      payload.TimezoneID,
 	}
 
-	var override *models.Channel
 	if rule != nil {
 		id := rule.DisplayID
 		resp.RuleID = &id
-		override = rule.ChannelOverride
 		trigger := rule.TriggerAt(candidate.DeadlineAt)
 		resp.ScheduledAt = &trigger
 	}
-	if channel, ok := svcnotification.ChooseChannel(candidate.RecipientChannels, override, nil); ok {
-		resp.Channel = &channel
-		resp.ChannelReady = true
-	}
+	channels := candidate.RecipientChannels.Deliverable(kind)
+	resp.Channels = channels
+	resp.ChannelReady = !channels.Empty()
 	return resp, nil
 }
 

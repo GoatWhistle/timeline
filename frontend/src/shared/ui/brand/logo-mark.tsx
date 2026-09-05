@@ -9,16 +9,33 @@ export function LogoMark({ className }: { className?: string }) {
       aria-hidden="true"
       className={cn('size-8 shrink-0', className)}
     >
-      <path
-        d="M4 12h16"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        className={styles.track}
+      <rect
+        x="2.5"
+        y="4.6"
+        width="12"
+        height="4.4"
+        rx="2.2"
+        fill="currentColor"
+        className={styles.lead}
       />
-      <circle cx="4" cy="12" r="2.5" fill="currentColor" className={styles.track} />
-      <circle cx="20" cy="12" r="2.5" fill="currentColor" className={styles.track} />
-      <circle cx="12" cy="12" r="5.5" fill="currentColor" />
+      <rect
+        x="7"
+        y="9.8"
+        width="14.5"
+        height="4.4"
+        rx="2.2"
+        fill="currentColor"
+        className={styles.peak}
+      />
+      <rect
+        x="4.5"
+        y="15"
+        width="9.5"
+        height="4.4"
+        rx="2.2"
+        fill="currentColor"
+        className={styles.tail}
+      />
     </svg>
   )
 }

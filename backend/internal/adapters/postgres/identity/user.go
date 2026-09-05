@@ -20,22 +20,34 @@ func NewUsers(db *postgres.DB) *Users { return &Users{db: db} }
 
 const userColumns = `id, display_id, first_name, middle_name, last_name, legacy_display_name, nickname,
 	profile_public, email, pending_email, password_hash, email_verified_at,
-	telegram_username, telegram_chat_id, preferred_channel, avatar_url, bio,
+	telegram_username, telegram_chat_id, notification_channels, avatar_url, bio,
 	locale, timezone, shortcuts, is_admin, is_active, deleted_at, created_at, updated_at`
 
 func scanUser(row pgx.Row) (*models.User, error) {
-	var u models.User
+	var (
+		u        models.User
+		channels []string
+	)
 	err := row.Scan(&u.ID, &u.DisplayID, &u.FirstName, &u.MiddleName, &u.LastName,
 		&u.LegacyDisplayName, &u.Nickname, &u.ProfilePublic, &u.Email, &u.PendingEmail,
 		&u.PasswordHash, &u.EmailVerifiedAt,
-		&u.TelegramUsername, &u.TelegramChatID, &u.PreferredChannel,
+		&u.TelegramUsername, &u.TelegramChatID, &channels,
 		&u.AvatarURL, &u.Bio,
 		&u.Locale, &u.Timezone, &u.Shortcuts, &u.IsAdmin, &u.IsActive,
 		&u.DeletedAt, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)
 	}
+	u.NotificationChannels = toChannelSet(channels)
 	return &u, nil
+}
+
+func toChannelSet(values []string) models.ChannelSet {
+	out := make(models.ChannelSet, 0, len(values))
+	for _, v := range values {
+		out = append(out, models.Channel(v))
+	}
+	return out
 }
 
 func (r *Users) Create(ctx context.Context, u *models.User) (*models.User, error) {
@@ -84,6 +96,13 @@ func (r *Users) EmailTaken(ctx context.Context, email string, except uuid.UUID) 
 }
 
 func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p dto.ProfilePatch) (*models.User, error) {
+	var channels []string
+	if p.NotificationChannels != nil {
+		channels = make([]string, 0, len(*p.NotificationChannels))
+		for _, ch := range *p.NotificationChannels {
+			channels = append(channels, string(ch))
+		}
+	}
 	return scanUser(r.db.Q(ctx).QueryRow(ctx, `
 		UPDATE users SET
 			first_name = COALESCE($2, first_name),
@@ -95,7 +114,7 @@ func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p dto.ProfilePa
 				WHEN $2 IS NOT NULL OR $15 IS NOT NULL OR $13 OR $14 IS NOT NULL
 				THEN NULL ELSE legacy_display_name END,
 			telegram_username = CASE WHEN $4 THEN NULL ELSE COALESCE($3, telegram_username) END,
-			preferred_channel = CASE WHEN $6 THEN NULL ELSE COALESCE($5, preferred_channel) END,
+			notification_channels = CASE WHEN $6 THEN $5 ELSE notification_channels END,
 			avatar_url = CASE WHEN $7 THEN NULL ELSE COALESCE($8, avatar_url) END,
 			bio = CASE WHEN $9 THEN NULL ELSE COALESCE($10, bio) END,
 			locale = COALESCE($11, locale),
@@ -103,7 +122,7 @@ func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p dto.ProfilePa
 		WHERE id = $1
 		RETURNING `+userColumns,
 		id, p.FirstName, p.TelegramUsername, p.ClearTelegramUsername,
-		p.PreferredChannel, p.ClearPreferredChannel,
+		channels, p.NotificationChannels != nil,
 		p.ClearAvatarURL, p.AvatarURL, p.ClearBio, p.Bio,
 		p.Locale, p.Timezone,
 		p.ClearMiddleName, p.MiddleName, p.LastName,
@@ -152,7 +171,7 @@ func (r *Users) ClearTelegram(ctx context.Context, id uuid.UUID) error {
 	return r.exec(ctx, `
 		UPDATE users
 		SET telegram_chat_id = NULL,
-			preferred_channel = CASE WHEN preferred_channel = 'TELEGRAM' THEN NULL ELSE preferred_channel END
+			notification_channels = array_remove(notification_channels, 'TELEGRAM')
 		WHERE id = $1`, id)
 }
 
@@ -171,7 +190,7 @@ func (r *Users) Anonymize(ctx context.Context, id uuid.UUID) error {
 			email_verified_at = NULL,
 			telegram_username = NULL,
 			telegram_chat_id = NULL,
-			preferred_channel = NULL,
+			notification_channels = '{}',
 			avatar_url = NULL,
 			bio = NULL,
 			shortcuts = '{}'::jsonb,

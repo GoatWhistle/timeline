@@ -183,6 +183,6 @@ func (s *CatalogService) ensureStatus(ctx context.Context, event *models.Event,
 	}
 
 	candidate := reconcile.BuildCandidate(event, registration, participant, status.ID, status.TodoCycle, user)
-	_, _, err = s.notifier.CreatePrimary(ctx, candidate)
+	_, err = s.notifier.CreatePrimary(ctx, candidate)
 	return err
 }

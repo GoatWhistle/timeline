@@ -7,42 +7,42 @@ import (
 )
 
 type MeResponse struct {
-	ID                string           `json:"id" example:"us_42ej2s5gh7e8"`
-	FirstName         string           `json:"first_name" example:"John"`
-	MiddleName        *string          `json:"middle_name,omitempty" example:"Fitzgerald"`
-	LastName          string           `json:"last_name" example:"Smith"`
-	DisplayName       string           `json:"display_name" example:"John Smith"`
-	LegacyDisplayName *string          `json:"legacy_display_name,omitempty" example:"John Smith"`
-	Nickname          *string          `json:"nickname,omitempty" example:"jsmith"`
-	ProfilePublic     bool             `json:"profile_public" example:"false"`
-	Email             string           `json:"email" example:"ivan@example.com"`
-	PendingEmail      *string          `json:"pending_email,omitempty"`
-	EmailVerified     bool             `json:"email_verified" example:"true"`
-	TelegramUsername  *string          `json:"telegram_username,omitempty"`
-	TelegramLinked    bool             `json:"telegram_linked" example:"false"`
-	PreferredChannel  *models.Channel  `json:"preferred_channel,omitempty" enums:"TELEGRAM,EMAIL"`
-	AvatarURL         *string          `json:"avatar_url,omitempty" example:"/api/v1/avatars/ab12cd34.png"`
-	Bio               *string          `json:"bio,omitempty" example:"Backend developer"`
-	Locale            string           `json:"locale" example:"ru" enums:"ru,en"`
-	Timezone          string           `json:"timezone" example:"Europe/Moscow"`
-	Shortcuts         models.Shortcuts `json:"shortcuts"`
-	IsAdmin           bool             `json:"is_admin" example:"false"`
-	IsActive          bool             `json:"is_active" example:"true"`
-	CreatedAt         time.Time        `json:"created_at"`
-	UpdatedAt         time.Time        `json:"updated_at"`
+	ID                   string            `json:"id" example:"us_42ej2s5gh7e8"`
+	FirstName            string            `json:"first_name" example:"John"`
+	MiddleName           *string           `json:"middle_name,omitempty" example:"Fitzgerald"`
+	LastName             string            `json:"last_name" example:"Smith"`
+	DisplayName          string            `json:"display_name" example:"John Smith"`
+	LegacyDisplayName    *string           `json:"legacy_display_name,omitempty" example:"John Smith"`
+	Nickname             *string           `json:"nickname,omitempty" example:"jsmith"`
+	ProfilePublic        bool              `json:"profile_public" example:"false"`
+	Email                string            `json:"email" example:"ivan@example.com"`
+	PendingEmail         *string           `json:"pending_email,omitempty"`
+	EmailVerified        bool              `json:"email_verified" example:"true"`
+	TelegramUsername     *string           `json:"telegram_username,omitempty"`
+	TelegramLinked       bool              `json:"telegram_linked" example:"false"`
+	NotificationChannels models.ChannelSet `json:"notification_channels" enums:"TELEGRAM,EMAIL"`
+	AvatarURL            *string           `json:"avatar_url,omitempty" example:"/api/v1/avatars/ab12cd34.png"`
+	Bio                  *string           `json:"bio,omitempty" example:"Backend developer"`
+	Locale               string            `json:"locale" example:"ru" enums:"ru,en"`
+	Timezone             string            `json:"timezone" example:"Europe/Moscow"`
+	Shortcuts            models.Shortcuts  `json:"shortcuts"`
+	IsAdmin              bool              `json:"is_admin" example:"false"`
+	IsActive             bool              `json:"is_active" example:"true"`
+	CreatedAt            time.Time         `json:"created_at"`
+	UpdatedAt            time.Time         `json:"updated_at"`
 }
 
 type UpdateProfileRequest struct {
-	FirstName        *string `json:"first_name,omitempty" example:"John"`
-	MiddleName       *string `json:"middle_name,omitempty" example:"Fitzgerald"`
-	LastName         *string `json:"last_name,omitempty" example:"Smith"`
-	Nickname         *string `json:"nickname,omitempty" example:"jsmith"`
-	ProfilePublic    *bool   `json:"profile_public,omitempty" example:"false"`
-	PreferredChannel *string `json:"preferred_channel,omitempty" enums:"TELEGRAM,EMAIL"`
-	TelegramUsername *string `json:"telegram_username,omitempty" example:"@ivan"`
-	Bio              *string `json:"bio,omitempty" example:"Backend developer"`
-	Locale           *string `json:"locale,omitempty" example:"en" enums:"ru,en"`
-	Timezone         *string `json:"timezone,omitempty" example:"Asia/Tokyo"`
+	FirstName            *string  `json:"first_name,omitempty" example:"John"`
+	MiddleName           *string  `json:"middle_name,omitempty" example:"Fitzgerald"`
+	LastName             *string  `json:"last_name,omitempty" example:"Smith"`
+	Nickname             *string  `json:"nickname,omitempty" example:"jsmith"`
+	ProfilePublic        *bool    `json:"profile_public,omitempty" example:"false"`
+	NotificationChannels []string `json:"notification_channels,omitempty" enums:"TELEGRAM,EMAIL"`
+	TelegramUsername     *string  `json:"telegram_username,omitempty" example:"@ivan"`
+	Bio                  *string  `json:"bio,omitempty" example:"Backend developer"`
+	Locale               *string  `json:"locale,omitempty" example:"en" enums:"ru,en"`
+	Timezone             *string  `json:"timezone,omitempty" example:"Asia/Tokyo"`
 }
 
 type ProfilePatch struct {
@@ -55,8 +55,7 @@ type ProfilePatch struct {
 	ProfilePublic         *bool
 	TelegramUsername      *string
 	ClearTelegramUsername bool
-	PreferredChannel      *models.Channel
-	ClearPreferredChannel bool
+	NotificationChannels  *models.ChannelSet
 	AvatarURL             *string
 	ClearAvatarURL        bool
 	Bio                   *string

@@ -10,10 +10,8 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
-	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
-	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 	"github.com/GoatWhistle/timeline/internal/services/realtime"
 	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 )
@@ -23,7 +21,6 @@ type DeliveryService struct {
 	notifications *notification.Notifications
 	scheduler     *notification.Scheduler
 	users         *identity.Users
-	rules         *participation.Rules
 	audit         *audit.Audit
 	telegram      mail.TelegramSender
 	email         mail.EmailSender
@@ -34,11 +31,11 @@ type DeliveryService struct {
 
 func NewDeliveryService(db *postgres.DB, notifications *notification.Notifications,
 	scheduler *notification.Scheduler, users *identity.Users,
-	rules *participation.Rules, audit *audit.Audit,
+	audit *audit.Audit,
 	telegram mail.TelegramSender, email mail.EmailSender, cfg *config.Config) *DeliveryService {
 	return &DeliveryService{
 		db:            db,
-		notifications: notifications, scheduler: scheduler, users: users, rules: rules, audit: audit,
+		notifications: notifications, scheduler: scheduler, users: users, audit: audit,
 		telegram: telegram, email: email, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() },
 	}
@@ -105,7 +102,7 @@ func (s *DeliveryService) handleSendError(ctx context.Context, n *models.Notific
 }
 
 func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) error {
-	candidate, settled, err := s.resolveCandidate(ctx, n)
+	_, settled, err := s.resolveCandidate(ctx, n)
 	if err != nil || settled {
 		return err
 	}
@@ -115,46 +112,47 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 		return err
 	}
 
-	override, err := s.channelOverride(ctx, n)
-	if err != nil {
+	channel := n.RequestedChannel
+	attempts := n.AttemptCount
+	ok := !n.ChannelFailed(channel)
+	if settled, err := s.settleBeforeCall(ctx, n, ok, attempts); settled || err != nil {
 		return err
 	}
 
-	failed := append([]models.Channel(nil), n.FailedChannels...)
-	attempts := n.AttemptCount
-	for {
-		channel, ok := svcnotification.ChooseChannel(candidate.RecipientChannels, override, failed)
-		if settled, err := s.settleBeforeCall(ctx, n, ok, attempts); settled || err != nil {
-			return err
-		}
-
-		started, err := s.notifications.StartProviderCall(ctx, n.ID, channel, s.now())
-		if err != nil {
-			return err
-		}
-		if !started {
-			slog.InfoContext(ctx, "notification cancelled before provider call", "notification_id", n.ID)
-			return nil
-		}
-		attempts++
-
-		sendErr := s.send(ctx, channel, n, user)
-		if sendErr == nil {
-			slog.InfoContext(ctx, "notification sent",
-				"notification_id", n.ID, "channel", channel, "attempt", attempts)
-			if err := s.notifications.MarkSent(ctx, n.ID, channel, s.now()); err != nil {
-				return err
-			}
-			s.emitMirror(ctx, n)
-			return nil
-		}
-
-		retryChannel, err := s.handleSendError(ctx, n, channel, attempts, sendErr)
-		if err != nil || !retryChannel {
-			return err
-		}
-		failed = append(failed, channel)
+	started, err := s.notifications.StartProviderCall(ctx, n.ID, channel, s.now())
+	if err != nil {
+		return err
 	}
+	if !started {
+		slog.InfoContext(ctx, "notification cancelled before provider call", "notification_id", n.ID)
+		return nil
+	}
+	attempts++
+
+	sendErr := s.send(ctx, channel, n, user)
+	if sendErr == nil {
+		slog.InfoContext(ctx, "notification sent",
+			"notification_id", n.ID, "channel", channel, "attempt", attempts)
+		if err := s.notifications.MarkSent(ctx, n.ID, channel, s.now()); err != nil {
+			return err
+		}
+		s.emitMirror(ctx, n)
+		return nil
+	}
+
+	closed, err := s.handleSendError(ctx, n, channel, attempts, sendErr)
+	if err != nil {
+		return err
+	}
+	if !closed {
+		return nil
+	}
+	const reason = "the delivery channel is no longer available"
+	if err := s.notifications.MarkUndeliverable(ctx, n.ID, reason); err != nil {
+		return err
+	}
+	s.emitTerminal(ctx, n, models.EventNotificationUndeliverable, reason)
+	return nil
 }
 
 func (s *DeliveryService) send(ctx context.Context, channel models.Channel,
@@ -179,20 +177,6 @@ func (s *DeliveryService) send(ctx context.Context, channel models.Channel,
 		return s.email.Send(ctx, msg)
 	}
 	return models.NewPermanentDeliveryError("unknown delivery channel", nil)
-}
-
-func (s *DeliveryService) channelOverride(ctx context.Context, n *models.Notification) (*models.Channel, error) {
-	if n.RuleID == nil {
-		return nil, nil
-	}
-	rule, err := s.rules.GetByID(ctx, *n.RuleID)
-	if err != nil {
-		if errors.Is(err, models.ErrNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return rule.ChannelOverride, nil
 }
 
 func (s *DeliveryService) backoff(attempts int) time.Duration {

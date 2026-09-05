@@ -51,9 +51,10 @@ type container struct {
 		participants   *participation.Participants
 		registrations  *participation.Registrations
 		statuses       *participation.Statuses
-		rules          *participation.Rules
-		notifications  *notification.Notifications
-		scheduler      *notification.Scheduler
+		rules                   *participation.Rules
+		notifications           *notification.Notifications
+		notificationPreferences *notification.Preferences
+		scheduler               *notification.Scheduler
 		catalog        *query.Catalog
 		tasks          *personal.Tasks
 		notes          *personal.Notes
@@ -132,7 +133,7 @@ func newContainer(ctx context.Context) (*container, error) {
 	issuer := crypto.NewTokenIssuer(cfg.Auth)
 	mailer := mail.NewMailer(c.email, cfg.App.PublicURL)
 	c.audit = sharedaudit.NewAuditService(c.repos.audit)
-	c.notifier = svcnotification.NewNotificationService(c.repos.notifications, cfg)
+	c.notifier = svcnotification.NewNotificationService(c.repos.notifications, c.repos.notificationPreferences, cfg)
 	c.scheduler = svcscheduler.NewSchedulerService(db, c.repos.scheduler,
 		c.repos.rules, c.repos.statuses, c.notifier, cfg)
 
@@ -167,7 +168,7 @@ func newContainer(ctx context.Context) (*container, error) {
 func (c *container) wireDelivery(cfg *config.Config) {
 	db := c.db
 	c.delivery = svcdelivery.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
-		c.repos.rules, c.repos.audit, c.telegram, c.email, cfg)
+		c.repos.audit, c.telegram, c.email, cfg)
 	c.personal = svcpersonal.NewPersonalService(db, c.repos.tasks, c.repos.notes, c.repos.artifacts,
 		c.repos.outcomes, c.repos.templates, c.repos.history,
 		c.repos.events, c.repos.stages, c.repos.participants, cfg.Personal)

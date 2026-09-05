@@ -28,6 +28,7 @@ func (c *container) wireRepositories() {
 	c.repos.statuses = participation.NewStatuses(db)
 	c.repos.rules = participation.NewRules(db)
 	c.repos.notifications = notification.NewNotifications(db)
+	c.repos.notificationPreferences = notification.NewPreferences(db)
 	c.repos.scheduler = notification.NewScheduler(db)
 	c.repos.catalog = query.NewCatalog(db)
 	c.repos.tasks = personal.NewTasks(db)

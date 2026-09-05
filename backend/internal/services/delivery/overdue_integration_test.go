@@ -12,7 +12,7 @@ import (
 
 func TestOverdueRuleCreatesOneNotificationAfterDeadline(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(-60, 1, nil)
+	rule := w.addRule(-60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(61 * time.Minute)
 
@@ -20,7 +20,7 @@ func TestOverdueRuleCreatesOneNotificationAfterDeadline(t *testing.T) {
 	if result.Overdue != 1 {
 		t.Fatalf("expected one overdue notification, got %+v", result)
 	}
-	key := r.ruleKey(models.NotificationOverdue, rule)
+	key := r.ruleKey(models.NotificationOverdue, rule, models.ChannelTelegram)
 	if !strings.HasPrefix(key, "overdue:") {
 		t.Fatalf("expected an overdue logical key, got %s", key)
 	}
@@ -40,7 +40,7 @@ func TestOverdueRuleCreatesOneNotificationAfterDeadline(t *testing.T) {
 
 func TestOverdueRuleDoesNotFireBeforeTrigger(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(-60, 1, nil)
+	w.addRule(-60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(30 * time.Minute)
 
@@ -52,7 +52,7 @@ func TestOverdueRuleDoesNotFireBeforeTrigger(t *testing.T) {
 
 func TestOverdueRuleDoesNotFireAfterEventEnd(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(-60, 1, nil)
+	w.addRule(-60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.EventEndAt.Add(time.Minute)
 
@@ -64,7 +64,7 @@ func TestOverdueRuleDoesNotFireAfterEventEnd(t *testing.T) {
 
 func TestOverdueRuleSkipsDoneParticipant(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(-60, 1, nil)
+	w.addRule(-60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(61 * time.Minute)
 	w.setStatus(models.StatusDONE)
@@ -80,7 +80,7 @@ func TestOverdueRuleSkipsDoneParticipant(t *testing.T) {
 
 func TestReminderNotCreatedAfterDeadline(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(60, 1, nil)
+	w.addRule(60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(time.Minute)
 
@@ -92,7 +92,7 @@ func TestReminderNotCreatedAfterDeadline(t *testing.T) {
 
 func TestReminderCreatedImmediatelyWhenRuleAddedLate(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(120, 1, nil)
+	rule := w.addRule(120, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 
@@ -100,7 +100,7 @@ func TestReminderCreatedImmediatelyWhenRuleAddedLate(t *testing.T) {
 	if result.Reminder != 1 {
 		t.Fatalf("expected an immediate reminder for a late rule, got %+v", result)
 	}
-	n := r.byKey(r.ruleKey(models.NotificationReminder, rule))
+	n := r.byKey(r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram))
 	if n.ScheduledAt.After(r.clock.at) {
 		t.Fatalf("scheduled_at must be the trigger moment, got %v", n.ScheduledAt)
 	}
@@ -108,7 +108,7 @@ func TestReminderCreatedImmediatelyWhenRuleAddedLate(t *testing.T) {
 
 func TestDisabledRuleDoesNotFire(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1, nil)
+	rule := w.addRule(60, 1)
 	w.exec(`UPDATE notification_rules SET enabled = false WHERE id = $1`, rule)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)

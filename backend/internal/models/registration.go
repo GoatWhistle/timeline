@@ -48,7 +48,6 @@ type NotificationRule struct {
 	OffsetMinutes         int       `json:"offset_minutes"`
 	Enabled               bool      `json:"enabled"`
 	SlotNo                int       `json:"slot_no"`
-	ChannelOverride       *Channel  `json:"channel_override,omitempty"`
 	CreatedAt             time.Time `json:"created_at"`
 	UpdatedAt             time.Time `json:"updated_at"`
 }

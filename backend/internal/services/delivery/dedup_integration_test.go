@@ -12,7 +12,7 @@ import (
 
 func TestConcurrentSchedulersCreateOneNotification(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1, nil)
+	rule := w.addRule(60, 1)
 	base := newRig(t, w, newSender(), newSender())
 	base.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 
@@ -42,11 +42,11 @@ func TestConcurrentSchedulersCreateOneNotification(t *testing.T) {
 	close(start)
 	wg.Wait()
 
-	reminderKey := base.ruleKey(models.NotificationReminder, rule)
+	reminderKey := base.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
 	if got := w.countByKey(reminderKey); got != 1 {
 		t.Fatalf("expected exactly one reminder for %s, got %d", reminderKey, got)
 	}
-	if got := w.countByKey(base.primaryKey()); got != 1 {
+	if got := w.countByKey(base.primaryKey(models.ChannelTelegram)); got != 1 {
 		t.Fatalf("expected exactly one primary notification, got %d", got)
 	}
 	if got := w.countAll(); got != 2 {
@@ -64,7 +64,7 @@ func TestConcurrentSchedulersCreateOneNotification(t *testing.T) {
 
 func TestReconciliationIsIdempotentAcrossPasses(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1, nil)
+	rule := w.addRule(60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 
@@ -84,7 +84,7 @@ func TestReconciliationIsIdempotentAcrossPasses(t *testing.T) {
 
 func TestDoneBeforeSchedulerSuppressesCreation(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(60, 1, nil)
+	w.addRule(60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 
@@ -101,16 +101,16 @@ func TestDoneBeforeSchedulerSuppressesCreation(t *testing.T) {
 
 func TestScheduleVersionBumpProducesNewKey(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1, nil)
+	rule := w.addRule(60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	oldKey := r.ruleKey(models.NotificationReminder, rule)
+	oldKey := r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
 	old := r.byKey(oldKey)
 	requireStatus(t, old, models.NotificationPending)
 
-	sent := r.byKey(r.primaryKey())
+	sent := r.byKey(r.primaryKey(models.ChannelTelegram))
 	w.exec(`UPDATE notifications SET status = 'SENT', sent_at = now() WHERE id = $1`, sent.ID)
 
 	newDeadline := w.DeadlineAt.Add(2 * time.Hour)
@@ -129,7 +129,7 @@ func TestScheduleVersionBumpProducesNewKey(t *testing.T) {
 	if result.Reminder != 1 {
 		t.Fatalf("expected one reminder for the new schedule version, got %+v", result)
 	}
-	freshKey := r.ruleKey(models.NotificationReminder, rule)
+	freshKey := r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
 	if freshKey == oldKey {
 		t.Fatalf("the schedule version bump did not change the logical key: %s", freshKey)
 	}
@@ -138,13 +138,13 @@ func TestScheduleVersionBumpProducesNewKey(t *testing.T) {
 
 func TestContentVersionBumpProducesNewKeyAndPayload(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1, nil)
+	rule := w.addRule(60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	oldReminder := r.byKey(r.ruleKey(models.NotificationReminder, rule))
-	oldPrimary := r.byKey(r.primaryKey())
+	oldReminder := r.byKey(r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram))
+	oldPrimary := r.byKey(r.primaryKey(models.ChannelTelegram))
 	if oldReminder.Payload.RegistrationURL != "https://example.com/reg" {
 		t.Fatalf("unexpected snapshot url: %s", oldReminder.Payload.RegistrationURL)
 	}
@@ -162,7 +162,7 @@ func TestContentVersionBumpProducesNewKeyAndPayload(t *testing.T) {
 	if result.Primary != 1 || result.Reminder != 1 {
 		t.Fatalf("expected fresh notifications of both kinds, got %+v", result)
 	}
-	fresh := r.byKey(r.ruleKey(models.NotificationReminder, rule))
+	fresh := r.byKey(r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram))
 	if fresh.ID == oldReminder.ID {
 		t.Fatalf("the content version bump reused the old notification")
 	}
@@ -176,12 +176,12 @@ func TestContentVersionBumpProducesNewKeyAndPayload(t *testing.T) {
 
 func TestTodoCycleBumpProducesNewKey(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1, nil)
+	rule := w.addRule(60, 1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	firstKey := r.ruleKey(models.NotificationReminder, rule)
+	firstKey := r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
 	first := r.byKey(firstKey)
 
 	w.setStatus(models.StatusDONE)
@@ -195,12 +195,44 @@ func TestTodoCycleBumpProducesNewKey(t *testing.T) {
 	if result.Reminder != 1 {
 		t.Fatalf("expected one reminder in the new TODO cycle, got %+v", result)
 	}
-	secondKey := r.ruleKey(models.NotificationReminder, rule)
+	secondKey := r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
 	if secondKey == firstKey {
 		t.Fatalf("the new TODO cycle reused the old logical key: %s", secondKey)
 	}
 	if got := w.countByKey(secondKey); got != 1 {
 		t.Fatalf("expected exactly one notification in the new cycle, got %d", got)
+	}
+}
+
+func TestTwoSelectedChannelsProduceTwoNotifications(t *testing.T) {
+	w := newWorld(t)
+	w.setChannels(true, true)
+	r := newRig(t, w, newSender(), newSender())
+	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
+
+	result := r.reconcile()
+	if result.Primary != 2 {
+		t.Fatalf("selecting both channels must create two primary notifications, got %+v", result)
+	}
+	if got := w.countAll(); got != 2 {
+		t.Fatalf("expected two notification rows, got %d (%v)", got, w.keys())
+	}
+
+	telegramRow := r.byKey(r.primaryKey(models.ChannelTelegram))
+	emailRow := r.byKey(r.primaryKey(models.ChannelEmail))
+	if telegramRow.RequestedChannel != models.ChannelTelegram {
+		t.Fatalf("expected the telegram row to request TELEGRAM, got %s", telegramRow.RequestedChannel)
+	}
+	if emailRow.RequestedChannel != models.ChannelEmail {
+		t.Fatalf("expected the email row to request EMAIL, got %s", emailRow.RequestedChannel)
+	}
+
+	again := r.reconcile()
+	if again.Primary != 0 {
+		t.Fatalf("a repeated pass must not duplicate either channel's row: %+v", again)
+	}
+	if got := w.countAll(); got != 2 {
+		t.Fatalf("expected exactly two rows after a repeated pass, got %d", got)
 	}
 }
 
@@ -210,7 +242,7 @@ func TestAssignmentVersionBumpProducesNewPrimaryKey(t *testing.T) {
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	firstKey := r.primaryKey()
+	firstKey := r.primaryKey(models.ChannelTelegram)
 	first := r.byKey(firstKey)
 
 	w.exec(`UPDATE event_participants SET participation_status = 'REMOVED', removed_at = now(),
@@ -230,7 +262,7 @@ func TestAssignmentVersionBumpProducesNewPrimaryKey(t *testing.T) {
 	if result.Primary != 1 {
 		t.Fatalf("expected a fresh primary notification after reactivation, got %+v", result)
 	}
-	secondKey := r.primaryKey()
+	secondKey := r.primaryKey(models.ChannelTelegram)
 	if secondKey == firstKey {
 		t.Fatalf("the assignment version bump did not change the key: %s", secondKey)
 	}

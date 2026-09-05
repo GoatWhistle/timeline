@@ -106,9 +106,20 @@ type ReconcileCandidate struct {
 }
 
 type RecipientChannels struct {
-	TelegramLinked   bool
-	EmailVerified    bool
-	PreferredChannel *Channel
+	TelegramLinked bool
+	EmailVerified  bool
+	Selected       ChannelSet
+	Preferences    NotificationPreferences
+}
+
+func (c RecipientChannels) Deliverable(occasion NotificationOccasion) ChannelSet {
+	out := make(ChannelSet, 0, len(c.Selected))
+	for _, ch := range AllChannels {
+		if c.Selected.Has(ch) && c.Available(ch) && c.Preferences.Allows(occasion, ch) {
+			out = append(out, ch)
+		}
+	}
+	return out
 }
 
 func (c RecipientChannels) Available(ch Channel) bool {

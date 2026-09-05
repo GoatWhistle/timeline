@@ -41,11 +41,12 @@ func (c *testClock) Advance(d time.Duration) { c.at = c.at.Add(d) }
 func newRig(t *testing.T, w *world, telegram, email *recordingSender) *rig {
 	t.Helper()
 	notifs := notification.NewNotifications(w.db)
+	prefs := notification.NewPreferences(w.db)
 	scheduler := notification.NewScheduler(w.db)
-	notifier := svcnotification.NewNotificationService(notifs, w.cfg)
+	notifier := svcnotification.NewNotificationService(notifs, prefs, w.cfg)
 	planner := svcscheduler.NewSchedulerService(w.db, scheduler, participation.NewRules(w.db), participation.NewStatuses(w.db), notifier, w.cfg)
 	delivery := svcdelivery.NewDeliveryService(w.db, notifs, scheduler,
-		identity.NewUsers(w.db), participation.NewRules(w.db), audit.NewAudit(w.db),
+		identity.NewUsers(w.db), audit.NewAudit(w.db),
 		telegram, email, w.cfg)
 
 	clock := &testClock{at: time.Now().UTC()}
@@ -106,7 +107,7 @@ func (r *rig) only() *models.Notification {
 	return &list[0]
 }
 
-func (r *rig) primaryKey() string {
+func (r *rig) primaryKey(channel models.Channel) string {
 	r.world.t.Helper()
 	var assignment, activation, content int
 	err := r.world.pool.QueryRow(r.world.ctx, `
@@ -117,10 +118,10 @@ func (r *rig) primaryKey() string {
 	if err != nil {
 		r.world.t.Fatalf("reading versions: %v", err)
 	}
-	return svcnotification.PrimaryKey(r.world.ParticipantID, assignment, activation, content)
+	return svcnotification.PrimaryKey(r.world.ParticipantID, assignment, activation, content, channel)
 }
 
-func (r *rig) ruleKey(kind models.NotificationType, ruleID uuid.UUID) string {
+func (r *rig) ruleKey(kind models.NotificationType, ruleID uuid.UUID, channel models.Channel) string {
 	r.world.t.Helper()
 	var schedule, content, cycle int
 	err := r.world.pool.QueryRow(r.world.ctx, `
@@ -131,7 +132,7 @@ func (r *rig) ruleKey(kind models.NotificationType, ruleID uuid.UUID) string {
 	if err != nil {
 		r.world.t.Fatalf("reading versions: %v", err)
 	}
-	return svcnotification.RuleKey(kind, r.world.StatusID, ruleID, schedule, cycle, content)
+	return svcnotification.RuleKey(kind, r.world.StatusID, ruleID, schedule, cycle, content, channel)
 }
 
 func requireStatus(t *testing.T, n *models.Notification, want models.NotificationStatus) {

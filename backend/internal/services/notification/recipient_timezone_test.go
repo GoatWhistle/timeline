@@ -15,7 +15,7 @@ func zoneCandidate(timezone string) models.ReconcileCandidate {
 }
 
 func TestPayloadRendersDeadlineInRecipientTimezone(t *testing.T) {
-	svc := NewNotificationService(nil, testConfig(t))
+	svc := NewNotificationService(nil, nil, testConfig(t))
 
 	tokyo := svc.Render(models.NotificationReminder, zoneCandidate("Asia/Tokyo"))
 	if tokyo.TimezoneID != "Asia/Tokyo" {
@@ -38,7 +38,7 @@ func TestPayloadRendersDeadlineInRecipientTimezone(t *testing.T) {
 }
 
 func TestPayloadFallsBackToSystemTimezone(t *testing.T) {
-	svc := NewNotificationService(nil, testConfig(t))
+	svc := NewNotificationService(nil, nil, testConfig(t))
 
 	for _, timezone := range []string{"", "Mars/Olympus", "   "} {
 		payload := svc.Render(models.NotificationReminder, zoneCandidate(timezone))
@@ -54,7 +54,7 @@ func TestPayloadFallsBackToSystemTimezone(t *testing.T) {
 }
 
 func TestPayloadSnapshotIgnoresLaterTimezoneChange(t *testing.T) {
-	svc := NewNotificationService(nil, testConfig(t))
+	svc := NewNotificationService(nil, nil, testConfig(t))
 
 	c := zoneCandidate("Asia/Tokyo")
 	frozen := svc.Render(models.NotificationReminder, c)
@@ -74,7 +74,7 @@ func TestPayloadSnapshotIgnoresLaterTimezoneChange(t *testing.T) {
 }
 
 func TestDeadlineLocalIsNotUTCWhenRecipientZoneDiffers(t *testing.T) {
-	svc := NewNotificationService(nil, testConfig(t))
+	svc := NewNotificationService(nil, nil, testConfig(t))
 
 	payload := svc.Render(models.NotificationOverdue, zoneCandidate("Asia/Tokyo"))
 	utcText := payload.DeadlineUTC.Format("02.01.2006 15:04")

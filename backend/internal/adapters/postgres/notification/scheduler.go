@@ -30,7 +30,11 @@ const reconcileSelect = `
 	       r.id, r.url, r.deadline_at, r.schedule_version, r.activation_version, r.notification_content_version,
 	       p.id, p.assignment_version,
 	       s.id, s.todo_cycle,
-	       u.id, u.locale, u.timezone, u.telegram_chat_id IS NOT NULL, u.email_verified_at IS NOT NULL, u.preferred_channel
+	       u.id, u.locale, u.timezone, u.telegram_chat_id IS NOT NULL, u.email_verified_at IS NOT NULL,
+	       u.notification_channels,
+	       COALESCE((SELECT array_agg(np.occasion || ':' || np.channel)
+	                 FROM notification_preferences np
+	                 WHERE np.user_id = u.id AND NOT np.enabled), '{}')
 	FROM registration_statuses s
 	JOIN registrations r ON r.id = s.registration_id
 	JOIN events h ON h.id = s.event_id
@@ -68,36 +72,68 @@ func scanCandidates(rows pgx.Rows, limit int) ([]models.ReconcileCandidate, erro
 
 	items := make([]models.ReconcileCandidate, 0, limit)
 	for rows.Next() {
-		var c models.ReconcileCandidate
-		if err := rows.Scan(&c.EventID, &c.EventTitle, &c.EventEndAt,
-			&c.RegistrationID, &c.RegistrationURL, &c.DeadlineAt, &c.ScheduleVersion,
-			&c.ActivationVersion, &c.ContentVersion,
-			&c.ParticipantID, &c.AssignmentVersion,
-			&c.StatusID, &c.TodoCycle,
-			&c.RecipientID, &c.RecipientLocale, &c.RecipientTimezone, &c.RecipientChannels.TelegramLinked, &c.RecipientChannels.EmailVerified,
-			&c.RecipientChannels.PreferredChannel); err != nil {
-			return nil, mapError(err)
+		c, err := scanCandidate(rows)
+		if err != nil {
+			return nil, err
 		}
-		items = append(items, c)
+		items = append(items, *c)
 	}
 	return items, mapError(rows.Err())
 }
 
-func (r *Scheduler) CandidateByStatus(ctx context.Context, statusID uuid.UUID) (*models.ReconcileCandidate, error) {
-	var c models.ReconcileCandidate
-	err := r.db.Q(ctx).QueryRow(ctx, reconcileSelect+`
-		WHERE`+reconcileWhere+` AND s.id = $1`, statusID).
-		Scan(&c.EventID, &c.EventTitle, &c.EventEndAt,
-			&c.RegistrationID, &c.RegistrationURL, &c.DeadlineAt, &c.ScheduleVersion,
-			&c.ActivationVersion, &c.ContentVersion,
-			&c.ParticipantID, &c.AssignmentVersion,
-			&c.StatusID, &c.TodoCycle,
-			&c.RecipientID, &c.RecipientLocale, &c.RecipientTimezone, &c.RecipientChannels.TelegramLinked, &c.RecipientChannels.EmailVerified,
-			&c.RecipientChannels.PreferredChannel)
-	if err != nil {
+func scanCandidate(row pgx.Row) (*models.ReconcileCandidate, error) {
+	var (
+		c        models.ReconcileCandidate
+		channels []string
+		muted    []string
+	)
+	if err := row.Scan(&c.EventID, &c.EventTitle, &c.EventEndAt,
+		&c.RegistrationID, &c.RegistrationURL, &c.DeadlineAt, &c.ScheduleVersion,
+		&c.ActivationVersion, &c.ContentVersion,
+		&c.ParticipantID, &c.AssignmentVersion,
+		&c.StatusID, &c.TodoCycle,
+		&c.RecipientID, &c.RecipientLocale, &c.RecipientTimezone,
+		&c.RecipientChannels.TelegramLinked, &c.RecipientChannels.EmailVerified,
+		&channels, &muted); err != nil {
 		return nil, mapError(err)
 	}
+	c.RecipientChannels.Selected = toChannelSet(channels)
+	c.RecipientChannels.Preferences = mutedPreferences(muted)
 	return &c, nil
+}
+
+func toChannelSet(values []string) models.ChannelSet {
+	out := make(models.ChannelSet, 0, len(values))
+	for _, v := range values {
+		out = append(out, models.Channel(v))
+	}
+	return out
+}
+
+func mutedPreferences(tokens []string) models.NotificationPreferences {
+	out := make(models.NotificationPreferences, len(tokens))
+	for _, token := range tokens {
+		occasion, channel, ok := splitPreferenceToken(token)
+		if !ok {
+			continue
+		}
+		out[occasion] = append(out[occasion], channel)
+	}
+	return out
+}
+
+func splitPreferenceToken(token string) (models.NotificationOccasion, models.Channel, bool) {
+	for i := len(token) - 1; i >= 0; i-- {
+		if token[i] == ':' {
+			return models.NotificationOccasion(token[:i]), models.Channel(token[i+1:]), true
+		}
+	}
+	return "", "", false
+}
+
+func (r *Scheduler) CandidateByStatus(ctx context.Context, statusID uuid.UUID) (*models.ReconcileCandidate, error) {
+	return scanCandidate(r.db.Q(ctx).QueryRow(ctx, reconcileSelect+`
+		WHERE`+reconcileWhere+` AND s.id = $1`, statusID))
 }
 
 func (r *Scheduler) EnabledRules(ctx context.Context, registrationIDs []uuid.UUID) (map[uuid.UUID][]models.NotificationRule, error) {
@@ -115,13 +151,11 @@ func (r *Scheduler) EnabledRules(ctx context.Context, registrationIDs []uuid.UUI
 	defer rows.Close()
 
 	for rows.Next() {
-		var rule models.NotificationRule
-		if err := rows.Scan(&rule.ID, &rule.DisplayID, &rule.RegistrationID, &rule.RegistrationDisplayID,
-			&rule.OffsetMinutes, &rule.Enabled,
-			&rule.SlotNo, &rule.ChannelOverride, &rule.CreatedAt, &rule.UpdatedAt); err != nil {
-			return nil, mapError(err)
+		rule, err := participation.ScanRule(rows)
+		if err != nil {
+			return nil, err
 		}
-		result[rule.RegistrationID] = append(result[rule.RegistrationID], rule)
+		result[rule.RegistrationID] = append(result[rule.RegistrationID], *rule)
 	}
 	return result, mapError(rows.Err())
 }

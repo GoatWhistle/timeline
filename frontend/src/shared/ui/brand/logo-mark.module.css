@@ -1,3 +1,10 @@
-.track {
+.lead,
+.tail {
   opacity: var(--logo-track-opacity);
+}
+
+.lead,
+.peak,
+.tail {
+  transform-origin: 10% 50%;
 }
