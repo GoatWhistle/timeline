@@ -111,6 +111,7 @@ type Telegram struct {
 }
 
 type Email struct {
+	Env      string
 	Host     string
 	Port     int
 	Username string
@@ -214,6 +215,7 @@ func Load() (*Config, error) {
 			WebhookSecret: env("TELEGRAM_WEBHOOK_SECRET", ""),
 		},
 		Email: Email{
+			Env:      env("APP_ENV", "dev"),
 			Host:     env("SMTP_HOST", ""),
 			Port:     envInt("SMTP_PORT", 587),
 			Username: env("SMTP_USERNAME", ""),

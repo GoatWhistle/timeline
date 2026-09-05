@@ -25,7 +25,10 @@ type Sender interface {
 
 func New(cfg config.Email) Sender {
 	if cfg.Host == "" {
-		return &logSender{}
+		dev := cfg.Env == "dev"
+		slog.Warn("SMTP_HOST is empty: mail is written to the log instead of being sent",
+			"env", cfg.Env, "links_logged", dev)
+		return &logSender{dev: dev}
 	}
 	return &smtpSender{cfg: cfg}
 }
