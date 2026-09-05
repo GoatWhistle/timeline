@@ -62,3 +62,41 @@ describe('a tab strip scrolls inside itself, never widening the page', () => {
     expect(offenders).toEqual([])
   })
 })
+
+const HORIZONTAL_STRIP = /useSlidingIndicator<[^>]*>\(\s*[^,]+,\s*'x'\s*\)/
+
+const NOT_A_STRIP = [
+  'app/sidebar/bottom-nav.tsx',
+  'app/sidebar/nav-section.tsx',
+  'entities/event/event-stage-nav.tsx',
+  'features/settings-overlay/settings-overlay.tsx',
+  'shared/ui/navigation/tabs.tsx',
+]
+
+describe('a link-built strip scrolls the same way a tab strip does', () => {
+  const strips = tsxFiles(SRC)
+    .filter((file) => HORIZONTAL_STRIP.test(readFileSync(file, 'utf8')))
+    .map(named)
+    .filter((file) => !NOT_A_STRIP.includes(file))
+
+  it('every horizontal strip bounds itself, so a long label cannot widen the page', () => {
+    const offenders = strips.filter(
+      (file) =>
+        !/max-w-full[^"'`]*overflow-x-auto|overflow-x-auto[^"'`]*max-w-full/.test(
+          readFileSync(join(SRC, file), 'utf8'),
+        ),
+    )
+    expect(offenders).toEqual([])
+  })
+
+  it('the rule still watches a real strip, so it cannot pass by watching none', () => {
+    expect(strips).toContain('features/teams/team-section-nav.tsx')
+  })
+
+  it('every exemption still names a file that really builds a horizontal strip', () => {
+    for (const file of NOT_A_STRIP) {
+      const source = readFileSync(join(SRC, file), 'utf8')
+      expect(source, file).toContain('useSlidingIndicator')
+    }
+  })
+})

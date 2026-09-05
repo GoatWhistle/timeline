@@ -33,7 +33,7 @@ export function TeamSectionNav({ teamId }: { teamId: string }) {
   const { containerRef, box } = useSlidingIndicator<HTMLDivElement>(location.pathname, 'x')
 
   return (
-    <nav aria-label={t('sectionNavLabel')}>
+    <nav aria-label={t('sectionNavLabel')} className="max-w-full overflow-x-auto">
       <div
         ref={containerRef}
         className={cn(

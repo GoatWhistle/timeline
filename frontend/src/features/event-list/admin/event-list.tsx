@@ -78,22 +78,27 @@ export function AdminEventsPage() {
   return (
     <ThreePane>
       <ListPane>
-        <header className="flex items-center gap-3 border-border border-b px-4 py-3">
-          <h1 className="font-semibold text-screen tracking-tight">{t('list.adminTitle')}</h1>
-          <div className="ml-auto flex items-center gap-2">
+        <header className="flex flex-wrap items-center gap-3 border-border border-b px-4 py-3">
+          <h1 className="w-full font-semibold text-screen tracking-tight sm:w-auto">
+            {t('list.adminTitle')}
+          </h1>
+          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
             <Input
               ref={searchRef}
               aria-label={t('list.searchAria')}
               placeholder={t('list.searchPlaceholder')}
               value={searchInput}
-              className="h-8 w-56 text-copy"
+              className="h-8 min-w-24 flex-1 text-copy sm:w-56 sm:flex-none"
               onChange={(event) => {
                 setSearchInput(event.target.value)
                 setFilters({ search: event.target.value || undefined })
               }}
             />
             <Select value={filters.state} onValueChange={(value) => setFilters({ state: value })}>
-              <SelectTrigger aria-label={t('list.stateAria')} className="h-8 w-44 text-copy">
+              <SelectTrigger
+                aria-label={t('list.stateAria')}
+                className="h-8 min-w-24 flex-1 text-copy sm:w-44 sm:flex-none"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router'
 import { teamEventsQuery } from '@/entities/team/team.queries'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { ListFootnote } from '@/shared/ui/data-display/list-footnote/list-footnote'
 import { Card } from '@/shared/ui/layout/card'
 import { useTeamContext } from './team-context'
 
@@ -79,7 +80,7 @@ export function TeamOverview() {
         />
       </div>
 
-      <p className="text-meta text-muted-foreground">{t('selfReportHint')}</p>
+      <ListFootnote text={t('selfReportHint')} />
     </div>
   )
 }

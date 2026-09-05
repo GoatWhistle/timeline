@@ -7,6 +7,7 @@ import { teamEventsQuery } from '@/entities/team/team.queries'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { EventListFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
+import { ListFootnote } from '@/shared/ui/data-display/list-footnote/list-footnote'
 import { Card } from '@/shared/ui/layout/card'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
@@ -27,7 +28,7 @@ export function TeamEvents() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-semibold text-heading">{t('events')}</h2>
-          <p className="text-meta text-muted-foreground">{t('selfReportHint')}</p>
+          <ListFootnote text={t('selfReportHint')} />
         </div>
         {isLead && entries.length > 0 && (
           <Button variant="outline" onClick={() => setEntering(true)}>
