@@ -50,9 +50,7 @@
     "slot": "Slot",
     "when": "When",
     "type": "Type",
-    "channel": "Channel",
     "enabled": "Enabled",
-    "defaultChannel": "default",
     "edit": "Edit rule in slot {{slot}}",
     "toggle": "Rule in slot {{slot}}",
     "disableAria": "Disable rule in slot {{slot}}",
@@ -74,9 +72,6 @@
     "after": "after the deadline — overdue notice",
     "days": "Days",
     "hours": "Hours",
-    "channel": "Channel",
-    "channelHint": "By default the channel comes from the user's settings",
-    "channelDefault": "Default",
     "willFire": "The rule will fire:",
     "create": "Create"
   },
@@ -104,7 +99,7 @@
   },
   "participants": {
     "removeSelected": "Remove selected",
-    "emptyTitle": "Nobody is on this hackathon yet",
+    "emptyTitle": "Nobody is on this event yet",
     "emptyHint": "Assign participants and they appear here.",
     "emptyFiltered": "No participant matches these filters",
     "removed": "Participants removed",

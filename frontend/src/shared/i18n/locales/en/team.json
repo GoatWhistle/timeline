@@ -1,6 +1,6 @@
 {
   "title": "Teams",
-  "subtitle": "A team is a permanent group. For each hackathon its lead draws a lineup from the team.",
+  "subtitle": "A team is a permanent group. For each event its lead draws a lineup from the team.",
   "empty": "You are not in a team yet",
   "emptyHint": "Create a team and invite the people you take part with.",
   "create": "Create a team",

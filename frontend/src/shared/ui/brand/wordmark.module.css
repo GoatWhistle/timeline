@@ -12,21 +12,21 @@
   transition: transform var(--duration-fast) var(--ease-out);
 }
 
-.mark :global(rect) {
+.mark rect {
   transform-box: fill-box;
   transform-origin: left center;
   transition: transform var(--duration-fast) var(--ease-out);
 }
 
-.link:hover .mark :global(rect):nth-child(1) {
+.link:hover .mark rect:nth-child(1) {
   transform: scaleX(1.1);
 }
 
-.link:hover .mark :global(rect):nth-child(2) {
+.link:hover .mark rect:nth-child(2) {
   transform: scaleX(1.06);
 }
 
-.link:hover .mark :global(rect):nth-child(3) {
+.link:hover .mark rect:nth-child(3) {
   transform: scaleX(1.14);
 }
 
@@ -34,15 +34,15 @@
   transform: scale(0.96);
 }
 
-.link[data-travelling="true"] .mark :global(rect):nth-child(1) {
+.link[data-travelling="true"] .mark rect:nth-child(1) {
   animation: sweep var(--duration-base) var(--ease-out);
 }
 
-.link[data-travelling="true"] .mark :global(rect):nth-child(2) {
+.link[data-travelling="true"] .mark rect:nth-child(2) {
   animation: sweep var(--duration-base) var(--ease-out) 55ms both;
 }
 
-.link[data-travelling="true"] .mark :global(rect):nth-child(3) {
+.link[data-travelling="true"] .mark rect:nth-child(3) {
   animation: sweep var(--duration-base) var(--ease-out) 110ms both;
 }
 
@@ -60,15 +60,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .mark,
-  .mark :global(rect),
+  .mark rect,
   .link:hover .mark,
-  .link:hover .mark :global(rect),
+  .link:hover .mark rect,
   .link:active .mark {
     transition: none;
     transform: none;
   }
 
-  .link[data-travelling="true"] .mark :global(rect) {
+  .link[data-travelling="true"] .mark rect {
     animation: none;
   }
 }

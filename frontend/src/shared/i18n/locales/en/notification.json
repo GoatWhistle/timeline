@@ -10,11 +10,11 @@
   },
   "explainer": {
     "title": "What arrives and when",
-    "hint": "Notifications are about one thing only: marking a registration as done. An organizer sets the deadline and the reminders for each hackathon; you cannot add your own.",
+    "hint": "Notifications are about one thing only: marking a registration as done. An organizer sets the deadline and the reminders for each event; you cannot add your own.",
     "type": {
       "REGISTRATION_REQUIRED": {
         "name": "Registration required",
-        "when": "Once, soon after an organizer assigns you to a hackathon that has an open registration. It carries the link and the deadline."
+        "when": "Once, soon after an organizer assigns you to an event that has an open registration. It carries the link and the deadline."
       },
       "REGISTRATION_REMINDER": {
         "name": "Reminder before the deadline",
@@ -22,11 +22,11 @@
       },
       "REGISTRATION_OVERDUE": {
         "name": "The deadline has passed",
-        "when": "After the deadline, if the organizer set such a reminder. It stops once the hackathon ends."
+        "when": "After the deadline, if the organizer set such a reminder. It stops once the event ends."
       }
     },
     "stopTitle": "Mark yourself registered and the reminders stop",
-    "stopHint": "Reminders go only to people whose registration is still unmarked. Open the hackathon and press \"I registered\". You set it yourself — the system does not check the external site. Nothing else switches them off for one hackathon.",
+    "stopHint": "Reminders go only to people whose registration is still unmarked. Open the event and press \"I registered\". You set it yourself — the system does not check the external site. Nothing else switches them off for one event.",
     "timingNote": "Sending is checked every few minutes, so a notification can arrive slightly after the moment it was due. A message may also arrive twice: delivery guarantees at least one attempt, not exactly one."
   },
   "card": {
@@ -72,22 +72,5 @@
     "channelNotReadyHint": "This recipient has neither a linked Telegram account nor a verified email, so this notification would end as undeliverable.",
     "nothingTitle": "Nothing would be sent",
     "nothingHint": "This status has no notification to render: the event, the registration or the assignment rules it out."
-  },
-  "matrix": {
-    "title": "Event and channel",
-    "hint": "Which channel each reminder of this event would go to. One notification uses one channel: the override if set, otherwise the recipient preference, otherwise Telegram then Email.",
-    "columnRule": "Reminder",
-    "columnInApp": "In the app",
-    "inAppTitle": "In the app is a mirror, not a channel",
-    "inAppHint": "Everything sent is also shown in the app. It is never chosen instead of Telegram or Email, it does not take part in the channel choice and it cannot make a notification undeliverable.",
-    "cell_chosen": "Set explicitly for this reminder",
-    "cell_fallback": "Follows the recipient preference",
-    "cell_off": "Not used",
-    "cell_mirror": "Always mirrored",
-    "legend": "Legend",
-    "disabledRow": "Rule switched off",
-    "emptyTitle": "No reminders",
-    "emptyHint": "Add a rule to see which channel it would use.",
-    "totals": "Telegram: {{telegram}} · Email: {{email}}"
   }
 }
