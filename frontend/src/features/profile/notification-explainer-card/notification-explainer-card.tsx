@@ -1,6 +1,6 @@
-import { Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { NotificationType } from '@/shared/api/types.gen'
+import { Note } from '@/shared/ui/data-display/note/note'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 
 const EXPLAINED_TYPES: NotificationType[] = [
@@ -32,13 +32,7 @@ export function NotificationExplainerCard() {
           ))}
         </dl>
 
-        <p className="flex items-start gap-2 rounded-control border border-border bg-surface-2 px-3 py-2 text-meta text-muted-foreground">
-          <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          <span className="min-w-0">
-            <span className="block font-medium text-copy">{t('explainer.stopTitle')}</span>
-            <span className="mt-0.5 block">{t('explainer.stopHint')}</span>
-          </span>
-        </p>
+        <Note title={t('explainer.stopTitle')}>{t('explainer.stopHint')}</Note>
 
         <p className="max-w-prose text-caption text-muted-foreground">
           {t('explainer.timingNote')}

@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   buildMatrix,
@@ -13,6 +12,7 @@ import { useSession } from '@/shared/api/session'
 import { formatOffsetMinutes } from '@/shared/datetime/datetime'
 import { MatrixFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
+import { Note } from '@/shared/ui/data-display/note/note'
 import {
   Table,
   TableBody,
@@ -41,13 +41,7 @@ export function ChannelMatrix({ eventId }: { eventId: string }) {
         <p className="mt-1 max-w-prose text-meta text-muted-foreground">{t('matrix.hint')}</p>
       </div>
 
-      <p className="flex items-start gap-2 rounded-control border border-border bg-surface-2 px-3 py-2 text-meta">
-        <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-        <span className="min-w-0">
-          <span className="font-medium text-copy">{t('matrix.inAppTitle')}</span>
-          <span className="mt-0.5 block text-muted-foreground">{t('matrix.inAppHint')}</span>
-        </span>
-      </p>
+      <Note title={t('matrix.inAppTitle')}>{t('matrix.inAppHint')}</Note>
 
       <QueryBoundary
         isPending={query.isPending}

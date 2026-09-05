@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { overdueSeconds, type QueueScope, queueQuery, splitOverdue } from '@/entities/ops'
 import { formatDateTime } from '@/shared/datetime/datetime'
@@ -7,6 +6,7 @@ import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-
 import { QueueFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
+import { Note } from '@/shared/ui/data-display/note/note'
 import {
   Table,
   TableBody,
@@ -51,10 +51,7 @@ export function AdminOpsQueuePage() {
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <PageHeader title={t('ops:title')} description={t('ops:description')} />
 
-      <p className="mb-4 flex items-start gap-2 rounded-control border border-border bg-surface-2 px-3 py-2 text-meta text-muted-foreground">
-        <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        {t('ops:readOnly')}
-      </p>
+      <Note className="mb-4">{t('ops:readOnly')}</Note>
 
       <ScopeTabs value={scope} onChange={(next) => setFilters({ scope: next })} />
 

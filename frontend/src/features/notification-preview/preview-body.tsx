@@ -1,15 +1,15 @@
-import { CircleCheck, Info, TriangleAlert } from 'lucide-react'
+import { CircleCheck } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CHANNEL_KEY, NOTIFICATION_TYPE_KEY } from '@/entities/notification/notification.labels'
 import type { PreviewState } from '@/entities/notification-preview'
 import type { NotificationPreviewResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
-import { cn } from '@/shared/styling/class-names/class-names'
 import { PreviewFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { ErrorState } from '@/shared/ui/data-display/error-state'
 import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
+import { Note } from '@/shared/ui/data-display/note/note'
 import { Skeleton } from '@/shared/ui/states'
 
 function Line({ label, value }: { label: string; value: React.ReactNode }) {
@@ -23,30 +23,19 @@ function Line({ label, value }: { label: string; value: React.ReactNode }) {
 
 function ChannelNotice({ ready, channel }: { ready: boolean; channel: string }) {
   const { t } = useTranslation('notification')
-  const Icon = ready ? CircleCheck : TriangleAlert
 
   return (
-    <div
-      className={cn(
-        'flex items-start gap-2 rounded-control border px-3 py-2',
-        ready ? 'border-border bg-surface-2' : 'border-destructive/40 bg-destructive/5',
-      )}
+    <Note
+      tone={ready ? 'neutral' : 'warning'}
+      icon={ready ? CircleCheck : undefined}
+      title={`${ready ? t('preview.channelReady') : t('preview.channelNotReady')}${
+        ready ? ` — ${channel}` : ''
+      }`}
       data-ready={ready ? 'yes' : 'no'}
       role={ready ? undefined : 'status'}
     >
-      <Icon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-      <div className="min-w-0">
-        <p className="font-medium text-copy">
-          {ready ? t('preview.channelReady') : t('preview.channelNotReady')}
-          {ready ? ` — ${channel}` : ''}
-        </p>
-        {ready ? null : (
-          <p className="mt-0.5 text-meta text-muted-foreground">
-            {t('preview.channelNotReadyHint')}
-          </p>
-        )}
-      </div>
-    </div>
+      {ready ? undefined : t('preview.channelNotReadyHint')}
+    </Note>
   )
 }
 
@@ -55,10 +44,7 @@ function Rendered({ preview }: { preview: NotificationPreviewResponse }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="flex items-start gap-2 rounded-control border border-border bg-surface-2 px-3 py-2 text-meta text-muted-foreground">
-        <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        {t('preview.noSideEffects')}
-      </p>
+      <Note>{t('preview.noSideEffects')}</Note>
 
       <ChannelNotice
         ready={preview.channel_ready === true}
