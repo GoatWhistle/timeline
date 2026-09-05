@@ -18,16 +18,6 @@ services:
       - gomod:/go/pkg/mod
       - gocache:/root/.cache/go-build
 
-  bootstrap:
-    command: ["go", "run", "./cmd/timeline", "admin", "create"]
-    environment:
-      LOG_FORMAT: ${LOG_FORMAT:-pretty}
-      LOG_COLOR: ${LOG_COLOR:-always}
-    volumes:
-      - ../backend:/src
-      - gomod:/go/pkg/mod
-      - gocache:/root/.cache/go-build
-
   backend:
     build:
       target: dev

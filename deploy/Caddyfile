@@ -1,8 +1,16 @@
 {
-	auto_https off
+	email kaifarikman.infuture@gmail.com
+	default_sni 213.171.25.178
 }
 
-:80 {
+213.171.25.178 {
+	tls {
+		issuer acme {
+			profile shortlived
+			disable_tlsalpn_challenge
+		}
+	}
+
 	encode zstd gzip
 	reverse_proxy frontend:8080
 }

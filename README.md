@@ -30,9 +30,8 @@ make docker-down   # stop the stack (the data volume is preserved)
 make help          # the full list of commands
 ```
 
-By default: the application on `http://localhost:5173`, the API on
-`http://localhost:8080`, Swagger UI on `/docs/`, sign in as `admin@example.com`
-with the password `password123`.
+By default: the application is available on `http://localhost:5173`, the API on
+`http://localhost:8080`, and Swagger UI on `/docs/`.
 
 Ports are overridden through variables:
 
@@ -40,17 +39,15 @@ Ports are overridden through variables:
 make docker-up WEB_PORT=5199 API_PORT=8099 POSTGRES_PORT=5433
 ```
 
-Both modes bring up the same set of services: postgres -> migrations -> creation of
-the first administrator -> API -> worker -> frontend. Only the last pair differs: in
+Both modes bring up the same set of services: postgres -> migrations -> API ->
+worker -> frontend. Only the last pair differs: in
 production mode nginx serves the built SPA and proxies `/api` and `/docs` to the
 API, while in development mode the Vite dev server serves the SPA with HMR and
 proxies `/api` itself. In development mode the sources are mounted into the
 containers: frontend edits are picked up immediately, the backend is recompiled by
 `make dev-restart`.
 
-The first administrator is created at startup from `ADMIN_EMAIL` /
-`ADMIN_PASSWORD` (`admin@example.com` / `password123` by default). There are no
-other ready-made accounts: further users are created through an invite.
+No account is created automatically at startup.
 
 ## Structure
 
