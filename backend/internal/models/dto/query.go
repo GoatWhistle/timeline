@@ -105,7 +105,7 @@ type DeadlinePage struct {
 
 type AuditResponse struct {
 	ID          uuid.UUID          `json:"id"`
-	ActorUserID *uuid.UUID         `json:"actor_user_id,omitempty"`
+	ActorUserID *string            `json:"actor_user_id,omitempty" example:"us_3k7d8gb9be"`
 	ActorEmail  *string            `json:"actor_email,omitempty"`
 	Action      models.AuditAction `json:"action" example:"STATUS_CHANGE"`
 	EntityType  models.EntityType  `json:"entity_type" example:"REGISTRATION_STATUS"`

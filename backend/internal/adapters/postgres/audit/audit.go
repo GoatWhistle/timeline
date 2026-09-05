@@ -42,9 +42,9 @@ func (r *Audit) List(ctx context.Context, filter models.AuditFilter, page models
 	conds := make([]string, 0, 6)
 	args := make([]any, 0, 6)
 
-	if filter.ActorUserID != nil {
-		args = append(args, *filter.ActorUserID)
-		conds = append(conds, `a.actor_user_id = $`+itoa(len(args)))
+	if filter.ActorDisplayID != "" {
+		args = append(args, filter.ActorDisplayID)
+		conds = append(conds, `u.display_id = $`+itoa(len(args)))
 	}
 	if filter.Action != "" {
 		args = append(args, filter.Action)
@@ -72,13 +72,16 @@ func (r *Audit) List(ctx context.Context, filter models.AuditFilter, page models
 	}
 
 	var total int64
-	if err := r.db.Q(ctx).QueryRow(ctx, `SELECT count(*) FROM audit_log a `+where, args...).Scan(&total); err != nil {
+	if err := r.db.Q(ctx).QueryRow(ctx, `
+		SELECT count(*) FROM audit_log a
+		LEFT JOIN users u ON u.id = a.actor_user_id
+		`+where, args...).Scan(&total); err != nil {
 		return nil, 0, mapError(err)
 	}
 
 	args = append(args, page.Limit(), page.Offset())
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT a.id, a.actor_user_id, u.email, a.action, a.entity_type, a.entity_id,
+		SELECT a.id, u.display_id, u.email, a.action, a.entity_type, a.entity_id,
 		       a.before_json, a.after_json, a.request_id, a.created_at
 		FROM audit_log a
 		LEFT JOIN users u ON u.id = a.actor_user_id

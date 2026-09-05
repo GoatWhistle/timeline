@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Check, Loader2 } from 'lucide-react'
+import { Check, LoaderCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NOTE_MAX, noteQuery, useSaveNote } from '@/entities/personal/note.queries'
@@ -61,7 +61,7 @@ export function NotePanel({ eventId }: { eventId: string }) {
         <p aria-live="polite" className="flex items-center gap-1.5 text-meta text-muted-foreground">
           {autosave.state === 'saving' && (
             <>
-              <Loader2
+              <LoaderCircle
                 className="size-3.5 motion-safe:animate-spin motion-reduce:animate-none"
                 aria-hidden="true"
               />

@@ -9,12 +9,11 @@ import type { CatalogEvent } from '@/shared/api/types.gen'
 import { formatDateRange } from '@/shared/datetime/datetime'
 import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 import { teamSizeLabelKey } from './catalog.facts'
 import { CATALOG_SCOPE_KEY, type CatalogColumn } from './catalog.views'
 import { CatalogJoinedMark } from './catalog-joined-mark'
 import { CatalogKindMark } from './catalog-kind-mark'
-
-const DASH = '—'
 
 function TitleCell({
   event,
@@ -70,26 +69,30 @@ function CellContent({ event, column }: { event: CatalogEvent; column: CatalogCo
     case 'place':
       return (
         <span className="block truncate">
-          {stage ? placeLabel(stage.place, t('place.online')) : DASH}
+          {stage ? placeLabel(stage.place, t('place.online')) : <NoValue />}
         </span>
       )
     case 'period':
       return <>{formatDateRange(event.start_at, event.end_at)}</>
     case 'prize': {
       const prize = formatMoney(event.prize_pool, event.prize_currency)
-      return prize ? <span className="font-medium text-prize">{prize}</span> : DASH
+      return prize ? <span className="font-medium text-prize">{prize}</span> : <NoValue />
     }
     case 'organizer':
-      return <span className="block truncate">{event.organizer ?? DASH}</span>
+      return <span className="block truncate">{event.organizer ?? <NoValue />}</span>
     case 'track':
       return (
         <span className="block truncate">
-          {event.tracks.length > 0 ? event.tracks.map((track) => track.name).join(', ') : DASH}
+          {event.tracks.length > 0 ? (
+            event.tracks.map((track) => track.name).join(', ')
+          ) : (
+            <NoValue />
+          )}
         </span>
       )
     case 'teamSize': {
       const size = teamSizeLabelKey(event)
-      return <>{size ? t(size.key, size.values) : DASH}</>
+      return <>{size ? t(size.key, size.values) : <NoValue />}</>
     }
     case 'participation':
       return event.joined ? (
@@ -98,7 +101,7 @@ function CellContent({ event, column }: { event: CatalogEvent; column: CatalogCo
           <span className="truncate">{event.team_role ?? t('catalog.column.participation')}</span>
         </span>
       ) : (
-        DASH
+        <NoValue />
       )
     case 'origin':
       return <>{t(CATALOG_SCOPE_KEY[event.origin])}</>

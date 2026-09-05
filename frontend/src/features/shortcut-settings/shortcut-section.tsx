@@ -1,5 +1,6 @@
 import type { BindingRejection, ShortcutPlatform } from '@/shared/keyboard/shortcut-bindings'
 import type { ShortcutDefinition } from '@/shared/keyboard/shortcut-registry'
+import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
 import { ShortcutRow } from './shortcut-row'
 
 export type SectionProps = {
@@ -29,9 +30,7 @@ export function ShortcutSection({
 }: SectionProps) {
   return (
     <section className="flex flex-col gap-1">
-      <h3 className="font-medium text-caption text-muted-foreground uppercase tracking-wide">
-        {title}
-      </h3>
+      <GroupLabel>{title}</GroupLabel>
       <dl className="flex flex-col">
         {shortcuts.map((shortcut) => (
           <ShortcutRow

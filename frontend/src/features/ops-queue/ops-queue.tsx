@@ -6,6 +6,7 @@ import { formatDateTime } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { QueueFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
+import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 import {
   Table,
   TableBody,
@@ -24,7 +25,7 @@ const DEFAULTS = { scope: 'failures' }
 
 function OverdueCell({ seconds }: { seconds: number | null }) {
   const { t } = useTranslation()
-  if (seconds === null) return <span className="text-muted-foreground">—</span>
+  if (seconds === null) return <NoValue />
 
   const parts = splitOverdue(seconds)
   const chunks: string[] = []

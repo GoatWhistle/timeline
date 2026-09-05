@@ -65,9 +65,16 @@ func (c *OpsController) Ready(w http.ResponseWriter, r *http.Request) {
 // @Summary		Background process status
 // @Description	Last run times of the scheduler and worker, queue lengths by status
 // @Description	and the age of the oldest pending entry.
+// @Description
+// @Description	Restricted to administrators. The counts describe the delivery backlog, which is the
+// @Description	same class of operational detail as /ops/queue and is not something an anonymous
+// @Description	caller may read. Container liveness probes use /healthz and /readyz instead.
 // @Tags			ops
 // @Produce		json
+// @Security		CookieAuth
 // @Success		200	{object}	dto.WorkerHeartbeatResponse
+// @Failure		401	{object}	dto.ErrorResponse
+// @Failure		403	{object}	dto.ErrorResponse
 // @Failure		503	{object}	dto.WorkerHeartbeatResponse
 // @Router			/ops/worker-heartbeat [get]
 func (c *OpsController) Heartbeat(w http.ResponseWriter, r *http.Request) {

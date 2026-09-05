@@ -145,5 +145,12 @@
     "locked": "Fixed",
     "lockedHint": "The event has started, so the track no longer changes.",
     "saved": "The team track is saved"
-  }
+  },
+  "summary": {
+    "title": "Your teams at a glance",
+    "total": "Teams",
+    "leading": "You lead",
+    "invited": "Invitations"
+  },
+  "footnote": "A team is permanent; a lineup is drawn from it for each hackathon. Registration is what each person reports about themselves."
 }

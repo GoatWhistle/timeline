@@ -51,7 +51,7 @@ describe('device list', () => {
     const titles = screen.getAllByRole('listitem').map((item) => item.textContent ?? '')
     expect(titles[0]).toContain('Chrome')
     expect(titles[1]).toContain('Safari')
-    expect(screen.getByText(i18n.t('common:devices.current'))).toBeInTheDocument()
+    expect(screen.getAllByText(i18n.t('common:devices.current')).length).toBeGreaterThan(0)
     expect(screen.getByText('2 активные сессии')).toBeInTheDocument()
   })
 
@@ -82,10 +82,11 @@ describe('device list', () => {
     queryClient.setQueryData(deviceSessionsQueryKey, listBody([CURRENT]))
 
     await waitFor(() =>
-      expect(screen.getByText(i18n.t('common:devices.current'))).toBeInTheDocument(),
+      expect(screen.getAllByText(i18n.t('common:devices.current')).length).toBeGreaterThan(0),
     )
 
-    const badge = screen.getByText(i18n.t('common:devices.current')).closest('span')
+    const row = screen.getAllByRole('listitem')[0]
+    const badge = row?.querySelector('[data-slot="badge"]')
     expect(badge?.querySelector('svg')).not.toBeNull()
     expect(container.querySelectorAll('svg').length).toBeGreaterThan(1)
   })

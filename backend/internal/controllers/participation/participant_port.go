@@ -18,11 +18,11 @@ type ParticipantService interface {
 	) ([]dto.ParticipantResponse, int64, error)
 	AddMany(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.AddParticipantsRequest,
-		userIDs []uuid.UUID,
+		userIDs dto.ResolvedIDs,
 	) (*dto.BatchResult, error)
 	RemoveMany(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.RemoveParticipantsRequest,
-		participantIDs []uuid.UUID,
+		participantIDs dto.ResolvedIDs,
 	) (*dto.BatchResult, error)
 	UpdateTeamRole(
 		ctx context.Context, actor models.Actor, participantID uuid.UUID, role *string,
@@ -32,6 +32,6 @@ type ParticipantService interface {
 	) (*dto.ParticipantResponse, error)
 	CopyFrom(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.CopyParticipantsRequest,
-		sourceEventID uuid.UUID, overrideUserIDs []uuid.UUID,
+		sourceEventID uuid.UUID, overrideUserIDs dto.ResolvedIDs,
 	) (*dto.BatchResult, error)
 }

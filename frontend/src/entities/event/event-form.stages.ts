@@ -15,7 +15,7 @@ const KIND: StageDefinition = { id: 'kind', labelKey: 'stage.kind', fields: [] }
 const BASICS: StageDefinition = {
   id: 'basics',
   labelKey: 'stage.basics',
-  fields: ['title', 'organizer', 'website_url', 'description'],
+  fields: ['title', 'organizer', 'origin', 'website_url', 'description'],
 }
 
 const PERIOD: StageDefinition = { id: 'period', labelKey: 'stage.period', fields: [] }
@@ -23,7 +23,7 @@ const PERIOD: StageDefinition = { id: 'period', labelKey: 'stage.period', fields
 const PLACE: StageDefinition = {
   id: 'place',
   labelKey: 'stage.place',
-  fields: ['origin', 'format', 'country_code', 'city'],
+  fields: ['format', 'country_code', 'city'],
 }
 
 const PRIZE: StageDefinition = {

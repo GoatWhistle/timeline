@@ -57,10 +57,12 @@ export function EventOriginRow({ control }: { control: Control<MeetupFormValues>
 }
 
 export function EventBasicsFields({
+  control,
   register,
   errors,
   onOrganizerPick,
 }: {
+  control: Control<MeetupFormValues>
   register: UseFormRegister<MeetupFormValues>
   errors: FieldErrors<MeetupFormValues>
   onOrganizerPick: (value: string) => void
@@ -73,11 +75,14 @@ export function EventBasicsFields({
         <Input id="event-title" aria-invalid={Boolean(errors.title)} {...register('title')} />
       </Field>
 
-      <OrganizerField
-        register={register}
-        error={errors.organizer?.message}
-        onPick={onOrganizerPick}
-      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <OrganizerField
+          register={register}
+          error={errors.organizer?.message}
+          onPick={onOrganizerPick}
+        />
+        <EventOriginRow control={control} />
+      </div>
 
       <Field label={t('form.website')} htmlFor="event-website" error={errors.website_url?.message}>
         <Input id="event-website" inputMode="url" {...register('website_url')} />

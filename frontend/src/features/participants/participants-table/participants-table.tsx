@@ -10,6 +10,7 @@ import { listName } from '@/entities/user/person-name/person-name'
 import type { ParticipantResponse } from '@/shared/api/types.gen'
 import { formatDate } from '@/shared/datetime/datetime'
 import { useLocale } from '@/shared/i18n/i18n-context'
+import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 import {
   Table,
   TableBody,
@@ -99,7 +100,7 @@ export function ParticipantsTable({
                   {t(REGISTRATION_STATUS_KEY[item.registration_status.status])}
                 </span>
               ) : (
-                <span className="text-muted-foreground">—</span>
+                <NoValue />
               )}
             </TableCell>
             <TableCell>

@@ -5,9 +5,11 @@ import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { sortSessions } from '@/entities/session/device-label'
 import { deviceSessionsQuery, useRevokeSession } from '@/entities/session/device-sessions.queries'
+import { groupSessions } from '@/entities/session/session-recency'
 import { resetCsrfToken } from '@/shared/api/client'
 import { DeviceFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
+import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { QueryBoundary } from '@/shared/ui/states'
@@ -25,6 +27,7 @@ export function DeviceList() {
   const [renamingId, setRenamingId] = useState<string | null>(null)
 
   const items = sortSessions(query.data?.items ?? [])
+  const groups = groupSessions(items)
   const confirmingCurrent = items.some((item) => item.id === confirmId && item.current === true)
 
   async function revokeSession(id: string, current: boolean) {
@@ -69,23 +72,32 @@ export function DeviceList() {
               <p className="mb-2 text-meta text-muted-foreground">
                 {t('devices.count', { count: items.length })}
               </p>
-              <ul className="flex flex-col gap-2">
-                {items.map((session) =>
-                  renamingId === session.id ? (
-                    <li key={session.id}>
-                      <RenameDevice session={session} onDone={() => setRenamingId(null)} />
-                    </li>
-                  ) : (
-                    <DeviceRow
-                      key={session.id}
-                      session={session}
-                      pending={revoke.isPending}
-                      onRename={() => setRenamingId(session.id)}
-                      onRevoke={() => setConfirmId(session.id)}
-                    />
-                  ),
-                )}
-              </ul>
+              <div className="flex flex-col gap-4">
+                {groups.map((group) => (
+                  <section key={group.bucket} data-device-group={group.bucket}>
+                    <GroupLabel as="p" className="mb-1.5">
+                      {t(group.labelKey)}
+                    </GroupLabel>
+                    <ul className="flex flex-col gap-2">
+                      {group.sessions.map((session) =>
+                        renamingId === session.id ? (
+                          <li key={session.id}>
+                            <RenameDevice session={session} onDone={() => setRenamingId(null)} />
+                          </li>
+                        ) : (
+                          <DeviceRow
+                            key={session.id}
+                            session={session}
+                            pending={revoke.isPending}
+                            onRename={() => setRenamingId(session.id)}
+                            onRevoke={() => setConfirmId(session.id)}
+                          />
+                        ),
+                      )}
+                    </ul>
+                  </section>
+                ))}
+              </div>
             </>
           )}
         </QueryBoundary>

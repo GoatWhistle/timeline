@@ -73,3 +73,25 @@ func BodyDisplayIDs(ctx context.Context, raw []string, kind dto.DisplayKind,
 	}
 	return ids, nil
 }
+
+func BodyDisplayIDsPerRow(ctx context.Context, raw []string, kind dto.DisplayKind,
+	resolve DisplayResolver) dto.ResolvedIDs {
+	resolved := dto.ResolvedIDs{
+		IDs:      make([]uuid.UUID, len(raw)),
+		Failures: make([]error, len(raw)),
+	}
+	for index, value := range raw {
+		parsed, err := dto.ParseDisplayID(kind, value)
+		if err != nil {
+			resolved.Failures[index] = err
+			continue
+		}
+		id, err := resolve(ctx, parsed.Value)
+		if err != nil {
+			resolved.Failures[index] = err
+			continue
+		}
+		resolved.IDs[index] = id
+	}
+	return resolved
+}

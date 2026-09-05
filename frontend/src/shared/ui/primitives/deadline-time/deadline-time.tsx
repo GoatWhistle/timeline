@@ -8,6 +8,7 @@ import {
   zonesAgree,
 } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 
 export function DeadlineTime({
   iso,
@@ -17,7 +18,7 @@ export function DeadlineTime({
   className?: string
 }) {
   const { t } = useTranslation()
-  if (!iso) return <span className={className}>—</span>
+  if (!iso) return <NoValue className={className} />
 
   const local = formatDateTime(iso)
   const abbreviation = zoneAbbreviation(iso)

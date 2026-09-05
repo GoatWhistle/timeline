@@ -1,4 +1,4 @@
-import { AlertTriangle, Ban, CircleHelp, Timer } from 'lucide-react'
+import { Ban, CircleQuestionMark, Timer, TriangleAlert } from 'lucide-react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CHANNEL_KEY, NOTIFICATION_TYPE_KEY } from '@/entities/notification/notification.labels'
@@ -9,13 +9,14 @@ import {
   triedChannels,
 } from '@/entities/ops/queue-row'
 import type { QueueEntryResponse } from '@/shared/api/types.gen'
+import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 import { Badge } from '@/shared/ui/primitives/badge'
 
 const KIND_ICON: Record<QueueRowKind, ComponentType<{ className?: string }>> = {
-  failed: AlertTriangle,
+  failed: TriangleAlert,
   undeliverable: Ban,
   stuck: Timer,
-  other: CircleHelp,
+  other: CircleQuestionMark,
 }
 
 export function KindCell({ entry }: { entry: QueueEntryResponse }) {
@@ -72,6 +73,6 @@ export function ChannelsCell({ entry }: { entry: QueueEntryResponse }) {
 
 export function TypeCell({ entry }: { entry: QueueEntryResponse }) {
   const { t } = useTranslation()
-  if (!entry.notification_type) return <span className="text-muted-foreground">—</span>
+  if (!entry.notification_type) return <NoValue />
   return <span className="text-copy">{t(NOTIFICATION_TYPE_KEY[entry.notification_type])}</span>
 }

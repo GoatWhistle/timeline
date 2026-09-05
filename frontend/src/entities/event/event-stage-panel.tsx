@@ -6,7 +6,7 @@ import {
   MomentRangeFields,
   type RangeProblem,
 } from '@/shared/ui/forms/calendar/moment-range'
-import { EventBasicsFields, EventOriginRow } from './event-common-fields'
+import { EventBasicsFields } from './event-common-fields'
 import type { MeetupFormValues } from './event-form.schema'
 import type { StageId } from './event-form.stages'
 import { EventPlaceFields } from './event-place-fields'
@@ -48,7 +48,12 @@ export function EventStagePanel({
 
   if (stage === 'basics') {
     return (
-      <EventBasicsFields register={register} errors={errors} onOrganizerPick={onOrganizerPick} />
+      <EventBasicsFields
+        control={control}
+        register={register}
+        errors={errors}
+        onOrganizerPick={onOrganizerPick}
+      />
     )
   }
 
@@ -65,13 +70,7 @@ export function EventStagePanel({
 
   if (stage === 'place') {
     return (
-      <EventPlaceFields
-        control={control}
-        register={register}
-        errors={errors}
-        format={format}
-        side={<EventOriginRow control={control} />}
-      />
+      <EventPlaceFields control={control} register={register} errors={errors} format={format} />
     )
   }
 

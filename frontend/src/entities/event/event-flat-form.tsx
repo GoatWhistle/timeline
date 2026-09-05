@@ -6,6 +6,8 @@ import type { StageDefinition } from './event-form.stages'
 
 const LEADING: readonly string[] = ['kind', 'basics']
 
+const HEADLESS: readonly string[] = ['kind']
+
 function columns(stages: StageDefinition[]): StageDefinition[][] {
   const lead = stages.filter((stage) => LEADING.includes(stage.id))
   const rest = stages.filter((stage) => !LEADING.includes(stage.id))
@@ -50,16 +52,20 @@ export function EventFlatForm({
           >
             {column.map((stage) => {
               const headingId = `event-section-${stage.id}-heading`
+              const headless = HEADLESS.includes(stage.id)
               return (
                 <section
                   key={stage.id}
-                  aria-labelledby={headingId}
+                  aria-label={headless ? t(stage.labelKey) : undefined}
+                  aria-labelledby={headless ? undefined : headingId}
                   data-stage-section={stage.id}
-                  className="flex min-w-0 flex-col gap-5"
+                  className={headless ? 'flex min-w-0 flex-col' : 'flex min-w-0 flex-col gap-5'}
                 >
-                  <h3 id={headingId} className="font-semibold text-heading">
-                    {t(stage.labelKey)}
-                  </h3>
+                  {!headless && (
+                    <h3 id={headingId} className="font-semibold text-heading">
+                      {t(stage.labelKey)}
+                    </h3>
+                  )}
                   {renderStage(stage)}
                   {stage.id === 'basics' && cover}
                 </section>

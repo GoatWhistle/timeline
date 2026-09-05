@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useProfileLinks } from '@/entities/user/profile.queries'
+import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { AddProfileLink } from './add-profile-link'
 import { EditProfileLink } from './edit-profile-link'
@@ -31,9 +32,9 @@ export function ProfileLinksCard() {
           aria-label={editing === null ? t('profile.links.addTitle') : t('profile.links.editTitle')}
           className="flex flex-col gap-4 rounded-control border border-border bg-surface-1 p-4"
         >
-          <h3 className="font-medium text-caption text-muted-foreground uppercase tracking-wide">
+          <GroupLabel>
             {editing === null ? t('profile.links.addTitle') : t('profile.links.editTitle')}
-          </h3>
+          </GroupLabel>
           {editing === null ? (
             <AddProfileLink disabled={items.length >= LINK_LIMIT} />
           ) : (

@@ -137,7 +137,7 @@ func mountAdminQueries(mux *http.ServeMux, rt *routes, api string,
 
 	mux.Handle("GET "+api+"/healthz", http.HandlerFunc(opsC.Health))
 	mux.Handle("GET "+api+"/readyz", http.HandlerFunc(opsC.Ready))
-	mux.Handle("GET "+api+"/ops/worker-heartbeat", http.HandlerFunc(opsC.Heartbeat))
+	mux.Handle("GET "+api+"/ops/worker-heartbeat", rt.admin(opsC.Heartbeat))
 	mux.Handle("GET "+api+"/ops/queue", rt.admin(opsC.Queue))
 	mux.Handle("GET "+api+"/metrics", http.HandlerFunc(opsC.Metrics))
 	mux.Handle("GET /healthz", http.HandlerFunc(opsC.Health))

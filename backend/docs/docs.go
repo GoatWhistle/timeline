@@ -28,7 +28,7 @@ const docTemplate = `{
                         "CookieAuth": []
                     }
                 ],
-                "description": "Restricted to administrators. Entries are immutable; file export is not supported in the MVP.",
+                "description": "Restricted to administrators. Entries are immutable; file export is not supported in the MVP.\n\nThe actor is identified by the external display identifier of the user. The row id and\nentity_id stay internal: the journal records arbitrary entity types, which have no single\nexternal identifier space.",
                 "produces": [
                     "application/json"
                 ],
@@ -39,7 +39,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
+                        "example": "us_3k7d8gb9be",
                         "description": "Filter by actor",
                         "name": "actor_user_id",
                         "in": "query"
@@ -6605,7 +6605,12 @@ const docTemplate = `{
         },
         "/ops/worker-heartbeat": {
             "get": {
-                "description": "Last run times of the scheduler and worker, queue lengths by status\nand the age of the oldest pending entry.",
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Last run times of the scheduler and worker, queue lengths by status\nand the age of the oldest pending entry.\n\nRestricted to administrators. The counts describe the delivery backlog, which is the\nsame class of operational detail as /ops/queue and is not something an anonymous\ncaller may read. Container liveness probes use /healthz and /readyz instead.",
                 "produces": [
                     "application/json"
                 ],
@@ -6618,6 +6623,18 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.WorkerHeartbeatResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "503": {
@@ -8355,7 +8372,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "actor_user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "us_3k7d8gb9be"
                 },
                 "after": {},
                 "before": {},

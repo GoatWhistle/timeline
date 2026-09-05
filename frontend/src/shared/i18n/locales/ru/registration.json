@@ -97,7 +97,6 @@
     "select": "Выбрать {{name}}",
     "participant": "Участник",
     "status": "Статус",
-    "cycle": "Цикл",
     "source": "Источник",
     "markedAt": "Отмечено",
     "note": "Заметка: {{note}}",

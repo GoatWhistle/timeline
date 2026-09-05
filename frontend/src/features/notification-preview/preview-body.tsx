@@ -1,4 +1,5 @@
 import { CircleCheck, Info, TriangleAlert } from 'lucide-react'
+import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CHANNEL_KEY, NOTIFICATION_TYPE_KEY } from '@/entities/notification/notification.labels'
 import type { PreviewState } from '@/entities/notification-preview'
@@ -8,9 +9,10 @@ import { cn } from '@/shared/styling/class-names/class-names'
 import { PreviewFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { ErrorState } from '@/shared/ui/data-display/error-state'
+import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 import { Skeleton } from '@/shared/ui/states'
 
-function Line({ label, value }: { label: string; value: string }) {
+function Line({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex gap-3 py-1.5">
       <dt className="w-40 shrink-0 text-meta text-muted-foreground">{label}</dt>
@@ -65,9 +67,9 @@ function Rendered({ preview }: { preview: NotificationPreviewResponse }) {
 
       <div className="rounded-control border border-border">
         <p className="border-border border-b px-3 py-2 font-medium text-copy">
-          {preview.subject || '—'}
+          {preview.subject || <NoValue />}
         </p>
-        <p className="whitespace-pre-wrap px-3 py-3 text-copy">{preview.body || '—'}</p>
+        <p className="whitespace-pre-wrap px-3 py-3 text-copy">{preview.body || <NoValue />}</p>
       </div>
 
       <dl className="divide-y divide-border">
@@ -79,8 +81,8 @@ function Rendered({ preview }: { preview: NotificationPreviewResponse }) {
           label={t('preview.deadline')}
           value={preview.deadline_local || formatDateTime(preview.deadline_utc)}
         />
-        <Line label={t('preview.language')} value={preview.language ?? '—'} />
-        <Line label={t('preview.timezone')} value={preview.timezone_id ?? '—'} />
+        <Line label={t('preview.language')} value={preview.language ?? <NoValue />} />
+        <Line label={t('preview.timezone')} value={preview.timezone_id ?? <NoValue />} />
       </dl>
     </div>
   )

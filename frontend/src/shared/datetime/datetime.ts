@@ -191,3 +191,20 @@ export function formatDateRange(
   if (!end || isSameDay(start, end)) return startText
   return `${startText} — ${format(end, EVENT_DAY_PATTERN[locale], options)}`
 }
+
+export function formatMomentRange(
+  startIso: string | null | undefined,
+  endIso: string | null | undefined,
+  locale = currentLocale(),
+): string {
+  const start = toZoned(startIso)
+  const end = toZoned(endIso)
+  if (!start) return '—'
+  const options = { locale: dateFnsLocale(locale) }
+  const startText = format(start, DATE_TIME_PATTERN[locale], options)
+  if (!end) return startText
+  const endText = isSameDay(start, end)
+    ? format(end, TIME_PATTERN, options)
+    : format(end, DATE_TIME_PATTERN[locale], options)
+  return `${startText} — ${endText}`
+}

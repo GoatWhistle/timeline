@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, MinusCircle } from 'lucide-react'
+import { CircleAlert, CircleCheck, CircleMinus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { BatchItemResult, BatchResult } from '@/shared/api/types.gen'
 import { errorMessage } from '@/shared/i18n/error-message'
@@ -8,10 +8,10 @@ import { Button } from '@/shared/ui/primitives/button'
 
 export type BatchRowStatus = 'ok' | 'skipped' | 'error'
 
-const ICON: Record<BatchRowStatus, typeof CheckCircle2> = {
-  ok: CheckCircle2,
-  skipped: MinusCircle,
-  error: AlertCircle,
+const ICON: Record<BatchRowStatus, typeof CircleCheck> = {
+  ok: CircleCheck,
+  skipped: CircleMinus,
+  error: CircleAlert,
 }
 
 const TONE: Record<BatchRowStatus, string> = {

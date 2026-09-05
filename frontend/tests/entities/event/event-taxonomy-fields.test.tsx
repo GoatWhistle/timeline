@@ -48,8 +48,11 @@ describe('EventKindLocked', () => {
     expect(screen.queryByText(i18n.t('event:catalog.kindLabel.MEETUP'))).toBeNull()
   })
 
-  it('carries the same picture the choice does, so the two screens agree', () => {
+  it('states the settled kind in one line, without the picture the choice needs', () => {
     renderWithProviders(<EventKindLocked value="HACKATHON" />)
-    expect(document.querySelector('[data-kind-preview="HACKATHON"]')).not.toBeNull()
+    const locked = document.querySelector('[data-kind-locked="HACKATHON"]')
+    expect(locked).not.toBeNull()
+    expect(locked?.querySelector('[data-kind-preview]')).toBeNull()
+    expect(locked?.querySelector('svg')).not.toBeNull()
   })
 })

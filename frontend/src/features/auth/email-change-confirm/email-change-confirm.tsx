@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle2, XCircle } from 'lucide-react'
+import { CircleCheck, CircleX } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { AuthExits } from '@/features/auth/door/auth-exits'
@@ -45,14 +45,14 @@ export function EmailChangeConfirmPage() {
 
         {isError && (
           <div className="flex items-start gap-2" role="alert">
-            <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden="true" />
+            <CircleX className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden="true" />
             <p className="text-copy">{failureMessage(error)}</p>
           </div>
         )}
 
         {!isPending && !isError && (
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-status-done" aria-hidden="true" />
+            <CircleCheck className="mt-0.5 size-5 shrink-0 text-status-done" aria-hidden="true" />
             <p className="text-copy">{t('emailChange.changed')}</p>
           </div>
         )}

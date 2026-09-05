@@ -154,19 +154,16 @@ export function EventKindLocked({ value }: { value: EventKind }) {
   const Icon = KIND_ICON[value]
 
   return (
-    <div className="flex flex-col gap-2 sm:max-w-xl">
-      <p className="text-caption text-muted-foreground">{t('form.kindFixed')}</p>
-      <div
-        data-kind-locked={value}
-        className="flex items-center gap-3 rounded-surface border border-border bg-accent-surface p-2"
-      >
-        <EventKindPreview kind={value} className="h-16 w-24 shrink-0" />
-        <span className="flex min-w-0 items-center gap-1.5 font-medium text-copy">
-          <Icon className="size-4 shrink-0" aria-hidden="true" />
-          <span className="truncate">{t(`catalog.kindLabel.${value}`)}</span>
-        </span>
-      </div>
-    </div>
+    <p
+      data-kind-locked={value}
+      className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-caption text-muted-foreground"
+    >
+      <span className="flex min-w-0 items-center gap-1.5 font-medium text-copy text-foreground">
+        <Icon className="size-4 shrink-0" aria-hidden="true" />
+        <span className="truncate">{t(`catalog.kindLabel.${value}`)}</span>
+      </span>
+      <span>{t('form.kindFixed')}</span>
+    </p>
   )
 }
 

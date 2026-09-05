@@ -10,7 +10,11 @@ export function LanguageChoice() {
   const { t } = useTranslation()
 
   return (
-    <fieldset aria-label={t('language.legend')} className="grid grid-cols-2 gap-3">
+    <fieldset
+      aria-label={t('language.legend')}
+      data-language-choice
+      className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+    >
       {LOCALES.map((value) => {
         const selected = locale === value
         return (
@@ -24,7 +28,7 @@ export function LanguageChoice() {
             className="items-center gap-2 px-3 py-2.5"
           >
             <LanguageFlag locale={value} />
-            <span className={cn('min-w-0 truncate text-copy', selected && 'font-medium')}>
+            <span className={cn('min-w-0 text-copy', selected && 'font-medium')}>
               {t(`language.${value}`)}
             </span>
             <OptionMark selected={selected} className="ml-auto size-4" />

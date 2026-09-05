@@ -96,7 +96,6 @@
     "select": "Select {{name}}",
     "participant": "Participant",
     "status": "Status",
-    "cycle": "Cycle",
     "source": "Source",
     "markedAt": "Marked",
     "note": "Note: {{note}}",

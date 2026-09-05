@@ -58,15 +58,15 @@ export function DeviceRow({
           {session.last_used_at ? (
             <>
               <dt className="text-muted-foreground/70">{t('devices.lastUsedTerm')}</dt>
-              <dd className="truncate">{formatRelative(session.last_used_at)}</dd>
+              <dd className="min-w-0">{formatRelative(session.last_used_at)}</dd>
             </>
           ) : null}
           <dt className="text-muted-foreground/70">{t('devices.signedInTerm')}</dt>
-          <dd className="truncate">{formatDateTime(session.created_at)}</dd>
+          <dd className="min-w-0">{formatDateTime(session.created_at)}</dd>
           {session.ip ? (
             <>
               <dt className="text-muted-foreground/70">{t('devices.ipTerm')}</dt>
-              <dd className="truncate font-mono">{session.ip}</dd>
+              <dd className="min-w-0 break-all font-mono">{session.ip}</dd>
             </>
           ) : null}
         </dl>

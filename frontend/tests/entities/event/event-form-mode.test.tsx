@@ -128,6 +128,12 @@ describe('editing an event on the admin card shows the fields directly', () => {
   })
 })
 
+function accessibleName(node: Element): string {
+  const by = node.getAttribute('aria-labelledby')
+  if (by !== null) return document.getElementById(by)?.textContent?.trim() ?? ''
+  return node.getAttribute('aria-label')?.trim() ?? ''
+}
+
 describe('both modes are built from one set of stage definitions', () => {
   it('names the same sections in the flat form as the pipeline names as stages', () => {
     const { unmount } = renderWithProviders(<EventForm submitLabel="Create" onSubmit={vi.fn()} />)
@@ -141,5 +147,31 @@ describe('both modes are built from one set of stage definitions', () => {
       (node) => (node as HTMLElement).dataset.stageSection,
     )
     expect(flat).toEqual(staged)
+  })
+
+  it('gives every flat section the same wording the stepper gives that stage', () => {
+    const { unmount } = renderWithProviders(<EventForm submitLabel="Create" onSubmit={vi.fn()} />)
+    const worded = new Map(
+      steps().map((node) => [
+        (node as HTMLElement).dataset.stageStep,
+        Array.from(node.querySelectorAll('span'))
+          .filter((span) => span.getAttribute('aria-hidden') === null)
+          .map((span) => span.textContent?.trim() ?? '')
+          .join(''),
+      ]),
+    )
+    unmount()
+
+    renderWithProviders(
+      <EventForm event={EVENT} mode="edit" submitLabel="Save" onSubmit={vi.fn()} />,
+    )
+    const sections = Array.from(document.querySelectorAll('[data-stage-section]'))
+    expect(sections.length).toBe(worded.size)
+    for (const section of sections) {
+      const id = (section as HTMLElement).dataset.stageSection ?? ''
+      const wanted = worded.get(id) ?? ''
+      expect(wanted, id).not.toBe('')
+      expect(accessibleName(section), id).toContain(wanted)
+    }
   })
 })

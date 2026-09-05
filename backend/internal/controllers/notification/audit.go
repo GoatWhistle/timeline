@@ -28,10 +28,14 @@ func NewAuditController(svc AuditService, pageDef, pageMax int) *AuditController
 
 // @Summary		Audit log
 // @Description	Restricted to administrators. Entries are immutable; file export is not supported in the MVP.
+// @Description
+// @Description	The actor is identified by the external display identifier of the user. The row id and
+// @Description	entity_id stay internal: the journal records arbitrary entity types, which have no single
+// @Description	external identifier space.
 // @Tags			audit
 // @Produce		json
 // @Security		CookieAuth
-// @Param			actor_user_id	query		string	false	"Filter by actor"	format(uuid)
+// @Param			actor_user_id	query		string	false	"Filter by actor"	example(us_3k7d8gb9be)
 // @Param			action			query		string	false	"Filter by action"
 // @Param			entity_type		query		string	false	"Filter by entity type"
 // @Param			entity_id		query		string	false	"Filter by entity identifier"	format(uuid)
@@ -45,11 +49,6 @@ func NewAuditController(svc AuditService, pageDef, pageMax int) *AuditController
 // @Router			/admin/audit [get]
 func (c *AuditController) List(w http.ResponseWriter, r *http.Request) {
 	page, err := httpx.ParsePage(r, c.pageDef, c.pageMax)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	actorID, err := httpx.QueryUUID(r, "actor_user_id")
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
@@ -70,12 +69,12 @@ func (c *AuditController) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	filter := models.AuditFilter{
-		ActorUserID: actorID,
-		Action:      httpx.QueryTrimmed(r, "action"),
-		EntityType:  httpx.QueryTrimmed(r, "entity_type"),
-		EntityID:    entityID,
-		From:        from,
-		To:          to,
+		ActorDisplayID: httpx.QueryTrimmed(r, "actor_user_id"),
+		Action:         httpx.QueryTrimmed(r, "action"),
+		EntityType:     httpx.QueryTrimmed(r, "entity_type"),
+		EntityID:       entityID,
+		From:           from,
+		To:             to,
 	}
 	items, total, err := c.svc.List(r.Context(), middleware.ActorFrom(r), filter, page)
 	if err != nil {

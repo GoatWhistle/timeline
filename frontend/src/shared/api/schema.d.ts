@@ -13,13 +13,20 @@ export interface paths {
         /**
          * Audit log
          * @description Restricted to administrators. Entries are immutable; file export is not supported in the MVP.
+         *
+         *     The actor is identified by the external display identifier of the user. The row id and
+         *     entity_id stay internal: the journal records arbitrary entity types, which have no single
+         *     external identifier space.
          */
         get: {
             parameters: {
                 query?: {
                     /** @description Filter by action */
                     action?: string;
-                    /** @description Filter by actor */
+                    /**
+                     * @description Filter by actor
+                     * @example us_3k7d8gb9be
+                     */
                     actor_user_id?: string;
                     /** @description Filter by entity identifier */
                     entity_id?: string;
@@ -7982,6 +7989,10 @@ export interface paths {
          * Background process status
          * @description Last run times of the scheduler and worker, queue lengths by status
          *     and the age of the oldest pending entry.
+         *
+         *     Restricted to administrators. The counts describe the delivery backlog, which is the
+         *     same class of operational detail as /ops/queue and is not something an anonymous
+         *     caller may read. Container liveness probes use /healthz and /readyz instead.
          */
         get: {
             parameters: {
@@ -7999,6 +8010,24 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["dto.WorkerHeartbeatResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
                     };
                 };
                 /** @description Service Unavailable */
@@ -10086,6 +10115,7 @@ export interface components {
         "dto.AuditResponse": {
             action: components["schemas"]["models.AuditAction"];
             actor_email?: string;
+            /** @example us_3k7d8gb9be */
             actor_user_id?: string;
             after?: unknown;
             before?: unknown;

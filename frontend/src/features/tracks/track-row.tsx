@@ -1,11 +1,14 @@
-import { ArrowDown, ArrowUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PrizePlaceMark } from '@/entities/prize/prize-place-mark'
 import type { EventTrackResponse } from '@/shared/api/types.gen'
 import { formatMoney } from '@/shared/money/money'
 import { Badge } from '@/shared/ui/primitives/badge'
-import { Button } from '@/shared/ui/primitives/button'
-import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
+import {
+  DeleteAction,
+  EditAction,
+  MoveDownAction,
+  MoveUpAction,
+} from '@/shared/ui/primitives/row-actions'
 
 export function TrackRow({
   track,
@@ -53,26 +56,16 @@ export function TrackRow({
               {total}
             </span>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 shrink-0"
-            aria-label={t('tracks.moveUpAria', { name: track.name })}
+          <MoveUpAction
+            label={t('tracks.moveUpAria', { name: track.name })}
             disabled={!canUp || busy}
             onClick={onUp}
-          >
-            <ArrowUp className="size-4" aria-hidden="true" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 shrink-0"
-            aria-label={t('tracks.moveDownAria', { name: track.name })}
+          />
+          <MoveDownAction
+            label={t('tracks.moveDownAria', { name: track.name })}
             disabled={!canDown || busy}
             onClick={onDown}
-          >
-            <ArrowDown className="size-4" aria-hidden="true" />
-          </Button>
+          />
           <EditAction label={t('tracks.editAria', { name: track.name })} onClick={onEdit} />
           <DeleteAction label={t('tracks.deleteAria', { name: track.name })} onClick={onDelete} />
         </div>

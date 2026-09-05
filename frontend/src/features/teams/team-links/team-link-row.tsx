@@ -1,12 +1,16 @@
-import { ChevronDown, ChevronUp, GripVertical } from 'lucide-react'
+import { GripVertical } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TeamEventLink } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { linkHostname } from '@/shared/ui/navigation/service-link/detect-service'
 import { ServiceIcon, serviceLabel } from '@/shared/ui/navigation/service-link/service-icon'
-import { Button } from '@/shared/ui/primitives/button'
-import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
+import {
+  DeleteAction,
+  EditAction,
+  MoveDownAction,
+  MoveUpAction,
+} from '@/shared/ui/primitives/row-actions'
 
 export type TeamLinkRowProps = {
   link: TeamEventLink
@@ -77,27 +81,17 @@ export function TeamLinkRow({
 
       {canWrite && (
         <>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
+          <MoveUpAction
             disabled={index === 0}
             onClick={onMoveUp}
             data-focus-id={link.id}
-            aria-label={t('links.moveUp', { name })}
-          >
-            <ChevronUp className="size-4" aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
+            label={t('links.moveUp', { name })}
+          />
+          <MoveDownAction
             disabled={index === total - 1}
             onClick={onMoveDown}
-            aria-label={t('links.moveDown', { name })}
-          >
-            <ChevronDown className="size-4" aria-hidden="true" />
-          </Button>
+            label={t('links.moveDown', { name })}
+          />
           <EditAction onClick={onEdit} aria-pressed={isEditing} label={t('links.edit', { name })} />
           <DeleteAction onClick={onRemove} label={t('links.remove', { name })} />
         </>

@@ -136,7 +136,11 @@
     "renamed": "The session was renamed",
     "renameFailed": "The session could not be renamed",
     "clearName": "Remove the name",
-    "nameTooLong": "A name may be at most 64 characters"
+    "nameTooLong": "A name may be at most 64 characters",
+    "groupCurrent": "This device",
+    "groupToday": "Active today",
+    "groupWeek": "Active this week",
+    "groupOlder": "Not used recently"
   },
   "settings": {
     "title": "Settings",

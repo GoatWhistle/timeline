@@ -13,8 +13,8 @@ func (c *Config) validate() error {
 	if c.Telegram.WebhookURL != "" && c.Telegram.WebhookSecret == "" {
 		return fmt.Errorf("TELEGRAM_WEBHOOK_SECRET is required when TELEGRAM_WEBHOOK_URL is set")
 	}
-	if c.App.Env != "dev" && c.Auth.JWTSecret == "dev-insecure-secret-change-me" {
-		return fmt.Errorf("JWT_SECRET is required outside the dev environment")
+	if err := c.resolveJWTSecret(); err != nil {
+		return err
 	}
 	if len(c.Notify.Backoff) == 0 {
 		return fmt.Errorf("NOTIFICATION_BACKOFF cannot be empty")

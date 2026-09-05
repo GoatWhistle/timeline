@@ -101,7 +101,7 @@ function EventCardBody({
       <div className="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <aside className="xl:sticky xl:top-4 xl:col-start-2 xl:row-start-1">
           <Card>
-            <CardContent className="pt-6">
+            <CardContent>
               <EventFacts event={event} />
             </CardContent>
           </Card>

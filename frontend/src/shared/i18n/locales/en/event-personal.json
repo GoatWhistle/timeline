@@ -151,7 +151,15 @@
       "artifacts_one": "{{count}} submission",
       "artifacts_other": "{{count}} submissions",
       "role": "Role",
-      "place": "Place"
+      "place": "Place",
+      "summary": {
+        "title": "Your record at a glance",
+        "total": "Hackathons",
+        "podium": "Top three",
+        "submissions": "Submissions",
+        "tasks": "Tasks done"
+      },
+      "footnote": "Only hackathons already under way or finished appear here. Outcomes and submissions are what you recorded yourself."
     },
     "summary": {
       "title": "My layer",

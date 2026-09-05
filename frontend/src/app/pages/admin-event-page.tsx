@@ -18,7 +18,7 @@ import { RegistrationTab } from '@/features/registration/registration-tab'
 import { StatusesTab } from '@/features/registration/statuses-tab'
 import { StagesTab } from '@/features/stages/stages-tab'
 import { TracksTab } from '@/features/tracks/tracks-tab'
-import { formatDate } from '@/shared/datetime/datetime'
+import { formatDateRange } from '@/shared/datetime/datetime'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { Card, CardContent } from '@/shared/ui/layout/card'
 import { PageHeader } from '@/shared/ui/layout/page-header'
@@ -69,7 +69,7 @@ export function AdminEventPage() {
         <div className={PAGE_WIDTH}>
           <PageHeader
             title={event.title}
-            description={`${formatDate(event.start_at)} — ${formatDate(event.end_at)}`}
+            description={formatDateRange(event.start_at, event.end_at)}
             actions={
               <div className="flex items-center gap-2">
                 <EventStateBadge state={event.state} />

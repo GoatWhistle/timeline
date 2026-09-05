@@ -9,6 +9,7 @@ import {
 } from '@/entities/team/team-links.queries'
 import type { NewLinkValues } from '@/features/profile/profile-links-card/links-schema'
 import { ProfileLinkForm } from '@/features/profile/profile-links-card/profile-link-form'
+import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
 import { TeamLinksList } from './team-links-list'
 
 const LINK_LIMIT = 20
@@ -73,9 +74,9 @@ export function TeamLinksCard({ teamId, eventId }: { teamId: string; eventId: st
           aria-label={editing === null ? t('links.addTitle') : t('links.editTitle')}
           className="flex flex-col gap-4 rounded-control border border-border bg-surface-1 p-4"
         >
-          <h4 className="font-medium text-caption text-muted-foreground uppercase tracking-wide">
+          <GroupLabel as="h4">
             {editing === null ? t('links.addTitle') : t('links.editTitle')}
-          </h4>
+          </GroupLabel>
           {editing === null ? (
             <ProfileLinkForm
               key="team-link-add"

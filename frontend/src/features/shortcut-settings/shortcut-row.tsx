@@ -49,8 +49,8 @@ export function ShortcutRow({
   const name = t(shortcut.titleKey)
 
   return (
-    <div className="flex h-row items-center justify-between gap-4 border-border/60 border-b last:border-b-0">
-      <dt className="min-w-0 truncate text-copy">
+    <div className="flex min-h-row flex-wrap items-center justify-between gap-x-4 gap-y-1 border-border/60 border-b py-1 last:border-b-0">
+      <dt className="min-w-0 flex-1 text-copy">
         {name}
         {rejection ? (
           <span role="alert" className="ml-2 text-caption text-destructive">

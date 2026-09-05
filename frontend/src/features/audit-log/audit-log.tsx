@@ -15,6 +15,7 @@ import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-
 import { AuditFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
+import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 import {
   Table,
   TableBody,
@@ -48,7 +49,7 @@ function DiffBlock({ title, value }: { title: string; value: unknown }) {
         {title}
       </GroupLabel>
       <pre className="overflow-x-auto rounded-control bg-muted p-3 text-caption">
-        {value === undefined || value === null ? '—' : JSON.stringify(value, null, 2)}
+        {value === undefined || value === null ? <NoValue /> : JSON.stringify(value, null, 2)}
       </pre>
     </div>
   )

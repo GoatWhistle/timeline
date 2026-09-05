@@ -10,6 +10,7 @@ import { listName } from '@/entities/user/person-name/person-name'
 import type { RegistrationStatusResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { useLocale } from '@/shared/i18n/i18n-context'
+import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 import {
   Table,
   TableBody,
@@ -52,7 +53,6 @@ export function StatusesTable({
           </TableHead>
           <TableHead>{t('statuses.participant')}</TableHead>
           <TableHead>{t('statuses.status')}</TableHead>
-          <TableHead>{t('statuses.cycle')}</TableHead>
           <TableHead>{t('statuses.source')}</TableHead>
           <TableHead>{t('statuses.markedAt')}</TableHead>
           {onPreview ? <TableHead className="w-12" /> : null}
@@ -86,12 +86,11 @@ export function StatusesTable({
                 {t(REGISTRATION_STATUS_KEY[item.status])}
               </span>
             </TableCell>
-            <TableCell className="text-muted-foreground">{item.todo_cycle}</TableCell>
             <TableCell className="text-muted-foreground">
               {t(CHANGE_SOURCE_KEY[item.last_change_source])}
             </TableCell>
             <TableCell className="text-muted-foreground">
-              {item.registered_at ? formatDateTime(item.registered_at) : '—'}
+              {item.registered_at ? formatDateTime(item.registered_at) : <NoValue />}
             </TableCell>
             {onPreview ? (
               <TableCell>

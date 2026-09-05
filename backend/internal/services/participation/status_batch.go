@@ -11,14 +11,20 @@ import (
 )
 
 func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req dto.BatchSetStatusRequest, participantIDs []uuid.UUID) (*dto.BatchResult, error) {
+	req dto.BatchSetStatusRequest, participantIDs dto.ResolvedIDs) (*dto.BatchResult, error) {
 	targets, err := s.batchTargets(ctx, actor, eventID, req, participantIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	result := &dto.BatchResult{Results: make([]dto.BatchItemResult, 0, len(participantIDs))}
-	for index, participantID := range participantIDs {
+	result := &dto.BatchResult{Results: make([]dto.BatchItemResult, 0, participantIDs.Len())}
+	for index, participantID := range participantIDs.IDs {
+		if err := unresolved(participantIDs, index); err != nil {
+			result.Results = append(result.Results,
+				batchItem(index, req.ParticipantIDs[index], nil, err))
+			countBatch(result, err)
+			continue
+		}
 		status, ok := targets[participantID]
 		if !ok {
 			result.Results = append(result.Results, dto.BatchItemResult{
@@ -63,13 +69,17 @@ func (s *StatusService) BatchSet(ctx context.Context, actor models.Actor, eventI
 }
 
 func (s *StatusService) BatchSetPreview(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req dto.BatchSetStatusRequest, participantIDs []uuid.UUID) (*dto.PreviewResponse, error) {
+	req dto.BatchSetStatusRequest, participantIDs dto.ResolvedIDs) (*dto.PreviewResponse, error) {
 	targets, err := s.batchTargets(ctx, actor, eventID, req, participantIDs)
 	if err != nil {
 		return nil, err
 	}
 	preview := &dto.PreviewResponse{}
-	for _, participantID := range participantIDs {
+	for index, participantID := range participantIDs.IDs {
+		if unresolved(participantIDs, index) != nil {
+			preview.Skipped++
+			continue
+		}
 		status, ok := targets[participantID]
 		if !ok || status.Status == req.Status {
 			preview.Skipped++
@@ -82,7 +92,7 @@ func (s *StatusService) BatchSetPreview(ctx context.Context, actor models.Actor,
 
 func (s *StatusService) batchTargets(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	req dto.BatchSetStatusRequest,
-	participantIDs []uuid.UUID) (map[uuid.UUID]*models.RegistrationStatus, error) {
+	participantIDs dto.ResolvedIDs) (map[uuid.UUID]*models.RegistrationStatus, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -99,8 +109,11 @@ func (s *StatusService) batchTargets(ctx context.Context, actor models.Actor, ev
 		return nil, notFoundRegistration(err)
 	}
 
-	targets := make(map[uuid.UUID]*models.RegistrationStatus, len(participantIDs))
-	for _, participantID := range participantIDs {
+	targets := make(map[uuid.UUID]*models.RegistrationStatus, participantIDs.Len())
+	for index, participantID := range participantIDs.IDs {
+		if unresolved(participantIDs, index) != nil {
+			continue
+		}
 		status, err := s.statuses.GetByParticipant(ctx, registration.ID, participantID)
 		if errors.Is(err, models.ErrNotFound) {
 			continue

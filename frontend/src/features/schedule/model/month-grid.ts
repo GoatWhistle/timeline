@@ -110,7 +110,10 @@ export function packMonthWeek(week: MonthWeek, spans: readonly CalendarSpan[]): 
         columnOffset,
         columnOffset + differenceInCalendarDays(start, weekStart),
       )
-      const endColumn = Math.min(lastColumn, columnOffset + differenceInCalendarDays(end, weekStart))
+      const endColumn = Math.min(
+        lastColumn,
+        columnOffset + differenceInCalendarDays(end, weekStart),
+      )
 
       return {
         span,

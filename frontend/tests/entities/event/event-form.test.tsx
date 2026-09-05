@@ -26,11 +26,11 @@ const HACKATHON_ONLY: [StageName, string][] = [
 const SHARED: [StageName, string][] = [
   ['basics', 'event-title'],
   ['basics', 'event-organizer'],
+  ['basics', 'origin'],
   ['basics', 'event-website'],
   ['basics', 'event-description'],
   ['period', 'event-start'],
   ['period', 'event-end'],
-  ['place', 'origin'],
   ['place', 'event-format'],
 ]
 

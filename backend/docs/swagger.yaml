@@ -82,6 +82,7 @@ definitions:
       actor_email:
         type: string
       actor_user_id:
+        example: us_3k7d8gb9be
         type: string
       after: {}
       before: {}
@@ -3080,11 +3081,15 @@ info:
 paths:
   /admin/audit:
     get:
-      description: Restricted to administrators. Entries are immutable; file export
-        is not supported in the MVP.
+      description: |-
+        Restricted to administrators. Entries are immutable; file export is not supported in the MVP.
+
+        The actor is identified by the external display identifier of the user. The row id and
+        entity_id stay internal: the journal records arbitrary entity types, which have no single
+        external identifier space.
       parameters:
       - description: Filter by actor
-        format: uuid
+        example: us_3k7d8gb9be
         in: query
         name: actor_user_id
         type: string
@@ -7675,6 +7680,10 @@ paths:
       description: |-
         Last run times of the scheduler and worker, queue lengths by status
         and the age of the oldest pending entry.
+
+        Restricted to administrators. The counts describe the delivery backlog, which is the
+        same class of operational detail as /ops/queue and is not something an anonymous
+        caller may read. Container liveness probes use /healthz and /readyz instead.
       produces:
       - application/json
       responses:
@@ -7682,10 +7691,20 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.WorkerHeartbeatResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
         "503":
           description: Service Unavailable
           schema:
             $ref: '#/definitions/dto.WorkerHeartbeatResponse'
+      security:
+      - CookieAuth: []
       summary: Background process status
       tags:
       - ops

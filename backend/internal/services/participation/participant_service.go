@@ -47,7 +47,7 @@ func (s *ParticipantService) List(ctx context.Context, actor models.Actor, event
 }
 
 func (s *ParticipantService) AddMany(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req dto.AddParticipantsRequest, userIDs []uuid.UUID) (*dto.BatchResult, error) {
+	req dto.AddParticipantsRequest, userIDs dto.ResolvedIDs) (*dto.BatchResult, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -61,7 +61,11 @@ func (s *ParticipantService) AddMany(ctx context.Context, actor models.Actor, ev
 
 	result := &dto.BatchResult{Results: make([]dto.BatchItemResult, 0, len(req.Items))}
 	for index, item := range req.Items {
-		participant, err := s.addOne(ctx, actor, eventID, event.Kind, item, userIDs[index])
+		err := unresolved(userIDs, index)
+		var participant *models.EventParticipant
+		if err == nil {
+			participant, err = s.addOne(ctx, actor, eventID, event.Kind, item, userIDs.IDs[index])
+		}
 		result.Results = append(result.Results, batchItem(index, item.UserID, participant, err))
 		countBatch(result, err)
 	}
@@ -155,7 +159,7 @@ func (s *ParticipantService) ensureStatusAndNotification(ctx context.Context, ev
 }
 
 func (s *ParticipantService) RemoveMany(ctx context.Context, actor models.Actor, eventID uuid.UUID,
-	req dto.RemoveParticipantsRequest, participantIDs []uuid.UUID) (*dto.BatchResult, error) {
+	req dto.RemoveParticipantsRequest, participantIDs dto.ResolvedIDs) (*dto.BatchResult, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -163,70 +167,46 @@ func (s *ParticipantService) RemoveMany(ctx context.Context, actor models.Actor,
 		return nil, models.NewValidation("the participant list is empty")
 	}
 
-	result := &dto.BatchResult{Results: make([]dto.BatchItemResult, 0, len(participantIDs))}
-	for index, id := range participantIDs {
+	result := &dto.BatchResult{Results: make([]dto.BatchItemResult, 0, participantIDs.Len())}
+	for index, id := range participantIDs.IDs {
 		var participant *models.EventParticipant
-		err := s.db.WithTx(ctx, func(ctx context.Context) error {
-			existing, err := s.participants.GetForUpdate(ctx, id)
-			if err != nil {
-				return err
-			}
-			if existing.EventID != eventID {
-				return models.NewNotFound("participant not found on this event")
-			}
-			if !existing.Assigned() {
-				return models.NewConflict("already_removed", "the participant has already been removed")
-			}
-			participant, err = s.participants.Remove(ctx, id)
-			if err != nil {
-				return err
-			}
-			if err := s.notifier.CancelForParticipant(ctx, id); err != nil {
-				return err
-			}
-			return s.audit.Record(ctx, actor, models.AuditParticipantRemove, models.EntityParticipant, id,
-				map[string]any{"participation_status": models.ParticipationAssigned},
-				map[string]any{"participation_status": models.ParticipationRemoved})
-		})
+		err := unresolved(participantIDs, index)
+		if err == nil {
+			participant, err = s.removeOne(ctx, actor, eventID, id)
+		}
 		result.Results = append(result.Results, batchItem(index, req.ParticipantIDs[index], participant, err))
 		countBatch(result, err)
 	}
 	return result, nil
 }
 
-func batchItem(index int, key string, participant *models.EventParticipant, err error) dto.BatchItemResult {
-	item := dto.BatchItemResult{Index: index, Key: key}
-	if err == nil {
-		item.Status = "ok"
-		if participant != nil {
-			item.ID = participant.DisplayID
+func (s *ParticipantService) removeOne(ctx context.Context, actor models.Actor,
+	eventID, id uuid.UUID) (*models.EventParticipant, error) {
+	var participant *models.EventParticipant
+	err := s.db.WithTx(ctx, func(ctx context.Context) error {
+		existing, err := s.participants.GetForUpdate(ctx, id)
+		if err != nil {
+			return err
 		}
-		return item
+		if existing.EventID != eventID {
+			return models.NewNotFound("participant not found on this event")
+		}
+		if !existing.Assigned() {
+			return models.NewConflict("already_removed", "the participant has already been removed")
+		}
+		participant, err = s.participants.Remove(ctx, id)
+		if err != nil {
+			return err
+		}
+		if err := s.notifier.CancelForParticipant(ctx, id); err != nil {
+			return err
+		}
+		return s.audit.Record(ctx, actor, models.AuditParticipantRemove, models.EntityParticipant, id,
+			map[string]any{"participation_status": models.ParticipationAssigned},
+			map[string]any{"participation_status": models.ParticipationRemoved})
+	})
+	if err != nil {
+		return nil, err
 	}
-
-	var domainErr *models.DomainError
-	if errors.As(err, &domainErr) {
-		item.Code = domainErr.Code
-		item.Message = domainErr.Message
-	} else {
-		item.Code = "internal_error"
-		item.Message = "internal error"
-	}
-	if errors.Is(err, models.ErrConflict) {
-		item.Status = "skipped"
-	} else {
-		item.Status = "error"
-	}
-	return item
-}
-
-func countBatch(result *dto.BatchResult, err error) {
-	switch {
-	case err == nil:
-		result.Succeeded++
-	case errors.Is(err, models.ErrConflict):
-		result.Skipped++
-	default:
-		result.Failed++
-	}
+	return participant, nil
 }

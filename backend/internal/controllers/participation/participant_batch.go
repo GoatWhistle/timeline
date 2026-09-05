@@ -38,11 +38,8 @@ func (c *Controller) AddMany(w http.ResponseWriter, r *http.Request) {
 	for _, item := range req.Items {
 		raw = append(raw, item.UserID)
 	}
-	userIDs, err := httpx.BodyDisplayIDs(r.Context(), raw, dto.DisplayKindUser, c.svc.ResolveUserDisplayID)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
+	userIDs := httpx.BodyDisplayIDsPerRow(r.Context(), raw, dto.DisplayKindUser,
+		c.svc.ResolveUserDisplayID)
 	res, err := c.svc.AddMany(r.Context(), middleware.ActorFrom(r), id, req, userIDs)
 	if err != nil {
 		httpx.Error(w, r, err)
@@ -75,12 +72,8 @@ func (c *Controller) RemoveMany(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	participantIDs, err := httpx.BodyDisplayIDs(r.Context(), req.ParticipantIDs,
+	participantIDs := httpx.BodyDisplayIDsPerRow(r.Context(), req.ParticipantIDs,
 		dto.DisplayKindParticipant, c.svc.ResolveParticipantDisplayID)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
 	res, err := c.svc.RemoveMany(r.Context(), middleware.ActorFrom(r), id, req, participantIDs)
 	if err != nil {
 		httpx.Error(w, r, err)
@@ -125,12 +118,8 @@ func (c *Controller) CopyFrom(w http.ResponseWriter, r *http.Request) {
 	for _, o := range req.Overrides {
 		raw = append(raw, o.UserID)
 	}
-	overrideUserIDs, err := httpx.BodyDisplayIDs(r.Context(), raw,
+	overrideUserIDs := httpx.BodyDisplayIDsPerRow(r.Context(), raw,
 		dto.DisplayKindUser, c.svc.ResolveUserDisplayID)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
 	res, err := c.svc.CopyFrom(r.Context(), middleware.ActorFrom(r), id, req, *sourceEventID, overrideUserIDs)
 	if err != nil {
 		httpx.Error(w, r, err)

@@ -29,7 +29,7 @@ export function PhoneMoreSheet({
   const { locale } = useLocale()
   const navigate = useNavigate()
   const logout = useLogout()
-  const { openSettings } = useSettingsOverlay()
+  const { openIndex } = useSettingsOverlay()
 
   const displayedName = user
     ? listName(
@@ -69,7 +69,7 @@ export function PhoneMoreSheet({
             data-phone-profile
             onClick={() => {
               close()
-              openSettings('profile')
+              openIndex()
             }}
             className={cn(
               SHEET_ROW,

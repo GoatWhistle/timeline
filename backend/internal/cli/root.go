@@ -60,6 +60,7 @@ func loadConfig() (*config.Config, error) {
 		return nil, err
 	}
 	setupLogger(cfg)
+	cfg.WarnInsecureDefaults()
 	return cfg, nil
 }
 

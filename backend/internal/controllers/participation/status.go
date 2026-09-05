@@ -35,11 +35,11 @@ type StatusService interface {
 	) (*dto.RegistrationStatusResponse, error)
 	BatchSet(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.BatchSetStatusRequest,
-		participantIDs []uuid.UUID,
+		participantIDs dto.ResolvedIDs,
 	) (*dto.BatchResult, error)
 	BatchSetPreview(
 		ctx context.Context, actor models.Actor, eventID uuid.UUID, req dto.BatchSetStatusRequest,
-		participantIDs []uuid.UUID,
+		participantIDs dto.ResolvedIDs,
 	) (*dto.PreviewResponse, error)
 }
 
@@ -152,12 +152,8 @@ func (c *RegistrationStatusController) BatchSetStatus(w http.ResponseWriter, r *
 	if !ok {
 		return
 	}
-	participantIDs, err := httpx.BodyDisplayIDs(r.Context(), req.ParticipantIDs,
+	participantIDs := httpx.BodyDisplayIDsPerRow(r.Context(), req.ParticipantIDs,
 		dto.DisplayKindParticipant, c.statuses.ResolveParticipantDisplayID)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
 	res, err := c.statuses.BatchSet(r.Context(), middleware.ActorFrom(r), id, req, participantIDs)
 	if err != nil {
 		httpx.Error(w, r, err)
@@ -184,12 +180,8 @@ func (c *RegistrationStatusController) BatchSetStatusPreview(w http.ResponseWrit
 	if !ok {
 		return
 	}
-	participantIDs, err := httpx.BodyDisplayIDs(r.Context(), req.ParticipantIDs,
+	participantIDs := httpx.BodyDisplayIDsPerRow(r.Context(), req.ParticipantIDs,
 		dto.DisplayKindParticipant, c.statuses.ResolveParticipantDisplayID)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
 	res, err := c.statuses.BatchSetPreview(r.Context(), middleware.ActorFrom(r), id, req, participantIDs)
 	if err != nil {
 		httpx.Error(w, r, err)

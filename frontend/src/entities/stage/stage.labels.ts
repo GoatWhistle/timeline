@@ -1,8 +1,8 @@
 import {
   Circle,
   ClipboardList,
-  Filter,
   Flag,
+  Funnel,
   Presentation,
   Trophy,
   Upload,
@@ -35,7 +35,7 @@ export const STAGE_TYPE_TEXT: Record<StageType, string> = {
 
 export const STAGE_TYPE_ICON: Record<StageType, React.ComponentType<{ className?: string }>> = {
   REGISTRATION: ClipboardList,
-  SELECTION: Filter,
+  SELECTION: Funnel,
   PARTICIPATION: Users,
   CHECKPOINT: Flag,
   SUBMISSION: Upload,

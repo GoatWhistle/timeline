@@ -1,7 +1,6 @@
 import { type Control, Controller, type FieldErrors, type UseFormRegister } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { EVENT_FORMAT_KEY } from '@/entities/stage/stage.place'
-import { cn } from '@/shared/styling/class-names/class-names'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import {
@@ -18,20 +17,18 @@ export function EventPlaceFields({
   register,
   errors,
   format,
-  side,
 }: {
   control: Control<MeetupFormValues>
   register: UseFormRegister<MeetupFormValues>
   errors: FieldErrors<MeetupFormValues>
   format: MeetupFormValues['format']
-  side?: React.ReactNode
 }) {
   const { t } = useTranslation('event')
   const offline = format !== 'ONLINE'
 
   return (
     <div className="flex flex-col gap-4">
-      <div className={cn('grid gap-4', side && 'sm:grid-cols-2')}>
+      <div className="grid gap-4">
         <Field
           label={t('form.format')}
           htmlFor="event-format"
@@ -57,8 +54,6 @@ export function EventPlaceFields({
             )}
           />
         </Field>
-
-        {side}
       </div>
 
       {offline && (

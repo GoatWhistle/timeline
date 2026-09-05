@@ -30,6 +30,9 @@
     "seconds_one": "{{count}} second",
     "seconds_other": "{{count}} seconds"
   },
+  "novalue": {
+    "unset": "Not set"
+  },
   "realtime": {
     "offline": "No live connection, data refreshes less often"
   }

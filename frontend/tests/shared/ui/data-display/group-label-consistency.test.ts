@@ -18,17 +18,14 @@ function sourceFiles(dir: string): string[] {
 const named = (file: string) => relative(SRC, file).replaceAll('\\', '/')
 const files = sourceFiles(SRC).filter((file) => file !== LABEL)
 
-const SETTINGS = [
-  'features/shortcut-settings/shortcut-section.tsx',
-  'features/profile/profile-links-card/profile-links-card.tsx',
-  'features/teams/team-links/team-links-card.tsx',
-]
-
 const ADOPTED = [
   'app/sidebar/nav-section.tsx',
   'features/personal-layer/shell/personal-summary.tsx',
   'features/shortcut-help/shortcut-help.tsx',
   'features/audit-log/audit-log.tsx',
+  'features/teams/team-links/team-links-card.tsx',
+  'features/shortcut-settings/shortcut-section.tsx',
+  'features/profile/profile-links-card/profile-links-card.tsx',
 ]
 
 function eyebrows(source: string): string[] {
@@ -56,7 +53,7 @@ describe('a small label naming the group of items below it is written one way', 
     for (const file of files) {
       if (eyebrows(readFileSync(file, 'utf8')).length > 0) offenders.push(named(file))
     }
-    expect(offenders.sort()).toEqual([...SETTINGS].sort())
+    expect(offenders).toEqual([])
   })
 
   it('has every adopted screen take the label from the shared primitive', () => {

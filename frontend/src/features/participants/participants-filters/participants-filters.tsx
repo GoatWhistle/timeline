@@ -38,8 +38,8 @@ export function ParticipantsFilters({
   const { t } = useTranslation('registration')
   return (
     <div className="flex flex-wrap items-end justify-between gap-3">
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="w-52">
+      <div className="flex min-w-0 flex-wrap items-end gap-3">
+        <div className="min-w-24 flex-1 sm:w-52 sm:flex-none">
           <Input
             aria-label={t('participants.filterRole')}
             placeholder={t('participants.rolePlaceholder')}
@@ -47,7 +47,7 @@ export function ParticipantsFilters({
             onChange={(event) => onRoleInputChange(event.target.value)}
           />
         </div>
-        <div className="w-56">
+        <div className="min-w-24 flex-1 sm:w-56 sm:flex-none">
           <Select value={status} onValueChange={onStatusChange}>
             <SelectTrigger aria-label={t('participants.filterStatus')}>
               <SelectValue />
@@ -67,7 +67,7 @@ export function ParticipantsFilters({
         </Button>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex min-w-0 flex-wrap gap-2">
         <Button variant="outline" onClick={onCopy}>
           <Copy className="size-4" />
           {t('participants.copyRoster')}

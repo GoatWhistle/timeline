@@ -165,9 +165,15 @@ describe('the stage model is the single source of the split', () => {
     }
   })
 
-  it('opens the basics stage on title, organizer, link and description, in that order', () => {
+  it('opens the basics stage on title, organizer, scope, link and description, in that order', () => {
     const basics = stagesOf('MEETUP').find((stage) => stage.id === 'basics')
-    expect(basics?.fields).toEqual(['title', 'organizer', 'website_url', 'description'])
+    expect(basics?.fields).toEqual(['title', 'organizer', 'origin', 'website_url', 'description'])
+  })
+
+  it('leaves the place stage to geography alone, with scope no longer among it', () => {
+    const place = stagesOf('MEETUP').find((stage) => stage.id === 'place')
+    expect(place?.fields).toEqual(['format', 'country_code', 'city'])
+    expect(place?.fields).not.toContain('origin')
   })
 
   it('names every stage in both dictionaries', () => {

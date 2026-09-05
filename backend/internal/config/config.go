@@ -138,7 +138,7 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		App: App{
-			Env:        env("APP_ENV", "dev"),
+			Env:        env("APP_ENV", envProd),
 			LogLevel:   env("LOG_LEVEL", "info"),
 			LogFormat:  env("LOG_FORMAT", "pretty"),
 			LogColor:   env("LOG_COLOR", "auto"),
@@ -165,7 +165,7 @@ func Load() (*Config, error) {
 			AppRole:         env("DATABASE_APP_ROLE", ""),
 		},
 		Auth: Auth{
-			JWTSecret:          env("JWT_SECRET", "dev-insecure-secret-change-me"),
+			JWTSecret:          env("JWT_SECRET", ""),
 			AccessTTL:          envDuration("ACCESS_TOKEN_TTL", 15*time.Minute),
 			RefreshTTL:         envDuration("REFRESH_TOKEN_TTL", 30*24*time.Hour),
 			EmailVerifyTTL:     envDuration("EMAIL_VERIFICATION_TTL", 24*time.Hour),
@@ -215,7 +215,7 @@ func Load() (*Config, error) {
 			WebhookSecret: env("TELEGRAM_WEBHOOK_SECRET", ""),
 		},
 		Email: Email{
-			Env:      env("APP_ENV", "dev"),
+			Env:      env("APP_ENV", envProd),
 			Host:     env("SMTP_HOST", ""),
 			Port:     envInt("SMTP_PORT", 587),
 			Username: env("SMTP_USERNAME", ""),

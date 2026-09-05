@@ -4,7 +4,7 @@ import {
   CalendarRange,
   ClipboardList,
   Compass,
-  History,
+  RotateCcwClock,
   ScrollText,
   Send,
   Users,
@@ -29,7 +29,7 @@ export const CATALOG_NAV: NavItem[] = [{ to: '/catalog', labelKey: 'nav.catalog'
 export const MINE_NAV: NavItem[] = [
   { to: '/schedule', labelKey: 'nav.schedule', icon: CalendarRange },
   { to: '/teams', labelKey: 'nav.teams', icon: UsersRound },
-  { to: '/history', labelKey: 'nav.history', icon: History },
+  { to: '/history', labelKey: 'nav.history', icon: RotateCcwClock },
 ]
 
 export const ADMIN_NAV: NavItem[] = [

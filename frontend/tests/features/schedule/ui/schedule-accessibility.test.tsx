@@ -186,7 +186,16 @@ describe('schedule accessibility', () => {
   it('describes an event with a Radix tooltip, not the title attribute', () => {
     const { container } = renderMonth()
     expect(container.querySelector('[title]')).toBeNull()
-    expect(bars(container)[0]).toHaveAttribute('data-state', 'closed')
+    expect(container.querySelector('[data-schedule-anchor]')).toHaveAttribute(
+      'data-state',
+      'closed',
+    )
+  })
+
+  it('names the event on the bar itself, so focus announces it without the card', () => {
+    const { container } = renderMonth()
+
+    expect(bars(container)[0]).toHaveAttribute('aria-label')
   })
 })
 

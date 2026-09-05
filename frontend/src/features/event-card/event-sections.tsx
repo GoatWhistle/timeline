@@ -1,10 +1,10 @@
-import { CheckCircle2 } from 'lucide-react'
+import { CircleCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { RegistrationStatusBadge } from '@/entities/event/event-state-badge'
 import { STAGE_TYPE_KEY } from '@/entities/stage/stage.labels'
 import { StageTypeMark } from '@/entities/stage/stage-type-mark/stage-type-mark'
 import type { EventCard } from '@/shared/api/types.gen'
-import { formatDate, formatDateTime, formatRelative } from '@/shared/datetime/datetime'
+import { formatDateRange, formatDateTime, formatRelative } from '@/shared/datetime/datetime'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
@@ -56,7 +56,7 @@ export function RegistrationSection({
 
           {card.can_mark_done && (
             <Button onClick={onMarkDone} disabled={pending}>
-              <CheckCircle2 className="size-4" aria-hidden="true" />
+              <CircleCheck className="size-4" aria-hidden="true" />
               {t('card.markRegistered')}
             </Button>
           )}
@@ -96,9 +96,7 @@ export function StagesSection({ stages }: { stages: EventCard['stages'] }) {
                   <p className="font-medium text-copy">{stage.name}</p>
                   <p className="text-muted-foreground text-copy">
                     <Badge tone="neutral">{t(STAGE_TYPE_KEY[stage.type])}</Badge>
-                    <span className="ml-2">
-                      {formatDate(stage.start_at)} — {formatDate(stage.end_at)}
-                    </span>
+                    <span className="ml-2">{formatDateRange(stage.start_at, stage.end_at)}</span>
                   </p>
                   {stage.description && (
                     <p className="max-w-prose text-copy">{stage.description}</p>

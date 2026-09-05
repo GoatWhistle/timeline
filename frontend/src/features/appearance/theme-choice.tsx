@@ -21,7 +21,8 @@ const OPTIONS: Option[] = [
 
 function previewClass(selected: boolean): string {
   return cn(
-    'h-16 w-full motion-safe:transition-transform motion-safe:duration-base',
+    'h-12 w-20 shrink-0 sm:h-16 sm:w-full',
+    'motion-safe:transition-transform motion-safe:duration-base',
     'motion-safe:ease-out motion-safe:group-hover:scale-[1.02]',
     selected && 'motion-safe:scale-[1.02]',
   )
@@ -32,7 +33,11 @@ export function ThemeChoice() {
   const { t } = useTranslation()
 
   return (
-    <fieldset aria-label={t('theme.legend')} className="grid grid-cols-3 gap-3">
+    <fieldset
+      aria-label={t('theme.legend')}
+      data-theme-choice
+      className="grid grid-cols-1 gap-3 sm:grid-cols-3"
+    >
       {OPTIONS.map(({ value, labelKey, icon: Icon }) => {
         const selected = preference === value
         return (
@@ -43,16 +48,16 @@ export function ThemeChoice() {
             selected={selected}
             onSelect={() => setPreference(value)}
             data-theme-option={value}
-            className="flex-col gap-2 p-2"
+            className="flex-row items-center gap-3 p-2 sm:flex-col sm:gap-2"
           >
             {value === 'system' ? (
               <ThemePreviewSplit className={previewClass(selected)} />
             ) : (
               <ThemePreview theme={value} className={previewClass(selected)} />
             )}
-            <span className="flex items-center gap-1.5 text-caption">
+            <span className="flex min-w-0 flex-1 items-center gap-1.5 text-caption sm:w-full">
               <Icon className="size-3.5 shrink-0" aria-hidden="true" />
-              <span className={cn('truncate', selected ? 'font-medium' : 'text-muted-foreground')}>
+              <span className={cn('min-w-0', selected ? 'font-medium' : 'text-muted-foreground')}>
                 {t(labelKey)}
               </span>
               <OptionMark selected={selected} className="ml-auto size-3.5" />

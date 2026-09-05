@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { MinusCircle } from 'lucide-react'
+import { CircleMinus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { SUMMARY_SHELL } from '@/shared/ui/data-display/summary-bar/summary-bar'
 import { Skeleton } from '@/shared/ui/states'
@@ -31,7 +31,7 @@ export function CoverageMetric() {
       <div className={SUMMARY_SHELL} title={t('stats.coverageEmptyHint')}>
         <span className="text-caption text-muted-foreground">{t('stats.coverage')}</span>
         <span className="flex items-center gap-1 text-copy text-muted-foreground">
-          <MinusCircle className="size-3.5 shrink-0" aria-hidden="true" />
+          <CircleMinus className="size-3.5 shrink-0" aria-hidden="true" />
           <span>{t('stats.coverageNotApplicable')}</span>
         </span>
       </div>

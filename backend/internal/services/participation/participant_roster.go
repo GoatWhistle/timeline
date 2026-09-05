@@ -94,7 +94,7 @@ func (s *ParticipantService) Reactivate(ctx context.Context, actor models.Actor,
 
 func (s *ParticipantService) CopyFrom(ctx context.Context, actor models.Actor, eventID uuid.UUID,
 	req dto.CopyParticipantsRequest, sourceEventID uuid.UUID,
-	overrideUserIDs []uuid.UUID) (*dto.BatchResult, error) {
+	overrideUserIDs dto.ResolvedIDs) (*dto.BatchResult, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
 	}
@@ -114,7 +114,10 @@ func (s *ParticipantService) CopyFrom(ctx context.Context, actor models.Actor, e
 	}
 	overrides := make(map[uuid.UUID]*string, len(req.Overrides))
 	for index, o := range req.Overrides {
-		overrides[overrideUserIDs[index]] = o.TeamRole
+		if unresolved(overrideUserIDs, index) != nil {
+			continue
+		}
+		overrides[overrideUserIDs.IDs[index]] = o.TeamRole
 	}
 
 	items := make([]dto.AddParticipantItem, 0, len(source))
@@ -134,7 +137,8 @@ func (s *ParticipantService) CopyFrom(ctx context.Context, actor models.Actor, e
 	if len(items) == 0 {
 		return &dto.BatchResult{Results: []dto.BatchItemResult{}}, nil
 	}
-	return s.AddMany(ctx, actor, eventID, dto.AddParticipantsRequest{Items: items}, userIDs)
+	return s.AddMany(ctx, actor, eventID, dto.AddParticipantsRequest{Items: items},
+		dto.ResolvedIDs{IDs: userIDs, Failures: make([]error, len(userIDs))})
 }
 
 func (s *ParticipantService) response(ctx context.Context, p *models.EventParticipant,

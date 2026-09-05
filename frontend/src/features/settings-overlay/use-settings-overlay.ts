@@ -7,48 +7,51 @@ export function useSettingsOverlay() {
   const raw = params.get(SETTINGS_PARAM)
 
   const open = raw !== null
+  const atIndex = raw === ''
   const shown = useRef<SettingsSectionId>(resolveSection(raw))
-  if (open) shown.current = resolveSection(raw)
+  if (open && !atIndex) shown.current = resolveSection(raw)
   const section = shown.current
 
-  const openSettings = useCallback(
-    (next: SettingsSectionId) => {
+  const write = useCallback(
+    (value: string | null, replace: boolean) => {
       setParams(
         (previous) => {
           const updated = new URLSearchParams(previous)
-          updated.set(SETTINGS_PARAM, next)
+          if (value === null) updated.delete(SETTINGS_PARAM)
+          else updated.set(SETTINGS_PARAM, value)
           return updated
         },
-        { replace: false },
+        { replace },
       )
     },
     [setParams],
+  )
+
+  const openSettings = useCallback(
+    (next: SettingsSectionId) => {
+      write(next, false)
+    },
+    [write],
   )
 
   const setSection = useCallback(
     (next: SettingsSectionId) => {
-      setParams(
-        (previous) => {
-          const updated = new URLSearchParams(previous)
-          updated.set(SETTINGS_PARAM, next)
-          return updated
-        },
-        { replace: true },
-      )
+      write(next, true)
     },
-    [setParams],
+    [write],
   )
 
-  const closeSettings = useCallback(() => {
-    setParams(
-      (previous) => {
-        const updated = new URLSearchParams(previous)
-        updated.delete(SETTINGS_PARAM)
-        return updated
-      },
-      { replace: false },
-    )
-  }, [setParams])
+  const showIndex = useCallback(() => {
+    write('', true)
+  }, [write])
 
-  return { open, section, openSettings, setSection, closeSettings }
+  const openIndex = useCallback(() => {
+    write('', false)
+  }, [write])
+
+  const closeSettings = useCallback(() => {
+    write(null, false)
+  }, [write])
+
+  return { open, section, atIndex, openSettings, openIndex, setSection, showIndex, closeSettings }
 }

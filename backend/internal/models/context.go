@@ -85,12 +85,12 @@ type ScheduleFilter struct {
 }
 
 type AuditFilter struct {
-	ActorUserID *uuid.UUID
-	Action      string
-	EntityType  string
-	EntityID    *uuid.UUID
-	From        *time.Time
-	To          *time.Time
+	ActorDisplayID string
+	Action         string
+	EntityType     string
+	EntityID       *uuid.UUID
+	From           *time.Time
+	To             *time.Time
 }
 
 type MyEventFilter struct {
