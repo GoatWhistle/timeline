@@ -46,7 +46,7 @@ export function TeamSectionNav({ teamId }: { teamId: string }) {
         <SlidingIndicator
           box={box}
           axis="x"
-          className="my-1 rounded-control bg-background shadow-sm"
+          className="my-1 rounded-control bg-background shadow-flat"
         />
         {TEAM_SECTIONS.map(({ segment, labelKey, icon: Icon }) => {
           const to = segment === '' ? `/teams/${teamId}` : `/teams/${teamId}/${segment}`

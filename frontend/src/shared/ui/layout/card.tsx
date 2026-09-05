@@ -4,7 +4,10 @@ import { cn } from '@/shared/styling/class-names/class-names'
 export function Card({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      className={cn('rounded-surface border bg-card text-card-foreground shadow-sm', className)}
+      className={cn(
+        'rounded-surface border border-border bg-card text-card-foreground shadow-raised',
+        className,
+      )}
       {...props}
     />
   )

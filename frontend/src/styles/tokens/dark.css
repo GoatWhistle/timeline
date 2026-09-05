@@ -28,6 +28,7 @@
 
   --accent: var(--brand-amber-300);
   --accent-foreground: var(--linear-void);
+  --accent-surface: var(--surface-3);
   --accent-surface-foreground: var(--linear-paper);
   --highlight-fill: var(--brand-amber-300);
   --highlight-fill-foreground: var(--linear-void);
@@ -36,6 +37,18 @@
   --destructive-foreground: var(--linear-void);
 
   --scrim: color-mix(in oklch, var(--linear-void) 70%, transparent);
+
+  --shade: var(--linear-void);
+  --elevation-flat: 0 1px 2px color-mix(in oklch, var(--shade) 30%, transparent);
+  --elevation-raised:
+    0 1px 2px color-mix(in oklch, var(--shade) 36%, transparent),
+    0 6px 14px -4px color-mix(in oklch, var(--shade) 44%, transparent);
+  --elevation-lifted:
+    0 2px 4px color-mix(in oklch, var(--shade) 40%, transparent),
+    0 14px 28px -8px color-mix(in oklch, var(--shade) 55%, transparent);
+  --elevation-floating:
+    0 4px 10px color-mix(in oklch, var(--shade) 45%, transparent),
+    0 28px 56px -16px color-mix(in oklch, var(--shade) 68%, transparent);
 
   --border: var(--linear-smoke);
   --border-strong: var(--linear-steel);

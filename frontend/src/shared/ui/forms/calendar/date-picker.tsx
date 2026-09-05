@@ -141,7 +141,7 @@ export function DatePicker({
           commit(event.currentTarget.value)
         }}
         className={cn(
-          'h-9 w-full min-w-0 flex-1 rounded-control border border-input bg-transparent px-3 text-copy tabular-nums shadow-xs',
+          'h-9 w-full min-w-0 flex-1 rounded-control border border-input bg-transparent px-3 text-copy tabular-nums shadow-flat',
           'transition-colors motion-safe:duration-instant',
           'placeholder:text-muted-foreground',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
@@ -159,7 +159,7 @@ export function DatePicker({
         aria-invalid={invalid ? true : undefined}
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          'flex size-9 shrink-0 items-center justify-center rounded-control border border-input bg-transparent text-muted-foreground shadow-xs',
+          'flex size-9 shrink-0 items-center justify-center rounded-control border border-input bg-transparent text-muted-foreground shadow-flat',
           TOUCH_REACH,
           'transition-colors motion-safe:duration-instant hover:bg-accent-surface hover:text-foreground',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',

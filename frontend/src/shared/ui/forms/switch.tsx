@@ -15,7 +15,7 @@ export function Switch({ className, ...props }: React.ComponentProps<typeof Swit
       )}
       {...props}
     >
-      <SwitchPrimitive.Thumb className="pointer-events-none block size-4 rounded-pill bg-background shadow-lg ring-0 transition-transform duration-fast ease-out data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0" />
+      <SwitchPrimitive.Thumb className="pointer-events-none block size-4 rounded-pill bg-background shadow-raised ring-0 transition-transform duration-fast ease-out data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0" />
     </SwitchPrimitive.Root>
   )
 }

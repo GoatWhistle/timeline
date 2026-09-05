@@ -56,6 +56,11 @@
   --color-logo: var(--logo);
   --color-ring: var(--ring);
 
+  --shadow-flat: var(--elevation-flat);
+  --shadow-raised: var(--elevation-raised);
+  --shadow-lifted: var(--elevation-lifted);
+  --shadow-floating: var(--elevation-floating);
+
   --color-state-unpublished: var(--state-unpublished);
   --color-state-upcoming: var(--state-upcoming);
   --color-state-active: var(--state-active);

@@ -50,8 +50,8 @@ export function CatalogCard({
         'motion-safe:animate-stage-in',
         'motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-base',
         'motion-safe:ease-out',
-        'focus-within:border-ring hover:motion-safe:-translate-y-0.5 hover:shadow-sm',
-        selected ? 'border-ring shadow-sm' : 'border-border',
+        'focus-within:border-ring hover:motion-safe:-translate-y-0.5 hover:shadow-lifted',
+        selected ? 'border-ring shadow-raised' : 'border-border',
       )}
     >
       <button

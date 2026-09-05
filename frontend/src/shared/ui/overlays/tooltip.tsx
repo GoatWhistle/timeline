@@ -1,6 +1,7 @@
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import type * as React from 'react'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { FLOATING_SURFACE_COMPACT } from './overlay-chrome'
 
 export const Tooltip = TooltipPrimitive.Root
 export const TooltipTrigger = TooltipPrimitive.Trigger
@@ -30,7 +31,8 @@ export function TooltipContent({
       <TooltipPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          'z-50 max-w-xs rounded-control border bg-popover px-2.5 py-1.5 text-caption text-popover-foreground shadow-md',
+          FLOATING_SURFACE_COMPACT,
+          'max-w-xs px-2.5 py-1.5 text-caption',
           'data-[state=delayed-open]:motion-safe:animate-in data-[state=delayed-open]:motion-safe:fade-in-0',
           'data-[state=delayed-open]:motion-safe:duration-fast data-[state=delayed-open]:motion-safe:ease-out',
           'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',

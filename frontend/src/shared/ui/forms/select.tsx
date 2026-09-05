@@ -3,6 +3,7 @@ import { Check, ChevronDown } from 'lucide-react'
 import type * as React from 'react'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
+import { FLOATING_SURFACE_COMPACT } from '@/shared/ui/overlays/overlay-chrome'
 
 export const Select = SelectPrimitive.Root
 export const SelectValue = SelectPrimitive.Value
@@ -15,7 +16,7 @@ export function SelectTrigger({
   return (
     <SelectPrimitive.Trigger
       className={cn(
-        'flex h-9 w-full items-center justify-between gap-2 rounded-control border border-input bg-transparent px-3 py-2 text-copy shadow-xs',
+        'flex h-9 w-full items-center justify-between gap-2 rounded-control border border-input bg-transparent px-3 py-2 text-copy shadow-flat',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         TOUCH_REACH,
         'disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate',
@@ -41,7 +42,8 @@ export function SelectContent({
       <SelectPrimitive.Content
         position="popper"
         className={cn(
-          'relative z-50 max-h-96 min-w-32 overflow-hidden rounded-control border bg-popover text-popover-foreground shadow-md',
+          FLOATING_SURFACE_COMPACT,
+          'relative max-h-96 min-w-32 overflow-hidden',
           'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
           'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
           'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',

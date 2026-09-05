@@ -43,7 +43,7 @@ export function OptionCard({
         'group flex cursor-pointer rounded-surface border',
         'transition-[color,background-color,border-color,box-shadow]',
         'duration-base ease-out',
-        selected && 'motion-safe:shadow-md',
+        selected && 'motion-safe:shadow-raised',
         'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
         selected ? 'border-primary bg-accent-surface' : 'border-border hover:border-border-strong',
         className,

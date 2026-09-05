@@ -48,7 +48,7 @@ export function SettingsOverlay() {
 
           <nav
             aria-label={t('settings.title')}
-            className="flex w-56 shrink-0 flex-col gap-0.5 overflow-y-auto border-border border-r bg-card p-2"
+            className="flex w-56 shrink-0 flex-col gap-0.5 overflow-y-auto border-border border-r bg-surface-1 p-2"
           >
             <p className="px-3 py-2 font-semibold text-heading">{t('settings.title')}</p>
             <div ref={containerRef} className="relative flex flex-col gap-0.5">

@@ -112,13 +112,13 @@ describe('every overlay wears the one shared chrome', () => {
   })
 
   it('the chrome declares the raised and the floating surface', () => {
-    expect(chrome).toContain('bg-background shadow-lg')
+    expect(chrome).toContain('bg-background shadow-floating')
     expect(chrome).toContain('bg-popover')
   })
 
   it('no component respells a raised or floating panel surface by hand', () => {
-    const RAISED = /rounded-surface[^'\n]*bg-background[^'\n]*shadow-lg/
-    const FLOATING = /rounded-(?:surface|control)[^'\n]*bg-popover[^'\n]*shadow-lg/
+    const RAISED = /rounded-surface[^'\n]*bg-background[^'\n]*shadow-floating/
+    const FLOATING = /rounded-(?:surface|control)[^'\n]*bg-popover[^'\n]*shadow-lifted/
     const offenders = styledFiles
       .filter((file) => {
         const text = readFileSync(file, 'utf8')

@@ -17,10 +17,14 @@ export const PANEL_MOTION = [
   'data-[state=closed]:motion-safe:ease-in',
 ].join(' ')
 
-export const PANEL_SURFACE = 'rounded-surface border border-border bg-background shadow-lg'
+export const PANEL_SURFACE = 'rounded-surface border border-border bg-background shadow-floating'
 
-export const FLOATING_SURFACE =
-  'z-50 rounded-surface border border-border bg-popover text-popover-foreground shadow-lg'
+export const FLOATING_FILL =
+  'z-50 border border-border bg-popover text-popover-foreground shadow-lifted'
+
+export const FLOATING_SURFACE = `rounded-surface ${FLOATING_FILL}`
+
+export const FLOATING_SURFACE_COMPACT = `rounded-control ${FLOATING_FILL}`
 
 export const FLOATING_MOTION = [
   'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',

@@ -27,7 +27,7 @@ export function TabsList({
       <SlidingIndicator
         box={box}
         axis="x"
-        className="my-1 rounded-control bg-background shadow-sm"
+        className="my-1 rounded-control bg-background shadow-flat"
       />
       {children}
     </TabsPrimitive.List>

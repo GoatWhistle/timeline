@@ -112,7 +112,7 @@ export function AvatarField({
               title={t('profile.avatarRemove')}
               disabled={busy}
               onClick={clear}
-              className="-right-1 -top-1 absolute size-6 rounded-pill border shadow-sm"
+              className="-right-1 -top-1 absolute size-6 rounded-pill border shadow-raised"
             >
               <X className="size-3" />
             </Button>

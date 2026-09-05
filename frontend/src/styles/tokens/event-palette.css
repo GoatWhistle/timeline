@@ -5,7 +5,7 @@
   --event-ru-3: oklch(0.299 0.12 29.6);
   --event-ru-4: oklch(0.424 0.15 33.2);
   --event-ru-5: oklch(0.434 0.1 36.7);
-  --event-ru-6: oklch(0.528 0.143 45.3);
+  --event-ru-6: oklch(0.52 0.143 45.3);
   --event-ru-7: oklch(0.365 0.092 48.8);
   --event-ru-8: oklch(0.406 0.094 57.3);
   --event-ru-9: oklch(0.446 0.1 63.9);
@@ -21,7 +21,7 @@
   --event-ru-19: oklch(0.299 0.064 120.8);
   --event-ru-20: oklch(0.388 0.094 122.8);
   --event-ru-21: oklch(0.434 0.1 128.4);
-  --event-ru-22: oklch(0.504 0.143 133.4);
+  --event-ru-22: oklch(0.494 0.143 133.4);
   --event-ru-23: oklch(0.365 0.12 142);
 
   --event-world-0: oklch(0.482 0.086 175);
@@ -34,7 +34,7 @@
   --event-world-7: oklch(0.305 0.064 234.6);
   --event-world-8: oklch(0.43 0.094 238.7);
   --event-world-9: oklch(0.446 0.1 244.8);
-  --event-world-10: oklch(0.516 0.143 250.3);
+  --event-world-10: oklch(0.506 0.143 250.3);
   --event-world-11: oklch(0.317 0.12 259.4);
   --event-world-12: oklch(0.364 0.15 264);
   --event-world-13: oklch(0.434 0.1 268.1);
@@ -108,7 +108,7 @@
   --event-world-23: oklch(0.66 0.155 340.4);
 
   --event-unassigned: var(--hue-slate-300);
-  --event-on-tint: var(--neutral-900);
+  --event-on-tint: var(--sunlit-ink);
 }
 
 [data-event-color] {

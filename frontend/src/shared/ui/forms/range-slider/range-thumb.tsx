@@ -43,7 +43,7 @@ export function RangeThumb({
         onMove(handle, target)
       }}
       className={
-        '-translate-x-1/2 absolute top-1/2 z-10 size-5 -translate-y-1/2 cursor-grab rounded-pill border-2 border-primary bg-background shadow-sm ' +
+        '-translate-x-1/2 absolute top-1/2 z-10 size-5 -translate-y-1/2 cursor-grab rounded-pill border-2 border-primary bg-background shadow-raised ' +
         'transition-colors motion-safe:duration-instant hover:bg-accent-surface active:cursor-grabbing ' +
         'focus-visible:z-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
       }

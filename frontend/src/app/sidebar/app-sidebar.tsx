@@ -83,10 +83,10 @@ export function AppSidebar({
         }
       }}
       className={cn(
-        'flex w-sidebar shrink-0 flex-col justify-between overflow-y-auto border-border border-r bg-card p-2',
+        'flex w-sidebar shrink-0 flex-col justify-between overflow-y-auto border-border border-r bg-surface-1 p-2',
         'motion-safe:transition-[margin,translate] motion-safe:duration-base motion-safe:ease-out',
         'motion-safe:will-change-transform',
-        sidebar.overlay && cn('fixed inset-y-0 left-0 z-50 shadow-lg', SAFE_TOP, SAFE_BOTTOM),
+        sidebar.overlay && cn('fixed inset-y-0 left-0 z-50 shadow-floating', SAFE_TOP, SAFE_BOTTOM),
         sidebar.collapsed
           ? 'pointer-events-none -mr-sidebar translate-x-[calc(var(--pane-sidebar)*-1)]'
           : 'mr-0 translate-x-0',
