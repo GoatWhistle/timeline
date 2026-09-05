@@ -10,6 +10,7 @@ import (
 
 func validConfig() *Config {
 	cfg := &Config{}
+	cfg.Telegram.Timeout = 10 * time.Second
 	cfg.DB.DSN = "postgres://localhost/timeline"
 	cfg.App.Env = "dev"
 	cfg.Auth.JWTSecret = "dev-insecure-secret-change-me"

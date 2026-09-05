@@ -38,7 +38,7 @@ func worker(ctx context.Context) error {
 		"telegram_api_base", c.cfg.Telegram.APIBase)
 
 	var wg sync.WaitGroup
-	wg.Add(4)
+	wg.Add(5)
 	go func() {
 		defer wg.Done()
 		c.scheduler.Start(ctx)
@@ -54,6 +54,10 @@ func worker(ctx context.Context) error {
 	go func() {
 		defer wg.Done()
 		c.digest.Start(ctx, c.cfg.Digest.Interval)
+	}()
+	go func() {
+		defer wg.Done()
+		c.runTelegram(ctx)
 	}()
 	wg.Wait()
 

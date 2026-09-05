@@ -3,7 +3,6 @@ package cli
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -13,7 +12,6 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
 	_ "github.com/GoatWhistle/timeline/docs"
-	"github.com/GoatWhistle/timeline/internal/adapters/telegram"
 	"github.com/GoatWhistle/timeline/internal/controllers"
 )
 
@@ -39,16 +37,6 @@ func serve(ctx context.Context) error {
 		return err
 	}
 	defer c.Close()
-	if c.cfg.Telegram.WebhookURL != "" {
-		registrar, ok := c.telegram.(telegram.WebhookRegistrar)
-		if !ok {
-			return errors.New("telegram sender does not support webhooks")
-		}
-		if err := registrar.SetWebhook(ctx, c.cfg.Telegram.WebhookURL, c.cfg.Telegram.WebhookSecret); err != nil {
-			return fmt.Errorf("register Telegram webhook: %w", err)
-		}
-		slog.InfoContext(ctx, "Telegram webhook registered")
-	}
 
 	srv := &http.Server{
 		Addr:         c.cfg.HTTP.Addr,

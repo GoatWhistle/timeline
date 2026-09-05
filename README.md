@@ -162,6 +162,8 @@ deployment:** `COOKIE_SECURE=false` lets session cookies travel over plain HTTP,
 and an empty `METRICS_TOKEN` leaves `/metrics` open to anyone who can reach the
 port.
 
+Telegram setup and connection diagnostics: [Telegram deployment guide](docs/telegram.md).
+
 Before a change counts as done, `make verify` has to pass — the contract, types,
 linters and tests for both parts.
 
