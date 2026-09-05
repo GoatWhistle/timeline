@@ -18,7 +18,7 @@ import {
 } from '../../model/ribbon/ribbon-layout'
 import { bandAtDay, seasonBands } from '../../model/ribbon/ribbon-season'
 import { dayIndexIn, MINUTES_PER_DAY, type RibbonWindow } from '../../model/ribbon/ribbon-window'
-import { RIBBON_PAGE_FRACTION, useRibbonScroll } from '../../model/ribbon/use-ribbon-scroll'
+import { useRibbonScroll } from '../../model/ribbon/use-ribbon-scroll'
 import { rowSentence } from '../../model/row-sentence'
 import { buildTimelineGrid } from '../../model/timeline-grid'
 import { useAnnouncer } from '../../model/use-announcer'
@@ -106,19 +106,10 @@ export function RibbonGrid({
     [todayIndex],
   )
 
-  const { scrollLeft, scrollTo } = useRibbonScroll(viewportRef)
+  const { scrollLeft } = useRibbonScroll(viewportRef)
 
   const centreDay = Math.round((scrollLeft + viewportWidth / 2) / dayWidth)
   const currentSeason = useMemo(() => bandAtDay(seasons, centreDay), [seasons, centreDay])
-
-  const nudge = useCallback(
-    (direction: 1 | -1) => {
-      const element = viewportRef.current
-      if (!element) return
-      scrollTo(element.scrollLeft + direction * element.clientWidth * RIBBON_PAGE_FRACTION)
-    },
-    [scrollTo],
-  )
 
   useEffect(() => {
     if (centred.current) return
@@ -134,12 +125,7 @@ export function RibbonGrid({
   return (
     <TooltipProvider>
       <div className={styles.frame} data-schedule-ribbon>
-        <RibbonControls
-          paneId={paneId}
-          season={currentSeason}
-          onNudge={nudge}
-          onPresent={() => centreOnToday(true)}
-        />
+        <RibbonControls season={currentSeason} />
 
         <div
           className={styles.viewport}

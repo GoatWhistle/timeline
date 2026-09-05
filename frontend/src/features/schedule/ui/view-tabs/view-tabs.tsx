@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, LocateFixed } from 'lucide-react'
+import { ChevronLeft, ChevronRight, House } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -110,7 +110,7 @@ export function ViewTabs({
             disabled={atPresent}
             onClick={() => onPresent?.()}
           >
-            <LocateFixed className={styles.homeIcon} aria-hidden="true" />
+            <House className={styles.homeIcon} aria-hidden="true" />
           </button>
         </nav>
       )}

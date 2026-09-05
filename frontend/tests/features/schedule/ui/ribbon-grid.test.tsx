@@ -183,25 +183,18 @@ describe('the ribbon says where in the year the reader is', () => {
   })
 })
 
-describe('the ribbon can be driven without a wheel', () => {
-  it('offers a control for earlier, later and the present', () => {
+describe('the ribbon leaves period navigation to the one bar that owns it', () => {
+  it('draws no second set of earlier, later and present controls', () => {
     const { container } = renderRibbon()
 
-    expect(container.querySelector('[data-ribbon-earlier]')).not.toBeNull()
-    expect(container.querySelector('[data-ribbon-later]')).not.toBeNull()
-    expect(container.querySelector('[data-ribbon-today]')).not.toBeNull()
+    expect(container.querySelector('[data-ribbon-earlier]')).toBeNull()
+    expect(container.querySelector('[data-ribbon-later]')).toBeNull()
+    expect(container.querySelector('[data-ribbon-today]')).toBeNull()
   })
 
-  it('names every control for a reader who cannot see the arrow', () => {
+  it('still reads its own season and hint, which no other bar carries', () => {
     const { container } = renderRibbon()
 
-    for (const selector of [
-      '[data-ribbon-earlier]',
-      '[data-ribbon-later]',
-      '[data-ribbon-today]',
-    ]) {
-      const control = container.querySelector(selector)
-      expect(control?.getAttribute('aria-label'), selector).toBeTruthy()
-    }
+    expect(container.querySelector('[data-ribbon-hint]')).not.toBeNull()
   })
 })
