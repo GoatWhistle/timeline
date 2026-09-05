@@ -14,6 +14,7 @@ import { formatDateTime } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { AuditFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
+import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
 import {
   Table,
   TableBody,
@@ -43,7 +44,9 @@ const DEFAULTS = { action: ALL, entity: ALL, from: '', to: '' }
 function DiffBlock({ title, value }: { title: string; value: unknown }) {
   return (
     <div className="min-w-0 flex-1">
-      <p className="mb-1 font-medium text-muted-foreground text-caption uppercase">{title}</p>
+      <GroupLabel as="p" className="mb-1">
+        {title}
+      </GroupLabel>
       <pre className="overflow-x-auto rounded-control bg-muted p-3 text-caption">
         {value === undefined || value === null ? '—' : JSON.stringify(value, null, 2)}
       </pre>

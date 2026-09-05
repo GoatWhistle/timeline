@@ -14,6 +14,7 @@ import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
 import { SlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/sliding-indicator'
 import { useSlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/use-sliding-indicator'
 
@@ -48,9 +49,9 @@ export function NavSection({ title, items }: { title?: string; items: NavItem[] 
   return (
     <div className="flex flex-col gap-0.5">
       {title !== undefined && (
-        <p className="px-3 py-1.5 font-medium text-caption text-muted-foreground uppercase tracking-wide">
+        <GroupLabel as="p" className="px-3 py-1.5">
           {title}
-        </p>
+        </GroupLabel>
       )}
       <div ref={containerRef} className="relative flex flex-col gap-0.5">
         <SlidingIndicator box={box} axis="y" />

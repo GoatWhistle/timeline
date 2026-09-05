@@ -6,6 +6,7 @@ import { artifactsQuery } from '@/entities/personal/artifact.queries'
 import { noteQuery } from '@/entities/personal/note.queries'
 import { filled } from '@/entities/personal/personal-fields'
 import { tasksQuery } from '@/entities/personal/task.queries'
+import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { Skeleton } from '@/shared/ui/states'
@@ -28,10 +29,9 @@ export function PersonalSummary({ eventId, enabled }: { eventId: string; enabled
 
   return (
     <section className="flex flex-col gap-2.5">
-      <h3 className="flex items-center gap-1.5 font-medium text-caption text-muted-foreground uppercase tracking-wide">
-        <Lock className="size-3.5" aria-hidden="true" />
+      <GroupLabel icon={<Lock className="size-3.5" aria-hidden="true" />}>
         {t('personal.summary.title')}
-      </h3>
+      </GroupLabel>
 
       {!settled ? (
         <Skeleton className="h-5 w-40" />

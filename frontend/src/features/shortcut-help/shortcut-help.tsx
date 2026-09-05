@@ -7,6 +7,7 @@ import {
   useShortcutList,
   useShortcutScope,
 } from '@/shared/keyboard/shortcut-registry'
+import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/overlays/dialog'
 
 const HELP_SCOPE = 'shortcut-help'
@@ -49,9 +50,7 @@ export function ShortcutHelp({
         <div className="flex flex-col gap-4">
           {grouped.map(({ group, items }) => (
             <section key={group} className="flex flex-col gap-1">
-              <h3 className="font-medium text-caption text-muted-foreground uppercase tracking-wide">
-                {t(GROUP_KEY[group])}
-              </h3>
+              <GroupLabel>{t(GROUP_KEY[group])}</GroupLabel>
               <dl className="flex flex-col">
                 {items.map((shortcut) => (
                   <div
