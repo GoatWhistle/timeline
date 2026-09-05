@@ -21,8 +21,6 @@
   <a href="#running-it">Running it</a>
   &nbsp;·&nbsp;
   <a href="#how-it-is-built">How it is built</a>
-  &nbsp;·&nbsp;
-  <a href="#invariants">Invariants</a>
 </p>
 
 <p align="center">
@@ -72,8 +70,8 @@ CSV export, and a tick on the ones you are in.
 
 <img src="docs/readme/schedule.png" alt="Personal schedule" width="100%"/>
 
-Your assignments over a week, month, quarter or year. Each event keeps one colour
-so a crowded month still reads.
+Your assignments over a week, month, quarter, year, or the whole timeline at once.
+Each event keeps one colour so a crowded month still reads.
 
 </td>
 </tr>
