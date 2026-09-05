@@ -20,6 +20,9 @@ const files = sourceFiles(SRC)
 
 const EVENT_CARD = join(SRC, 'features/event-card/event-card.tsx')
 const ADMIN_EVENT = join(SRC, 'app/pages/admin-event-page.tsx')
+const SCROLL_PAGE = join(SRC, 'app/layouts/scroll-page/scroll-page.tsx')
+
+const CAP = PAGE_WIDTH.match(/max-w-\[[^\]]+\]/)?.[0] ?? 'max-w-unknown'
 
 describe('a wide screen is capped once, by one spelling', () => {
   it('states the cap as a shared constant rather than a number copied per page', () => {
@@ -32,7 +35,7 @@ describe('a wide screen is capped once, by one spelling', () => {
     for (const file of files) {
       if (file.endsWith('page-width.ts')) continue
       const source = readFileSync(file, 'utf8')
-      if (source.includes('max-w-[1400px]')) offenders.push(named(file))
+      if (source.includes(CAP)) offenders.push(named(file))
     }
     expect(offenders).toEqual([])
   })
@@ -43,6 +46,12 @@ describe('a wide screen is capped once, by one spelling', () => {
 
   it('caps the event page an administrator edits, which is what smeared its tables', () => {
     expect(readFileSync(ADMIN_EVENT, 'utf8')).toContain('PAGE_WIDTH')
+  })
+
+  it('caps the scrolling layout every list page shares, which is what smeared teams and history', () => {
+    const source = readFileSync(SCROLL_PAGE, 'utf8')
+    expect(source).toContain('PAGE_WIDTH')
+    expect(source).toMatch(/cn\(PAGE_WIDTH/)
   })
 
   it('applies the cap to the element that wraps the whole page, not to one card inside it', () => {

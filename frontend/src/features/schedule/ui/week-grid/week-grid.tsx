@@ -84,10 +84,14 @@ export function WeekGrid({ data, from, to, locale, now = new Date(), onOpenEvent
   useEffect(() => {
     const body = bodyRef.current
     if (!body) return
-    body.scrollTop = Math.max(
+    let page: HTMLElement | null = body.parentElement
+    while (page && page.scrollHeight <= page.clientHeight) page = page.parentElement
+    if (!page) return
+    const offset = Math.max(
       0,
       (resting - window.startHour) * WEEK_HOUR_HEIGHT - WEEK_LABEL_CLEARANCE,
     )
+    page.scrollTop = body.offsetTop - page.offsetTop + offset
   }, [resting, window.startHour])
 
   const open = (span: CalendarSpan) => {

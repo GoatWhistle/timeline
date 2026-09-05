@@ -114,9 +114,8 @@
   grid-template-columns: var(--week-axis) repeat(7, minmax(0, 1fr));
   flex: 1;
   min-height: 0;
-  max-height: clamp(320px, var(--week-body-max), calc(100dvh - 15rem));
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  max-height: none;
+  overflow-y: visible;
 }
 
 .axis {
