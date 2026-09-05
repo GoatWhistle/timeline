@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { EventFacts } from '@/features/event-card/event-facts'
 import { FIGURE_LIMIT, figureSlots, teamSizeRange } from '@/features/event-card/team-size-figures'
 import type { EventResponse } from '@/shared/api/types.gen'
+import { formatDateRange } from '@/shared/datetime/datetime'
 import { i18n } from '@/shared/i18n/config'
 
 const base: EventResponse = {
@@ -202,19 +203,7 @@ describe('the facts panel carries the event basics', () => {
     ).toBeInTheDocument()
   })
 
-  it('states the track when there is one', () => {
-    renderWithProviders(
-      <EventFacts
-        event={{
-          ...base,
-          tracks: [{ id: 'tr_1', track_no: 1, name: 'Smart city', prize_total: '0' }],
-        }}
-      />,
-    )
-    expect(screen.getByText('Smart city')).toBeInTheDocument()
-  })
-
-  it('names every track of a hackathon that has several', () => {
+  it('counts the tracks instead of listing them a second time', () => {
     renderWithProviders(
       <EventFacts
         event={{
@@ -226,7 +215,27 @@ describe('the facts panel carries the event basics', () => {
         }}
       />,
     )
-    expect(screen.getByText('Smart city')).toBeInTheDocument()
-    expect(screen.getByText('Voice agents')).toBeInTheDocument()
+    expect(screen.getByText(i18n.t('event:card.trackCount', { count: 2 }))).toBeInTheDocument()
+    expect(screen.queryByText('Smart city')).not.toBeInTheDocument()
+    expect(screen.queryByText('Voice agents')).not.toBeInTheDocument()
+  })
+
+  it('states the period the header no longer carries', () => {
+    renderWithProviders(<EventFacts event={base} />)
+    const label = screen.getByText(i18n.t('event:place.period'))
+    const value = label.parentElement?.querySelector('dd')
+    expect(value?.textContent).toBe(formatDateRange(base.start_at, base.end_at))
+  })
+
+  it('states the organizer the header no longer carries', () => {
+    renderWithProviders(<EventFacts event={{ ...base, organizer: 'Northwind Labs' }} />)
+    const label = screen.getByText(i18n.t('event:place.organizer'))
+    const value = label.parentElement?.querySelector('dd')
+    expect(value?.textContent).toBe('Northwind Labs')
+  })
+
+  it('draws no organizer row when the event names none', () => {
+    renderWithProviders(<EventFacts event={base} />)
+    expect(screen.queryByText(i18n.t('event:place.organizer'))).not.toBeInTheDocument()
   })
 })

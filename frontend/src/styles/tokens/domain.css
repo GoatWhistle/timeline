@@ -29,6 +29,11 @@
 
   --prize: var(--hue-green-500);
   --joined: var(--hue-green-500);
+
+  --medal-gold: var(--hue-gold-500);
+  --medal-silver: var(--hue-silver-500);
+  --medal-bronze: var(--hue-bronze-500);
+  --medal-plain: var(--hue-slate-500);
 }
 
 [data-avatar] {

@@ -92,6 +92,11 @@
   --color-prize: var(--prize);
   --color-joined: var(--joined);
 
+  --color-medal-gold: var(--medal-gold);
+  --color-medal-silver: var(--medal-silver);
+  --color-medal-bronze: var(--medal-bronze);
+  --color-medal-plain: var(--medal-plain);
+
   --color-event-tint: var(--event-tint);
   --color-event-fill: var(--event-fill);
   --color-event-fill-strong: var(--event-fill-strong);

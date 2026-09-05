@@ -52,6 +52,29 @@ export function EventCardPage() {
   )
 }
 
+export function ParticipationFigures({ card }: { card: EventCard }) {
+  const { t } = useTranslation('event')
+  const nextStage = card.next_stage
+  if (!card.team_role && !nextStage) return null
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      {card.team_role && (
+        <div className="text-copy">
+          <p className="text-muted-foreground">{t('card.teamRole')}</p>
+          <p className="font-medium">{card.team_role}</p>
+        </div>
+      )}
+      {nextStage && (
+        <div className="text-copy">
+          <p className="text-muted-foreground">{t('card.nextStage')}</p>
+          <p className="font-medium">{`${nextStage.name} · ${formatDate(nextStage.start_at)}`}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function EventCardBody({
   card,
   onMarkDone,
@@ -66,15 +89,7 @@ function EventCardBody({
 
   return (
     <div className="mx-auto w-full max-w-[1400px]">
-      <PageHeader
-        title={event.title}
-        description={
-          event.organizer
-            ? `${event.organizer} · ${formatDate(event.start_at)} — ${formatDate(event.end_at)}`
-            : `${formatDate(event.start_at)} — ${formatDate(event.end_at)}`
-        }
-        actions={<EventStateBadge state={event.state} />}
-      />
+      <PageHeader title={event.title} actions={<EventStateBadge state={event.state} />} />
 
       <EventCover
         coverUrl={event.cover_url}
@@ -97,30 +112,14 @@ function EventCardBody({
               <CardTitle>{t('card.participation')}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-5">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="text-copy">
-                  <p className="text-muted-foreground">{t('card.teamRole')}</p>
-                  <p className="font-medium">{card.team_role ?? '—'}</p>
-                </div>
-                <div className="text-copy">
-                  <p className="text-muted-foreground">{t('card.nextStage')}</p>
-                  <p className="font-medium">
-                    {card.next_stage
-                      ? `${card.next_stage.name} · ${formatDate(card.next_stage.start_at)}`
-                      : '—'}
-                  </p>
-                </div>
-              </div>
+              <ParticipationFigures card={card} />
 
               <EventPlaceSummary event={event} stages={card.stages} />
 
               <PinnedLinks eventId={event.id} />
 
               {event.description && (
-                <div className="text-copy">
-                  <p className="text-muted-foreground">{t('card.description')}</p>
-                  <p className="max-w-prose [text-wrap:pretty]">{event.description}</p>
-                </div>
+                <p className="max-w-prose text-copy [text-wrap:pretty]">{event.description}</p>
               )}
             </CardContent>
           </Card>

@@ -1,7 +1,17 @@
 import { useCallback } from 'react'
-import { useSearchParams } from 'react-router'
+import { useLocation, useSearchParams } from 'react-router'
 
 export const EVENT_OVERLAY_PARAM = 'card'
+
+export const ADMIN_PATH_PREFIX = '/admin'
+
+export function isAdminPath(pathname: string): boolean {
+  return pathname === ADMIN_PATH_PREFIX || pathname.startsWith(`${ADMIN_PATH_PREFIX}/`)
+}
+
+export function useInAdminSection(): boolean {
+  return isAdminPath(useLocation().pathname)
+}
 
 export function useEventOverlay() {
   const [params, setParams] = useSearchParams()

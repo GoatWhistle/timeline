@@ -3,7 +3,6 @@
     "participation": "Участие",
     "teamRole": "Роль в команде",
     "nextStage": "Ближайший этап",
-    "description": "Описание",
     "website": "Сайт события",
     "registration": "Регистрация",
     "deadline": "Дедлайн",
@@ -73,7 +72,14 @@
     "trackPlace": "{{place}} место",
     "prizeDistributed": "Распределено",
     "prizeUnallocated": "Не распределено",
-    "trackPrizeTotal": "Призовой фонд трека"
+    "trackPrizeTotal": "Призовой фонд трека",
+    "rankGold": "Золото",
+    "rankSilver": "Серебро",
+    "rankBronze": "Бронза",
+    "trackPrizeFund": "Призовой фонд",
+    "trackNumber": "Трек {{number}}",
+    "period": "Период",
+    "organizer": "Организатор"
   },
   "links": {
     "title": "Ссылки",

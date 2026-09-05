@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { usePrizePlaceLabel } from '@/entities/prize/prize-place-mark'
 import { formatMoney } from '@/shared/money/money'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
@@ -32,6 +33,7 @@ export function TrackPrizeFields({
   onChange: (prizes: PrizeDraft[]) => void
 }) {
   const { t } = useTranslation('event')
+  const placeLabel = usePrizePlaceLabel()
   const total = draftTotal(prizes)
 
   function edit(index: number, amount: string) {
@@ -51,7 +53,7 @@ export function TrackPrizeFields({
           <li key={prize.place} className="flex items-end gap-2">
             <Field
               className="flex-1"
-              label={t('place.trackPlace', { place: prize.place })}
+              label={placeLabel(prize.place)}
               htmlFor={`${idPrefix}-prize-${prize.place}`}
             >
               <Input

@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { eventTracksQuery } from '@/entities/event/event.queries'
-import type { EventTrackListResponse } from '@/shared/api/types.gen'
+import { PrizePlaceMark } from '@/entities/prize/prize-place-mark'
+import type { EventTrackListResponse, EventTrackResponse } from '@/shared/api/types.gen'
 import { formatMoney } from '@/shared/money/money'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Badge } from '@/shared/ui/primitives/badge'
@@ -15,21 +16,65 @@ function PrizeRow({
   amount: string
   currency: string | undefined
 }) {
-  const { t } = useTranslation('event')
   const money = formatMoney(amount, currency)
   return (
-    <div className="flex items-baseline justify-between gap-4 py-1">
-      <span className="text-caption text-muted-foreground">{t('place.trackPlace', { place })}</span>
+    <li className="flex items-center justify-between gap-4 py-1">
+      <PrizePlaceMark place={place} />
       <span className="font-medium text-copy text-prize tabular-nums">{money ?? amount}</span>
-    </div>
+    </li>
+  )
+}
+
+function TrackPanel({
+  track,
+  currency,
+}: {
+  track: EventTrackResponse
+  currency: string | undefined
+}) {
+  const { t } = useTranslation('event')
+  const total = formatMoney(track.prize_total, currency)
+
+  return (
+    <section className="flex flex-col gap-3 rounded-control border border-border bg-surface-1 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+        <div className="flex min-w-0 flex-col gap-1">
+          <Badge tone="neutral" className="tabular-nums">
+            {t('place.trackNumber', { number: track.track_no })}
+          </Badge>
+          <h3 className="min-w-0 font-semibold text-heading">{track.name}</h3>
+        </div>
+        {total && (
+          <div className="flex flex-col items-end">
+            <span className="text-caption text-muted-foreground">{t('place.trackPrizeFund')}</span>
+            <span className="font-semibold text-heading text-prize tabular-nums">{total}</span>
+          </div>
+        )}
+      </div>
+
+      {track.description && (
+        <p className="max-w-prose text-copy text-muted-foreground">{track.description}</p>
+      )}
+
+      {track.prizes.length > 0 && (
+        <ul className="flex flex-col border-border border-t pt-2">
+          {track.prizes.map((prize) => (
+            <PrizeRow
+              key={prize.id}
+              place={prize.place}
+              amount={prize.amount}
+              currency={currency}
+            />
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }
 
 export function EventTracks({ tracks }: { tracks: EventTrackListResponse }) {
   const { t } = useTranslation('event')
   const currency = tracks.prize_currency ?? undefined
-  const distributed = formatMoney(tracks.distributed, currency)
-  const unallocated = formatMoney(tracks.unallocated, currency)
 
   return (
     <Card>
@@ -41,62 +86,9 @@ export function EventTracks({ tracks }: { tracks: EventTrackListResponse }) {
           <p className="text-copy text-muted-foreground">{t('place.noTracks')}</p>
         )}
 
-        {tracks.items.map((track) => {
-          const total = formatMoney(track.prize_total, currency)
-          return (
-            <section
-              key={track.id}
-              className="flex flex-col gap-2 border-border border-b pb-4 last:border-b-0 last:pb-0"
-            >
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h3 className="min-w-0 font-medium text-copy text-heading">
-                  <Badge tone="neutral" className="mr-2 tabular-nums">
-                    {track.track_no}
-                  </Badge>
-                  {track.name}
-                </h3>
-                {total && (
-                  <span className="font-semibold text-copy text-prize tabular-nums">
-                    <span className="sr-only">{t('place.trackPrizeTotal')} </span>
-                    {total}
-                  </span>
-                )}
-              </div>
-
-              {track.description && (
-                <p className="max-w-prose text-copy text-muted-foreground">{track.description}</p>
-              )}
-
-              {track.prizes.length > 0 && (
-                <div className="flex flex-col">
-                  {track.prizes.map((prize) => (
-                    <PrizeRow
-                      key={prize.id}
-                      place={prize.place}
-                      amount={prize.amount}
-                      currency={currency}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
-          )
-        })}
-
-        {distributed && (
-          <dl className="flex flex-wrap gap-x-6 gap-y-1 border-border border-t pt-3 text-caption">
-            <div className="flex items-baseline gap-2">
-              <dt className="text-muted-foreground">{t('place.prizeDistributed')}</dt>
-              <dd className="font-medium tabular-nums">{distributed}</dd>
-            </div>
-            {unallocated && (
-              <div className="flex items-baseline gap-2">
-                <dt className="text-muted-foreground">{t('place.prizeUnallocated')}</dt>
-                <dd className="font-medium tabular-nums">{unallocated}</dd>
-              </div>
-            )}
-          </dl>
-        )}
+        {tracks.items.map((track) => (
+          <TrackPanel key={track.id} track={track} currency={currency} />
+        ))}
       </CardContent>
     </Card>
   )

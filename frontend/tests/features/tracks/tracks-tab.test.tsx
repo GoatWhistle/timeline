@@ -131,7 +131,7 @@ describe('an over-budget split is refused before it is sent', () => {
 
     await user.type(screen.getByLabelText(i18n.t('event:tracks.formName')), 'Green energy')
     await user.click(screen.getByRole('button', { name: i18n.t('event:tracks.formPrizeAdd') }))
-    await user.type(screen.getByLabelText(i18n.t('event:place.trackPlace', { place: 1 })), '300000')
+    await user.type(screen.getByLabelText(i18n.t('event:place.rankGold')), '300000')
 
     expect(screen.getByRole('alert').textContent).toContain('100,000')
     expect(screen.getByRole('button', { name: i18n.t('event:list.create') })).toHaveProperty(

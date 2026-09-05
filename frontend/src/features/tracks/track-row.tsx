@@ -1,5 +1,6 @@
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { PrizePlaceMark } from '@/entities/prize/prize-place-mark'
 import type { EventTrackResponse } from '@/shared/api/types.gen'
 import { formatMoney } from '@/shared/money/money'
 import { Badge } from '@/shared/ui/primitives/badge'
@@ -80,10 +81,8 @@ export function TrackRow({
       {track.prizes.length > 0 ? (
         <ul className="flex flex-wrap gap-x-6 gap-y-1">
           {track.prizes.map((prize) => (
-            <li key={prize.id} className="flex items-baseline gap-2 text-caption">
-              <span className="text-muted-foreground">
-                {t('place.trackPlace', { place: prize.place })}
-              </span>
+            <li key={prize.id} className="flex items-center gap-2 text-caption">
+              <PrizePlaceMark place={prize.place} />
               <span className="font-medium tabular-nums">
                 {formatMoney(prize.amount, currency) ?? prize.amount}
               </span>

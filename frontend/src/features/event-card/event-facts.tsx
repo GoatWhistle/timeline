@@ -3,6 +3,7 @@ import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY } from '@/entities/stage/stage.place'
 import type { EventResponse } from '@/shared/api/types.gen'
+import { formatDateRange } from '@/shared/datetime/datetime'
 import { formatMoney } from '@/shared/money/money'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { linkHost } from '@/shared/ui/navigation/external-link/external-url'
@@ -25,6 +26,10 @@ export function EventFacts({ event }: { event: EventResponse }) {
 
   return (
     <dl className="flex flex-col">
+      <Fact label={t('place.period')}>{formatDateRange(event.start_at, event.end_at)}</Fact>
+
+      {event.organizer && <Fact label={t('place.organizer')}>{event.organizer}</Fact>}
+
       <Fact label={t('place.effective')}>
         <span className="inline-flex items-center gap-1.5">
           <FormatIcon className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -46,13 +51,7 @@ export function EventFacts({ event }: { event: EventResponse }) {
 
       {event.tracks.length > 0 && (
         <Fact label={t('place.tracks')}>
-          <ul className="flex flex-col gap-1">
-            {event.tracks.map((track) => (
-              <li key={track.id} className="min-w-0 truncate">
-                {track.name}
-              </li>
-            ))}
-          </ul>
+          {t('card.trackCount', { count: event.tracks.length })}
         </Fact>
       )}
 

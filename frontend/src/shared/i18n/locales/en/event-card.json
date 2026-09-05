@@ -3,7 +3,6 @@
     "participation": "Participation",
     "teamRole": "Team role",
     "nextStage": "Next stage",
-    "description": "Description",
     "website": "Event website",
     "registration": "Registration",
     "deadline": "Deadline",
@@ -71,7 +70,14 @@
     "trackPlace": "Place {{place}}",
     "prizeDistributed": "Distributed",
     "prizeUnallocated": "Unallocated",
-    "trackPrizeTotal": "Track prize fund"
+    "trackPrizeTotal": "Track prize fund",
+    "rankGold": "Gold",
+    "rankSilver": "Silver",
+    "rankBronze": "Bronze",
+    "trackPrizeFund": "Prize fund",
+    "trackNumber": "Track {{number}}",
+    "period": "Period",
+    "organizer": "Organizer"
   },
   "links": {
     "title": "Links",

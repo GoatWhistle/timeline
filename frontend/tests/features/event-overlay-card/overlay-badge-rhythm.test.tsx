@@ -47,7 +47,7 @@ function typeSizeOf(node: HTMLElement): string | undefined {
 
 describe('the pills in the card header keep one rhythm', () => {
   function renderBody() {
-    return renderWithProviders(<EventOverlayBody card={card} isAdmin={false} />)
+    return renderWithProviders(<EventOverlayBody card={card} canOpenAdmin={false} />)
   }
 
   it('shows the state and the dates side by side', () => {

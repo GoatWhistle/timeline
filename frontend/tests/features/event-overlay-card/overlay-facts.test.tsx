@@ -34,7 +34,9 @@ const catalogEvent: CatalogEvent = {
 }
 
 function renderOverlay(event: CatalogEvent = catalogEvent) {
-  return renderWithProviders(<EventOverlayBody card={fromCatalogEvent(event)} isAdmin={false} />)
+  return renderWithProviders(
+    <EventOverlayBody card={fromCatalogEvent(event)} canOpenAdmin={false} />,
+  )
 }
 
 describe('the card opened from the catalog states what the catalog row states', () => {

@@ -11,7 +11,7 @@ import { CloseButton } from '@/shared/ui/primitives/close-button'
 import { SkeletonDetail } from '@/shared/ui/states'
 import { EventOverlayBody } from './event-overlay-body'
 import type { OverlayResult } from './overlay-resolvers'
-import { useEventOverlay } from './use-event-overlay'
+import { useEventOverlay, useInAdminSection } from './use-event-overlay'
 
 export function EventOverlayCard({
   result,
@@ -22,6 +22,8 @@ export function EventOverlayCard({
 }) {
   const { t } = useTranslation('event')
   const { isAdmin } = useSession()
+  const inAdminSection = useInAdminSection()
+  const canOpenAdmin = isAdmin && inAdminSection
   const { open, closeEventCard } = useEventOverlay()
   const closeRef = useRef<HTMLButtonElement>(null)
   const returnFocus = useReturnFocus(open)
@@ -63,7 +65,7 @@ export function EventOverlayCard({
 
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 [scrollbar-gutter:stable_both-edges]">
             <TooltipProvider>
-              <OverlayContent result={held} isAdmin={isAdmin} actions={actions} />
+              <OverlayContent result={held} canOpenAdmin={canOpenAdmin} actions={actions} />
             </TooltipProvider>
           </div>
         </DialogPrimitive.Content>
@@ -74,11 +76,11 @@ export function EventOverlayCard({
 
 function OverlayContent({
   result,
-  isAdmin,
+  canOpenAdmin,
   actions,
 }: {
   result: OverlayResult
-  isAdmin: boolean
+  canOpenAdmin: boolean
   actions?: ReactNode
 }) {
   if (result.error) return <ErrorState error={result.error} onRetry={result.retry} />
@@ -87,7 +89,7 @@ function OverlayContent({
 
   return (
     <div className={result.stale ? 'opacity-60 transition-opacity duration-fast' : ''}>
-      <EventOverlayBody card={result.card} isAdmin={isAdmin} actions={actions} />
+      <EventOverlayBody card={result.card} canOpenAdmin={canOpenAdmin} actions={actions} />
     </div>
   )
 }

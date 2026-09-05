@@ -60,7 +60,7 @@ describe('the field itself refuses a fractional amount as it is typed', () => {
   it('a typed dot never reaches the value', async () => {
     const user = userEvent.setup()
     renderWithProviders(<Harness />)
-    const input = screen.getByLabelText(i18n.t('event:place.trackPlace', { place: 1 }))
+    const input = screen.getByLabelText(i18n.t('event:place.rankGold'))
     await user.type(input, '1500.50')
     expect((input as HTMLInputElement).value).toBe('150050')
   })
@@ -68,7 +68,7 @@ describe('the field itself refuses a fractional amount as it is typed', () => {
   it('the running total is shown in whole money, with no kopecks', async () => {
     const user = userEvent.setup()
     renderWithProviders(<Harness />)
-    await user.type(screen.getByLabelText(i18n.t('event:place.trackPlace', { place: 1 })), '150000')
+    await user.type(screen.getByLabelText(i18n.t('event:place.rankGold')), '150000')
     expect(screen.getByText('150,000 ₽')).toBeTruthy()
   })
 })
