@@ -6,6 +6,7 @@ import { useLinkTelegram, useUnlinkTelegram } from '@/entities/user/profile.quer
 import type { MeResponse } from '@/shared/api/types.gen'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
+import { TelegramMark } from '@/shared/ui/navigation/service-link/service-icon'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 
@@ -37,7 +38,10 @@ export function TelegramLinkCard({ user }: { user: MeResponse }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t('account.telegramTitle')}</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <TelegramMark className="size-4 text-telegram" />
+          {t('account.telegramTitle')}
+        </CardTitle>
         <CardDescription>{t('account.telegramHint')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">

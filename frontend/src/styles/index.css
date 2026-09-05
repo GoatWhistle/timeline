@@ -55,6 +55,7 @@
   --color-input: var(--input);
   --color-logo: var(--logo);
   --color-ring: var(--ring);
+  --color-telegram: var(--telegram);
 
   --shadow-flat: var(--elevation-flat);
   --shadow-raised: var(--elevation-raised);

@@ -33,6 +33,8 @@ const TEXT_COLORS = [
   'surface-1',
   'surface-2',
   'surface-3',
+  'logo',
+  'telegram',
   'state-unpublished',
   'state-upcoming',
   'state-active',

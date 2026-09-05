@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { Mail } from 'lucide-react'
+import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   buildMatrix,
@@ -9,6 +11,7 @@ import {
 import { CHANNEL_KEY } from '@/entities/notification/notification.labels'
 import { rulesQuery } from '@/entities/registration/registration.queries'
 import { useSession } from '@/shared/api/session'
+import type { Channel } from '@/shared/api/types.gen'
 import { formatOffsetMinutes } from '@/shared/datetime/datetime'
 import { MatrixFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
@@ -21,10 +24,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/ui/data-display/table'
+import { TelegramMark } from '@/shared/ui/navigation/service-link/service-icon'
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { MatrixCell } from './matrix-cell'
 
 const LEGEND: CellState[] = ['chosen', 'fallback', 'off', 'mirror']
+
+const CHANNEL_ICON: Record<Channel, React.ComponentType<{ className?: string }>> = {
+  TELEGRAM: TelegramMark,
+  EMAIL: Mail,
+}
 
 export function ChannelMatrix({ eventId }: { eventId: string }) {
   const { t } = useTranslation('notification')
@@ -64,11 +73,17 @@ export function ChannelMatrix({ eventId }: { eventId: string }) {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('matrix.columnRule')}</TableHead>
-                  {DELIVERY_CHANNELS.map((channel) => (
-                    <TableHead key={channel} className="w-32 text-center">
-                      {t(CHANNEL_KEY[channel])}
-                    </TableHead>
-                  ))}
+                  {DELIVERY_CHANNELS.map((channel) => {
+                    const Icon = CHANNEL_ICON[channel]
+                    return (
+                      <TableHead key={channel} className="w-32 text-center">
+                        <span className="inline-flex items-center justify-center gap-1.5">
+                          <Icon className="size-4 shrink-0" />
+                          {t(CHANNEL_KEY[channel])}
+                        </span>
+                      </TableHead>
+                    )
+                  })}
                   <TableHead className="w-36 text-center text-muted-foreground">
                     {t('matrix.columnInApp')}
                   </TableHead>

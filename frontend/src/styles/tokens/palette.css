@@ -29,6 +29,8 @@
   --brand-amber-500: oklch(0.62 0.16 65);
   --brand-amber-300: oklch(0.78 0.14 65);
   --brand-amber-100: oklch(0.905 0.04 58);
+  --brand-telegram-600: oklch(0.5 0.144 238);
+  --brand-telegram-300: oklch(0.705 0.144 238);
 
   --hue-blue-500: oklch(0.48 0.14 250);
   --hue-blue-300: oklch(0.75 0.13 250);

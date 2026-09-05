@@ -14,9 +14,11 @@ The theSVG project is distributed under the MIT license, reproduced below.
 Trademark notice, quoted from the upstream project: all brand names, logos and
 trademarks are the property of their respective owners. theSVG provides these
 icons for development and design purposes only under nominative fair use.
-Timeline uses each mark solely to identify the service a user link points to,
-which is that same nominative use: no endorsement by, or affiliation with, the
-trademark holders is claimed or implied.
+Timeline uses each mark to identify the service a user link points to, or, for
+Telegram specifically, to identify the notification channel of that name in
+the account and notification screens; both are that same nominative use: no
+endorsement by, or affiliation with, the trademark holders is claimed or
+implied.
 
 Marks taken: GitHub, GitLab, Bitbucket, Gitea, SourceHut, Telegram, Discord,
 LinkedIn, X, Mastodon, Bluesky, YouTube, Twitch, Instagram, Facebook, Threads,
