@@ -15,22 +15,24 @@ export function TabsList({
   const { containerRef, box } = useSlidingIndicator<HTMLDivElement>(null, 'x')
 
   return (
-    <TabsPrimitive.List
-      ref={containerRef}
-      className={cn(
-        'relative inline-flex h-9 items-center justify-center gap-1 rounded-surface bg-muted p-1 text-muted-foreground',
-        'pointer-coarse:h-12',
-        className,
-      )}
-      {...props}
-    >
-      <SlidingIndicator
-        box={box}
-        axis="x"
-        className="my-1 rounded-control bg-background shadow-flat"
-      />
-      {children}
-    </TabsPrimitive.List>
+    <div className="max-w-full overflow-x-auto">
+      <TabsPrimitive.List
+        ref={containerRef}
+        className={cn(
+          'relative inline-flex h-9 items-center justify-center gap-1 rounded-surface bg-muted p-1 text-muted-foreground',
+          'pointer-coarse:h-12',
+          className,
+        )}
+        {...props}
+      >
+        <SlidingIndicator
+          box={box}
+          axis="x"
+          className="my-1 rounded-control bg-background shadow-flat"
+        />
+        {children}
+      </TabsPrimitive.List>
+    </div>
   )
 }
 

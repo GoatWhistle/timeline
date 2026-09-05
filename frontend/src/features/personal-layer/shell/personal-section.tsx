@@ -39,15 +39,13 @@ export function PersonalSection({ eventId, stages }: { eventId: string; stages: 
       </CardHeader>
       <CardContent>
         <Tabs value={tab} onValueChange={(next) => setTab(next as PersonalTab)}>
-          <div className="max-w-full overflow-x-auto">
-            <TabsList>
-              {TABS.map((name) => (
-                <TabsTrigger key={name} value={name}>
-                  {t(TAB_LABEL[name])}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
+          <TabsList>
+            {TABS.map((name) => (
+              <TabsTrigger key={name} value={name}>
+                {t(TAB_LABEL[name])}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
           <TabsContent value="tasks">
             <TaskPanel eventId={eventId} stages={stages} />

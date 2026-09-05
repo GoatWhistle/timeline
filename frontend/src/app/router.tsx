@@ -141,9 +141,8 @@ export function AppRouter() {
           </Route>
         </Route>
 
-        <Route path="/:handle" element={<PublicProfileRoute />} />
-
         <Route element={<AuthLayout />}>
+          <Route path="/:handle" element={<PublicProfileRoute />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

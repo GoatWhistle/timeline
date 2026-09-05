@@ -106,6 +106,20 @@ describe('an unknown address ends on the not-found page', () => {
     expect(shallow.length).toBeGreaterThanOrEqual(1)
     for (const route of shallow) expect(elementType(route.element)).toBe(NotFoundPage)
   })
+
+  it('wraps the mistyped single segment in the same shell as the catch-all, not in nothing', () => {
+    const catchAll = Math.min(...withPath('*').map((route) => route.depth))
+    const handle = Math.min(...withPath('/:handle').map((route) => route.depth))
+    expect(handle).toBe(catchAll)
+  })
+
+  it('never leaves a not-found route at the top level, which stripped it of the brand shell', () => {
+    const topLevel = Math.min(...routes.map((route) => route.depth))
+    const bare = [...withPath('*'), ...withPath('/:handle')].filter(
+      (route) => route.depth === topLevel,
+    )
+    expect(bare).toEqual([])
+  })
 })
 
 describe('the catalog absorbed the separate my-events page', () => {
