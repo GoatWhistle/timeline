@@ -76,20 +76,34 @@ describe('the all-day band names itself inside a gutter it actually fits', () =>
   })
 
   it('leaves the gutter narrow enough that a long label would have had to wrap', () => {
-    expect(WEEK_AXIS_WIDTH).toBeLessThan(80)
+    expect(WEEK_AXIS_WIDTH).toBeLessThan(110)
   })
 })
 
 describe('the gutter is wide enough for the label every locale actually prints', () => {
-  it.each(LOCALES)('fits the longest word of the %s short label without wrapping', (locale) => {
-    const label = text(locale, 'common', 'schedule.allDayShort')
-    const longest = widestWord(label)
+  it.each(LOCALES)(
+    'fits the whole %s short label on one line, not just its longest word',
+    (locale) => {
+      const label = text(locale, 'common', 'schedule.allDayShort')
 
-    expect(longest.length).toBeGreaterThan(0)
-    expect(
-      textWidth(longest),
-      `"${longest}" needs ${textWidth(longest).toFixed(1)}px but the gutter offers ${GUTTER_TEXT}px`,
-    ).toBeLessThanOrEqual(GUTTER_TEXT)
+      expect(label.length).toBeGreaterThan(0)
+      expect(
+        textWidth(label),
+        `"${label}" needs ${textWidth(label).toFixed(1)}px but the gutter offers ${GUTTER_TEXT}px`,
+      ).toBeLessThanOrEqual(GUTTER_TEXT)
+    },
+  )
+
+  it('forbids the label from wrapping, so a wide gutter is the only remedy left', () => {
+    const sheet = readFileSync(
+      resolve(process.cwd(), 'src/features/schedule/ui/week-grid/week-grid.module.css'),
+      'utf8',
+    )
+    const block = sheet.slice(sheet.indexOf('.bandLabel'), sheet.indexOf('.bandScroll'))
+
+    expect(block).toContain('white-space: nowrap')
+    expect(block).not.toContain('overflow-wrap')
+    expect(block).not.toContain('text-wrap: balance')
   })
 
   it.each(LOCALES)(

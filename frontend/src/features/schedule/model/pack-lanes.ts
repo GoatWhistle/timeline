@@ -126,21 +126,27 @@ export function packDayColumns<T extends TimedInput>(items: readonly T[]): Packe
   return result
 }
 
-export const DEFAULT_HOUR_START = 8
-export const DEFAULT_HOUR_END = 23
+export const DAY_HOUR_START = 0
+export const DAY_HOUR_END = 24
+export const RESTING_HOUR_START = 8
+export const RESTING_HOUR_END = 22
 
-export function hourWindow(minutes: readonly { startMinute: number; endMinute: number }[]): {
-  startHour: number
-  endHour: number
-} {
-  let startHour = DEFAULT_HOUR_START
-  let endHour = DEFAULT_HOUR_END
+export function hourWindow(): { startHour: number; endHour: number } {
+  return { startHour: DAY_HOUR_START, endHour: DAY_HOUR_END }
+}
+
+export function restingHour(
+  minutes: readonly { startMinute: number; endMinute: number }[],
+  nowMinute: number | undefined,
+): number {
+  let earliest: number | undefined
   for (const entry of minutes) {
-    startHour = Math.min(startHour, Math.floor(entry.startMinute / 60))
-    endHour = Math.max(endHour, Math.ceil(entry.endMinute / 60))
+    const hour = Math.floor(entry.startMinute / 60)
+    if (earliest === undefined || hour < earliest) earliest = hour
   }
-  return {
-    startHour: Math.max(0, startHour),
-    endHour: Math.min(24, Math.max(endHour, startHour + 1)),
-  }
+  const candidates = [RESTING_HOUR_START]
+  if (earliest !== undefined) candidates.push(earliest)
+  if (nowMinute !== undefined) candidates.push(Math.floor(nowMinute / 60) - 1)
+  const target = Math.min(...candidates)
+  return Math.max(DAY_HOUR_START, Math.min(RESTING_HOUR_END, target))
 }

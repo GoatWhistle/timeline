@@ -142,6 +142,11 @@ export function WrappedGrid({
           ['--schedule-cell' as string]: `${cellWidth}px`,
         }}
         aria-label={t('schedule.tableAria')}
+        onKeyDown={(event) => {
+          if (event.key !== 'Escape' || !selectedId) return
+          event.preventDefault()
+          onSelect?.(undefined)
+        }}
         onPointerDown={(event) => {
           if (event.target === event.currentTarget) onSelect?.(undefined)
         }}

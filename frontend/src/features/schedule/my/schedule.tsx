@@ -107,8 +107,6 @@ export function MySchedulePage() {
                     from={view.from}
                     to={view.to}
                     locale={locale}
-                    selectedId={view.selectedId}
-                    onSelect={view.select}
                     onOpenEvent={(row) => openEventCard(row.event_id)}
                   />
                 )}

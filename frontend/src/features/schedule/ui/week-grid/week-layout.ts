@@ -6,11 +6,13 @@ import { buildCalendarSpans, type CalendarSpan } from '../../model/calendar-item
 import { type PackedTimed, packDayColumns } from '../../model/pack-lanes'
 import type { TimelineGrid } from '../../model/timeline-grid'
 
-export const WEEK_AXIS_WIDTH = 56
+export const WEEK_AXIS_WIDTH = 76
 export const WEEK_HOUR_HEIGHT = 52
-export const WEEK_BAND_BAR = 22
+export const WEEK_BAND_BAR = 26
 export const WEEK_BAND_GAP = 4
 export const MINUTES_PER_HOUR = 60
+export const WEEK_BODY_MAX_HEIGHT = 720
+export const WEEK_LABEL_CLEARANCE = 10
 
 export function zoned(value: Date | string): Date {
   return new TZDate(typeof value === 'string' ? new Date(value) : value, currentTimeZone())

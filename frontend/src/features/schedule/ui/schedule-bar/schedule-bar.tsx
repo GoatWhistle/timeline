@@ -18,7 +18,7 @@ export type ScheduleBarProps = {
   clippedEnd?: boolean
   style?: CSSProperties
   onFocusItem?: () => void
-  onSelect: () => void
+  onSelect?: () => void
   onOpen: () => void
 }
 

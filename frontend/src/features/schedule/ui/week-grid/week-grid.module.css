@@ -76,13 +76,11 @@
   font-size: var(--text-label);
   line-height: 1.2;
   text-align: end;
-  text-wrap: balance;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
 .bandScroll {
   grid-column: 2 / -1;
-  overflow-y: auto;
 }
 
 .bandLanes {
@@ -110,22 +108,15 @@
   background-color: color-mix(in oklch, var(--muted) 16%, transparent);
 }
 
-.bandEmpty {
-  display: flex;
-  align-items: center;
-  color: var(--muted-foreground);
-  padding-inline-start: 10px;
-  font-size: var(--text-label);
-}
-
 .body {
   display: grid;
   position: relative;
   grid-template-columns: var(--week-axis) repeat(7, minmax(0, 1fr));
   flex: 1;
   min-height: 0;
-  padding-block-start: 8px;
+  max-height: clamp(320px, var(--week-body-max), calc(100dvh - 15rem));
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .axis {

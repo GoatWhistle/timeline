@@ -43,9 +43,9 @@ export type WrappedShape = {
 }
 
 export const WRAPPED_SHAPE: Record<'year' | 'quarter' | 'month', WrappedShape> = {
-  year: { months: 12, columns: 4, minCell: 30, barHeight: 10, maxBar: 18 },
-  quarter: { months: 3, columns: 3, minCell: 54, barHeight: 14, maxBar: 30 },
-  month: { months: 1, columns: 1, minCell: 76, barHeight: 20, maxBar: 56 },
+  year: { months: 12, columns: 4, minCell: 74, barHeight: 16, maxBar: 26 },
+  quarter: { months: 3, columns: 3, minCell: 118, barHeight: 20, maxBar: 44 },
+  month: { months: 1, columns: 1, minCell: 130, barHeight: 24, maxBar: 64 },
 }
 
 export function wrappedHeader(barHeight: number): number {

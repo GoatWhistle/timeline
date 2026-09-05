@@ -76,12 +76,10 @@
   }
 }
 
-[data-schedule-week][data-has-selection="true"] .bar[data-selected="false"],
 [data-schedule-wrapped][data-has-selection="true"] .bar[data-selected="false"] {
   opacity: 0.45;
 }
 
-[data-schedule-week][data-has-selection="true"] .bar[data-selected="false"]:hover,
 [data-schedule-wrapped][data-has-selection="true"] .bar[data-selected="false"]:hover {
   opacity: 0.8;
 }
