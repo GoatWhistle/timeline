@@ -65,3 +65,19 @@ export function formatDateText(date: string): string {
 export function acceptDateText(raw: string): string {
   return raw.replace(/[^\d.,\-/\\ ]/g, '').slice(0, 10)
 }
+
+export function groomDateText(raw: string, previous: string): string {
+  const accepted = acceptDateText(raw)
+  if (accepted.length < previous.length) return accepted
+  if (/[^0-9]$/.test(accepted)) return accepted
+  if (/[^0-9.]/.test(accepted)) return accepted
+
+  const digits = accepted.replace(/[^0-9]/g, '').slice(0, 8)
+  if (digits.length === 0) return accepted
+
+  const parts = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 8)].filter(
+    (part) => part !== '',
+  )
+  const grouped = parts.join('.')
+  return digits.length === 2 || digits.length === 4 ? grouped + '.' : grouped
+}

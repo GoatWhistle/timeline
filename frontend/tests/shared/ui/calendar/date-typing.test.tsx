@@ -123,3 +123,27 @@ describe('typing and pointing reach the very same day', () => {
     expect(field().value).toBe('14.05.2026')
   })
 })
+
+describe('a pasted date arrives in our shape whatever shape it was copied in', () => {
+  it.each([
+    ['2026-07-03', 'an ISO date from a spreadsheet'],
+    ['3/7/26', 'slashes and a short year'],
+    ['03-07-2026', 'dashes'],
+    ['03072026', 'bare digits'],
+  ])('turns %s into dotted text', async (pasted) => {
+    const { user } = renderWithProviders(<Harness />)
+    await user.click(field())
+    await user.paste(pasted)
+
+    expect(field().value).toBe('03.07.2026')
+    expect(screen.getByTestId('value')).toHaveTextContent('2026-07-03')
+  })
+
+  it('leaves text it cannot read alone rather than mangling it', async () => {
+    const { user } = renderWithProviders(<Harness />)
+    await user.click(field())
+    await user.paste('next tuesday')
+
+    expect(screen.getByTestId('value')).toHaveTextContent('')
+  })
+})

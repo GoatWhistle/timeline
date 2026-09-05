@@ -7,7 +7,7 @@ import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 import { FLOATING_SURFACE } from '@/shared/ui/overlays/overlay-chrome'
 import type { RangeHighlight } from './calendar-grid'
 import { CalendarPanel } from './calendar-panel'
-import { acceptDateText, DATE_TEXT_PATTERN, formatDateText, parseDateText } from './date-text'
+import { DATE_TEXT_PATTERN, formatDateText, groomDateText, parseDateText } from './date-text'
 import type { DayBounds } from './month-grid'
 import { panelHost, useAnchoredPanel } from './use-anchored-panel'
 
@@ -117,13 +117,22 @@ export function DatePicker({
         aria-describedby={describedBy}
         aria-required={required ? true : undefined}
         onChange={(event) => {
-          const next = acceptDateText(event.target.value)
+          const next = groomDateText(event.target.value, text)
           setText(next)
           const parsed = parseDateText(next)
           if (parsed !== null) {
             report(false)
             if (parsed !== value) onChange(parsed)
           }
+        }}
+        onPaste={(event) => {
+          const pasted = event.clipboardData.getData('text')
+          const parsed = parseDateText(pasted)
+          if (parsed === null) return
+          event.preventDefault()
+          setText(formatDateText(parsed))
+          report(false)
+          if (parsed !== value) onChange(parsed)
         }}
         onBlur={(event) => commit(event.target.value)}
         onKeyDown={(event) => {
@@ -177,12 +186,12 @@ export function DatePicker({
             style={{
               top: placement?.top ?? 0,
               left: placement?.left ?? 0,
-              opacity: placement === null ? 0 : undefined,
+              visibility: placement === null ? 'hidden' : undefined,
             }}
             className={cn(
               FLOATING_SURFACE,
               'pointer-events-auto fixed w-max max-w-[calc(100vw-1.5rem)] overflow-x-auto p-3',
-              'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95',
+              placement !== null && 'motion-safe:animate-in motion-safe:fade-in-0',
               'motion-safe:duration-fast motion-safe:ease-out',
             )}
           >
