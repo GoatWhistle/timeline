@@ -56,7 +56,7 @@
   --input: var(--sunlit-clay);
   --scrollbar-thumb: var(--sunlit-tan);
   --scrollbar-thumb-hover: var(--sunlit-clay);
-  --logo: var(--brand-amber-550);
-  --logo-track-opacity: 0.9;
+  --logo: var(--brand-amber-600);
+  --logo-track-opacity: 0.75;
   --ring: var(--brand-amber-600);
 }

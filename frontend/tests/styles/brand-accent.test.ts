@@ -64,7 +64,7 @@ describe.each(THEMES)('the accent is legible where it is spelled, %s theme', (th
   })
 })
 
-const TRACK_ALPHA = { light: 0.9, dark: 0.55 } as const
+const TRACK_ALPHA = { light: 0.75, dark: 0.55 } as const
 
 describe.each(THEMES)('the logo mark survives its own background, %s theme', (theme) => {
   const tokens = loadTheme(theme)
