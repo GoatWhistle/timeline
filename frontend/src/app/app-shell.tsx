@@ -95,8 +95,9 @@ export function AppShell() {
         ref={mainRef}
         tabIndex={-1}
         className={cn(
-          'flex min-w-0 flex-1 flex-col overflow-hidden outline-none',
+          'relative flex min-w-0 flex-1 flex-col overflow-hidden outline-none',
           phone ? BAR_INSET_BOTTOM : 'pl-2',
+          !phone && !sidebar.overlay && sidebar.collapsed && 'pl-14',
         )}
       >
         {(phone || sidebar.overlay) && (
@@ -115,7 +116,7 @@ export function AppShell() {
             aria-controls="app-sidebar"
             data-sidebar-toggle
             className={cn(
-              'mt-3 mb-1 ml-3 flex size-9 shrink-0 items-center justify-center self-start',
+              'absolute top-4 left-2 z-30 flex size-9 items-center justify-center',
               'rounded-control border border-border bg-surface-1 text-muted-foreground',
               'transition-colors duration-instant hover:bg-surface-2 hover:text-foreground',
               'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
