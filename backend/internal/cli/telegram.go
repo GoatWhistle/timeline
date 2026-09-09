@@ -31,7 +31,7 @@ func init() {
 
 func (c *container) runTelegram(ctx context.Context) {
 	if c.cfg.Telegram.PollingEnabled {
-		telegramlink.Run(ctx, c.telegram, c.profile)
+		telegramlink.RunReplying(ctx, c.telegram, c.profile, c.telegram)
 		return
 	}
 	if c.cfg.Telegram.WebhookURL != "" {
