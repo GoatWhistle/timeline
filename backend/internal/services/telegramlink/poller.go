@@ -12,6 +12,10 @@ type Source interface {
 }
 
 func Run(ctx context.Context, source Source, completer Completer) {
+	RunReplying(ctx, source, completer, nil)
+}
+
+func RunReplying(ctx context.Context, source Source, completer Completer, replier Replier) {
 	RunWithRetry(ctx, "Telegram polling initialization", func(ctx context.Context) error {
 		return source.DeleteWebhook(ctx)
 	}, false)
@@ -35,7 +39,7 @@ func Run(ctx context.Context, source Source, completer Completer) {
 			if update.ID < offset {
 				continue
 			}
-			if err := Handle(ctx, completer, update); err != nil {
+			if err := HandleWithReply(ctx, completer, replier, update); err != nil {
 				return err
 			}
 			offset = update.ID + 1

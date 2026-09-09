@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { PanelLeft } from 'lucide-react'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router'
@@ -104,6 +105,24 @@ export function AppShell() {
             onOpenNav={phone ? undefined : sidebar.toggle}
             navExpanded={!sidebar.collapsed}
           />
+        )}
+        {!phone && !sidebar.overlay && sidebar.collapsed && (
+          <button
+            type="button"
+            onClick={sidebar.toggle}
+            aria-label={t('app.expandSidebar')}
+            aria-expanded={false}
+            aria-controls="app-sidebar"
+            data-sidebar-toggle
+            className={cn(
+              'mt-3 mb-1 ml-3 flex size-9 shrink-0 items-center justify-center self-start',
+              'rounded-control border border-border bg-surface-1 text-muted-foreground',
+              'transition-colors duration-instant hover:bg-surface-2 hover:text-foreground',
+              'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
+            )}
+          >
+            <PanelLeft className="size-4" aria-hidden="true" />
+          </button>
         )}
         <VerificationBanner />
         <ConnectionBanner />

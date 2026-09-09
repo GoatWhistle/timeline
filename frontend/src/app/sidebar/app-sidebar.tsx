@@ -70,6 +70,7 @@ export function AppSidebar({
   return (
     <aside
       ref={paneRef}
+      id="app-sidebar"
       data-sidebar={sidebar.visibility}
       data-sidebar-overlay={sidebar.overlay ? 'true' : undefined}
       aria-hidden={sidebar.collapsed}

@@ -52,5 +52,8 @@
   "digest.kind.other": "запись",
   "digest.entry.one": "%d запись",
   "digest.entry.few": "%d записи",
-  "digest.entry.many": "%d записей"
+  "digest.entry.many": "%d записей",
+  "notification.telegram.linked": "Аккаунт привязан. Уведомления Timeline будут приходить сюда.",
+  "notification.telegram.stale": "Ссылка устарела. Откройте Timeline, зайдите в профиль и запустите привязку Telegram заново.",
+  "notification.telegram.hint": "Этот бот доставляет уведомления Timeline. Чтобы подключить его, откройте профиль в Timeline и перейдите по ссылке привязки."
 }

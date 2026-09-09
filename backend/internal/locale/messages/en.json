@@ -52,5 +52,8 @@
   "digest.kind.other": "entry",
   "digest.entry.one": "%d entry",
   "digest.entry.few": "%d entries",
-  "digest.entry.many": "%d entries"
+  "digest.entry.many": "%d entries",
+  "notification.telegram.linked": "Account linked. Notifications from Timeline will arrive here.",
+  "notification.telegram.stale": "That link has expired. Open Timeline, go to your profile and start the Telegram link again.",
+  "notification.telegram.hint": "This bot delivers Timeline notifications. To connect it, open your profile on Timeline and follow the Telegram link there."
 }
