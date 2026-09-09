@@ -77,7 +77,7 @@ type container struct {
 		audit                   *audit.Audit
 	}
 
-	telegram telegram.Sender
+	telegram telegram.Client
 	email    email.Sender
 	hasher   *crypto.PasswordHasher
 	limiter  *ratelimit.Limiter

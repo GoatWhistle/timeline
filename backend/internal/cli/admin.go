@@ -42,7 +42,64 @@ func newAdminCmd() *cobra.Command {
 	create.Flags().String("name", "", "display name (defaults to FIRST_ADMIN_NAME)")
 	create.Flags().String("nickname", "", "nickname (defaults to FIRST_ADMIN_NICKNAME)")
 	cmd.AddCommand(create)
+	cmd.AddCommand(newAdminFlagCmd("grant", "Give an existing account administrator rights", true))
+	cmd.AddCommand(newAdminFlagCmd("revoke", "Take administrator rights away from an account", false))
 	return cmd
+}
+
+func newAdminFlagCmd(use, short string, admin bool) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   use,
+		Short: short,
+		Long: short + ". The account must already exist. The change is written to the audit log " +
+			"with no actor, because it is made from the server rather than through the API.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			email, _ := cmd.Flags().GetString("email")
+			return setAdminFlag(cmd.Context(), email, admin)
+		},
+	}
+	cmd.Flags().String("email", "", "address of the account to change")
+	return cmd
+}
+
+func setAdminFlag(ctx context.Context, email string, admin bool) error {
+	c, err := newContainer(ctx)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+
+	email = validation.NormalizeEmail(email)
+	if email == "" {
+		return errors.New("set --email")
+	}
+
+	user, err := c.repos.users.GetByEmail(ctx, email)
+	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			return fmt.Errorf("no account with address %s", email)
+		}
+		return err
+	}
+	if user.IsAdmin == admin {
+		slog.Info("nothing to change", "email", user.Email, "id", user.DisplayID, "administrator", admin)
+		return nil
+	}
+	if err := c.repos.users.SetAdmin(ctx, user.ID, admin); err != nil {
+		return err
+	}
+	if err := c.repos.audit.Insert(ctx, &models.AuditLog{
+		Action:     models.AuditUserAdminFlagChange,
+		EntityType: models.EntityUser,
+		EntityID:   &user.ID,
+		BeforeJSON: map[string]bool{"is_admin": user.IsAdmin},
+		AfterJSON:  map[string]bool{"is_admin": admin},
+	}); err != nil {
+		return err
+	}
+	slog.Info("administrator flag changed",
+		"email", user.Email, "id", user.DisplayID, "administrator", admin)
+	return nil
 }
 
 func adminDefaults(cfg config.Auth, email, password, name, nickname string) (string, string, string, string) {

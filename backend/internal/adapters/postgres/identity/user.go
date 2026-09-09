@@ -160,6 +160,10 @@ func (r *Users) SetActive(ctx context.Context, id uuid.UUID, active bool) error 
 	return r.exec(ctx, `UPDATE users SET is_active = $2 WHERE id = $1`, id, active)
 }
 
+func (r *Users) SetAdmin(ctx context.Context, id uuid.UUID, admin bool) error {
+	return r.exec(ctx, `UPDATE users SET is_admin = $2 WHERE id = $1`, id, admin)
+}
+
 func (r *Users) SetTelegram(ctx context.Context, id uuid.UUID, chatID string, username *string) error {
 	return r.exec(ctx, `
 		UPDATE users SET telegram_chat_id = $2, telegram_username = COALESCE($3, telegram_username)

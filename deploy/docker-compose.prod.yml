@@ -5,8 +5,10 @@ x-backend-env: &backend-env
   HTTP_ADDR: ":8080"
   LOG_FORMAT: ${LOG_FORMAT:-json}
   LOG_COLOR: never
-  PUBLIC_URL: ${PUBLIC_URL}
-  CORS_ALLOWED_ORIGINS: ${PUBLIC_URL}
+  PUBLIC_URL: https://timeline.goatwhistle.ru
+  CORS_ALLOWED_ORIGINS: https://timeline.goatwhistle.ru
+  COOKIE_SECURE: "true"
+  COOKIE_DOMAIN: ""
   AVATAR_STORAGE_ROOT: /var/lib/timeline/avatars
   COVER_STORAGE_ROOT: /var/lib/timeline/covers
 

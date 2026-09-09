@@ -22,8 +22,8 @@ type WebhookRegistrar interface {
 	SetWebhook(ctx context.Context, webhookURL, secret string) error
 }
 
-func New(cfg config.Telegram) Sender {
-	return &botSender{cfg: cfg, client: &http.Client{Timeout: cfg.Timeout}}
+func New(cfg config.Telegram) Client {
+	return &botSender{cfg: cfg, client: newClient(cfg)}
 }
 
 type botSender struct {
@@ -43,6 +43,8 @@ type apiResponse struct {
 }
 
 func (s *botSender) Send(ctx context.Context, msg models.OutboundMessage) error {
+	ctx, cancel := context.WithTimeout(ctx, s.cfg.Timeout)
+	defer cancel()
 	if strings.TrimSpace(msg.Recipient) == "" {
 		return models.NewPermanentDeliveryError("chat identifier is not set", nil)
 	}
@@ -52,19 +54,19 @@ func (s *botSender) Send(ctx context.Context, msg models.OutboundMessage) error 
 	}
 	body, err := json.Marshal(sendMessageRequest{ChatID: msg.Recipient, Text: text})
 	if err != nil {
-		return models.NewPermanentDeliveryError("failed to build the request", err)
+		return models.NewPermanentDeliveryError("failed to build the request", s.redactError(err))
 	}
 
 	endpoint := fmt.Sprintf("%s/bot%s/sendMessage", strings.TrimRight(s.cfg.APIBase, "/"), s.cfg.BotToken)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
 	if err != nil {
-		return models.NewPermanentDeliveryError("failed to build the request", err)
+		return models.NewPermanentDeliveryError("failed to build the request", s.redactError(err))
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		return models.NewTemporaryDeliveryError("Telegram is unavailable", err)
+		return models.NewTemporaryDeliveryError("Telegram is unavailable", s.redactError(err))
 	}
 	defer resp.Body.Close()
 
@@ -79,33 +81,9 @@ func (s *botSender) Send(ctx context.Context, msg models.OutboundMessage) error 
 }
 
 func (s *botSender) SetWebhook(ctx context.Context, webhookURL, secret string) error {
-	body, err := json.Marshal(map[string]any{
-		"url":             webhookURL,
-		"secret_token":    secret,
-		"allowed_updates": []string{"message"},
-	})
-	if err != nil {
-		return err
-	}
-	endpoint := fmt.Sprintf("%s/bot%s/setWebhook", strings.TrimRight(s.cfg.APIBase, "/"), s.cfg.BotToken)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := s.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	var parsed apiResponse
-	if err := json.NewDecoder(resp.Body).Decode(&parsed); err != nil {
-		return err
-	}
-	if !parsed.OK {
-		return fmt.Errorf("Telegram rejected webhook: %s", parsed.Description)
-	}
-	return nil
+	return s.call(ctx, "setWebhook", map[string]any{
+		"url": webhookURL, "secret_token": secret, "allowed_updates": []string{"message"},
+	}, nil, s.cfg.Timeout)
 }
 
 func classify(statusCode int, resp apiResponse) error {

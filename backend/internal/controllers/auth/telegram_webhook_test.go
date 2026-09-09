@@ -25,7 +25,7 @@ func (s *telegramLinkCompleterStub) CompleteTelegramLink(_ context.Context, toke
 
 func TestStartToken(t *testing.T) {
 	text := "/start@goatwhistle_bot secret-token"
-	message := &telegramMessage{Text: &text, Chat: telegramChat{ID: 42}}
+	message := &telegramMessage{Text: &text, Chat: telegramChat{ID: 42, Type: "private"}}
 
 	token, ok := startToken(message)
 	if !ok || token != "secret-token" {
@@ -35,7 +35,7 @@ func TestStartToken(t *testing.T) {
 
 func TestStartTokenRejectsOtherMessages(t *testing.T) {
 	for _, text := range []string{"/start", "hello", "/start one two"} {
-		message := &telegramMessage{Text: &text, Chat: telegramChat{ID: 42}}
+		message := &telegramMessage{Text: &text, Chat: telegramChat{ID: 42, Type: "private"}}
 		if _, ok := startToken(message); ok {
 			t.Errorf("startToken accepted %q", text)
 		}
@@ -48,7 +48,7 @@ func TestTelegramWebhookLinksChat(t *testing.T) {
 	controller := NewTelegramWebhookController(stub, "secret")
 	body, _ := json.Marshal(map[string]any{"message": map[string]any{
 		"text": "/start token-123",
-		"chat": map[string]any{"id": 987, "username": username},
+		"chat": map[string]any{"id": 987, "type": "private", "username": username},
 	}})
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/telegram/webhook", strings.NewReader(string(body)))
 	req.Header.Set("X-Telegram-Bot-Api-Secret-Token", "secret")
@@ -82,7 +82,7 @@ func TestTelegramWebhookRejectsWrongSecret(t *testing.T) {
 func TestTelegramWebhookRetriesInternalErrors(t *testing.T) {
 	stub := &telegramLinkCompleterStub{err: errors.New("database unavailable")}
 	controller := NewTelegramWebhookController(stub, "secret")
-	body := `{"message":{"text":"/start token-123","chat":{"id":987}}}`
+	body := `{"message":{"text":"/start token-123","chat":{"id":987,"type":"private"}}}`
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/telegram/webhook", strings.NewReader(body))
 	req.Header.Set("X-Telegram-Bot-Api-Secret-Token", "secret")
 	rec := httptest.NewRecorder()

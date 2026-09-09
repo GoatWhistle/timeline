@@ -7,25 +7,13 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"strconv"
-	"strings"
 
-	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/services/telegramlink"
 )
 
-type telegramUpdate struct {
-	Message *telegramMessage `json:"message"`
-}
-
-type telegramMessage struct {
-	Text *string      `json:"text"`
-	Chat telegramChat `json:"chat"`
-}
-
-type telegramChat struct {
-	ID       int64   `json:"id"`
-	Username *string `json:"username"`
-}
+type telegramUpdate = telegramlink.Update
+type telegramMessage = telegramlink.Message
+type telegramChat = telegramlink.Chat
 
 type TelegramLinkCompleter interface {
 	CompleteTelegramLink(ctx context.Context, token, chatID string, username *string) error
@@ -65,18 +53,7 @@ func (c *TelegramWebhookController) Handle(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	token, ok := startToken(update.Message)
-	if !ok {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	chatID := strconv.FormatInt(update.Message.Chat.ID, 10)
-	if err := c.svc.CompleteTelegramLink(r.Context(), token, chatID, update.Message.Chat.Username); err != nil {
-		if errors.Is(err, models.ErrNotFound) || errors.Is(err, models.ErrConflict) {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
+	if err := telegramlink.Handle(r.Context(), c.svc, update); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -84,16 +61,5 @@ func (c *TelegramWebhookController) Handle(w http.ResponseWriter, r *http.Reques
 }
 
 func startToken(message *telegramMessage) (string, bool) {
-	if message == nil || message.Text == nil || message.Chat.ID == 0 {
-		return "", false
-	}
-	parts := strings.Fields(*message.Text)
-	if len(parts) != 2 {
-		return "", false
-	}
-	command := strings.SplitN(parts[0], "@", 2)[0]
-	if command != "/start" || parts[1] == "" {
-		return "", false
-	}
-	return parts[1], true
+	return telegramlink.StartToken(message)
 }
