@@ -107,8 +107,9 @@ func seedTracks(ctx context.Context, c *container, actor models.Actor,
 	for number, track := range tracks {
 		prizes := make([]dto.TrackPrizeInput, 0, len(track.prizes))
 		for place, amount := range track.prizes {
+			at := place + 1
 			prizes = append(prizes, dto.TrackPrizeInput{
-				Place: place + 1, Amount: strconv.FormatInt(amount, 10),
+				Place: &at, Amount: strconv.FormatInt(amount, 10),
 			})
 		}
 		trackNo := number + 1

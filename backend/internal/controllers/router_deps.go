@@ -6,6 +6,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/auth"
 	"github.com/GoatWhistle/timeline/internal/controllers/event"
+	"github.com/GoatWhistle/timeline/internal/controllers/finance"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/notification"
@@ -13,6 +14,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/personal"
 	"github.com/GoatWhistle/timeline/internal/controllers/realtime"
 	"github.com/GoatWhistle/timeline/internal/controllers/team"
+	"github.com/GoatWhistle/timeline/internal/services/telegramlink"
 )
 
 type Deps struct {
@@ -27,6 +29,8 @@ type Deps struct {
 	Catalog       event.CatalogService
 	Stages        event.StageService
 	Tracks        event.TrackService
+	Finance       finance.FinanceService
+	Cases         finance.CaseService
 	Participants  participation.ParticipantService
 	Registrations participation.RegistrationService
 	Statuses      participation.StatusService
@@ -46,6 +50,7 @@ type Deps struct {
 	Metrics               http.Handler
 	SwaggerUI             http.Handler
 	TelegramWebhookSecret string
+	TelegramBot           *telegramlink.Bot
 
 	Limiter            httpsession.Limiter
 	CatalogRate        int

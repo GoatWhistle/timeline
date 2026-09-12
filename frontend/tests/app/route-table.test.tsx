@@ -219,6 +219,13 @@ describe('the session-required list matches the routes that need a session', () 
   })
 })
 
+describe('an email-change link works without a session, on either address', () => {
+  it.each(['/email-change/confirm', '/email-change/cancel'])('mounts %s reachably', (path) => {
+    expect(withPath(path)).toHaveLength(1)
+    expect(staysAnonymous(path)).toBe(true)
+  })
+})
+
 describe('the not-found page is reachable without a session', () => {
   it('declares exactly one catch-all, so none is trapped behind a guard', () => {
     expect(withPath('*')).toHaveLength(1)

@@ -54,13 +54,6 @@ export function AccountIdentityCard({ user }: { user: MeResponse }) {
           <span className="min-w-0 break-all font-medium text-copy">{user.email}</span>
           <EmailVerificationMark verified={user.email_verified} />
         </div>
-
-        <dl className="grid gap-x-4 gap-y-1 sm:grid-cols-[auto_1fr]">
-          <dt className="text-meta text-muted-foreground">{t('account.role')}</dt>
-          <dd className="text-copy">
-            {user.is_admin ? t('account.roleAdmin') : t('account.roleMember')}
-          </dd>
-        </dl>
       </CardContent>
     </Card>
   )

@@ -112,6 +112,112 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/cases/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The case and its prize leave the reconciliation; the track it pointed at is\nuntouched.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Delete a case",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "cs_42ej2s5gh7e8",
+                        "description": "Case identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "the case is deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Omitted fields are left as they are. Detaching a case from its track needs\nclear_track, and dropping its prize needs clear_prize: a null is indistinguishable\nfrom an absent field otherwise.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Update a case",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Case identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Mutable fields",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateEventCaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventCaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/events": {
             "get": {
                 "security": [
@@ -474,6 +580,76 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "event is already archived",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/events/{id}/cases": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Only the name is required: a case without a track belongs to the event as a whole,\nand a case without a prize is a research task rather than a funded one. A prize is\na whole number in the event currency, the same units track prizes use.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Create a case",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Case payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateEventCaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventCaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -2809,6 +2985,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/email-change/cancel": {
+            "post": {
+                "description": "Reverts the account to the address the change was requested from. Works both before and\nafter the new address has been confirmed, for as long as the cancellation link is valid.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Cancel an email change",
+                "parameters": [
+                    {
+                        "description": "Cancellation token",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.TokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/email-change/confirm": {
             "post": {
                 "description": "Promotes pending_email to the primary address. Until confirmation, sign-in uses the previous address.",
@@ -2947,6 +3163,57 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/password/change": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Requires the current password. Revokes every other session; this device stays signed in.\nA notice is sent to every channel linked to the account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Change your own password",
+                "parameters": [
+                    {
+                        "description": "Current and new password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChangePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "401": {
@@ -3590,6 +3857,147 @@ const docTemplate = `{
                         "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/cases": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The partner tasks declared for the event, in ` + "`" + `case_no` + "`" + ` order. A case may belong to\na track or to the event as a whole, and may carry a prize or none at all.\nAccess follows the track listing.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Event cases",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "ev_3k7d8gb9be",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventCaseListResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/finance": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Every sum the event declares, reconciled in one place: the prize pool, the split\nacross tracks with their places and nominations, the partner cases and what the\nthree add up to.\n\n` + "`" + `distributed` + "`" + ` is ` + "`" + `distributed_tracks` + "`" + ` plus ` + "`" + `distributed_cases` + "`" + `, and ` + "`" + `discrepancy` + "`" + `\nis ` + "`" + `prize_pool` + "`" + ` minus that sum. A positive discrepancy is a reserve, a negative one\nis an overspend. Neither is an error and neither blocks saving the event: the\norganiser may announce a pool larger than the prizes, or a sponsor may add to it\nlater. When the event declares no pool, ` + "`" + `discrepancy_known` + "`" + ` is false and no\ndiscrepancy is reported rather than a zero being invented.\n\nAccess follows the track listing: an unpublished event answers only to an\nadministrator, a published one to any reader.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Event finance",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "ev_3k7d8gb9be",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventFinanceResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/finance/export": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The same figures the finance endpoint returns, flattened into rows instead of a\ntree: one row per track place or nomination, one row per case, and the totals of\nthe reconciliation last. The ` + "`" + `section` + "`" + ` column says which of the three a row is.\n\nAccess follows the finance endpoint itself.",
+                "produces": [
+                    "text/csv"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Export the finance reconciliation as CSV",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "ev_3k7d8gb9be",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "CSV payload",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "403": {
@@ -8816,6 +9224,19 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ChangePasswordRequest": {
+            "type": "object",
+            "properties": {
+                "current_password": {
+                    "type": "string",
+                    "example": "correct-horse-battery"
+                },
+                "new_password": {
+                    "type": "string",
+                    "example": "another-horse-battery-staple"
+                }
+            }
+        },
         "dto.ChooseTrackRequest": {
             "type": "object",
             "properties": {
@@ -8882,6 +9303,34 @@ const docTemplate = `{
                 "url": {
                     "type": "string",
                     "example": "https://github.com/example/project"
+                }
+            }
+        },
+        "dto.CreateEventCaseRequest": {
+            "type": "object",
+            "properties": {
+                "case_no": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Traffic light scheduling"
+                },
+                "partner": {
+                    "type": "string",
+                    "example": "City transport authority"
+                },
+                "prize_amount": {
+                    "type": "string",
+                    "example": "50000"
+                },
+                "track_id": {
+                    "type": "string",
+                    "example": "tr_42ej2s5gh7e8"
                 }
             }
         },
@@ -9335,6 +9784,120 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.EventCaseListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.EventCaseResponse"
+                    }
+                }
+            }
+        },
+        "dto.EventCaseResponse": {
+            "type": "object",
+            "properties": {
+                "case_no": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "cs_42ej2s5gh7e8"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Traffic light scheduling"
+                },
+                "partner": {
+                    "type": "string",
+                    "example": "City transport authority"
+                },
+                "prize_amount": {
+                    "type": "string",
+                    "example": "50000"
+                },
+                "track_id": {
+                    "type": "string",
+                    "example": "tr_42ej2s5gh7e8"
+                },
+                "track_name": {
+                    "type": "string",
+                    "example": "Smart city"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.EventFinanceResponse": {
+            "type": "object",
+            "properties": {
+                "cases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.FinanceCase"
+                    }
+                },
+                "discrepancy": {
+                    "type": "string",
+                    "example": "50000"
+                },
+                "discrepancy_known": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "distributed": {
+                    "type": "string",
+                    "example": "450000"
+                },
+                "distributed_cases": {
+                    "type": "string",
+                    "example": "50000"
+                },
+                "distributed_tracks": {
+                    "type": "string",
+                    "example": "400000"
+                },
+                "event_id": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "nominations": {
+                    "type": "string",
+                    "example": "50000"
+                },
+                "prize_currency": {
+                    "type": "string",
+                    "example": "RUB"
+                },
+                "prize_pool": {
+                    "type": "string",
+                    "example": "500000"
+                },
+                "tracks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.FinanceTrack"
+                    }
+                },
+                "unallocated": {
+                    "type": "string",
+                    "example": "50000"
+                }
+            }
+        },
         "dto.EventPage": {
             "type": "object",
             "properties": {
@@ -9512,6 +10075,10 @@ const docTemplate = `{
                         "$ref": "#/definitions/dto.EventTrackResponse"
                     }
                 },
+                "nominations": {
+                    "type": "string",
+                    "example": "50000"
+                },
                 "prize_currency": {
                     "type": "string",
                     "example": "RUB"
@@ -9584,6 +10151,83 @@ const docTemplate = `{
                 "track_no": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "dto.FinanceCase": {
+            "type": "object",
+            "properties": {
+                "case_no": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "id": {
+                    "type": "string",
+                    "example": "cs_42ej2s5gh7e8"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Traffic light scheduling"
+                },
+                "partner": {
+                    "type": "string",
+                    "example": "City transport authority"
+                },
+                "prize_amount": {
+                    "type": "string",
+                    "example": "50000"
+                },
+                "track_id": {
+                    "type": "string",
+                    "example": "tr_42ej2s5gh7e8"
+                },
+                "track_name": {
+                    "type": "string",
+                    "example": "Smart city"
+                }
+            }
+        },
+        "dto.FinanceTrack": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "tr_42ej2s5gh7e8"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Smart city"
+                },
+                "prize_total": {
+                    "type": "string",
+                    "example": "300000"
+                },
+                "prizes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.FinanceTrackPrize"
+                    }
+                },
+                "track_no": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "dto.FinanceTrackPrize": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string",
+                    "example": "150000"
+                },
+                "place": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Best design"
                 }
             }
         },
@@ -11432,6 +12076,10 @@ const docTemplate = `{
                 "place": {
                     "type": "integer",
                     "example": 1
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Best design"
                 }
             }
         },
@@ -11449,6 +12097,10 @@ const docTemplate = `{
                 "place": {
                     "type": "integer",
                     "example": 1
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Best design"
                 }
             }
         },
@@ -11498,6 +12150,37 @@ const docTemplate = `{
                 "url": {
                     "type": "string",
                     "example": "https://github.com/example/project"
+                }
+            }
+        },
+        "dto.UpdateEventCaseRequest": {
+            "type": "object",
+            "properties": {
+                "case_no": {
+                    "type": "integer"
+                },
+                "clear_prize": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "clear_track": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "partner": {
+                    "type": "string"
+                },
+                "prize_amount": {
+                    "type": "string"
+                },
+                "track_id": {
+                    "type": "string"
                 }
             }
         },
@@ -12034,6 +12717,9 @@ const docTemplate = `{
                 "TRACK_UPDATE",
                 "TRACK_DELETE",
                 "TRACK_PRIZE_SET",
+                "EVENT_CASE_CREATE",
+                "EVENT_CASE_UPDATE",
+                "EVENT_CASE_DELETE",
                 "TEAM_TRACK_CHOOSE",
                 "PARTICIPANT_ADD",
                 "PARTICIPANT_REMOVE",
@@ -12083,6 +12769,9 @@ const docTemplate = `{
                 "AuditTrackUpdate",
                 "AuditTrackDelete",
                 "AuditTrackPrizeSet",
+                "AuditCaseCreate",
+                "AuditCaseUpdate",
+                "AuditCaseDelete",
                 "AuditTeamTrackChoose",
                 "AuditParticipantAdd",
                 "AuditParticipantRemove",
@@ -12184,6 +12873,7 @@ const docTemplate = `{
                 "EVENT",
                 "STAGE",
                 "EVENT_TRACK",
+                "EVENT_CASE",
                 "EVENT_PARTICIPANT",
                 "TEAM",
                 "TEAM_MEMBER",
@@ -12201,6 +12891,7 @@ const docTemplate = `{
                 "EntityEvent",
                 "EntityStage",
                 "EntityEventTrack",
+                "EntityEventCase",
                 "EntityParticipant",
                 "EntityTeam",
                 "EntityTeamMember",

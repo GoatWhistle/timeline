@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
+	pgfinance "github.com/GoatWhistle/timeline/internal/adapters/postgres/finance"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
@@ -23,6 +24,7 @@ func (c *container) wireRepositories() {
 	c.repos.events = event.NewEvents(db)
 	c.repos.stages = event.NewStages(db)
 	c.repos.tracks = event.NewTracks(db)
+	c.repos.cases = pgfinance.NewCases(db)
 	c.repos.participants = participation.NewParticipants(db)
 	c.repos.registrations = participation.NewRegistrations(db)
 	c.repos.statuses = participation.NewStatuses(db)

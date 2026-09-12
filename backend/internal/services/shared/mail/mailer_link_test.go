@@ -16,14 +16,14 @@ func TestMailerLinksMatchTheRoutesTheAppServes(t *testing.T) {
 		{
 			name: "verification",
 			send: func(m *Mailer) {
-				m.SendVerification(context.Background(), "user@example.test", "John", "en", "tok", time.Hour)
+				m.SendVerification(context.Background(), "user@example.test", "John", "en", "tok", time.Hour, TelegramRecipient{})
 			},
 			want: "https://timeline.test/verify-email?token=tok",
 		},
 		{
 			name: "password reset",
 			send: func(m *Mailer) {
-				m.SendPasswordReset(context.Background(), "user@example.test", "John", "en", "tok", time.Hour)
+				m.SendPasswordReset(context.Background(), "user@example.test", "John", "en", "tok", time.Hour, TelegramRecipient{})
 			},
 			want: "https://timeline.test/reset-password?token=tok",
 		},
@@ -46,7 +46,7 @@ func TestMailerLinksMatchTheRoutesTheAppServes(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			sender := &recordingMailSender{}
-			mailer := NewMailer(sender, "https://timeline.test")
+			mailer := NewMailer(sender, nil, "https://timeline.test")
 			tc.send(mailer)
 			body := sender.last(t).Body
 			if !strings.Contains(body, tc.want) {
@@ -58,14 +58,14 @@ func TestMailerLinksMatchTheRoutesTheAppServes(t *testing.T) {
 
 func TestMailerTokenLinksCarryTheTokenAsAQueryParameter(t *testing.T) {
 	sender := &recordingMailSender{}
-	mailer := NewMailer(sender, "https://timeline.test")
+	mailer := NewMailer(sender, nil, "https://timeline.test")
 
-	mailer.SendVerification(context.Background(), "user@example.test", "John", "en", "tok", time.Hour)
+	mailer.SendVerification(context.Background(), "user@example.test", "John", "en", "tok", time.Hour, TelegramRecipient{})
 	if strings.Contains(sender.last(t).Body, "/verify-email/tok") {
 		t.Error("the verification link still uses a path segment the router has no route for")
 	}
 
-	mailer.SendPasswordReset(context.Background(), "user@example.test", "John", "en", "tok", time.Hour)
+	mailer.SendPasswordReset(context.Background(), "user@example.test", "John", "en", "tok", time.Hour, TelegramRecipient{})
 	if strings.Contains(sender.last(t).Body, "/reset-password/tok") {
 		t.Error("the reset link still uses a path segment the router has no route for")
 	}

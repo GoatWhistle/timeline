@@ -7,9 +7,11 @@ import { EventStateBadge } from '@/entities/event/event-state-badge'
 import { EventCover } from '@/features/event-cover'
 import { LinkList } from '@/features/event-links/ui/link-list/link-list'
 import { PinnedLinks } from '@/features/event-links/ui/pinned-links/pinned-links'
+import { EventFinanceSection } from '@/features/finance/event-finance'
 import { PersonalSection } from '@/features/personal-layer'
 import type { EventCard } from '@/shared/api/types.gen'
 import { formatDate } from '@/shared/datetime/datetime'
+import { MarkdownView } from '@/shared/markdown/markdown-view'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { PageHeader } from '@/shared/ui/layout/page-header'
 import { PAGE_WIDTH } from '@/shared/ui/layout/page-width'
@@ -119,9 +121,7 @@ function EventCardBody({
 
               <PinnedLinks eventId={event.id} />
 
-              {event.description && (
-                <p className="max-w-prose text-copy [text-wrap:pretty]">{event.description}</p>
-              )}
+              {event.description && <MarkdownView source={event.description} />}
             </CardContent>
           </Card>
 
@@ -129,8 +129,14 @@ function EventCardBody({
 
           <EventTracksSection eventId={event.id} />
 
+          <EventFinanceSection eventId={event.id} />
+
           <div className="grid items-start gap-6 lg:grid-cols-2">
-            <StagesSection stages={card.stages} />
+            <StagesSection
+              stages={card.stages}
+              registration={card.registration}
+              registrationStatus={card.registration_status}
+            />
 
             <Card>
               <CardHeader>

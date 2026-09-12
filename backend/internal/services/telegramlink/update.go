@@ -3,7 +3,6 @@ package telegramlink
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"strconv"
 	"strings"
 
@@ -12,14 +11,22 @@ import (
 )
 
 type Update struct {
-	ID      int64    `json:"update_id"`
-	Message *Message `json:"message"`
+	ID            int64          `json:"update_id"`
+	Message       *Message       `json:"message"`
+	CallbackQuery *CallbackQuery `json:"callback_query"`
 }
 
 type Message struct {
 	Text *string `json:"text"`
 	Chat Chat    `json:"chat"`
 	From *Sender `json:"from"`
+}
+
+type CallbackQuery struct {
+	ID      string   `json:"id"`
+	Data    string   `json:"data"`
+	From    Sender   `json:"from"`
+	Message *Message `json:"message"`
 }
 
 type Sender struct {
@@ -44,6 +51,7 @@ const (
 	keyLinked = "notification.telegram.linked"
 	keyStale  = "notification.telegram.stale"
 	keyHint   = "notification.telegram.hint"
+	keyHelp   = "notification.telegram.help"
 )
 
 func StartToken(message *Message) (string, bool) {
@@ -80,19 +88,40 @@ func HandleWithReply(ctx context.Context, completer Completer, replier Replier, 
 	return nil
 }
 
+func (b *Bot) Handle(ctx context.Context, update Update) error {
+	switch {
+	case update.CallbackQuery != nil:
+		return b.handleCallback(ctx, update.CallbackQuery)
+	case update.Message != nil:
+		return b.handleMessage(ctx, update.Message)
+	default:
+		return nil
+	}
+}
+
+func (b *Bot) handleMessage(ctx context.Context, message *Message) error {
+	command, ok := parseCommand(message)
+	if !ok {
+		return HandleWithReply(ctx, b.completer, b.replier, Update{Message: message})
+	}
+	switch command {
+	case cmdStart:
+		return HandleWithReply(ctx, b.completer, b.replier, Update{Message: message})
+	case cmdStatus:
+		return b.handleStatus(ctx, message)
+	case cmdMute:
+		return b.handleMute(ctx, message, true)
+	case cmdUnmute:
+		return b.handleMute(ctx, message, false)
+	case cmdHelp:
+		reply(ctx, b.replier, message, keyHelp)
+		return nil
+	default:
+		reply(ctx, b.replier, message, keyHint)
+		return nil
+	}
+}
+
 func reply(ctx context.Context, replier Replier, message *Message, key string) {
-	if replier == nil || message == nil || message.Chat.ID <= 0 || message.Chat.Type != "private" {
-		return
-	}
-	lang := ""
-	if message.From != nil {
-		lang, _, _ = strings.Cut(message.From.LanguageCode, "-")
-	}
-	err := replier.Send(ctx, models.OutboundMessage{
-		Recipient: strconv.FormatInt(message.Chat.ID, 10),
-		Body:      locale.Message(lang, key),
-	})
-	if err != nil {
-		slog.WarnContext(ctx, "could not answer in Telegram", "error", err)
-	}
+	send(ctx, replier, message, locale.Message(messageLang(message), key))
 }

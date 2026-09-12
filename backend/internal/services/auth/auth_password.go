@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/GoatWhistle/timeline/internal/models"
+	"github.com/GoatWhistle/timeline/internal/models/dto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
@@ -46,7 +47,37 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 		return err
 	}
 	s.mailer.SendPasswordReset(ctx, user.Email, user.DisplayName(user.Locale), user.Locale,
-		secret, s.cfg.Auth.PasswordResetTTL)
+		secret, s.cfg.Auth.PasswordResetTTL, telegramRecipient(user))
+	return nil
+}
+
+func (s *AuthService) ChangePassword(ctx context.Context, actor models.Actor,
+	req dto.ChangePasswordRequest) error {
+	if err := validation.ValidatePassword(req.NewPassword, s.cfg.Auth.MinPasswordLength); err != nil {
+		return err
+	}
+	user, err := s.users.GetByID(ctx, actor.UserID)
+	if err != nil {
+		return err
+	}
+	if !s.hasher.Verify(req.CurrentPassword, user.PasswordHash) {
+		return models.NewUnauthorized("invalid password")
+	}
+	hash, err := s.hasher.Hash(req.NewPassword)
+	if err != nil {
+		return err
+	}
+	err = s.db.WithTx(ctx, func(ctx context.Context) error {
+		if err := s.users.SetPassword(ctx, user.ID, hash); err != nil {
+			return err
+		}
+		return s.sessions.RevokeOthersForUser(ctx, user.ID, actor.SessionID)
+	})
+	if err != nil {
+		return err
+	}
+	s.mailer.SendPasswordChanged(ctx, user.Email, user.DisplayName(user.Locale), user.Locale,
+		telegramRecipient(user))
 	return nil
 }
 

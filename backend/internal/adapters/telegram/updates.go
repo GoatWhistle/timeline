@@ -16,9 +16,12 @@ import (
 type Client interface {
 	Sender
 	WebhookRegistrar
+	CallbackAnswerer
 	telegramlink.Source
 	Check(context.Context) error
 }
+
+var allowedUpdateTypes = []string{"message", "callback_query"}
 
 func (s *botSender) Check(ctx context.Context) error {
 	return s.call(ctx, "getMe", struct{}{}, nil, s.cfg.Timeout)
@@ -31,7 +34,7 @@ func (s *botSender) DeleteWebhook(ctx context.Context) error {
 func (s *botSender) Updates(ctx context.Context, offset int64) ([]telegramlink.Update, error) {
 	var updates []telegramlink.Update
 	err := s.call(ctx, "getUpdates", map[string]any{
-		"offset": offset, "timeout": 25, "allowed_updates": []string{"message"},
+		"offset": offset, "timeout": 25, "allowed_updates": allowedUpdateTypes,
 	}, &updates, 25*time.Second+s.cfg.Timeout)
 	return updates, err
 }

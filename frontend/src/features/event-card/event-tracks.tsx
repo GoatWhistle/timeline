@@ -1,25 +1,28 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { eventTracksQuery } from '@/entities/event/event.queries'
-import { PrizePlaceMark } from '@/entities/prize/prize-place-mark'
+import { PrizeMark } from '@/entities/prize/prize-mark'
 import type { EventTrackListResponse, EventTrackResponse } from '@/shared/api/types.gen'
+import { MarkdownView } from '@/shared/markdown/markdown-view'
 import { formatMoney } from '@/shared/money/money'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Badge } from '@/shared/ui/primitives/badge'
 
 function PrizeRow({
   place,
+  title,
   amount,
   currency,
 }: {
-  place: number
+  place?: number | undefined
+  title?: string | undefined
   amount: string
   currency: string | undefined
 }) {
   const money = formatMoney(amount, currency)
   return (
     <li className="flex items-center justify-between gap-4 py-1">
-      <PrizePlaceMark place={place} />
+      <PrizeMark place={place} title={title} />
       <span className="font-medium text-copy text-prize tabular-nums">{money ?? amount}</span>
     </li>
   )
@@ -53,7 +56,7 @@ function TrackPanel({
       </div>
 
       {track.description && (
-        <p className="max-w-prose text-copy text-muted-foreground">{track.description}</p>
+        <MarkdownView source={track.description} className="text-muted-foreground" />
       )}
 
       {track.prizes.length > 0 && (
@@ -62,6 +65,7 @@ function TrackPanel({
             <PrizeRow
               key={prize.id}
               place={prize.place}
+              title={prize.title}
               amount={prize.amount}
               currency={currency}
             />

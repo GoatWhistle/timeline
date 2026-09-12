@@ -29,5 +29,8 @@ export function formatMoney(
   const code = currency.toUpperCase()
   const symbol = CURRENCY_SYMBOL[code]
   if (symbol === undefined) return `${amount} ${code}`
-  return SYMBOL_LEADS.has(code) ? `${symbol}${amount}` : `${amount} ${symbol}`
+  if (!SYMBOL_LEADS.has(code)) return `${amount} ${symbol}`
+  const negative = amount.startsWith('-')
+  const magnitude = negative ? amount.slice(1) : amount
+  return `${negative ? '-' : ''}${symbol}${magnitude}`
 }

@@ -57,20 +57,21 @@ type DB struct {
 }
 
 type Auth struct {
-	JWTSecret          string
-	AccessTTL          time.Duration
-	RefreshTTL         time.Duration
-	EmailVerifyTTL     time.Duration
-	PasswordResetTTL   time.Duration
-	InviteTTL          time.Duration
-	TeamJoinLinkTTL    time.Duration
-	TelegramLinkTTL    time.Duration
-	NicknameHoldTTL    time.Duration
-	MinPasswordLength  int
-	FirstAdminEmail    string
-	FirstAdminPassword string
-	FirstAdminName     string
-	FirstAdminNickname string
+	JWTSecret            string
+	AccessTTL            time.Duration
+	RefreshTTL           time.Duration
+	EmailVerifyTTL       time.Duration
+	EmailChangeCancelTTL time.Duration
+	PasswordResetTTL     time.Duration
+	InviteTTL            time.Duration
+	TeamJoinLinkTTL      time.Duration
+	TelegramLinkTTL      time.Duration
+	NicknameHoldTTL      time.Duration
+	MinPasswordLength    int
+	FirstAdminEmail      string
+	FirstAdminPassword   string
+	FirstAdminName       string
+	FirstAdminNickname   string
 }
 
 type Argon struct {
@@ -156,20 +157,21 @@ func Load() (*Config, error) {
 			AppRole:         env("DATABASE_APP_ROLE", ""),
 		},
 		Auth: Auth{
-			JWTSecret:          env("JWT_SECRET", ""),
-			AccessTTL:          envDuration("ACCESS_TOKEN_TTL", 15*time.Minute),
-			RefreshTTL:         envDuration("REFRESH_TOKEN_TTL", 30*24*time.Hour),
-			EmailVerifyTTL:     envDuration("EMAIL_VERIFICATION_TTL", 24*time.Hour),
-			PasswordResetTTL:   envDuration("PASSWORD_RESET_TTL", 30*time.Minute),
-			InviteTTL:          envDuration("INVITE_TTL", 72*time.Hour),
-			TeamJoinLinkTTL:    envDuration("TEAM_JOIN_LINK_TTL", 14*24*time.Hour),
-			TelegramLinkTTL:    envDuration("TELEGRAM_LINK_TTL", time.Hour),
-			NicknameHoldTTL:    envDuration("NICKNAME_HOLD_TTL", 30*24*time.Hour),
-			MinPasswordLength:  envInt("PASSWORD_MIN_LENGTH", 10),
-			FirstAdminEmail:    env("FIRST_ADMIN_EMAIL", ""),
-			FirstAdminPassword: env("FIRST_ADMIN_PASSWORD", ""),
-			FirstAdminName:     env("FIRST_ADMIN_NAME", "Administrator"),
-			FirstAdminNickname: env("FIRST_ADMIN_NICKNAME", "administrator"),
+			JWTSecret:            env("JWT_SECRET", ""),
+			AccessTTL:            envDuration("ACCESS_TOKEN_TTL", 15*time.Minute),
+			RefreshTTL:           envDuration("REFRESH_TOKEN_TTL", 30*24*time.Hour),
+			EmailVerifyTTL:       envDuration("EMAIL_VERIFICATION_TTL", 24*time.Hour),
+			EmailChangeCancelTTL: envDuration("EMAIL_CHANGE_CANCEL_TTL", 7*24*time.Hour),
+			PasswordResetTTL:     envDuration("PASSWORD_RESET_TTL", 30*time.Minute),
+			InviteTTL:            envDuration("INVITE_TTL", 72*time.Hour),
+			TeamJoinLinkTTL:      envDuration("TEAM_JOIN_LINK_TTL", 14*24*time.Hour),
+			TelegramLinkTTL:      envDuration("TELEGRAM_LINK_TTL", time.Hour),
+			NicknameHoldTTL:      envDuration("NICKNAME_HOLD_TTL", 30*24*time.Hour),
+			MinPasswordLength:    envInt("PASSWORD_MIN_LENGTH", 10),
+			FirstAdminEmail:      env("FIRST_ADMIN_EMAIL", ""),
+			FirstAdminPassword:   env("FIRST_ADMIN_PASSWORD", ""),
+			FirstAdminName:       env("FIRST_ADMIN_NAME", "Administrator"),
+			FirstAdminNickname:   env("FIRST_ADMIN_NICKNAME", "administrator"),
 		},
 		Argon: Argon{
 			Memory:      uint32(envInt("ARGON2_MEMORY_KIB", 65536)),

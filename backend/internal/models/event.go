@@ -93,11 +93,14 @@ type TrackPrize struct {
 	DisplayID string    `json:"display_id"`
 	TrackID   uuid.UUID `json:"track_id"`
 	EventID   uuid.UUID `json:"event_id"`
-	Place     int       `json:"place"`
+	Place     *int      `json:"place,omitempty"`
+	Title     *string   `json:"title,omitempty"`
 	Amount    string    `json:"amount"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+func (p *TrackPrize) Nomination() bool { return p.Place == nil }
 
 type Stage struct {
 	ID          uuid.UUID    `json:"id"`

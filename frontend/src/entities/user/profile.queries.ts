@@ -41,6 +41,12 @@ export function useUnlinkTelegram() {
   })
 }
 
+export function useChangePassword() {
+  return useMutation<unknown, Error, { current_password: string; new_password: string }>({
+    mutationFn: (body) => unwrap(api.POST('/auth/password/change', { body })),
+  })
+}
+
 export function useLogoutAllSessions() {
   return useMutation<unknown, Error, void>({
     mutationFn: () => unwrap(api.POST('/auth/logout-all')),

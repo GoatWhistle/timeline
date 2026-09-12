@@ -9,6 +9,7 @@ const split: EventTrackListResponse = {
   prize_pool: '10000',
   prize_currency: 'USD',
   distributed: '9500',
+  nominations: '0',
   unallocated: '500',
   items: [
     {

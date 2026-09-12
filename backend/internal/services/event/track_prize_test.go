@@ -28,10 +28,14 @@ func TestParseWholeAmountAcceptsWholeNumbers(t *testing.T) {
 	}
 }
 
+func at(place int) *int { return &place }
+
+func named(title string) *string { return &title }
+
 func TestValidatePrizeInputsRejectsDuplicatePlace(t *testing.T) {
 	_, _, err := validatePrizeInputs([]dto.TrackPrizeInput{
-		{Place: 1, Amount: "100"},
-		{Place: 1, Amount: "50"},
+		{Place: at(1), Amount: "100"},
+		{Place: at(1), Amount: "50"},
 	})
 	if err == nil {
 		t.Fatal("two prizes for place 1 were accepted")
@@ -44,7 +48,7 @@ func TestValidatePrizeInputsRejectsDuplicatePlace(t *testing.T) {
 func TestValidatePrizeInputsRejectsPlaceOutOfRange(t *testing.T) {
 	for _, place := range []int{0, -1, trackPlaceLimit + 1} {
 		if _, _, err := validatePrizeInputs([]dto.TrackPrizeInput{
-			{Place: place, Amount: "100"},
+			{Place: at(place), Amount: "100"},
 		}); err == nil {
 			t.Fatalf("place %d was accepted", place)
 		}
@@ -53,9 +57,9 @@ func TestValidatePrizeInputsRejectsPlaceOutOfRange(t *testing.T) {
 
 func TestValidatePrizeInputsSumsUnequalPlaceCounts(t *testing.T) {
 	prizes, total, err := validatePrizeInputs([]dto.TrackPrizeInput{
-		{Place: 1, Amount: "3000"},
-		{Place: 2, Amount: "1500"},
-		{Place: 3, Amount: "800"},
+		{Place: at(1), Amount: "3000"},
+		{Place: at(2), Amount: "1500"},
+		{Place: at(3), Amount: "800"},
 	})
 	if err != nil {
 		t.Fatalf("a three-place track was refused: %v", err)
@@ -121,5 +125,86 @@ func TestValidateTrackNoRange(t *testing.T) {
 	}
 	if err := validateTrackNo(nil); err != nil {
 		t.Fatalf("an absent track_no was refused: %v", err)
+	}
+}
+
+func TestValidatePrizeInputsRefusesAPrizeThatIsNeitherPlaceNorNomination(t *testing.T) {
+	if _, _, err := validatePrizeInputs([]dto.TrackPrizeInput{
+		{Amount: "100"},
+	}); err == nil {
+		t.Fatal("a prize with neither a place nor a title was accepted")
+	}
+}
+
+func TestValidatePrizeInputsRefusesAPrizeThatIsBothPlaceAndNomination(t *testing.T) {
+	if _, _, err := validatePrizeInputs([]dto.TrackPrizeInput{
+		{Place: at(1), Title: named("Best design"), Amount: "100"},
+	}); err == nil {
+		t.Fatal("a prize carrying both a place and a title was accepted")
+	}
+}
+
+func TestValidatePrizeInputsAcceptsANominationBesideAPlace(t *testing.T) {
+	prizes, total, err := validatePrizeInputs([]dto.TrackPrizeInput{
+		{Place: at(1), Amount: "3000"},
+		{Title: named("Best design"), Amount: "500"},
+	})
+	if err != nil {
+		t.Fatalf("a nomination beside a place was refused: %v", err)
+	}
+	if total != 3500 {
+		t.Fatalf("total = %d, want 3500", total)
+	}
+	if !prizes[1].Nomination() {
+		t.Fatal("the second prize must read as a nomination")
+	}
+	if prizes[0].Nomination() {
+		t.Fatal("the first prize must read as a place, not a nomination")
+	}
+}
+
+func TestValidatePrizeInputsRejectsDuplicateNominationRegardlessOfCase(t *testing.T) {
+	_, _, err := validatePrizeInputs([]dto.TrackPrizeInput{
+		{Title: named("Best design"), Amount: "500"},
+		{Title: named("  best DESIGN "), Amount: "300"},
+	})
+	if err == nil {
+		t.Fatal("the same nomination was accepted twice")
+	}
+	if !strings.Contains(err.Error(), "duplicate") {
+		t.Fatalf("unexpected error for a duplicate nomination: %v", err)
+	}
+}
+
+func TestValidatePrizeInputsTrimsAndBoundsTheNominationTitle(t *testing.T) {
+	prizes, _, err := validatePrizeInputs([]dto.TrackPrizeInput{
+		{Title: named("  Best design  "), Amount: "500"},
+	})
+	if err != nil {
+		t.Fatalf("a padded nomination title was refused: %v", err)
+	}
+	if *prizes[0].Title != "Best design" {
+		t.Fatalf("title = %q, want %q", *prizes[0].Title, "Best design")
+	}
+
+	for _, title := range []string{"", "   ", strings.Repeat("x", nominationTitleLimit+1)} {
+		if _, _, err := validatePrizeInputs([]dto.TrackPrizeInput{
+			{Title: named(title), Amount: "100"},
+		}); err == nil {
+			t.Fatalf("a title of length %d was accepted", len(title))
+		}
+	}
+}
+
+func TestANominationCountsTowardTheDistributedSum(t *testing.T) {
+	_, total, err := validatePrizeInputs([]dto.TrackPrizeInput{
+		{Title: named("Best design"), Amount: "500"},
+	})
+	if err != nil {
+		t.Fatalf("a lone nomination was refused: %v", err)
+	}
+	pool := "400"
+	if err := checkPoolCoverage(&pool, "0", total); err == nil {
+		t.Fatal("a nomination of 500 was allowed against a pool of 400")
 	}
 }

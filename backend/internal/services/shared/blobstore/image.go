@@ -3,6 +3,7 @@ package blobstore
 import (
 	"bytes"
 	"image"
+	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 )
@@ -54,6 +55,8 @@ func matchesFormat(contentType, format string) bool {
 		return format == "png"
 	case TypeJPEG:
 		return format == "jpeg"
+	case TypeGIF:
+		return format == "gif"
 	}
 	return false
 }

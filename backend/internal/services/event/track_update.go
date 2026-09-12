@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 
@@ -87,7 +88,7 @@ func TrackResponse(target *models.Event, track *models.EventTrack) dto.EventTrac
 	prizes := make([]dto.TrackPrizeResponse, 0, len(track.Prizes))
 	for _, p := range track.Prizes {
 		prizes = append(prizes, dto.TrackPrizeResponse{
-			ID: p.DisplayID, Place: p.Place, Amount: p.Amount,
+			ID: p.DisplayID, Place: p.Place, Title: p.Title, Amount: p.Amount,
 		})
 	}
 	return dto.EventTrackResponse{
@@ -104,7 +105,11 @@ func TrackResponse(target *models.Event, track *models.EventTrack) dto.EventTrac
 }
 
 func mustWhole(value string) int64 {
-	amount, err := parseWholeAmount("amount", value)
+	trimmed := strings.TrimSpace(value)
+	if dot := strings.IndexByte(trimmed, '.'); dot >= 0 {
+		trimmed = trimmed[:dot]
+	}
+	amount, err := strconv.ParseInt(trimmed, 10, 64)
 	if err != nil {
 		return 0
 	}

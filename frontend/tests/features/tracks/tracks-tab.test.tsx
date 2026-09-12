@@ -50,6 +50,7 @@ const POOL: EventTrackListResponse = {
   prize_pool: '500000',
   prize_currency: 'RUB',
   distributed: '300000',
+  nominations: '0',
   unallocated: '200000',
 }
 

@@ -15,11 +15,11 @@ type Tokens struct{ db *postgres.DB }
 
 func NewTokens(db *postgres.DB) *Tokens { return &Tokens{db: db} }
 
-const tokenColumns = `id, user_id, purpose, token_hash, target_email, expires_at, consumed_at, created_at`
+const tokenColumns = `id, user_id, purpose, token_hash, target_email, origin_email, expires_at, consumed_at, created_at`
 
 func scanToken(row pgx.Row) (*models.OneTimeToken, error) {
 	var t models.OneTimeToken
-	err := row.Scan(&t.ID, &t.UserID, &t.Purpose, &t.TokenHash, &t.TargetEmail,
+	err := row.Scan(&t.ID, &t.UserID, &t.Purpose, &t.TokenHash, &t.TargetEmail, &t.OriginEmail,
 		&t.ExpiresAt, &t.ConsumedAt, &t.CreatedAt)
 	if err != nil {
 		return nil, mapError(err)
@@ -29,10 +29,10 @@ func scanToken(row pgx.Row) (*models.OneTimeToken, error) {
 
 func (r *Tokens) Create(ctx context.Context, t *models.OneTimeToken) (*models.OneTimeToken, error) {
 	return scanToken(r.db.Q(ctx).QueryRow(ctx, `
-		INSERT INTO one_time_tokens (user_id, purpose, token_hash, target_email, expires_at)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO one_time_tokens (user_id, purpose, token_hash, target_email, origin_email, expires_at)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING `+tokenColumns,
-		t.UserID, t.Purpose, t.TokenHash, t.TargetEmail, t.ExpiresAt))
+		t.UserID, t.Purpose, t.TokenHash, t.TargetEmail, t.OriginEmail, t.ExpiresAt))
 }
 
 func (r *Tokens) Consume(ctx context.Context, hash string, purpose models.TokenPurpose, now time.Time) (*models.OneTimeToken, error) {

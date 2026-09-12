@@ -66,7 +66,7 @@ func (a Avatar) validate() error {
 func loadAvatar() Avatar {
 	return Avatar{
 		Root:         env("AVATAR_STORAGE_ROOT", "/var/lib/timeline/avatars"),
-		MaxBytes:     int64(envInt("AVATAR_MAX_BYTES", 2*1024*1024)),
+		MaxBytes:     int64(envInt("AVATAR_MAX_BYTES", 5*1024*1024)),
 		MaxDimension: envInt("AVATAR_MAX_DIMENSION", 4096),
 	}
 }

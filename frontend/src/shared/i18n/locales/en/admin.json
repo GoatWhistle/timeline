@@ -37,6 +37,7 @@
       "TEAM_JOIN_LINK": "Team join link",
       "RESOURCE_LINK": "Resource link",
       "EVENT_TRACK": "Event track",
+      "EVENT_CASE": "Event case",
       "TEAM_EVENT_LINK": "Team link"
     },
     "actionLabel": {
@@ -83,6 +84,9 @@
       "TRACK_UPDATE": "Track changed",
       "TRACK_DELETE": "Track deleted",
       "TRACK_PRIZE_SET": "Track prizes set",
+      "EVENT_CASE_CREATE": "Case created",
+      "EVENT_CASE_UPDATE": "Case updated",
+      "EVENT_CASE_DELETE": "Case deleted",
       "TEAM_TRACK_CHOOSE": "Team track chosen",
       "TEAM_EVENT_LINK_ADD": "Team link added",
       "TEAM_EVENT_LINK_UPDATE": "Team link changed",

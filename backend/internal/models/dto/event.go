@@ -143,9 +143,10 @@ type EventTrackSummary struct {
 }
 
 type TrackPrizeResponse struct {
-	ID     string `json:"id" example:"pz_42ej2s5gh7e8"`
-	Place  int    `json:"place" example:"1"`
-	Amount string `json:"amount" example:"150000"`
+	ID     string  `json:"id" example:"pz_42ej2s5gh7e8"`
+	Place  *int    `json:"place,omitempty" example:"1"`
+	Title  *string `json:"title,omitempty" example:"Best design"`
+	Amount string  `json:"amount" example:"150000"`
 }
 
 type EventTrackResponse struct {
@@ -166,11 +167,13 @@ type EventTrackListResponse struct {
 	PrizeCurrency *string              `json:"prize_currency,omitempty" example:"RUB"`
 	Distributed   string               `json:"distributed" example:"450000"`
 	Unallocated   *string              `json:"unallocated,omitempty" example:"50000"`
+	Nominations   string               `json:"nominations" example:"50000"`
 }
 
 type TrackPrizeInput struct {
-	Place  int    `json:"place" example:"1"`
-	Amount string `json:"amount" example:"150000"`
+	Place  *int    `json:"place,omitempty" example:"1"`
+	Title  *string `json:"title,omitempty" example:"Best design"`
+	Amount string  `json:"amount" example:"150000"`
 }
 
 type CreateEventTrackRequest struct {

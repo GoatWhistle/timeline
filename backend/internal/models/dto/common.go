@@ -83,6 +83,7 @@ var (
 	DisplayKindTeamJoinLink       = DisplayKind{Prefix: "tj", Entity: "team join link"}
 	DisplayKindEventTrack         = DisplayKind{Prefix: "tr", Entity: "event track"}
 	DisplayKindTrackPrize         = DisplayKind{Prefix: "pz", Entity: "track prize"}
+	DisplayKindEventCase          = DisplayKind{Prefix: "cs", Entity: "event case"}
 	DisplayKindTeamEventLink      = DisplayKind{Prefix: "tl", Entity: "team link"}
 )
 

@@ -111,3 +111,21 @@ describe('formatAmount', () => {
     expect(formatAmount('')).toBe('0')
   })
 })
+
+describe('formatMoney negative amounts', () => {
+  it('puts the minus before a leading symbol instead of between them', () => {
+    expect(formatMoney('-1500', 'USD')).toBe('-$1,500')
+    expect(formatMoney('-1500', 'GBP')).toBe('-£1,500')
+    expect(formatMoney('-1500', 'USD')).not.toContain('$-')
+  })
+
+  it('leaves the minus where it already reads correctly for a trailing symbol', () => {
+    expect(formatMoney('-1500', 'RUB')).toBe('-1,500 ₽')
+    expect(formatMoney('-1500', 'CHF')).toBe('-1,500 CHF')
+  })
+
+  it('keeps a positive amount exactly as it was', () => {
+    expect(formatMoney('1500', 'USD')).toBe('$1,500')
+    expect(formatMoney('1500', 'RUB')).toBe('1,500 ₽')
+  })
+})

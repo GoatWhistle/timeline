@@ -15,10 +15,10 @@ func sendAll(t *testing.T, lang string) map[string]struct{ subject, text, html s
 	out := make(map[string]struct{ subject, text, html string })
 	cases := map[string]func(m *Mailer){
 		"verification": func(m *Mailer) {
-			m.SendVerification(context.Background(), "user@example.test", "Maria Ivanova", lang, "tok", 24*time.Hour)
+			m.SendVerification(context.Background(), "user@example.test", "Maria Ivanova", lang, "tok", 24*time.Hour, TelegramRecipient{})
 		},
 		"password_reset": func(m *Mailer) {
-			m.SendPasswordReset(context.Background(), "user@example.test", "Maria Ivanova", lang, "tok", 2*time.Hour)
+			m.SendPasswordReset(context.Background(), "user@example.test", "Maria Ivanova", lang, "tok", 2*time.Hour, TelegramRecipient{})
 		},
 		"email_change": func(m *Mailer) {
 			m.SendEmailChange(context.Background(), "user@example.test", "Maria Ivanova", lang, "tok", 24*time.Hour)
@@ -29,7 +29,7 @@ func sendAll(t *testing.T, lang string) map[string]struct{ subject, text, html s
 	}
 	for name, send := range cases {
 		sender := &recordingMailSender{}
-		send(NewMailer(sender, "https://timeline.test"))
+		send(NewMailer(sender, nil, "https://timeline.test"))
 		msg := sender.last(t)
 		out[name] = struct{ subject, text, html string }{msg.Subject, msg.Body, msg.HTML}
 	}
@@ -167,8 +167,8 @@ func TestDurationsDeclineInTheRecipientLanguage(t *testing.T) {
 		wrong := otherExpiries(t, tc.lang, tc.unit, tc.form, tc.amount, want)
 
 		sender := &recordingMailSender{}
-		mailer := NewMailer(sender, "https://timeline.test")
-		mailer.SendVerification(context.Background(), "user@example.test", "Maria", tc.lang, "tok", tc.ttl)
+		mailer := NewMailer(sender, nil, "https://timeline.test")
+		mailer.SendVerification(context.Background(), "user@example.test", "Maria", tc.lang, "tok", tc.ttl, TelegramRecipient{})
 		got := sender.last(t)
 
 		for _, part := range []string{got.Body, got.HTML} {
@@ -207,7 +207,7 @@ func otherExpiries(t *testing.T, lang, unit, form string, amount int, want strin
 
 func TestOnlyTheInviteNamesAPersonAndItNeverRepeatsTheSameWord(t *testing.T) {
 	sender := &recordingMailSender{}
-	mailer := NewMailer(sender, "https://timeline.test")
+	mailer := NewMailer(sender, nil, "https://timeline.test")
 
 	mailer.SendInvite(context.Background(), "new@example.test", "Administrator Administrator", "en",
 		"tok", time.Hour)

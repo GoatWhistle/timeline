@@ -22,10 +22,16 @@ type TelegramLinkCompleter interface {
 type TelegramWebhookController struct {
 	svc    TelegramLinkCompleter
 	secret string
+	bot    *telegramlink.Bot
 }
 
 func NewTelegramWebhookController(svc TelegramLinkCompleter, secret string) *TelegramWebhookController {
 	return &TelegramWebhookController{svc: svc, secret: secret}
+}
+
+func (c *TelegramWebhookController) WithBot(bot *telegramlink.Bot) *TelegramWebhookController {
+	c.bot = bot
+	return c
 }
 
 // @Summary		Telegram linking webhook
@@ -53,7 +59,7 @@ func (c *TelegramWebhookController) Handle(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if err := telegramlink.Handle(r.Context(), c.svc, update); err != nil {
+	if err := c.dispatch(r.Context(), update); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -62,4 +68,11 @@ func (c *TelegramWebhookController) Handle(w http.ResponseWriter, r *http.Reques
 
 func startToken(message *telegramMessage) (string, bool) {
 	return telegramlink.StartToken(message)
+}
+
+func (c *TelegramWebhookController) dispatch(ctx context.Context, update telegramUpdate) error {
+	if c.bot != nil {
+		return c.bot.Handle(ctx, update)
+	}
+	return telegramlink.Handle(ctx, c.svc, update)
 }

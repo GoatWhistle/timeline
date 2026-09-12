@@ -1,13 +1,17 @@
-import { Download, Upload, X } from 'lucide-react'
-import { useId, useRef, useState } from 'react'
+import { Download } from 'lucide-react'
+import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useRemoveAvatar, useUploadAvatar } from '@/entities/user/avatar.queries'
 import { UserAvatar } from '@/entities/user/user-avatar'
 import { ImageEditorOverlay } from '@/features/profile/image-editor/image-editor-overlay'
-import { cn } from '@/shared/styling/class-names/class-names'
+import { TOUCH_QUERY } from '@/shared/ui/layout/mobile/mobile-state'
+import { useMediaQuery } from '@/shared/ui/layout/mobile/use-phone-viewport'
+import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Button } from '@/shared/ui/primitives/button'
-import { AVATAR_ACCEPT, rejectionFor } from './avatar-file'
+import { AvatarActions } from './avatar-actions'
+import { type AvatarRejection, downloadAvatar } from './avatar-file'
+import { AvatarUploadDialog } from './avatar-upload-dialog'
 
 export function AvatarField({
   seed,
@@ -21,23 +25,20 @@ export function AvatarField({
   avatarUrl?: string | null
 }) {
   const { t } = useTranslation()
-  const inputRef = useRef<HTMLInputElement | null>(null)
   const headingId = useId()
   const [pending, setPending] = useState<Blob | null>(null)
+  const [confirming, setConfirming] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const touch = useMediaQuery(TOUCH_QUERY)
   const upload = useUploadAvatar()
   const remove = useRemoveAvatar()
 
-  function choose(file: File | undefined) {
-    if (!file) return
-    const rejection = rejectionFor(file)
-    if (rejection === 'type') {
-      toast.error(t('profile.avatarWrongType'))
-      return
-    }
-    if (rejection === 'size') {
-      toast.error(t('profile.avatarTooLarge'))
-      return
-    }
+  function refuse(rejection: AvatarRejection) {
+    toast.error(rejection === 'type' ? t('profile.avatarWrongType') : t('profile.avatarTooLarge'))
+  }
+
+  function accept(file: File) {
+    setUploading(false)
     setPending(file)
   }
 
@@ -51,26 +52,21 @@ export function AvatarField({
     }
   }
 
-  function closeEditor() {
-    setPending(null)
-    inputRef.current?.focus()
+  async function edit() {
+    if (!avatarUrl) return
+    try {
+      const response = await fetch(avatarUrl, { credentials: 'include' })
+      if (!response.ok) throw new Error(`avatar fetch failed with status ${response.status}`)
+      setPending(await response.blob())
+    } catch {
+      toast.error(t('profile.avatarDownloadFailed'))
+    }
   }
 
   async function download() {
     if (!avatarUrl) return
     try {
-      const response = await fetch(avatarUrl, { credentials: 'include' })
-      if (!response.ok) throw new Error(`avatar download failed with status ${response.status}`)
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = avatarUrl.split('/').pop() ?? 'avatar'
-      link.rel = 'noopener'
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-      setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      await downloadAvatar(avatarUrl)
       toast.success(t('profile.avatarDownloaded'))
     } catch {
       toast.error(t('profile.avatarDownloadFailed'))
@@ -78,6 +74,7 @@ export function AvatarField({
   }
 
   async function clear() {
+    setConfirming(false)
     try {
       await remove.mutateAsync()
       toast.success(t('profile.avatarRemoved'))
@@ -89,75 +86,62 @@ export function AvatarField({
   const busy = upload.isPending || remove.isPending
 
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-3">
-      <h3 id={headingId} className="font-medium text-copy">
+    <section aria-labelledby={headingId} className="flex flex-col items-center gap-3">
+      <h3 id={headingId} className="sr-only">
         {t('profile.avatar')}
       </h3>
 
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <UserAvatar
-            seed={seed}
-            firstName={firstName}
-            lastName={lastName}
-            avatarUrl={avatarUrl}
-            className="size-16 text-copy"
-          />
-          {avatarUrl ? (
-            <Button
-              type="button"
-              variant="secondary"
-              size="icon"
-              aria-label={t('profile.avatarRemove')}
-              title={t('profile.avatarRemove')}
-              disabled={busy}
-              onClick={clear}
-              className="-right-1 -top-1 absolute size-6 rounded-pill border shadow-raised"
-            >
-              <X className="size-3" />
-            </Button>
-          ) : null}
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
-            <label
-              className={cn(
-                'inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-control',
-                'border bg-background px-3 font-medium text-caption transition-colors',
-                'duration-instant ease-out hover:bg-accent-surface hover:text-accent-surface-foreground',
-                'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
-                busy && 'pointer-events-none opacity-50',
-              )}
-            >
-              <Upload className="size-4" />
-              {avatarUrl ? t('profile.avatarReplace') : t('profile.avatarUpload')}
-              <input
-                ref={inputRef}
-                type="file"
-                accept={AVATAR_ACCEPT}
-                disabled={busy}
-                className="sr-only"
-                onChange={(event) => {
-                  choose(event.target.files?.[0])
-                  event.target.value = ''
-                }}
-              />
-            </label>
-            {avatarUrl ? (
-              <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={download}>
-                <Download className="size-4" />
-                {t('profile.avatarDownload')}
-              </Button>
-            ) : null}
-          </div>
-          <p className="text-caption text-muted-foreground">{t('profile.avatarHint')}</p>
-        </div>
+      <div className="group relative">
+        <UserAvatar
+          seed={seed}
+          firstName={firstName}
+          lastName={lastName}
+          avatarUrl={avatarUrl}
+          className="size-40 text-screen sm:size-48"
+        />
+        <AvatarActions
+          hasAvatar={Boolean(avatarUrl)}
+          busy={busy}
+          visible={touch}
+          onUpload={() => setUploading(true)}
+          onEdit={edit}
+          onRemove={() => setConfirming(true)}
+        />
       </div>
 
-      {pending ? (
-        <ImageEditorOverlay source={pending} busy={busy} onCancel={closeEditor} onSave={save} />
+      {avatarUrl ? (
+        <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={download}>
+          <Download className="size-4" aria-hidden="true" />
+          {t('profile.avatarDownload')}
+        </Button>
       ) : null}
+
+      {pending ? (
+        <ImageEditorOverlay
+          source={pending}
+          busy={busy}
+          onCancel={() => setPending(null)}
+          onSave={save}
+        />
+      ) : null}
+
+      <AvatarUploadDialog
+        open={uploading}
+        onOpenChange={setUploading}
+        onAccepted={accept}
+        onRejected={refuse}
+      />
+
+      <ConfirmDialog
+        open={confirming}
+        onOpenChange={setConfirming}
+        title={t('profile.avatarRemoveTitle')}
+        description={t('profile.avatarRemoveConfirm')}
+        confirmLabel={t('profile.avatarRemove')}
+        destructive
+        disabled={busy}
+        onConfirm={clear}
+      />
     </section>
   )
 }

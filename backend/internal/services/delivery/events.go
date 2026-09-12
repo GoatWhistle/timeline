@@ -9,15 +9,15 @@ import (
 	"github.com/GoatWhistle/timeline/internal/services/realtime"
 )
 
-func (s *DeliveryService) WithEvents(events *realtime.SystemEventService) { s.events = events }
+func (s *DeliveryService) WithEvents(events *realtime.SystemEventService) { s.feed = events }
 
 func (s *DeliveryService) emitTerminal(ctx context.Context, n *models.Notification,
 	eventType models.SystemEventType, reason string) {
-	if s.events == nil {
+	if s.feed == nil {
 		return
 	}
 	id := n.ID
-	_, err := s.events.Emit(ctx, realtime.EmitRequest{
+	_, err := s.feed.Emit(ctx, realtime.EmitRequest{
 		Type:        eventType,
 		Severity:    models.SeverityWarning,
 		Audience:    models.AudienceAdmin,
@@ -36,12 +36,12 @@ func (s *DeliveryService) emitTerminal(ctx context.Context, n *models.Notificati
 }
 
 func (s *DeliveryService) emitMirror(ctx context.Context, n *models.Notification) {
-	if s.events == nil || n.Payload == nil {
+	if s.feed == nil || n.Payload == nil {
 		return
 	}
 	recipient := n.RecipientUserID
 	id := n.ID
-	_, err := s.events.Emit(ctx, realtime.EmitRequest{
+	_, err := s.feed.Emit(ctx, realtime.EmitRequest{
 		Type:        models.EventRegistrationReminder,
 		Severity:    models.SeverityInfo,
 		Audience:    models.AudienceUser,
@@ -61,7 +61,7 @@ func (s *DeliveryService) emitMirror(ctx context.Context, n *models.Notification
 }
 
 func (s *DeliveryService) observe(ctx context.Context) {
-	if s.events == nil {
+	if s.feed == nil {
 		return
 	}
 	now := s.now()
@@ -77,7 +77,7 @@ func (s *DeliveryService) observe(ctx context.Context) {
 	}
 	healthy := fresh(hb.Scheduler, now, 3*s.cfg.Notify.SchedulerInterval) &&
 		fresh(hb.Worker, now, 3*s.cfg.Notify.WorkerInterval) && stats.StuckLeases == 0
-	s.events.Observe(ctx, realtime.HealthObservation{
+	s.feed.Observe(ctx, realtime.HealthObservation{
 		WorkerHealthy:   healthy,
 		OldestPendingAg: time.Duration(stats.OldestPendingAgeS) * time.Second,
 		Threshold:       s.cfg.Realtime.QueueAgeThreshold,

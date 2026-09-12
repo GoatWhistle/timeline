@@ -79,5 +79,5 @@ export function groomDateText(raw: string, previous: string): string {
     (part) => part !== '',
   )
   const grouped = parts.join('.')
-  return digits.length === 2 || digits.length === 4 ? grouped + '.' : grouped
+  return digits.length === 2 || digits.length === 4 ? `${grouped}.` : grouped
 }

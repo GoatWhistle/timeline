@@ -112,9 +112,8 @@ func (s *smtpSender) compose(msg models.OutboundMessage) string {
 	fmt.Fprintf(&b, "From: %s <%s>\r\n", mime.QEncoding.Encode("utf-8", s.cfg.FromName), s.cfg.From)
 	fmt.Fprintf(&b, "To: %s\r\n", msg.Recipient)
 	fmt.Fprintf(&b, "Subject: %s\r\n", mime.QEncoding.Encode("utf-8", msg.Subject))
-	if msg.IdempotencyKey != "" {
-		fmt.Fprintf(&b, "Message-ID: <%s@event-tracker>\r\n", msg.IdempotencyKey)
-	}
+	fmt.Fprintf(&b, "Date: %s\r\n", time.Now().Format(time.RFC1123Z))
+	fmt.Fprintf(&b, "Message-ID: <%s@%s>\r\n", s.messageID(msg), senderDomain(s.cfg.From))
 	b.WriteString("MIME-Version: 1.0\r\n")
 	if msg.HTML == "" {
 		b.WriteString("Content-Type: text/plain; charset=UTF-8\r\n")
@@ -137,6 +136,25 @@ func writePart(b *strings.Builder, boundary, contentType, content string) {
 	b.WriteString("Content-Transfer-Encoding: 8bit\r\n\r\n")
 	b.WriteString(strings.ReplaceAll(strings.ReplaceAll(content, "\r\n", "\n"), "\n", "\r\n"))
 	b.WriteString("\r\n")
+}
+
+func (s *smtpSender) messageID(msg models.OutboundMessage) string {
+	if msg.IdempotencyKey != "" {
+		return msg.IdempotencyKey
+	}
+	buf := make([]byte, 16)
+	if _, err := rand.Read(buf); err != nil {
+		return fmt.Sprint(time.Now().UnixNano())
+	}
+	return hex.EncodeToString(buf)
+}
+
+func senderDomain(from string) string {
+	at := strings.LastIndex(from, "@")
+	if at < 0 || at == len(from)-1 {
+		return "localhost"
+	}
+	return from[at+1:]
 }
 
 func alternativeBoundary() string {

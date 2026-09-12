@@ -37,6 +37,7 @@
       "TEAM_JOIN_LINK": "Ссылка для вступления",
       "RESOURCE_LINK": "Ссылка",
       "EVENT_TRACK": "Трек события",
+      "EVENT_CASE": "Кейс события",
       "TEAM_EVENT_LINK": "Ссылка команды"
     },
     "actionLabel": {
@@ -83,6 +84,9 @@
       "TRACK_UPDATE": "Трек изменён",
       "TRACK_DELETE": "Трек удалён",
       "TRACK_PRIZE_SET": "Призовые трека заданы",
+      "EVENT_CASE_CREATE": "Кейс создан",
+      "EVENT_CASE_UPDATE": "Кейс изменён",
+      "EVENT_CASE_DELETE": "Кейс удалён",
       "TEAM_TRACK_CHOOSE": "Команда выбрала трек",
       "TEAM_EVENT_LINK_ADD": "Добавлена ссылка команды",
       "TEAM_EVENT_LINK_UPDATE": "Изменена ссылка команды",

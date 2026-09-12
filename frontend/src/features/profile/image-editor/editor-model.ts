@@ -78,3 +78,16 @@ export function toHex(r: number, g: number, b: number): string {
   const part = (n: number) => n.toString(16).padStart(2, '0')
   return `#${part(r)}${part(g)}${part(b)}`
 }
+
+const HEX_COLOUR = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
+
+export function isValidHexColour(value: string): boolean {
+  return HEX_COLOUR.test(value.trim())
+}
+
+export function normaliseHexColour(value: string): string | null {
+  const trimmed = value.trim()
+  if (!isValidHexColour(trimmed)) return null
+  const [r, g, b] = toRgba(trimmed)
+  return toHex(r, g, b)
+}

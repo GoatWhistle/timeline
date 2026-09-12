@@ -14,6 +14,7 @@ import {
   AdminOpsQueuePage,
   AdminUsersPage,
   CatalogPage,
+  EmailChangeCancelPage,
   EmailChangeConfirmPage,
   EventCardPage,
   ForgotPasswordPage,
@@ -97,6 +98,7 @@ export function AppRouter() {
 
         <Route element={<AuthLayout />}>
           <Route path="/email-change/confirm" element={<EmailChangeConfirmPage />} />
+          <Route path="/email-change/cancel" element={<EmailChangeCancelPage />} />
         </Route>
 
         <Route element={<RequireAuth />}>

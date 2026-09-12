@@ -6,6 +6,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
@@ -62,8 +63,56 @@ func (s *AuthService) ResendVerification(ctx context.Context, email string) erro
 		return err
 	}
 	s.mailer.SendVerification(ctx, user.Email, user.DisplayName(user.Locale), user.Locale,
-		secret, s.cfg.Auth.EmailVerifyTTL)
+		secret, s.cfg.Auth.EmailVerifyTTL, telegramRecipient(user))
 	return nil
+}
+
+func telegramRecipient(user *models.User) mail.TelegramRecipient {
+	if user.TelegramChatID == nil {
+		return mail.TelegramRecipient{}
+	}
+	return mail.TelegramRecipient{
+		ChatID:  *user.TelegramChatID,
+		Enabled: user.NotificationChannels.Has(models.ChannelTelegram),
+	}
+}
+
+func (s *AuthService) CancelEmailChange(ctx context.Context, token string) error {
+	return s.db.WithTx(ctx, func(ctx context.Context) error {
+		record, err := s.tokens.Consume(ctx, crypto.HashSecret(token), models.PurposeEmailChangeCancel, s.now())
+		if err != nil {
+			if errors.Is(err, models.ErrNotFound) {
+				return models.NewValidation("the cancellation token is invalid or has expired")
+			}
+			return err
+		}
+		if record.UserID == nil || record.OriginEmail == nil {
+			return models.NewValidation("the cancellation token is invalid")
+		}
+
+		user, err := s.users.GetByID(ctx, *record.UserID)
+		if err != nil {
+			return err
+		}
+		if err := s.tokens.InvalidateForUser(ctx, user.ID, models.PurposeEmailChange); err != nil {
+			return err
+		}
+		if !emailChangeCancelReverts(user.Email, *record.OriginEmail) {
+			return nil
+		}
+
+		before := map[string]any{"email": user.Email, "pending_email": user.PendingEmail}
+		if err := s.users.RevertEmail(ctx, user.ID, *record.OriginEmail); err != nil {
+			return err
+		}
+		actor := models.Actor{UserID: user.ID}
+		return s.audit.Record(ctx, actor, models.AuditUserProfileChange, models.EntityUser, user.ID,
+			before, map[string]any{"email": *record.OriginEmail, "pending_email": nil})
+	})
+}
+
+func emailChangeCancelReverts(currentEmail, originEmail string) bool {
+	return currentEmail != validation.NormalizeEmail(originEmail)
 }
 
 func (s *AuthService) ConfirmEmailChange(ctx context.Context, token string) error {

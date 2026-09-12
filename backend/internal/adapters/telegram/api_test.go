@@ -36,7 +36,7 @@ func TestPollingProtocolPreservesPendingUpdates(t *testing.T) {
 				t.Errorf("wrong request: %v", body)
 			}
 			allowed, _ := body["allowed_updates"].([]any)
-			if len(allowed) != 1 || allowed[0] != "message" {
+			if len(allowed) != 2 || allowed[0] != "message" || allowed[1] != "callback_query" {
 				t.Error("wrong update filter")
 			}
 			time.Sleep(50 * time.Millisecond)

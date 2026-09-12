@@ -113,6 +113,8 @@ func newRouter(c *container) http.Handler {
 		Catalog:        c.catalog,
 		Stages:         c.stages,
 		Tracks:         c.tracks,
+		Finance:        c.finance,
+		Cases:          c.cases,
 		Participants:   c.participants,
 		Registrations:  c.registrations,
 		Statuses:       c.statuses,
@@ -129,6 +131,7 @@ func newRouter(c *container) http.Handler {
 		Authenticator:         c.auth,
 		Metrics:               promhttp.Handler(),
 		TelegramWebhookSecret: c.cfg.Telegram.WebhookSecret,
+		TelegramBot:           c.telegramBot,
 
 		Cookies:        controllers.CookieOptions{Domain: c.cfg.HTTP.CookieDomain, Secure: c.cfg.HTTP.CookieSecure},
 		PublicURL:      c.cfg.App.PublicURL,

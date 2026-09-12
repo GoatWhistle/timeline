@@ -10,7 +10,7 @@ import { cn } from '@/shared/styling/class-names/class-names'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { Textarea } from '@/shared/ui/forms/textarea'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
 const BIO_MAX = 2000
@@ -84,9 +84,6 @@ export function PersonalDataCard({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{t('profile.personalTitle')}</CardTitle>
-      </CardHeader>
       <CardContent>
         {legacyDisplayName ? (
           <div
@@ -99,53 +96,57 @@ export function PersonalDataCard({
             </p>
           </div>
         ) : null}
-        <AvatarField
-          seed={userId}
-          firstName={firstName}
-          lastName={lastName}
-          avatarUrl={avatarUrl}
-        />
         <form
-          className="mt-4 flex flex-col gap-4"
+          className="flex flex-col gap-4"
           onSubmit={profileForm.handleSubmit(onSaveProfile)}
           noValidate
         >
-          <Field
-            label={t('profile.firstName')}
-            htmlFor="first_name"
-            error={errors.first_name?.message}
-          >
-            <Input
-              id="first_name"
-              autoComplete="given-name"
-              aria-invalid={Boolean(errors.first_name)}
-              {...profileForm.register('first_name')}
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+            <AvatarField
+              seed={userId}
+              firstName={firstName}
+              lastName={lastName}
+              avatarUrl={avatarUrl}
             />
-          </Field>
-          <Field
-            label={t('profile.lastName')}
-            htmlFor="last_name"
-            error={errors.last_name?.message}
-          >
-            <Input
-              id="last_name"
-              autoComplete="family-name"
-              aria-invalid={Boolean(errors.last_name)}
-              {...profileForm.register('last_name')}
-            />
-          </Field>
-          <Field
-            label={t('profile.middleName')}
-            htmlFor="middle_name"
-            error={errors.middle_name?.message}
-          >
-            <Input
-              id="middle_name"
-              autoComplete="additional-name"
-              aria-invalid={Boolean(errors.middle_name)}
-              {...profileForm.register('middle_name')}
-            />
-          </Field>
+            <div className="flex min-w-0 flex-1 flex-col gap-4">
+              <Field
+                label={t('profile.firstName')}
+                htmlFor="first_name"
+                error={errors.first_name?.message}
+              >
+                <Input
+                  id="first_name"
+                  autoComplete="given-name"
+                  aria-invalid={Boolean(errors.first_name)}
+                  {...profileForm.register('first_name')}
+                />
+              </Field>
+              <Field
+                label={t('profile.lastName')}
+                htmlFor="last_name"
+                error={errors.last_name?.message}
+              >
+                <Input
+                  id="last_name"
+                  autoComplete="family-name"
+                  aria-invalid={Boolean(errors.last_name)}
+                  {...profileForm.register('last_name')}
+                />
+              </Field>
+              <Field
+                label={t('profile.middleName')}
+                htmlFor="middle_name"
+                error={errors.middle_name?.message}
+              >
+                <Input
+                  id="middle_name"
+                  autoComplete="additional-name"
+                  aria-invalid={Boolean(errors.middle_name)}
+                  {...profileForm.register('middle_name')}
+                />
+              </Field>
+            </div>
+          </div>
           <Field label={t('profile.bio')} htmlFor="bio" error={errors.bio?.message}>
             <div className="relative">
               <Textarea

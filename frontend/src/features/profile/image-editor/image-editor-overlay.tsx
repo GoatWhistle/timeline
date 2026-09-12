@@ -100,6 +100,15 @@ export function ImageEditorOverlay({
           </Button>
           <Button
             type="button"
+            variant="ghost"
+            size="sm"
+            onClick={editor.redo}
+            disabled={!editor.canRedo || busy}
+          >
+            {t('imageEditor.redo')}
+          </Button>
+          <Button
+            type="button"
             variant="outline"
             size="sm"
             onClick={editor.applyCrop}

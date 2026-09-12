@@ -1,7 +1,12 @@
 import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { beforeAll, describe, expect, it } from 'vitest'
-import { SETTINGS_SECTIONS, type SettingsSectionId } from '@/features/settings-overlay/sections'
+import {
+  DEFAULT_SECTION,
+  resolveSection,
+  SETTINGS_SECTIONS,
+  type SettingsSectionId,
+} from '@/features/settings-overlay/sections'
 import { SettingsPanel } from '@/features/settings-overlay/settings-panels'
 import type {
   Channel,
@@ -64,7 +69,7 @@ beforeAll(async () => {
 })
 
 describe('settings sections', () => {
-  it('offers all six sections the specification names, plus shortcuts', () => {
+  it('offers the specification sections, with the danger zone folded into account', () => {
     expect(SETTINGS_SECTIONS.map((section) => section.id)).toEqual([
       'profile',
       'account',
@@ -72,9 +77,15 @@ describe('settings sections', () => {
       'notifications',
       'shortcuts',
       'sessions',
-      'danger',
     ])
   })
+
+  it.each(['danger', 'unknown-section', ''])(
+    'resolves the retired or unknown value %j to the default section',
+    (value) => {
+      expect(resolveSection(value)).toBe(DEFAULT_SECTION)
+    },
+  )
 
   it('gives every section an icon so the list is not colour alone', () => {
     for (const section of SETTINGS_SECTIONS) {
@@ -93,10 +104,11 @@ describe('account against profile', () => {
     expect(screen.queryByText('member@example.com')).not.toBeInTheDocument()
   })
 
-  it('keeps the email address and its change flow in account', () => {
-    renderSection('account')
+  it('keeps the email address and its change flow in account', async () => {
+    const { user } = renderSection('account')
 
     expect(screen.getByText('member@example.com')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: i18n.t('common:account.emailChange') }))
     expect(screen.getByLabelText(i18n.t('common:profile.newEmail'))).toBeInTheDocument()
   })
 
@@ -136,8 +148,8 @@ describe('account against profile', () => {
     expect(screen.queryByLabelText(i18n.t('common:profile.name'))).not.toBeInTheDocument()
   })
 
-  it('leaves the danger zone with deactivation only', () => {
-    renderSection('danger')
+  it('folds account deactivation into the account tab, not a separate danger tab', () => {
+    renderSection('account')
 
     expect(
       screen.getByRole('button', { name: i18n.t('common:profile.deactivate') }),
@@ -145,5 +157,13 @@ describe('account against profile', () => {
     expect(
       screen.queryByRole('button', { name: i18n.t('common:profile.logoutAll') }),
     ).not.toBeInTheDocument()
+  })
+
+  it('offers a password change in account, below the channel bindings', () => {
+    renderSection('account')
+
+    expect(
+      screen.getByRole('button', { name: i18n.t('common:profile.changePassword') }),
+    ).toBeInTheDocument()
   })
 })

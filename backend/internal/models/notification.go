@@ -148,6 +148,8 @@ type OutboundMessage struct {
 	Subject        string
 	Body           string
 	HTML           string
+	ButtonText     string
+	ButtonData     string
 }
 
 type DeliveryError struct {

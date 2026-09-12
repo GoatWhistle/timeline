@@ -11,6 +11,49 @@ import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { DeadlineTime } from '@/shared/ui/primitives/deadline-time/deadline-time'
 
+function RegistrationStageRow({
+  registration,
+  status,
+}: {
+  registration: EventCard['registration']
+  status: EventCard['registration_status']
+}) {
+  const { t } = useTranslation('event')
+
+  if (!registration) {
+    return (
+      <li className="flex items-start gap-3">
+        <StageTypeMark type="REGISTRATION" labelled={false} className="mt-0.5" />
+        <div className="min-w-0">
+          <p className="font-medium text-copy">{t(STAGE_TYPE_KEY.REGISTRATION)}</p>
+          <p className="text-muted-foreground text-copy">{t('card.noRegistration')}</p>
+        </div>
+      </li>
+    )
+  }
+
+  return (
+    <li className="flex items-start gap-3">
+      <StageTypeMark type="REGISTRATION" labelled={false} className="mt-0.5" />
+      <div className="min-w-0">
+        <p className="flex flex-wrap items-center gap-2 font-medium text-copy">
+          {t(STAGE_TYPE_KEY.REGISTRATION)}
+          {status && <RegistrationStatusBadge status={status.status} />}
+        </p>
+        <p className="text-muted-foreground text-copy">
+          <Badge tone="neutral">{t('card.deadline')}</Badge>
+          <span className="ml-2">
+            <DeadlineTime iso={registration.deadline_at} className="inline-flex" />
+          </span>
+        </p>
+        {registration.state === 'DISABLED' && (
+          <p className="text-muted-foreground text-copy">{t('card.disabled')}</p>
+        )}
+      </div>
+    </li>
+  )
+}
+
 export function RegistrationSection({
   card,
   onMarkDone,
@@ -76,7 +119,15 @@ export function RegistrationSection({
   )
 }
 
-export function StagesSection({ stages }: { stages: EventCard['stages'] }) {
+export function StagesSection({
+  stages,
+  registration,
+  registrationStatus,
+}: {
+  stages: EventCard['stages']
+  registration?: EventCard['registration']
+  registrationStatus?: EventCard['registration_status']
+}) {
   const { t } = useTranslation('event')
 
   return (
@@ -85,11 +136,12 @@ export function StagesSection({ stages }: { stages: EventCard['stages'] }) {
         <CardTitle>{t('card.stages')}</CardTitle>
       </CardHeader>
       <CardContent>
-        {stages.length === 0 ? (
-          <p className="text-muted-foreground text-copy">{t('card.noStages')}</p>
-        ) : (
-          <ul className="flex flex-col gap-3">
-            {stages.map((stage) => (
+        <ul className="flex flex-col gap-3">
+          <RegistrationStageRow registration={registration} status={registrationStatus} />
+          {stages.length === 0 ? (
+            <li className="text-muted-foreground text-copy">{t('card.noStages')}</li>
+          ) : (
+            stages.map((stage) => (
               <li key={stage.id} className="flex items-start gap-3">
                 <StageTypeMark type={stage.type} labelled={false} className="mt-0.5" />
                 <div className="min-w-0">
@@ -103,9 +155,9 @@ export function StagesSection({ stages }: { stages: EventCard['stages'] }) {
                   )}
                 </div>
               </li>
-            ))}
-          </ul>
-        )}
+            ))
+          )}
+        </ul>
       </CardContent>
     </Card>
   )

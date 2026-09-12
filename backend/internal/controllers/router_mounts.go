@@ -5,6 +5,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/auth"
 	"github.com/GoatWhistle/timeline/internal/controllers/event"
+	"github.com/GoatWhistle/timeline/internal/controllers/finance"
 	"github.com/GoatWhistle/timeline/internal/controllers/notification"
 	"github.com/GoatWhistle/timeline/internal/controllers/participation"
 	"github.com/GoatWhistle/timeline/internal/controllers/team"
@@ -22,8 +23,10 @@ func mountAuth(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("POST "+api+"/auth/password/forgot", http.HandlerFunc(authC.ForgotPassword))
 	mux.Handle("POST "+api+"/auth/password/reset", http.HandlerFunc(authC.ResetPassword))
 	mux.Handle("POST "+api+"/auth/email-change/confirm", http.HandlerFunc(authC.ConfirmEmailChange))
+	mux.Handle("POST "+api+"/auth/email-change/cancel", http.HandlerFunc(authC.CancelEmailChange))
 	mux.Handle("GET "+api+"/auth/csrf", http.HandlerFunc(authC.CSRF))
 	mux.Handle("POST "+api+"/auth/logout-all", rt.authd(authC.LogoutAll))
+	mux.Handle("POST "+api+"/auth/password/change", rt.authd(authC.ChangePassword))
 
 	mux.Handle("GET "+api+"/invites/{token}", http.HandlerFunc(inviteC.Preview))
 	mux.Handle("POST "+api+"/invites/accept", http.HandlerFunc(inviteC.Accept))
@@ -175,6 +178,15 @@ func mountTeams(mux *http.ServeMux, rt *routes, api string, c *team.Controller) 
 	mux.Handle("PUT "+api+"/teams/{id}/events/{event_id}/links/order", rt.authd(c.ReorderEventLinks))
 	mux.Handle("PATCH "+api+"/team-links/{id}", rt.authd(c.UpdateEventLink))
 	mux.Handle("DELETE "+api+"/team-links/{id}", rt.authd(c.RemoveEventLink))
+}
+
+func mountFinance(mux *http.ServeMux, rt *routes, api string, c *finance.Controller) {
+	mux.Handle("GET "+api+"/events/{id}/finance", rt.authd(c.Summary))
+	mux.Handle("GET "+api+"/events/{id}/finance/export", rt.authd(c.Export))
+	mux.Handle("GET "+api+"/events/{id}/cases", rt.authd(c.ListCases))
+	mux.Handle("POST "+api+"/admin/events/{id}/cases", rt.admin(c.CreateCase))
+	mux.Handle("PATCH "+api+"/admin/cases/{id}", rt.admin(c.UpdateCase))
+	mux.Handle("DELETE "+api+"/admin/cases/{id}", rt.admin(c.DeleteCase))
 }
 
 func mountCovers(mux *http.ServeMux, rt *routes, api string, c *event.CoverController) {

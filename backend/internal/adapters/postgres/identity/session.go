@@ -21,8 +21,8 @@ const sessionColumns = `id, display_id, user_id, family_id, refresh_token_hash, 
 
 func scanSession(row pgx.Row) (*models.Session, error) {
 	var s models.Session
-	err := row.Scan(&s.ID, &s.DisplayID, &s.UserID, &s.FamilyID, &s.RefreshTokenHash, &s.DeviceHash, &s.UserAgent, &s.IP,
-		&s.Label, &s.ExpiresAt, &s.LastUsedAt, &s.RevokedAt, &s.CreatedAt)
+	err := row.Scan(&s.ID, &s.DisplayID, &s.UserID, &s.FamilyID, &s.RefreshTokenHash, &s.DeviceHash,
+		&s.UserAgent, &s.IP, &s.Label, &s.ExpiresAt, &s.LastUsedAt, &s.RevokedAt, &s.CreatedAt)
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -78,6 +78,13 @@ func (r *Sessions) RevokeFamily(ctx context.Context, familyID uuid.UUID) error {
 func (r *Sessions) RevokeAllForUser(ctx context.Context, userID uuid.UUID) error {
 	_, err := r.db.Q(ctx).Exec(ctx,
 		`UPDATE sessions SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL`, userID)
+	return mapError(err)
+}
+
+func (r *Sessions) RevokeOthersForUser(ctx context.Context, userID, keepSessionID uuid.UUID) error {
+	_, err := r.db.Q(ctx).Exec(ctx,
+		`UPDATE sessions SET revoked_at = now()
+		 WHERE user_id = $1 AND id != $2 AND revoked_at IS NULL`, userID, keepSessionID)
 	return mapError(err)
 }
 

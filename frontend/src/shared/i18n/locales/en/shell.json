@@ -54,5 +54,18 @@
   "link": {
     "insecure": "Not HTTPS",
     "insecureHint": "This address opens over an unencrypted protocol. The link still works, but data travels in the clear."
+  },
+  "markdown": {
+    "toolbar": "Formatting",
+    "bold": "Bold",
+    "italic": "Italic",
+    "heading": "Heading",
+    "bullet": "Bulleted list",
+    "ordered": "Numbered list",
+    "link": "Link",
+    "code": "Code",
+    "preview": "Preview",
+    "write": "Write",
+    "hint": "Markdown: headings, lists, links and emphasis."
   }
 }

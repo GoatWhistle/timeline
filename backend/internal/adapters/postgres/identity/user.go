@@ -156,6 +156,13 @@ func (r *Users) ApplyPendingEmail(ctx context.Context, id uuid.UUID, email strin
 		WHERE id = $1`, id, NormalizeEmail(email))
 }
 
+func (r *Users) RevertEmail(ctx context.Context, id uuid.UUID, originEmail string) error {
+	return r.exec(ctx, `
+		UPDATE users
+		SET email = $2, pending_email = NULL, email_verified_at = now()
+		WHERE id = $1`, id, NormalizeEmail(originEmail))
+}
+
 func (r *Users) SetActive(ctx context.Context, id uuid.UUID, active bool) error {
 	return r.exec(ctx, `UPDATE users SET is_active = $2 WHERE id = $1`, id, active)
 }

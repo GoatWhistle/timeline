@@ -89,6 +89,7 @@ type OneTimeToken struct {
 	Purpose     TokenPurpose `json:"purpose"`
 	TokenHash   string       `json:"-"`
 	TargetEmail *string      `json:"target_email,omitempty"`
+	OriginEmail *string      `json:"origin_email,omitempty"`
 	ExpiresAt   time.Time    `json:"expires_at"`
 	ConsumedAt  *time.Time   `json:"consumed_at,omitempty"`
 	CreatedAt   time.Time    `json:"created_at"`

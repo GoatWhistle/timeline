@@ -307,6 +307,15 @@ definitions:
         example: correct-horse-battery
         type: string
     type: object
+  dto.ChangePasswordRequest:
+    properties:
+      current_password:
+        example: correct-horse-battery
+        type: string
+      new_password:
+        example: another-horse-battery-staple
+        type: string
+    type: object
   dto.ChooseTrackRequest:
     properties:
       track_id:
@@ -352,6 +361,26 @@ definitions:
         type: string
       url:
         example: https://github.com/example/project
+        type: string
+    type: object
+  dto.CreateEventCaseRequest:
+    properties:
+      case_no:
+        example: 1
+        type: integer
+      description:
+        type: string
+      name:
+        example: Traffic light scheduling
+        type: string
+      partner:
+        example: City transport authority
+        type: string
+      prize_amount:
+        example: "50000"
+        type: string
+      track_id:
+        example: tr_42ej2s5gh7e8
         type: string
     type: object
   dto.CreateEventRequest:
@@ -658,6 +687,87 @@ definitions:
         example: Developer
         type: string
     type: object
+  dto.EventCaseListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.EventCaseResponse'
+        type: array
+    type: object
+  dto.EventCaseResponse:
+    properties:
+      case_no:
+        example: 1
+        type: integer
+      created_at:
+        type: string
+      description:
+        type: string
+      event_id:
+        example: ev_gma9hq8a96q5
+        type: string
+      id:
+        example: cs_42ej2s5gh7e8
+        type: string
+      name:
+        example: Traffic light scheduling
+        type: string
+      partner:
+        example: City transport authority
+        type: string
+      prize_amount:
+        example: "50000"
+        type: string
+      track_id:
+        example: tr_42ej2s5gh7e8
+        type: string
+      track_name:
+        example: Smart city
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.EventFinanceResponse:
+    properties:
+      cases:
+        items:
+          $ref: '#/definitions/dto.FinanceCase'
+        type: array
+      discrepancy:
+        example: "50000"
+        type: string
+      discrepancy_known:
+        example: true
+        type: boolean
+      distributed:
+        example: "450000"
+        type: string
+      distributed_cases:
+        example: "50000"
+        type: string
+      distributed_tracks:
+        example: "400000"
+        type: string
+      event_id:
+        example: ev_gma9hq8a96q5
+        type: string
+      nominations:
+        example: "50000"
+        type: string
+      prize_currency:
+        example: RUB
+        type: string
+      prize_pool:
+        example: "500000"
+        type: string
+      tracks:
+        items:
+          $ref: '#/definitions/dto.FinanceTrack'
+        type: array
+      unallocated:
+        example: "50000"
+        type: string
+    type: object
   dto.EventPage:
     properties:
       items:
@@ -773,6 +883,9 @@ definitions:
         items:
           $ref: '#/definitions/dto.EventTrackResponse'
         type: array
+      nominations:
+        example: "50000"
+        type: string
       prize_currency:
         example: RUB
         type: string
@@ -825,6 +938,61 @@ definitions:
       track_no:
         example: 1
         type: integer
+    type: object
+  dto.FinanceCase:
+    properties:
+      case_no:
+        example: 1
+        type: integer
+      id:
+        example: cs_42ej2s5gh7e8
+        type: string
+      name:
+        example: Traffic light scheduling
+        type: string
+      partner:
+        example: City transport authority
+        type: string
+      prize_amount:
+        example: "50000"
+        type: string
+      track_id:
+        example: tr_42ej2s5gh7e8
+        type: string
+      track_name:
+        example: Smart city
+        type: string
+    type: object
+  dto.FinanceTrack:
+    properties:
+      id:
+        example: tr_42ej2s5gh7e8
+        type: string
+      name:
+        example: Smart city
+        type: string
+      prize_total:
+        example: "300000"
+        type: string
+      prizes:
+        items:
+          $ref: '#/definitions/dto.FinanceTrackPrize'
+        type: array
+      track_no:
+        example: 1
+        type: integer
+    type: object
+  dto.FinanceTrackPrize:
+    properties:
+      amount:
+        example: "150000"
+        type: string
+      place:
+        example: 1
+        type: integer
+      title:
+        example: Best design
+        type: string
     type: object
   dto.HealthResponse:
     properties:
@@ -2074,6 +2242,9 @@ definitions:
       place:
         example: 1
         type: integer
+      title:
+        example: Best design
+        type: string
     type: object
   dto.TrackPrizeResponse:
     properties:
@@ -2086,6 +2257,9 @@ definitions:
       place:
         example: 1
         type: integer
+      title:
+        example: Best design
+        type: string
     type: object
   dto.UnreadCountResponse:
     properties:
@@ -2119,6 +2293,27 @@ definitions:
         type: string
       url:
         example: https://github.com/example/project
+        type: string
+    type: object
+  dto.UpdateEventCaseRequest:
+    properties:
+      case_no:
+        type: integer
+      clear_prize:
+        example: false
+        type: boolean
+      clear_track:
+        example: false
+        type: boolean
+      description:
+        type: string
+      name:
+        type: string
+      partner:
+        type: string
+      prize_amount:
+        type: string
+      track_id:
         type: string
     type: object
   dto.UpdateEventRequest:
@@ -2498,6 +2693,9 @@ definitions:
     - TRACK_UPDATE
     - TRACK_DELETE
     - TRACK_PRIZE_SET
+    - EVENT_CASE_CREATE
+    - EVENT_CASE_UPDATE
+    - EVENT_CASE_DELETE
     - TEAM_TRACK_CHOOSE
     - PARTICIPANT_ADD
     - PARTICIPANT_REMOVE
@@ -2547,6 +2745,9 @@ definitions:
     - AuditTrackUpdate
     - AuditTrackDelete
     - AuditTrackPrizeSet
+    - AuditCaseCreate
+    - AuditCaseUpdate
+    - AuditCaseDelete
     - AuditTeamTrackChoose
     - AuditParticipantAdd
     - AuditParticipantRemove
@@ -2626,6 +2827,7 @@ definitions:
     - EVENT
     - STAGE
     - EVENT_TRACK
+    - EVENT_CASE
     - EVENT_PARTICIPANT
     - TEAM
     - TEAM_MEMBER
@@ -2643,6 +2845,7 @@ definitions:
     - EntityEvent
     - EntityStage
     - EntityEventTrack
+    - EntityEventCase
     - EntityParticipant
     - EntityTeam
     - EntityTeamMember
@@ -3164,6 +3367,79 @@ paths:
       summary: Audit log
       tags:
       - audit
+  /admin/cases/{id}:
+    delete:
+      description: |-
+        The case and its prize leave the reconciliation; the track it pointed at is
+        untouched.
+      parameters:
+      - description: Case identifier
+        example: cs_42ej2s5gh7e8
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: the case is deleted
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Delete a case
+      tags:
+      - finance
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Omitted fields are left as they are. Detaching a case from its track needs
+        clear_track, and dropping its prize needs clear_prize: a null is indistinguishable
+        from an absent field otherwise.
+      parameters:
+      - description: Case identifier
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Mutable fields
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateEventCaseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EventCaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Update a case
+      tags:
+      - finance
   /admin/events:
     get:
       description: Administrative list with every state, search and filters.
@@ -3417,6 +3693,54 @@ paths:
       summary: Archive an event
       tags:
       - events
+  /admin/events/{id}/cases:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Only the name is required: a case without a track belongs to the event as a whole,
+        and a case without a prize is a research task rather than a funded one. A prize is
+        a whole number in the event currency, the same units track prizes use.
+      parameters:
+      - description: Event identifier
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Case payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateEventCaseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.EventCaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Create a case
+      tags:
+      - finance
   /admin/events/{id}/cover:
     delete:
       description: Deletes the stored file. An automatically fetched cover, if any,
@@ -5004,6 +5328,34 @@ paths:
       summary: Obtain a CSRF token
       tags:
       - auth
+  /auth/email-change/cancel:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Reverts the account to the address the change was requested from. Works both before and
+        after the new address has been confirmed, for as long as the cancellation link is valid.
+      parameters:
+      - description: Cancellation token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Cancel an email change
+      tags:
+      - auth
   /auth/email-change/confirm:
     post:
       consumes:
@@ -5102,6 +5454,40 @@ paths:
       security:
       - CookieAuth: []
       summary: Sign out of all sessions
+      tags:
+      - auth
+  /auth/password/change:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Requires the current password. Revokes every other session; this device stays signed in.
+        A notice is sent to every channel linked to the account.
+      parameters:
+      - description: Current and new password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Change your own password
       tags:
       - auth
   /auth/password/forgot:
@@ -5572,6 +5958,117 @@ paths:
       summary: Assigned event card
       tags:
       - queries
+  /events/{id}/cases:
+    get:
+      description: |-
+        The partner tasks declared for the event, in `case_no` order. A case may belong to
+        a track or to the event as a whole, and may carry a prize or none at all.
+        Access follows the track listing.
+      parameters:
+      - description: Event identifier
+        example: ev_3k7d8gb9be
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EventCaseListResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Event cases
+      tags:
+      - finance
+  /events/{id}/finance:
+    get:
+      description: |-
+        Every sum the event declares, reconciled in one place: the prize pool, the split
+        across tracks with their places and nominations, the partner cases and what the
+        three add up to.
+
+        `distributed` is `distributed_tracks` plus `distributed_cases`, and `discrepancy`
+        is `prize_pool` minus that sum. A positive discrepancy is a reserve, a negative one
+        is an overspend. Neither is an error and neither blocks saving the event: the
+        organiser may announce a pool larger than the prizes, or a sponsor may add to it
+        later. When the event declares no pool, `discrepancy_known` is false and no
+        discrepancy is reported rather than a zero being invented.
+
+        Access follows the track listing: an unpublished event answers only to an
+        administrator, a published one to any reader.
+      parameters:
+      - description: Event identifier
+        example: ev_3k7d8gb9be
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EventFinanceResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Event finance
+      tags:
+      - finance
+  /events/{id}/finance/export:
+    get:
+      description: |-
+        The same figures the finance endpoint returns, flattened into rows instead of a
+        tree: one row per track place or nomination, one row per case, and the totals of
+        the reconciliation last. The `section` column says which of the three a row is.
+
+        Access follows the finance endpoint itself.
+      parameters:
+      - description: Event identifier
+        example: ev_3k7d8gb9be
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: CSV payload
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Export the finance reconciliation as CSV
+      tags:
+      - finance
   /events/{id}/join:
     post:
       consumes:

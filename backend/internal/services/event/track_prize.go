@@ -3,14 +3,16 @@ package event
 import (
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 const (
-	trackPlaceLimit = 20
-	trackNoLimit    = 50
+	trackPlaceLimit      = 20
+	trackNoLimit         = 50
+	nominationTitleLimit = 120
 )
 
 func parseWholeAmount(field, value string) (int64, error) {
@@ -37,30 +39,68 @@ func amountError(field string) error {
 		models.FieldError{Field: field, Message: "a non-negative whole number is expected"})
 }
 
+func validateNominationTitle(raw string, seen map[string]struct{}) (string, error) {
+	title := strings.TrimSpace(raw)
+	if title == "" || utf8.RuneCountInString(title) > nominationTitleLimit {
+		return "", models.NewValidation("invalid nomination title",
+			models.FieldError{Field: "title",
+				Message: "1 to " + strconv.Itoa(nominationTitleLimit) + " characters are expected"})
+	}
+	key := strings.ToLower(title)
+	if _, duplicate := seen[key]; duplicate {
+		return "", models.NewValidation("duplicate nomination title",
+			models.FieldError{Field: "title", Message: "each nomination appears at most once"})
+	}
+	seen[key] = struct{}{}
+	return title, nil
+}
+
+func validatePlace(place int, seen map[int]struct{}) error {
+	if place < 1 || place > trackPlaceLimit {
+		return models.NewValidation("invalid prize place",
+			models.FieldError{Field: "place",
+				Message: "must be between 1 and " + strconv.Itoa(trackPlaceLimit)})
+	}
+	if _, duplicate := seen[place]; duplicate {
+		return models.NewValidation("duplicate prize place",
+			models.FieldError{Field: "place", Message: "each place appears at most once"})
+	}
+	seen[place] = struct{}{}
+	return nil
+}
+
 func validatePrizeInputs(inputs []dto.TrackPrizeInput) ([]models.TrackPrize, int64, error) {
 	prizes := make([]models.TrackPrize, 0, len(inputs))
-	seen := make(map[int]struct{}, len(inputs))
+	places := make(map[int]struct{}, len(inputs))
+	titles := make(map[string]struct{}, len(inputs))
 	var total int64
 	for _, in := range inputs {
-		if in.Place < 1 || in.Place > trackPlaceLimit {
-			return nil, 0, models.NewValidation("invalid prize place",
+		if (in.Place == nil) == (in.Title == nil) {
+			return nil, 0, models.NewValidation("a prize is either a place or a nomination",
 				models.FieldError{Field: "place",
-					Message: "must be between 1 and " + strconv.Itoa(trackPlaceLimit)})
+					Message: "exactly one of place or title is expected"})
 		}
-		if _, duplicate := seen[in.Place]; duplicate {
-			return nil, 0, models.NewValidation("duplicate prize place",
-				models.FieldError{Field: "place", Message: "each place appears at most once"})
+		prize := models.TrackPrize{}
+		if in.Place != nil {
+			if err := validatePlace(*in.Place, places); err != nil {
+				return nil, 0, err
+			}
+			place := *in.Place
+			prize.Place = &place
+		} else {
+			title, err := validateNominationTitle(*in.Title, titles)
+			if err != nil {
+				return nil, 0, err
+			}
+			prize.Title = &title
 		}
-		seen[in.Place] = struct{}{}
 		amount, err := parseWholeAmount("amount", in.Amount)
 		if err != nil {
 			return nil, 0, err
 		}
 		total += amount
-		prizes = append(prizes, models.TrackPrize{
-			Place:  in.Place,
-			Amount: strconv.FormatInt(amount, 10),
-		})
+		prize.Amount = strconv.FormatInt(amount, 10)
+		prizes = append(prizes, prize)
 	}
 	return prizes, total, nil
 }

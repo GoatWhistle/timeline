@@ -28,5 +28,7 @@ type AuthService interface {
 	ResendVerification(ctx context.Context, email string) error
 	ForgotPassword(ctx context.Context, email string) error
 	ResetPassword(ctx context.Context, token, password string) error
+	ChangePassword(ctx context.Context, actor models.Actor, req dto.ChangePasswordRequest) error
 	ConfirmEmailChange(ctx context.Context, token string) error
+	CancelEmailChange(ctx context.Context, token string) error
 }

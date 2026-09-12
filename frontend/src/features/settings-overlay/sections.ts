@@ -1,12 +1,4 @@
-import {
-  Bell,
-  Keyboard,
-  Monitor,
-  MonitorSmartphone,
-  ShieldAlert,
-  UserRound,
-  UserRoundCog,
-} from 'lucide-react'
+import { Bell, Keyboard, Monitor, MonitorSmartphone, UserRound, UserRoundCog } from 'lucide-react'
 import type { ComponentType } from 'react'
 
 export const SETTINGS_PARAM = 'settings'
@@ -18,7 +10,6 @@ export type SettingsSectionId =
   | 'notifications'
   | 'shortcuts'
   | 'sessions'
-  | 'danger'
 
 export type SettingsSection = {
   id: SettingsSectionId
@@ -33,7 +24,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   { id: 'notifications', labelKey: 'settings.sectionNotifications', icon: Bell },
   { id: 'shortcuts', labelKey: 'settings.sectionShortcuts', icon: Keyboard },
   { id: 'sessions', labelKey: 'settings.sectionSessions', icon: MonitorSmartphone },
-  { id: 'danger', labelKey: 'settings.sectionDanger', icon: ShieldAlert },
 ]
 
 export const DEFAULT_SECTION: SettingsSectionId = 'profile'

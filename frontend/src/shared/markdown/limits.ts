@@ -1,0 +1,4 @@
+export const MARKDOWN_MAX_LENGTH = 8000
+export const MARKDOWN_MAX_LINES = 400
+export const MARKDOWN_MAX_LIST_DEPTH = 3
+export const MARKDOWN_MAX_INLINE_NODES = 400

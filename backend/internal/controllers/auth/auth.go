@@ -240,26 +240,3 @@ func (c *Controller) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	c.cookies.Clear(w)
 	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "password changed, sessions revoked"})
 }
-
-// @Summary		Confirm an email change
-// @Description	Promotes pending_email to the primary address. Until confirmation, sign-in uses the previous address.
-// @Tags			auth
-// @Accept			json
-// @Produce		json
-// @Param			request	body		dto.TokenRequest	true	"Confirmation token"
-// @Success		200		{object}	dto.MessageResponse
-// @Failure		400		{object}	dto.ErrorResponse
-// @Failure		409		{object}	dto.ErrorResponse	"address is already taken"
-// @Router			/auth/email-change/confirm [post]
-func (c *Controller) ConfirmEmailChange(w http.ResponseWriter, r *http.Request) {
-	var req dto.TokenRequest
-	if err := httpx.Decode(r, &req); err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	if err := c.svc.ConfirmEmailChange(r.Context(), req.Token); err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusOK, dto.MessageResponse{Message: "email updated"})
-}

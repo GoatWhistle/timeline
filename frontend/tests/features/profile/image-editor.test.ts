@@ -3,12 +3,20 @@ import {
   clampRectTo,
   fitWithin,
   isUsableCrop,
+  isValidHexColour,
   MAX_EDIT_DIMENSION,
+  normaliseHexColour,
   normaliseRect,
   toHex,
   toRgba,
 } from '@/features/profile/image-editor/editor-model'
 import { floodFill, pixelAt } from '@/features/profile/image-editor/flood-fill'
+import {
+  emptyHistory,
+  pushHistory,
+  redoHistory,
+  undoHistory,
+} from '@/features/profile/image-editor/history-stack'
 
 describe('crop geometry', () => {
   it('normalises a rectangle dragged in any direction', () => {
@@ -61,6 +69,29 @@ describe('colour conversion', () => {
   })
 })
 
+describe('custom colour code entry', () => {
+  it('accepts a full and a short hex code', () => {
+    expect(isValidHexColour('#3b82f6')).toBe(true)
+    expect(isValidHexColour('#fff')).toBe(true)
+  })
+
+  it('rejects anything that is not a hex colour', () => {
+    expect(isValidHexColour('3b82f6')).toBe(false)
+    expect(isValidHexColour('red')).toBe(false)
+    expect(isValidHexColour('#ggg')).toBe(false)
+    expect(isValidHexColour('')).toBe(false)
+  })
+
+  it('normalises a valid code, trimming and expanding the short form', () => {
+    expect(normaliseHexColour('  #FFF  ')).toBe('#ffffff')
+    expect(normaliseHexColour('#3B82F6')).toBe('#3b82f6')
+  })
+
+  it('rejects an invalid code instead of guessing a colour', () => {
+    expect(normaliseHexColour('not-a-colour')).toBeNull()
+  })
+})
+
 function canvasData(width: number, height: number, fill: [number, number, number, number]) {
   const data = new Uint8ClampedArray(width * height * 4)
   for (let i = 0; i < data.length; i += 4) {
@@ -102,5 +133,51 @@ describe('flood fill', () => {
     const data = canvasData(2, 2, [255, 255, 255, 255])
     expect(floodFill(data, 2, 2, -1, 0, '#ff0000')).toBe(false)
     expect(floodFill(data, 2, 2, 2, 0, '#ff0000')).toBe(false)
+  })
+})
+
+describe('undo/redo history', () => {
+  it('clears the redo stack on a new edit, so a stale future is never replayed', () => {
+    let history = emptyHistory<string>()
+    history = pushHistory(history, 'a', 20)
+    const afterUndo = undoHistory(history, 'b', 20)
+    expect(afterUndo?.history.redoStack).toEqual(['b'])
+
+    const afterAnotherEdit = pushHistory(afterUndo?.history ?? emptyHistory(), 'c', 20)
+    expect(afterAnotherEdit.redoStack).toEqual([])
+  })
+
+  it('moves the current state onto redo and restores the previous one on undo', () => {
+    let history = emptyHistory<string>()
+    history = pushHistory(history, 'a', 20)
+    const outcome = undoHistory(history, 'b', 20)
+    expect(outcome?.restored).toBe('a')
+    expect(outcome?.history.redoStack).toEqual(['b'])
+    expect(outcome?.history.undoStack).toEqual([])
+  })
+
+  it('does nothing when there is nothing to undo', () => {
+    expect(undoHistory(emptyHistory<string>(), 'a', 20)).toBeNull()
+  })
+
+  it('restores what undo put aside when redo is called next', () => {
+    let history = emptyHistory<string>()
+    history = pushHistory(history, 'a', 20)
+    const undone = undoHistory(history, 'b', 20)
+    const redone = redoHistory(undone?.history ?? emptyHistory(), 'a', 20)
+    expect(redone?.restored).toBe('b')
+    expect(redone?.history.undoStack).toEqual(['a'])
+    expect(redone?.history.redoStack).toEqual([])
+  })
+
+  it('does nothing when there is nothing to redo', () => {
+    expect(redoHistory(emptyHistory<string>(), 'a', 20)).toBeNull()
+  })
+
+  it('never grows the undo stack past the limit', () => {
+    let history = emptyHistory<number>()
+    for (let i = 0; i < 25; i += 1) history = pushHistory(history, i, 20)
+    expect(history.undoStack).toHaveLength(20)
+    expect(history.undoStack[0]).toBe(5)
   })
 })

@@ -43,22 +43,29 @@ function renderField() {
   return renderWithProviders(<AvatarField seed={SEED} firstName="Ivan" lastName="Petrov" />)
 }
 
+async function openUploadDialog() {
+  const rendered = renderField()
+  await rendered.user.click(screen.getByRole('button', { name: /Upload/i }))
+  await screen.findByRole('alertdialog')
+  return rendered
+}
+
 beforeEach(() => {
   toastError.mockClear()
   toastSuccess.mockClear()
 })
 
 describe('the upload control is a real file input, not a scripted click', () => {
-  it('puts the file input inside its own label so the browser opens the picker', () => {
-    renderField()
+  it('puts the file input inside its own label so the browser opens the picker', async () => {
+    await openUploadDialog()
     const node = fileInput()
 
     expect(node.closest('label')).not.toBeNull()
     expect(node.disabled).toBe(false)
   })
 
-  it('keeps the input reachable rather than collapsing it to nothing', () => {
-    renderField()
+  it('keeps the input reachable rather than collapsing it to nothing', async () => {
+    await openUploadDialog()
     const node = fileInput()
 
     expect(node.className).toContain('sr-only')
@@ -67,7 +74,7 @@ describe('the upload control is a real file input, not a scripted click', () => 
   })
 
   it('clears the value after a choice so the same file can be picked twice', async () => {
-    renderField()
+    await openUploadDialog()
     const node = fileInput()
 
     select(node, png('avatar.png'))
@@ -80,8 +87,8 @@ describe('the upload control is a real file input, not a scripted click', () => 
 
 describe('a chosen file is checked before the editor opens', () => {
   it('opens the editor overlay for an accepted image', async () => {
-    const { user } = renderField()
-    await user.upload(fileInput(), png('avatar.png'))
+    await openUploadDialog()
+    select(fileInput(), png('avatar.png'))
 
     await waitFor(() => {
       expect(screen.getByRole('dialog', { name: /Image editor|editor/i })).toBeInTheDocument()
@@ -90,7 +97,7 @@ describe('a chosen file is checked before the editor opens', () => {
   })
 
   it('refuses a file the server would reject for its type, and says so', async () => {
-    renderField()
+    await openUploadDialog()
     const bad = new File([new Uint8Array(8)], 'notes.pdf', { type: 'application/pdf' })
 
     select(fileInput(), bad)
@@ -99,9 +106,9 @@ describe('a chosen file is checked before the editor opens', () => {
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
-  it('refuses a file past the 2 MB limit before it reaches the network', async () => {
-    renderField()
-    const huge = png('huge.png', 2 * 1024 * 1024 + 1)
+  it('refuses a file past the 5 MB limit before it reaches the network', async () => {
+    await openUploadDialog()
+    const huge = png('huge.png', 5 * 1024 * 1024 + 1)
 
     select(fileInput(), huge)
 

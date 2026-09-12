@@ -17,6 +17,7 @@ const (
 	PurposeEmailVerification TokenPurpose = "EMAIL_VERIFICATION"
 	PurposePasswordReset     TokenPurpose = "PASSWORD_RESET"
 	PurposeEmailChange       TokenPurpose = "EMAIL_CHANGE"
+	PurposeEmailChangeCancel TokenPurpose = "EMAIL_CHANGE_CANCEL"
 	PurposeTelegramLink      TokenPurpose = "TELEGRAM_LINK"
 )
 
@@ -189,6 +190,9 @@ const (
 	AuditTrackUpdate         AuditAction = "TRACK_UPDATE"
 	AuditTrackDelete         AuditAction = "TRACK_DELETE"
 	AuditTrackPrizeSet       AuditAction = "TRACK_PRIZE_SET"
+	AuditCaseCreate          AuditAction = "EVENT_CASE_CREATE"
+	AuditCaseUpdate          AuditAction = "EVENT_CASE_UPDATE"
+	AuditCaseDelete          AuditAction = "EVENT_CASE_DELETE"
 	AuditTeamTrackChoose     AuditAction = "TEAM_TRACK_CHOOSE"
 	AuditParticipantAdd      AuditAction = "PARTICIPANT_ADD"
 	AuditParticipantRemove   AuditAction = "PARTICIPANT_REMOVE"
@@ -223,6 +227,7 @@ const (
 	EntityEvent              EntityType = "EVENT"
 	EntityStage              EntityType = "STAGE"
 	EntityEventTrack         EntityType = "EVENT_TRACK"
+	EntityEventCase          EntityType = "EVENT_CASE"
 	EntityParticipant        EntityType = "EVENT_PARTICIPANT"
 	EntityTeam               EntityType = "TEAM"
 	EntityTeamMember         EntityType = "TEAM_MEMBER"

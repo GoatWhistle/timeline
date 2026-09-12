@@ -1,13 +1,12 @@
-import { Link2, Link2Off } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useLinkTelegram, useUnlinkTelegram } from '@/entities/user/profile.queries'
+import { ChannelCard } from '@/features/profile/channel-card/channel-card'
+import { channelState } from '@/features/profile/channel-card/channel-state'
 import type { MeResponse } from '@/shared/api/types.gen'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { TelegramMark } from '@/shared/ui/navigation/service-link/service-icon'
-import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 
 export function TelegramLinkCard({ user }: { user: MeResponse }) {
@@ -28,58 +27,42 @@ export function TelegramLinkCard({ user }: { user: MeResponse }) {
   async function onUnlink() {
     try {
       await unlinkTelegram.mutateAsync()
+      setDeepLink(null)
     } catch {
       toast.error(t('account.telegramUnlinkFailed'))
     }
   }
 
   const linked = user.telegram_linked
+  const state = channelState({ linked, pending: Boolean(deepLink) && !linked })
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TelegramMark className="size-4 text-telegram" />
-          {t('account.telegramTitle')}
-        </CardTitle>
-        <CardDescription>{t('account.telegramHint')}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <Badge tone={linked ? 'primary' : 'neutral'}>
-              {linked ? (
-                <Link2 className="size-3 shrink-0" aria-hidden="true" />
-              ) : (
-                <Link2Off className="size-3 shrink-0" aria-hidden="true" />
-              )}
-              {linked ? t('account.telegramLinked') : t('account.telegramNotLinked')}
-            </Badge>
-            {linked && user.telegram_username ? (
-              <p className="mt-1 text-meta text-muted-foreground">@{user.telegram_username}</p>
-            ) : null}
-          </div>
-
-          {linked ? (
-            <Button variant="outline" onClick={onUnlink} disabled={unlinkTelegram.isPending}>
-              {t('account.telegramUnlink')}
-            </Button>
-          ) : (
-            <Button onClick={onLink} disabled={linkTelegram.isPending}>
-              {t('account.telegramLink')}
-            </Button>
-          )}
-        </div>
-
-        {deepLink ? (
-          <p className="text-copy">
-            {t('account.telegramDeepLinkHint')}{' '}
-            <ExternalLink className="text-primary hover:underline" href={deepLink}>
-              {t('account.telegramOpen')}
-            </ExternalLink>
-          </p>
-        ) : null}
-      </CardContent>
-    </Card>
+    <ChannelCard
+      title={t('account.telegramTitle')}
+      hint={t('account.telegramHint')}
+      mark={<TelegramMark className="size-4 text-telegram" />}
+      state={state}
+      value={linked && user.telegram_username ? `@${user.telegram_username}` : undefined}
+      action={
+        linked ? (
+          <Button variant="outline" onClick={onUnlink} disabled={unlinkTelegram.isPending}>
+            {t('account.telegramUnlink')}
+          </Button>
+        ) : (
+          <Button onClick={onLink} disabled={linkTelegram.isPending}>
+            {t('account.telegramLink')}
+          </Button>
+        )
+      }
+    >
+      {deepLink && !linked ? (
+        <p className="text-copy">
+          {t('account.telegramDeepLinkHint')}{' '}
+          <ExternalLink className="text-primary hover:underline" href={deepLink}>
+            {t('account.telegramOpen')}
+          </ExternalLink>
+        </p>
+      ) : null}
+    </ChannelCard>
   )
 }

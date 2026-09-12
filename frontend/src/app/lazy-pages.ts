@@ -27,6 +27,11 @@ export const EmailChangeConfirmPage = lazy(() =>
     default: m.EmailChangeConfirmPage,
   })),
 )
+export const EmailChangeCancelPage = lazy(() =>
+  import('@/features/auth/email-change-cancel/email-change-cancel').then((m) => ({
+    default: m.EmailChangeCancelPage,
+  })),
+)
 
 export const CatalogPage = lazy(() =>
   import('@/features/catalog/catalog').then((m) => ({ default: m.CatalogPage })),

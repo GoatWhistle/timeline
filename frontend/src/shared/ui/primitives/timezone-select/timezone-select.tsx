@@ -2,6 +2,7 @@ import { Check, ChevronDown, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { browserTimeZone } from '@/shared/datetime/datetime'
+import { useWheelScroll } from '@/shared/hooks/use-wheel-scroll/use-wheel-scroll'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Input } from '@/shared/ui/forms/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/overlays/popover'
@@ -38,6 +39,7 @@ export function TimezoneSelect({
   const [query, setQuery] = useState('')
   const now = useMinuteClock()
   const detected = browserTimeZone()
+  const listRef = useWheelScroll<HTMLDivElement>()
 
   const matching = useMemo(
     () => zoneOptions(value).filter((zone) => matchesQuery(zone, query)),
@@ -96,7 +98,10 @@ export function TimezoneSelect({
           />
         </div>
 
-        <div className="max-h-[min(14rem,var(--radix-popper-available-height,14rem))] overflow-y-auto py-1">
+        <div
+          ref={listRef}
+          className="max-h-[min(14rem,var(--radix-popper-available-height,14rem))] overflow-y-auto py-1"
+        >
           {groups.map((group) => (
             <div key={group.region}>
               <p className="px-3 pt-2 pb-1 font-medium text-caption text-muted-foreground">

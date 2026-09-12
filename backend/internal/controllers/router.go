@@ -5,6 +5,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/controllers/auth"
 	"github.com/GoatWhistle/timeline/internal/controllers/event"
+	"github.com/GoatWhistle/timeline/internal/controllers/finance"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/notification"
 	"github.com/GoatWhistle/timeline/internal/controllers/participation"
@@ -51,6 +52,8 @@ import (
 // @tag.description			Event stages
 // @tag.name					tracks
 // @tag.description			Hackathon tracks and the prize split across their places
+// @tag.name					finance
+// @tag.description			Event money in one place: pool, track prizes, partner cases and their reconciliation
 // @tag.name					participants
 // @tag.description			Participant roster and bulk operations
 // @tag.name					registration
@@ -79,7 +82,8 @@ func NewRouter(deps Deps) http.Handler {
 		deps.CSRFTTL, deps.PageDefault, deps.PageMax)
 	profileC := auth.NewProfileController(deps.Profile, deps.Cookies, deps.Limiter,
 		deps.ProfileRate, deps.ProfileRateWindow)
-	telegramC := auth.NewTelegramWebhookController(deps.Profile, deps.TelegramWebhookSecret)
+	telegramC := auth.NewTelegramWebhookController(deps.Profile, deps.TelegramWebhookSecret).
+		WithBot(deps.TelegramBot)
 	publicProfileC := auth.NewPublicProfileController(deps.PublicProfiles, deps.Limiter,
 		deps.PublicRate, deps.PublicRateWindow)
 	userC := auth.NewUserController(deps.Users, deps.UserPageSize, deps.PageMax)
@@ -93,15 +97,10 @@ func NewRouter(deps Deps) http.Handler {
 	avatarC := auth.NewAvatarController(deps.Avatars, deps.Limiter,
 		deps.ProfileRate, deps.ProfileRateWindow, deps.AvatarMaxBytes)
 	coverC := event.NewCoverController(deps.Covers, deps.CoverMaxBytes)
-	partC := participation.NewController(deps.Participants, deps.PageDefault, deps.PageMax)
-	regC := participation.NewRegistrationController(deps.Registrations, deps.PageDefault, deps.PageMax)
-	statusC := participation.NewRegistrationStatusController(deps.Statuses, deps.PageDefault, deps.PageMax)
+	partC, regC, statusC := participationControllers(deps)
 	ruleC := notification.NewNotificationRuleController(deps.Rules)
 	queryC := event.NewQueryController(deps.Queries, deps.PageDefault, deps.PageMax)
-	auditC := notification.NewAuditController(deps.Audit, deps.PageDefault, deps.PageMax)
-	opsC := notification.NewOpsController(deps.Ops, deps.MetricsToken, deps.Metrics, deps.Limiter,
-		deps.QueueRate, deps.QueueRateWindow, deps.PageDefault, deps.PageMax)
-	previewC := notification.NewPreviewController(deps.Previews, deps.Limiter, deps.PreviewRate, deps.PreviewRateWindow)
+	auditC, opsC, previewC := notificationControllers(deps)
 	personalC := personal.NewController(deps.Personal, deps.Limiter, deps.PersonalRate,
 		deps.PersonalRateWindow, deps.PageDefault, deps.PageMax)
 	linkC := event.NewResourceLinkController(deps.Links, deps.Limiter, deps.LinkRate,
@@ -117,6 +116,7 @@ func NewRouter(deps Deps) http.Handler {
 	mountPublicProfile(mux, api, publicProfileC)
 	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC, profileLinkC, avatarC)
 	mountCovers(mux, rt, api, coverC)
+	mountFinance(mux, rt, api, finance.NewController(deps.Finance, deps.Cases))
 	mountPersonal(mux, rt, api, personalC)
 	mountTeams(mux, rt, api, teamC)
 	mountResourceLinks(mux, rt, api, linkC)
@@ -153,4 +153,20 @@ func (rt *routes) authd(fn http.HandlerFunc) http.Handler {
 
 func (rt *routes) admin(fn http.HandlerFunc) http.Handler {
 	return middleware.Auth(rt.authn)(middleware.AdminOnly(fn))
+}
+
+func participationControllers(deps Deps) (*participation.Controller,
+	*participation.RegistrationController, *participation.RegistrationStatusController) {
+	return participation.NewController(deps.Participants, deps.PageDefault, deps.PageMax),
+		participation.NewRegistrationController(deps.Registrations, deps.PageDefault, deps.PageMax),
+		participation.NewRegistrationStatusController(deps.Statuses, deps.PageDefault, deps.PageMax)
+}
+
+func notificationControllers(deps Deps) (*notification.AuditController,
+	*notification.OpsController, *notification.PreviewController) {
+	return notification.NewAuditController(deps.Audit, deps.PageDefault, deps.PageMax),
+		notification.NewOpsController(deps.Ops, deps.MetricsToken, deps.Metrics, deps.Limiter,
+			deps.QueueRate, deps.QueueRateWindow, deps.PageDefault, deps.PageMax),
+		notification.NewPreviewController(deps.Previews, deps.Limiter,
+			deps.PreviewRate, deps.PreviewRateWindow)
 }

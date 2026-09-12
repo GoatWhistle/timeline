@@ -37,6 +37,14 @@ export function TrackBudget({ tracks }: { tracks: EventTrackListResponse }) {
             {formatMoney(tracks.distributed, currency) ?? tracks.distributed}
           </dd>
         </div>
+        {Number(tracks.nominations ?? '0') > 0 && (
+          <div className="flex min-w-0 flex-col">
+            <dt className="text-caption text-muted-foreground">{t('tracks.nominationsTotal')}</dt>
+            <dd className="font-medium tabular-nums">
+              {formatMoney(tracks.nominations, currency) ?? tracks.nominations}
+            </dd>
+          </div>
+        )}
         <div className="flex min-w-0 flex-col">
           <dt className="text-caption text-muted-foreground">{t('place.prizeUnallocated')}</dt>
           <dd className="font-semibold text-prize tabular-nums">

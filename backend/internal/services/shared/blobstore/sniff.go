@@ -9,10 +9,12 @@ import (
 var ErrUnsupportedType = errors.New("unsupported image type")
 
 var (
-	magicPNG  = []byte{0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A}
-	magicJPEG = []byte{0xFF, 0xD8, 0xFF}
-	magicRIFF = []byte("RIFF")
-	magicWEBP = []byte("WEBP")
+	magicPNG   = []byte{0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A}
+	magicJPEG  = []byte{0xFF, 0xD8, 0xFF}
+	magicRIFF  = []byte("RIFF")
+	magicWEBP  = []byte("WEBP")
+	magicGIF87 = []byte("GIF87a")
+	magicGIF89 = []byte("GIF89a")
 )
 
 func Sniff(data []byte) (string, error) {
@@ -23,6 +25,8 @@ func Sniff(data []byte) (string, error) {
 		return TypeJPEG, nil
 	case len(data) >= 12 && bytes.HasPrefix(data, magicRIFF) && bytes.Equal(data[8:12], magicWEBP):
 		return TypeWebP, nil
+	case bytes.HasPrefix(data, magicGIF87) || bytes.HasPrefix(data, magicGIF89):
+		return TypeGIF, nil
 	}
 	return "", ErrUnsupportedType
 }

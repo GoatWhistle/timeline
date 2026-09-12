@@ -27,10 +27,10 @@ func (s *recordingMailSender) last(t *testing.T) models.OutboundMessage {
 
 func TestMailerRendersInRecipientLanguage(t *testing.T) {
 	sender := &recordingMailSender{}
-	mailer := NewMailer(sender, "https://timeline.test")
+	mailer := NewMailer(sender, nil, "https://timeline.test")
 
 	mailer.SendVerification(context.Background(), "user@example.test", "John Smith", "en",
-		"token123", 24*time.Hour)
+		"token123", 24*time.Hour, TelegramRecipient{})
 	english := sender.last(t)
 	if english.Subject != locale.Message("en", "email.verification.subject") {
 		t.Errorf("subject is not English: %q", english.Subject)
@@ -40,7 +40,7 @@ func TestMailerRendersInRecipientLanguage(t *testing.T) {
 	}
 
 	mailer.SendVerification(context.Background(), "user@example.test", "John Smith", "ru",
-		"token123", 24*time.Hour)
+		"token123", 24*time.Hour, TelegramRecipient{})
 	russian := sender.last(t)
 	if russian.Subject == english.Subject {
 		t.Error("Russian recipient received the English subject")
@@ -49,7 +49,7 @@ func TestMailerRendersInRecipientLanguage(t *testing.T) {
 
 func TestMailerFallsBackToDefaultForUnknownLanguage(t *testing.T) {
 	sender := &recordingMailSender{}
-	mailer := NewMailer(sender, "https://timeline.test")
+	mailer := NewMailer(sender, nil, "https://timeline.test")
 
 	mailer.SendInvite(context.Background(), "new@example.test", "Admin", "", "token123", time.Hour)
 	got := sender.last(t)

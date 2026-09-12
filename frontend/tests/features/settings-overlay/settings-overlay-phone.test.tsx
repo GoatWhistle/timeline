@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { renderWithProviders } from '@tests/support/render'
 import type { ReactNode } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
+import { SETTINGS_SECTIONS } from '@/features/settings-overlay/sections'
 import { SettingsOverlay } from '@/features/settings-overlay/settings-overlay'
 import { sessionQueryKey } from '@/shared/api/session'
 import type { MeResponse } from '@/shared/api/types.gen'
@@ -90,7 +91,9 @@ describe('settings drop the side rail on a phone the way the app shell does', ()
 
     const index = document.querySelector('[data-settings-index]')
     expect(index).not.toBeNull()
-    expect(index?.querySelectorAll('[data-settings-index-item]').length).toBe(7)
+    expect(index?.querySelectorAll('[data-settings-index-item]').length).toBe(
+      SETTINGS_SECTIONS.length,
+    )
   })
 
   it('offers a way back to the index from a section on a phone', async () => {
@@ -130,7 +133,6 @@ describe('settings drop the side rail on a phone the way the app shell does', ()
       'notifications',
       'shortcuts',
       'sessions',
-      'danger',
     ])
   })
 })

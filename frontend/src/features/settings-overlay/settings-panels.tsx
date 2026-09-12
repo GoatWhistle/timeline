@@ -8,11 +8,11 @@ import {
   DeactivateAccountCard,
   LogoutAllCard,
 } from '@/features/profile/account-actions-card/account-actions-card'
-import { AccountIdentityCard } from '@/features/profile/account-identity-card/account-identity-card'
 import { EmailChangeCard } from '@/features/profile/email-change-card/email-change-card'
 import { NicknameCard } from '@/features/profile/nickname-card/nickname-card'
 import { NotificationChannelCard } from '@/features/profile/notification-channel-card/notification-channel-card'
 import { NotificationExplainerCard } from '@/features/profile/notification-explainer-card/notification-explainer-card'
+import { PasswordChangeCard } from '@/features/profile/password-change-card/password-change-card'
 import { PersonalDataCard } from '@/features/profile/personal-data-card/personal-data-card'
 import { ProfileLinksCard } from '@/features/profile/profile-links-card/profile-links-card'
 import { TelegramLinkCard } from '@/features/profile/telegram-link-card/telegram-link-card'
@@ -73,9 +73,14 @@ function AppearancePanel({ user }: { user: MeResponse }) {
 function AccountPanel({ user }: { user: MeResponse }) {
   return (
     <div className="flex flex-col gap-4">
-      <AccountIdentityCard user={user} />
-      <EmailChangeCard pendingEmail={user.pending_email} />
+      <EmailChangeCard
+        email={user.email}
+        emailVerified={user.email_verified}
+        pendingEmail={user.pending_email}
+      />
       <TelegramLinkCard user={user} />
+      <PasswordChangeCard />
+      <DeactivateAccountCard />
     </div>
   )
 }
@@ -119,14 +124,6 @@ export function SettingsPanel({
       <div className="flex flex-col gap-4">
         <DeviceList />
         <LogoutAllCard />
-      </div>
-    )
-  }
-
-  if (section === 'danger') {
-    return (
-      <div className="flex flex-col gap-4">
-        <DeactivateAccountCard />
       </div>
     )
   }

@@ -18,12 +18,19 @@ import {
   type Point,
   type Rect,
 } from './editor-model'
+import {
+  emptyHistory,
+  type HistoryStack,
+  pushHistory as pushOnto,
+  redoHistory,
+  undoHistory,
+} from './history-stack'
 
 const HISTORY_LIMIT = 20
 
 export function useImageEditor(source: Blob) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const historyRef = useRef<ImageData[]>([])
+  const historyRef = useRef<HistoryStack<ImageData>>(emptyHistory())
   const strokeStart = useRef<Point | null>(null)
   const strokeLast = useRef<Point | null>(null)
   const snapshot = useRef<ImageData | null>(null)
@@ -35,6 +42,7 @@ export function useImageEditor(source: Blob) {
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
   const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
 
   const context = useCallback(() => canvasRef.current?.getContext('2d') ?? null, [])
 
@@ -58,8 +66,9 @@ export function useImageEditor(source: Blob) {
           ctx.clearRect(0, 0, width, height)
           ctx.drawImage(decoded, 0, 0, width, height)
         }
-        historyRef.current = []
+        historyRef.current = emptyHistory()
         setCanUndo(false)
+        setCanRedo(false)
         setCrop(null)
         setReady(true)
       })
@@ -79,21 +88,42 @@ export function useImageEditor(source: Blob) {
     const ctx = context()
     const canvas = canvasRef.current
     if (!ctx || !canvas || canvas.width === 0) return
-    historyRef.current.push(ctx.getImageData(0, 0, canvas.width, canvas.height))
-    if (historyRef.current.length > HISTORY_LIMIT) historyRef.current.shift()
+    const snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    historyRef.current = pushOnto(historyRef.current, snapshot, HISTORY_LIMIT)
     setCanUndo(true)
+    setCanRedo(false)
   }, [context])
 
   const undo = useCallback(() => {
     const ctx = context()
     const canvas = canvasRef.current
-    const previous = historyRef.current.pop()
-    if (!ctx || !canvas || !previous) return
-    canvas.width = previous.width
-    canvas.height = previous.height
-    ctx.putImageData(previous, 0, 0)
+    if (!ctx || !canvas) return
+    const current = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    const outcome = undoHistory(historyRef.current, current, HISTORY_LIMIT)
+    if (!outcome) return
+    historyRef.current = outcome.history
+    canvas.width = outcome.restored.width
+    canvas.height = outcome.restored.height
+    ctx.putImageData(outcome.restored, 0, 0)
     setCrop(null)
-    setCanUndo(historyRef.current.length > 0)
+    setCanUndo(outcome.history.undoStack.length > 0)
+    setCanRedo(true)
+  }, [context])
+
+  const redo = useCallback(() => {
+    const ctx = context()
+    const canvas = canvasRef.current
+    if (!ctx || !canvas) return
+    const current = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    const outcome = redoHistory(historyRef.current, current, HISTORY_LIMIT)
+    if (!outcome) return
+    historyRef.current = outcome.history
+    canvas.width = outcome.restored.width
+    canvas.height = outcome.restored.height
+    ctx.putImageData(outcome.restored, 0, 0)
+    setCrop(null)
+    setCanUndo(true)
+    setCanRedo(outcome.history.redoStack.length > 0)
   }, [context])
 
   const begin = useCallback(
@@ -195,10 +225,12 @@ export function useImageEditor(source: Blob) {
     ready,
     failed,
     canUndo,
+    canRedo,
     begin,
     move,
     end,
     undo,
+    redo,
     applyCrop,
     toBlob,
   }

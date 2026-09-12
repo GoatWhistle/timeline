@@ -85,6 +85,11 @@ type ChangeEmailRequest struct {
 	Password string `json:"password" example:"correct-horse-battery"`
 }
 
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"current_password" example:"correct-horse-battery"`
+	NewPassword     string `json:"new_password" example:"another-horse-battery-staple"`
+}
+
 type TelegramLinkResponse struct {
 	DeepLink  string    `json:"deep_link" example:"https://t.me/timeline_bot?start=abc123"`
 	ExpiresAt time.Time `json:"expires_at"`

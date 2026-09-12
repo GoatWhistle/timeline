@@ -8,6 +8,7 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/config"
@@ -21,21 +22,22 @@ type DeliveryService struct {
 	notifications *notification.Notifications
 	scheduler     *notification.Scheduler
 	users         *identity.Users
+	events        *event.Events
 	audit         *audit.Audit
 	telegram      mail.TelegramSender
 	email         mail.EmailSender
-	events        *realtime.SystemEventService
+	feed          *realtime.SystemEventService
 	cfg           *config.Config
 	now           func() time.Time
 }
 
 func NewDeliveryService(db *postgres.DB, notifications *notification.Notifications,
-	scheduler *notification.Scheduler, users *identity.Users,
+	scheduler *notification.Scheduler, users *identity.Users, events *event.Events,
 	audit *audit.Audit,
 	telegram mail.TelegramSender, email mail.EmailSender, cfg *config.Config) *DeliveryService {
 	return &DeliveryService{
 		db:            db,
-		notifications: notifications, scheduler: scheduler, users: users, audit: audit,
+		notifications: notifications, scheduler: scheduler, users: users, events: events, audit: audit,
 		telegram: telegram, email: email, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() },
 	}
@@ -129,7 +131,7 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 	}
 	attempts++
 
-	sendErr := s.send(ctx, channel, n, user)
+	sendErr := s.send(ctx, channel, n, user, candidate)
 	if sendErr == nil {
 		slog.InfoContext(ctx, "notification sent",
 			"notification_id", n.ID, "channel", channel, "attempt", attempts)
@@ -156,7 +158,7 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 }
 
 func (s *DeliveryService) send(ctx context.Context, channel models.Channel,
-	n *models.Notification, user *models.User) error {
+	n *models.Notification, user *models.User, candidate *models.ReconcileCandidate) error {
 	msg := models.OutboundMessage{
 		IdempotencyKey: n.ID.String(),
 		Subject:        n.Payload.Subject,
@@ -168,6 +170,7 @@ func (s *DeliveryService) send(ctx context.Context, channel models.Channel,
 			return models.NewPermanentDeliveryError("no Telegram link is present", nil)
 		}
 		msg.Recipient = *user.TelegramChatID
+		s.attachRegistrationButton(ctx, &msg, n, candidate, user.Locale)
 		return s.telegram.Send(ctx, msg)
 	case models.ChannelEmail:
 		if !user.EmailVerified() {

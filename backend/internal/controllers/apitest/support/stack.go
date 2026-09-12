@@ -13,6 +13,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
+	pgfinance "github.com/GoatWhistle/timeline/internal/adapters/postgres/finance"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
@@ -28,6 +29,7 @@ import (
 	svcauth "github.com/GoatWhistle/timeline/internal/services/auth"
 	svcdelivery "github.com/GoatWhistle/timeline/internal/services/delivery"
 	svcevent "github.com/GoatWhistle/timeline/internal/services/event"
+	svcfinance "github.com/GoatWhistle/timeline/internal/services/finance"
 	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 	svcparticipation "github.com/GoatWhistle/timeline/internal/services/participation"
 	svcpersonal "github.com/GoatWhistle/timeline/internal/services/personal"
@@ -106,7 +108,7 @@ func NewStack(t *testing.T) *Stack {
 	hasher := crypto.NewPasswordHasher(cfg.Argon)
 	issuer := crypto.NewTokenIssuer(cfg.Auth)
 	limiter := ratelimit.New()
-	mailer := mail.NewMailer(email.New(cfg.Email), cfg.App.PublicURL)
+	mailer := mail.NewMailer(email.New(cfg.Email), telegram.New(cfg.Telegram), cfg.App.PublicURL)
 	tg := telegram.New(cfg.Telegram)
 
 	auditSvc := sharedaudit.NewAuditService(auditRepo)
@@ -129,6 +131,7 @@ func NewStack(t *testing.T) *Stack {
 	userSvc.WithRealtime(hub)
 
 	tracksRepo := event.NewTracks(db)
+	casesRepo := pgfinance.NewCases(db)
 	eventSvc := svcevent.NewEventService(db, events, tracksRepo, registrations, notifier, scheduler, auditSvc)
 	querySvc := svcevent.NewQueryService(queries, events, stages, tracksRepo, participants, registrations, statuses)
 
@@ -141,8 +144,10 @@ func NewStack(t *testing.T) *Stack {
 		Events:         eventSvc,
 		Catalog: svcevent.NewCatalogService(db, catalogRepo, events, participants,
 			registrations, statuses, users, notifier, auditSvc),
-		Stages: svcevent.NewStageService(db, stages, events, participants, auditSvc),
-		Tracks: svcevent.NewTrackService(db, tracksRepo, events, participants, auditSvc),
+		Stages:  svcevent.NewStageService(db, stages, events, participants, auditSvc),
+		Tracks:  svcevent.NewTrackService(db, tracksRepo, events, participants, auditSvc),
+		Finance: svcfinance.NewFinanceService(casesRepo, tracksRepo, events),
+		Cases:   svcfinance.NewCaseService(db, casesRepo, tracksRepo, events, auditSvc),
 		Participants: svcparticipation.NewParticipantService(db, participants, events,
 			registrations, statuses, users, notifier, auditSvc),
 		Registrations: svcparticipation.NewRegistrationService(db, registrations, events,

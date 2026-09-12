@@ -3,6 +3,7 @@ import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Button } from '@/shared/ui/primitives/button'
+import { CustomColourField } from './custom-colour-field'
 import { BRUSH_SIZES, EDITOR_PALETTE, EDITOR_TOOLS, type EditorTool } from './editor-model'
 
 const TOOL_ICONS: Record<EditorTool, ComponentType<{ className?: string }>> = {
@@ -96,6 +97,7 @@ export function EditorToolbar({
             />
           </label>
         ))}
+        <CustomColourField colour={colour} onColourChange={onColourChange} />
       </fieldset>
 
       <div

@@ -7,6 +7,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
+	pgfinance "github.com/GoatWhistle/timeline/internal/adapters/postgres/finance"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
@@ -23,6 +24,7 @@ import (
 	svcdelivery "github.com/GoatWhistle/timeline/internal/services/delivery"
 	svcdigest "github.com/GoatWhistle/timeline/internal/services/digest"
 	svcevent "github.com/GoatWhistle/timeline/internal/services/event"
+	svcfinance "github.com/GoatWhistle/timeline/internal/services/finance"
 	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 	svcparticipation "github.com/GoatWhistle/timeline/internal/services/participation"
 	svcpersonal "github.com/GoatWhistle/timeline/internal/services/personal"
@@ -33,6 +35,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
 	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 	svcteam "github.com/GoatWhistle/timeline/internal/services/team"
+	"github.com/GoatWhistle/timeline/internal/services/telegramlink"
 )
 
 type container struct {
@@ -48,6 +51,7 @@ type container struct {
 		events                  *event.Events
 		stages                  *event.Stages
 		tracks                  *event.Tracks
+		cases                   *pgfinance.Cases
 		participants            *participation.Participants
 		registrations           *participation.Registrations
 		statuses                *participation.Statuses
@@ -93,6 +97,8 @@ type container struct {
 	catalog       *svcevent.CatalogService
 	stages        *svcevent.StageService
 	tracks        *svcevent.TrackService
+	finance       *svcfinance.FinanceService
+	cases         *svcfinance.CaseService
 	participants  *svcparticipation.ParticipantService
 	registrations *svcparticipation.RegistrationService
 	statuses      *svcparticipation.StatusService
@@ -110,6 +116,7 @@ type container struct {
 	digest        *svcdigest.DigestService
 	hub           *svcrealtime.RealtimeHub
 	teams         *svcteam.TeamService
+	telegramBot   *telegramlink.Bot
 }
 
 func newContainer(ctx context.Context) (*container, error) {
@@ -131,7 +138,7 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.limiter = ratelimit.New()
 	limiter := c.limiter
 	issuer := crypto.NewTokenIssuer(cfg.Auth)
-	mailer := mail.NewMailer(c.email, cfg.App.PublicURL)
+	mailer := mail.NewMailer(c.email, c.telegram, cfg.App.PublicURL)
 	c.audit = sharedaudit.NewAuditService(c.repos.audit)
 	c.notifier = svcnotification.NewNotificationService(c.repos.notifications, c.repos.notificationPreferences, cfg)
 	c.scheduler = svcscheduler.NewSchedulerService(db, c.repos.scheduler,
@@ -154,6 +161,8 @@ func newContainer(ctx context.Context) (*container, error) {
 	}
 	c.stages = svcevent.NewStageService(db, c.repos.stages, c.repos.events, c.repos.participants, c.audit)
 	c.tracks = svcevent.NewTrackService(db, c.repos.tracks, c.repos.events, c.repos.participants, c.audit)
+	c.finance = svcfinance.NewFinanceService(c.repos.cases, c.repos.tracks, c.repos.events)
+	c.cases = svcfinance.NewCaseService(db, c.repos.cases, c.repos.tracks, c.repos.events, c.audit)
 	c.wireParticipation(cfg)
 	c.catalog = svcevent.NewCatalogService(db, c.repos.catalog, c.repos.events, c.repos.participants,
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
@@ -162,13 +171,15 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.wireDelivery(cfg)
 	c.wireTeams(cfg)
 	c.wireRealtime()
+	c.telegramBot = telegramlink.NewBot(c.profile, c.repos.users, c.profile, c.queries, c.statuses,
+		c.telegram, c.telegram)
 	return c, nil
 }
 
 func (c *container) wireDelivery(cfg *config.Config) {
 	db := c.db
 	c.delivery = svcdelivery.NewDeliveryService(db, c.repos.notifications, c.repos.scheduler, c.repos.users,
-		c.repos.audit, c.telegram, c.email, cfg)
+		c.repos.events, c.repos.audit, c.telegram, c.email, cfg)
 	c.personal = svcpersonal.NewPersonalService(db, c.repos.tasks, c.repos.notes, c.repos.artifacts,
 		c.repos.outcomes, c.repos.templates, c.repos.history,
 		c.repos.events, c.repos.stages, c.repos.participants, cfg.Personal)

@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
@@ -46,7 +47,7 @@ func newRig(t *testing.T, w *world, telegram, email *recordingSender) *rig {
 	notifier := svcnotification.NewNotificationService(notifs, prefs, w.cfg)
 	planner := svcscheduler.NewSchedulerService(w.db, scheduler, participation.NewRules(w.db), participation.NewStatuses(w.db), notifier, w.cfg)
 	delivery := svcdelivery.NewDeliveryService(w.db, notifs, scheduler,
-		identity.NewUsers(w.db), audit.NewAudit(w.db),
+		identity.NewUsers(w.db), event.NewEvents(w.db), audit.NewAudit(w.db),
 		telegram, email, w.cfg)
 
 	clock := &testClock{at: time.Now().UTC()}

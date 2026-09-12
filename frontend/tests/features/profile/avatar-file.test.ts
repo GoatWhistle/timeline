@@ -12,12 +12,12 @@ function fake(type: string, size: number): File {
 }
 
 describe('the accept list matches what the server keeps', () => {
-  it('offers exactly PNG, JPEG and WebP to the operating system dialog', () => {
-    expect(AVATAR_ACCEPT).toBe('image/png,image/jpeg,image/webp')
+  it('offers exactly PNG, JPEG, WebP and GIF to the operating system dialog', () => {
+    expect(AVATAR_ACCEPT).toBe('image/png,image/jpeg,image/webp,image/gif')
   })
 
-  it('matches the server limit of 2 MB', () => {
-    expect(AVATAR_MAX_BYTES).toBe(2 * 1024 * 1024)
+  it('matches the server limit of 5 MB', () => {
+    expect(AVATAR_MAX_BYTES).toBe(5 * 1024 * 1024)
   })
 })
 
@@ -26,6 +26,7 @@ describe('rejecting a file before it reaches the network', () => {
     expect(rejectionFor(fake('image/png', 10))).toBeNull()
     expect(rejectionFor(fake('image/jpeg', 10))).toBeNull()
     expect(rejectionFor(fake('image/webp', 10))).toBeNull()
+    expect(rejectionFor(fake('image/gif', 10))).toBeNull()
   })
 
   it('accepts a type the dialog reported in mixed case', () => {
@@ -38,7 +39,6 @@ describe('rejecting a file before it reaches the network', () => {
 
   it('rejects a type the server would refuse', () => {
     expect(rejectionFor(fake('application/pdf', 10))).toBe('type')
-    expect(rejectionFor(fake('image/gif', 10))).toBe('type')
     expect(rejectionFor(fake('image/svg+xml', 10))).toBe('type')
   })
 

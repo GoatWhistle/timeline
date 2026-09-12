@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { PrizePlaceMark } from '@/entities/prize/prize-place-mark'
+import { PrizeMark } from '@/entities/prize/prize-mark'
 import type { EventTrackResponse } from '@/shared/api/types.gen'
+import { MarkdownView } from '@/shared/markdown/markdown-view'
 import { formatMoney } from '@/shared/money/money'
 import { Badge } from '@/shared/ui/primitives/badge'
 import {
@@ -45,7 +46,7 @@ export function TrackRow({
             <span className="min-w-0 break-words">{track.name}</span>
           </h3>
           {track.description && (
-            <p className="max-w-prose text-copy text-muted-foreground">{track.description}</p>
+            <MarkdownView source={track.description} className="text-muted-foreground" />
           )}
         </div>
 
@@ -75,7 +76,7 @@ export function TrackRow({
         <ul className="flex flex-wrap gap-x-6 gap-y-1">
           {track.prizes.map((prize) => (
             <li key={prize.id} className="flex items-center gap-2 text-caption">
-              <PrizePlaceMark place={prize.place} />
+              <PrizeMark place={prize.place} title={prize.title} />
               <span className="font-medium tabular-nums">
                 {formatMoney(prize.amount, currency) ?? prize.amount}
               </span>

@@ -42,7 +42,7 @@ func compose(lang, key, name, link, ttl string) letter {
 		Action:    locale.Message(lang, key+".action", args...),
 		Aside:     locale.Message(lang, key+".aside", args...),
 		Link:      link,
-		Expiry:    locale.Message(lang, "email.expiry", args...),
+		Expiry:    expiryText(lang, key, args),
 		Fallback:  locale.Message(lang, "email.fallback", args...),
 		Footer:    locale.Message(lang, "email.footer", args...),
 		Automatic: locale.Message(lang, "email.footer.automatic", args...),
@@ -52,6 +52,14 @@ func compose(lang, key, name, link, ttl string) letter {
 		l.Attribution = locale.Message(lang, key+".attribution", args...)
 	}
 	return l
+}
+
+func expiryText(lang, key string, args []string) string {
+	specific := key + ".expiry"
+	if text := locale.Message(lang, specific, args...); text != specific {
+		return text
+	}
+	return locale.Message(lang, "email.expiry", args...)
 }
 
 func (l letter) html() (string, error) {

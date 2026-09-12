@@ -22,6 +22,10 @@ type WebhookRegistrar interface {
 	SetWebhook(ctx context.Context, webhookURL, secret string) error
 }
 
+type CallbackAnswerer interface {
+	AnswerCallbackQuery(ctx context.Context, callbackQueryID, text string) error
+}
+
 func New(cfg config.Telegram) Client {
 	return &botSender{cfg: cfg, client: newClient(cfg)}
 }
@@ -32,8 +36,18 @@ type botSender struct {
 }
 
 type sendMessageRequest struct {
-	ChatID string `json:"chat_id"`
-	Text   string `json:"text"`
+	ChatID      string       `json:"chat_id"`
+	Text        string       `json:"text"`
+	ReplyMarkup *replyMarkup `json:"reply_markup,omitempty"`
+}
+
+type replyMarkup struct {
+	InlineKeyboard [][]inlineButton `json:"inline_keyboard"`
+}
+
+type inlineButton struct {
+	Text         string `json:"text"`
+	CallbackData string `json:"callback_data"`
 }
 
 type apiResponse struct {
@@ -52,7 +66,9 @@ func (s *botSender) Send(ctx context.Context, msg models.OutboundMessage) error 
 	if msg.Subject != "" {
 		text = msg.Subject + "\n\n" + msg.Body
 	}
-	body, err := json.Marshal(sendMessageRequest{ChatID: msg.Recipient, Text: text})
+	body, err := json.Marshal(sendMessageRequest{
+		ChatID: msg.Recipient, Text: text, ReplyMarkup: buttonMarkup(msg),
+	})
 	if err != nil {
 		return models.NewPermanentDeliveryError("failed to build the request", s.redactError(err))
 	}
@@ -82,8 +98,23 @@ func (s *botSender) Send(ctx context.Context, msg models.OutboundMessage) error 
 
 func (s *botSender) SetWebhook(ctx context.Context, webhookURL, secret string) error {
 	return s.call(ctx, "setWebhook", map[string]any{
-		"url": webhookURL, "secret_token": secret, "allowed_updates": []string{"message"},
+		"url": webhookURL, "secret_token": secret, "allowed_updates": allowedUpdateTypes,
 	}, nil, s.cfg.Timeout)
+}
+
+func (s *botSender) AnswerCallbackQuery(ctx context.Context, callbackQueryID, text string) error {
+	return s.call(ctx, "answerCallbackQuery", map[string]any{
+		"callback_query_id": callbackQueryID, "text": text,
+	}, nil, s.cfg.Timeout)
+}
+
+func buttonMarkup(msg models.OutboundMessage) *replyMarkup {
+	if msg.ButtonData == "" {
+		return nil
+	}
+	return &replyMarkup{InlineKeyboard: [][]inlineButton{{
+		{Text: msg.ButtonText, CallbackData: msg.ButtonData},
+	}}}
 }
 
 func classify(statusCode int, resp apiResponse) error {

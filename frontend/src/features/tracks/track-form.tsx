@@ -1,21 +1,22 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { isApiError } from '@/shared/api/errors'
 import type { EventTrackResponse } from '@/shared/api/types.gen'
 import { applyServerErrors } from '@/shared/forms/server-errors'
+import { MARKDOWN_MAX_LENGTH } from '@/shared/markdown/limits'
+import { MarkdownEditor } from '@/shared/markdown/markdown-editor'
 import { formatMoney } from '@/shared/money/money'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
-import { Textarea } from '@/shared/ui/forms/textarea'
 import { Button } from '@/shared/ui/primitives/button'
 import { draftTotal, type PrizeDraft, TrackPrizeFields } from './track-prize-fields'
 
 const schema = z.object({
   name: z.string().min(1, 'event:tracks.nameRequired').max(120),
-  description: z.string().max(4000).optional(),
+  description: z.string().max(MARKDOWN_MAX_LENGTH).optional(),
 })
 
 type FormValues = z.input<typeof schema>
@@ -23,11 +24,15 @@ type FormValues = z.input<typeof schema>
 export type TrackPayload = {
   name: string
   description?: string
-  prizes: { place: number; amount: string }[]
+  prizes: { place?: number; title?: string; amount: string }[]
 }
 
 function toDrafts(track: EventTrackResponse | undefined): PrizeDraft[] {
-  return (track?.prizes ?? []).map((prize) => ({ place: prize.place, amount: prize.amount }))
+  return (track?.prizes ?? []).map((prize) => ({
+    ...(prize.place === undefined ? {} : { place: prize.place }),
+    ...(prize.title === undefined ? {} : { title: prize.title }),
+    amount: prize.amount,
+  }))
 }
 
 export function TrackForm({
@@ -47,6 +52,7 @@ export function TrackForm({
   const [prizes, setPrizes] = useState<PrizeDraft[]>(() => toDrafts(track))
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
@@ -66,7 +72,11 @@ export function TrackForm({
         ...(values.description ? { description: values.description } : {}),
         prizes: prizes
           .filter((prize) => prize.amount !== '')
-          .map((prize) => ({ place: prize.place, amount: prize.amount })),
+          .map((prize) => ({
+            ...(prize.place === undefined ? {} : { place: prize.place }),
+            ...(prize.title === undefined ? {} : { title: prize.title.trim() }),
+            amount: prize.amount,
+          })),
       })
     } catch (error) {
       if (isApiError(error) && error.fields.some((field) => field.field === 'prizes')) {
@@ -90,7 +100,19 @@ export function TrackForm({
         htmlFor={`${idPrefix}-description`}
         error={errors.description?.message}
       >
-        <Textarea id={`${idPrefix}-description`} rows={3} {...register('description')} />
+        <Controller
+          control={control}
+          name="description"
+          render={({ field }) => (
+            <MarkdownEditor
+              id={`${idPrefix}-description`}
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              rows={4}
+            />
+          )}
+        />
       </Field>
 
       <TrackPrizeFields

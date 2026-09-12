@@ -85,8 +85,8 @@ func (s *DeliveryService) cleanup(ctx context.Context) {
 		slog.ErrorContext(ctx, "audit log cleanup failed", "error", err)
 	}
 	var feed int64
-	if s.events != nil {
-		feed, err = s.events.Cleanup(ctx, s.cfg.Retent.SystemEvent)
+	if s.feed != nil {
+		feed, err = s.feed.Cleanup(ctx, s.cfg.Retent.SystemEvent)
 		if err != nil {
 			slog.ErrorContext(ctx, "system event cleanup failed", "error", err)
 		}

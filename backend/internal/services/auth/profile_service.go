@@ -139,10 +139,15 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 		return models.NewValidation("the new email matches the current one")
 	}
 
-	secret, err := crypto.NewSecret()
+	confirmSecret, err := crypto.NewSecret()
 	if err != nil {
 		return err
 	}
+	cancelSecret, err := crypto.NewSecret()
+	if err != nil {
+		return err
+	}
+	originEmail := user.Email
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
 		taken, err := s.users.EmailTaken(ctx, newEmail, user.ID)
 		if err != nil {
@@ -157,12 +162,26 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 		if err := s.tokens.InvalidateForUser(ctx, user.ID, models.PurposeEmailChange); err != nil {
 			return err
 		}
+		if err := s.tokens.InvalidateForUser(ctx, user.ID, models.PurposeEmailChangeCancel); err != nil {
+			return err
+		}
 		_, err = s.tokens.Create(ctx, &models.OneTimeToken{
 			UserID:      &user.ID,
 			Purpose:     models.PurposeEmailChange,
-			TokenHash:   crypto.HashSecret(secret),
+			TokenHash:   crypto.HashSecret(confirmSecret),
 			TargetEmail: &newEmail,
 			ExpiresAt:   s.now().Add(s.cfg.Auth.EmailVerifyTTL),
+		})
+		if err != nil {
+			return err
+		}
+		_, err = s.tokens.Create(ctx, &models.OneTimeToken{
+			UserID:      &user.ID,
+			Purpose:     models.PurposeEmailChangeCancel,
+			TokenHash:   crypto.HashSecret(cancelSecret),
+			TargetEmail: &newEmail,
+			OriginEmail: &originEmail,
+			ExpiresAt:   s.now().Add(s.cfg.Auth.EmailChangeCancelTTL),
 		})
 		return err
 	})
@@ -170,7 +189,10 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 		return err
 	}
 
-	s.mailer.SendEmailChange(ctx, newEmail, user.DisplayName(user.Locale), user.Locale, secret, s.cfg.Auth.EmailVerifyTTL)
+	s.mailer.SendEmailChange(ctx, newEmail, user.DisplayName(user.Locale), user.Locale,
+		confirmSecret, s.cfg.Auth.EmailVerifyTTL)
+	s.mailer.SendEmailChangeCancel(ctx, originEmail, user.DisplayName(user.Locale), user.Locale,
+		cancelSecret, s.cfg.Auth.EmailChangeCancelTTL)
 	return nil
 }
 

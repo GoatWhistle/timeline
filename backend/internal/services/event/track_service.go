@@ -182,13 +182,19 @@ func trackListResponse(target *models.Event, items []models.EventTrack) *dto.Eve
 		PrizePool:     wholePool(target.PrizePool),
 		PrizeCurrency: target.PrizeCurrency,
 	}
-	var distributed int64
+	var distributed, nominations int64
 	for i := range items {
 		response := TrackResponse(target, &items[i])
 		distributed += mustWhole(response.PrizeTotal)
+		for j := range items[i].Prizes {
+			if items[i].Prizes[j].Nomination() {
+				nominations += mustWhole(items[i].Prizes[j].Amount)
+			}
+		}
 		out.Items = append(out.Items, response)
 	}
 	out.Distributed = formatWhole(distributed)
+	out.Nominations = formatWhole(nominations)
 	if out.PrizePool != nil {
 		out.Unallocated = pointerWhole(mustWhole(*out.PrizePool) - distributed)
 	}

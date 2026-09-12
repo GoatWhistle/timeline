@@ -84,6 +84,128 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/cases/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a case
+         * @description The case and its prize leave the reconciliation; the track it pointed at is
+         *     untouched.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Case identifier
+                     * @example cs_42ej2s5gh7e8
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description the case is deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a case
+         * @description Omitted fields are left as they are. Detaching a case from its track needs
+         *     clear_track, and dropping its prize needs clear_prize: a null is indistinguishable
+         *     from an absent field otherwise.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Case identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Mutable fields */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.UpdateEventCaseRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventCaseResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/admin/events": {
         parameters: {
             query?: never;
@@ -446,6 +568,91 @@ export interface paths {
                     };
                 };
                 /** @description event is already archived */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/events/{id}/cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a case
+         * @description Only the name is required: a case without a track belongs to the event as a whole,
+         *     and a case without a prize is a research task rather than a funded one. A prize is
+         *     a whole number in the event currency, the same units track prizes use.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Case payload */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.CreateEventCaseRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventCaseResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Conflict */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -3239,6 +3446,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/email-change/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel an email change
+         * @description Reverts the account to the address the change was requested from. Works both before and
+         *     after the new address has been confirmed, for as long as the cancellation link is valid.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Cancellation token */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.TokenRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.MessageResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/email-change/confirm": {
         parameters: {
             query?: never;
@@ -3436,6 +3697,69 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["dto.MessageResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/password/change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change your own password
+         * @description Requires the current password. Revokes every other session; this device stays signed in.
+         *     A notice is sent to every channel linked to the account.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Current and new password */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.ChangePasswordRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.MessageResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
                     };
                 };
                 /** @description Unauthorized */
@@ -4147,6 +4471,213 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Event cases
+         * @description The partner tasks declared for the event, in `case_no` order. A case may belong to
+         *     a track or to the event as a whole, and may carry a prize or none at all.
+         *     Access follows the track listing.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventCaseListResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/finance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Event finance
+         * @description Every sum the event declares, reconciled in one place: the prize pool, the split
+         *     across tracks with their places and nominations, the partner cases and what the
+         *     three add up to.
+         *
+         *     `distributed` is `distributed_tracks` plus `distributed_cases`, and `discrepancy`
+         *     is `prize_pool` minus that sum. A positive discrepancy is a reserve, a negative one
+         *     is an overspend. Neither is an error and neither blocks saving the event: the
+         *     organiser may announce a pool larger than the prizes, or a sponsor may add to it
+         *     later. When the event declares no pool, `discrepancy_known` is false and no
+         *     discrepancy is reported rather than a zero being invented.
+         *
+         *     Access follows the track listing: an unpublished event answers only to an
+         *     administrator, a published one to any reader.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventFinanceResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/finance/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export the finance reconciliation as CSV
+         * @description The same figures the finance endpoint returns, flattened into rows instead of a
+         *     tree: one row per track place or nomination, one row per case, and the totals of
+         *     the reconciliation last. The `section` column says which of the three a row is.
+         *
+         *     Access follows the finance endpoint itself.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description CSV payload */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
                     };
                 };
             };
@@ -10355,6 +10886,12 @@ export interface components {
             /** @example correct-horse-battery */
             password?: string;
         };
+        "dto.ChangePasswordRequest": {
+            /** @example correct-horse-battery */
+            current_password?: string;
+            /** @example another-horse-battery-staple */
+            new_password?: string;
+        };
         "dto.ChooseTrackRequest": {
             /** @example tr_42ej2s5gh7e8 */
             track_id?: string;
@@ -10378,6 +10915,19 @@ export interface components {
             title?: string;
             /** @example https://github.com/example/project */
             url?: string;
+        };
+        "dto.CreateEventCaseRequest": {
+            /** @example 1 */
+            case_no?: number;
+            description?: string;
+            /** @example Traffic light scheduling */
+            name?: string;
+            /** @example City transport authority */
+            partner?: string;
+            /** @example 50000 */
+            prize_amount?: string;
+            /** @example tr_42ej2s5gh7e8 */
+            track_id?: string;
         };
         "dto.CreateEventRequest": {
             /** @example Moscow */
@@ -10556,6 +11106,56 @@ export interface components {
             /** @example Developer */
             team_role?: string;
         };
+        "dto.EventCaseListResponse": {
+            items: components["schemas"]["dto.EventCaseResponse"][];
+        };
+        "dto.EventCaseResponse": {
+            /** @example 1 */
+            case_no: number;
+            /** Format: date-time */
+            created_at: string;
+            description: string;
+            /** @example ev_gma9hq8a96q5 */
+            event_id: string;
+            /** @example cs_42ej2s5gh7e8 */
+            id: string;
+            /** @example Traffic light scheduling */
+            name: string;
+            /** @example City transport authority */
+            partner: string;
+            /** @example 50000 */
+            prize_amount: string;
+            /** @example tr_42ej2s5gh7e8 */
+            track_id: string;
+            /** @example Smart city */
+            track_name: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        "dto.EventFinanceResponse": {
+            cases: components["schemas"]["dto.FinanceCase"][];
+            /** @example 50000 */
+            discrepancy: string;
+            /** @example true */
+            discrepancy_known: boolean;
+            /** @example 450000 */
+            distributed: string;
+            /** @example 50000 */
+            distributed_cases: string;
+            /** @example 400000 */
+            distributed_tracks: string;
+            /** @example ev_gma9hq8a96q5 */
+            event_id: string;
+            /** @example 50000 */
+            nominations: string;
+            /** @example RUB */
+            prize_currency: string;
+            /** @example 500000 */
+            prize_pool: string;
+            tracks: components["schemas"]["dto.FinanceTrack"][];
+            /** @example 50000 */
+            unallocated: string;
+        };
         "dto.EventPage": {
             items: components["schemas"]["dto.EventResponse"][];
             meta: components["schemas"]["dto.PageMeta"];
@@ -10609,6 +11209,8 @@ export interface components {
             /** @example 450000 */
             distributed: string;
             items: components["schemas"]["dto.EventTrackResponse"][];
+            /** @example 50000 */
+            nominations: string;
             /** @example RUB */
             prize_currency: string;
             /** @example 500000 */
@@ -10619,7 +11221,7 @@ export interface components {
         "dto.EventTrackResponse": {
             /** Format: date-time */
             created_at: string;
-            description: string;
+            description?: string;
             /** @example ev_gma9hq8a96q5 */
             event_id: string;
             /** @example tr_42ej2s5gh7e8 */
@@ -10643,6 +11245,41 @@ export interface components {
             prize_total: string;
             /** @example 1 */
             track_no: number;
+        };
+        "dto.FinanceCase": {
+            /** @example 1 */
+            case_no: number;
+            /** @example cs_42ej2s5gh7e8 */
+            id: string;
+            /** @example Traffic light scheduling */
+            name: string;
+            /** @example City transport authority */
+            partner: string;
+            /** @example 50000 */
+            prize_amount: string;
+            /** @example tr_42ej2s5gh7e8 */
+            track_id: string;
+            /** @example Smart city */
+            track_name: string;
+        };
+        "dto.FinanceTrack": {
+            /** @example tr_42ej2s5gh7e8 */
+            id: string;
+            /** @example Smart city */
+            name: string;
+            /** @example 300000 */
+            prize_total: string;
+            prizes: components["schemas"]["dto.FinanceTrackPrize"][];
+            /** @example 1 */
+            track_no: number;
+        };
+        "dto.FinanceTrackPrize": {
+            /** @example 150000 */
+            amount: string;
+            /** @example 1 */
+            place: number;
+            /** @example Best design */
+            title: string;
         };
         "dto.HealthResponse": {
             /** @example ok */
@@ -11389,7 +12026,9 @@ export interface components {
             /** @example 150000 */
             amount: string;
             /** @example 1 */
-            place: number;
+            place?: number;
+            /** @example Best design */
+            title?: string;
         };
         "dto.TrackPrizeResponse": {
             /** @example 150000 */
@@ -11397,7 +12036,9 @@ export interface components {
             /** @example pz_42ej2s5gh7e8 */
             id: string;
             /** @example 1 */
-            place: number;
+            place?: number;
+            /** @example Best design */
+            title?: string;
         };
         "dto.UnreadCountResponse": {
             /** @example 3 */
@@ -11415,6 +12056,18 @@ export interface components {
             title?: string;
             /** @example https://github.com/example/project */
             url?: string;
+        };
+        "dto.UpdateEventCaseRequest": {
+            case_no?: number;
+            /** @example false */
+            clear_prize?: boolean;
+            /** @example false */
+            clear_track?: boolean;
+            description?: string;
+            name?: string;
+            partner?: string;
+            prize_amount?: string;
+            track_id?: string;
         };
         "dto.UpdateEventRequest": {
             /** @example Moscow */
@@ -11616,7 +12269,7 @@ export interface components {
         /** @enum {string} */
         "models.ArtifactKind": "REPOSITORY" | "VIDEO" | "SLIDES" | "DEMO" | "SUBMISSION" | "OTHER";
         /** @enum {string} */
-        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "EVENT_DELETE" | "EVENT_COVER_SET" | "EVENT_COVER_CLEAR" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "TRACK_CREATE" | "TRACK_UPDATE" | "TRACK_DELETE" | "TRACK_PRIZE_SET" | "TEAM_TRACK_CHOOSE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "TEAM_EVENT_LINK_ADD" | "TEAM_EVENT_LINK_UPDATE" | "TEAM_EVENT_LINK_REMOVE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE";
+        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "EVENT_DELETE" | "EVENT_COVER_SET" | "EVENT_COVER_CLEAR" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "TRACK_CREATE" | "TRACK_UPDATE" | "TRACK_DELETE" | "TRACK_PRIZE_SET" | "EVENT_CASE_CREATE" | "EVENT_CASE_UPDATE" | "EVENT_CASE_DELETE" | "TEAM_TRACK_CHOOSE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "TEAM_EVENT_LINK_ADD" | "TEAM_EVENT_LINK_UPDATE" | "TEAM_EVENT_LINK_REMOVE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE";
         /** @enum {string} */
         "models.ChangeSource": "SYSTEM" | "USER" | "ADMIN";
         /** @enum {string} */
@@ -11637,7 +12290,7 @@ export interface components {
         /** @enum {string} */
         "models.CoverSource": "MANUAL" | "AUTO";
         /** @enum {string} */
-        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_TRACK" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "TEAM_EVENT_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK";
+        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_TRACK" | "EVENT_CASE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "TEAM_EVENT_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK";
         "models.EventColor": {
             /** @enum {string} */
             family: "RU" | "WORLD";

@@ -112,3 +112,52 @@ func TestAPartIsNeverCutShortByItsOwnSeparator(t *testing.T) {
 		t.Errorf("the HTML part is not delivered exactly: %q", got)
 	}
 }
+
+func TestALetterCarriesDateAndMessageIDInBothRenderings(t *testing.T) {
+	sender := &smtpSender{cfg: config.Email{From: "no-reply@example.test", FromName: "Timeline"}}
+	cases := map[string]models.OutboundMessage{
+		"plain": {Recipient: "user@example.test", Subject: "Subject", Body: "plain body"},
+		"multipart": {
+			Recipient: "user@example.test",
+			Subject:   "Subject",
+			Body:      "plain body",
+			HTML:      "<html><body>rich body</body></html>",
+		},
+	}
+	for name, message := range cases {
+		t.Run(name, func(t *testing.T) {
+			msg, err := mail.ReadMessage(strings.NewReader(sender.compose(message)))
+			if err != nil {
+				t.Fatalf("the composed message does not parse as mail: %v", err)
+			}
+			if _, err := msg.Header.Date(); err != nil {
+				t.Errorf("RFC 5322 makes Date mandatory and filters treat a letter without it "+
+					"as spam: %v", err)
+			}
+			id := msg.Header.Get("Message-ID")
+			if id == "" {
+				t.Fatal("every letter must carry a Message-ID, not only the idempotent ones")
+			}
+			if !strings.HasSuffix(id, "@example.test>") {
+				t.Errorf("the Message-ID must end in the sender domain, got %q", id)
+			}
+		})
+	}
+}
+
+func TestTheMessageIDKeepsTheIdempotencyKeyWhenThereIsOne(t *testing.T) {
+	sender := &smtpSender{cfg: config.Email{From: "no-reply@example.test", FromName: "Timeline"}}
+	raw := sender.compose(models.OutboundMessage{
+		Recipient:      "user@example.test",
+		Subject:        "Subject",
+		Body:           "plain body",
+		IdempotencyKey: "notification-42",
+	})
+	msg, err := mail.ReadMessage(strings.NewReader(raw))
+	if err != nil {
+		t.Fatalf("the composed message does not parse as mail: %v", err)
+	}
+	if got := msg.Header.Get("Message-ID"); got != "<notification-42@example.test>" {
+		t.Errorf("the idempotency key must survive into the Message-ID, got %q", got)
+	}
+}

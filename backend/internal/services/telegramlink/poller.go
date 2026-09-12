@@ -16,6 +16,16 @@ func Run(ctx context.Context, source Source, completer Completer) {
 }
 
 func RunReplying(ctx context.Context, source Source, completer Completer, replier Replier) {
+	runPolling(ctx, source, func(ctx context.Context, update Update) error {
+		return HandleWithReply(ctx, completer, replier, update)
+	})
+}
+
+func RunBot(ctx context.Context, source Source, bot *Bot) {
+	runPolling(ctx, source, bot.Handle)
+}
+
+func runPolling(ctx context.Context, source Source, handle func(context.Context, Update) error) {
 	RunWithRetry(ctx, "Telegram polling initialization", func(ctx context.Context) error {
 		return source.DeleteWebhook(ctx)
 	}, false)
@@ -39,7 +49,7 @@ func RunReplying(ctx context.Context, source Source, completer Completer, replie
 			if update.ID < offset {
 				continue
 			}
-			if err := HandleWithReply(ctx, completer, replier, update); err != nil {
+			if err := handle(ctx, update); err != nil {
 				return err
 			}
 			offset = update.ID + 1

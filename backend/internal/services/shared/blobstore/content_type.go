@@ -6,6 +6,7 @@ const (
 	TypePNG  = "image/png"
 	TypeJPEG = "image/jpeg"
 	TypeWebP = "image/webp"
+	TypeGIF  = "image/gif"
 )
 
 func ExtensionFor(contentType string) string {
@@ -16,6 +17,8 @@ func ExtensionFor(contentType string) string {
 		return "jpg"
 	case TypeWebP:
 		return "webp"
+	case TypeGIF:
+		return "gif"
 	}
 	return ""
 }
@@ -32,6 +35,8 @@ func ContentTypeForKey(key string) string {
 		return TypeJPEG
 	case "webp":
 		return TypeWebP
+	case "gif":
+		return TypeGIF
 	}
 	return "application/octet-stream"
 }
