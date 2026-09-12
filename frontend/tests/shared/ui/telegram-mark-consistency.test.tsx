@@ -1,7 +1,9 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { SERVICE_GLYPHS } from '@/shared/ui/navigation/service-link/service-glyphs'
+import { TelegramMark } from '@/shared/ui/navigation/service-link/service-icon'
 
 const SRC = join(process.cwd(), 'src')
 
@@ -65,5 +67,17 @@ describe('the Telegram brand mark is spelled in exactly one place', () => {
     }
 
     expect(offenders).toEqual([])
+  })
+
+  it('carries the brand colour by default, so callers do not have to add it', () => {
+    const { container } = render(<TelegramMark />)
+    expect(container.querySelector('svg')?.getAttribute('class')).toContain('text-telegram')
+  })
+
+  it('keeps the brand colour even when the caller passes its own className', () => {
+    const { container } = render(<TelegramMark className="size-4" />)
+    const classes = container.querySelector('svg')?.getAttribute('class') ?? ''
+    expect(classes).toContain('text-telegram')
+    expect(classes).toContain('size-4')
   })
 })

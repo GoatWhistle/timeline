@@ -4,6 +4,7 @@ import { usePrizePlaceLabel } from '@/entities/prize/prize-place-mark'
 import { formatMoney } from '@/shared/money/money'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
+import { MoneyInput } from '@/shared/ui/forms/money-input'
 import { Button } from '@/shared/ui/primitives/button'
 import { DeleteAction } from '@/shared/ui/primitives/row-actions'
 
@@ -18,10 +19,6 @@ export function draftKey(prize: PrizeDraft, index: number): string {
 }
 
 export const NOMINATION_TITLE_MAX = 120
-
-export function digitsOnly(value: string): string {
-  return value.replace(/\D/g, '')
-}
 
 export function draftTotal(prizes: PrizeDraft[]): number {
   return prizes.reduce((sum, prize) => sum + Number(prize.amount || '0'), 0)
@@ -87,11 +84,10 @@ export function TrackPrizeFields({
                 label={nomination ? t('tracks.formPrizeAmount') : placeLabel(prize.place ?? 0)}
                 htmlFor={`${idPrefix}-prize-${key}`}
               >
-                <Input
+                <MoneyInput
                   id={`${idPrefix}-prize-${key}`}
-                  inputMode="numeric"
                   value={prize.amount}
-                  onChange={(event) => edit(index, digitsOnly(event.target.value))}
+                  onChange={(digits) => edit(index, digits)}
                 />
               </Field>
               <DeleteAction

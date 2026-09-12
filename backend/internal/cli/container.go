@@ -9,6 +9,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	pgfinance "github.com/GoatWhistle/timeline/internal/adapters/postgres/finance"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	pginbox "github.com/GoatWhistle/timeline/internal/adapters/postgres/inbox"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/personal"
@@ -25,6 +26,7 @@ import (
 	svcdigest "github.com/GoatWhistle/timeline/internal/services/digest"
 	svcevent "github.com/GoatWhistle/timeline/internal/services/event"
 	svcfinance "github.com/GoatWhistle/timeline/internal/services/finance"
+	svcinbox "github.com/GoatWhistle/timeline/internal/services/inbox"
 	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 	svcparticipation "github.com/GoatWhistle/timeline/internal/services/participation"
 	svcpersonal "github.com/GoatWhistle/timeline/internal/services/personal"
@@ -80,6 +82,7 @@ type container struct {
 		teamLinks               *team.JoinLinks
 		teamEventLinks          *team.EventLinks
 		audit                   *audit.Audit
+		inbox                   *pginbox.Items
 	}
 
 	telegram telegram.Client
@@ -120,6 +123,7 @@ type container struct {
 	hub           *svcrealtime.RealtimeHub
 	teams         *svcteam.TeamService
 	telegramBot   *telegramlink.Bot
+	inbox         *svcinbox.Service
 }
 
 func newContainer(ctx context.Context) (*container, error) {
@@ -151,7 +155,8 @@ func newContainer(ctx context.Context) (*container, error) {
 		c.notifier, c.audit, c.hasher, issuer, mailer, limiter, cfg)
 	c.invites = svcauth.NewInviteService(db, c.repos.invites, c.repos.users, c.auth, c.audit, mailer, limiter, cfg)
 	c.profile = svcauth.NewProfileService(db, c.repos.users, c.repos.tokens, c.repos.sessions,
-		c.notifier, c.repos.notificationPreferences, c.audit, c.hasher, mailer, c.telegram, cfg)
+		c.notifier, c.repos.notificationPreferences, c.repos.events, c.repos.profileLinks,
+		c.audit, c.hasher, mailer, c.telegram, cfg)
 	c.profileLinks = svcauth.NewProfileLinkService(db, c.repos.profileLinks)
 	if err := c.wireAvatars(cfg); err != nil {
 		return nil, err
@@ -171,12 +176,15 @@ func newContainer(ctx context.Context) (*container, error) {
 		c.repos.registrations, c.repos.statuses, c.repos.users, c.notifier, c.audit)
 	c.queries = svcevent.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
 		c.repos.tracks, c.repos.participants, c.repos.registrations, c.repos.statuses)
+	c.inbox = svcinbox.NewService(c.repos.inbox, c.statuses)
 	c.wireDelivery(cfg)
+	c.notifier.WithInbox(c.inbox)
+	c.inbox.WithNotifier(c.feed)
 	c.wireRetention(cfg)
 	c.wireTeams(cfg)
 	c.wireRealtime()
 	c.telegramBot = telegramlink.NewBot(c.profile, c.repos.users, c.profile, c.queries, c.statuses,
-		c.telegram, c.telegram)
+		c.telegram, c.telegram).WithEditor(c.telegram)
 	return c, nil
 }
 
@@ -221,9 +229,10 @@ func (c *container) wireTeams(cfg *config.Config) {
 
 func (c *container) wireRealtime() {
 	c.delivery.WithEvents(c.feed)
+	c.delivery.WithInbox(c.inbox)
 	c.personal.WithRetrospectives(c.repos.retros)
-	c.reminders = svcreminder.New(c.repos.reminders, c.feed, c.cfg.Personal)
-	c.digest = svcdigest.NewDigestService(c.repos.digests, c.feed, c.cfg.Digest, c.cfg.App)
+	c.reminders = svcreminder.New(c.repos.reminders, c.feed, c.notifier, c.cfg.Personal)
+	c.digest = svcdigest.NewDigestService(c.repos.digests, c.feed, c.notifier, c.cfg.Digest, c.cfg.App)
 	c.auth.WithRealtime(c.hub)
 	c.users.WithRealtime(c.hub)
 	c.profile.WithRealtime(c.hub)

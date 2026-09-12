@@ -35,11 +35,6 @@ export function DialogContent({
       <DialogPrimitive.Overlay className={SCRIM} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
-        onEscapeKeyDown={(event) => {
-          if (event.target instanceof Element && event.target.closest('[data-escape-owner]')) {
-            event.preventDefault()
-          }
-        }}
         onCloseAutoFocus={onCloseAutoFocus ?? returnFocus ?? undefined}
         className={cn(
           'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 p-6',

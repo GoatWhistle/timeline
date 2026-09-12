@@ -15,88 +15,81 @@ a[x-apple-data-detectors] { color:inherit !important; text-decoration:none !impo
   .tl-h1 { font-size:24px !important; line-height:32px !important; }
   .tl-btn a { display:block !important; }
 }
-@media (prefers-color-scheme: dark) {
-  .tl-shell { background-color:#08090a !important; }
-  .tl-card { background-color:#121314 !important; border-color:#383b3f !important; }
-  .tl-h1, .tl-strong { color:#ffffff !important; }
-  .tl-text { color:#d0d6e0 !important; }
-  .tl-muted, .tl-foot { color:#8a8f98 !important; }
-  .tl-rule { background-color:#383b3f !important; }
-  .tl-aside { background-color:#1b1c1d !important; }
-  .tl-word { color:#ffffff !important; }
-  .tl-accent, .tl-link { color:#f4a34b !important; }
-  .tl-dot, .tl-track { background-color:#f4a34b !important; }
-  .tl-btn a { background-color:#f4a34b !important; color:#08090a !important; }
-  .tl-url { color:#8a8f98 !important; }
+@media (prefers-color-scheme: {{.OppositeTheme}}) {
+  .tl-shell { background-color:{{.Opposite.Shell}} !important; }
+  .tl-card { background-color:{{.Opposite.Card}} !important; border-color:{{.Opposite.Border}} !important; }
+  .tl-h1, .tl-strong { color:{{.Opposite.Heading}} !important; }
+  .tl-text { color:{{.Opposite.Text}} !important; }
+  .tl-muted, .tl-foot { color:{{.Opposite.Muted}} !important; }
+  .tl-rule { background-color:{{.Opposite.Rule}} !important; }
+  .tl-aside { background-color:{{.Opposite.Aside}} !important; }
+  .tl-word { color:{{.Opposite.Heading}} !important; }
+  .tl-accent, .tl-link { color:{{.Opposite.Accent}} !important; }
+  .tl-btn a { background-color:{{.Opposite.Accent}} !important; color:{{.Opposite.ButtonText}} !important; }
+  .tl-url { color:{{.Opposite.Muted}} !important; }
 }
 </style>
 </head>
-<body class="tl-shell" style="margin:0; padding:0; width:100%; background-color:#faf7f3;">
-<div style="display:none; font-size:1px; color:#faf7f3; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">{{.Preheader}}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>
-<table role="presentation" class="tl-shell" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#faf7f3;">
+<body class="tl-shell" style="margin:0; padding:0; width:100%; background-color:{{.Palette.Shell}};">
+<div style="display:none; font-size:1px; color:{{.Palette.Shell}}; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">{{.Preheader}}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>
+<table role="presentation" class="tl-shell" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:{{.Palette.Shell}};">
 <tr><td align="center" style="padding:32px 12px;">
 
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
 
-<tr><td class="tl-pad" style="padding:0 8px 20px 8px;">
-  <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-    <td style="padding-right:12px;">
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-      <td valign="middle" style="font-size:0; line-height:0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="tl-track" width="7" height="7" style="width:7px; height:7px; background-color:#ba5e00; border-radius:7px; font-size:0; line-height:0; opacity:0.75;">&nbsp;</td></tr></table></td>
-      <td valign="middle" style="font-size:0; line-height:0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="tl-track" width="9" height="3" style="width:9px; height:3px; background-color:#ba5e00; font-size:0; line-height:0; opacity:0.75;">&nbsp;</td></tr></table></td>
-      <td valign="middle" style="font-size:0; line-height:0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="tl-dot" width="16" height="16" style="width:16px; height:16px; background-color:#ba5e00; border-radius:16px; font-size:0; line-height:0;">&nbsp;</td></tr></table></td>
-      <td valign="middle" style="font-size:0; line-height:0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="tl-track" width="9" height="3" style="width:9px; height:3px; background-color:#ba5e00; font-size:0; line-height:0; opacity:0.75;">&nbsp;</td></tr></table></td>
-      <td valign="middle" style="font-size:0; line-height:0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="tl-track" width="7" height="7" style="width:7px; height:7px; background-color:#ba5e00; border-radius:7px; font-size:0; line-height:0; opacity:0.75;">&nbsp;</td></tr></table></td>
-      </tr></table>
+<tr><td class="tl-pad" align="center" style="padding:0 8px 20px 8px;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
+    <td style="padding-right:10px;" valign="middle">
+      <img src="{{.LogoURL}}" width="28" height="28" alt="Timeline" style="display:block; width:28px; height:28px;" />
     </td>
-    <td class="tl-word" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:18px; font-weight:600; letter-spacing:2.5px; color:#1e1a14;">TIME<span class="tl-accent" style="color:#ba5e00;">LINE</span></td>
+    <td class="tl-word" valign="middle" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:18px; font-weight:600; letter-spacing:2.5px; color:{{.Palette.Heading}};">TIME<span class="tl-accent" style="color:{{.Palette.Accent}};">LINE</span></td>
   </tr></table>
 </td></tr>
 
-<tr><td class="tl-card" style="background-color:#ffffff; border:1px solid #d1cbc3; border-radius:12px;">
+<tr><td class="tl-card" style="background-color:{{.Palette.Card}}; border:1px solid {{.Palette.Border}}; border-radius:12px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 
 <tr><td class="tl-pad" style="padding:40px 40px 0 40px;">
-  <h1 class="tl-h1" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:27px; line-height:34px; font-weight:600; letter-spacing:-0.4px; color:#1e1a14;">{{.Heading}}</h1>
+  <h1 class="tl-h1" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:27px; line-height:34px; font-weight:600; letter-spacing:-0.4px; color:{{.Palette.Heading}};">{{.Heading}}</h1>
 </td></tr>
 
 <tr><td class="tl-pad" style="padding:20px 40px 0 40px;">
-  <p class="tl-text" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:25px; color:#2e2921;">{{.Greeting}}</p>
+  <p class="tl-text" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:25px; color:{{.Palette.Text}};">{{.Greeting}}</p>
 </td></tr>
 
 <tr><td class="tl-pad" style="padding:12px 40px 0 40px;">
-  <p class="tl-text" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:25px; color:#2e2921;">{{.Intro}}</p>
+  <p class="tl-text" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:25px; color:{{.Palette.Text}};">{{.Intro}}</p>
 </td></tr>
 
-<tr><td class="tl-pad tl-btn" style="padding:28px 40px 0 40px;">
-  <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-    <td align="center" bgcolor="#994a00" style="border-radius:8px;">
-      <a href="{{.Link}}" style="display:inline-block; padding:14px 30px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:20px; font-weight:600; color:#ffffff; text-decoration:none; border-radius:8px;">{{.Action}}</a>
+<tr><td class="tl-pad tl-btn" align="center" style="padding:28px 40px 0 40px;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
+    <td align="center" bgcolor="{{.Palette.Accent}}" style="border-radius:8px;">
+      <a href="{{.Link}}" style="display:inline-block; padding:14px 30px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:20px; font-weight:600; color:{{.Palette.ButtonText}}; text-decoration:none; border-radius:8px;">{{.Action}}</a>
     </td>
   </tr></table>
 </td></tr>
 
 <tr><td class="tl-pad" style="padding:16px 40px 0 40px;">
-  <p class="tl-muted" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:14px; line-height:21px; color:#665f56;">{{.Expiry}}</p>
+  <p class="tl-muted" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:14px; line-height:21px; color:{{.Palette.Muted}};">{{.Expiry}}</p>
 </td></tr>
 
 {{if .Attribution}}<tr><td class="tl-pad" style="padding:6px 40px 0 40px;">
-  <p class="tl-muted" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:14px; line-height:21px; color:#665f56;">{{.Attribution}}</p>
+  <p class="tl-muted" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:14px; line-height:21px; color:{{.Palette.Muted}};">{{.Attribution}}</p>
 </td></tr>{{end}}
 
 <tr><td class="tl-pad" style="padding:28px 40px 0 40px;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td class="tl-rule" height="1" style="height:1px; background-color:#e9e2da; font-size:0; line-height:0;">&nbsp;</td></tr></table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td class="tl-rule" height="1" style="height:1px; background-color:{{.Palette.Rule}}; font-size:0; line-height:0;">&nbsp;</td></tr></table>
 </td></tr>
 
 <tr><td class="tl-pad" style="padding:20px 40px 0 40px;">
-  <p class="tl-muted" style="margin:0 0 6px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#665f56;">{{.Fallback}}</p>
-  <p style="margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; line-height:19px; word-break:break-all;"><a class="tl-url" href="{{.Link}}" style="color:#665f56; text-decoration:underline;">{{.Link}}</a></p>
+  <p class="tl-muted" style="margin:0 0 6px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:{{.Palette.Muted}};">{{.Fallback}}</p>
+  <p style="margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; line-height:19px; word-break:break-all;"><a class="tl-url" href="{{.Link}}" style="color:{{.Palette.Muted}}; text-decoration:underline;">{{.Link}}</a></p>
 </td></tr>
 
 <tr><td class="tl-pad" style="padding:24px 40px 40px 40px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-    <td class="tl-aside" style="background-color:#faf7f3; border-radius:8px; padding:14px 18px;">
-      <p class="tl-muted" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#665f56;">{{.Aside}}</p>
+    <td class="tl-aside" style="background-color:{{.Palette.Aside}}; border-radius:8px; padding:14px 18px;">
+      <p class="tl-muted" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:{{.Palette.Muted}};">{{.Aside}}</p>
     </td>
   </tr></table>
 </td></tr>
@@ -105,8 +98,9 @@ a[x-apple-data-detectors] { color:inherit !important; text-decoration:none !impo
 </td></tr>
 
 <tr><td class="tl-pad" align="center" style="padding:22px 8px 0 8px;">
-  <p class="tl-foot" style="margin:0 0 4px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; line-height:19px; color:#665f56;">{{.Footer}}</p>
-  <p class="tl-foot" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; line-height:19px; color:#665f56;">{{.Automatic}}</p>
+  <p class="tl-foot" style="margin:0 0 4px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; line-height:19px; color:{{.Palette.Muted}};">{{.Footer}}</p>
+  <p class="tl-foot" style="margin:0 0 4px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; line-height:19px; color:{{.Palette.Muted}};">{{.Automatic}}</p>
+  <p class="tl-foot" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; line-height:19px;"><a class="tl-url" href="{{.UnsubscribeURL}}" style="color:{{.Palette.Muted}}; text-decoration:underline;">{{.WhyReceived}}</a></p>
 </td></tr>
 
 </table>

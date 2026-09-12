@@ -15,9 +15,10 @@ const (
 )
 
 type DigestRecipient struct {
-	UserID   uuid.UUID
-	Locale   string
-	Timezone string
+	UserID            uuid.UUID
+	Locale            string
+	Timezone          string
+	RecipientChannels RecipientChannels
 }
 
 type DigestItem struct {

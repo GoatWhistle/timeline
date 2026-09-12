@@ -104,8 +104,15 @@ func (s *DeliveryService) cleanup(ctx context.Context) {
 			slog.ErrorContext(ctx, "system event cleanup failed", "error", err)
 		}
 	}
-	if payloads > 0 || entries > 0 || feed > 0 {
+	var inboxPurged int64
+	if s.inbox != nil {
+		inboxPurged, err = s.inbox.Cleanup(ctx, s.cfg.Retent.InboxDeleted)
+		if err != nil {
+			slog.ErrorContext(ctx, "inbox cleanup failed", "error", err)
+		}
+	}
+	if payloads > 0 || entries > 0 || feed > 0 || inboxPurged > 0 {
 		slog.InfoContext(ctx, "retention policy applied",
-			"payloads", payloads, "audit_entries", entries, "system_events", feed)
+			"payloads", payloads, "audit_entries", entries, "system_events", feed, "inbox_items", inboxPurged)
 	}
 }

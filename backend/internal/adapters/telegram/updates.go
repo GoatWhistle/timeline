@@ -17,6 +17,7 @@ type Client interface {
 	Sender
 	WebhookRegistrar
 	CallbackAnswerer
+	MessageEditor
 	telegramlink.Source
 	Check(context.Context) error
 }

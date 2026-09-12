@@ -6,7 +6,10 @@
   "type": {
     "REGISTRATION_REQUIRED": "Registration required",
     "REGISTRATION_REMINDER": "Reminder",
-    "REGISTRATION_OVERDUE": "Overdue"
+    "REGISTRATION_OVERDUE": "Overdue",
+    "WEEKLY_DIGEST": "Weekly digest",
+    "PERSONAL_TASK_DUE": "Task due",
+    "PERSONAL_RETROSPECTIVE_DUE": "Time to look back"
   },
   "explainer": {
     "title": "What arrives and when",
@@ -23,6 +26,18 @@
       "REGISTRATION_OVERDUE": {
         "name": "The deadline has passed",
         "when": "After the deadline, if the organizer set such a reminder. It stops once the event ends."
+      },
+      "WEEKLY_DIGEST": {
+        "name": "Weekly digest",
+        "when": "Once a week, when the week had something worth telling: upcoming deadlines, new assignments, changes to your events."
+      },
+      "PERSONAL_TASK_DUE": {
+        "name": "A personal task is due",
+        "when": "Shortly before a task you set for yourself falls due. Organizers neither see these nor create them."
+      },
+      "PERSONAL_RETROSPECTIVE_DUE": {
+        "name": "Time to look back",
+        "when": "A couple of days after an event ends, so you can write down what you learned while it is fresh. Once per event."
       }
     },
     "toggleUpdated": "Notification setting updated",

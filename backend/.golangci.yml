@@ -237,6 +237,10 @@ linters:
         linters:
           - lll
 
+      - path: internal/controllers/auth/profile_notification_preferences\.go
+        linters:
+          - lll
+
       - path: internal/controllers/auth/session\.go
         linters:
           - lll

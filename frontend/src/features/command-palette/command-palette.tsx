@@ -1,70 +1,126 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
+import { ADMIN_NAV, CATALOG_NAV, MINE_NAV } from '@/app/sidebar/nav-section'
+import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
-import { matchesQuery } from '@/shared/keyboard/layout-map'
 import { useShortcutScope } from '@/shared/keyboard/shortcut-registry'
-import { cn } from '@/shared/styling/class-names/class-names'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/overlays/dialog'
+import { PaletteHelp } from './palette-help'
+import { PaletteList } from './palette-list'
+import { isHelpQuery, parseQuery } from './palette-prefix'
+import { PalettePrefixList } from './palette-prefix-list'
+import type { PaletteResult } from './palette-results'
+import { buildResults } from './palette-results'
+import { pushRecent, readRecent } from './recent-store'
+import { usePaletteSearch } from './use-palette-search'
 
-export type Command = {
-  id: string
-  title: string
-  hint?: string
-  keys?: string[]
-  run: () => void
-}
+export type Command = PaletteResult
 
 export function CommandPalette({
   open,
   onOpenChange,
   commands,
+  isAdmin,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   commands: Command[]
+  isAdmin: boolean
 }) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [query, setQuery] = useState('')
-  const [active, setActive] = useState(0)
-  const listRef = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState<string | null>(null)
+  const [helpOpen, setHelpOpen] = useState(false)
   const chosen = useRef(false)
   const returnFocus = useReturnFocus(open)
 
+  const parsed = parseQuery(query)
+  const debouncedTerm = useDebouncedValue(parsed.term, 250)
+  const search = usePaletteSearch(parsed.mode, debouncedTerm)
+
+  const pages = useMemo(
+    () => [...CATALOG_NAV, ...MINE_NAV].map((item) => ({ item, label: t(item.labelKey) })),
+    [t],
+  )
+  const adminPages = useMemo(
+    () => ADMIN_NAV.map((item) => ({ item, label: t(item.labelKey) })),
+    [t],
+  )
+
   const results = useMemo(() => {
-    if (!query.trim()) return commands
-    return commands.filter(
-      (command) => matchesQuery(command.title, query) || matchesQuery(command.hint ?? '', query),
-    )
-  }, [commands, query])
+    if (parsed.mode === 'admin' && !isAdmin) return []
+    return buildResults({
+      mode: parsed.mode,
+      term: parsed.term,
+      events: search.events,
+      teams: search.teams,
+      pages,
+      adminPages,
+      commands,
+      recent: readRecent(),
+    })
+  }, [parsed.mode, parsed.term, search.events, search.teams, pages, adminPages, commands, isAdmin])
 
   useEffect(() => {
-    if (!open) setQuery('')
+    if (!open) {
+      setQuery('')
+      setHelpOpen(false)
+    }
     if (open) chosen.current = false
-    setActive(0)
+    setActive(null)
   }, [open])
+
+  useEffect(() => {
+    setActive(results[0]?.id ?? null)
+  }, [results])
 
   useShortcutScope('command-palette', [], { mode: 'exclusive', enabled: open })
 
-  function choose(index: number) {
-    const command = results[index]
-    if (!command) return
+  function choose(result: PaletteResult | undefined) {
+    if (!result) return
     chosen.current = true
     onOpenChange(false)
-    command.run()
+    if (result.run) {
+      result.run()
+      return
+    }
+    if (result.path) {
+      pushRecent({ id: result.id, title: result.title, path: result.path })
+      navigate(result.path)
+    }
+  }
+
+  function moveActive(delta: number) {
+    if (results.length === 0) return
+    const index = active ? results.findIndex((result) => result.id === active) : -1
+    const next = index === -1 ? (delta > 0 ? 0 : results.length - 1) : index + delta
+    const wrapped = ((next % results.length) + results.length) % results.length
+    setActive(results[wrapped]?.id ?? null)
   }
 
   function onKeyDown(event: React.KeyboardEvent) {
+    if (isHelpQuery(query) && event.key !== 'Escape') return
     if (event.key === 'ArrowDown') {
       event.preventDefault()
-      setActive((current) => (results.length ? (current + 1) % results.length : 0))
+      moveActive(1)
     } else if (event.key === 'ArrowUp') {
       event.preventDefault()
-      setActive((current) => (results.length ? (current - 1 + results.length) % results.length : 0))
+      moveActive(-1)
+    } else if (event.key === 'Home') {
+      event.preventDefault()
+      setActive(results[0]?.id ?? null)
+    } else if (event.key === 'End') {
+      event.preventDefault()
+      setActive(results[results.length - 1]?.id ?? null)
     } else if (event.key === 'Enter') {
       event.preventDefault()
-      choose(active)
+      choose(results.find((result) => result.id === active))
     }
   }
+
+  const showHelp = isHelpQuery(query)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -75,62 +131,44 @@ export function CommandPalette({
         }}
       >
         <DialogTitle className="sr-only">{t('palette.title')}</DialogTitle>
-        <input
-          autoFocus
-          type="text"
-          role="combobox"
-          aria-expanded="true"
-          aria-controls="command-palette-list"
-          aria-activedescendant={results[active] ? `command-${results[active].id}` : undefined}
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value)
-            setActive(0)
-          }}
-          onKeyDown={onKeyDown}
-          placeholder={t('palette.placeholder')}
-          aria-label={t('palette.title')}
-          className="w-full border-border border-b bg-transparent px-4 py-3 text-copy outline-none placeholder:text-muted-foreground"
-        />
+        <div className="flex items-center gap-2 border-border border-b px-4 py-3">
+          <input
+            autoFocus
+            type="text"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="command-palette-list"
+            aria-activedescendant={active ? `command-${active}` : undefined}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={onKeyDown}
+            placeholder={t('palette.placeholder')}
+            aria-label={t('palette.title')}
+            className="w-full bg-transparent text-copy outline-none placeholder:text-muted-foreground"
+          />
+          <PaletteHelp open={helpOpen} onOpenChange={setHelpOpen} />
+        </div>
 
         <div
           id="command-palette-list"
-          ref={listRef}
           role="listbox"
           aria-label={t('palette.title')}
           className="max-h-80 overflow-y-auto p-1"
         >
-          {results.length === 0 && (
+          {showHelp ? (
+            <PalettePrefixList className="flex flex-col gap-2 px-3 py-2" />
+          ) : results.length === 0 ? (
             <p className="px-3 py-6 text-center text-muted-foreground text-meta">
-              {t('palette.empty')}
+              {search.isSearching ? t('palette.searching') : t('palette.empty')}
             </p>
+          ) : (
+            <PaletteList
+              results={results}
+              activeId={active}
+              onHover={setActive}
+              onChoose={choose}
+            />
           )}
-          {results.map((command, index) => (
-            <button
-              key={command.id}
-              type="button"
-              id={`command-${command.id}`}
-              role="option"
-              aria-selected={index === active}
-              onMouseEnter={() => setActive(index)}
-              onClick={() => choose(index)}
-              className={cn(
-                'flex h-row-roomy w-full items-center gap-3 rounded-control px-3 text-left',
-                'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
-                index === active ? 'bg-accent-surface' : 'hover:bg-surface-2',
-              )}
-            >
-              <span className="min-w-0 flex-1 truncate text-copy">{command.title}</span>
-              {command.hint && (
-                <span className="shrink-0 text-muted-foreground text-caption">{command.hint}</span>
-              )}
-              {command.keys && (
-                <span className="shrink-0 font-mono text-faint-foreground text-caption">
-                  {command.keys.join(' ')}
-                </span>
-              )}
-            </button>
-          ))}
         </div>
       </DialogContent>
     </Dialog>

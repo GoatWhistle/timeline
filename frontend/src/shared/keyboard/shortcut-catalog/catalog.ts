@@ -51,6 +51,7 @@ const LISTS: CatalogEntry[] = [
     group: 'list',
   },
   { id: 'list-clear', keys: ['escape'], titleKey: 'shortcuts.listClear', group: 'list' },
+  { id: 'list-select', keys: ['x'], titleKey: 'shortcuts.listSelect', group: 'list' },
   { id: 'focus-search', keys: ['/'], titleKey: 'shortcuts.search', group: 'list' },
 ]
 

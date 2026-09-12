@@ -18,8 +18,8 @@ type Users struct{ db *postgres.DB }
 func NewUsers(db *postgres.DB) *Users { return &Users{db: db} }
 
 const userColumns = `id, display_id, first_name, middle_name, last_name, legacy_display_name, nickname,
-	profile_public, email, pending_email, password_hash, email_verified_at,
-	telegram_username, telegram_chat_id, notification_channels, avatar_url, bio,
+	profile_public, profile_visibility, pinned_event_ids, theme, email, pending_email, password_hash,
+	email_verified_at, telegram_username, telegram_chat_id, notification_channels, avatar_url, bio,
 	locale, timezone, shortcuts, is_admin, is_active, deleted_at, created_at, updated_at`
 
 func scanUser(row pgx.Row) (*models.User, error) {
@@ -28,7 +28,8 @@ func scanUser(row pgx.Row) (*models.User, error) {
 		channels []string
 	)
 	err := row.Scan(&u.ID, &u.DisplayID, &u.FirstName, &u.MiddleName, &u.LastName,
-		&u.LegacyDisplayName, &u.Nickname, &u.ProfilePublic, &u.Email, &u.PendingEmail,
+		&u.LegacyDisplayName, &u.Nickname, &u.ProfilePublic, &u.ProfileVisibility, &u.PinnedEventIDs,
+		&u.Theme, &u.Email, &u.PendingEmail,
 		&u.PasswordHash, &u.EmailVerifiedAt,
 		&u.TelegramUsername, &u.TelegramChatID, &channels,
 		&u.AvatarURL, &u.Bio,
@@ -108,7 +109,7 @@ func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p dto.ProfilePa
 			middle_name = CASE WHEN $13 THEN NULL ELSE COALESCE($14, middle_name) END,
 			last_name = COALESCE($15, last_name),
 			nickname = CASE WHEN $16 THEN NULL ELSE COALESCE($17, nickname) END,
-			profile_public = COALESCE($18, profile_public),
+			profile_visibility = COALESCE($18, profile_visibility),
 			legacy_display_name = CASE
 				WHEN $2 IS NOT NULL OR $15 IS NOT NULL OR $13 OR $14 IS NOT NULL
 				THEN NULL ELSE legacy_display_name END,
@@ -117,7 +118,9 @@ func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p dto.ProfilePa
 			avatar_url = CASE WHEN $7 THEN NULL ELSE COALESCE($8, avatar_url) END,
 			bio = CASE WHEN $9 THEN NULL ELSE COALESCE($10, bio) END,
 			locale = COALESCE($11, locale),
-			timezone = COALESCE($12, timezone)
+			timezone = COALESCE($12, timezone),
+			theme = COALESCE($19, theme),
+			pinned_event_ids = COALESCE($20::uuid[], pinned_event_ids)
 		WHERE id = $1
 		RETURNING `+userColumns,
 		id, p.FirstName, p.TelegramUsername, p.ClearTelegramUsername,
@@ -125,7 +128,8 @@ func (r *Users) UpdateProfile(ctx context.Context, id uuid.UUID, p dto.ProfilePa
 		p.ClearAvatarURL, p.AvatarURL, p.ClearBio, p.Bio,
 		p.Locale, p.Timezone,
 		p.ClearMiddleName, p.MiddleName, p.LastName,
-		p.ClearNickname, p.Nickname, p.ProfilePublic))
+		p.ClearNickname, p.Nickname,
+		p.ProfileVisibility, p.Theme, p.PinnedEventIDs))
 }
 
 func (r *Users) SetShortcuts(ctx context.Context, id uuid.UUID,
@@ -193,7 +197,8 @@ func (r *Users) Anonymize(ctx context.Context, id uuid.UUID) error {
 			last_name = 'user',
 			legacy_display_name = NULL,
 			nickname = NULL,
-			profile_public = false,
+			profile_visibility = 'private',
+			pinned_event_ids = '{}',
 			email = 'deleted+' || id::text || '@invalid.local',
 			pending_email = NULL,
 			password_hash = 'deleted',

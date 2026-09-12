@@ -26,12 +26,14 @@ export function useListNavigation({
   onSelect,
   onClear,
   scopeId = 'list',
+  rowAttr = 'data-event-row',
 }: {
   ids: string[]
   selected: string | null
   onSelect: (id: string) => void
   onClear?: () => void
   scopeId?: string
+  rowAttr?: string
 }) {
   const keyboardMove = useRef(false)
 
@@ -64,13 +66,13 @@ export function useListNavigation({
     const fromKeyboard = keyboardMove.current
     keyboardMove.current = false
     if (!selected) return
-    const row = document.querySelector<HTMLElement>(`[data-event-row="${selected}"]`)
+    const row = document.querySelector<HTMLElement>(`[${rowAttr}="${selected}"]`)
     if (!row) return
     row.scrollIntoView({ block: 'nearest' })
     const active = document.activeElement
-    const inList = active instanceof HTMLElement && active.closest('[data-event-row]') !== null
+    const inList = active instanceof HTMLElement && active.closest(`[${rowAttr}]`) !== null
     if (!fromKeyboard && !inList) return
     const target = focusTargetOf(row)
     if (target && target !== active) target.focus({ preventScroll: true })
-  }, [selected])
+  }, [selected, rowAttr])
 }

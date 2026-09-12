@@ -28,12 +28,34 @@ func NormalizeChannelSet(values []Channel) ChannelSet {
 	return out
 }
 
+type NotificationType string
+
+const (
+	NotificationRequired         NotificationType = "REGISTRATION_REQUIRED"
+	NotificationReminder         NotificationType = "REGISTRATION_REMINDER"
+	NotificationOverdue          NotificationType = "REGISTRATION_OVERDUE"
+	NotificationWeeklyDigest     NotificationType = "WEEKLY_DIGEST"
+	NotificationPersonalTaskDue  NotificationType = "PERSONAL_TASK_DUE"
+	NotificationRetrospectiveDue NotificationType = "PERSONAL_RETROSPECTIVE_DUE"
+)
+
+func (t NotificationType) PersonalOccasion() bool {
+	switch t {
+	case NotificationWeeklyDigest, NotificationPersonalTaskDue, NotificationRetrospectiveDue:
+		return true
+	}
+	return false
+}
+
 type NotificationOccasion = NotificationType
 
 var AllOccasions = []NotificationOccasion{
 	NotificationRequired,
 	NotificationReminder,
 	NotificationOverdue,
+	NotificationWeeklyDigest,
+	NotificationPersonalTaskDue,
+	NotificationRetrospectiveDue,
 }
 
 func ValidOccasion(value NotificationOccasion) bool {

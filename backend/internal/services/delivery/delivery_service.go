@@ -17,6 +17,10 @@ import (
 	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 )
 
+type InboxCleaner interface {
+	Cleanup(ctx context.Context, deletedRetention time.Duration) (int64, error)
+}
+
 type DeliveryService struct {
 	db            *postgres.DB
 	notifications *notification.Notifications
@@ -27,6 +31,7 @@ type DeliveryService struct {
 	telegram      mail.TelegramSender
 	email         mail.EmailSender
 	feed          *realtime.SystemEventService
+	inbox         InboxCleaner
 	cfg           *config.Config
 	now           func() time.Time
 }
@@ -45,7 +50,10 @@ func NewDeliveryService(db *postgres.DB, notifications *notification.Notificatio
 
 func (s *DeliveryService) resolveCandidate(ctx context.Context,
 	n *models.Notification) (*models.ReconcileCandidate, bool, error) {
-	candidate, err := s.scheduler.CandidateByStatus(ctx, n.RegistrationStatusID)
+	if n.RegistrationStatusID == nil {
+		return s.resolvePersonalCandidate(ctx, n)
+	}
+	candidate, err := s.scheduler.CandidateByStatus(ctx, *n.RegistrationStatusID)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
 			return nil, true,
@@ -170,6 +178,7 @@ func (s *DeliveryService) send(ctx context.Context, channel models.Channel,
 			return models.NewPermanentDeliveryError("no Telegram link is present", nil)
 		}
 		msg.Recipient = *user.TelegramChatID
+		s.applyTelegramContent(&msg, n, user.Locale)
 		s.attachRegistrationButton(ctx, &msg, n, candidate, user.Locale)
 		return s.telegram.Send(ctx, msg)
 	case models.ChannelEmail:
@@ -177,6 +186,7 @@ func (s *DeliveryService) send(ctx context.Context, channel models.Channel,
 			return models.NewPermanentDeliveryError("the address is not confirmed", nil)
 		}
 		msg.Recipient = user.Email
+		s.applyEmailContent(&msg, n, user)
 		return s.email.Send(ctx, msg)
 	}
 	return models.NewPermanentDeliveryError("unknown delivery channel", nil)

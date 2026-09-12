@@ -99,6 +99,7 @@ type Retention struct {
 	NotificationPayload time.Duration
 	AuditLog            time.Duration
 	SystemEvent         time.Duration
+	InboxDeleted        time.Duration
 	Interval            time.Duration
 	EventBatch          int
 }
@@ -198,6 +199,7 @@ func Load() (*Config, error) {
 			NotificationPayload: envDuration("RETENTION_NOTIFICATION_PAYLOAD", 90*24*time.Hour),
 			AuditLog:            envDuration("RETENTION_AUDIT_LOG", 365*24*time.Hour),
 			SystemEvent:         envDuration("RETENTION_SYSTEM_EVENT", 90*24*time.Hour),
+			InboxDeleted:        envDuration("RETENTION_INBOX_DELETED", 30*24*time.Hour),
 			Interval:            envDuration("RETENTION_INTERVAL", 24*time.Hour),
 			EventBatch:          envInt("RETENTION_EVENT_BATCH", 200),
 		},

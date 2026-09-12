@@ -127,20 +127,26 @@ func blankText(value *string) bool {
 }
 
 type DueTaskCandidate struct {
-	TaskID         uuid.UUID
-	TaskDisplayID  string
-	UserID         uuid.UUID
-	EventID        uuid.UUID
-	EventDisplayID string
-	Title          string
-	DueAt          time.Time
-	EventTitle     string
+	TaskID            uuid.UUID
+	TaskDisplayID     string
+	UserID            uuid.UUID
+	EventID           uuid.UUID
+	EventDisplayID    string
+	Title             string
+	DueAt             time.Time
+	EventTitle        string
+	RecipientLocale   string
+	RecipientTimezone string
+	RecipientChannels RecipientChannels
 }
 
 type DueRetrospectiveCandidate struct {
-	EventID        uuid.UUID
-	EventDisplayID string
-	UserID         uuid.UUID
-	EventTitle     string
-	EndAt          time.Time
+	EventID           uuid.UUID
+	EventDisplayID    string
+	UserID            uuid.UUID
+	EventTitle        string
+	EndAt             time.Time
+	RecipientLocale   string
+	RecipientTimezone string
+	RecipientChannels RecipientChannels
 }

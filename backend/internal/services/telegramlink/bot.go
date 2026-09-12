@@ -31,6 +31,10 @@ type CallbackAnswerer interface {
 	AnswerCallbackQuery(ctx context.Context, callbackQueryID, text string) error
 }
 
+type MessageEditor interface {
+	EditMessage(ctx context.Context, chatID string, messageID int, text string) error
+}
+
 type Bot struct {
 	completer Completer
 	users     UserFinder
@@ -39,6 +43,7 @@ type Bot struct {
 	status    StatusMarker
 	replier   Replier
 	answerer  CallbackAnswerer
+	editor    MessageEditor
 }
 
 func NewBot(completer Completer, users UserFinder, mute MuteToggler, schedule ScheduleLister,
@@ -47,4 +52,9 @@ func NewBot(completer Completer, users UserFinder, mute MuteToggler, schedule Sc
 		completer: completer, users: users, mute: mute, schedule: schedule, status: status,
 		replier: replier, answerer: answerer,
 	}
+}
+
+func (b *Bot) WithEditor(editor MessageEditor) *Bot {
+	b.editor = editor
+	return b
 }

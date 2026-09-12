@@ -85,6 +85,7 @@ var (
 	DisplayKindTrackPrize         = DisplayKind{Prefix: "pz", Entity: "track prize"}
 	DisplayKindEventCase          = DisplayKind{Prefix: "cs", Entity: "event case"}
 	DisplayKindTeamEventLink      = DisplayKind{Prefix: "tl", Entity: "team link"}
+	DisplayKindInboxItem          = DisplayKind{Prefix: "ib", Entity: "inbox item"}
 )
 
 const (

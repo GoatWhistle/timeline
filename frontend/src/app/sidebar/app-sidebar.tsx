@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
 import { listName } from '@/entities/user/person-name/person-name'
-import { EventFeedBell } from '@/features/event-feed-bell/event-feed-bell'
+import { InboxBell } from '@/features/inbox-bell/inbox-bell'
 import { ProfileMenu } from '@/features/profile-menu/profile-menu'
 import type { MeResponse } from '@/shared/api/types.gen'
 import { useLocale } from '@/shared/i18n/i18n-context'
@@ -151,7 +151,7 @@ export function AppSidebar({
                   avatarUrl={user.avatar_url}
                 />
               </div>
-              <EventFeedBell />
+              <InboxBell />
             </div>
           )}
         </div>

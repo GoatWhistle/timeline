@@ -8,6 +8,7 @@ import { MARKDOWN_MAX_LENGTH } from '@/shared/markdown/limits'
 import { MarkdownEditor } from '@/shared/markdown/markdown-editor'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
+import { MoneyInput } from '@/shared/ui/forms/money-input'
 import {
   Select,
   SelectContent,
@@ -115,7 +116,18 @@ export function CaseForm({
         error={errors.prize_amount?.message}
         hint={t('cases.formPrizeHint')}
       >
-        <Input id={`${idPrefix}-prize`} inputMode="numeric" {...register('prize_amount')} />
+        <Controller
+          control={control}
+          name="prize_amount"
+          render={({ field }) => (
+            <MoneyInput
+              id={`${idPrefix}-prize`}
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+            />
+          )}
+        />
       </Field>
 
       <Field label={t('cases.formTrack')} htmlFor={`${idPrefix}-track`}>

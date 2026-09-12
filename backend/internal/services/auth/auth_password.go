@@ -46,7 +46,7 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 	if err != nil {
 		return err
 	}
-	s.mailer.SendPasswordReset(ctx, user.Email, user.DisplayName(user.Locale), user.Locale,
+	s.mailer.SendPasswordReset(ctx, user.Email, user.DisplayName(user.Locale), user.Locale, string(user.Theme),
 		secret, s.cfg.Auth.PasswordResetTTL, telegramRecipient(user))
 	return nil
 }
@@ -76,7 +76,7 @@ func (s *AuthService) ChangePassword(ctx context.Context, actor models.Actor,
 	if err != nil {
 		return err
 	}
-	s.mailer.SendPasswordChanged(ctx, user.Email, user.DisplayName(user.Locale), user.Locale,
+	s.mailer.SendPasswordChanged(ctx, user.Email, user.DisplayName(user.Locale), user.Locale, string(user.Theme),
 		telegramRecipient(user))
 	return nil
 }

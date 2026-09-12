@@ -15,37 +15,53 @@ var layoutSource string
 var layout = template.Must(template.New("mail").Parse(layoutSource))
 
 type letter struct {
-	Lang        string
-	Subject     string
-	Preheader   string
-	Heading     string
-	Greeting    string
-	Intro       string
-	Action      string
-	Link        string
-	Expiry      string
-	Attribution string
-	Fallback    string
-	Aside       string
-	Footer      string
-	Automatic   string
+	Lang           string
+	Theme          string
+	OppositeTheme  string
+	Palette        palette
+	Opposite       palette
+	LogoURL        string
+	Subject        string
+	Preheader      string
+	Heading        string
+	Greeting       string
+	Intro          string
+	Action         string
+	Link           string
+	Expiry         string
+	Attribution    string
+	Fallback       string
+	Aside          string
+	Footer         string
+	Automatic      string
+	UnsubscribeURL string
+	WhyReceived    string
 }
 
-func compose(lang, key, name, link, ttl string) letter {
+func compose(lang, userTheme, publicURL, key, name, link, ttl string) letter {
 	args := []string{"name", name, "link", link, "ttl", ttl}
+	theme := resolveTheme(userTheme)
+	opposite := oppositeTheme(theme)
 	l := letter{
-		Lang:      lang,
-		Subject:   locale.Message(lang, key+".subject", args...),
-		Heading:   locale.Message(lang, key+".heading", args...),
-		Greeting:  locale.Message(lang, key+".greeting", args...),
-		Intro:     locale.Message(lang, key+".intro", args...),
-		Action:    locale.Message(lang, key+".action", args...),
-		Aside:     locale.Message(lang, key+".aside", args...),
-		Link:      link,
-		Expiry:    expiryText(lang, key, args),
-		Fallback:  locale.Message(lang, "email.fallback", args...),
-		Footer:    locale.Message(lang, "email.footer", args...),
-		Automatic: locale.Message(lang, "email.footer.automatic", args...),
+		Lang:           lang,
+		Theme:          theme,
+		OppositeTheme:  opposite,
+		Palette:        paletteFor(theme),
+		Opposite:       paletteFor(opposite),
+		LogoURL:        publicURL + "/mail/logo-" + theme + ".png",
+		Subject:        locale.Message(lang, key+".subject", args...),
+		Heading:        locale.Message(lang, key+".heading", args...),
+		Greeting:       locale.Message(lang, key+".greeting", args...),
+		Intro:          locale.Message(lang, key+".intro", args...),
+		Action:         locale.Message(lang, key+".action", args...),
+		Aside:          locale.Message(lang, key+".aside", args...),
+		Link:           link,
+		Expiry:         expiryText(lang, key, args),
+		Fallback:       locale.Message(lang, "email.fallback", args...),
+		Footer:         locale.Message(lang, "email.footer", args...),
+		Automatic:      locale.Message(lang, "email.footer.automatic", args...),
+		UnsubscribeURL: publicURL + "/catalog?settings=notifications",
+		WhyReceived:    locale.Message(lang, "email.why_received", args...),
 	}
 	l.Preheader = l.Intro
 	if key == inviteKey && name != "" {
@@ -94,6 +110,10 @@ func (l letter) text() string {
 	b.WriteString(l.Footer)
 	b.WriteString("\n")
 	b.WriteString(l.Automatic)
+	b.WriteString("\n")
+	b.WriteString(l.WhyReceived)
+	b.WriteString(": ")
+	b.WriteString(l.UnsubscribeURL)
 	b.WriteString("\n")
 	return b.String()
 }

@@ -5,14 +5,17 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
+	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
 
 type PublicProfileService interface {
-	PublicProfile(ctx context.Context, nickname string) (dto.PublicProfileResponse, error)
+	PublicProfile(ctx context.Context, nickname string, viewer *uuid.UUID) (dto.PublicProfileResponse, error)
 }
 
 type PublicProfileController struct {
@@ -28,10 +31,12 @@ func NewPublicProfileController(svc PublicProfileService, limiter httpsession.Li
 }
 
 // @Summary		Public profile by nickname
-// @Description	Served without authentication. A profile is visible only when its owner
-// @Description	turned visibility on; otherwise the response is 404, so that the existence
+// @Description	Works without authentication, but reads the caller's session when one is present.
+// @Description	Visibility is one of public (anyone), members (any signed-in user) or private
+// @Description	(the owner only). Anything the viewer may not see answers 404, so the existence
 // @Description	of a closed profile is not disclosed. Events are limited to published,
-// @Description	non-archived ones that the person allowed to be shown.
+// @Description	non-archived ones that the person allowed to be shown. The summary field is
+// @Description	present only for the profile owner and for administrators.
 // @Tags			profile
 // @Produce		json
 // @Param			nickname	path		string	true	"Nickname without the @ sign"
@@ -49,7 +54,11 @@ func (c *PublicProfileController) Get(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, models.NewNotFound("profile not found"))
 		return
 	}
-	resp, err := c.svc.PublicProfile(r.Context(), nickname)
+	var viewer *uuid.UUID
+	if u := middleware.CurrentUser(r); u != nil {
+		viewer = &u.ID
+	}
+	resp, err := c.svc.PublicProfile(r.Context(), nickname, viewer)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return

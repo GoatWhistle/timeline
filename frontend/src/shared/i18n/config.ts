@@ -16,10 +16,19 @@ export const NAMESPACES = [
 export type Namespace = (typeof NAMESPACES)[number]
 
 export const BUNDLES: Record<Namespace, readonly string[]> = {
-  common: ['shell', 'action', 'format', 'admin', 'account', 'schedule'],
+  common: [
+    'shell',
+    'action',
+    'format',
+    'admin',
+    'account',
+    'schedule',
+    'public-profile',
+    'shortcuts',
+  ],
   event: ['event', 'event-form', 'event-list', 'event-card', 'event-personal', 'event-schedule'],
   registration: ['registration'],
-  notification: ['notification'],
+  notification: ['notification', 'inbox'],
   auth: ['auth'],
   errors: ['errors', 'field-errors'],
   ops: ['ops'],

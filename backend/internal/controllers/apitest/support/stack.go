@@ -126,8 +126,9 @@ func NewStack(t *testing.T) *Stack {
 		notifier, auditSvc, hasher, issuer, mailer, limiter, cfg)
 	feed := svcrealtime.NewSystemEventService(db, feedRepo)
 	hub := svcrealtime.NewRealtimeHub(feedRepo, cfg.Realtime.MaxPerUser)
+	profileLinksRepo := identity.NewProfileLinks(db)
 	profileSvc := svcauth.NewProfileService(db, users, tokens, sessions,
-		notifier, notificationPreferences, auditSvc, hasher, mailer, tg, cfg)
+		notifier, notificationPreferences, events, profileLinksRepo, auditSvc, hasher, mailer, tg, cfg)
 	userSvc := svcauth.NewUserService(db, users, sessions, notifier, auditSvc, cfg)
 	auth.WithRealtime(hub)
 	profileSvc.WithRealtime(hub)

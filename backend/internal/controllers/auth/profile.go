@@ -18,6 +18,7 @@ import (
 type ProfileService interface {
 	Get(ctx context.Context, userID uuid.UUID) (*models.User, error)
 	Update(ctx context.Context, actor models.Actor, req dto.UpdateProfileRequest) (*models.User, error)
+	PinnedEventDisplayIDs(ctx context.Context, u *models.User) ([]string, error)
 	StartTelegramLink(ctx context.Context, actor models.Actor) (string, time.Time, error)
 	CompleteTelegramLink(ctx context.Context, token, chatID string, username *string) error
 	UnlinkTelegram(ctx context.Context, actor models.Actor) error
@@ -75,7 +76,22 @@ func (c *ProfileController) Get(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, presenter.MeResponse(user))
+	resp, err := c.meResponse(r, user)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, resp)
+}
+
+func (c *ProfileController) meResponse(r *http.Request, user *models.User) (dto.MeResponse, error) {
+	resp := presenter.MeResponse(user)
+	pinned, err := c.svc.PinnedEventDisplayIDs(r.Context(), user)
+	if err != nil {
+		return dto.MeResponse{}, err
+	}
+	resp.PinnedEventIDs = pinned
+	return resp, nil
 }
 
 // @Summary		Update your own profile
@@ -105,7 +121,12 @@ func (c *ProfileController) Update(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, presenter.MeResponse(user))
+	resp, err := c.meResponse(r, user)
+	if err != nil {
+		httpx.Error(w, r, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, resp)
 }
 
 // @Summary		Telegram link URL

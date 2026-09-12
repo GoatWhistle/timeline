@@ -68,9 +68,14 @@ func (r *Users) DropReservation(ctx context.Context, nickname string) error {
 func (r *Users) PublicProfileEvents(ctx context.Context,
 	userID uuid.UUID) ([]dto.PublicProfileEvent, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT e.display_id, e.title, e.start_at, e.end_at
+		SELECT e.display_id, e.title, e.kind, e.start_at, e.end_at, t.name
 		FROM event_participants p
 		JOIN events e ON e.id = p.event_id
+		LEFT JOIN team_event_entries te ON te.event_id = e.id
+		LEFT JOIN team_members tmb ON tmb.team_id = te.team_id AND tmb.user_id = p.user_id
+			AND tmb.state = 'ACTIVE'
+		LEFT JOIN team_event_participants tep ON tep.entry_id = te.id AND tep.member_id = tmb.id
+		LEFT JOIN teams t ON t.id = tep.team_id
 		WHERE p.user_id = $1
 			AND p.show_on_profile
 			AND p.participation_status = 'ASSIGNED'
@@ -85,10 +90,107 @@ func (r *Users) PublicProfileEvents(ctx context.Context,
 	items := make([]dto.PublicProfileEvent, 0)
 	for rows.Next() {
 		var item dto.PublicProfileEvent
-		if err := rows.Scan(&item.ID, &item.Title, &item.StartAt, &item.EndAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.Title, &item.Kind, &item.StartAt, &item.EndAt,
+			&item.TeamName); err != nil {
+			return nil, mapError(err)
+		}
+		item.Role = "participant"
+		items = append(items, item)
+	}
+	return items, mapError(rows.Err())
+}
+
+func (r *Users) PublicProfileSummary(ctx context.Context, userID uuid.UUID,
+	includeOnTimeRate bool) (dto.PublicProfileSummary, error) {
+	var summary dto.PublicProfileSummary
+	err := r.db.Q(ctx).QueryRow(ctx, `
+		SELECT count(DISTINCT p.event_id), count(DISTINCT tmb.team_id)
+		FROM event_participants p
+		LEFT JOIN team_members tmb ON tmb.user_id = p.user_id AND tmb.state = 'ACTIVE'
+		WHERE p.user_id = $1 AND p.participation_status = 'ASSIGNED'`,
+		userID).Scan(&summary.EventCount, &summary.TeamCount)
+	if err != nil {
+		return summary, mapError(err)
+	}
+	if !includeOnTimeRate {
+		return summary, nil
+	}
+	var total, onTime int
+	err = r.db.Q(ctx).QueryRow(ctx, `
+		SELECT count(*),
+			count(*) FILTER (WHERE s.status = 'DONE' AND s.registered_at <= r.deadline_at)
+		FROM registration_statuses s
+		JOIN event_participants p ON p.id = s.participant_id
+		JOIN registrations r ON r.id = s.registration_id
+		WHERE p.user_id = $1 AND s.status <> 'NOT_REQUIRED'`,
+		userID).Scan(&total, &onTime)
+	if err != nil {
+		return summary, mapError(err)
+	}
+	if total > 0 {
+		rate := float64(onTime) / float64(total)
+		summary.OnTimeRegistrationRate = &rate
+	}
+	return summary, nil
+}
+
+func (r *Users) PublicProfileMonthlyActivity(ctx context.Context,
+	userID uuid.UUID, since time.Time) ([]dto.MonthlyActivity, error) {
+	rows, err := r.db.Q(ctx).Query(ctx, `
+		SELECT to_char(date_trunc('month', e.start_at), 'YYYY-MM'), count(*)
+		FROM event_participants p
+		JOIN events e ON e.id = p.event_id
+		WHERE p.user_id = $1
+			AND p.show_on_profile
+			AND p.participation_status = 'ASSIGNED'
+			AND e.published_at IS NOT NULL
+			AND e.archived_at IS NULL
+			AND e.start_at >= $2
+		GROUP BY 1
+		ORDER BY 1`, userID, since)
+	if err != nil {
+		return nil, mapError(err)
+	}
+	defer rows.Close()
+
+	items := make([]dto.MonthlyActivity, 0)
+	for rows.Next() {
+		var item dto.MonthlyActivity
+		if err := rows.Scan(&item.Month, &item.Count); err != nil {
 			return nil, mapError(err)
 		}
 		items = append(items, item)
 	}
 	return items, mapError(rows.Err())
+}
+
+func (r *Users) PinnableEventIDs(ctx context.Context, userID uuid.UUID,
+	candidates []uuid.UUID) ([]uuid.UUID, error) {
+	if len(candidates) == 0 {
+		return nil, nil
+	}
+	rows, err := r.db.Q(ctx).Query(ctx, `
+		SELECT e.id
+		FROM event_participants p
+		JOIN events e ON e.id = p.event_id
+		WHERE p.user_id = $1
+			AND p.show_on_profile
+			AND p.participation_status = 'ASSIGNED'
+			AND e.published_at IS NOT NULL
+			AND e.archived_at IS NULL
+			AND e.id = ANY($2)`, userID, candidates)
+	if err != nil {
+		return nil, mapError(err)
+	}
+	defer rows.Close()
+
+	valid := make([]uuid.UUID, 0, len(candidates))
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, mapError(err)
+		}
+		valid = append(valid, id)
+	}
+	return valid, mapError(rows.Err())
 }

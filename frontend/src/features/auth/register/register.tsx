@@ -12,6 +12,7 @@ import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { PasswordInput } from '@/shared/ui/forms/password-input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { CrossfadeSwap } from '@/shared/ui/motion/crossfade-swap'
 import { Button } from '@/shared/ui/primitives/button'
 
 const schema = z
@@ -47,7 +48,7 @@ const schema = z
 type FormValues = z.infer<typeof schema>
 
 export function RegisterPage() {
-  const { t } = useTranslation('auth')
+  const { t, i18n } = useTranslation('auth')
   const navigate = useNavigate()
   const register_ = useRegister()
 
@@ -95,8 +96,10 @@ export function RegisterPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{t('register.title')}</CardTitle>
-        <CardDescription>{t('register.description')}</CardDescription>
+        <CrossfadeSwap swapKey={i18n.language}>
+          <CardTitle>{t('register.title')}</CardTitle>
+          <CardDescription>{t('register.description')}</CardDescription>
+        </CrossfadeSwap>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -202,7 +205,11 @@ export function RegisterPage() {
           )}
 
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner label={t('register.pending')} /> : t('register.submit')}
+            {isSubmitting ? (
+              <Spinner label={t('register.pending')} />
+            ) : (
+              <CrossfadeSwap swapKey={i18n.language}>{t('register.submit')}</CrossfadeSwap>
+            )}
           </Button>
 
           <AuthExits exits={[{ to: '/login', label: t('register.signIn') }]} />

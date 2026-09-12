@@ -87,3 +87,7 @@ func (s *SystemEventService) EmitOnTransition(ctx context.Context, subjectKey, s
 func (s *SystemEventService) Cleanup(ctx context.Context, retention time.Duration) (int64, error) {
 	return s.events.DeleteOlderThan(ctx, s.now().Add(-retention))
 }
+
+func (s *SystemEventService) NotifyInbox(ctx context.Context, userID uuid.UUID) error {
+	return s.events.Publish(ctx, systemevent.Signal{UserID: &userID, Keys: []string{"inbox"}})
+}

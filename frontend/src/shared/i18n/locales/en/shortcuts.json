@@ -1,0 +1,31 @@
+{
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "groupGlobal": "Global",
+    "groupNavigation": "Navigation",
+    "groupList": "List",
+    "groupAction": "Actions",
+    "palette": "Command palette",
+    "help": "Keyboard shortcuts",
+    "search": "Focus search",
+    "listNext": "Next row",
+    "listPrevious": "Previous row",
+    "listClear": "Clear selection",
+    "listSelect": "Select row",
+    "sidebar": "Sidebar",
+    "settingsTitle": "Active shortcuts",
+    "scopeApp": "Application",
+    "changeOne": "Change {{name}}",
+    "recording": "Press the keys…",
+    "resetOne": "Restore the default for {{name}}",
+    "rejectInvalid": "This shortcut will not work",
+    "rejectConflict": "Already taken by: {{action}}",
+    "reservedBrowser": "This shortcut belongs to the browser",
+    "reservedSystem": "This shortcut belongs to the operating system",
+    "reservedFocus": "This key is needed to move around the interface",
+    "saveOne": "Save {{name}}",
+    "cancelOne": "Cancel changing {{name}}",
+    "scopeNavigation": "Navigation",
+    "scopeLists": "Lists"
+  }
+}

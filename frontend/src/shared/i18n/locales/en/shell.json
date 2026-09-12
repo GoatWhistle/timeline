@@ -38,7 +38,24 @@
     "title": "Command palette",
     "placeholder": "Type a command or a page name",
     "empty": "Nothing found",
-    "goto": "Go to"
+    "searching": "Searching…",
+    "goto": "Go to {{title}}",
+    "recent": "Recent",
+    "sectionEvents": "Events",
+    "sectionTeams": "Teams",
+    "sectionPages": "Pages",
+    "sectionAdmin": "Admin",
+    "sectionCommands": "Commands",
+    "help": {
+      "open": "Prefix help",
+      "prefixHackathons": "Search hackathons by name",
+      "prefixMeetups": "Search meetups by name",
+      "prefixEvents": "Search every event",
+      "prefixCommands": "Run an application command",
+      "prefixPages": "Jump to a page",
+      "prefixTeams": "Search your teams",
+      "prefixAdmin": "Jump to an admin page (administrators only)"
+    }
   },
   "theme": {
     "legend": "Appearance",

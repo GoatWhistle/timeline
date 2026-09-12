@@ -8,6 +8,9 @@ const EXPLAINED_TYPES: NotificationOccasion[] = [
   'REGISTRATION_REQUIRED',
   'REGISTRATION_REMINDER',
   'REGISTRATION_OVERDUE',
+  'WEEKLY_DIGEST',
+  'PERSONAL_TASK_DUE',
+  'PERSONAL_RETROSPECTIVE_DUE',
 ]
 
 export function NotificationExplainerCard({

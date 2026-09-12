@@ -17,7 +17,9 @@ func NewReminders(db *postgres.DB) *Reminders { return &Reminders{db: db} }
 func (r *Reminders) DueTasks(ctx context.Context, from, until time.Time,
 	after uuid.UUID, limit int) ([]models.DueTaskCandidate, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT t.id, t.display_id, t.user_id, t.event_id, e.display_id, t.title, t.due_at, e.title
+		SELECT t.id, t.display_id, t.user_id, t.event_id, e.display_id, t.title, t.due_at, e.title,
+		       u.locale, u.timezone, u.telegram_chat_id IS NOT NULL, u.email_verified_at IS NOT NULL,
+		       u.notification_channels
 		FROM participant_tasks t
 		JOIN events e ON e.id = t.event_id
 		JOIN users u ON u.id = t.user_id
@@ -38,11 +40,16 @@ func (r *Reminders) DueTasks(ctx context.Context, from, until time.Time,
 
 	items := make([]models.DueTaskCandidate, 0, limit)
 	for rows.Next() {
-		var c models.DueTaskCandidate
+		var (
+			c        models.DueTaskCandidate
+			channels []string
+		)
 		if err := rows.Scan(&c.TaskID, &c.TaskDisplayID, &c.UserID, &c.EventID, &c.EventDisplayID, &c.Title,
-			&c.DueAt, &c.EventTitle); err != nil {
+			&c.DueAt, &c.EventTitle, &c.RecipientLocale, &c.RecipientTimezone,
+			&c.RecipientChannels.TelegramLinked, &c.RecipientChannels.EmailVerified, &channels); err != nil {
 			return nil, mapError(err)
 		}
+		c.RecipientChannels.Selected = toChannelSet(channels)
 		items = append(items, c)
 	}
 	return items, mapError(rows.Err())
@@ -51,7 +58,9 @@ func (r *Reminders) DueTasks(ctx context.Context, from, until time.Time,
 func (r *Reminders) DueRetrospectives(ctx context.Context, from, until time.Time,
 	afterEvent, afterUser uuid.UUID, limit int) ([]models.DueRetrospectiveCandidate, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT e.id, e.display_id, p.user_id, e.title, e.end_at
+		SELECT e.id, e.display_id, p.user_id, e.title, e.end_at,
+		       u.locale, u.timezone, u.telegram_chat_id IS NOT NULL, u.email_verified_at IS NOT NULL,
+		       u.notification_channels
 		FROM events e
 		JOIN event_participants p ON p.event_id = e.id
 		JOIN users u ON u.id = p.user_id
@@ -75,11 +84,25 @@ func (r *Reminders) DueRetrospectives(ctx context.Context, from, until time.Time
 
 	items := make([]models.DueRetrospectiveCandidate, 0, limit)
 	for rows.Next() {
-		var c models.DueRetrospectiveCandidate
-		if err := rows.Scan(&c.EventID, &c.EventDisplayID, &c.UserID, &c.EventTitle, &c.EndAt); err != nil {
+		var (
+			c        models.DueRetrospectiveCandidate
+			channels []string
+		)
+		if err := rows.Scan(&c.EventID, &c.EventDisplayID, &c.UserID, &c.EventTitle, &c.EndAt,
+			&c.RecipientLocale, &c.RecipientTimezone,
+			&c.RecipientChannels.TelegramLinked, &c.RecipientChannels.EmailVerified, &channels); err != nil {
 			return nil, mapError(err)
 		}
+		c.RecipientChannels.Selected = toChannelSet(channels)
 		items = append(items, c)
 	}
 	return items, mapError(rows.Err())
+}
+
+func toChannelSet(values []string) models.ChannelSet {
+	out := make(models.ChannelSet, 0, len(values))
+	for _, v := range values {
+		out = append(out, models.Channel(v))
+	}
+	return out
 }

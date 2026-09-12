@@ -22,6 +22,8 @@ type NotificationPayload struct {
 	Language        string    `json:"language"`
 	Subject         string    `json:"subject"`
 	Body            string    `json:"body"`
+	TelegramText    string    `json:"telegram_text"`
+	EventURL        string    `json:"event_url"`
 }
 
 type Notification struct {
@@ -29,7 +31,7 @@ type Notification struct {
 	DisplayID            string           `json:"display_id"`
 	NotificationType     NotificationType `json:"notification_type"`
 	RecipientUserID      uuid.UUID        `json:"recipient_user_id"`
-	RegistrationStatusID uuid.UUID        `json:"registration_status_id"`
+	RegistrationStatusID *uuid.UUID       `json:"registration_status_id,omitempty"`
 	RuleID               *uuid.UUID       `json:"rule_id,omitempty"`
 
 	ScheduleVersion            *int `json:"schedule_version,omitempty"`
@@ -87,6 +89,7 @@ type AuditLog struct {
 
 type ReconcileCandidate struct {
 	EventID           uuid.UUID
+	EventDisplayID    string
 	EventTitle        string
 	EventEndAt        time.Time
 	RegistrationID    uuid.UUID
@@ -142,14 +145,34 @@ func (c RecipientChannels) Available(ch Channel) bool {
 	return false
 }
 
+type PersonalNotice struct {
+	Type              NotificationType
+	RecipientID       uuid.UUID
+	RecipientLocale   string
+	RecipientTimezone string
+	RecipientChannels RecipientChannels
+	EventTitle        string
+	EventDisplayID    string
+	LinkURL           string
+	Subject           string
+	Body              string
+	TelegramHeading   string
+	DeadlineAt        *time.Time
+	LogicalKeyBase    string
+}
+
 type OutboundMessage struct {
 	IdempotencyKey string
 	Recipient      string
 	Subject        string
 	Body           string
 	HTML           string
+	TelegramHTML   bool
+	OpenText       string
+	OpenURL        string
 	ButtonText     string
 	ButtonData     string
+	UnsubscribeURL string
 }
 
 type DeliveryError struct {

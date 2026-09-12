@@ -60,4 +60,9 @@
   --logo-track-opacity: 0.75;
   --ring: var(--brand-amber-600);
   --telegram: var(--brand-telegram-600);
+
+  --activity-0: oklch(0.94 0.01 250);
+  --activity-1: oklch(0.82 0.06 250);
+  --activity-2: oklch(0.66 0.12 250);
+  --activity-3: oklch(0.46 0.16 250);
 }

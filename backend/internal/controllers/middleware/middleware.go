@@ -153,6 +153,26 @@ func Auth(a Authenticator) func(http.Handler) http.Handler {
 	}
 }
 
+func OptionalAuth(a Authenticator) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			token := accessToken(r)
+			if token == "" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			user, sessionID, err := a.Authenticate(r.Context(), token)
+			if err != nil {
+				next.ServeHTTP(w, r)
+				return
+			}
+			ctx := context.WithValue(r.Context(), userKey, user)
+			ctx = context.WithValue(ctx, sessionKey, sessionID)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
 func AdminOnly(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := CurrentUser(r)

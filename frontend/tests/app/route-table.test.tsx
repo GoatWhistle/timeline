@@ -1,68 +1,9 @@
-import { isValidElement, type ReactElement, type ReactNode } from 'react'
-import { Navigate, Route } from 'react-router'
+import { elementType, navigateTarget, routes, withPath } from '@tests/support/route-table'
 import { describe, expect, it } from 'vitest'
+import { AuthLayout } from '@/app/auth-layout'
 import { NotFoundPage } from '@/app/pages/not-found-page'
 import { PublicProfileRoute } from '@/app/public-profile-route'
-import { AppRouter, staysAnonymous } from '@/app/router'
-import { isPublicProfileHandle } from '@/shared/routing/public-profile-path'
-
-type RouteRecord = {
-  path: string | undefined
-  element: ReactNode
-  depth: number
-}
-
-function childrenOf(node: ReactNode): ReactNode[] {
-  if (!isValidElement(node)) return []
-  const props = node.props as { children?: ReactNode }
-  const children = props.children
-  if (children === undefined || children === null) return []
-  return Array.isArray(children) ? (children as ReactNode[]) : [children]
-}
-
-function collect(node: ReactNode, depth = 0, out: RouteRecord[] = []): RouteRecord[] {
-  if (Array.isArray(node)) {
-    for (const child of node) collect(child, depth, out)
-    return out
-  }
-  if (!isValidElement(node)) return out
-
-  const element = node as ReactElement<{ path?: string; element?: ReactNode }>
-  const isRoute = element.type === Route
-  const nextDepth = isRoute ? depth + 1 : depth
-
-  if (isRoute) {
-    out.push({ path: element.props.path, element: element.props.element, depth })
-  }
-
-  for (const child of childrenOf(node)) collect(child, nextDepth, out)
-  return out
-}
-
-const routes = collect(AppRouter())
-
-const ANONYMOUS = [
-  '/login',
-  '/register',
-  '/verify-email',
-  '/forgot-password',
-  '/reset-password',
-  '/invite',
-  '/email-change',
-]
-
-function withPath(path: string): RouteRecord[] {
-  return routes.filter((route) => route.path === path)
-}
-
-function elementType(node: ReactNode): unknown {
-  return isValidElement(node) ? node.type : undefined
-}
-
-function navigateTarget(node: ReactNode): string | undefined {
-  if (!isValidElement(node) || node.type !== Navigate) return undefined
-  return (node.props as { to?: string }).to
-}
+import { PublicProfileShell } from '@/app/public-profile-shell'
 
 describe('the route table exposes the profile shape guard', () => {
   it('declares the single-segment route exactly once', () => {
@@ -81,6 +22,12 @@ describe('the route table exposes the profile shape guard', () => {
     )
     expect(swallowing).toEqual([])
   })
+
+  it('no longer borrows the sign-in door as its shell', () => {
+    const [handleRoute] = withPath('/:handle')
+    expect(handleRoute?.layout).not.toBe(AuthLayout)
+    expect(handleRoute?.layout).toBe(PublicProfileShell)
+  })
 })
 
 describe('an unknown address ends on the not-found page', () => {
@@ -91,6 +38,13 @@ describe('an unknown address ends on the not-found page', () => {
   it('never sends a catch-all to the login form', () => {
     for (const route of withPath('*')) {
       expect(navigateTarget(route.element)).toBeUndefined()
+    }
+  })
+
+  it('no longer borrows the sign-in door as its shell either', () => {
+    for (const route of withPath('*')) {
+      expect(route.layout).not.toBe(AuthLayout)
+      expect(route.layout).toBe(PublicProfileShell)
     }
   })
 
@@ -158,71 +112,9 @@ describe('the catalog absorbed the separate my-events page', () => {
   })
 })
 
-describe('a logged-out visitor is sent to the login form only from the app itself', () => {
-  it.each(['/events', '/catalog', '/schedule', '/history', '/settings', '/teams', '/'])(
-    'redirects %s, which needs a session',
-    (path) => {
-      expect(staysAnonymous(path)).toBe(false)
-    },
-  )
-
-  it.each(['/admin/events', '/admin/users', '/teams/abc', '/events/abc'])(
-    'redirects the nested app path %s',
-    (path) => {
-      expect(staysAnonymous(path)).toBe(false)
-    },
-  )
-
-  it.each(['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'])(
-    'leaves the anonymous page %s alone',
-    (path) => {
-      expect(staysAnonymous(path)).toBe(true)
-    },
-  )
-
-  it.each(['/@ivan', '/@administrator', '/@a'])(
-    'leaves the public profile %s alone, so it can be read without signing in',
-    (path) => {
-      expect(staysAnonymous(path)).toBe(true)
-    },
-  )
-
-  it.each(['/tea', '/nonsense', '/some-old-link', '/tea/pot'])(
-    'leaves the unknown path %s alone, so it can show the not-found page',
-    (path) => {
-      expect(staysAnonymous(path)).toBe(true)
-    },
-  )
-
-  it('keeps the profile rule and the app rule from overlapping', () => {
-    for (const path of ['/events', '/catalog', '/admin/events']) {
-      expect(isPublicProfileHandle(path.slice(1))).toBe(false)
-      expect(staysAnonymous(path)).toBe(false)
-    }
-  })
-})
-
-describe('the session-required list matches the routes that need a session', () => {
-  const guarded = routes
-    .map((route) => route.path)
-    .filter((path): path is string => path !== undefined && path !== '*' && path.startsWith('/'))
-    .filter((path) => !path.startsWith('/:'))
-    .filter((path) => !ANONYMOUS.some((p) => path === p || path.startsWith(`${p}/`)))
-
-  it.each(guarded)('sends a logged-out visitor at %s to the login form', (path) => {
-    const concrete = path.replace(/:[^/]+/g, 'abc')
-    expect(staysAnonymous(concrete)).toBe(false)
-  })
-
-  it('found routes to check, so the list is not vacuously satisfied', () => {
-    expect(guarded.length).toBeGreaterThan(5)
-  })
-})
-
 describe('an email-change link works without a session, on either address', () => {
   it.each(['/email-change/confirm', '/email-change/cancel'])('mounts %s reachably', (path) => {
     expect(withPath(path)).toHaveLength(1)
-    expect(staysAnonymous(path)).toBe(true)
   })
 })
 

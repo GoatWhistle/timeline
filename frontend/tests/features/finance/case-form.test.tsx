@@ -26,6 +26,47 @@ async function submitWith(node: React.ReactElement) {
   await user.click(screen.getByRole('button', { name: /Create|Save/ }))
 }
 
+function prizeInput(): HTMLInputElement {
+  const node = document.getElementById('case-new-prize')
+  if (!(node instanceof HTMLInputElement)) throw new Error('no case prize input')
+  return node
+}
+
+describe('the case prize amount groups digits and refuses a fraction', () => {
+  it('groups the amount as it is typed and keeps the raw digits underneath', async () => {
+    const { user } = renderWithProviders(
+      <CaseForm tracks={tracks} submitLabel="Create" onSubmit={vi.fn()} />,
+    )
+    await user.click(prizeInput())
+    await user.keyboard('150000')
+    expect(prizeInput().value).toBe('150,000')
+    expect(prizeInput()).toHaveAttribute('data-value', '150000')
+  })
+
+  it('never lets a typed dot reach the stored amount', async () => {
+    const { user } = renderWithProviders(
+      <CaseForm tracks={tracks} submitLabel="Create" onSubmit={vi.fn()} />,
+    )
+    await user.click(prizeInput())
+    await user.keyboard('1500.50')
+    expect(prizeInput()).toHaveAttribute('data-value', '150050')
+  })
+
+  it('sends the raw digits, not the grouped text, when the case is submitted', async () => {
+    const onSubmit = vi.fn<(payload: CaseFormPayload) => Promise<void>>().mockResolvedValue()
+    const { user } = renderWithProviders(
+      <CaseForm tracks={tracks} submitLabel="Create" onSubmit={onSubmit} />,
+    )
+    await user.type(screen.getByLabelText('Name'), 'Latency budget')
+    await user.click(prizeInput())
+    await user.keyboard('150000')
+    await user.click(screen.getByRole('button', { name: /Create|Save/ }))
+
+    const payload = onSubmit.mock.calls[0]?.[0] as CaseFormPayload
+    expect(payload.prize_amount).toBe('150000')
+  })
+})
+
 describe('the case form sends only the fields the endpoint declares', () => {
   it('never sends the clear flags when creating, since create has no such fields', async () => {
     const onSubmit = vi.fn<(payload: CaseFormPayload) => Promise<void>>().mockResolvedValue()

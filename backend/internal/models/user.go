@@ -8,31 +8,34 @@ import (
 )
 
 type User struct {
-	ID                   uuid.UUID  `json:"id"`
-	DisplayID            string     `json:"display_id"`
-	FirstName            string     `json:"first_name"`
-	MiddleName           *string    `json:"middle_name,omitempty"`
-	LastName             string     `json:"last_name"`
-	LegacyDisplayName    *string    `json:"legacy_display_name,omitempty"`
-	Nickname             *string    `json:"nickname,omitempty"`
-	ProfilePublic        bool       `json:"profile_public"`
-	Email                string     `json:"email"`
-	PendingEmail         *string    `json:"pending_email,omitempty"`
-	PasswordHash         string     `json:"-"`
-	EmailVerifiedAt      *time.Time `json:"email_verified_at,omitempty"`
-	TelegramUsername     *string    `json:"telegram_username,omitempty"`
-	TelegramChatID       *string    `json:"-"`
-	NotificationChannels ChannelSet `json:"notification_channels"`
-	AvatarURL            *string    `json:"avatar_url,omitempty"`
-	Bio                  *string    `json:"bio,omitempty"`
-	Locale               string     `json:"locale"`
-	Timezone             string     `json:"timezone"`
-	Shortcuts            Shortcuts  `json:"shortcuts"`
-	IsAdmin              bool       `json:"is_admin"`
-	IsActive             bool       `json:"is_active"`
-	DeletedAt            *time.Time `json:"-"`
-	CreatedAt            time.Time  `json:"created_at"`
-	UpdatedAt            time.Time  `json:"updated_at"`
+	ID                   uuid.UUID         `json:"id"`
+	DisplayID            string            `json:"display_id"`
+	FirstName            string            `json:"first_name"`
+	MiddleName           *string           `json:"middle_name,omitempty"`
+	LastName             string            `json:"last_name"`
+	LegacyDisplayName    *string           `json:"legacy_display_name,omitempty"`
+	Nickname             *string           `json:"nickname,omitempty"`
+	ProfilePublic        bool              `json:"profile_public"`
+	ProfileVisibility    ProfileVisibility `json:"profile_visibility"`
+	PinnedEventIDs       []uuid.UUID       `json:"-"`
+	Theme                UserTheme         `json:"theme"`
+	Email                string            `json:"email"`
+	PendingEmail         *string           `json:"pending_email,omitempty"`
+	PasswordHash         string            `json:"-"`
+	EmailVerifiedAt      *time.Time        `json:"email_verified_at,omitempty"`
+	TelegramUsername     *string           `json:"telegram_username,omitempty"`
+	TelegramChatID       *string           `json:"-"`
+	NotificationChannels ChannelSet        `json:"notification_channels"`
+	AvatarURL            *string           `json:"avatar_url,omitempty"`
+	Bio                  *string           `json:"bio,omitempty"`
+	Locale               string            `json:"locale"`
+	Timezone             string            `json:"timezone"`
+	Shortcuts            Shortcuts         `json:"shortcuts"`
+	IsAdmin              bool              `json:"is_admin"`
+	IsActive             bool              `json:"is_active"`
+	DeletedAt            *time.Time        `json:"-"`
+	CreatedAt            time.Time         `json:"created_at"`
+	UpdatedAt            time.Time         `json:"updated_at"`
 }
 
 func (u *User) DisplayName(locale string) string {

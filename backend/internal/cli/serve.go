@@ -128,6 +128,7 @@ func newRouter(c *container) http.Handler {
 		Retention:      c.retention,
 		Feed:           c.feed,
 		Teams:          c.teams,
+		Inbox:          c.inbox,
 
 		Authenticator:         c.auth,
 		Metrics:               promhttp.Handler(),

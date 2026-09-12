@@ -1,69 +1,63 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { join, relative } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { PANEL_GAP, PANEL_PADDING, placePanel } from '@/shared/ui/forms/calendar/use-anchored-panel'
 
-const PANEL = { width: 310, height: 346 }
-const FIELD_HEIGHT = 36
+const SRC = join(process.cwd(), 'src')
+const OVERLAYS_PREFIX = 'shared/ui/overlays/'
 
-function anchorAt(top: number, left: number) {
-  return { top, bottom: top + FIELD_HEIGHT, left, right: left + 220 }
+function sourceFiles(dir: string): string[] {
+  const found: string[] = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) found.push(...sourceFiles(full))
+    else if (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts')) found.push(full)
+  }
+  return found
 }
 
-describe('the calendar opens where it fits, not always downwards', () => {
-  it('hangs below the field when the room below is enough', () => {
-    const at = placePanel(anchorAt(200, 400), PANEL, { width: 1440, height: 900 })
+const named = (file: string) => relative(SRC, file).replaceAll('\\', '/')
 
-    expect(at.side).toBe('bottom')
-    expect(at.top).toBe(236 + PANEL_GAP)
+describe('there is exactly one floating surface, and it lives in overlays/', () => {
+  it('lets no component outside overlays/ hand-compute top/left for a fixed panel', () => {
+    const offenders: string[] = []
+
+    for (const file of sourceFiles(SRC)) {
+      const relPath = named(file)
+      if (relPath.startsWith(OVERLAYS_PREFIX)) continue
+      const source = readFileSync(file, 'utf8')
+
+      const openingTags = source.matchAll(/<[A-Za-z][\w.]*(?:\s+[^<>]*?)?\/?>/gs)
+      for (const tag of openingTags) {
+        const attrs = tag[0]
+        const styleMatch = attrs.match(/style=\{\{([^}]*)\}\}/s)
+        if (!styleMatch) continue
+        const style = styleMatch[1] ?? ''
+        const hasTopLeft = /\btop\s*:/.test(style) && /\bleft\s*:/.test(style)
+        const isFixed = /\bfixed\b/.test(attrs)
+        if (hasTopLeft && isFixed) offenders.push(relPath)
+      }
+    }
+
+    expect(offenders).toEqual([])
   })
 
-  it('flips above the field when only the room above is enough', () => {
-    const at = placePanel(anchorAt(600, 400), PANEL, { width: 1440, height: 900 })
-
-    expect(at.side).toBe('top')
-    expect(at.top).toBe(600 - PANEL_GAP - PANEL.height)
+  it('no longer carries a bespoke anchored-panel positioning module', () => {
+    const readdirSafe = (dir: string) => {
+      try {
+        return readdirSync(dir)
+      } catch {
+        return []
+      }
+    }
+    const calendarFiles = readdirSafe(join(SRC, 'shared/ui/forms/calendar'))
+    expect(calendarFiles).not.toContain('use-anchored-panel.ts')
   })
 
-  it('never lets the panel run off the bottom of a short window', () => {
-    const viewport = { width: 1280, height: 520 }
-    const at = placePanel(anchorAt(300, 400), PANEL, viewport)
-
-    expect(at.top).toBeGreaterThanOrEqual(PANEL_PADDING)
-    expect(at.top + PANEL.height).toBeLessThanOrEqual(viewport.height - PANEL_PADDING)
-  })
-
-  it('never lets the panel run off the top either, when neither side has room', () => {
-    const viewport = { width: 1280, height: 380 }
-    const at = placePanel(anchorAt(180, 400), PANEL, viewport)
-
-    expect(at.top).toBeGreaterThanOrEqual(PANEL_PADDING)
-  })
-})
-
-describe('the calendar stays inside the window sideways', () => {
-  it('lines its left edge up with the field it belongs to', () => {
-    const at = placePanel(anchorAt(200, 400), PANEL, { width: 1440, height: 900 })
-
-    expect(at.left).toBe(400)
-  })
-
-  it('pulls back from the right edge instead of hanging over it', () => {
-    const viewport = { width: 1440, height: 900 }
-    const at = placePanel(anchorAt(200, 1300), PANEL, viewport)
-
-    expect(at.left + PANEL.width).toBeLessThanOrEqual(viewport.width - PANEL_PADDING)
-  })
-
-  it('does not push past the left edge when the field sits at the very edge', () => {
-    const at = placePanel(anchorAt(200, 0), PANEL, { width: 390, height: 844 })
-
-    expect(at.left).toBeGreaterThanOrEqual(PANEL_PADDING)
-  })
-
-  it('keeps a narrow phone window free of sideways overflow', () => {
-    const viewport = { width: 390, height: 844 }
-    const at = placePanel(anchorAt(300, 24), { width: 366, height: 394 }, viewport)
-
-    expect(at.left).toBeGreaterThanOrEqual(PANEL_PADDING)
-    expect(at.left + 366).toBeLessThanOrEqual(viewport.width - PANEL_PADDING + 1)
+  it('places the calendar panel through the shared Popover, not a hand-measured position', () => {
+    const picker = readFileSync(join(SRC, 'shared/ui/forms/calendar/date-picker.tsx'), 'utf8')
+    expect(picker).toContain('PopoverContent')
+    expect(picker).toContain("from '@/shared/ui/overlays/popover'")
+    expect(picker).not.toContain('useAnchoredPanel')
+    expect(picker).not.toContain('createPortal')
   })
 })

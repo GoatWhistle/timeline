@@ -17,6 +17,7 @@ type Update struct {
 }
 
 type Message struct {
+	ID   int     `json:"message_id"`
 	Text *string `json:"text"`
 	Chat Chat    `json:"chat"`
 	From *Sender `json:"from"`

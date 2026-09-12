@@ -1,4 +1,4 @@
-import { type RefObject, useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 
 export type IndicatorBox = {
   offset: number
@@ -28,19 +28,24 @@ export function useSlidingIndicator<T extends HTMLElement>(
   activeKey: string | null,
   axis: 'x' | 'y' = 'y',
   enabled = true,
-): { containerRef: RefObject<T | null>; box: IndicatorBox } {
-  const containerRef = useRef<T>(null)
+): { containerRef: (node: T | null) => void; box: IndicatorBox } {
+  const containerElement = useRef<T | null>(null)
+  const [container, setContainer] = useState<T | null>(null)
   const [box, setBox] = useState<IndicatorBox>(HIDDEN)
 
+  const containerRef = useCallback((node: T | null) => {
+    containerElement.current = node
+    setContainer(node)
+  }, [])
+
   const sync = useCallback(() => {
-    const container = containerRef.current
     const marked =
-      container?.querySelector<HTMLElement>(
+      containerElement.current?.querySelector<HTMLElement>(
         '[data-indicator-active="true"], [data-indicator-item][data-state="active"], [data-indicator-item][aria-selected="true"]',
       ) ?? null
     const active = marked?.closest<HTMLElement>('[data-indicator-item]') ?? marked
     setBox((previous) => {
-      const next = measureIndicator(container, active, axis)
+      const next = measureIndicator(containerElement.current, active, axis)
       if (
         previous.offset === next.offset &&
         previous.size === next.size &&
@@ -57,7 +62,6 @@ export function useSlidingIndicator<T extends HTMLElement>(
   }, [sync, activeKey, enabled])
 
   useLayoutEffect(() => {
-    const container = containerRef.current
     if (container === null) return
 
     sync()
@@ -90,7 +94,7 @@ export function useSlidingIndicator<T extends HTMLElement>(
     return () => {
       for (const observer of observers) observer.disconnect()
     }
-  }, [sync])
+  }, [sync, container])
 
   return { containerRef, box }
 }

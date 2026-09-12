@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/config"
@@ -20,6 +21,11 @@ import (
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
+type EventDisplayIDResolver interface {
+	ResolveDisplayID(ctx context.Context, displayID string) (uuid.UUID, error)
+	LabelsByIDs(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID]event.EventLabel, error)
+}
+
 type ProfileService struct {
 	db       *postgres.DB
 	users    *identity.Users
@@ -27,6 +33,8 @@ type ProfileService struct {
 	sessions *identity.Sessions
 	notifier Notifier
 	prefs    *notification.Preferences
+	events   EventDisplayIDResolver
+	links    *identity.ProfileLinks
 	audit    *audit.AuditService
 	hasher   *crypto.PasswordHasher
 	mailer   *mail.Mailer
@@ -39,11 +47,13 @@ type ProfileService struct {
 
 func NewProfileService(db *postgres.DB, users *identity.Users,
 	tokens *identity.Tokens, sessions *identity.Sessions,
-	notifier Notifier, prefs *notification.Preferences,
+	notifier Notifier, prefs *notification.Preferences, events EventDisplayIDResolver,
+	links *identity.ProfileLinks,
 	audit *audit.AuditService, hasher *crypto.PasswordHasher, mailer *mail.Mailer,
 	telegram mail.TelegramSender, cfg *config.Config) *ProfileService {
 	return &ProfileService{
 		db: db, users: users, tokens: tokens, sessions: sessions, notifier: notifier, prefs: prefs,
+		events: events, links: links,
 		audit: audit, hasher: hasher, mailer: mailer, telegram: telegram, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() },
 	}
@@ -67,6 +77,9 @@ func (s *ProfileService) Update(ctx context.Context, actor models.Actor, req dto
 			return err
 		}
 		if err := s.checkNickname(ctx, actor, patch); err != nil {
+			return err
+		}
+		if err := s.resolvePinnedEvents(ctx, actor, req, &patch); err != nil {
 			return err
 		}
 		if err := s.holdPreviousNickname(ctx, before, patch); err != nil {
@@ -112,7 +125,9 @@ func profileSnapshot(u *models.User) map[string]any {
 		"middle_name":           u.MiddleName,
 		"last_name":             u.LastName,
 		"nickname":              u.Nickname,
-		"profile_public":        u.ProfilePublic,
+		"profile_visibility":    u.ProfileVisibility,
+		"theme":                 u.Theme,
+		"pinned_event_ids":      u.PinnedEventIDs,
 		"notification_channels": u.NotificationChannels,
 		"locale":                u.Locale,
 		"timezone":              u.Timezone,
@@ -189,9 +204,9 @@ func (s *ProfileService) RequestEmailChange(ctx context.Context, actor models.Ac
 		return err
 	}
 
-	s.mailer.SendEmailChange(ctx, newEmail, user.DisplayName(user.Locale), user.Locale,
+	s.mailer.SendEmailChange(ctx, newEmail, user.DisplayName(user.Locale), user.Locale, string(user.Theme),
 		confirmSecret, s.cfg.Auth.EmailVerifyTTL)
-	s.mailer.SendEmailChangeCancel(ctx, originEmail, user.DisplayName(user.Locale), user.Locale,
+	s.mailer.SendEmailChangeCancel(ctx, originEmail, user.DisplayName(user.Locale), user.Locale, string(user.Theme),
 		cancelSecret, s.cfg.Auth.EmailChangeCancelTTL)
 	return nil
 }

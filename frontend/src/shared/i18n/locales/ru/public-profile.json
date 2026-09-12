@@ -1,0 +1,47 @@
+{
+  "publicProfile": {
+    "memberSince": "С нами с {{date}}",
+    "editProfile": "Редактировать профиль",
+    "share": "Поделиться",
+    "shareCopied": "Ссылка скопирована",
+    "shareFailed": "Не удалось скопировать ссылку",
+    "summary": {
+      "events": "События",
+      "teams": "Команды",
+      "wins": "Победы",
+      "onTime": "Регистрации вовремя"
+    },
+    "pinned": {
+      "title": "Закреплённые события",
+      "unpin": "Открепить",
+      "unpinAria": "Открепить {{title}}",
+      "unpinFailed": "Не удалось открепить событие"
+    },
+    "activity": {
+      "title": "Активность",
+      "less": "Меньше",
+      "more": "Больше",
+      "eventCount_one": "{{count}} событие",
+      "eventCount_few": "{{count}} события",
+      "eventCount_many": "{{count}} событий"
+    },
+    "timeline": {
+      "title": "Хронология участия",
+      "role": {
+        "participant": "Участник"
+      },
+      "team": "Команда: {{name}}"
+    },
+    "teamsSection": {
+      "title": "Команды"
+    },
+    "empty": {
+      "title": "Пока ни одного события",
+      "hint": "Здесь пока ничего не появилось.",
+      "ownHint": "Присоединитесь к событию из каталога — оно появится здесь."
+    },
+    "meta": {
+      "title": "{{name}} (@{{nickname}}) — Timeline"
+    }
+  }
+}

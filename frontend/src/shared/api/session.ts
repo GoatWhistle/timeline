@@ -9,6 +9,7 @@ const sessionQueryOptions = queryOptions<MeResponse>({
   queryKey: sessionQueryKey,
   queryFn: () => unwrap(api.GET('/me')),
   retry: false,
+  retryOnMount: false,
   staleTime: 60_000,
 })
 

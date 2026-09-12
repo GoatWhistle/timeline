@@ -9,7 +9,7 @@ import { i18n } from '@/shared/i18n/config'
 
 const SRC = join(process.cwd(), 'src')
 
-const ON_THE_DOOR = ['pitch', 'pitchHint'] as const
+const ON_THE_DOOR = ['pitch'] as const
 
 afterAll(async () => {
   await i18n.changeLanguage('ru')

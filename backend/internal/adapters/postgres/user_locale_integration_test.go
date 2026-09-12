@@ -18,7 +18,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
-func TestUserLocaleDefaultsToRussian(t *testing.T) {
+func TestUserLocaleDefaultsToConfiguredDefault(t *testing.T) {
 	pool := testsupport.Pool(t)
 	id := insertUser(t, pool, "locale-default@example.test")
 
@@ -109,7 +109,7 @@ func TestNotificationPayloadKeepsLanguageAfterLocaleChange(t *testing.T) {
 	created, _, err := notifications.Insert(ctx, &models.Notification{
 		NotificationType:           models.NotificationRequired,
 		RecipientUserID:            recipient,
-		RegistrationStatusID:       status,
+		RegistrationStatusID:       &status,
 		AssignmentVersion:          &version,
 		ActivationVersion:          &version,
 		NotificationContentVersion: 1,

@@ -26,6 +26,10 @@ type CallbackAnswerer interface {
 	AnswerCallbackQuery(ctx context.Context, callbackQueryID, text string) error
 }
 
+type MessageEditor interface {
+	EditMessage(ctx context.Context, chatID string, messageID int, text string) error
+}
+
 func New(cfg config.Telegram) Client {
 	return &botSender{cfg: cfg, client: newClient(cfg)}
 }
@@ -38,7 +42,15 @@ type botSender struct {
 type sendMessageRequest struct {
 	ChatID      string       `json:"chat_id"`
 	Text        string       `json:"text"`
+	ParseMode   string       `json:"parse_mode,omitempty"`
 	ReplyMarkup *replyMarkup `json:"reply_markup,omitempty"`
+}
+
+type editMessageRequest struct {
+	ChatID    string `json:"chat_id"`
+	MessageID int    `json:"message_id"`
+	Text      string `json:"text"`
+	ParseMode string `json:"parse_mode,omitempty"`
 }
 
 type replyMarkup struct {
@@ -47,7 +59,8 @@ type replyMarkup struct {
 
 type inlineButton struct {
 	Text         string `json:"text"`
-	CallbackData string `json:"callback_data"`
+	URL          string `json:"url,omitempty"`
+	CallbackData string `json:"callback_data,omitempty"`
 }
 
 type apiResponse struct {
@@ -67,7 +80,7 @@ func (s *botSender) Send(ctx context.Context, msg models.OutboundMessage) error 
 		text = msg.Subject + "\n\n" + msg.Body
 	}
 	body, err := json.Marshal(sendMessageRequest{
-		ChatID: msg.Recipient, Text: text, ReplyMarkup: buttonMarkup(msg),
+		ChatID: msg.Recipient, Text: text, ParseMode: parseMode(msg), ReplyMarkup: buttonMarkup(msg),
 	})
 	if err != nil {
 		return models.NewPermanentDeliveryError("failed to build the request", s.redactError(err))
@@ -102,6 +115,16 @@ func (s *botSender) SetWebhook(ctx context.Context, webhookURL, secret string) e
 	}, nil, s.cfg.Timeout)
 }
 
+func (s *botSender) EditMessage(ctx context.Context, chatID string, messageID int, text string) error {
+	err := s.call(ctx, "editMessageText", editMessageRequest{
+		ChatID: chatID, MessageID: messageID, Text: text, ParseMode: "HTML",
+	}, nil, s.cfg.Timeout)
+	if err == nil {
+		return nil
+	}
+	return models.NewTemporaryDeliveryError("failed to edit the Telegram message", err)
+}
+
 func (s *botSender) AnswerCallbackQuery(ctx context.Context, callbackQueryID, text string) error {
 	return s.call(ctx, "answerCallbackQuery", map[string]any{
 		"callback_query_id": callbackQueryID, "text": text,
@@ -109,12 +132,24 @@ func (s *botSender) AnswerCallbackQuery(ctx context.Context, callbackQueryID, te
 }
 
 func buttonMarkup(msg models.OutboundMessage) *replyMarkup {
-	if msg.ButtonData == "" {
+	var row []inlineButton
+	if msg.OpenURL != "" {
+		row = append(row, inlineButton{Text: msg.OpenText, URL: msg.OpenURL})
+	}
+	if msg.ButtonData != "" {
+		row = append(row, inlineButton{Text: msg.ButtonText, CallbackData: msg.ButtonData})
+	}
+	if len(row) == 0 {
 		return nil
 	}
-	return &replyMarkup{InlineKeyboard: [][]inlineButton{{
-		{Text: msg.ButtonText, CallbackData: msg.ButtonData},
-	}}}
+	return &replyMarkup{InlineKeyboard: [][]inlineButton{row}}
+}
+
+func parseMode(msg models.OutboundMessage) string {
+	if msg.TelegramHTML {
+		return "HTML"
+	}
+	return ""
 }
 
 func classify(statusCode int, resp apiResponse) error {

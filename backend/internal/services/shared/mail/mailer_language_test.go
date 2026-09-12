@@ -29,7 +29,7 @@ func TestMailerRendersInRecipientLanguage(t *testing.T) {
 	sender := &recordingMailSender{}
 	mailer := NewMailer(sender, nil, "https://timeline.test")
 
-	mailer.SendVerification(context.Background(), "user@example.test", "John Smith", "en",
+	mailer.SendVerification(context.Background(), "user@example.test", "John Smith", "en", "dark",
 		"token123", 24*time.Hour, TelegramRecipient{})
 	english := sender.last(t)
 	if english.Subject != locale.Message("en", "email.verification.subject") {
@@ -39,7 +39,7 @@ func TestMailerRendersInRecipientLanguage(t *testing.T) {
 		t.Errorf("duration is not English: %q", english.Body)
 	}
 
-	mailer.SendVerification(context.Background(), "user@example.test", "John Smith", "ru",
+	mailer.SendVerification(context.Background(), "user@example.test", "John Smith", "ru", "dark",
 		"token123", 24*time.Hour, TelegramRecipient{})
 	russian := sender.last(t)
 	if russian.Subject == english.Subject {

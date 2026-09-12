@@ -6257,6 +6257,312 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/inbox": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The notification center: a titled, Markdown-bodied entry for every situation that\nalso reached email or Telegram, plus personal system events. Soft-deleted items are\nexcluded.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inbox"
+                ],
+                "summary": "Own inbox",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Return only unread entries",
+                        "name": "unread",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number, from 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.InboxPage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Soft delete of every visible item. With read_only=true only already-read items go.",
+                "tags": [
+                    "inbox"
+                ],
+                "summary": "Delete the whole inbox",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Delete only items already marked read",
+                        "name": "read_only",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/inbox/read": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Marks the listed items read for the caller. An empty list marks the whole inbox.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inbox"
+                ],
+                "summary": "Mark inbox items read",
+                "parameters": [
+                    {
+                        "description": "Identifiers to mark, empty for all",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.InboxMarkReadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UnreadCountResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/inbox/unread-count": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inbox"
+                ],
+                "summary": "Unread inbox count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UnreadCountResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/inbox/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Soft delete: the item stops appearing in the list and can be brought back with restore.",
+                "tags": [
+                    "inbox"
+                ],
+                "summary": "Delete one inbox item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Inbox item identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/inbox/{id}/mark-registered": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "The same idempotent action as the Telegram \"I registered\" button.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inbox"
+                ],
+                "summary": "Mark the linked registration done from an inbox item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Inbox item identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/inbox/{id}/restore": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inbox"
+                ],
+                "summary": "Restore a deleted inbox item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Inbox item identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.InboxItemResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me/notification-preferences": {
             "get": {
                 "security": [
@@ -6311,7 +6617,10 @@ const docTemplate = `{
                         "enum": [
                             "REGISTRATION_REQUIRED",
                             "REGISTRATION_REMINDER",
-                            "REGISTRATION_OVERDUE"
+                            "REGISTRATION_OVERDUE",
+                            "WEEKLY_DIGEST",
+                            "PERSONAL_TASK_DUE",
+                            "PERSONAL_RETROSPECTIVE_DUE"
                         ],
                         "type": "string",
                         "description": "Occasion",
@@ -7351,7 +7660,7 @@ const docTemplate = `{
         },
         "/profiles/{nickname}": {
             "get": {
-                "description": "Served without authentication. A profile is visible only when its owner\nturned visibility on; otherwise the response is 404, so that the existence\nof a closed profile is not disclosed. Events are limited to published,\nnon-archived ones that the person allowed to be shown.",
+                "description": "Works without authentication, but reads the caller's session when one is present.\nVisibility is one of public (anyone), members (any signed-in user) or private\n(the owner only). Anything the viewer may not see answers 404, so the existence\nof a closed profile is not disclosed. Events are limited to published,\nnon-archived ones that the person allowed to be shown. The summary field is\npresent only for the profile owner and for administrators.",
                 "produces": [
                     "application/json"
                 ],
@@ -10043,6 +10352,19 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.EventOutcome": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string",
+                    "example": "100000"
+                },
+                "place": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "dto.EventPage": {
             "type": "object",
             "properties": {
@@ -10460,6 +10782,112 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.InboxAction": {
+            "type": "object",
+            "properties": {
+                "href": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "OPEN",
+                        "MARK_REGISTERED"
+                    ],
+                    "example": "OPEN"
+                }
+            }
+        },
+        "dto.InboxItemResponse": {
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.InboxAction"
+                    }
+                },
+                "body_md": {
+                    "type": "string",
+                    "example": "Deadline: **12.09.2026 18:00** (Europe/Moscow)"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "ib_42ej2s5gh7e8"
+                },
+                "kind": {
+                    "type": "string",
+                    "example": "notification.primary"
+                },
+                "logical_key": {
+                    "type": "string",
+                    "example": "required:9f1c...:av1:rv1:cv1:chEMAIL"
+                },
+                "read_at": {
+                    "type": "string"
+                },
+                "subject": {
+                    "$ref": "#/definitions/dto.InboxSubject"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Registration required for Timeline Hack"
+                }
+            }
+        },
+        "dto.InboxMarkReadRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "ib_42ej2s5gh7e8"
+                    ]
+                }
+            }
+        },
+        "dto.InboxPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.InboxItemResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/dto.PageMeta"
+                }
+            }
+        },
+        "dto.InboxSubject": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "ev_gma9hq8a96q5"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "event",
+                        "team",
+                        "task"
+                    ],
+                    "example": "event"
+                }
+            }
+        },
         "dto.InvitePage": {
             "type": "object",
             "properties": {
@@ -10651,9 +11079,30 @@ const docTemplate = `{
                 "pending_email": {
                     "type": "string"
                 },
+                "pinned_event_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "ev_gma9hq8a96q5"
+                    ]
+                },
                 "profile_public": {
                     "type": "boolean",
                     "example": false
+                },
+                "profile_visibility": {
+                    "enum": [
+                        "public",
+                        "members",
+                        "private"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ProfileVisibility"
+                        }
+                    ]
                 },
                 "shortcuts": {
                     "$ref": "#/definitions/models.Shortcuts"
@@ -10664,6 +11113,19 @@ const docTemplate = `{
                 },
                 "telegram_username": {
                     "type": "string"
+                },
+                "theme": {
+                    "enum": [
+                        "dark",
+                        "light",
+                        "system"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.UserTheme"
+                        }
+                    ],
+                    "example": "system"
                 },
                 "timezone": {
                     "type": "string",
@@ -10680,6 +11142,19 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "operation completed"
+                }
+            }
+        },
+        "dto.MonthlyActivity": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "month": {
+                    "type": "string",
+                    "example": "2026-01"
                 }
             }
         },
@@ -11022,8 +11497,30 @@ const docTemplate = `{
                     "type": "string",
                     "example": "ev_gma9hq8a96q5"
                 },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "HACKATHON",
+                        "MEETUP"
+                    ],
+                    "example": "HACKATHON"
+                },
+                "outcome": {
+                    "$ref": "#/definitions/dto.EventOutcome"
+                },
+                "role": {
+                    "type": "string",
+                    "enum": [
+                        "participant"
+                    ],
+                    "example": "participant"
+                },
                 "start_at": {
                     "type": "string"
+                },
+                "team_name": {
+                    "type": "string",
+                    "example": "Rocket Goats"
                 },
                 "title": {
                     "type": "string",
@@ -11060,13 +11557,54 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Smith"
                 },
+                "links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ProfileLink"
+                    }
+                },
+                "member_since": {
+                    "type": "string"
+                },
                 "middle_name": {
                     "type": "string",
                     "example": "Fitzgerald"
                 },
+                "monthly_activity": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.MonthlyActivity"
+                    }
+                },
                 "nickname": {
                     "type": "string",
                     "example": "jsmith"
+                },
+                "pinned_events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PublicProfileEvent"
+                    }
+                },
+                "summary": {
+                    "$ref": "#/definitions/dto.PublicProfileSummary"
+                }
+            }
+        },
+        "dto.PublicProfileSummary": {
+            "type": "object",
+            "properties": {
+                "event_count": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "on_time_registration_rate": {
+                    "type": "number",
+                    "example": 0.8
+                },
+                "team_count": {
+                    "type": "integer",
+                    "example": 2
                 }
             }
         },
@@ -12531,13 +13069,36 @@ const docTemplate = `{
                         ]
                     }
                 },
-                "profile_public": {
-                    "type": "boolean",
-                    "example": false
+                "pinned_event_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "ev_gma9hq8a96q5"
+                    ]
+                },
+                "profile_visibility": {
+                    "type": "string",
+                    "enum": [
+                        "public",
+                        "members",
+                        "private"
+                    ],
+                    "example": "private"
                 },
                 "telegram_username": {
                     "type": "string",
                     "example": "@ivan"
+                },
+                "theme": {
+                    "type": "string",
+                    "enum": [
+                        "dark",
+                        "light",
+                        "system"
+                    ],
+                    "example": "system"
                 },
                 "timezone": {
                     "type": "string",
@@ -13230,12 +13791,18 @@ const docTemplate = `{
             "enum": [
                 "REGISTRATION_REQUIRED",
                 "REGISTRATION_REMINDER",
-                "REGISTRATION_OVERDUE"
+                "REGISTRATION_OVERDUE",
+                "WEEKLY_DIGEST",
+                "PERSONAL_TASK_DUE",
+                "PERSONAL_RETROSPECTIVE_DUE"
             ],
             "x-enum-varnames": [
                 "NotificationRequired",
                 "NotificationReminder",
-                "NotificationOverdue"
+                "NotificationOverdue",
+                "NotificationWeeklyDigest",
+                "NotificationPersonalTaskDue",
+                "NotificationRetrospectiveDue"
             ]
         },
         "models.NotificationPreference": {
@@ -13276,12 +13843,18 @@ const docTemplate = `{
             "enum": [
                 "REGISTRATION_REQUIRED",
                 "REGISTRATION_REMINDER",
-                "REGISTRATION_OVERDUE"
+                "REGISTRATION_OVERDUE",
+                "WEEKLY_DIGEST",
+                "PERSONAL_TASK_DUE",
+                "PERSONAL_RETROSPECTIVE_DUE"
             ],
             "x-enum-varnames": [
                 "NotificationRequired",
                 "NotificationReminder",
-                "NotificationOverdue"
+                "NotificationOverdue",
+                "NotificationWeeklyDigest",
+                "NotificationPersonalTaskDue",
+                "NotificationRetrospectiveDue"
             ]
         },
         "models.Outcome": {
@@ -13529,6 +14102,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "pf_42ej2s5gh7e8"
                 },
+                "kind": {
+                    "type": "string",
+                    "example": "github"
+                },
                 "label": {
                     "type": "string",
                     "example": "My repositories"
@@ -13545,6 +14122,19 @@ const docTemplate = `{
                     "example": "https://github.com/ivan"
                 }
             }
+        },
+        "models.ProfileVisibility": {
+            "type": "string",
+            "enum": [
+                "public",
+                "members",
+                "private"
+            ],
+            "x-enum-varnames": [
+                "ProfilePublicVisibility",
+                "ProfileMembersVisibility",
+                "ProfilePrivateVisibility"
+            ]
         },
         "models.RegistrationState": {
             "type": "string",
@@ -13688,6 +14278,19 @@ const docTemplate = `{
                 "TeamMemberInvited",
                 "TeamMemberActive",
                 "TeamMemberLeft"
+            ]
+        },
+        "models.UserTheme": {
+            "type": "string",
+            "enum": [
+                "dark",
+                "light",
+                "system"
+            ],
+            "x-enum-varnames": [
+                "ThemeDark",
+                "ThemeLight",
+                "ThemeSystem"
             ]
         }
     },

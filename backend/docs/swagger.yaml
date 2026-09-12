@@ -768,6 +768,15 @@ definitions:
         example: "50000"
         type: string
     type: object
+  dto.EventOutcome:
+    properties:
+      amount:
+        example: "100000"
+        type: string
+      place:
+        example: 1
+        type: integer
+    type: object
   dto.EventPage:
     properties:
       items:
@@ -1050,6 +1059,79 @@ definitions:
       meta:
         $ref: '#/definitions/dto.PageMeta'
     type: object
+  dto.InboxAction:
+    properties:
+      href:
+        example: ev_gma9hq8a96q5
+        type: string
+      kind:
+        enum:
+        - OPEN
+        - MARK_REGISTERED
+        example: OPEN
+        type: string
+    type: object
+  dto.InboxItemResponse:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/dto.InboxAction'
+        type: array
+      body_md:
+        example: 'Deadline: **12.09.2026 18:00** (Europe/Moscow)'
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        example: ib_42ej2s5gh7e8
+        type: string
+      kind:
+        example: notification.primary
+        type: string
+      logical_key:
+        example: required:9f1c...:av1:rv1:cv1:chEMAIL
+        type: string
+      read_at:
+        type: string
+      subject:
+        $ref: '#/definitions/dto.InboxSubject'
+      title:
+        example: Registration required for Timeline Hack
+        type: string
+    type: object
+  dto.InboxMarkReadRequest:
+    properties:
+      ids:
+        example:
+        - ib_42ej2s5gh7e8
+        items:
+          type: string
+        type: array
+    type: object
+  dto.InboxPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.InboxItemResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/dto.PageMeta'
+    type: object
+  dto.InboxSubject:
+    properties:
+      id:
+        example: ev_gma9hq8a96q5
+        type: string
+      kind:
+        enum:
+        - event
+        - team
+        - task
+        example: event
+        type: string
+    type: object
   dto.InvitePage:
     properties:
       items:
@@ -1184,9 +1266,22 @@ definitions:
         type: array
       pending_email:
         type: string
+      pinned_event_ids:
+        example:
+        - ev_gma9hq8a96q5
+        items:
+          type: string
+        type: array
       profile_public:
         example: false
         type: boolean
+      profile_visibility:
+        allOf:
+        - $ref: '#/definitions/models.ProfileVisibility'
+        enum:
+        - public
+        - members
+        - private
       shortcuts:
         $ref: '#/definitions/models.Shortcuts'
       telegram_linked:
@@ -1194,6 +1289,14 @@ definitions:
         type: boolean
       telegram_username:
         type: string
+      theme:
+        allOf:
+        - $ref: '#/definitions/models.UserTheme'
+        enum:
+        - dark
+        - light
+        - system
+        example: system
       timezone:
         example: Europe/Moscow
         type: string
@@ -1204,6 +1307,15 @@ definitions:
     properties:
       message:
         example: operation completed
+        type: string
+    type: object
+  dto.MonthlyActivity:
+    properties:
+      count:
+        example: 2
+        type: integer
+      month:
+        example: 2026-01
         type: string
     type: object
   dto.MyEventItem:
@@ -1434,7 +1546,23 @@ definitions:
       id:
         example: ev_gma9hq8a96q5
         type: string
+      kind:
+        enum:
+        - HACKATHON
+        - MEETUP
+        example: HACKATHON
+        type: string
+      outcome:
+        $ref: '#/definitions/dto.EventOutcome'
+      role:
+        enum:
+        - participant
+        example: participant
+        type: string
       start_at:
+        type: string
+      team_name:
+        example: Rocket Goats
         type: string
       title:
         example: Timeline Hack
@@ -1461,12 +1589,40 @@ definitions:
       last_name:
         example: Smith
         type: string
+      links:
+        items:
+          $ref: '#/definitions/models.ProfileLink'
+        type: array
+      member_since:
+        type: string
       middle_name:
         example: Fitzgerald
         type: string
+      monthly_activity:
+        items:
+          $ref: '#/definitions/dto.MonthlyActivity'
+        type: array
       nickname:
         example: jsmith
         type: string
+      pinned_events:
+        items:
+          $ref: '#/definitions/dto.PublicProfileEvent'
+        type: array
+      summary:
+        $ref: '#/definitions/dto.PublicProfileSummary'
+    type: object
+  dto.PublicProfileSummary:
+    properties:
+      event_count:
+        example: 5
+        type: integer
+      on_time_registration_rate:
+        example: 0.8
+        type: number
+      team_count:
+        example: 2
+        type: integer
     type: object
   dto.QueueEntryPage:
     properties:
@@ -2453,11 +2609,28 @@ definitions:
           - EMAIL
           type: string
         type: array
-      profile_public:
-        example: false
-        type: boolean
+      pinned_event_ids:
+        example:
+        - ev_gma9hq8a96q5
+        items:
+          type: string
+        type: array
+      profile_visibility:
+        enum:
+        - public
+        - members
+        - private
+        example: private
+        type: string
       telegram_username:
         example: '@ivan'
+        type: string
+      theme:
+        enum:
+        - dark
+        - light
+        - system
+        example: system
         type: string
       timezone:
         example: Asia/Tokyo
@@ -2997,11 +3170,17 @@ definitions:
     - REGISTRATION_REQUIRED
     - REGISTRATION_REMINDER
     - REGISTRATION_OVERDUE
+    - WEEKLY_DIGEST
+    - PERSONAL_TASK_DUE
+    - PERSONAL_RETROSPECTIVE_DUE
     type: string
     x-enum-varnames:
     - NotificationRequired
     - NotificationReminder
     - NotificationOverdue
+    - NotificationWeeklyDigest
+    - NotificationPersonalTaskDue
+    - NotificationRetrospectiveDue
   models.NotificationPreference:
     properties:
       channel:
@@ -3032,11 +3211,17 @@ definitions:
     - REGISTRATION_REQUIRED
     - REGISTRATION_REMINDER
     - REGISTRATION_OVERDUE
+    - WEEKLY_DIGEST
+    - PERSONAL_TASK_DUE
+    - PERSONAL_RETROSPECTIVE_DUE
     type: string
     x-enum-varnames:
     - NotificationRequired
     - NotificationReminder
     - NotificationOverdue
+    - NotificationWeeklyDigest
+    - NotificationPersonalTaskDue
+    - NotificationRetrospectiveDue
   models.Outcome:
     enum:
     - PARTICIPATED
@@ -3207,6 +3392,9 @@ definitions:
       id:
         example: pf_42ej2s5gh7e8
         type: string
+      kind:
+        example: github
+        type: string
       label:
         example: My repositories
         type: string
@@ -3219,6 +3407,16 @@ definitions:
         example: https://github.com/ivan
         type: string
     type: object
+  models.ProfileVisibility:
+    enum:
+    - public
+    - members
+    - private
+    type: string
+    x-enum-varnames:
+    - ProfilePublicVisibility
+    - ProfileMembersVisibility
+    - ProfilePrivateVisibility
   models.RegistrationState:
     enum:
     - ACTIVE
@@ -3325,6 +3523,16 @@ definitions:
     - TeamMemberInvited
     - TeamMemberActive
     - TeamMemberLeft
+  models.UserTheme:
+    enum:
+    - dark
+    - light
+    - system
+    type: string
+    x-enum-varnames:
+    - ThemeDark
+    - ThemeLight
+    - ThemeSystem
 host: localhost:8080
 info:
   contact:
@@ -7693,6 +7901,203 @@ paths:
       summary: Own participation history
       tags:
       - personal
+  /me/inbox:
+    delete:
+      description: Soft delete of every visible item. With read_only=true only already-read
+        items go.
+      parameters:
+      - description: Delete only items already marked read
+        in: query
+        name: read_only
+        type: boolean
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Delete the whole inbox
+      tags:
+      - inbox
+    get:
+      description: |-
+        The notification center: a titled, Markdown-bodied entry for every situation that
+        also reached email or Telegram, plus personal system events. Soft-deleted items are
+        excluded.
+      parameters:
+      - description: Return only unread entries
+        in: query
+        name: unread
+        type: boolean
+      - description: Page number, from 1
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.InboxPage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Own inbox
+      tags:
+      - inbox
+  /me/inbox/{id}:
+    delete:
+      description: 'Soft delete: the item stops appearing in the list and can be brought
+        back with restore.'
+      parameters:
+      - description: Inbox item identifier
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Delete one inbox item
+      tags:
+      - inbox
+  /me/inbox/{id}/mark-registered:
+    post:
+      description: The same idempotent action as the Telegram "I registered" button.
+      parameters:
+      - description: Inbox item identifier
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Mark the linked registration done from an inbox item
+      tags:
+      - inbox
+  /me/inbox/{id}/restore:
+    post:
+      parameters:
+      - description: Inbox item identifier
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.InboxItemResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Restore a deleted inbox item
+      tags:
+      - inbox
+  /me/inbox/read:
+    post:
+      consumes:
+      - application/json
+      description: Marks the listed items read for the caller. An empty list marks
+        the whole inbox.
+      parameters:
+      - description: Identifiers to mark, empty for all
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.InboxMarkReadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UnreadCountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Mark inbox items read
+      tags:
+      - inbox
+  /me/inbox/unread-count:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UnreadCountResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Unread inbox count
+      tags:
+      - inbox
   /me/notification-preferences:
     get:
       description: |-
@@ -7729,6 +8134,9 @@ paths:
         - REGISTRATION_REQUIRED
         - REGISTRATION_REMINDER
         - REGISTRATION_OVERDUE
+        - WEEKLY_DIGEST
+        - PERSONAL_TASK_DUE
+        - PERSONAL_RETROSPECTIVE_DUE
         in: path
         name: occasion
         required: true
@@ -8484,10 +8892,12 @@ paths:
   /profiles/{nickname}:
     get:
       description: |-
-        Served without authentication. A profile is visible only when its owner
-        turned visibility on; otherwise the response is 404, so that the existence
+        Works without authentication, but reads the caller's session when one is present.
+        Visibility is one of public (anyone), members (any signed-in user) or private
+        (the owner only). Anything the viewer may not see answers 404, so the existence
         of a closed profile is not disclosed. Events are limited to published,
-        non-archived ones that the person allowed to be shown.
+        non-archived ones that the person allowed to be shown. The summary field is
+        present only for the profile owner and for administrators.
       parameters:
       - description: Nickname without the @ sign
         in: path

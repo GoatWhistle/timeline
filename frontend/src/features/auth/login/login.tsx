@@ -11,6 +11,7 @@ import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { PasswordInput } from '@/shared/ui/forms/password-input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { CrossfadeSwap } from '@/shared/ui/motion/crossfade-swap'
 import { Button } from '@/shared/ui/primitives/button'
 
 const schema = z.object({
@@ -21,7 +22,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export function LoginPage() {
-  const { t } = useTranslation('auth')
+  const { t, i18n } = useTranslation('auth')
   const navigate = useNavigate()
   const location = useLocation()
   const login = useLogin()
@@ -50,7 +51,9 @@ export function LoginPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{t('login.title')}</CardTitle>
+        <CardTitle>
+          <CrossfadeSwap swapKey={i18n.language}>{t('login.title')}</CrossfadeSwap>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -82,7 +85,11 @@ export function LoginPage() {
           )}
 
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner label={t('login.pending')} /> : t('login.submit')}
+            {isSubmitting ? (
+              <Spinner label={t('login.pending')} />
+            ) : (
+              <CrossfadeSwap swapKey={i18n.language}>{t('login.submit')}</CrossfadeSwap>
+            )}
           </Button>
 
           <AuthExits

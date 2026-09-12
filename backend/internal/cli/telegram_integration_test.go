@@ -74,7 +74,7 @@ func TestTelegramPollingConsumesRealLinkTokenOnce(t *testing.T) {
 	cfg := &config.Config{Auth: config.Auth{TelegramLinkTTL: time.Hour},
 		Telegram: config.Telegram{APIBase: server.URL, BotToken: "test", BotName: "testbot", Timeout: time.Second}}
 	sender := telegram.New(cfg.Telegram)
-	profile := auth.NewProfileService(db, users, identity.NewTokens(db), nil, nil, nil,
+	profile := auth.NewProfileService(db, users, identity.NewTokens(db), nil, nil, nil, nil, nil,
 		sharedaudit.NewAuditService(audit.NewAudit(db)), nil, nil, sender, cfg)
 	link, _, err := profile.StartTelegramLink(ctx, models.Actor{UserID: user.ID})
 	if err != nil {

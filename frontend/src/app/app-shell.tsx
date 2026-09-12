@@ -3,7 +3,7 @@ import { PanelLeft } from 'lucide-react'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router'
-import { unreadCountQueryOptions } from '@/entities/event-feed/event-feed.queries'
+import { inboxUnreadCountQueryOptions } from '@/entities/inbox/inbox.queries'
 import { useShortcutBindings } from '@/entities/user/shortcuts.queries'
 import { AppShortcuts } from '@/features/app-shortcuts/app-shortcuts'
 import { VerificationBanner } from '@/features/auth/verification-banner/verification-banner'
@@ -36,7 +36,7 @@ export function AppShell() {
   const location = useLocation()
   const [moreOpen, setMoreOpen] = useState(false)
   const mainRef = useRef<HTMLElement>(null)
-  const unread = useQuery({ ...unreadCountQueryOptions, enabled: user !== undefined })
+  const unread = useQuery({ ...inboxUnreadCountQueryOptions, enabled: user !== undefined })
   useProfileLocale()
   useProfileTimezone()
   useProfileShortcuts(useShortcutBindings())
@@ -71,7 +71,10 @@ export function AppShell() {
         {t('app.skipToContent')}
       </a>
 
-      <AppShortcuts targets={isAdmin ? [...GOTO_USER, ...GOTO_ADMIN] : GOTO_USER} />
+      <AppShortcuts
+        targets={isAdmin ? [...GOTO_USER, ...GOTO_ADMIN] : GOTO_USER}
+        isAdmin={isAdmin}
+      />
 
       {!phone && <AppSidebar user={user} isAdmin={isAdmin} sidebar={sidebar} />}
 

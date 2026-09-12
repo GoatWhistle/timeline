@@ -52,7 +52,7 @@ export function NicknameCard({
 
   async function onToggleVisibility(next: boolean) {
     try {
-      await updateProfile.mutateAsync({ profile_public: next })
+      await updateProfile.mutateAsync({ profile_visibility: next ? 'public' : 'private' })
       toast.success(t('profile.saved'))
     } catch {
       toast.error(t('profile.saveFailed'))

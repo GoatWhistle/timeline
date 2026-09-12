@@ -177,7 +177,7 @@ func TestPublicProfileShowsOnlyEventsTheOwnerAllowed(t *testing.T) {
 
 	member := s.Session(t, f.Member)
 	support.RequireStatus(t, member.Patch("/me", map[string]any{
-		"nickname": "consent", "profile_public": true,
+		"nickname": "consent", "profile_visibility": "public",
 	}), http.StatusOK, "opening the profile")
 
 	silent := s.Anonymous(t, "/profiles/consent")
@@ -203,7 +203,7 @@ func TestPublicProfileHidesUnpublishedAndArchivedEvents(t *testing.T) {
 
 	member := s.Session(t, f.Member)
 	support.RequireStatus(t, member.Patch("/me", map[string]any{
-		"nickname": "lifecycle", "profile_public": true,
+		"nickname": "lifecycle", "profile_visibility": "public",
 	}), http.StatusOK, "opening the profile")
 	s.ShowOnProfile(t, f.Member.ID)
 

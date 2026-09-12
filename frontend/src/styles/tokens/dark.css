@@ -96,4 +96,9 @@
   --season-spring: oklch(0.199 0.028 145);
   --season-summer: oklch(0.203 0.03 95);
   --season-autumn: oklch(0.198 0.03 55);
+
+  --activity-0: oklch(0.27 0.015 250);
+  --activity-1: oklch(0.4 0.08 250);
+  --activity-2: oklch(0.55 0.13 250);
+  --activity-3: oklch(0.75 0.15 250);
 }

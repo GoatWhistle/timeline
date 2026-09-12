@@ -1,7 +1,7 @@
-import { type Control, Controller, type FieldErrors, type UseFormRegister } from 'react-hook-form'
+import { type Control, Controller, type FieldErrors } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Field } from '@/shared/ui/forms/field'
-import { Input } from '@/shared/ui/forms/input'
+import { MoneyInput } from '@/shared/ui/forms/money-input'
 import {
   Select,
   SelectContent,
@@ -13,30 +13,11 @@ import { CURRENCIES } from './event-currency'
 import type { HackathonFormValues } from './event-form.schema'
 import { EventTeamSizeField } from './event-team-size-field'
 
-function PrizePoolInput({ register }: { register: UseFormRegister<HackathonFormValues> }) {
-  const field = register('prize_pool')
-
-  return (
-    <Input
-      id="event-prize-pool"
-      inputMode="numeric"
-      {...field}
-      onChange={(event) => {
-        const digits = event.target.value.replace(/\D/g, '')
-        if (event.target.value !== digits) event.target.value = digits
-        void field.onChange(event)
-      }}
-    />
-  )
-}
-
 export function EventPrizeFields({
   control,
-  register,
   errors,
 }: {
   control: Control<HackathonFormValues>
-  register: UseFormRegister<HackathonFormValues>
   errors: FieldErrors<HackathonFormValues>
 }) {
   const { t } = useTranslation('event')
@@ -49,7 +30,18 @@ export function EventPrizeFields({
           htmlFor="event-prize-pool"
           error={errors.prize_pool?.message}
         >
-          <PrizePoolInput register={register} />
+          <Controller
+            control={control}
+            name="prize_pool"
+            render={({ field }) => (
+              <MoneyInput
+                id="event-prize-pool"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+              />
+            )}
+          />
         </Field>
         <Field
           label={t('form.prizeCurrency')}

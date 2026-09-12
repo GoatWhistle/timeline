@@ -114,6 +114,9 @@ func (s *smtpSender) compose(msg models.OutboundMessage) string {
 	fmt.Fprintf(&b, "Subject: %s\r\n", mime.QEncoding.Encode("utf-8", msg.Subject))
 	fmt.Fprintf(&b, "Date: %s\r\n", time.Now().Format(time.RFC1123Z))
 	fmt.Fprintf(&b, "Message-ID: <%s@%s>\r\n", s.messageID(msg), senderDomain(s.cfg.From))
+	if msg.UnsubscribeURL != "" {
+		fmt.Fprintf(&b, "List-Unsubscribe: <%s>\r\n", msg.UnsubscribeURL)
+	}
 	b.WriteString("MIME-Version: 1.0\r\n")
 	if msg.HTML == "" {
 		b.WriteString("Content-Type: text/plain; charset=UTF-8\r\n")

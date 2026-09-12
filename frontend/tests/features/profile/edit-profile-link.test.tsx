@@ -14,6 +14,7 @@ vi.mock('@/entities/user/profile.queries', () => ({
 const LINK: ProfileLink = {
   id: 'pf_42ej2s5gh7e8',
   url: 'https://github.com/ivan',
+  kind: 'github',
   label: 'My code',
   sort_order: 0,
   created_at: '2026-01-01T00:00:00Z',

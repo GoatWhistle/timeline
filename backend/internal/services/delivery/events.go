@@ -11,6 +11,8 @@ import (
 
 func (s *DeliveryService) WithEvents(events *realtime.SystemEventService) { s.feed = events }
 
+func (s *DeliveryService) WithInbox(inbox InboxCleaner) { s.inbox = inbox }
+
 func (s *DeliveryService) emitTerminal(ctx context.Context, n *models.Notification,
 	eventType models.SystemEventType, reason string) {
 	if s.feed == nil {
@@ -36,7 +38,7 @@ func (s *DeliveryService) emitTerminal(ctx context.Context, n *models.Notificati
 }
 
 func (s *DeliveryService) emitMirror(ctx context.Context, n *models.Notification) {
-	if s.feed == nil || n.Payload == nil {
+	if s.feed == nil || n.Payload == nil || n.NotificationType.PersonalOccasion() {
 		return
 	}
 	recipient := n.RecipientUserID

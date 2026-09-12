@@ -1,21 +1,19 @@
 import { useTranslation } from 'react-i18next'
 import { Wordmark } from '@/shared/ui/brand/wordmark'
+import { CrossfadeSwap } from '@/shared/ui/motion/crossfade-swap'
 import { DoorTimeline } from './door-timeline'
 import styles from './door-wordmark.module.css'
 
 export function AuthAside() {
-  const { t } = useTranslation('auth')
+  const { t, i18n } = useTranslation('auth')
 
   return (
     <aside className="flex flex-col gap-10">
       <Wordmark to="/login" className={styles.wordmark} />
 
-      <div className="flex flex-col gap-3">
+      <CrossfadeSwap swapKey={i18n.language}>
         <h1 className="max-w-md text-balance font-semibold text-screen">{t('door.pitch')}</h1>
-        <p className="max-w-md text-pretty text-copy text-muted-foreground">
-          {t('door.pitchHint')}
-        </p>
-      </div>
+      </CrossfadeSwap>
 
       <div className="max-w-sm">
         <DoorTimeline />

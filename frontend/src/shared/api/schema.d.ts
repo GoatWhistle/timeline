@@ -7521,6 +7521,396 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/inbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Own inbox
+         * @description The notification center: a titled, Markdown-bodied entry for every situation that
+         *     also reached email or Telegram, plus personal system events. Soft-deleted items are
+         *     excluded.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number, from 1 */
+                    page?: number;
+                    /** @description Page size */
+                    page_size?: number;
+                    /** @description Return only unread entries */
+                    unread?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.InboxPage"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete the whole inbox
+         * @description Soft delete of every visible item. With read_only=true only already-read items go.
+         */
+        delete: {
+            parameters: {
+                query?: {
+                    /** @description Delete only items already marked read */
+                    read_only?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["dto.MessageResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/inbox/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete one inbox item
+         * @description Soft delete: the item stops appearing in the list and can be brought back with restore.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Inbox item identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/inbox/{id}/mark-registered": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark the linked registration done from an inbox item
+         * @description The same idempotent action as the Telegram "I registered" button.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Inbox item identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/inbox/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore a deleted inbox item */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Inbox item identifier */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.InboxItemResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/inbox/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark inbox items read
+         * @description Marks the listed items read for the caller. An empty list marks the whole inbox.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Identifiers to mark, empty for all */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.InboxMarkReadRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.UnreadCountResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/inbox/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Unread inbox count */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.UnreadCountResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/notification-preferences": {
         parameters: {
             query?: never;
@@ -7593,7 +7983,7 @@ export interface paths {
                     /** @description Channel */
                     channel: "TELEGRAM" | "EMAIL";
                     /** @description Occasion */
-                    occasion: "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE";
+                    occasion: "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE" | "WEEKLY_DIGEST" | "PERSONAL_TASK_DUE" | "PERSONAL_RETROSPECTIVE_DUE";
                 };
                 cookie?: never;
             };
@@ -8965,10 +9355,12 @@ export interface paths {
         };
         /**
          * Public profile by nickname
-         * @description Served without authentication. A profile is visible only when its owner
-         *     turned visibility on; otherwise the response is 404, so that the existence
+         * @description Works without authentication, but reads the caller's session when one is present.
+         *     Visibility is one of public (anyone), members (any signed-in user) or private
+         *     (the owner only). Anything the viewer may not see answers 404, so the existence
          *     of a closed profile is not disclosed. Events are limited to published,
-         *     non-archived ones that the person allowed to be shown.
+         *     non-archived ones that the person allowed to be shown. The summary field is
+         *     present only for the profile owner and for administrators.
          */
         get: {
             parameters: {
@@ -11346,6 +11738,12 @@ export interface components {
             /** @example 50000 */
             unallocated: string;
         };
+        "dto.EventOutcome": {
+            /** @example 100000 */
+            amount: string;
+            /** @example 1 */
+            place: number;
+        };
         "dto.EventPage": {
             items: components["schemas"]["dto.EventResponse"][];
             meta: components["schemas"]["dto.PageMeta"];
@@ -11504,6 +11902,56 @@ export interface components {
             items: components["schemas"]["dto.HistoryItem"][];
             meta: components["schemas"]["dto.PageMeta"];
         };
+        "dto.InboxAction": {
+            /** @example ev_gma9hq8a96q5 */
+            href: string;
+            /**
+             * @example OPEN
+             * @enum {string}
+             */
+            kind: "OPEN" | "MARK_REGISTERED";
+        };
+        "dto.InboxItemResponse": {
+            actions: components["schemas"]["dto.InboxAction"][];
+            /** @example Deadline: **12.09.2026 18:00** (Europe/Moscow) */
+            body_md: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            deleted_at: string;
+            /** @example ib_42ej2s5gh7e8 */
+            id: string;
+            /** @example notification.primary */
+            kind: string;
+            /** @example required:9f1c...:av1:rv1:cv1:chEMAIL */
+            logical_key: string;
+            /** Format: date-time */
+            read_at: string;
+            subject: components["schemas"]["dto.InboxSubject"];
+            /** @example Registration required for Timeline Hack */
+            title: string;
+        };
+        "dto.InboxMarkReadRequest": {
+            /**
+             * @example [
+             *       "ib_42ej2s5gh7e8"
+             *     ]
+             */
+            ids?: string[];
+        };
+        "dto.InboxPage": {
+            items: components["schemas"]["dto.InboxItemResponse"][];
+            meta: components["schemas"]["dto.PageMeta"];
+        };
+        "dto.InboxSubject": {
+            /** @example ev_gma9hq8a96q5 */
+            id: string;
+            /**
+             * @example event
+             * @enum {string}
+             */
+            kind: "event" | "team" | "task";
+        };
         "dto.InvitePage": {
             items: components["schemas"]["dto.InviteResponse"][];
             meta: components["schemas"]["dto.PageMeta"];
@@ -11594,12 +12042,20 @@ export interface components {
             nickname?: string;
             notification_channels: components["schemas"]["models.Channel"][];
             pending_email?: string;
+            /**
+             * @example [
+             *       "ev_gma9hq8a96q5"
+             *     ]
+             */
+            pinned_event_ids: string[];
             /** @example false */
             profile_public: boolean;
+            profile_visibility: components["schemas"]["models.ProfileVisibility"];
             shortcuts: components["schemas"]["models.Shortcuts"];
             /** @example false */
             telegram_linked: boolean;
             telegram_username?: string;
+            theme: components["schemas"]["models.UserTheme"];
             /** @example Europe/Moscow */
             timezone: string;
             /** Format: date-time */
@@ -11608,6 +12064,12 @@ export interface components {
         "dto.MessageResponse": {
             /** @example operation completed */
             message: string;
+        };
+        "dto.MonthlyActivity": {
+            /** @example 2 */
+            count: number;
+            /** @example 2026-01 */
+            month: string;
         };
         "dto.MyEventItem": {
             color: components["schemas"]["models.EventColor"];
@@ -11742,8 +12204,21 @@ export interface components {
             end_at: string;
             /** @example ev_gma9hq8a96q5 */
             id: string;
+            /**
+             * @example HACKATHON
+             * @enum {string}
+             */
+            kind: "HACKATHON" | "MEETUP";
+            outcome: components["schemas"]["dto.EventOutcome"];
+            /**
+             * @example participant
+             * @enum {string}
+             */
+            role: "participant";
             /** Format: date-time */
             start_at: string;
+            /** @example Rocket Goats */
+            team_name: string;
             /** @example Timeline Hack */
             title: string;
         };
@@ -11759,10 +12234,23 @@ export interface components {
             first_name: string;
             /** @example Smith */
             last_name: string;
+            links: components["schemas"]["models.ProfileLink"][];
+            member_since: string;
             /** @example Fitzgerald */
             middle_name?: string;
+            monthly_activity: components["schemas"]["dto.MonthlyActivity"][];
             /** @example jsmith */
             nickname: string;
+            pinned_events: components["schemas"]["dto.PublicProfileEvent"][];
+            summary: components["schemas"]["dto.PublicProfileSummary"];
+        };
+        "dto.PublicProfileSummary": {
+            /** @example 5 */
+            event_count: number;
+            /** @example 0.8 */
+            on_time_registration_rate: number;
+            /** @example 2 */
+            team_count: number;
         };
         "dto.QueueEntryPage": {
             items: components["schemas"]["dto.QueueEntryResponse"][];
@@ -12336,10 +12824,24 @@ export interface components {
             /** @example jsmith */
             nickname?: string;
             notification_channels?: ("TELEGRAM" | "EMAIL")[];
-            /** @example false */
-            profile_public?: boolean;
+            /**
+             * @example [
+             *       "ev_gma9hq8a96q5"
+             *     ]
+             */
+            pinned_event_ids?: string[];
+            /**
+             * @example private
+             * @enum {string}
+             */
+            profile_visibility?: "public" | "members" | "private";
             /** @example @ivan */
             telegram_username?: string;
+            /**
+             * @example system
+             * @enum {string}
+             */
+            theme?: "dark" | "light" | "system";
             /** @example Asia/Tokyo */
             timezone?: string;
         };
@@ -12528,7 +13030,7 @@ export interface components {
         /** @enum {string} */
         "models.LinkKind": "WEBSITE" | "RULES" | "REGISTRATION" | "SUBMISSION" | "CHAT" | "DATASET" | "API_DOCS" | "JUDGING" | "MENTORS" | "RESULTS" | "SPONSOR" | "OTHER";
         /** @enum {string} */
-        "models.NotificationOccasion": "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE";
+        "models.NotificationOccasion": "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE" | "WEEKLY_DIGEST" | "PERSONAL_TASK_DUE" | "PERSONAL_RETROSPECTIVE_DUE";
         "models.NotificationPreference": {
             channel: components["schemas"]["models.Channel"];
             enabled: boolean;
@@ -12537,7 +13039,7 @@ export interface components {
         /** @enum {string} */
         "models.NotificationStatus": "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "CANCELLED" | "UNDELIVERABLE";
         /** @enum {string} */
-        "models.NotificationType": "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE";
+        "models.NotificationType": "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE" | "WEEKLY_DIGEST" | "PERSONAL_TASK_DUE" | "PERSONAL_RETROSPECTIVE_DUE";
         /** @enum {string} */
         "models.Outcome": "PARTICIPATED" | "SHORTLISTED" | "WINNER" | "PRIZE";
         "models.ParticipantArtifact": {
@@ -12635,6 +13137,8 @@ export interface components {
             created_at: string;
             /** @example pf_42ej2s5gh7e8 */
             id: string;
+            /** @example github */
+            kind: string;
             /** @example My repositories */
             label: string;
             /** @example 0 */
@@ -12644,6 +13148,8 @@ export interface components {
             /** @example https://github.com/ivan */
             url: string;
         };
+        /** @enum {string} */
+        "models.ProfileVisibility": "public" | "members" | "private";
         /** @enum {string} */
         "models.RegistrationState": "ACTIVE" | "DISABLED";
         /** @enum {string} */
@@ -12692,6 +13198,8 @@ export interface components {
         };
         /** @enum {string} */
         "models.TeamMemberState": "INVITED" | "ACTIVE" | "LEFT";
+        /** @enum {string} */
+        "models.UserTheme": "dark" | "light" | "system";
     };
     responses: never;
     parameters: never;

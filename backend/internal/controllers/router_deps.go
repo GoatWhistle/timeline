@@ -8,6 +8,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/event"
 	"github.com/GoatWhistle/timeline/internal/controllers/finance"
 	"github.com/GoatWhistle/timeline/internal/controllers/httpsession"
+	"github.com/GoatWhistle/timeline/internal/controllers/inbox"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/notification"
 	"github.com/GoatWhistle/timeline/internal/controllers/participation"
@@ -46,6 +47,7 @@ type Deps struct {
 	Links         event.ResourceLinkService
 	Retention     event.RetentionService
 	Teams         team.TeamService
+	Inbox         inbox.Service
 
 	Authenticator         middleware.Authenticator
 	Metrics               http.Handler

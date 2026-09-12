@@ -49,12 +49,13 @@ type ResourceLink struct {
 	UpdatedAt      time.Time  `json:"updated_at"`
 }
 
-const ProfileLinkMaxPerUser = 10
+const ProfileLinkMaxPerUser = 8
 
 type ProfileLink struct {
 	ID        uuid.UUID `json:"-"`
 	DisplayID string    `json:"id" example:"pf_42ej2s5gh7e8"`
 	URL       string    `json:"url" example:"https://github.com/ivan"`
+	Kind      string    `json:"kind" example:"github"`
 	Label     *string   `json:"label,omitempty" example:"My repositories"`
 	SortOrder int       `json:"sort_order" example:"0"`
 	CreatedAt time.Time `json:"created_at"`

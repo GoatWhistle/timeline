@@ -75,12 +75,34 @@ func (f *fakeAnswerer) AnswerCallbackQuery(_ context.Context, callbackQueryID, _
 	return nil
 }
 
+type editCall struct {
+	chatID    string
+	messageID int
+	text      string
+}
+
+type fakeEditor struct {
+	edits []editCall
+	err   error
+}
+
+func (f *fakeEditor) EditMessage(_ context.Context, chatID string, messageID int, text string) error {
+	f.edits = append(f.edits, editCall{chatID: chatID, messageID: messageID, text: text})
+	return f.err
+}
+
 type fakeCompleter struct{}
 
 func (fakeCompleter) CompleteTelegramLink(context.Context, string, string, *string) error { return nil }
 
 func chatMessage(chatID int64, text string) *telegramlink.Message {
 	return &telegramlink.Message{Text: &text, Chat: telegramlink.Chat{ID: chatID, Type: "private"}}
+}
+
+func chatMessageWithID(chatID int64, messageID int, text string) *telegramlink.Message {
+	msg := chatMessage(chatID, text)
+	msg.ID = messageID
+	return msg
 }
 
 func newTestBot(userID uuid.UUID, status *fakeStatus, mute *fakeMute,

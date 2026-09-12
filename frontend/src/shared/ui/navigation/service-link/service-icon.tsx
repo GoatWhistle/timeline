@@ -28,7 +28,7 @@ export function ServiceIcon({ href, className }: { href: string; className?: str
 }
 
 export function TelegramMark({ className }: { className?: string }) {
-  return <ServiceGlyph id="telegram" className={className} />
+  return <ServiceGlyph id="telegram" className={cn('text-telegram', className)} />
 }
 
 export function serviceLabel(href: string): string | null {

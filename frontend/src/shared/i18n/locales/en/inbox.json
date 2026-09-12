@@ -1,0 +1,43 @@
+{
+  "inbox": {
+    "day": {
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
+    "bell": {
+      "open": "Open notifications",
+      "title": "Notifications",
+      "empty": "Nothing here yet",
+      "viewAll": "All notifications"
+    },
+    "page": {
+      "title": "Notifications",
+      "all": "All",
+      "unreadOnly": "Unread",
+      "markAllRead": "Mark all as read",
+      "deleteAll": "Delete all",
+      "deleteRead": "Delete read",
+      "selected_one": "{{count}} selected",
+      "selected_other": "{{count}} selected",
+      "clearSelection": "Clear selection",
+      "select": "Select {{title}}",
+      "deleteOne": "Delete {{title}}",
+      "openAction": "Open",
+      "markRegisteredAction": "I registered",
+      "markRegisteredDone": "Marked as registered",
+      "markRegisteredFailed": "Could not mark the registration",
+      "deleted": "Deleted",
+      "undo": "Undo",
+      "undoFailed": "Could not restore the item",
+      "deleteAllConfirmTitle": "Delete every notification?",
+      "deleteAllConfirmHint": "Every notification is removed. Recently deleted items can still be restored one by one from the undo toast.",
+      "deleteReadConfirmTitle": "Delete every read notification?",
+      "deleteReadConfirmHint": "Unread notifications stay in place.",
+      "emptyTitle": "Nothing here yet",
+      "emptyHint": "Notifications about your events show up here.",
+      "emptyUnreadTitle": "No unread notifications",
+      "emptyUnreadHint": "Everything has been read.",
+      "loadFailed": "Could not load notifications"
+    }
+  }
+}

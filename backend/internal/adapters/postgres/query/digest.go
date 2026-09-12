@@ -17,7 +17,8 @@ func NewDigests(db *postgres.DB) *Digests { return &Digests{db: db} }
 func (r *Digests) Recipients(ctx context.Context, after uuid.UUID,
 	limit int) ([]models.DigestRecipient, error) {
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT id, locale, timezone
+		SELECT id, locale, timezone,
+		       telegram_chat_id IS NOT NULL, email_verified_at IS NOT NULL, notification_channels
 		FROM users
 		WHERE is_active
 		  AND deleted_at IS NULL
@@ -31,13 +32,26 @@ func (r *Digests) Recipients(ctx context.Context, after uuid.UUID,
 
 	items := make([]models.DigestRecipient, 0, limit)
 	for rows.Next() {
-		var c models.DigestRecipient
-		if err := rows.Scan(&c.UserID, &c.Locale, &c.Timezone); err != nil {
+		var (
+			c        models.DigestRecipient
+			channels []string
+		)
+		if err := rows.Scan(&c.UserID, &c.Locale, &c.Timezone,
+			&c.RecipientChannels.TelegramLinked, &c.RecipientChannels.EmailVerified, &channels); err != nil {
 			return nil, mapError(err)
 		}
+		c.RecipientChannels.Selected = toChannelSet(channels)
 		items = append(items, c)
 	}
 	return items, mapError(rows.Err())
+}
+
+func toChannelSet(values []string) models.ChannelSet {
+	out := make(models.ChannelSet, 0, len(values))
+	for _, v := range values {
+		out = append(out, models.Channel(v))
+	}
+	return out
 }
 
 func (r *Digests) Items(ctx context.Context, userID uuid.UUID, from, until time.Time,

@@ -145,14 +145,6 @@ const (
 	SourceAdmin  ChangeSource = "ADMIN"
 )
 
-type NotificationType string
-
-const (
-	NotificationRequired NotificationType = "REGISTRATION_REQUIRED"
-	NotificationReminder NotificationType = "REGISTRATION_REMINDER"
-	NotificationOverdue  NotificationType = "REGISTRATION_OVERDUE"
-)
-
 type NotificationStatus string
 
 const (

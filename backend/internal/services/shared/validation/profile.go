@@ -1,9 +1,7 @@
 package validation
 
 import (
-	"net/url"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
@@ -14,47 +12,93 @@ func ProfilePatch(req dto.UpdateProfileRequest) (dto.ProfilePatch, error) {
 	if err := profileName(req, &patch); err != nil {
 		return patch, err
 	}
-	if req.NotificationChannels != nil {
-		channels := make(models.ChannelSet, 0, len(req.NotificationChannels))
-		for _, raw := range req.NotificationChannels {
-			value, err := ParseChannel("notification_channels", raw)
-			if err != nil {
-				return patch, err
-			}
-			channels = append(channels, value)
-		}
-		normalized := models.NormalizeChannelSet(channels)
-		patch.NotificationChannels = &normalized
+	if err := profileChannels(req, &patch); err != nil {
+		return patch, err
 	}
-	if req.TelegramUsername != nil {
-		if *req.TelegramUsername == "" {
-			patch.ClearTelegramUsername = true
-		} else {
-			value, err := ValidateText("telegram_username", *req.TelegramUsername, 1, 64)
-			if err != nil {
-				return patch, err
-			}
-			patch.TelegramUsername = &value
-		}
+	if err := profileTelegramUsername(req, &patch); err != nil {
+		return patch, err
 	}
 	if err := profileLinks(req, &patch); err != nil {
 		return patch, err
 	}
+	if err := profileLocale(req, &patch); err != nil {
+		return patch, err
+	}
+	if err := profileAppearance(req, &patch); err != nil {
+		return patch, err
+	}
+	return patch, nil
+}
+
+func profileChannels(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) error {
+	if req.NotificationChannels == nil {
+		return nil
+	}
+	channels := make(models.ChannelSet, 0, len(req.NotificationChannels))
+	for _, raw := range req.NotificationChannels {
+		value, err := ParseChannel("notification_channels", raw)
+		if err != nil {
+			return err
+		}
+		channels = append(channels, value)
+	}
+	normalized := models.NormalizeChannelSet(channels)
+	patch.NotificationChannels = &normalized
+	return nil
+}
+
+func profileTelegramUsername(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) error {
+	if req.TelegramUsername == nil {
+		return nil
+	}
+	if *req.TelegramUsername == "" {
+		patch.ClearTelegramUsername = true
+		return nil
+	}
+	value, err := ValidateText("telegram_username", *req.TelegramUsername, 1, 64)
+	if err != nil {
+		return err
+	}
+	patch.TelegramUsername = &value
+	return nil
+}
+
+func profileLocale(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) error {
 	if req.Locale != nil {
 		value, err := ParseLocale("locale", *req.Locale)
 		if err != nil {
-			return patch, err
+			return err
 		}
 		patch.Locale = &value
 	}
 	if req.Timezone != nil {
 		value, err := ParseTimezone("timezone", *req.Timezone)
 		if err != nil {
-			return patch, err
+			return err
 		}
 		patch.Timezone = &value
 	}
-	return patch, nil
+	return nil
+}
+
+func profileAppearance(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) error {
+	if req.ProfileVisibility != nil {
+		value := models.ProfileVisibility(*req.ProfileVisibility)
+		if !value.Valid() {
+			return models.NewValidation("invalid profile visibility",
+				models.FieldError{Field: "profile_visibility", Message: "must be public, members or private"})
+		}
+		patch.ProfileVisibility = &value
+	}
+	if req.Theme != nil {
+		value := models.UserTheme(*req.Theme)
+		if !value.Valid() {
+			return models.NewValidation("invalid theme",
+				models.FieldError{Field: "theme", Message: "must be dark, light or system"})
+		}
+		patch.Theme = &value
+	}
+	return nil
 }
 
 func profileLinks(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) error {
@@ -99,7 +143,6 @@ func profileName(req dto.UpdateProfileRequest, patch *dto.ProfilePatch) error {
 			patch.MiddleName = &value
 		}
 	}
-	patch.ProfilePublic = req.ProfilePublic
 	return profileNickname(req, patch)
 }
 
@@ -158,90 +201,4 @@ func PersonName(firstField, lastField, first string, middle *string, last string
 		return "", nil, "", err
 	}
 	return firstValue, &middleValue, lastValue, nil
-}
-
-func ProfileLinkURL(field, value string) (string, error) {
-	trimmed := strings.TrimSpace(value)
-	if trimmed == "" {
-		return "", models.NewValidation("the link is empty",
-			models.FieldError{Field: field, Message: "an absolute URL is required"})
-	}
-	if utf8.RuneCountInString(trimmed) > 2048 {
-		return "", models.NewValidation("value is too long",
-			models.FieldError{Field: field, Message: "at most 2048 characters"})
-	}
-	parsed, err := url.Parse(trimmed)
-	if err != nil || parsed.Host == "" {
-		return "", models.NewValidation("the link is not a valid URL",
-			models.FieldError{Field: field, Message: "an absolute URL is required"})
-	}
-	switch strings.ToLower(parsed.Scheme) {
-	case "http", "https":
-		return trimmed, nil
-	}
-	return "", models.NewValidation("the link scheme is not allowed",
-		models.FieldError{Field: field, Message: "only http and https links are accepted"})
-}
-
-func ProfileLinkLabel(raw *string) (*string, error) {
-	if raw == nil || strings.TrimSpace(*raw) == "" {
-		return nil, nil
-	}
-	value, err := ValidateText("label", *raw, 1, 100)
-	if err != nil {
-		return nil, err
-	}
-	return &value, nil
-}
-
-func SessionLabel(raw *string) (*string, error) {
-	if raw == nil || strings.TrimSpace(*raw) == "" {
-		return nil, nil
-	}
-	value, err := ValidateText("label", *raw, 1, models.SessionLabelMaxLength)
-	if err != nil {
-		return nil, err
-	}
-	return &value, nil
-}
-
-func SessionPatch(req dto.UpdateSessionRequest) (dto.SessionPatch, error) {
-	var patch dto.SessionPatch
-	if req.ClearLabel {
-		patch.LabelSet = true
-		return patch, nil
-	}
-	if req.Label != nil {
-		value, err := SessionLabel(req.Label)
-		if err != nil {
-			return patch, err
-		}
-		patch.LabelSet = true
-		patch.Label = value
-	}
-	return patch, nil
-}
-
-func ProfileLinkPatch(req dto.UpdateProfileLinkRequest) (dto.ProfileLinkPatch, error) {
-	var patch dto.ProfileLinkPatch
-	if req.URL != nil {
-		value, err := ProfileLinkURL("url", *req.URL)
-		if err != nil {
-			return patch, err
-		}
-		patch.URL = &value
-	}
-	if req.ClearLabel {
-		patch.LabelSet = true
-		return patch, nil
-	}
-	if req.Label != nil {
-		value, err := ProfileLinkLabel(req.Label)
-		if err != nil {
-			return patch, err
-		}
-		patch.LabelSet = true
-		patch.Label = value
-	}
-	return patch, nil
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/auth"
 	"github.com/GoatWhistle/timeline/internal/controllers/event"
 	"github.com/GoatWhistle/timeline/internal/controllers/finance"
+	"github.com/GoatWhistle/timeline/internal/controllers/inbox"
 	"github.com/GoatWhistle/timeline/internal/controllers/notification"
 	"github.com/GoatWhistle/timeline/internal/controllers/participation"
 	"github.com/GoatWhistle/timeline/internal/controllers/team"
@@ -32,14 +33,14 @@ func mountAuth(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("POST "+api+"/invites/accept", http.HandlerFunc(inviteC.Accept))
 }
 
-func mountPublicProfile(mux *http.ServeMux, api string, c *auth.PublicProfileController) {
-	mux.Handle("GET "+api+"/profiles/{nickname}", http.HandlerFunc(c.Get))
+func mountPublicProfile(mux *http.ServeMux, rt *routes, api string, c *auth.PublicProfileController) {
+	mux.Handle("GET "+api+"/profiles/{nickname}", rt.optional(c.Get))
 }
 
 func mountMe(mux *http.ServeMux, rt *routes, api string,
 	profileC *auth.ProfileController, sessionC *auth.SessionController, queryC *event.QueryController,
 	catalogC *event.CatalogController, eventC *event.Controller, statusC *participation.RegistrationStatusController,
-	profileLinkC *auth.ProfileLinkController, avatarC *auth.AvatarController,
+	profileLinkC *auth.ProfileLinkController, avatarC *auth.AvatarController, inboxC *inbox.Controller,
 ) {
 	mux.Handle("GET "+api+"/me", rt.authd(profileC.Get))
 	mux.Handle("POST "+api+"/me/avatar", rt.authd(avatarC.Upload))
@@ -75,6 +76,14 @@ func mountMe(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("GET "+api+"/events/{id}/stages", rt.authd(eventC.ListStages))
 	mux.Handle("GET "+api+"/events/{id}/tracks", rt.authd(eventC.ListTracks))
 	mux.Handle("POST "+api+"/events/{id}/registration/done", rt.authd(statusC.MarkDone))
+
+	mux.Handle("GET "+api+"/me/inbox", rt.authd(inboxC.List))
+	mux.Handle("DELETE "+api+"/me/inbox", rt.authd(inboxC.DeleteAll))
+	mux.Handle("GET "+api+"/me/inbox/unread-count", rt.authd(inboxC.UnreadCount))
+	mux.Handle("POST "+api+"/me/inbox/read", rt.authd(inboxC.MarkRead))
+	mux.Handle("DELETE "+api+"/me/inbox/{id}", rt.authd(inboxC.Delete))
+	mux.Handle("POST "+api+"/me/inbox/{id}/restore", rt.authd(inboxC.Restore))
+	mux.Handle("POST "+api+"/me/inbox/{id}/mark-registered", rt.authd(inboxC.MarkRegistered))
 }
 
 func mountAdminIdentity(mux *http.ServeMux, rt *routes, api string,

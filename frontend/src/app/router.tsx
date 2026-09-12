@@ -20,6 +20,7 @@ import {
   EventCardPage,
   ForgotPasswordPage,
   HistoryPage,
+  InboxPage,
   InvitePage,
   LoginPage,
   MySchedulePage,
@@ -38,6 +39,7 @@ import {
 import { ForbiddenPage } from './pages/forbidden-page'
 import { NotFoundPage } from './pages/not-found-page'
 import { PublicProfileRoute } from './public-profile-route'
+import { PublicProfileShell } from './public-profile-shell'
 
 const ANONYMOUS_PATHS = [
   '/login',
@@ -54,6 +56,7 @@ const APP_PATHS = [
   '/catalog',
   '/schedule',
   '/history',
+  '/inbox',
   '/profile',
   '/settings',
   '/teams',
@@ -116,6 +119,7 @@ export function AppRouter() {
               <Route path="/events/:id" element={<EventCardPage />} />
               <Route path="/schedule" element={<MySchedulePage />} />
               <Route path="/history" element={<HistoryPage />} />
+              <Route path="/inbox" element={<InboxPage />} />
               <Route
                 path="/profile"
                 element={<Navigate to="/catalog?settings=profile" replace />}
@@ -145,7 +149,7 @@ export function AppRouter() {
           </Route>
         </Route>
 
-        <Route element={<AuthLayout />}>
+        <Route element={<PublicProfileShell />}>
           <Route path="/:handle" element={<PublicProfileRoute />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

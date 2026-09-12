@@ -111,7 +111,7 @@ export function HackathonForm({
           onRangeChange(nextRange)
           setRangeError(null)
         }}
-        prize={<EventPrizeFields control={control} register={register} errors={errors} />}
+        prize={<EventPrizeFields control={control} errors={errors} />}
       />
     )
   }

@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { type Command, CommandPalette } from '@/features/command-palette/command-palette'
 import { ShortcutHelp } from '@/features/shortcut-help/shortcut-help'
-import { catalogEntry, catalogKeys, type GotoTarget } from '@/shared/keyboard/shortcut-catalog'
+import { catalogEntry, type GotoTarget } from '@/shared/keyboard/shortcut-catalog'
 import { type ShortcutDefinition, useShortcutScope } from '@/shared/keyboard/shortcut-registry'
 
-export function AppShortcuts({ targets }: { targets: GotoTarget[] }) {
+export function AppShortcuts({ targets, isAdmin }: { targets: GotoTarget[]; isAdmin: boolean }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -32,20 +32,25 @@ export function AppShortcuts({ targets }: { targets: GotoTarget[] }) {
   useShortcutScope('app', shortcuts)
 
   const commands = useMemo<Command[]>(
-    () =>
-      targets.map((target) => ({
-        id: target.id,
-        title: t(target.titleKey),
-        hint: t('palette.goto'),
-        keys: catalogKeys(`goto-${target.id}`),
-        run: () => navigate(target.path),
-      })),
-    [targets, navigate, t],
+    () => [
+      {
+        id: 'shortcut-help',
+        section: 'commands',
+        title: t('shortcuts.help'),
+        run: () => setHelpOpen(true),
+      },
+    ],
+    [t],
   )
 
   return (
     <>
-      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} commands={commands} />
+      <CommandPalette
+        open={paletteOpen}
+        onOpenChange={setPaletteOpen}
+        commands={commands}
+        isAdmin={isAdmin}
+      />
       <ShortcutHelp open={helpOpen} onOpenChange={setHelpOpen} />
     </>
   )

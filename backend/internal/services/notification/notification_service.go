@@ -14,10 +14,15 @@ import (
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
+type InboxWriter interface {
+	Create(ctx context.Context, item *models.InboxItem) error
+}
+
 type NotificationService struct {
 	repo  *notification.Notifications
 	prefs *notification.Preferences
 	cfg   *config.Config
+	inbox InboxWriter
 	now   func() time.Time
 }
 
@@ -26,6 +31,8 @@ func NewNotificationService(repo *notification.Notifications, prefs *notificatio
 	return &NotificationService{repo: repo, prefs: prefs, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() }}
 }
+
+func (s *NotificationService) WithInbox(inbox InboxWriter) { s.inbox = inbox }
 
 func PrimaryKey(participantID uuid.UUID, assignmentVersion, activationVersion, contentVersion int,
 	channel models.Channel) string {
@@ -44,14 +51,19 @@ func RuleKey(kind models.NotificationType, statusID, ruleID uuid.UUID, scheduleV
 }
 
 func (s *NotificationService) recipientChannels(ctx context.Context, c *models.ReconcileCandidate) error {
-	if s.prefs == nil || c.RecipientChannels.Preferences != nil {
+	return s.loadMutedPreferences(ctx, c.RecipientID, &c.RecipientChannels)
+}
+
+func (s *NotificationService) loadMutedPreferences(ctx context.Context, userID uuid.UUID,
+	channels *models.RecipientChannels) error {
+	if s.prefs == nil || channels.Preferences != nil {
 		return nil
 	}
-	prefs, err := s.prefs.Muted(ctx, c.RecipientID)
+	prefs, err := s.prefs.Muted(ctx, userID)
 	if err != nil {
 		return err
 	}
-	c.RecipientChannels.Preferences = prefs
+	channels.Preferences = prefs
 	return nil
 }
 
@@ -74,7 +86,7 @@ func (s *NotificationService) CreatePrimary(ctx context.Context, c models.Reconc
 		notification := &models.Notification{
 			NotificationType:           models.NotificationRequired,
 			RecipientUserID:            c.RecipientID,
-			RegistrationStatusID:       c.StatusID,
+			RegistrationStatusID:       &c.StatusID,
 			AssignmentVersion:          &c.AssignmentVersion,
 			ActivationVersion:          &c.ActivationVersion,
 			NotificationContentVersion: c.ContentVersion,
@@ -93,6 +105,9 @@ func (s *NotificationService) CreatePrimary(ctx context.Context, c models.Reconc
 			created++
 		}
 	}
+	if created > 0 {
+		s.writeInboxItem(ctx, models.NotificationRequired, c, inboxPrimaryKey(c))
+	}
 	return created, nil
 }
 
@@ -110,7 +125,7 @@ func (s *NotificationService) CreateForRule(ctx context.Context, c models.Reconc
 		notification := &models.Notification{
 			NotificationType:           kind,
 			RecipientUserID:            c.RecipientID,
-			RegistrationStatusID:       c.StatusID,
+			RegistrationStatusID:       &c.StatusID,
 			RuleID:                     &ruleID,
 			ScheduleVersion:            &c.ScheduleVersion,
 			TodoCycle:                  &c.TodoCycle,
@@ -129,6 +144,9 @@ func (s *NotificationService) CreateForRule(ctx context.Context, c models.Reconc
 		if ok {
 			created++
 		}
+	}
+	if created > 0 {
+		s.writeInboxItem(ctx, kind, c, inboxRuleKey(c, rule.ID))
 	}
 	return created, nil
 }
@@ -154,6 +172,8 @@ func (s *NotificationService) payload(kind models.NotificationType, c models.Rec
 		Language:        lang,
 		Subject:         subject,
 		Body:            body,
+		TelegramText:    renderTelegramText(lang, kind, c.EventTitle, localText, zoneID),
+		EventURL:        eventURL(s.cfg.App.PublicURL, c.EventDisplayID),
 	}
 }
 

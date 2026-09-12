@@ -19,7 +19,8 @@ function listRegistry(run: () => void): ShortcutRegistry {
   return registry
 }
 
-const inRow = (selector: string) => (selector === '[data-event-row]' ? {} : null)
+const ROW_SELECTOR = '[data-event-row], [data-inbox-row]'
+const inRow = (selector: string) => (selector === ROW_SELECTOR ? {} : null)
 
 describe('a list row is the navigation surface, not a type-ahead target', () => {
   it('exempts the row itself from type-ahead suppression', () => {
@@ -58,6 +59,21 @@ describe('a list row is the navigation surface, not a type-ahead target', () => 
       getAttribute: () => null,
     })
     expect(run).toHaveBeenCalledOnce()
+  })
+
+  it('exempts an inbox row from type-ahead suppression the same way', () => {
+    const row = { tagName: 'BUTTON', dataset: { inboxRow: 'ib_1' }, getAttribute: () => null }
+    expect(isInteractiveTarget(row)).toBe(false)
+  })
+
+  it('exempts a control nested inside an inbox row, such as its checkbox', () => {
+    const checkbox = {
+      tagName: 'BUTTON',
+      dataset: {},
+      closest: inRow,
+      getAttribute: () => 'checkbox',
+    }
+    expect(isInteractiveTarget(checkbox)).toBe(false)
   })
 })
 

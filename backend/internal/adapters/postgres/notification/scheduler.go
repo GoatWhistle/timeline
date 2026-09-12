@@ -26,7 +26,7 @@ const reconcileWhere = `
 	AND u.deleted_at IS NULL`
 
 const reconcileSelect = `
-	SELECT h.id, h.title, h.end_at,
+	SELECT h.id, h.display_id, h.title, h.end_at,
 	       r.id, r.url, r.deadline_at, r.schedule_version, r.activation_version, r.notification_content_version,
 	       p.id, p.assignment_version,
 	       s.id, s.todo_cycle,
@@ -87,7 +87,7 @@ func scanCandidate(row pgx.Row) (*models.ReconcileCandidate, error) {
 		channels []string
 		muted    []string
 	)
-	if err := row.Scan(&c.EventID, &c.EventTitle, &c.EventEndAt,
+	if err := row.Scan(&c.EventID, &c.EventDisplayID, &c.EventTitle, &c.EventEndAt,
 		&c.RegistrationID, &c.RegistrationURL, &c.DeadlineAt, &c.ScheduleVersion,
 		&c.ActivationVersion, &c.ContentVersion,
 		&c.ParticipantID, &c.AssignmentVersion,

@@ -15,13 +15,13 @@ func sendAll(t *testing.T, lang string) map[string]struct{ subject, text, html s
 	out := make(map[string]struct{ subject, text, html string })
 	cases := map[string]func(m *Mailer){
 		"verification": func(m *Mailer) {
-			m.SendVerification(context.Background(), "user@example.test", "Maria Ivanova", lang, "tok", 24*time.Hour, TelegramRecipient{})
+			m.SendVerification(context.Background(), "user@example.test", "Maria Ivanova", lang, "dark", "tok", 24*time.Hour, TelegramRecipient{})
 		},
 		"password_reset": func(m *Mailer) {
-			m.SendPasswordReset(context.Background(), "user@example.test", "Maria Ivanova", lang, "tok", 2*time.Hour, TelegramRecipient{})
+			m.SendPasswordReset(context.Background(), "user@example.test", "Maria Ivanova", lang, "dark", "tok", 2*time.Hour, TelegramRecipient{})
 		},
 		"email_change": func(m *Mailer) {
-			m.SendEmailChange(context.Background(), "user@example.test", "Maria Ivanova", lang, "tok", 24*time.Hour)
+			m.SendEmailChange(context.Background(), "user@example.test", "Maria Ivanova", lang, "dark", "tok", 24*time.Hour)
 		},
 		"invite": func(m *Mailer) {
 			m.SendInvite(context.Background(), "new@example.test", "Maria Ivanova", lang, "tok", 72*time.Hour)
@@ -70,11 +70,28 @@ func TestEveryLetterOffersTheLinkAsBothAButtonAndCopyableText(t *testing.T) {
 func TestHTMLLettersStayReadableWithoutRemoteImages(t *testing.T) {
 	for _, lang := range []string{"ru", "en"} {
 		for name, got := range sendAll(t, lang) {
-			for _, tag := range []string{"<img", "background-image", "<svg"} {
+			for _, tag := range []string{"background-image", "<svg"} {
 				if strings.Contains(got.html, tag) {
 					t.Errorf("%s/%s depends on %q; a client that blocks images must still "+
 						"show the whole letter", lang, name, tag)
 				}
+			}
+			if !strings.Contains(got.html, `alt="Timeline"`) {
+				t.Errorf("%s/%s: the logo image has no text alternative for blocked images", lang, name)
+			}
+			if !strings.Contains(got.html, "TIME") || !strings.Contains(got.html, "LINE") {
+				t.Errorf("%s/%s: the brand name is not present as text next to the logo image", lang, name)
+			}
+		}
+	}
+}
+
+func TestHTMLLettersUseExactlyOneImageForTheLogo(t *testing.T) {
+	for _, lang := range []string{"ru", "en"} {
+		for name, got := range sendAll(t, lang) {
+			if strings.Count(got.html, "<img") != 1 {
+				t.Errorf("%s/%s: expected exactly one image (the logo), got %d", lang, name,
+					strings.Count(got.html, "<img"))
 			}
 		}
 	}
@@ -99,8 +116,15 @@ func TestHTMLLettersUseTableLayoutAndInlineStyleThatMailClientsKeep(t *testing.T
 func TestHTMLLettersAdaptToADarkClient(t *testing.T) {
 	for _, lang := range []string{"ru", "en"} {
 		for name, got := range sendAll(t, lang) {
-			if !strings.Contains(got.html, "prefers-color-scheme: dark") {
-				t.Errorf("%s/%s has no dark-theme block", lang, name)
+			if !strings.Contains(got.html, "prefers-color-scheme: light") {
+				t.Errorf("%s/%s has no opposite light-theme block for a dark-by-default letter", lang, name)
+			}
+			if strings.Contains(got.html, "prefers-color-scheme: dark") {
+				t.Errorf("%s/%s: dark is the default theme here, it must be inlined, not gated behind @media",
+					lang, name)
+			}
+			if !strings.Contains(got.html, colorShellDark) {
+				t.Errorf("%s/%s: the dark palette is not inlined as the default", lang, name)
 			}
 			if !strings.Contains(got.html, `name="color-scheme"`) {
 				t.Errorf("%s/%s does not declare the colour schemes it supports, so a client "+
@@ -168,7 +192,7 @@ func TestDurationsDeclineInTheRecipientLanguage(t *testing.T) {
 
 		sender := &recordingMailSender{}
 		mailer := NewMailer(sender, nil, "https://timeline.test")
-		mailer.SendVerification(context.Background(), "user@example.test", "Maria", tc.lang, "tok", tc.ttl, TelegramRecipient{})
+		mailer.SendVerification(context.Background(), "user@example.test", "Maria", tc.lang, "dark", "tok", tc.ttl, TelegramRecipient{})
 		got := sender.last(t)
 
 		for _, part := range []string{got.Body, got.HTML} {
@@ -203,46 +227,4 @@ func otherExpiries(t *testing.T, lang, unit, form string, amount int, want strin
 			lang, form, unit)
 	}
 	return out
-}
-
-func TestOnlyTheInviteNamesAPersonAndItNeverRepeatsTheSameWord(t *testing.T) {
-	sender := &recordingMailSender{}
-	mailer := NewMailer(sender, nil, "https://timeline.test")
-
-	mailer.SendInvite(context.Background(), "new@example.test", "Administrator Administrator", "en",
-		"tok", time.Hour)
-	invite := sender.last(t)
-	if strings.Contains(invite.Body, "Administrator Administrator") {
-		t.Error("the invite still repeats a degenerate name back at the reader")
-	}
-	if !strings.Contains(invite.Body, "Administrator") {
-		t.Error("the invite dropped the inviting person entirely")
-	}
-	if strings.Contains(invite.Subject, "Administrator") {
-		t.Errorf("the invite is written from a person rather than from the product: %q", invite.Subject)
-	}
-
-	mailer.SendInvite(context.Background(), "new@example.test", "", "en", "tok", time.Hour)
-	anonymous := sender.last(t)
-	if strings.Contains(anonymous.Body, locale.Message("en", "email.invite.attribution")) {
-		t.Error("an invite with no inviting name still prints the attribution line")
-	}
-}
-
-func TestPersonalNameCollapsesARepeatedNameAndKeepsARealOne(t *testing.T) {
-	cases := map[string]string{
-		"Administrator Administrator": "Administrator",
-		"administrator ADMINISTRATOR": "administrator",
-		"Maria Ivanova":               "Maria Ivanova",
-		"Maria Petrovna Ivanova":      "Maria Petrovna Ivanova",
-		"  Maria   Ivanova  ":         "Maria Ivanova",
-		"Administrator":               "Administrator",
-		"":                            "",
-		"   ":                         "",
-	}
-	for in, want := range cases {
-		if got := PersonalName(in); got != want {
-			t.Errorf("PersonalName(%q) = %q, want %q", in, got, want)
-		}
-	}
 }

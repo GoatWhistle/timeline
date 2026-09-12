@@ -10,18 +10,24 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	pginbox "github.com/GoatWhistle/timeline/internal/adapters/postgres/inbox"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/query"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/systemevent"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
 	svcdigest "github.com/GoatWhistle/timeline/internal/services/digest"
+	svcinbox "github.com/GoatWhistle/timeline/internal/services/inbox"
+	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 	svcrealtime "github.com/GoatWhistle/timeline/internal/services/realtime"
 	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
 type digestStack struct {
-	db  *postgres.DB
-	svc *svcdigest.DigestService
+	db       *postgres.DB
+	svc      *svcdigest.DigestService
+	notifs   *notification.Notifications
+	notifier *svcnotification.NotificationService
 }
 
 func newDigestStack(t *testing.T) *digestStack {
@@ -32,9 +38,14 @@ func newDigestStack(t *testing.T) *digestStack {
 	if err != nil {
 		t.Fatalf("loading the fallback zone: %v", err)
 	}
-	app := config.App{SystemTZ: moscow, SystemTZID: "Europe/Moscow"}
+	app := config.App{SystemTZ: moscow, SystemTZID: "Europe/Moscow", PublicURL: "http://localhost:5173"}
 	limits := config.Digest{Interval: time.Hour, Batch: 200, MaxItems: 50}
-	return &digestStack{db: db, svc: svcdigest.NewDigestService(query.NewDigests(db), feed, limits, app)}
+	cfg := &config.Config{App: app}
+	notifs := notification.NewNotifications(db)
+	notifier := svcnotification.NewNotificationService(notifs, notification.NewPreferences(db), cfg)
+	notifier.WithInbox(svcinbox.NewService(pginbox.NewItems(db), nil))
+	return &digestStack{db: db, notifs: notifs, notifier: notifier,
+		svc: svcdigest.NewDigestService(query.NewDigests(db), feed, notifier, limits, app)}
 }
 
 func (d *digestStack) user(t *testing.T, timezone string) uuid.UUID {

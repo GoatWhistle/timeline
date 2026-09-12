@@ -5,6 +5,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	pgfinance "github.com/GoatWhistle/timeline/internal/adapters/postgres/finance"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	pginbox "github.com/GoatWhistle/timeline/internal/adapters/postgres/inbox"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/personal"
@@ -52,4 +53,5 @@ func (c *container) wireRepositories() {
 	c.repos.teamLinks = team.NewJoinLinks(db)
 	c.repos.teamEventLinks = team.NewEventLinks(db)
 	c.repos.audit = audit.NewAudit(db)
+	c.repos.inbox = pginbox.NewItems(db)
 }

@@ -15,17 +15,22 @@ import (
 	"github.com/GoatWhistle/timeline/internal/services/realtime"
 )
 
-type DigestService struct {
-	digests *query.Digests
-	events  *realtime.SystemEventService
-	limits  config.Digest
-	app     config.App
-	now     func() time.Time
+type Notifier interface {
+	CreatePersonal(ctx context.Context, notice models.PersonalNotice) (int, error)
 }
 
-func NewDigestService(digests *query.Digests, events *realtime.SystemEventService,
+type DigestService struct {
+	digests  *query.Digests
+	events   *realtime.SystemEventService
+	notifier Notifier
+	limits   config.Digest
+	app      config.App
+	now      func() time.Time
+}
+
+func NewDigestService(digests *query.Digests, events *realtime.SystemEventService, notifier Notifier,
 	limits config.Digest, app config.App) *DigestService {
-	return &DigestService{digests: digests, events: events, limits: limits, app: app,
+	return &DigestService{digests: digests, events: events, notifier: notifier, limits: limits, app: app,
 		now: func() time.Time { return time.Now().UTC() }}
 }
 
@@ -101,7 +106,7 @@ func (s *DigestService) emit(ctx context.Context, recipient models.DigestRecipie
 	if stored != nil {
 		result.Sent++
 	}
-	return nil
+	return s.notifyRecipient(ctx, recipient, digest)
 }
 
 func (s *DigestService) Build(ctx context.Context,

@@ -98,8 +98,8 @@ func TestNotificationPreferencesDefaultToEnabledForAnUntouchedAccount(t *testing
 		} `json:"preferences"`
 	}
 	resp.Decode(t, &body)
-	if len(body.Preferences) != 6 {
-		t.Fatalf("expected 3 occasions times 2 channels, got %d", len(body.Preferences))
+	if len(body.Preferences) != 12 {
+		t.Fatalf("expected 6 occasions times 2 channels, got %d", len(body.Preferences))
 	}
 	for _, pref := range body.Preferences {
 		if !pref.Enabled {

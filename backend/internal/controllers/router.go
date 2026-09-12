@@ -6,11 +6,13 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/auth"
 	"github.com/GoatWhistle/timeline/internal/controllers/event"
 	"github.com/GoatWhistle/timeline/internal/controllers/finance"
+	"github.com/GoatWhistle/timeline/internal/controllers/inbox"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/notification"
 	"github.com/GoatWhistle/timeline/internal/controllers/participation"
 	"github.com/GoatWhistle/timeline/internal/controllers/personal"
 	"github.com/GoatWhistle/timeline/internal/controllers/team"
+	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 )
 
 // @title			Timeline API
@@ -78,6 +80,8 @@ import (
 // @tag.description			Service probes and metrics
 // @tag.name					telegram
 // @tag.description			Telegram account linking
+// @tag.name					inbox
+// @tag.description			The notification center: readable, deletable copies of what was sent
 func NewRouter(deps Deps) http.Handler {
 	authC := auth.NewController(deps.Auth, deps.Cookies, deps.CSRFTTL)
 	inviteC := auth.NewInviteController(deps.Invites, deps.Cookies, deps.PublicURL,
@@ -109,6 +113,7 @@ func NewRouter(deps Deps) http.Handler {
 		deps.LinkRateWindow)
 	retentionC := event.NewRetentionController(deps.Retention, deps.Events)
 	teamC := team.NewController(deps.Teams)
+	inboxC := inbox.NewController(deps.Inbox, deps.PageDefault, deps.PageMax)
 
 	rt := &routes{authn: deps.Authenticator}
 	mux := http.NewServeMux()
@@ -116,8 +121,8 @@ func NewRouter(deps Deps) http.Handler {
 
 	mountAuth(mux, rt, api, authC, inviteC)
 	mux.Handle("POST "+api+"/telegram/webhook", http.HandlerFunc(telegramC.Handle))
-	mountPublicProfile(mux, api, publicProfileC)
-	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC, profileLinkC, avatarC)
+	mountPublicProfile(mux, rt, api, publicProfileC)
+	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC, profileLinkC, avatarC, inboxC)
 	mountCovers(mux, rt, api, coverC)
 	mountFinance(mux, rt, api, finance.NewController(deps.Finance, deps.Cases))
 	mountPersonal(mux, rt, api, personalC)
@@ -128,6 +133,7 @@ func NewRouter(deps Deps) http.Handler {
 	mountRetention(mux, rt, api, retentionC)
 	mountAdminRegistration(mux, rt, api, partC, regC, statusC, ruleC, previewC)
 	mountAdminQueries(mux, rt, api, queryC, auditC, opsC)
+	mountMailAssets(mux)
 	mountSwagger(mux, deps.SwaggerUI)
 
 	return middleware.Chain(mux,
@@ -137,6 +143,11 @@ func NewRouter(deps Deps) http.Handler {
 		middleware.CORS(deps.CORSOrigins),
 		middleware.CSRF,
 	)
+}
+
+func mountMailAssets(mux *http.ServeMux) {
+	mux.Handle("GET /mail/logo-light.png", mail.LogoHandler("light"))
+	mux.Handle("GET /mail/logo-dark.png", mail.LogoHandler("dark"))
 }
 
 func mountSwagger(mux *http.ServeMux, ui http.Handler) {
@@ -157,6 +168,10 @@ func (rt *routes) authd(fn http.HandlerFunc) http.Handler {
 
 func (rt *routes) admin(fn http.HandlerFunc) http.Handler {
 	return middleware.Auth(rt.authn)(middleware.AdminOnly(fn))
+}
+
+func (rt *routes) optional(fn http.HandlerFunc) http.Handler {
+	return middleware.OptionalAuth(rt.authn)(fn)
 }
 
 func participationControllers(deps Deps) (*participation.Controller,

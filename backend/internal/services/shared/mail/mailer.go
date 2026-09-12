@@ -32,33 +32,35 @@ func NewMailer(sender EmailSender, telegram TelegramSender, publicURL string) *M
 	return &Mailer{sender: sender, telegram: telegram, publicURL: strings.TrimRight(publicURL, "/")}
 }
 
-func (m *Mailer) SendVerification(ctx context.Context, to, displayName, lang, token string, ttl time.Duration,
+func (m *Mailer) SendVerification(ctx context.Context, to, displayName, lang, theme, token string, ttl time.Duration,
 	tg TelegramRecipient) {
-	m.sendTemplate(ctx, to, "email.verification", displayName, lang, m.query("/verify-email", token), ttl, tg)
+	m.sendTemplate(ctx, to, "email.verification", displayName, lang, theme, m.query("/verify-email", token), ttl, tg)
 }
 
-func (m *Mailer) SendPasswordReset(ctx context.Context, to, displayName, lang, token string, ttl time.Duration,
+func (m *Mailer) SendPasswordReset(ctx context.Context, to, displayName, lang, theme, token string, ttl time.Duration,
 	tg TelegramRecipient) {
-	m.sendTemplate(ctx, to, "email.password_reset", displayName, lang, m.query("/reset-password", token), ttl, tg)
+	link := m.query("/reset-password", token)
+	m.sendTemplate(ctx, to, "email.password_reset", displayName, lang, theme, link, ttl, tg)
 }
 
-func (m *Mailer) SendEmailChange(ctx context.Context, to, displayName, lang, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, "email.email_change", displayName, lang, m.query("/email-change/confirm", token), ttl,
-		TelegramRecipient{})
+func (m *Mailer) SendEmailChange(ctx context.Context, to, displayName, lang, theme, token string, ttl time.Duration) {
+	link := m.query("/email-change/confirm", token)
+	m.sendTemplate(ctx, to, "email.email_change", displayName, lang, theme, link, ttl, TelegramRecipient{})
 }
 
-func (m *Mailer) SendEmailChangeCancel(ctx context.Context, to, displayName, lang, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, "email.email_change_cancel", displayName, lang,
+func (m *Mailer) SendEmailChangeCancel(ctx context.Context, to, displayName, lang, theme, token string,
+	ttl time.Duration) {
+	m.sendTemplate(ctx, to, "email.email_change_cancel", displayName, lang, theme,
 		m.query("/email-change/cancel", token), ttl, TelegramRecipient{})
 }
 
 func (m *Mailer) SendInvite(ctx context.Context, to, invitedBy, lang, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, inviteKey, PersonalName(invitedBy), lang, m.link("/invite", token), ttl,
+	m.sendTemplate(ctx, to, inviteKey, PersonalName(invitedBy), lang, "", m.link("/invite", token), ttl,
 		TelegramRecipient{})
 }
 
-func (m *Mailer) SendPasswordChanged(ctx context.Context, to, displayName, lang string, tg TelegramRecipient) {
-	m.sendTemplate(ctx, to, "email.password_changed", displayName, lang, m.publicURL+"/login", 0, tg)
+func (m *Mailer) SendPasswordChanged(ctx context.Context, to, displayName, lang, theme string, tg TelegramRecipient) {
+	m.sendTemplate(ctx, to, "email.password_changed", displayName, lang, theme, m.publicURL+"/login", 0, tg)
 }
 
 // TelegramRecipient carries the linked chat, if any, that a security link may also be sent to.
@@ -73,10 +75,10 @@ func (r TelegramRecipient) linked() bool {
 	return r.Enabled && r.ChatID != ""
 }
 
-func (m *Mailer) sendTemplate(ctx context.Context, to, key, name, lang string, link string, ttl time.Duration,
+func (m *Mailer) sendTemplate(ctx context.Context, to, key, name, lang, theme string, link string, ttl time.Duration,
 	tg TelegramRecipient) {
 	lang = locale.Normalize(lang)
-	m.send(ctx, to, compose(lang, key, name, link, humanDuration(lang, ttl)), tg)
+	m.send(ctx, to, compose(lang, theme, m.publicURL, key, name, link, humanDuration(lang, ttl)), tg)
 }
 
 func (m *Mailer) link(path, token string) string {
@@ -93,10 +95,11 @@ func (m *Mailer) send(ctx context.Context, to string, l letter, tg TelegramRecip
 		slog.ErrorContext(ctx, "failed to render the email body", "error", err, "subject", l.Subject)
 	}
 	err = m.sender.Send(ctx, models.OutboundMessage{
-		Recipient: to,
-		Subject:   l.Subject,
-		Body:      l.text(),
-		HTML:      body,
+		Recipient:      to,
+		Subject:        l.Subject,
+		Body:           l.text(),
+		HTML:           body,
+		UnsubscribeURL: l.UnsubscribeURL,
 	})
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to send authentication email",

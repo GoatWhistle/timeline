@@ -12,7 +12,7 @@ import (
 //go:embed messages/*.json
 var files embed.FS
 
-const Default = "ru"
+const Default = "en"
 
 var (
 	once     sync.Once

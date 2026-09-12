@@ -92,6 +92,95 @@ func TestPollingErrorsNeverExposeBotToken(t *testing.T) {
 	}
 }
 
+func TestSendUsesHTMLParseModeAndBothButtons(t *testing.T) {
+	var captured map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&captured)
+		fmt.Fprint(w, `{"ok":true,"result":{"message_id":7}}`)
+	}))
+	defer server.Close()
+	sender := New(config.Telegram{BotToken: "test", APIBase: server.URL, Timeout: time.Second})
+	err := sender.Send(context.Background(), models.OutboundMessage{
+		Recipient: "42", Body: "<b>hi</b>", TelegramHTML: true,
+		OpenText: "Open", OpenURL: "https://example.com/e",
+		ButtonText: "Done", ButtonData: "reg_done:ev_1",
+	})
+	if err != nil {
+		t.Fatalf("send: %v", err)
+	}
+	if captured["parse_mode"] != "HTML" {
+		t.Fatalf("expected HTML parse_mode, got %v", captured["parse_mode"])
+	}
+	markup, _ := captured["reply_markup"].(map[string]any)
+	rows, _ := markup["inline_keyboard"].([]any)
+	if len(rows) != 1 {
+		t.Fatalf("expected one button row, got %v", rows)
+	}
+	buttons, _ := rows[0].([]any)
+	if len(buttons) != 2 {
+		t.Fatalf("expected an open-link button and a callback button, got %v", buttons)
+	}
+	open, _ := buttons[0].(map[string]any)
+	if open["url"] != "https://example.com/e" {
+		t.Fatalf("open button missing its url: %v", open)
+	}
+	done, _ := buttons[1].(map[string]any)
+	if done["callback_data"] != "reg_done:ev_1" {
+		t.Fatalf("callback button missing its data: %v", done)
+	}
+}
+
+func TestSendWithoutHTMLFlagOmitsParseMode(t *testing.T) {
+	var captured map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&captured)
+		fmt.Fprint(w, `{"ok":true,"result":{"message_id":7}}`)
+	}))
+	defer server.Close()
+	sender := New(config.Telegram{BotToken: "test", APIBase: server.URL, Timeout: time.Second})
+	if err := sender.Send(context.Background(), models.OutboundMessage{Recipient: "42", Body: "plain"}); err != nil {
+		t.Fatalf("send: %v", err)
+	}
+	if _, present := captured["parse_mode"]; present {
+		t.Fatalf("parse_mode must be absent for a plain message, got %v", captured["parse_mode"])
+	}
+}
+
+func TestEditMessageCallsEditMessageTextWithHTMLParseMode(t *testing.T) {
+	var path string
+	var captured map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path = r.URL.Path
+		_ = json.NewDecoder(r.Body).Decode(&captured)
+		fmt.Fprint(w, `{"ok":true,"result":true}`)
+	}))
+	defer server.Close()
+	sender := New(config.Telegram{BotToken: "test", APIBase: server.URL, Timeout: time.Second}).(*botSender)
+	if err := sender.EditMessage(context.Background(), "42", 7, "<b>done</b>"); err != nil {
+		t.Fatalf("edit: %v", err)
+	}
+	if path != "/bottest/editMessageText" {
+		t.Fatalf("wrong endpoint: %s", path)
+	}
+	if captured["chat_id"] != "42" || captured["message_id"] != float64(7) || captured["text"] != "<b>done</b>" ||
+		captured["parse_mode"] != "HTML" {
+		t.Fatalf("unexpected edit request: %v", captured)
+	}
+}
+
+func TestEditMessageErrorsNeverExposeBotToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, `{"ok":false,"description":"do-not-log-me rejected"}`)
+	}))
+	defer server.Close()
+	sender := New(config.Telegram{BotToken: "do-not-log-me", APIBase: server.URL, Timeout: time.Second}).(*botSender)
+	err := sender.EditMessage(context.Background(), "42", 7, "text")
+	if err == nil || strings.Contains(err.Error(), "do-not-log-me") {
+		t.Fatalf("unsafe edit error: %v", err)
+	}
+}
+
 func TestBotRequestsDoNotFollowRedirects(t *testing.T) {
 	redirected := false
 	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { redirected = true }))

@@ -155,3 +155,85 @@ type EventParticipant struct {
 func (p *EventParticipant) Assigned() bool {
 	return p.ParticipationStatus == ParticipationAssigned
 }
+
+const EventColorSlots = 24
+
+type EventColor struct {
+	Family string `json:"family" enums:"RU,WORLD"`
+	Slot   int    `json:"slot" example:"3"`
+}
+
+func (h *Event) Color() *EventColor {
+	if h.ColorSlot == nil {
+		return nil
+	}
+	slot := *h.ColorSlot
+	if slot < 0 || slot >= EventColorSlots {
+		return nil
+	}
+	return &EventColor{Family: string(h.Origin), Slot: slot}
+}
+
+type EventColorClaim struct {
+	Slot       int
+	AssignedAt time.Time
+}
+
+func ValidEventColorSlot(slot int) bool {
+	return slot >= 0 && slot < EventColorSlots
+}
+
+const CoverURLPrefix = "/api/v1/covers/"
+
+type CoverSource string
+
+const (
+	CoverSourceManual CoverSource = "MANUAL"
+	CoverSourceAuto   CoverSource = "AUTO"
+)
+
+func CoverURL(key string) string {
+	return CoverURLPrefix + key
+}
+
+func CoverKeyFromURL(url *string) string {
+	if url == nil {
+		return ""
+	}
+	value := strings.TrimSpace(*url)
+	if !strings.HasPrefix(value, CoverURLPrefix) {
+		return ""
+	}
+	return strings.TrimPrefix(value, CoverURLPrefix)
+}
+
+type EventCoverKeys struct {
+	Manual string
+	Auto   string
+}
+
+func (h *Event) CoverKeys() EventCoverKeys {
+	return EventCoverKeys{
+		Manual: CoverKeyFromURL(h.CoverManualURL),
+		Auto:   CoverKeyFromURL(h.CoverAutoURL),
+	}
+}
+
+func (h *Event) EffectiveCoverURL() *string {
+	if h.CoverManualURL != nil {
+		return h.CoverManualURL
+	}
+	return h.CoverAutoURL
+}
+
+func (h *Event) EffectiveCoverSource() *CoverSource {
+	switch {
+	case h.CoverManualURL != nil:
+		source := CoverSourceManual
+		return &source
+	case h.CoverAutoURL != nil:
+		source := CoverSourceAuto
+		return &source
+	}
+	return nil
+}

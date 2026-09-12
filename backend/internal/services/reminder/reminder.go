@@ -9,20 +9,26 @@ import (
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/personal"
 	"github.com/GoatWhistle/timeline/internal/config"
+	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/services/realtime"
 )
 
+type Notifier interface {
+	CreatePersonal(ctx context.Context, notice models.PersonalNotice) (int, error)
+}
+
 type Service struct {
 	reminders *personal.Reminders
 	events    *realtime.SystemEventService
+	notifier  Notifier
 	limits    config.Personal
 	now       func() time.Time
 }
 
-func New(reminders *personal.Reminders, events *realtime.SystemEventService,
+func New(reminders *personal.Reminders, events *realtime.SystemEventService, notifier Notifier,
 	limits config.Personal) *Service {
-	return &Service{reminders: reminders, events: events, limits: limits,
+	return &Service{reminders: reminders, events: events, notifier: notifier, limits: limits,
 		now: func() time.Time { return time.Now().UTC() }}
 }
 
@@ -94,7 +100,27 @@ func (s *Service) emitTask(ctx context.Context, item models.DueTaskCandidate,
 	if stored != nil {
 		result.Tasks++
 	}
-	return nil
+	if s.notifier == nil {
+		return nil
+	}
+	dueAt := item.DueAt
+	lang := locale.Normalize(item.RecipientLocale)
+	_, err = s.notifier.CreatePersonal(ctx, models.PersonalNotice{
+		Type:              models.NotificationPersonalTaskDue,
+		RecipientID:       userID,
+		RecipientLocale:   item.RecipientLocale,
+		RecipientTimezone: item.RecipientTimezone,
+		RecipientChannels: item.RecipientChannels,
+		EventTitle:        item.EventTitle,
+		EventDisplayID:    item.EventDisplayID,
+		Subject:           locale.Message(lang, "notification.task_due.subject", "title", item.Title),
+		Body: locale.Message(lang, "notification.task_due.body", "title", item.Title,
+			"event", item.EventTitle, "deadline", dueAt.Format("02.01.2006 15:04"), "timezone", item.RecipientTimezone),
+		TelegramHeading: locale.Message(lang, "notification.task_due.telegram.heading"),
+		DeadlineAt:      &dueAt,
+		LogicalKeyBase:  "personal-" + taskDueKey(taskID, item.DueAt),
+	})
+	return err
 }
 
 func (s *Service) runRetrospectives(ctx context.Context, result *Result) error {
@@ -148,7 +174,24 @@ func (s *Service) emitRetrospective(ctx context.Context,
 	if stored != nil {
 		result.Retrospectives++
 	}
-	return nil
+	if s.notifier == nil {
+		return nil
+	}
+	lang := locale.Normalize(item.RecipientLocale)
+	_, err = s.notifier.CreatePersonal(ctx, models.PersonalNotice{
+		Type:              models.NotificationRetrospectiveDue,
+		RecipientID:       userID,
+		RecipientLocale:   item.RecipientLocale,
+		RecipientTimezone: item.RecipientTimezone,
+		RecipientChannels: item.RecipientChannels,
+		EventTitle:        item.EventTitle,
+		EventDisplayID:    item.EventDisplayID,
+		Subject:           locale.Message(lang, "notification.retrospective_due.subject", "title", item.EventTitle),
+		Body:              locale.Message(lang, "notification.retrospective_due.body", "title", item.EventTitle),
+		TelegramHeading:   locale.Message(lang, "notification.retrospective_due.telegram.heading"),
+		LogicalKeyBase:    "personal-" + retrospectiveDueKey(eventID, userID),
+	})
+	return err
 }
 
 func (s *Service) batch() int {

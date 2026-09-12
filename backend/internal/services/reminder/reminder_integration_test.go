@@ -4,24 +4,30 @@ package reminder_test
 
 import (
 	"context"
-	"github.com/GoatWhistle/timeline/internal/services/reminder"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
+	pginbox "github.com/GoatWhistle/timeline/internal/adapters/postgres/inbox"
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/personal"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/systemevent"
 	"github.com/GoatWhistle/timeline/internal/config"
 	"github.com/GoatWhistle/timeline/internal/models"
+	svcinbox "github.com/GoatWhistle/timeline/internal/services/inbox"
+	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 	svcrealtime "github.com/GoatWhistle/timeline/internal/services/realtime"
+	"github.com/GoatWhistle/timeline/internal/services/reminder"
 	"github.com/GoatWhistle/timeline/internal/testsupport"
 )
 
 type reminderStack struct {
-	db  *postgres.DB
-	svc *reminder.Service
+	db       *postgres.DB
+	svc      *reminder.Service
+	notifs   *notification.Notifications
+	notifier *svcnotification.NotificationService
 }
 
 func newReminderStack(t *testing.T) *reminderStack {
@@ -36,8 +42,16 @@ func newReminderStack(t *testing.T) *reminderStack {
 		RetrospectiveGrace: 14 * 24 * time.Hour,
 		ReminderBatch:      200,
 	}
-	return &reminderStack{db: db, svc: reminder.New(
-		personal.NewReminders(db), feed, limits)}
+	utc, err := time.LoadLocation("UTC")
+	if err != nil {
+		t.Fatalf("loading UTC: %v", err)
+	}
+	cfg := &config.Config{App: config.App{PublicURL: "http://localhost:5173", SystemTZ: utc, SystemTZID: "UTC"}}
+	notifs := notification.NewNotifications(db)
+	notifier := svcnotification.NewNotificationService(notifs, notification.NewPreferences(db), cfg)
+	notifier.WithInbox(svcinbox.NewService(pginbox.NewItems(db), nil))
+	return &reminderStack{db: db, notifs: notifs, notifier: notifier, svc: reminder.New(
+		personal.NewReminders(db), feed, notifier, limits)}
 }
 
 func (r *reminderStack) user(t *testing.T) uuid.UUID {
@@ -119,7 +133,7 @@ func (r *reminderStack) events(t *testing.T, eventType models.SystemEventType) [
 	return owners
 }
 
-func TestDueTaskEmitsBusEventAndNeverQueuesNotification(t *testing.T) {
+func TestDueTaskEmitsBusEventAndQueuesADeliveryNotification(t *testing.T) {
 	r := newReminderStack(t)
 	ctx := context.Background()
 	now := time.Now().UTC()
@@ -143,12 +157,12 @@ func TestDueTaskEmitsBusEventAndNeverQueuesNotification(t *testing.T) {
 	if len(owners) != 1 || owners[0] != owner {
 		t.Fatalf("the reminder is addressed to %v, want the single owner %s", owners, owner)
 	}
-	if after := r.count(t, "notifications"); after != notifyBefore {
-		t.Fatalf("a personal task queued %d notifications, specification 5.4 forbids any",
+	if after := r.count(t, "notifications"); after <= notifyBefore {
+		t.Fatalf("a due task queued %d notifications, want at least one for delivery",
 			after-notifyBefore)
 	}
 	if after := r.count(t, "audit_log"); after != auditBefore {
-		t.Fatalf("a personal task wrote %d audit rows, specification 5.4 forbids any",
+		t.Fatalf("a personal task wrote %d audit rows, the personal layer forbids any",
 			after-auditBefore)
 	}
 }

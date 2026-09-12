@@ -40,7 +40,7 @@ export function TelegramLinkCard({ user }: { user: MeResponse }) {
     <ChannelCard
       title={t('account.telegramTitle')}
       hint={t('account.telegramHint')}
-      mark={<TelegramMark className="size-4 text-telegram" />}
+      mark={<TelegramMark className="size-4" />}
       state={state}
       value={linked && user.telegram_username ? `@${user.telegram_username}` : undefined}
       action={

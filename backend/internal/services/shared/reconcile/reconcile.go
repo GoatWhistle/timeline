@@ -13,6 +13,7 @@ func BuildCandidate(h *models.Event, r *models.Registration, p *models.EventPart
 	statusID uuid.UUID, todoCycle int, u *models.User) models.ReconcileCandidate {
 	return models.ReconcileCandidate{
 		EventID:           h.ID,
+		EventDisplayID:    h.DisplayID,
 		EventTitle:        h.Title,
 		EventEndAt:        h.EndAt,
 		RegistrationID:    r.ID,

@@ -11,10 +11,12 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	pginbox "github.com/GoatWhistle/timeline/internal/adapters/postgres/inbox"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
 	svcdelivery "github.com/GoatWhistle/timeline/internal/services/delivery"
+	svcinbox "github.com/GoatWhistle/timeline/internal/services/inbox"
 	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 	svcscheduler "github.com/GoatWhistle/timeline/internal/services/scheduler"
 )
@@ -26,6 +28,7 @@ type rig struct {
 	notifier  *svcnotification.NotificationService
 	planner   *svcscheduler.SchedulerService
 	delivery  *svcdelivery.DeliveryService
+	inbox     *svcinbox.Service
 	telegram  *recordingSender
 	email     *recordingSender
 	clock     *testClock
@@ -45,6 +48,8 @@ func newRig(t *testing.T, w *world, telegram, email *recordingSender) *rig {
 	prefs := notification.NewPreferences(w.db)
 	scheduler := notification.NewScheduler(w.db)
 	notifier := svcnotification.NewNotificationService(notifs, prefs, w.cfg)
+	inboxSvc := svcinbox.NewService(pginbox.NewItems(w.db), nil)
+	notifier.WithInbox(inboxSvc)
 	planner := svcscheduler.NewSchedulerService(w.db, scheduler, participation.NewRules(w.db), participation.NewStatuses(w.db), notifier, w.cfg)
 	delivery := svcdelivery.NewDeliveryService(w.db, notifs, scheduler,
 		identity.NewUsers(w.db), event.NewEvents(w.db), audit.NewAudit(w.db),
@@ -56,7 +61,7 @@ func newRig(t *testing.T, w *world, telegram, email *recordingSender) *rig {
 	svcdelivery.SetDeliveryClock(delivery, clock.Now)
 
 	return &rig{world: w, notifs: notifs, scheduler: scheduler, notifier: notifier,
-		planner: planner, delivery: delivery, telegram: telegram, email: email, clock: clock}
+		planner: planner, delivery: delivery, inbox: inboxSvc, telegram: telegram, email: email, clock: clock}
 }
 
 func (r *rig) reconcile() *svcscheduler.ReconcileResult {

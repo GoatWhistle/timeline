@@ -1,0 +1,44 @@
+{
+  "inbox": {
+    "day": {
+      "today": "Сегодня",
+      "yesterday": "Вчера"
+    },
+    "bell": {
+      "open": "Открыть уведомления",
+      "title": "Уведомления",
+      "empty": "Здесь пока пусто",
+      "viewAll": "Все уведомления"
+    },
+    "page": {
+      "title": "Уведомления",
+      "all": "Все",
+      "unreadOnly": "Непрочитанные",
+      "markAllRead": "Прочитать всё",
+      "deleteAll": "Удалить всё",
+      "deleteRead": "Удалить прочитанные",
+      "selected_one": "Выбрано: {{count}}",
+      "selected_few": "Выбрано: {{count}}",
+      "selected_many": "Выбрано: {{count}}",
+      "clearSelection": "Сбросить выбор",
+      "select": "Выбрать «{{title}}»",
+      "deleteOne": "Удалить «{{title}}»",
+      "openAction": "Открыть",
+      "markRegisteredAction": "Я зарегистрировался",
+      "markRegisteredDone": "Отмечено как зарегистрированный",
+      "markRegisteredFailed": "Не удалось отметить регистрацию",
+      "deleted": "Удалено",
+      "undo": "Вернуть",
+      "undoFailed": "Не удалось восстановить",
+      "deleteAllConfirmTitle": "Удалить все уведомления?",
+      "deleteAllConfirmHint": "Будут удалены все уведомления. Недавно удалённые ещё можно вернуть по одному через тост с отменой.",
+      "deleteReadConfirmTitle": "Удалить все прочитанные уведомления?",
+      "deleteReadConfirmHint": "Непрочитанные останутся на месте.",
+      "emptyTitle": "Здесь пока пусто",
+      "emptyHint": "Уведомления о ваших событиях появятся здесь.",
+      "emptyUnreadTitle": "Нет непрочитанных уведомлений",
+      "emptyUnreadHint": "Всё прочитано.",
+      "loadFailed": "Не удалось загрузить уведомления"
+    }
+  }
+}

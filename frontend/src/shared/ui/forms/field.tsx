@@ -2,6 +2,7 @@ import type * as React from 'react'
 import { cloneElement, isValidElement, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { CrossfadeSwap } from '@/shared/ui/motion/crossfade-swap'
 import { Label } from './label'
 
 type FieldProps = {
@@ -48,7 +49,7 @@ export function Field({
   children,
   className,
 }: FieldProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const errorId = `${htmlFor}-error`
   const hintId = `${htmlFor}-hint`
   const message = error && KEY_PATTERN.test(error) ? t(error) : error
@@ -62,7 +63,9 @@ export function Field({
 
   const labelNode = (
     <Label htmlFor={htmlFor} className={hideLabel ? 'sr-only' : undefined}>
-      {label}
+      <CrossfadeSwap swapKey={i18n.language} className="inline-grid">
+        {label}
+      </CrossfadeSwap>
       {required && (
         <span className="ml-0.5 text-destructive" data-required-mark="">
           <span aria-hidden="true">*</span>

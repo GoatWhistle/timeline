@@ -62,7 +62,7 @@ func (s *AuthService) ResendVerification(ctx context.Context, email string) erro
 	if err != nil {
 		return err
 	}
-	s.mailer.SendVerification(ctx, user.Email, user.DisplayName(user.Locale), user.Locale,
+	s.mailer.SendVerification(ctx, user.Email, user.DisplayName(user.Locale), user.Locale, string(user.Theme),
 		secret, s.cfg.Auth.EmailVerifyTTL, telegramRecipient(user))
 	return nil
 }

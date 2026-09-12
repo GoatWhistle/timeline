@@ -10,6 +10,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
+	"github.com/GoatWhistle/timeline/internal/services/shared/linkkind"
 )
 
 type ProfileLinks struct{ db *postgres.DB }
@@ -24,6 +25,7 @@ func scanProfileLink(row pgx.Row) (*models.ProfileLink, error) {
 	if err != nil {
 		return nil, mapError(err)
 	}
+	l.Kind = linkkind.DetectFromURL(l.URL)
 	return &l, nil
 }
 
@@ -43,6 +45,7 @@ func (r *ProfileLinks) ListByUser(ctx context.Context, userID uuid.UUID) ([]mode
 			&l.CreatedAt, &l.UpdatedAt); err != nil {
 			return nil, mapError(err)
 		}
+		l.Kind = linkkind.DetectFromURL(l.URL)
 		items = append(items, l)
 	}
 	return items, mapError(rows.Err())

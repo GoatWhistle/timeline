@@ -219,3 +219,9 @@ func (s *recordingSender) count() int {
 	defer s.mu.Unlock()
 	return len(s.calls)
 }
+
+func (s *recordingSender) last() models.OutboundMessage {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.calls[len(s.calls)-1]
+}

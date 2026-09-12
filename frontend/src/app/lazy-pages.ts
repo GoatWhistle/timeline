@@ -97,3 +97,6 @@ export const PublicProfilePage = lazy(() =>
     default: m.PublicProfilePage,
   })),
 )
+export const InboxPage = lazy(() =>
+  import('@/features/inbox/inbox-page').then((m) => ({ default: m.InboxPage })),
+)

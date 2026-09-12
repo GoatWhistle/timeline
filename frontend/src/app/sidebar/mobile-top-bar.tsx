@@ -1,6 +1,6 @@
 import { Menu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { EventFeedBell } from '@/features/event-feed-bell/event-feed-bell'
+import { InboxBell } from '@/features/inbox-bell/inbox-bell'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Wordmark } from '@/shared/ui/brand/wordmark'
 import {
@@ -49,7 +49,7 @@ export function MobileTopBar({
         <Wordmark to="/schedule" className="min-w-0 flex-1" />
         {showBell && (
           <div className="flex shrink-0 items-center justify-end">
-            <EventFeedBell touch />
+            <InboxBell touch />
           </div>
         )}
       </div>

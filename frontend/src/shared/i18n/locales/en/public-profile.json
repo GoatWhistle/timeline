@@ -1,0 +1,46 @@
+{
+  "publicProfile": {
+    "memberSince": "Member since {{date}}",
+    "editProfile": "Edit profile",
+    "share": "Share",
+    "shareCopied": "Link copied",
+    "shareFailed": "Could not copy the link",
+    "summary": {
+      "events": "Events",
+      "teams": "Teams",
+      "wins": "Wins",
+      "onTime": "On-time registrations"
+    },
+    "pinned": {
+      "title": "Pinned events",
+      "unpin": "Unpin",
+      "unpinAria": "Unpin {{title}}",
+      "unpinFailed": "Could not unpin the event"
+    },
+    "activity": {
+      "title": "Activity",
+      "less": "Less",
+      "more": "More",
+      "eventCount_one": "{{count}} event",
+      "eventCount_other": "{{count}} events"
+    },
+    "timeline": {
+      "title": "Participation history",
+      "role": {
+        "participant": "Participant"
+      },
+      "team": "Team: {{name}}"
+    },
+    "teamsSection": {
+      "title": "Teams"
+    },
+    "empty": {
+      "title": "No events yet",
+      "hint": "Nothing has been recorded here yet.",
+      "ownHint": "Join an event from the catalog and it shows up here."
+    },
+    "meta": {
+      "title": "{{name}} (@{{nickname}}) — Timeline"
+    }
+  }
+}

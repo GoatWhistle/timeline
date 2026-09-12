@@ -141,7 +141,7 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest,
 		return nil, nil, err
 	}
 
-	s.mailer.SendVerification(ctx, user.Email, user.DisplayName(user.Locale), user.Locale,
+	s.mailer.SendVerification(ctx, user.Email, user.DisplayName(user.Locale), user.Locale, string(user.Theme),
 		verifySecret, s.cfg.Auth.EmailVerifyTTL, telegramRecipient(user))
 
 	pair, err := s.startSession(ctx, user, meta)

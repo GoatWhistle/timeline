@@ -2,6 +2,7 @@ package telegramlink
 
 import (
 	"context"
+	"html"
 	"log/slog"
 	"strconv"
 	"strings"
@@ -28,23 +29,43 @@ func (b *Bot) handleCallback(ctx context.Context, callback *CallbackQuery) error
 	}
 
 	lang, _, _ := strings.Cut(callback.From.LanguageCode, "-")
+	failed := locale.Message(lang, keyRegistrationFailed)
 	user, err := b.userForCallback(ctx, callback)
 	if err != nil {
-		return b.answer(ctx, callback.ID, locale.Message(lang, keyRegistrationFailed))
+		b.markResolved(ctx, callback, failed)
+		return b.answer(ctx, callback.ID, failed)
 	}
 
 	eventID, err := b.status.ResolveEventDisplayID(ctx, eventDisplayID)
 	if err != nil {
-		return b.answer(ctx, callback.ID, locale.Message(lang, keyRegistrationFailed))
+		b.markResolved(ctx, callback, failed)
+		return b.answer(ctx, callback.ID, failed)
 	}
 
 	actor := models.Actor{UserID: user.ID}
 	if _, err := b.status.MarkDone(ctx, actor, eventID); err != nil {
 		slog.WarnContext(ctx, "could not confirm registration from Telegram",
 			"error", err, "event_id", eventDisplayID)
-		return b.answer(ctx, callback.ID, locale.Message(lang, keyRegistrationFailed))
+		b.markResolved(ctx, callback, failed)
+		return b.answer(ctx, callback.ID, failed)
 	}
-	return b.answer(ctx, callback.ID, locale.Message(lang, keyRegistrationConfirmed))
+	confirmed := locale.Message(lang, keyRegistrationConfirmed)
+	b.markResolved(ctx, callback, confirmed)
+	return b.answer(ctx, callback.ID, confirmed)
+}
+
+func (b *Bot) markResolved(ctx context.Context, callback *CallbackQuery, note string) {
+	if b.editor == nil || callback.Message == nil {
+		return
+	}
+	chatID := strconv.FormatInt(callback.Message.Chat.ID, 10)
+	text := note
+	if callback.Message.Text != nil && *callback.Message.Text != "" {
+		text = html.EscapeString(*callback.Message.Text) + "\n\n<b>" + html.EscapeString(note) + "</b>"
+	}
+	if err := b.editor.EditMessage(ctx, chatID, callback.Message.ID, text); err != nil {
+		slog.WarnContext(ctx, "could not edit the Telegram message after the callback", "error", err)
+	}
 }
 
 func (b *Bot) userForCallback(ctx context.Context, callback *CallbackQuery) (*models.User, error) {

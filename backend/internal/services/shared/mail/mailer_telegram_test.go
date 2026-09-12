@@ -24,7 +24,7 @@ func TestSecurityLinksReachTelegramWhenTheAccountHasItLinkedAndUnmuted(t *testin
 	telegram := &recordingTelegramSender{}
 	mailer := NewMailer(email, telegram, "https://timeline.test")
 
-	mailer.SendPasswordReset(context.Background(), "user@example.test", "John", "en", "tok", time.Hour,
+	mailer.SendPasswordReset(context.Background(), "user@example.test", "John", "en", "dark", "tok", time.Hour,
 		TelegramRecipient{ChatID: "42", Enabled: true})
 
 	if len(telegram.sent) != 1 {
@@ -43,7 +43,7 @@ func TestSecurityLinksStayEmailOnlyWithoutALinkedChat(t *testing.T) {
 	telegram := &recordingTelegramSender{}
 	mailer := NewMailer(email, telegram, "https://timeline.test")
 
-	mailer.SendPasswordReset(context.Background(), "user@example.test", "John", "en", "tok", time.Hour,
+	mailer.SendPasswordReset(context.Background(), "user@example.test", "John", "en", "dark", "tok", time.Hour,
 		TelegramRecipient{})
 
 	if len(telegram.sent) != 0 {
@@ -56,7 +56,7 @@ func TestSecurityLinksRespectAMutedTelegramChannel(t *testing.T) {
 	telegram := &recordingTelegramSender{}
 	mailer := NewMailer(email, telegram, "https://timeline.test")
 
-	mailer.SendVerification(context.Background(), "user@example.test", "John", "en", "tok", time.Hour,
+	mailer.SendVerification(context.Background(), "user@example.test", "John", "en", "dark", "tok", time.Hour,
 		TelegramRecipient{ChatID: "42", Enabled: false})
 
 	if len(telegram.sent) != 0 {
@@ -68,7 +68,7 @@ func TestSecurityLinksTolerateANilTelegramSender(t *testing.T) {
 	email := &recordingMailSender{}
 	mailer := NewMailer(email, nil, "https://timeline.test")
 
-	mailer.SendPasswordReset(context.Background(), "user@example.test", "John", "en", "tok", time.Hour,
+	mailer.SendPasswordReset(context.Background(), "user@example.test", "John", "en", "dark", "tok", time.Hour,
 		TelegramRecipient{ChatID: "42", Enabled: true})
 
 	if len(email.sent) != 1 {
