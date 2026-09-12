@@ -20,7 +20,7 @@ func NewEvents(db *postgres.DB) *Events { return &Events{db: db} }
 const eventColumns = `id, display_id, title, description, organizer, website_url,
 	kind, format, origin, country_code, city, prize_pool, prize_currency, team_size_min, team_size_max,
 	start_at, end_at, cover_manual_url, cover_auto_url, cover_auto_source, cover_auto_fetched_at,
-	color_slot, color_assigned_at, published_at, archived_at, created_at, updated_at`
+	color_slot, color_assigned_at, published_at, archived_at, purge_scheduled_at, created_at, updated_at`
 
 func scanEventInto(row pgx.Row, h *models.Event) error {
 	return row.Scan(&h.ID, &h.DisplayID, &h.Title, &h.Description, &h.Organizer, &h.WebsiteURL,
@@ -29,7 +29,7 @@ func scanEventInto(row pgx.Row, h *models.Event) error {
 		&h.StartAt, &h.EndAt,
 		&h.CoverManualURL, &h.CoverAutoURL, &h.CoverAutoSource, &h.CoverAutoFetchedAt,
 		&h.ColorSlot, &h.ColorAssignedAt,
-		&h.PublishedAt, &h.ArchivedAt, &h.CreatedAt, &h.UpdatedAt)
+		&h.PublishedAt, &h.ArchivedAt, &h.PurgeScheduledAt, &h.CreatedAt, &h.UpdatedAt)
 }
 
 func scanEvent(row pgx.Row) (*models.Event, error) {
