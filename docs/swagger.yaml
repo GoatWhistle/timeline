@@ -844,6 +844,8 @@ definitions:
         type: string
       published_at:
         type: string
+      purge_scheduled_at:
+        type: string
       start_at:
         type: string
       state:
@@ -1748,6 +1750,25 @@ definitions:
           $ref: '#/definitions/models.ResourceLink'
         type: array
     type: object
+  dto.RetentionSettingsResponse:
+    properties:
+      archive_after_days:
+        example: 30
+        type: integer
+      audit_log_retention_days:
+        example: 365
+        type: integer
+      delete_archive_after_months:
+        example: 24
+        type: integer
+      delete_covers_on_archive:
+        type: boolean
+      updated_at:
+        type: string
+      updated_by:
+        example: us_gma9hq8a96q5
+        type: string
+    type: object
   dto.SaveNoteRequest:
     properties:
       body:
@@ -2478,6 +2499,18 @@ definitions:
         example: https://example.org/rules
         type: string
     type: object
+  dto.UpdateRetentionSettingsRequest:
+    properties:
+      archive_after_days:
+        type: integer
+      audit_log_retention_days:
+        example: 365
+        type: integer
+      delete_archive_after_months:
+        type: integer
+      delete_covers_on_archive:
+        type: boolean
+    type: object
   dto.UpdateRuleRequest:
     properties:
       enabled:
@@ -2720,6 +2753,11 @@ definitions:
     - RESOURCE_LINK_CREATE
     - RESOURCE_LINK_UPDATE
     - RESOURCE_LINK_DELETE
+    - RETENTION_SETTINGS_CHANGE
+    - EVENT_AUTO_ARCHIVE
+    - EVENT_PURGE_SCHEDULE
+    - EVENT_PURGE_CANCEL
+    - EVENT_PURGE_DELETE
     type: string
     x-enum-varnames:
     - AuditUserRegister
@@ -2772,6 +2810,11 @@ definitions:
     - AuditLinkCreate
     - AuditLinkUpdate
     - AuditLinkDelete
+    - AuditRetentionChange
+    - AuditEventAutoArchive
+    - AuditEventPurgeSchedule
+    - AuditEventPurgeCancel
+    - AuditEventPurgeDelete
   models.ChangeSource:
     enum:
     - SYSTEM
@@ -2838,6 +2881,7 @@ definitions:
     - REGISTRATION_STATUS
     - NOTIFICATION_RULE
     - RESOURCE_LINK
+    - RETENTION_SETTINGS
     type: string
     x-enum-varnames:
     - EntityUser
@@ -2856,6 +2900,7 @@ definitions:
     - EntityRegistrationStatus
     - EntityNotificationRule
     - EntityResourceLink
+    - EntityRetentionSettings
   models.EventColor:
     properties:
       family:
@@ -4083,6 +4128,42 @@ paths:
       summary: Publish an event
       tags:
       - events
+  /admin/events/{id}/purge-cancel:
+    post:
+      description: |-
+        Clears purge_scheduled_at on an archived event, keeping it archived indefinitely.
+        Available only while the scheduled date has not yet been reached.
+      parameters:
+      - description: Event identifier
+        example: ev_3k7d8gb9be
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EventResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: no deletion is scheduled for this event
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Cancel a scheduled deletion
+      tags:
+      - retention
   /admin/events/{id}/registration:
     get:
       parameters:
@@ -5047,6 +5128,71 @@ paths:
       summary: Render a notification without sending it
       tags:
       - rules
+  /admin/retention-settings:
+    get:
+      description: |-
+        Admin-configured policy for automatic event archiving and deletion: how many days
+        after an event ends it is archived automatically, whether the archive is kept forever
+        or purged after a number of months, whether the cover is dropped when an event is
+        archived, and how long the audit log is retained.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RetentionSettingsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Storage retention settings
+      tags:
+      - retention
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Setting archive_after_days or delete_archive_after_months to null disables that
+        automatic step; an event is never deleted immediately, only marked with a future
+        purge_scheduled_at that the admin can still cancel per event before it is reached.
+      parameters:
+      - description: Retention policy
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateRetentionSettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RetentionSettingsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Update storage retention settings
+      tags:
+      - retention
   /admin/stages/{id}:
     delete:
       parameters:

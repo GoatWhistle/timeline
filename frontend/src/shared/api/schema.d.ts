@@ -1247,6 +1247,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/events/{id}/purge-cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel a scheduled deletion
+         * @description Clears purge_scheduled_at on an archived event, keeping it archived indefinitely.
+         *     Available only while the scheduled date has not yet been reached.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.EventResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description no deletion is scheduled for this event */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/events/{id}/registration": {
         parameters: {
             query?: never;
@@ -2925,6 +2998,123 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/admin/retention-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Storage retention settings
+         * @description Admin-configured policy for automatic event archiving and deletion: how many days
+         *     after an event ends it is archived automatically, whether the archive is kept forever
+         *     or purged after a number of months, whether the cover is dropped when an event is
+         *     archived, and how long the audit log is retained.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.RetentionSettingsResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update storage retention settings
+         * @description Setting archive_after_days or delete_archive_after_months to null disables that
+         *     automatic step; an event is never deleted immediately, only marked with a future
+         *     purge_scheduled_at that the admin can still cancel per event before it is reached.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Retention policy */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.UpdateRetentionSettingsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.RetentionSettingsResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/admin/stages/{id}": {
@@ -11191,6 +11381,8 @@ export interface components {
             /** Format: date-time */
             published_at?: string;
             /** Format: date-time */
+            purge_scheduled_at?: string;
+            /** Format: date-time */
             start_at: string;
             state: components["schemas"]["models.EventState"];
             /** @example 5 */
@@ -11739,6 +11931,19 @@ export interface components {
         "dto.ResourceLinkListResponse": {
             items: components["schemas"]["models.ResourceLink"][];
         };
+        "dto.RetentionSettingsResponse": {
+            /** @example 30 */
+            archive_after_days?: number;
+            /** @example 365 */
+            audit_log_retention_days: number;
+            /** @example 24 */
+            delete_archive_after_months?: number;
+            delete_covers_on_archive: boolean;
+            /** Format: date-time */
+            updated_at: string;
+            /** @example us_gma9hq8a96q5 */
+            updated_by?: string;
+        };
         "dto.SaveNoteRequest": {
             /** @example Draft notes in Markdown */
             body?: string;
@@ -12162,6 +12367,13 @@ export interface components {
             /** @example https://example.org/rules */
             url?: string;
         };
+        "dto.UpdateRetentionSettingsRequest": {
+            archive_after_days?: number;
+            /** @example 365 */
+            audit_log_retention_days?: number;
+            delete_archive_after_months?: number;
+            delete_covers_on_archive?: boolean;
+        };
         "dto.UpdateRuleRequest": {
             enabled?: boolean;
             offset_minutes?: number;
@@ -12269,7 +12481,7 @@ export interface components {
         /** @enum {string} */
         "models.ArtifactKind": "REPOSITORY" | "VIDEO" | "SLIDES" | "DEMO" | "SUBMISSION" | "OTHER";
         /** @enum {string} */
-        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "EVENT_DELETE" | "EVENT_COVER_SET" | "EVENT_COVER_CLEAR" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "TRACK_CREATE" | "TRACK_UPDATE" | "TRACK_DELETE" | "TRACK_PRIZE_SET" | "EVENT_CASE_CREATE" | "EVENT_CASE_UPDATE" | "EVENT_CASE_DELETE" | "TEAM_TRACK_CHOOSE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "TEAM_EVENT_LINK_ADD" | "TEAM_EVENT_LINK_UPDATE" | "TEAM_EVENT_LINK_REMOVE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE";
+        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "EVENT_DELETE" | "EVENT_COVER_SET" | "EVENT_COVER_CLEAR" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "TRACK_CREATE" | "TRACK_UPDATE" | "TRACK_DELETE" | "TRACK_PRIZE_SET" | "EVENT_CASE_CREATE" | "EVENT_CASE_UPDATE" | "EVENT_CASE_DELETE" | "TEAM_TRACK_CHOOSE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "TEAM_EVENT_LINK_ADD" | "TEAM_EVENT_LINK_UPDATE" | "TEAM_EVENT_LINK_REMOVE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "RETENTION_SETTINGS_CHANGE" | "EVENT_AUTO_ARCHIVE" | "EVENT_PURGE_SCHEDULE" | "EVENT_PURGE_CANCEL" | "EVENT_PURGE_DELETE";
         /** @enum {string} */
         "models.ChangeSource": "SYSTEM" | "USER" | "ADMIN";
         /** @enum {string} */
@@ -12290,7 +12502,7 @@ export interface components {
         /** @enum {string} */
         "models.CoverSource": "MANUAL" | "AUTO";
         /** @enum {string} */
-        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_TRACK" | "EVENT_CASE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "TEAM_EVENT_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK";
+        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_TRACK" | "EVENT_CASE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "TEAM_EVENT_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "RETENTION_SETTINGS";
         "models.EventColor": {
             /** @enum {string} */
             family: "RU" | "WORLD";

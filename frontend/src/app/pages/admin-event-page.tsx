@@ -12,14 +12,16 @@ import {
 } from '@/entities/event/event.queries'
 import { EventForm } from '@/entities/event/event-form'
 import { EventStateBadge } from '@/entities/event/event-state-badge'
+import { useCancelPurge } from '@/entities/retention/retention.queries'
 import { CoverField } from '@/features/event-cover'
 import { ParticipantsTab } from '@/features/participants/participants-tab'
 import { RegistrationTab } from '@/features/registration/registration-tab'
 import { StatusesTab } from '@/features/registration/statuses-tab'
 import { StagesTab } from '@/features/stages/stages-tab'
 import { TracksTab } from '@/features/tracks/tracks-tab'
-import { formatDateRange } from '@/shared/datetime/datetime'
+import { formatDateRange, formatDateTime } from '@/shared/datetime/datetime'
 import { useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { Note } from '@/shared/ui/data-display/note/note'
 import { Card, CardContent } from '@/shared/ui/layout/card'
 import { PageHeader } from '@/shared/ui/layout/page-header'
 import { PAGE_WIDTH } from '@/shared/ui/layout/page-width'
@@ -33,6 +35,7 @@ const DEFAULTS = { tab: 'general' }
 
 export function AdminEventPage() {
   const { t } = useTranslation('event')
+  const { t: tCommon } = useTranslation()
   const { id = '' } = useParams()
   const navigate = useNavigate()
   const [filters, setFilters] = useUrlFilters(DEFAULTS)
@@ -40,6 +43,7 @@ export function AdminEventPage() {
   const update = useUpdateEvent(id)
   const publish = usePublishEvent(id)
   const archive = useArchiveEvent(id)
+  const cancelPurge = useCancelPurge(id)
 
   const [publishOpen, setPublishOpen] = useState(false)
   const [archiveOpen, setArchiveOpen] = useState(false)
@@ -88,6 +92,31 @@ export function AdminEventPage() {
               </div>
             }
           />
+
+          {event.purge_scheduled_at && (
+            <Note tone="warning" title={tCommon('retention.purgeScheduledTitle')} className="mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span>
+                  {tCommon('retention.purgeScheduledHint', {
+                    date: formatDateTime(event.purge_scheduled_at),
+                  })}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={cancelPurge.isPending}
+                  onClick={() =>
+                    cancelPurge
+                      .mutateAsync()
+                      .then(() => toast.success(tCommon('retention.purgeCancelled')))
+                      .catch(() => toast.error(tCommon('retention.purgeCancelFailed')))
+                  }
+                >
+                  {tCommon('retention.purgeCancel')}
+                </Button>
+              </div>
+            </Note>
+          )}
 
           <Tabs
             value={tab}

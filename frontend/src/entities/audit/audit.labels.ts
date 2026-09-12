@@ -17,6 +17,7 @@ export const ENTITY_TYPES: EntityType[] = [
   'REGISTRATION_STATUS',
   'NOTIFICATION_RULE',
   'RESOURCE_LINK',
+  'RETENTION_SETTINGS',
 ]
 
 export const AUDIT_ACTIONS: AuditAction[] = [
@@ -70,6 +71,11 @@ export const AUDIT_ACTIONS: AuditAction[] = [
   'RESOURCE_LINK_CREATE',
   'RESOURCE_LINK_UPDATE',
   'RESOURCE_LINK_DELETE',
+  'RETENTION_SETTINGS_CHANGE',
+  'EVENT_AUTO_ARCHIVE',
+  'EVENT_PURGE_SCHEDULE',
+  'EVENT_PURGE_CANCEL',
+  'EVENT_PURGE_DELETE',
 ]
 
 export function entityTypeKey(value: EntityType): string {

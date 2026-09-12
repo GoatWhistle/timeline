@@ -23,6 +23,7 @@
     "adminInvites": "Invites",
     "adminAudit": "Audit",
     "adminOps": "Queue state",
+    "adminRetention": "Storage",
     "settings": "Settings",
     "adminPanel": "Admin panel",
     "userPanel": "User panel"

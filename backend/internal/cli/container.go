@@ -30,6 +30,7 @@ import (
 	svcpersonal "github.com/GoatWhistle/timeline/internal/services/personal"
 	svcrealtime "github.com/GoatWhistle/timeline/internal/services/realtime"
 	svcreminder "github.com/GoatWhistle/timeline/internal/services/reminder"
+	svcretention "github.com/GoatWhistle/timeline/internal/services/retention"
 	svcscheduler "github.com/GoatWhistle/timeline/internal/services/scheduler"
 	sharedaudit "github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
@@ -113,6 +114,8 @@ type container struct {
 	ops           *svcdelivery.OpsService
 	feed          *svcrealtime.SystemEventService
 	reminders     *svcreminder.Service
+	retention     *svcretention.Service
+	retentionJob  *svcretention.Worker
 	digest        *svcdigest.DigestService
 	hub           *svcrealtime.RealtimeHub
 	teams         *svcteam.TeamService
@@ -169,6 +172,7 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.queries = svcevent.NewQueryService(c.repos.queries, c.repos.events, c.repos.stages,
 		c.repos.tracks, c.repos.participants, c.repos.registrations, c.repos.statuses)
 	c.wireDelivery(cfg)
+	c.wireRetention(cfg)
 	c.wireTeams(cfg)
 	c.wireRealtime()
 	c.telegramBot = telegramlink.NewBot(c.profile, c.repos.users, c.profile, c.queries, c.statuses,
@@ -188,6 +192,12 @@ func (c *container) wireDelivery(cfg *config.Config) {
 	c.ops = svcdelivery.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
 	c.feed = svcrealtime.NewSystemEventService(db, c.repos.feed)
 	c.hub = svcrealtime.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
+}
+
+func (c *container) wireRetention(cfg *config.Config) {
+	c.retention = svcretention.NewService(c.repos.events, c.repos.users, c.audit)
+	c.retentionJob = svcretention.NewWorker(c.repos.events, c.events, c.events, c.events, c.audit,
+		svcretention.Limits{Batch: cfg.Retent.EventBatch})
 }
 
 func (c *container) wireParticipation(cfg *config.Config) {

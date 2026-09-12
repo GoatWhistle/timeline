@@ -1,15 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
 import { AvatarField } from '@/features/profile/avatar-field/avatar-field'
 import { applyServerErrors } from '@/shared/forms/server-errors'
-import { cn } from '@/shared/styling/class-names/class-names'
+import { MarkdownEditor } from '@/shared/markdown/markdown-editor'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
-import { Textarea } from '@/shared/ui/forms/textarea'
 import { Card, CardContent } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
@@ -80,7 +79,6 @@ export function PersonalDataCard({
   }
 
   const errors = profileForm.formState.errors
-  const bioLength = (profileForm.watch('bio') ?? '').length
 
   return (
     <Card>
@@ -148,26 +146,20 @@ export function PersonalDataCard({
             </div>
           </div>
           <Field label={t('profile.bio')} htmlFor="bio" error={errors.bio?.message}>
-            <div className="relative">
-              <Textarea
-                id="bio"
-                rows={4}
-                maxLength={BIO_MAX}
-                aria-invalid={Boolean(errors.bio)}
-                aria-describedby={errors.bio ? 'bio-error' : 'bio-count'}
-                className="pb-7"
-                {...profileForm.register('bio')}
-              />
-              <span
-                id="bio-count"
-                className={cn(
-                  'pointer-events-none absolute right-3 bottom-2 pl-2',
-                  'bg-card text-meta text-muted-foreground',
-                )}
-              >
-                {t('profile.bioCount', { current: bioLength, max: BIO_MAX })}
-              </span>
-            </div>
+            <Controller
+              control={profileForm.control}
+              name="bio"
+              render={({ field }) => (
+                <MarkdownEditor
+                  id="bio"
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  rows={4}
+                  maxLength={BIO_MAX}
+                />
+              )}
+            />
           </Field>
 
           <div className="flex justify-end">

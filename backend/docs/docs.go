@@ -1158,6 +1158,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/events/{id}/purge-cancel": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Clears purge_scheduled_at on an archived event, keeping it archived indefinitely.\nAvailable only while the scheduled date has not yet been reached.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "retention"
+                ],
+                "summary": "Cancel a scheduled deletion",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "ev_3k7d8gb9be",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EventResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "no deletion is scheduled for this event",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/events/{id}/registration": {
             "get": {
                 "security": [
@@ -2554,6 +2607,98 @@ const docTemplate = `{
                     },
                     "429": {
                         "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/retention-settings": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Admin-configured policy for automatic event archiving and deletion: how many days\nafter an event ends it is archived automatically, whether the archive is kept forever\nor purged after a number of months, whether the cover is dropped when an event is\narchived, and how long the audit log is retained.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "retention"
+                ],
+                "summary": "Storage retention settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RetentionSettingsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Setting archive_after_days or delete_archive_after_months to null disables that\nautomatic step; an event is never deleted immediately, only marked with a future\npurge_scheduled_at that the admin can still cancel per event before it is reached.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "retention"
+                ],
+                "summary": "Update storage retention settings",
+                "parameters": [
+                    {
+                        "description": "Retention policy",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateRetentionSettingsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RetentionSettingsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -10018,6 +10163,9 @@ const docTemplate = `{
                 "published_at": {
                     "type": "string"
                 },
+                "purge_scheduled_at": {
+                    "type": "string"
+                },
                 "start_at": {
                     "type": "string"
                 },
@@ -11347,6 +11495,33 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.RetentionSettingsResponse": {
+            "type": "object",
+            "properties": {
+                "archive_after_days": {
+                    "type": "integer",
+                    "example": 30
+                },
+                "audit_log_retention_days": {
+                    "type": "integer",
+                    "example": 365
+                },
+                "delete_archive_after_months": {
+                    "type": "integer",
+                    "example": 24
+                },
+                "delete_covers_on_archive": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string",
+                    "example": "us_gma9hq8a96q5"
+                }
+            }
+        },
         "dto.SaveNoteRequest": {
             "type": "object",
             "properties": {
@@ -12421,6 +12596,24 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdateRetentionSettingsRequest": {
+            "type": "object",
+            "properties": {
+                "archive_after_days": {
+                    "type": "integer"
+                },
+                "audit_log_retention_days": {
+                    "type": "integer",
+                    "example": 365
+                },
+                "delete_archive_after_months": {
+                    "type": "integer"
+                },
+                "delete_covers_on_archive": {
+                    "type": "boolean"
+                }
+            }
+        },
         "dto.UpdateRuleRequest": {
             "type": "object",
             "properties": {
@@ -12743,7 +12936,12 @@ const docTemplate = `{
                 "RULE_CHANGE",
                 "RESOURCE_LINK_CREATE",
                 "RESOURCE_LINK_UPDATE",
-                "RESOURCE_LINK_DELETE"
+                "RESOURCE_LINK_DELETE",
+                "RETENTION_SETTINGS_CHANGE",
+                "EVENT_AUTO_ARCHIVE",
+                "EVENT_PURGE_SCHEDULE",
+                "EVENT_PURGE_CANCEL",
+                "EVENT_PURGE_DELETE"
             ],
             "x-enum-varnames": [
                 "AuditUserRegister",
@@ -12795,7 +12993,12 @@ const docTemplate = `{
                 "AuditRuleChange",
                 "AuditLinkCreate",
                 "AuditLinkUpdate",
-                "AuditLinkDelete"
+                "AuditLinkDelete",
+                "AuditRetentionChange",
+                "AuditEventAutoArchive",
+                "AuditEventPurgeSchedule",
+                "AuditEventPurgeCancel",
+                "AuditEventPurgeDelete"
             ]
         },
         "models.ChangeSource": {
@@ -12883,7 +13086,8 @@ const docTemplate = `{
                 "REGISTRATION",
                 "REGISTRATION_STATUS",
                 "NOTIFICATION_RULE",
-                "RESOURCE_LINK"
+                "RESOURCE_LINK",
+                "RETENTION_SETTINGS"
             ],
             "x-enum-varnames": [
                 "EntityUser",
@@ -12901,7 +13105,8 @@ const docTemplate = `{
                 "EntityRegistration",
                 "EntityRegistrationStatus",
                 "EntityNotificationRule",
-                "EntityResourceLink"
+                "EntityResourceLink",
+                "EntityRetentionSettings"
             ]
         },
         "models.EventColor": {

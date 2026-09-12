@@ -89,6 +89,9 @@ export const AdminAuditPage = lazy(() => adminBundle().then((m) => ({ default: m
 export const AdminOpsQueuePage = lazy(() =>
   adminBundle().then((m) => ({ default: m.AdminOpsQueuePage })),
 )
+export const AdminRetentionPage = lazy(() =>
+  adminBundle().then((m) => ({ default: m.AdminRetentionPage })),
+)
 export const PublicProfilePage = lazy(() =>
   import('@/features/public-profile/public-profile').then((m) => ({
     default: m.PublicProfilePage,

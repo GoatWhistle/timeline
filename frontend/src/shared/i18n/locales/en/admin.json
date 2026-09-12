@@ -38,7 +38,8 @@
       "RESOURCE_LINK": "Resource link",
       "EVENT_TRACK": "Event track",
       "EVENT_CASE": "Event case",
-      "TEAM_EVENT_LINK": "Team link"
+      "TEAM_EVENT_LINK": "Team link",
+      "RETENTION_SETTINGS": "Retention settings"
     },
     "actionLabel": {
       "USER_REGISTER": "User sign-up",
@@ -90,7 +91,12 @@
       "TEAM_TRACK_CHOOSE": "Team track chosen",
       "TEAM_EVENT_LINK_ADD": "Team link added",
       "TEAM_EVENT_LINK_UPDATE": "Team link changed",
-      "TEAM_EVENT_LINK_REMOVE": "Team link removed"
+      "TEAM_EVENT_LINK_REMOVE": "Team link removed",
+      "RETENTION_SETTINGS_CHANGE": "Retention settings changed",
+      "EVENT_AUTO_ARCHIVE": "Automatically archived",
+      "EVENT_PURGE_SCHEDULE": "Deletion scheduled",
+      "EVENT_PURGE_CANCEL": "Deletion cancelled",
+      "EVENT_PURGE_DELETE": "Automatically deleted"
     }
   },
   "users": {
@@ -143,5 +149,27 @@
     "emailHint": "An address of an existing user will be rejected",
     "created": "Invite created",
     "createdHint": "The previous unaccepted invite to this address was revoked"
+  },
+  "retention": {
+    "title": "Storage",
+    "description": "How long finished events stay before archiving, whether the archive is kept forever, and how long the audit log is retained.",
+    "archiveAfterDays": "Archive finished events after",
+    "archiveAfterDaysHint": "Days after an event ends. Leave empty to never archive automatically.",
+    "disabled": "Never",
+    "deleteArchiveAfterMonths": "Delete the archive after",
+    "deleteArchiveAfterMonthsHint": "Months after archiving. Leave empty to keep archives forever.",
+    "forever": "Forever",
+    "deleteCoversOnArchive": "Drop the cover on archive",
+    "deleteCoversOnArchiveHint": "Removes the event cover image as soon as it is archived.",
+    "auditLogRetentionDays": "Keep the audit log for",
+    "auditLogRetentionDaysHint": "Days. Older entries are removed only while retention is enabled on the server.",
+    "mustBeWhole": "Enter a whole number or leave it empty",
+    "saved": "Retention settings saved",
+    "lastChangedBy": "Last changed by {{user}} on {{date}}",
+    "purgeScheduledTitle": "Scheduled for deletion",
+    "purgeScheduledHint": "This event will be permanently deleted on {{date}}.",
+    "purgeCancel": "Cancel deletion",
+    "purgeCancelled": "Scheduled deletion cancelled",
+    "purgeCancelFailed": "Could not cancel the scheduled deletion"
   }
 }

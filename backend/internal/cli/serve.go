@@ -125,6 +125,7 @@ func newRouter(c *container) http.Handler {
 		Previews:       c.scheduler,
 		Personal:       c.personal,
 		Links:          c.links,
+		Retention:      c.retention,
 		Feed:           c.feed,
 		Teams:          c.teams,
 

@@ -167,6 +167,8 @@ var constraintMessages = map[string]string{
 	"notifications_attempt_count_range":     "the delivery attempt limit is exhausted",
 	"statuses_registered_at_only_done":      "the registration date is allowed only for the DONE status",
 	"participants_removed_consistency":      "participation state is inconsistent with the removal date",
+	"notifications_registration_status_id_fkey": "the event cannot be deleted while it still has notifications: " +
+		"notifications are never deleted to protect deduplication, archive the event instead",
 }
 
 func Itoa(n int) string { return strconv.Itoa(n) }

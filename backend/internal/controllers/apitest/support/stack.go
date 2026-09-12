@@ -34,6 +34,7 @@ import (
 	svcparticipation "github.com/GoatWhistle/timeline/internal/services/participation"
 	svcpersonal "github.com/GoatWhistle/timeline/internal/services/personal"
 	svcrealtime "github.com/GoatWhistle/timeline/internal/services/realtime"
+	svcretention "github.com/GoatWhistle/timeline/internal/services/retention"
 	svcscheduler "github.com/GoatWhistle/timeline/internal/services/scheduler"
 	sharedaudit "github.com/GoatWhistle/timeline/internal/services/shared/audit"
 	"github.com/GoatWhistle/timeline/internal/services/shared/crypto"
@@ -43,15 +44,17 @@ import (
 )
 
 type Stack struct {
-	server   *httptest.Server
-	db       *postgres.DB
-	cfg      *config.Config
-	users    *identity.Users
-	sessions *identity.Sessions
-	events   *event.Events
-	feed     *svcrealtime.SystemEventService
-	feedRepo *systemevent.Events
-	hub      *svcrealtime.RealtimeHub
+	server    *httptest.Server
+	db        *postgres.DB
+	cfg       *config.Config
+	users     *identity.Users
+	sessions  *identity.Sessions
+	events    *event.Events
+	eventSvc  *svcevent.EventService
+	retention *svcretention.Service
+	feed      *svcrealtime.SystemEventService
+	feedRepo  *systemevent.Events
+	hub       *svcrealtime.RealtimeHub
 }
 
 func NewStack(t *testing.T) *Stack {
@@ -134,6 +137,7 @@ func NewStack(t *testing.T) *Stack {
 	casesRepo := pgfinance.NewCases(db)
 	eventSvc := svcevent.NewEventService(db, events, tracksRepo, registrations, notifier, scheduler, auditSvc)
 	querySvc := svcevent.NewQueryService(queries, events, stages, tracksRepo, participants, registrations, statuses)
+	retentionSvc := svcretention.NewService(events, users, auditSvc)
 
 	deps := controllers.Deps{
 		Auth:           auth,
@@ -162,7 +166,8 @@ func NewStack(t *testing.T) *Stack {
 		Personal: personalSvc,
 		Links: svcevent.NewResourceLinkService(db, linksRepo,
 			events, stages, participants, auditSvc, cfg.Links),
-		Feed: feed,
+		Retention: retentionSvc,
+		Feed:      feed,
 		Teams: svcteam.NewTeamService(db, teamsRepo, teamMembersRepo, teamEntriesRepo, teamRostersRepo, teamLinksRepo,
 			teamEventLinksRepo, events, tracksRepo, participants, registrations, statuses, users, notifier, auditSvc, cfg),
 		Realtime: hub,
@@ -206,6 +211,7 @@ func NewStack(t *testing.T) *Stack {
 	return &Stack{
 		server: server, db: db, cfg: cfg,
 		users: users, sessions: sessions, events: events,
+		eventSvc: eventSvc, retention: retentionSvc,
 		feed: feed, feedRepo: feedRepo, hub: hub,
 	}
 }
@@ -233,3 +239,7 @@ func (s *Stack) Users() *identity.Users { return s.users }
 func (s *Stack) Sessions() *identity.Sessions { return s.sessions }
 
 func (s *Stack) Events() *event.Events { return s.events }
+
+func (s *Stack) EventService() *svcevent.EventService { return s.eventSvc }
+
+func (s *Stack) Retention() *svcretention.Service { return s.retention }

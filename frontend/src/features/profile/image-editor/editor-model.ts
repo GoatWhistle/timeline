@@ -1,4 +1,12 @@
-export type EditorTool = 'crop' | 'brush' | 'rectangle' | 'ellipse' | 'line' | 'fill' | 'picker'
+export type EditorTool =
+  | 'crop'
+  | 'brush'
+  | 'rectangle'
+  | 'ellipse'
+  | 'line'
+  | 'fill'
+  | 'picker'
+  | 'text'
 
 export type Point = { x: number; y: number }
 
@@ -11,23 +19,51 @@ export const EDITOR_TOOLS: EditorTool[] = [
   'ellipse',
   'line',
   'fill',
+  'text',
   'picker',
 ]
 
 export const BRUSH_SIZES = [2, 6, 12, 24] as const
 
-export const EDITOR_PALETTE = [
-  '#111827',
-  '#ffffff',
-  '#ef4444',
-  '#f59e0b',
-  '#22c55e',
-  '#3b82f6',
-  '#a855f7',
-  '#ec4899',
-] as const
+export const TEXT_SIZES = [16, 24, 36, 56] as const
+
+export type PaletteSwatch = { key: string; token: string }
+
+export const EDITOR_PALETTE: PaletteSwatch[] = [
+  { key: 'ink', token: 'var(--sunlit-ink)' },
+  { key: 'paper', token: 'var(--neutral-000)' },
+  { key: 'red', token: 'var(--hue-red-500)' },
+  { key: 'amber', token: 'var(--hue-amber-500)' },
+  { key: 'green', token: 'var(--hue-green-500)' },
+  { key: 'blue', token: 'var(--hue-blue-500)' },
+  { key: 'violet', token: 'var(--hue-violet-500)' },
+  { key: 'magenta', token: 'var(--hue-magenta-500)' },
+]
+
+export const EDITOR_PALETTE_FALLBACK_HEX = '#111827'
 
 export const MAX_EDIT_DIMENSION = 1024
+
+export const MIN_CROP_ZOOM = 1
+export const MAX_CROP_ZOOM = 3
+
+export type CropHandle = 'nw' | 'ne' | 'sw' | 'se'
+
+export const CROP_HANDLES: CropHandle[] = ['nw', 'ne', 'sw', 'se']
+
+export function clampCropZoom(value: number): number {
+  return Math.min(MAX_CROP_ZOOM, Math.max(MIN_CROP_ZOOM, value))
+}
+
+export function resizeCropByHandle(rect: Rect, handle: CropHandle, to: Point): Rect {
+  const opposite: Record<CropHandle, Point> = {
+    nw: { x: rect.x + rect.width, y: rect.y + rect.height },
+    ne: { x: rect.x, y: rect.y + rect.height },
+    sw: { x: rect.x + rect.width, y: rect.y },
+    se: { x: rect.x, y: rect.y },
+  }
+  return normaliseRect(opposite[handle], to)
+}
 
 export function normaliseRect(from: Point, to: Point): Rect {
   const x = Math.min(from.x, to.x)

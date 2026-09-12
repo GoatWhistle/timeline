@@ -38,7 +38,8 @@
       "RESOURCE_LINK": "Ссылка",
       "EVENT_TRACK": "Трек события",
       "EVENT_CASE": "Кейс события",
-      "TEAM_EVENT_LINK": "Ссылка команды"
+      "TEAM_EVENT_LINK": "Ссылка команды",
+      "RETENTION_SETTINGS": "Настройки хранения"
     },
     "actionLabel": {
       "USER_REGISTER": "Регистрация пользователя",
@@ -90,7 +91,12 @@
       "TEAM_TRACK_CHOOSE": "Команда выбрала трек",
       "TEAM_EVENT_LINK_ADD": "Добавлена ссылка команды",
       "TEAM_EVENT_LINK_UPDATE": "Изменена ссылка команды",
-      "TEAM_EVENT_LINK_REMOVE": "Удалена ссылка команды"
+      "TEAM_EVENT_LINK_REMOVE": "Удалена ссылка команды",
+      "RETENTION_SETTINGS_CHANGE": "Изменение настроек хранения",
+      "EVENT_AUTO_ARCHIVE": "Автоматическое архивирование",
+      "EVENT_PURGE_SCHEDULE": "Назначено удаление",
+      "EVENT_PURGE_CANCEL": "Удаление отменено",
+      "EVENT_PURGE_DELETE": "Автоматическое удаление"
     }
   },
   "users": {
@@ -143,5 +149,27 @@
     "emailHint": "Адрес существующего пользователя будет отклонён",
     "created": "Приглашение создано",
     "createdHint": "Предыдущее непринятое приглашение на этот адрес отозвано"
+  },
+  "retention": {
+    "title": "Хранение",
+    "description": "Через сколько архивировать завершённые события, хранить ли архив вечно, и как долго хранится журнал аудита.",
+    "archiveAfterDays": "Архивировать завершённые события через",
+    "archiveAfterDaysHint": "Дней после окончания события. Оставьте пустым, чтобы не архивировать автоматически.",
+    "disabled": "Никогда",
+    "deleteArchiveAfterMonths": "Удалять архив через",
+    "deleteArchiveAfterMonthsHint": "Месяцев после архивации. Оставьте пустым, чтобы хранить архив вечно.",
+    "forever": "Вечно",
+    "deleteCoversOnArchive": "Удалять обложку при архивации",
+    "deleteCoversOnArchiveHint": "Изображение обложки удаляется сразу при архивации события.",
+    "auditLogRetentionDays": "Хранить журнал аудита",
+    "auditLogRetentionDaysHint": "Дней. Старые записи удаляются только пока удержание включено на сервере.",
+    "mustBeWhole": "Введите целое число или оставьте поле пустым",
+    "saved": "Настройки хранения сохранены",
+    "lastChangedBy": "Последнее изменение: {{user}}, {{date}}",
+    "purgeScheduledTitle": "Назначено удаление",
+    "purgeScheduledHint": "Это событие будет безвозвратно удалено {{date}}.",
+    "purgeCancel": "Отменить удаление",
+    "purgeCancelled": "Назначенное удаление отменено",
+    "purgeCancelFailed": "Не удалось отменить назначенное удаление"
   }
 }

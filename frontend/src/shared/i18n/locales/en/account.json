@@ -209,6 +209,7 @@
     "toolEllipse": "Ellipse",
     "toolLine": "Line",
     "toolFill": "Fill",
+    "toolText": "Text",
     "toolPicker": "Eyedropper",
     "tool": "Tool",
     "colour": "Colour",
@@ -216,6 +217,7 @@
     "hexCode": "Colour code",
     "hexPlaceholder": "Colour code",
     "brushSize": "Size",
+    "textSize": "Text size",
     "apply": "Apply crop",
     "undo": "Undo",
     "redo": "Redo",
@@ -223,7 +225,24 @@
     "save": "Save avatar",
     "cancel": "Cancel",
     "canvasLabel": "Image editor canvas",
-    "cropHint": "Drag on the canvas to select an area.",
-    "loadFailed": "The image could not be opened"
+    "cropHint": "Drag on the canvas to select an area, then use zoom to fit it precisely.",
+    "cropHandle": "Resize crop from the {{corner}} corner",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "textHint": "Click on the canvas to place text.",
+    "textInputLabel": "Text",
+    "textInputPlaceholder": "Type here",
+    "textConfirm": "Add text",
+    "loadFailed": "The image could not be opened",
+    "swatch": {
+      "ink": "Ink",
+      "paper": "Paper",
+      "red": "Red",
+      "amber": "Amber",
+      "green": "Green",
+      "blue": "Blue",
+      "violet": "Violet",
+      "magenta": "Magenta"
+    }
   }
 }

@@ -1,22 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { cropCanvas } from './canvas-ops'
 import {
-  applyFill,
-  cropCanvas,
-  drawBrushSegment,
-  drawShape,
-  pickColour,
-  pointerPosition,
-} from './canvas-ops'
-import {
-  clampRectTo,
-  EDITOR_PALETTE,
+  EDITOR_PALETTE_FALLBACK_HEX,
   type EditorTool,
   fitWithin,
   isUsableCrop,
   MAX_EDIT_DIMENSION,
-  normaliseRect,
-  type Point,
-  type Rect,
 } from './editor-model'
 import {
   emptyHistory,
@@ -25,26 +14,60 @@ import {
   redoHistory,
   undoHistory,
 } from './history-stack'
+import { useCropControls } from './use-crop-controls'
+import { usePointerGestures } from './use-pointer-gestures'
+import { useTextTool } from './use-text-tool'
 
 const HISTORY_LIMIT = 20
 
 export function useImageEditor(source: Blob) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const historyRef = useRef<HistoryStack<ImageData>>(emptyHistory())
-  const strokeStart = useRef<Point | null>(null)
-  const strokeLast = useRef<Point | null>(null)
-  const snapshot = useRef<ImageData | null>(null)
 
   const [tool, setTool] = useState<EditorTool>('crop')
-  const [colour, setColour] = useState<string>(EDITOR_PALETTE[0])
+  const [colour, setColour] = useState<string>(EDITOR_PALETTE_FALLBACK_HEX)
   const [brushSize, setBrushSize] = useState<number>(6)
-  const [crop, setCrop] = useState<Rect | null>(null)
+  const [textSize, setTextSize] = useState<number>(24)
+  const { crop, setCrop, cropZoom, zoomCrop, cropHandle, setCropHandle, resetCrop } =
+    useCropControls(canvasRef)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
   const [canUndo, setCanUndo] = useState(false)
   const [canRedo, setCanRedo] = useState(false)
 
   const context = useCallback(() => canvasRef.current?.getContext('2d') ?? null, [])
+
+  const pushHistory = useCallback(() => {
+    const ctx = context()
+    const canvas = canvasRef.current
+    if (!ctx || !canvas || canvas.width === 0) return
+    const snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    historyRef.current = pushOnto(historyRef.current, snapshot, HISTORY_LIMIT)
+    setCanUndo(true)
+    setCanRedo(false)
+  }, [context])
+
+  const { pendingText, beginText, commitText, cancelText } = useTextTool(
+    context,
+    pushHistory,
+    colour,
+    textSize,
+  )
+
+  const { begin, move, end } = usePointerGestures({
+    canvasRef,
+    context,
+    tool,
+    colour,
+    brushSize,
+    crop,
+    setCrop,
+    cropHandle,
+    setCropHandle,
+    setColour,
+    beginText,
+    pushHistory,
+  })
 
   useEffect(() => {
     let cancelled = false
@@ -69,7 +92,8 @@ export function useImageEditor(source: Blob) {
         historyRef.current = emptyHistory()
         setCanUndo(false)
         setCanRedo(false)
-        setCrop(null)
+        resetCrop()
+        cancelText()
         setReady(true)
       })
       .catch(() => {
@@ -82,17 +106,7 @@ export function useImageEditor(source: Blob) {
       cancelled = true
       bitmap?.close()
     }
-  }, [source])
-
-  const pushHistory = useCallback(() => {
-    const ctx = context()
-    const canvas = canvasRef.current
-    if (!ctx || !canvas || canvas.width === 0) return
-    const snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    historyRef.current = pushOnto(historyRef.current, snapshot, HISTORY_LIMIT)
-    setCanUndo(true)
-    setCanRedo(false)
-  }, [context])
+  }, [source, resetCrop, cancelText])
 
   const undo = useCallback(() => {
     const ctx = context()
@@ -108,7 +122,7 @@ export function useImageEditor(source: Blob) {
     setCrop(null)
     setCanUndo(outcome.history.undoStack.length > 0)
     setCanRedo(true)
-  }, [context])
+  }, [context, setCrop])
 
   const redo = useCallback(() => {
     const ctx = context()
@@ -124,67 +138,7 @@ export function useImageEditor(source: Blob) {
     setCrop(null)
     setCanUndo(true)
     setCanRedo(outcome.history.redoStack.length > 0)
-  }, [context])
-
-  const begin = useCallback(
-    (clientX: number, clientY: number) => {
-      const canvas = canvasRef.current
-      const ctx = context()
-      if (!canvas || !ctx) return
-      const point = pointerPosition(canvas, clientX, clientY)
-
-      if (tool === 'picker') {
-        const picked = pickColour(ctx, point)
-        if (picked) setColour(picked)
-        return
-      }
-      if (tool === 'fill') {
-        pushHistory()
-        applyFill(ctx, point, colour)
-        return
-      }
-
-      strokeStart.current = point
-      strokeLast.current = point
-      if (tool === 'crop') {
-        setCrop({ x: point.x, y: point.y, width: 0, height: 0 })
-        return
-      }
-      pushHistory()
-      snapshot.current = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      if (tool === 'brush') drawBrushSegment(ctx, point, point, colour, brushSize)
-    },
-    [brushSize, colour, context, pushHistory, tool],
-  )
-
-  const move = useCallback(
-    (clientX: number, clientY: number) => {
-      const canvas = canvasRef.current
-      const ctx = context()
-      const start = strokeStart.current
-      if (!canvas || !ctx || !start) return
-      const point = pointerPosition(canvas, clientX, clientY)
-
-      if (tool === 'crop') {
-        setCrop(clampRectTo(normaliseRect(start, point), canvas.width, canvas.height))
-        return
-      }
-      if (tool === 'brush') {
-        drawBrushSegment(ctx, strokeLast.current ?? point, point, colour, brushSize)
-        strokeLast.current = point
-        return
-      }
-      if (snapshot.current) ctx.putImageData(snapshot.current, 0, 0)
-      drawShape(ctx, tool, start, point, colour, brushSize)
-    },
-    [brushSize, colour, context, tool],
-  )
-
-  const end = useCallback(() => {
-    strokeStart.current = null
-    strokeLast.current = null
-    snapshot.current = null
-  }, [])
+  }, [context, setCrop])
 
   const applyCrop = useCallback(() => {
     const canvas = canvasRef.current
@@ -197,8 +151,8 @@ export function useImageEditor(source: Blob) {
     canvas.height = cropped.height
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.drawImage(cropped, 0, 0)
-    setCrop(null)
-  }, [context, crop, pushHistory])
+    resetCrop()
+  }, [context, crop, pushHistory, resetCrop])
 
   const toBlob = useCallback(
     () =>
@@ -221,7 +175,14 @@ export function useImageEditor(source: Blob) {
     setColour,
     brushSize,
     setBrushSize,
+    textSize,
+    setTextSize,
     crop,
+    cropZoom,
+    zoomCrop,
+    pendingText,
+    commitText,
+    cancelText,
     ready,
     failed,
     canUndo,

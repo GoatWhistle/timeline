@@ -70,7 +70,11 @@ export function ImageEditorOverlay({
         <div className="flex flex-col gap-1">
           <h2 className="font-semibold text-heading">{t('imageEditor.title')}</h2>
           <p className="text-caption text-muted-foreground">
-            {editor.tool === 'crop' ? t('imageEditor.cropHint') : t('imageEditor.hint')}
+            {editor.tool === 'crop'
+              ? t('imageEditor.cropHint')
+              : editor.tool === 'text'
+                ? t('imageEditor.textHint')
+                : t('imageEditor.hint')}
           </p>
         </div>
 
@@ -83,6 +87,8 @@ export function ImageEditorOverlay({
           onColourChange={editor.setColour}
           brushSize={editor.brushSize}
           onBrushSizeChange={editor.setBrushSize}
+          textSize={editor.textSize}
+          onTextSizeChange={editor.setTextSize}
         />
 
         <div className="flex flex-wrap items-center justify-end gap-2 border-border border-t pt-4">

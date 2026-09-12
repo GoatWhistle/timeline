@@ -37,10 +37,11 @@ type Event struct {
 	ColorSlot       *int       `json:"color_slot,omitempty"`
 	ColorAssignedAt *time.Time `json:"color_assigned_at,omitempty"`
 
-	PublishedAt *time.Time `json:"published_at,omitempty"`
-	ArchivedAt  *time.Time `json:"archived_at,omitempty"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	PublishedAt      *time.Time `json:"published_at,omitempty"`
+	ArchivedAt       *time.Time `json:"archived_at,omitempty"`
+	PurgeScheduledAt *time.Time `json:"purge_scheduled_at,omitempty"`
+	CreatedAt        time.Time  `json:"created_at"`
+	UpdatedAt        time.Time  `json:"updated_at"`
 }
 
 func (h *Event) State(now time.Time) EventState {
@@ -63,6 +64,21 @@ func (h *Event) Published() bool { return h.PublishedAt != nil }
 func (h *Event) Archived() bool { return h.ArchivedAt != nil }
 
 func (h *Event) Schedulable() bool { return h.Published() && !h.Archived() }
+
+func (h *Event) PurgeScheduled() bool { return h.PurgeScheduledAt != nil }
+
+type RetentionSettings struct {
+	ArchiveAfterDays         *int
+	DeleteArchiveAfterMonths *int
+	DeleteCoversOnArchive    bool
+	AuditLogRetentionDays    int
+	UpdatedBy                *uuid.UUID
+	UpdatedAt                time.Time
+}
+
+func (r RetentionSettings) AutoArchiveEnabled() bool { return r.ArchiveAfterDays != nil }
+
+func (r RetentionSettings) AutoPurgeEnabled() bool { return r.DeleteArchiveAfterMonths != nil }
 
 type EventTrack struct {
 	ID          uuid.UUID    `json:"id"`

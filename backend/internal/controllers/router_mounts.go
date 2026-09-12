@@ -189,6 +189,12 @@ func mountFinance(mux *http.ServeMux, rt *routes, api string, c *finance.Control
 	mux.Handle("DELETE "+api+"/admin/cases/{id}", rt.admin(c.DeleteCase))
 }
 
+func mountRetention(mux *http.ServeMux, rt *routes, api string, c *event.RetentionController) {
+	mux.Handle("GET "+api+"/admin/retention-settings", rt.admin(c.Get))
+	mux.Handle("PATCH "+api+"/admin/retention-settings", rt.admin(c.Update))
+	mux.Handle("POST "+api+"/admin/events/{id}/purge-cancel", rt.admin(c.CancelPurge))
+}
+
 func mountCovers(mux *http.ServeMux, rt *routes, api string, c *event.CoverController) {
 	mux.Handle("GET "+api+"/covers/{key}", rt.authd(c.Serve))
 	mux.Handle("POST "+api+"/admin/events/{id}/cover", rt.admin(c.Upload))

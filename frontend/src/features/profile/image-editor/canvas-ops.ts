@@ -1,5 +1,33 @@
-import { type EditorTool, type Point, type Rect, toHex } from './editor-model'
+import {
+  EDITOR_PALETTE_FALLBACK_HEX,
+  type EditorTool,
+  type Point,
+  type Rect,
+  toHex,
+} from './editor-model'
 import { floodFill, pixelAt } from './flood-fill'
+
+export function resolveColourToken(token: string): string {
+  if (typeof document === 'undefined') return EDITOR_PALETTE_FALLBACK_HEX
+  const probe = document.createElement('span')
+  probe.style.color = token
+  probe.style.display = 'none'
+  document.body.appendChild(probe)
+  const resolved = getComputedStyle(probe).color
+  document.body.removeChild(probe)
+  if (resolved === '' || resolved === 'rgba(0, 0, 0, 0)') return EDITOR_PALETTE_FALLBACK_HEX
+
+  const canvas = document.createElement('canvas')
+  canvas.width = 1
+  canvas.height = 1
+  const context = canvas.getContext('2d')
+  if (!context) return EDITOR_PALETTE_FALLBACK_HEX
+  context.fillStyle = resolved
+  context.fillRect(0, 0, 1, 1)
+  const [r, g, b] = context.getImageData(0, 0, 1, 1).data
+  if (r === undefined || g === undefined || b === undefined) return EDITOR_PALETTE_FALLBACK_HEX
+  return toHex(r, g, b)
+}
 
 export function strokeSettings(
   context: CanvasRenderingContext2D,
@@ -64,6 +92,22 @@ export function drawShape(
     )
     context.stroke()
   }
+}
+
+export function drawText(
+  context: CanvasRenderingContext2D,
+  point: Point,
+  text: string,
+  colour: string,
+  size: number,
+): void {
+  context.fillStyle = colour
+  context.font = `${size}px sans-serif`
+  context.textBaseline = 'top'
+  const lines = text.split('\n')
+  lines.forEach((line, index) => {
+    context.fillText(line, point.x, point.y + index * size * 1.2)
+  })
 }
 
 export function applyFill(

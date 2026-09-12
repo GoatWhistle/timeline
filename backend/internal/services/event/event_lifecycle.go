@@ -40,8 +40,12 @@ func (s *EventService) Publish(ctx context.Context, actor models.Actor, id uuid.
 }
 
 func (s *EventService) Archive(ctx context.Context, actor models.Actor, id uuid.UUID) (*models.Event, error) {
-	if !actor.IsAdmin {
+	if !actor.IsAdmin && !actor.IsSystem() {
 		return nil, models.NewForbidden("archiving is restricted to administrators")
+	}
+	action := models.AuditEventArchive
+	if actor.IsSystem() {
+		action = models.AuditEventAutoArchive
 	}
 	var archived *models.Event
 	err := s.db.WithTx(ctx, func(ctx context.Context) error {
@@ -61,7 +65,7 @@ func (s *EventService) Archive(ctx context.Context, actor models.Actor, id uuid.
 		}
 		s.releaseColor(ctx, id)
 		archived.ColorSlot, archived.ColorAssignedAt = nil, nil
-		return s.audit.Record(ctx, actor, models.AuditEventArchive, models.EntityEvent, id,
+		return s.audit.Record(ctx, actor, action, models.EntityEvent, id,
 			map[string]any{"archived_at": nil}, map[string]any{"archived_at": archived.ArchivedAt})
 	})
 	if err != nil {

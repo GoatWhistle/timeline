@@ -62,6 +62,12 @@ const OPTIONAL = {
     'cover_url',
     'cover_source',
     'color',
+    'purge_scheduled_at',
+  ],
+  'dto.RetentionSettingsResponse': [
+    'archive_after_days',
+    'delete_archive_after_months',
+    'updated_by',
   ],
   'dto.CatalogEvent': [
     'description',

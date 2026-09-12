@@ -217,6 +217,11 @@ const (
 	AuditLinkCreate          AuditAction = "RESOURCE_LINK_CREATE"
 	AuditLinkUpdate          AuditAction = "RESOURCE_LINK_UPDATE"
 	AuditLinkDelete          AuditAction = "RESOURCE_LINK_DELETE"
+	AuditRetentionChange     AuditAction = "RETENTION_SETTINGS_CHANGE"
+	AuditEventAutoArchive    AuditAction = "EVENT_AUTO_ARCHIVE"
+	AuditEventPurgeSchedule  AuditAction = "EVENT_PURGE_SCHEDULE"
+	AuditEventPurgeCancel    AuditAction = "EVENT_PURGE_CANCEL"
+	AuditEventPurgeDelete    AuditAction = "EVENT_PURGE_DELETE"
 )
 
 type EntityType string
@@ -238,4 +243,5 @@ const (
 	EntityRegistrationStatus EntityType = "REGISTRATION_STATUS"
 	EntityNotificationRule   EntityType = "NOTIFICATION_RULE"
 	EntityResourceLink       EntityType = "RESOURCE_LINK"
+	EntityRetentionSettings  EntityType = "RETENTION_SETTINGS"
 )

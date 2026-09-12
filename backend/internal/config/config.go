@@ -100,6 +100,7 @@ type Retention struct {
 	AuditLog            time.Duration
 	SystemEvent         time.Duration
 	Interval            time.Duration
+	EventBatch          int
 }
 
 type Email struct {
@@ -198,6 +199,7 @@ func Load() (*Config, error) {
 			AuditLog:            envDuration("RETENTION_AUDIT_LOG", 365*24*time.Hour),
 			SystemEvent:         envDuration("RETENTION_SYSTEM_EVENT", 90*24*time.Hour),
 			Interval:            envDuration("RETENTION_INTERVAL", 24*time.Hour),
+			EventBatch:          envInt("RETENTION_EVENT_BATCH", 200),
 		},
 		Telegram: loadTelegram(),
 		Email: Email{

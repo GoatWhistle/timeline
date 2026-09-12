@@ -24,6 +24,7 @@
     "adminInvites": "Приглашения",
     "adminAudit": "Аудит",
     "adminOps": "Состояние очереди",
+    "adminRetention": "Хранение",
     "settings": "Настройки",
     "adminPanel": "Администрирование",
     "userPanel": "Пользовательский вид"

@@ -66,13 +66,26 @@ func (s *DeliveryService) recoverLeases(ctx context.Context) {
 	}
 }
 
+func (s *DeliveryService) auditRetentionDays(ctx context.Context) int {
+	days := int(s.cfg.Retent.AuditLog.Hours() / 24)
+	if s.events == nil {
+		return days
+	}
+	settings, err := s.events.GetRetentionSettings(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "reading retention settings failed, using the configured default", "error", err)
+		return days
+	}
+	return settings.AuditLogRetentionDays
+}
+
 func (s *DeliveryService) cleanup(ctx context.Context) {
 	now := s.now()
 	payloads, err := s.notifications.CleanupPayloads(ctx, now.Add(-s.cfg.Retent.NotificationPayload))
 	if err != nil {
 		slog.ErrorContext(ctx, "notification payload cleanup failed", "error", err)
 	}
-	days := int(s.cfg.Retent.AuditLog.Hours() / 24)
+	days := s.auditRetentionDays(ctx)
 	var entries int64
 	if err := s.db.WithTx(ctx, func(ctx context.Context) error {
 		deleted, err := s.audit.DeleteOlderThan(ctx, days)

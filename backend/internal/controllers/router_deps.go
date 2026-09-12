@@ -44,6 +44,7 @@ type Deps struct {
 	Realtime      realtime.RealtimeHub
 	Sessions      realtime.SessionChecker
 	Links         event.ResourceLinkService
+	Retention     event.RetentionService
 	Teams         team.TeamService
 
 	Authenticator         middleware.Authenticator

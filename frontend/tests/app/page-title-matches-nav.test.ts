@@ -83,6 +83,13 @@ const PAGES: Page[] = [
     bundle: 'ops',
     path: 'title',
   },
+  {
+    to: '/admin/retention',
+    source: 'features/retention-settings/retention-settings.tsx',
+    titleKey: 'retention.title',
+    bundle: 'admin',
+    path: 'retention.title',
+  },
 ]
 
 const NAV: NavItem[] = [...CATALOG_NAV, ...MINE_NAV, ...ADMIN_NAV]

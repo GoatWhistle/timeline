@@ -7,6 +7,7 @@ import { api, unwrap } from '@/shared/api/client'
 import type { PublicProfileResponse } from '@/shared/api/types.gen'
 import { formatDate } from '@/shared/datetime/datetime'
 import { useLocale } from '@/shared/i18n/i18n-context'
+import { MarkdownView } from '@/shared/markdown/markdown-view'
 import { profileNickname } from '@/shared/routing/public-profile-path'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { ProfileMissing } from './profile-missing'
@@ -54,7 +55,7 @@ export function PublicProfilePage() {
           <div className="min-w-0">
             <h1 className="truncate font-semibold text-heading">{name}</h1>
             <p className="truncate text-caption text-muted-foreground">@{profile.nickname}</p>
-            {profile.bio ? <p className="mt-2 text-copy">{profile.bio}</p> : null}
+            {profile.bio ? <MarkdownView source={profile.bio} className="mt-2" /> : null}
           </div>
         </CardContent>
       </Card>

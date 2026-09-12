@@ -21,6 +21,7 @@ import (
 var once sync.Once
 
 var tables = []string{
+	"retention_settings",
 	"resource_links",
 	"system_event_reads",
 	"system_events",

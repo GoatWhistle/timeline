@@ -72,6 +72,8 @@ import (
 // @tag.description			The WebSocket channel that tells a client what went stale
 // @tag.name					teams
 // @tag.description			Teams: a lead, their members and the hackathons a team entered
+// @tag.name					retention
+// @tag.description			Storage retention: automatic archiving, scheduled deletion and the audit log window
 // @tag.name					ops
 // @tag.description			Service probes and metrics
 // @tag.name					telegram
@@ -105,6 +107,7 @@ func NewRouter(deps Deps) http.Handler {
 		deps.PersonalRateWindow, deps.PageDefault, deps.PageMax)
 	linkC := event.NewResourceLinkController(deps.Links, deps.Limiter, deps.LinkRate,
 		deps.LinkRateWindow)
+	retentionC := event.NewRetentionController(deps.Retention, deps.Events)
 	teamC := team.NewController(deps.Teams)
 
 	rt := &routes{authn: deps.Authenticator}
@@ -122,6 +125,7 @@ func NewRouter(deps Deps) http.Handler {
 	mountResourceLinks(mux, rt, api, linkC)
 	mountRealtime(mux, rt, api, deps)
 	mountAdminIdentity(mux, rt, api, userC, inviteC, eventC)
+	mountRetention(mux, rt, api, retentionC)
 	mountAdminRegistration(mux, rt, api, partC, regC, statusC, ruleC, previewC)
 	mountAdminQueries(mux, rt, api, queryC, auditC, opsC)
 	mountSwagger(mux, deps.SwaggerUI)

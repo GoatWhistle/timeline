@@ -1414,6 +1414,74 @@
         }
       }
     },
+    "/admin/events/{id}/purge-cancel": {
+      "post": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Clears purge_scheduled_at on an archived event, keeping it archived indefinitely.\nAvailable only while the scheduled date has not yet been reached.",
+        "tags": [
+          "retention"
+        ],
+        "summary": "Cancel a scheduled deletion",
+        "parameters": [
+          {
+            "example": "ev_3k7d8gb9be",
+            "description": "Event identifier",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.EventResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "no deletion is scheduled for this event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/events/{id}/registration": {
       "get": {
         "security": [
@@ -3126,6 +3194,117 @@
           },
           "429": {
             "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/retention-settings": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Admin-configured policy for automatic event archiving and deletion: how many days\nafter an event ends it is archived automatically, whether the archive is kept forever\nor purged after a number of months, whether the cover is dropped when an event is\narchived, and how long the audit log is retained.",
+        "tags": [
+          "retention"
+        ],
+        "summary": "Storage retention settings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.RetentionSettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Setting archive_after_days or delete_archive_after_months to null disables that\nautomatic step; an event is never deleted immediately, only marked with a future\npurge_scheduled_at that the admin can still cancel per event before it is reached.",
+        "tags": [
+          "retention"
+        ],
+        "summary": "Update storage retention settings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/dto.UpdateRetentionSettingsRequest"
+              }
+            }
+          },
+          "description": "Retention policy",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.RetentionSettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -12082,6 +12261,10 @@
             "type": "string",
             "format": "date-time"
           },
+          "purge_scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "start_at": {
             "type": "string",
             "format": "date-time"
@@ -13599,6 +13782,39 @@
           "items"
         ]
       },
+      "dto.RetentionSettingsResponse": {
+        "type": "object",
+        "properties": {
+          "archive_after_days": {
+            "type": "integer",
+            "example": 30
+          },
+          "audit_log_retention_days": {
+            "type": "integer",
+            "example": 365
+          },
+          "delete_archive_after_months": {
+            "type": "integer",
+            "example": 24
+          },
+          "delete_covers_on_archive": {
+            "type": "boolean"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_by": {
+            "type": "string",
+            "example": "us_gma9hq8a96q5"
+          }
+        },
+        "required": [
+          "audit_log_retention_days",
+          "delete_covers_on_archive",
+          "updated_at"
+        ]
+      },
       "dto.SaveNoteRequest": {
         "type": "object",
         "properties": {
@@ -14745,6 +14961,24 @@
           }
         }
       },
+      "dto.UpdateRetentionSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "archive_after_days": {
+            "type": "integer"
+          },
+          "audit_log_retention_days": {
+            "type": "integer",
+            "example": 365
+          },
+          "delete_archive_after_months": {
+            "type": "integer"
+          },
+          "delete_covers_on_archive": {
+            "type": "boolean"
+          }
+        }
+      },
       "dto.UpdateRuleRequest": {
         "type": "object",
         "properties": {
@@ -15069,7 +15303,12 @@
           "RULE_CHANGE",
           "RESOURCE_LINK_CREATE",
           "RESOURCE_LINK_UPDATE",
-          "RESOURCE_LINK_DELETE"
+          "RESOURCE_LINK_DELETE",
+          "RETENTION_SETTINGS_CHANGE",
+          "EVENT_AUTO_ARCHIVE",
+          "EVENT_PURGE_SCHEDULE",
+          "EVENT_PURGE_CANCEL",
+          "EVENT_PURGE_DELETE"
         ],
         "x-enum-varnames": [
           "AuditUserRegister",
@@ -15121,7 +15360,12 @@
           "AuditRuleChange",
           "AuditLinkCreate",
           "AuditLinkUpdate",
-          "AuditLinkDelete"
+          "AuditLinkDelete",
+          "AuditRetentionChange",
+          "AuditEventAutoArchive",
+          "AuditEventPurgeSchedule",
+          "AuditEventPurgeCancel",
+          "AuditEventPurgeDelete"
         ]
       },
       "models.ChangeSource": {
@@ -15217,7 +15461,8 @@
           "REGISTRATION",
           "REGISTRATION_STATUS",
           "NOTIFICATION_RULE",
-          "RESOURCE_LINK"
+          "RESOURCE_LINK",
+          "RETENTION_SETTINGS"
         ],
         "x-enum-varnames": [
           "EntityUser",
@@ -15235,7 +15480,8 @@
           "EntityRegistration",
           "EntityRegistrationStatus",
           "EntityNotificationRule",
-          "EntityResourceLink"
+          "EntityResourceLink",
+          "EntityRetentionSettings"
         ]
       },
       "models.EventColor": {

@@ -11,12 +11,13 @@ import (
 )
 
 type transitionEvent struct {
-	ID          string  `json:"id"`
-	State       string  `json:"state"`
-	PublishedAt *string `json:"published_at"`
-	ArchivedAt  *string `json:"archived_at"`
-	EndAt       string  `json:"end_at"`
-	Title       string  `json:"title"`
+	ID               string  `json:"id"`
+	State            string  `json:"state"`
+	PublishedAt      *string `json:"published_at"`
+	ArchivedAt       *string `json:"archived_at"`
+	PurgeScheduledAt *string `json:"purge_scheduled_at"`
+	EndAt            string  `json:"end_at"`
+	Title            string  `json:"title"`
 }
 
 type transitionRegistration struct {
