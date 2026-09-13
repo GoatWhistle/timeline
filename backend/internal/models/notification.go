@@ -135,6 +135,10 @@ func (c RecipientChannels) Wanted(occasion NotificationOccasion) ChannelSet {
 	return out
 }
 
+func (c RecipientChannels) MutedEntirely(occasion NotificationOccasion) bool {
+	return !c.Selected.Empty() && c.Wanted(occasion).Empty()
+}
+
 func (c RecipientChannels) Available(ch Channel) bool {
 	switch ch {
 	case ChannelTelegram:
@@ -151,6 +155,7 @@ type PersonalNotice struct {
 	RecipientLocale   string
 	RecipientTimezone string
 	RecipientChannels RecipientChannels
+	EventID           *uuid.UUID
 	EventTitle        string
 	EventDisplayID    string
 	LinkURL           string

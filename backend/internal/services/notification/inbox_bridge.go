@@ -67,3 +67,48 @@ func (s *NotificationService) writeInboxItem(ctx context.Context, kind models.No
 			"error", err, "recipient_id", c.RecipientID, "logical_key", logicalKey)
 	}
 }
+
+func inboxPersonalKind(kind models.NotificationType) string {
+	switch kind {
+	case models.NotificationWeeklyDigest:
+		return "digest"
+	case models.NotificationPersonalTaskDue:
+		return "task"
+	case models.NotificationRetrospectiveDue:
+		return "retrospective"
+	default:
+		return "personal"
+	}
+}
+
+func (s *NotificationService) writePersonalInboxItem(ctx context.Context, notice models.PersonalNotice) {
+	if s.inbox == nil {
+		return
+	}
+	item := &models.InboxItem{
+		RecipientUserID: notice.RecipientID,
+		Kind:            "notification." + inboxPersonalKind(notice.Type),
+		Title:           notice.Subject,
+		BodyMD:          notice.Body,
+		LogicalKey:      "inbox:" + notice.LogicalKeyBase,
+	}
+	if notice.EventID != nil {
+		subjectType := "event"
+		item.SubjectType = &subjectType
+		item.SubjectID = notice.EventID
+	}
+	if link := s.personalInboxLink(notice); link != "" {
+		item.Actions = []models.InboxAction{{Kind: models.InboxActionOpen, Href: &link}}
+	}
+	if err := s.inbox.Create(ctx, item); err != nil {
+		slog.WarnContext(ctx, "failed to write an inbox item for a personal notification",
+			"error", err, "recipient_id", notice.RecipientID, "logical_key", notice.LogicalKeyBase)
+	}
+}
+
+func (s *NotificationService) personalInboxLink(notice models.PersonalNotice) string {
+	if notice.EventDisplayID == "" {
+		return ""
+	}
+	return dto.NewDisplayID(dto.DisplayKindEvent, notice.EventDisplayID).String()
+}

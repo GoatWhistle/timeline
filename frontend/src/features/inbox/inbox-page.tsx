@@ -16,6 +16,7 @@ import { type ShortcutDefinition, useShortcutScope } from '@/shared/keyboard/sho
 import { HistoryFigure } from '@/shared/ui/data-display/empty-figures/personal-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
+import { QueryBoundary } from '@/shared/ui/states'
 import { groupByDay } from './inbox-day-groups'
 import { InboxDayHeader } from './inbox-day-header'
 import { InboxRow } from './inbox-row'
@@ -106,10 +107,6 @@ export function InboxPage() {
     setSelected(new Set())
   }
 
-  if (query.isPending) {
-    return <div className="p-8 text-muted-foreground">{t('common:state.loading')}</div>
-  }
-
   return (
     <div className="flex flex-col gap-4">
       <h1 className="font-semibold text-heading">{t('inbox.page.title')}</h1>
@@ -124,39 +121,48 @@ export function InboxPage() {
         markAllReadDisabled={unreadCount === 0}
       />
 
-      {items.length === 0 ? (
-        <EmptyState
-          title={unreadOnly ? t('inbox.page.emptyUnreadTitle') : t('inbox.page.emptyTitle')}
-          description={unreadOnly ? t('inbox.page.emptyUnreadHint') : t('inbox.page.emptyHint')}
-          figure={HistoryFigure}
-        />
-      ) : (
-        <div className="flex flex-col gap-6">
-          {groups.map((group) => (
-            <div key={group.key} className="flex flex-col gap-3">
-              <InboxDayHeader date={group.date} />
-              <div className="flex flex-col gap-2">
-                {group.items.map((item) => (
-                  <InboxRow
-                    key={item.id}
-                    item={item}
-                    selected={selected.has(item.id)}
-                    onToggleSelect={() => toggleSelect(item.id)}
-                    onOpen={() => markRead.mutate([item.id])}
-                    onMarkRegistered={() =>
-                      markRegistered.mutate(item.id, {
-                        onSuccess: () => toast.success(t('inbox.page.markRegisteredDone')),
-                        onError: () => toast.error(t('inbox.page.markRegisteredFailed')),
-                      })
-                    }
-                    onDelete={() => deleteWithUndo(item.id, item.title)}
-                  />
-                ))}
+      <QueryBoundary
+        isPending={query.isPending}
+        isFetching={query.isFetching}
+        isError={query.isError}
+        error={query.error}
+        onRetry={() => query.refetch()}
+        hasData={query.data !== undefined}
+      >
+        {items.length === 0 ? (
+          <EmptyState
+            title={unreadOnly ? t('inbox.page.emptyUnreadTitle') : t('inbox.page.emptyTitle')}
+            description={unreadOnly ? t('inbox.page.emptyUnreadHint') : t('inbox.page.emptyHint')}
+            figure={HistoryFigure}
+          />
+        ) : (
+          <div className="flex flex-col gap-6">
+            {groups.map((group) => (
+              <div key={group.key} className="flex flex-col gap-3">
+                <InboxDayHeader date={group.date} />
+                <div className="flex flex-col gap-2">
+                  {group.items.map((item) => (
+                    <InboxRow
+                      key={item.id}
+                      item={item}
+                      selected={selected.has(item.id)}
+                      onToggleSelect={() => toggleSelect(item.id)}
+                      onOpen={() => markRead.mutate([item.id])}
+                      onMarkRegistered={() =>
+                        markRegistered.mutate(item.id, {
+                          onSuccess: () => toast.success(t('inbox.page.markRegisteredDone')),
+                          onError: () => toast.error(t('inbox.page.markRegisteredFailed')),
+                        })
+                      }
+                      onDelete={() => deleteWithUndo(item.id, item.title)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </QueryBoundary>
 
       <ConfirmDialog
         open={confirming === 'all'}

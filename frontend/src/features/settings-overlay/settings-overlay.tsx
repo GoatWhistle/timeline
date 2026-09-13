@@ -44,8 +44,9 @@ export function SettingsOverlay() {
           data-settings-overlay
           data-settings-phone={phone ? 'true' : undefined}
           onOpenAutoFocus={(event) => {
+            if (!activeRef.current) return
             event.preventDefault()
-            activeRef.current?.focus()
+            activeRef.current.focus()
           }}
           onCloseAutoFocus={returnFocus}
           className={cn(

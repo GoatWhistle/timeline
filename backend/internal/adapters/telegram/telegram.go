@@ -47,10 +47,11 @@ type sendMessageRequest struct {
 }
 
 type editMessageRequest struct {
-	ChatID    string `json:"chat_id"`
-	MessageID int    `json:"message_id"`
-	Text      string `json:"text"`
-	ParseMode string `json:"parse_mode,omitempty"`
+	ChatID      string       `json:"chat_id"`
+	MessageID   int          `json:"message_id"`
+	Text        string       `json:"text"`
+	ParseMode   string       `json:"parse_mode,omitempty"`
+	ReplyMarkup *replyMarkup `json:"reply_markup"`
 }
 
 type replyMarkup struct {
@@ -118,6 +119,7 @@ func (s *botSender) SetWebhook(ctx context.Context, webhookURL, secret string) e
 func (s *botSender) EditMessage(ctx context.Context, chatID string, messageID int, text string) error {
 	err := s.call(ctx, "editMessageText", editMessageRequest{
 		ChatID: chatID, MessageID: messageID, Text: text, ParseMode: "HTML",
+		ReplyMarkup: &replyMarkup{InlineKeyboard: [][]inlineButton{}},
 	}, nil, s.cfg.Timeout)
 	if err == nil {
 		return nil

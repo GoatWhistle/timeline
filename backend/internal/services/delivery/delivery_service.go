@@ -168,7 +168,7 @@ func (s *DeliveryService) deliver(ctx context.Context, n *models.Notification) e
 func (s *DeliveryService) send(ctx context.Context, channel models.Channel,
 	n *models.Notification, user *models.User, candidate *models.ReconcileCandidate) error {
 	msg := models.OutboundMessage{
-		IdempotencyKey: n.ID.String(),
+		IdempotencyKey: n.DisplayID,
 		Subject:        n.Payload.Subject,
 		Body:           n.Payload.Body,
 	}

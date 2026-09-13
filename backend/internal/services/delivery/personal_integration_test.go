@@ -151,3 +151,31 @@ func TestPersonalNoticeSkippedChannelBecomesUndeliverable(t *testing.T) {
 		t.Fatalf("telegram received %d messages for an unlinked recipient, want 0", len(telegram.calls))
 	}
 }
+
+func TestPersonalTelegramTextEscapesUserSuppliedTitles(t *testing.T) {
+	w := newWorld(t)
+	telegram, email := newSender(), newSender()
+	r := newRig(t, w, telegram, email)
+
+	notice := personalNotice(w, models.NotificationPersonalTaskDue, "test-personal-escape-1")
+	notice.Body = `Your task for <script>alert(1)</script> & Co is due.`
+	notice.TelegramHeading = `Task <b>due</b>`
+	if _, err := r.notifier.CreatePersonal(w.ctx, notice); err != nil {
+		t.Fatalf("creating a personal notice: %v", err)
+	}
+
+	r.work()
+
+	if telegram.count() != 1 {
+		t.Fatalf("expected exactly one telegram call, got %d", telegram.count())
+	}
+	body := telegram.last().Body
+	if strings.Contains(body, "<script>") || strings.Contains(body, "<b>due</b>") {
+		t.Fatalf("TestPersonalTelegramTextEscapesUserSuppliedTitles: a user-supplied title reached "+
+			"Telegram as live markup, so a task name can rewrite the message: %q", body)
+	}
+	if !strings.Contains(body, "&lt;script&gt;") || !strings.Contains(body, "&amp; Co") {
+		t.Fatalf("TestPersonalTelegramTextEscapesUserSuppliedTitles: expected escaped entities in "+
+			"the personal telegram text, got %q", body)
+	}
+}

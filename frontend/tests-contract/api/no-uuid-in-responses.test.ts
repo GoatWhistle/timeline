@@ -205,4 +205,9 @@ describe('No response body carries a UUID', () => {
     const { data } = await api.GET('/me/events-feed', { params: { query: {} } })
     expectNoUuid('GET /me/events-feed', data)
   })
+
+  it('GET /me/inbox', async () => {
+    const { data } = await api.GET('/me/inbox', { params: { query: {} } })
+    expectNoUuid('GET /me/inbox', data)
+  })
 })

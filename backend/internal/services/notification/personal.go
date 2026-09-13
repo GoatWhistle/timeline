@@ -13,6 +13,9 @@ func (s *NotificationService) CreatePersonal(ctx context.Context, notice models.
 	if err := s.loadMutedPreferences(ctx, notice.RecipientID, &notice.RecipientChannels); err != nil {
 		return 0, err
 	}
+	if notice.RecipientChannels.MutedEntirely(notice.Type) {
+		return 0, nil
+	}
 	channels := wantedOrDefault(notice.RecipientChannels.Wanted(notice.Type))
 	now := s.now()
 	created := 0
@@ -35,6 +38,9 @@ func (s *NotificationService) CreatePersonal(ctx context.Context, notice models.
 		if ok {
 			created++
 		}
+	}
+	if created > 0 {
+		s.writePersonalInboxItem(ctx, notice)
 	}
 	return created, nil
 }

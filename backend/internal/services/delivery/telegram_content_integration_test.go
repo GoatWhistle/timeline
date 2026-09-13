@@ -87,3 +87,26 @@ func TestEmailDeliveryUsesTheSharedHTMLTemplateNotTelegramMarkup(t *testing.T) {
 		t.Fatalf("unsubscribe url does not point at the notification settings: %q", msg.UnsubscribeURL)
 	}
 }
+
+func TestDeliveryIdentifiesMailByTheExternalNotificationID(t *testing.T) {
+	w := newWorld(t)
+	w.cfg.App.PublicURL = "https://timeline.example"
+	w.setChannels(false, true)
+	telegram, email := newSender(), newSender()
+	r, n := seedOneDue(t, w, telegram, email)
+
+	r.work()
+
+	if email.count() != 1 {
+		t.Fatalf("expected exactly one email call, got %d", email.count())
+	}
+	key := email.last().IdempotencyKey
+	if key == n.ID.String() {
+		t.Fatalf("TestDeliveryIdentifiesMailByTheExternalNotificationID: the internal UUID reaches "+
+			"the Message-ID header of every notification email: %q", key)
+	}
+	if key != n.DisplayID {
+		t.Fatalf("TestDeliveryIdentifiesMailByTheExternalNotificationID: mail must be identified by "+
+			"the external display id so retries stay deduplicated, got %q want %q", key, n.DisplayID)
+	}
+}

@@ -68,7 +68,7 @@ func (s *AuthService) acceptInvite(ctx context.Context, invite *models.Invite, e
 	if invite == nil {
 		return nil
 	}
-	if err := s.invites.MarkAccepted(ctx, invite.ID); err != nil {
+	if err := s.invites.MarkAccepted(ctx, invite.ID, s.now()); err != nil {
 		return err
 	}
 	return s.invites.RevokePendingByEmail(ctx, email)

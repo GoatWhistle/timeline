@@ -3,11 +3,9 @@
 package support
 
 import (
-	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/email"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
@@ -15,6 +13,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
 	pgfinance "github.com/GoatWhistle/timeline/internal/adapters/postgres/finance"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
+	pginbox "github.com/GoatWhistle/timeline/internal/adapters/postgres/inbox"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/notification"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/personal"
@@ -30,6 +29,7 @@ import (
 	svcdelivery "github.com/GoatWhistle/timeline/internal/services/delivery"
 	svcevent "github.com/GoatWhistle/timeline/internal/services/event"
 	svcfinance "github.com/GoatWhistle/timeline/internal/services/finance"
+	svcinbox "github.com/GoatWhistle/timeline/internal/services/inbox"
 	svcnotification "github.com/GoatWhistle/timeline/internal/services/notification"
 	svcparticipation "github.com/GoatWhistle/timeline/internal/services/participation"
 	svcpersonal "github.com/GoatWhistle/timeline/internal/services/personal"
@@ -140,6 +140,12 @@ func NewStack(t *testing.T) *Stack {
 	querySvc := svcevent.NewQueryService(queries, events, stages, tracksRepo, participants, registrations, statuses)
 	retentionSvc := svcretention.NewService(events, users, auditSvc)
 
+	statusSvc := svcparticipation.NewStatusService(db, statuses, registrations, participants,
+		events, users, notifier, scheduler, auditSvc)
+	inboxRepo := pginbox.NewItems(db)
+	inboxSvc := svcinbox.NewService(inboxRepo, statusSvc)
+	inboxSvc.WithNotifier(feed)
+
 	deps := controllers.Deps{
 		Auth:           auth,
 		Invites:        svcauth.NewInviteService(db, invites, users, auth, auditSvc, mailer, limiter, cfg),
@@ -157,8 +163,7 @@ func NewStack(t *testing.T) *Stack {
 			registrations, statuses, users, notifier, auditSvc),
 		Registrations: svcparticipation.NewRegistrationService(db, registrations, events,
 			participants, statuses, users, notifier, scheduler, auditSvc),
-		Statuses: svcparticipation.NewStatusService(db, statuses, registrations, participants,
-			events, users, notifier, scheduler, auditSvc),
+		Statuses: statusSvc,
 		Rules:    svcparticipation.NewRuleService(db, rules, events, registrations, notifier, scheduler, auditSvc, cfg),
 		Queries:  querySvc,
 		Audit:    auditSvc,
@@ -169,6 +174,7 @@ func NewStack(t *testing.T) *Stack {
 			events, stages, participants, auditSvc, cfg.Links),
 		Retention: retentionSvc,
 		Feed:      feed,
+		Inbox:     inboxSvc,
 		Teams: svcteam.NewTeamService(db, teamsRepo, teamMembersRepo, teamEntriesRepo, teamRostersRepo, teamLinksRepo,
 			teamEventLinksRepo, events, tracksRepo, participants, registrations, statuses, users, notifier, auditSvc, cfg),
 		Realtime: hub,
@@ -216,31 +222,3 @@ func NewStack(t *testing.T) *Stack {
 		feed: feed, feedRepo: feedRepo, hub: hub,
 	}
 }
-
-func (s *Stack) URL(path string) string { return s.server.URL + "/api/v1" + path }
-
-func (s *Stack) Transport() http.RoundTripper { return s.server.Client().Transport }
-
-func (s *Stack) AccessTTL() time.Duration { return s.cfg.Auth.AccessTTL }
-
-func (s *Stack) DB() *postgres.DB { return s.db }
-
-func (s *Stack) Config() *config.Config { return s.cfg }
-
-func (s *Stack) Server() *httptest.Server { return s.server }
-
-func (s *Stack) Feed() *svcrealtime.SystemEventService { return s.feed }
-
-func (s *Stack) FeedRepo() *systemevent.Events { return s.feedRepo }
-
-func (s *Stack) Hub() *svcrealtime.RealtimeHub { return s.hub }
-
-func (s *Stack) Users() *identity.Users { return s.users }
-
-func (s *Stack) Sessions() *identity.Sessions { return s.sessions }
-
-func (s *Stack) Events() *event.Events { return s.events }
-
-func (s *Stack) EventService() *svcevent.EventService { return s.eventSvc }
-
-func (s *Stack) Retention() *svcretention.Service { return s.retention }

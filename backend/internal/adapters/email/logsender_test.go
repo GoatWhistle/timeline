@@ -105,3 +105,37 @@ func TestFirstLinkPicksTheActionURL(t *testing.T) {
 		t.Errorf("TestFirstLinkPicksTheActionURL: a body without a link must yield nothing, got %q", got)
 	}
 }
+
+const notificationBody = "The registration deadline for HackTogether has passed and " +
+	"registration has not been marked."
+
+func notificationMessage() models.OutboundMessage {
+	return models.OutboundMessage{
+		Recipient: "ada@example.test",
+		Subject:   "The registration deadline for HackTogether has passed",
+		Body:      notificationBody,
+		HTML: "<p>" + notificationBody + "</p><a href=\"https://timeline.test/events/ev_sample" +
+			"?token=s3cr3t-token-value\">Open</a>",
+	}
+}
+
+func TestLogTransportRedactsALinkCarriedOnlyByTheHTMLPart(t *testing.T) {
+	line := capture(t, &logSender{dev: false}, notificationMessage())
+	if strings.Contains(line, "s3cr3t-token-value") ||
+		strings.Contains(line, "https://timeline.test/events/ev_sample") {
+		t.Errorf("TestLogTransportRedactsALinkCarriedOnlyByTheHTMLPart: a letter whose action link "+
+			"lives only in the HTML part leaked that link into a production log: %s", line)
+	}
+	if !strings.Contains(line, redactedLink) {
+		t.Errorf("TestLogTransportRedactsALinkCarriedOnlyByTheHTMLPart: the redaction marker must "+
+			"stay visible so an operator sees mail is going nowhere: %s", line)
+	}
+}
+
+func TestLogTransportKeepsAnHTMLOnlyLinkReachableInDevelopment(t *testing.T) {
+	line := capture(t, &logSender{dev: true}, notificationMessage())
+	if !strings.Contains(line, "https://timeline.test/events/ev_sample?token=s3cr3t-token-value") {
+		t.Errorf("TestLogTransportKeepsAnHTMLOnlyLinkReachableInDevelopment: without the link a "+
+			"developer cannot follow a notification when SMTP is unconfigured: %s", line)
+	}
+}

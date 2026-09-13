@@ -148,6 +148,38 @@ func TestEventEndCannotMoveBeforeTheRegistrationDeadline(t *testing.T) {
 	}
 }
 
+func TestPublishBackfillsNotificationsForParticipantsAssignedToADraft(t *testing.T) {
+	s := support.NewStack(t)
+	f := s.Seed(t)
+
+	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
+	draft := f.AdminClient.CreateEvent(t, "Draft with participants first", start)
+	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+draft+"/registration",
+		map[string]any{
+			"url":         "https://example.com/register",
+			"deadline_at": start.Add(12 * time.Hour).Format(time.RFC3339),
+		}), http.StatusCreated, "creating the registration on the draft")
+
+	recruit := s.Register(t, "recruit-"+support.Nickname()+"@example.com")
+	addResp := f.AdminClient.Post("/admin/events/"+draft+"/participants/batch-add",
+		map[string]any{"items": []map[string]any{{"user_id": recruit.ID, "team_role": "Developer"}}})
+	support.RequireStatus(t, addResp, http.StatusOK, "assigning a participant to the draft")
+
+	if before := notificationCount(s, t, draft, "PENDING") + notificationCount(s, t, draft, "SENT") +
+		notificationCount(s, t, draft, "PROCESSING") + notificationCount(s, t, draft, "UNDELIVERABLE"); before != 0 {
+		t.Fatalf("assigning a participant to a draft must not create notifications yet, found %d", before)
+	}
+
+	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+draft+"/publish", nil),
+		http.StatusOK, "publishing the draft with a participant already assigned")
+
+	after := notificationCount(s, t, draft, "PENDING") + notificationCount(s, t, draft, "SENT") +
+		notificationCount(s, t, draft, "PROCESSING") + notificationCount(s, t, draft, "UNDELIVERABLE")
+	if after == 0 {
+		t.Fatalf("publishing a draft did not backfill a notification for the already assigned participant")
+	}
+}
+
 func containsEvent(items []support.CatalogItem, id string) bool {
 	for _, item := range items {
 		if item.ID == id {

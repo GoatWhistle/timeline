@@ -3,6 +3,7 @@ package identity
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -84,10 +85,10 @@ func (r *Invites) Revoke(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (r *Invites) MarkAccepted(ctx context.Context, id uuid.UUID) error {
+func (r *Invites) MarkAccepted(ctx context.Context, id uuid.UUID, now time.Time) error {
 	tag, err := r.db.Q(ctx).Exec(ctx, `
-		UPDATE invites SET accepted_at = now()
-		WHERE id = $1 AND accepted_at IS NULL AND revoked_at IS NULL`, id)
+		UPDATE invites SET accepted_at = $2
+		WHERE id = $1 AND accepted_at IS NULL AND revoked_at IS NULL AND expires_at > $2`, id, now)
 	if err != nil {
 		return mapError(err)
 	}

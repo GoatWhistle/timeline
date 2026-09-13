@@ -36,6 +36,19 @@ func (s *Service) notify(ctx context.Context, userID uuid.UUID) {
 	}
 }
 
+
+func externalSubjectID(it *models.InboxItem) string {
+	if it.SubjectType == nil || it.SubjectID == nil {
+		return ""
+	}
+	for _, a := range it.Actions {
+		if a.Kind == models.InboxActionOpen && a.Href != nil && *a.Href != "" {
+			return *a.Href
+		}
+	}
+	return ""
+}
+
 func toResponse(it *models.InboxItem) dto.InboxItemResponse {
 	resp := dto.InboxItemResponse{
 		ID:         dto.NewDisplayID(dto.DisplayKindInboxItem, it.DisplayID).String(),
@@ -48,8 +61,8 @@ func toResponse(it *models.InboxItem) dto.InboxItemResponse {
 		LogicalKey: it.LogicalKey,
 		CreatedAt:  it.CreatedAt,
 	}
-	if it.SubjectType != nil && it.SubjectID != nil {
-		resp.Subject = &dto.InboxSubject{Kind: *it.SubjectType, ID: it.SubjectID.String()}
+	if external := externalSubjectID(it); external != "" {
+		resp.Subject = &dto.InboxSubject{Kind: *it.SubjectType, ID: external}
 	}
 	for _, a := range it.Actions {
 		action := dto.InboxAction{Kind: string(a.Kind)}

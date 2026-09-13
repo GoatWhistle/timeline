@@ -8,10 +8,14 @@ import { Button } from '@/shared/ui/primitives/button'
 import { DeleteAction } from '@/shared/ui/primitives/row-actions'
 import { markdownPreview } from './markdown-preview'
 
+const SUBJECT_ROUTES: Record<string, string> = { event: '/events', team: '/teams' }
+
 function subjectHref(item: InboxItemResponse): string | null {
-  if (item.subject?.kind === 'event') return `/events/${item.subject.id}`
-  if (item.subject?.kind === 'team') return `/teams/${item.subject.id}`
-  return null
+  const open = item.actions.find((action) => action.kind === 'OPEN')
+  const target = open?.href ?? item.subject?.id
+  const base = item.subject?.kind ? SUBJECT_ROUTES[item.subject.kind] : undefined
+  if (!target || !base) return null
+  return `${base}/${target}`
 }
 
 export function InboxRow({

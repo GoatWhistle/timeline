@@ -5,6 +5,11 @@
   gap: 8px;
 }
 
+.bar > *:first-child {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .tabs {
   display: inline-flex;
   align-items: center;

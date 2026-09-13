@@ -79,6 +79,9 @@ func (s *NotificationService) CreatePrimary(ctx context.Context, c models.Reconc
 	if err := s.recipientChannels(ctx, &c); err != nil {
 		return 0, err
 	}
+	if c.RecipientChannels.MutedEntirely(models.NotificationRequired) {
+		return 0, nil
+	}
 	channels := wantedOrDefault(c.RecipientChannels.Wanted(models.NotificationRequired))
 	now := s.now()
 	created := 0
@@ -117,6 +120,9 @@ func (s *NotificationService) CreateForRule(ctx context.Context, c models.Reconc
 		return 0, err
 	}
 	kind := rule.NotificationType()
+	if c.RecipientChannels.MutedEntirely(kind) {
+		return 0, nil
+	}
 	channels := wantedOrDefault(c.RecipientChannels.Wanted(kind))
 	now := s.now()
 	ruleID := rule.ID
