@@ -10,8 +10,8 @@ export function PublicShell() {
   const { t } = useTranslation('auth')
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="flex items-center justify-between border-border border-b px-6 py-4">
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="flex shrink-0 items-center justify-between border-border border-b px-6 py-4">
         <Wordmark to="/login" />
         <div className="flex items-center gap-2">
           <AuthLanguageSwitch />
@@ -20,7 +20,7 @@ export function PublicShell() {
           </Button>
         </div>
       </header>
-      <main>
+      <main className="flex min-h-0 flex-1 flex-col">
         <Suspense fallback={<RouteFallback />}>
           <Outlet />
         </Suspense>

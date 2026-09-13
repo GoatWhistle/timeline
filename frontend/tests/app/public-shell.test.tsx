@@ -24,3 +24,27 @@ describe('the public shell greets a guest reading a profile', () => {
     expect(screen.getByRole('button', { name: /language/i })).toBeInTheDocument()
   })
 })
+
+describe('the public shell hands its height down, so a page can centre in it', () => {
+  it('makes the shell a full-height column', () => {
+    const { container } = renderShell()
+    const shell = container.firstElementChild as HTMLElement
+    expect(shell.className).toContain('min-h-screen')
+    expect(shell.className).toContain('flex')
+    expect(shell.className).toContain('flex-col')
+  })
+
+  it('lets the content area take the space the header leaves', () => {
+    renderShell()
+    const main = document.querySelector('main') as HTMLElement
+    expect(main.className).toContain('flex-1')
+    expect(main.className).toContain('flex')
+    expect(main.className).toContain('flex-col')
+  })
+
+  it('keeps the header from being squeezed by that content', () => {
+    renderShell()
+    const header = document.querySelector('header') as HTMLElement
+    expect(header.className).toContain('shrink-0')
+  })
+})
