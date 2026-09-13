@@ -6,7 +6,7 @@ import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-deboun
 import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import { useShortcutScope } from '@/shared/keyboard/shortcut-registry'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/overlays/dialog'
-import { PaletteHelp } from './palette-help'
+import { PaletteHintBar } from './palette-hint-bar'
 import { PaletteList } from './palette-list'
 import { isHelpQuery, parseQuery } from './palette-prefix'
 import { PalettePrefixList } from './palette-prefix-list'
@@ -32,7 +32,6 @@ export function CommandPalette({
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [active, setActive] = useState<string | null>(null)
-  const [helpOpen, setHelpOpen] = useState(false)
   const chosen = useRef(false)
   const returnFocus = useReturnFocus(open)
 
@@ -66,7 +65,6 @@ export function CommandPalette({
   useEffect(() => {
     if (!open) {
       setQuery('')
-      setHelpOpen(false)
     }
     if (open) chosen.current = false
     setActive(null)
@@ -146,7 +144,6 @@ export function CommandPalette({
             aria-label={t('palette.title')}
             className="w-full bg-transparent text-copy outline-none placeholder:text-muted-foreground"
           />
-          <PaletteHelp open={helpOpen} onOpenChange={setHelpOpen} />
         </div>
 
         <div
@@ -170,6 +167,8 @@ export function CommandPalette({
             />
           )}
         </div>
+
+        <PaletteHintBar mode={parsed.mode} />
       </DialogContent>
     </Dialog>
   )

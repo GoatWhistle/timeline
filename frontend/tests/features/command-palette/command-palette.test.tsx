@@ -134,3 +134,21 @@ describe('CommandPalette', () => {
     expect(navigate).not.toHaveBeenCalled()
   })
 })
+
+describe('the open palette carries its prefix hints', () => {
+  it('shows the hint row without the visitor asking for it', async () => {
+    renderPalette()
+    await waitFor(() => expect(document.querySelector('[data-palette-hints]')).not.toBeNull())
+    expect(screen.getByText(i18n.t('common:palette.help.labelHackathons'))).toBeInTheDocument()
+  })
+
+  it('lights the hint that matches what has been typed', async () => {
+    const { user } = renderPalette()
+    await user.type(screen.getByRole('combobox'), '>')
+
+    await waitFor(() => {
+      const active = document.querySelector('[data-palette-hint-key][data-active="true"]')
+      expect(active?.getAttribute('data-palette-hint-key')).toBe('>')
+    })
+  })
+})
