@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
+import { SlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/sliding-indicator'
+import { useSlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/use-sliding-indicator'
 import type { PaletteResult, PaletteSection } from './palette-results'
 import { PaletteRow } from './palette-row'
 
@@ -39,9 +41,11 @@ export function PaletteList({
   const { t } = useTranslation()
   const groups = groupBySection(results)
   const showLabels = groups.length > 1
+  const { containerRef, box } = useSlidingIndicator<HTMLDivElement>(activeId)
 
   return (
-    <>
+    <div ref={containerRef} className="relative flex flex-col gap-0.5">
+      <SlidingIndicator box={box} axis="y" />
       {groups.map(([section, items]) => (
         <div key={section} className="flex flex-col gap-0.5">
           {showLabels && (
@@ -60,6 +64,6 @@ export function PaletteList({
           ))}
         </div>
       ))}
-    </>
+    </div>
   )
 }

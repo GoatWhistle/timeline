@@ -60,5 +60,8 @@
   },
   "suggest": {
     "legend": "Подсказки"
+  },
+  "command": {
+    "openSettings": "Открыть настройки: {{section}}"
   }
 }

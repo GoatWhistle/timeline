@@ -24,10 +24,12 @@ export function PaletteRow({
       aria-selected={active}
       onMouseEnter={onHover}
       onClick={onChoose}
+      data-indicator-item
+      data-indicator-active={active ? 'true' : undefined}
       className={cn(
-        'flex h-row-roomy w-full items-center gap-3 rounded-control px-3 text-left',
+        'relative z-10 flex min-h-12 w-full items-center gap-3 rounded-control px-3 py-2 text-left',
         'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
-        active ? 'bg-accent-surface' : 'hover:bg-surface-2',
+        active ? undefined : 'hover:bg-surface-2',
       )}
     >
       {result.hint && (
@@ -35,7 +37,7 @@ export function PaletteRow({
           {result.hint}
         </span>
       )}
-      <span className="min-w-0 flex-1 truncate text-copy">{result.title}</span>
+      <span className="min-w-0 flex-1 truncate text-body">{result.title}</span>
       {active && (
         <kbd className="shrink-0 rounded-badge border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-caption text-muted-foreground">
           ↵

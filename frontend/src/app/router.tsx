@@ -93,7 +93,6 @@ export function AppRouter() {
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/invite/:token" element={<InvitePage />} />
@@ -101,6 +100,7 @@ export function AppRouter() {
         </Route>
 
         <Route element={<AuthLayout />}>
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/email-change/confirm" element={<EmailChangeConfirmPage />} />
           <Route path="/email-change/cancel" element={<EmailChangeCancelPage />} />
         </Route>

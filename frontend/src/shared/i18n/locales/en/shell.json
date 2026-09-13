@@ -54,7 +54,7 @@
       "prefixCommands": "Run an application command",
       "prefixPages": "Jump to a page",
       "prefixTeams": "Search your teams",
-      "prefixAdmin": "Jump to an admin page (administrators only)",
+      "prefixAdmin": "Jump to an admin page",
       "labelHackathons": "Hackathons",
       "labelMeetups": "Meetups",
       "labelEvents": "All events",

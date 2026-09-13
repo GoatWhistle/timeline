@@ -15,9 +15,10 @@ const REST = [
   { symbol: '!', mode: 'admin', key: 'palette.help.labelAdmin' },
 ] as const
 
-export function PaletteHintBar({ mode }: { mode: PaletteMode }) {
+export function PaletteHintBar({ mode, isAdmin }: { mode: PaletteMode; isAdmin: boolean }) {
   const { t } = useTranslation()
-  const pinned = REST.find((hint) => hint.mode === mode)
+  const reachable = REST.filter((hint) => hint.mode !== 'admin' || isAdmin)
+  const pinned = reachable.find((hint) => hint.mode === mode)
   const shown = pinned ? [...HINTS.slice(0, 4), pinned] : HINTS
 
   return (

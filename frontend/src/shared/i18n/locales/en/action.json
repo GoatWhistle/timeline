@@ -58,5 +58,8 @@
   },
   "suggest": {
     "legend": "Suggestions"
+  },
+  "command": {
+    "openSettings": "Open settings: {{section}}"
   }
 }

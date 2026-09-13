@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { type Command, CommandPalette } from '@/features/command-palette/command-palette'
+import { SETTINGS_PARAM, SETTINGS_SECTIONS } from '@/features/settings-overlay/sections'
 import { ShortcutHelp } from '@/features/shortcut-help/shortcut-help'
 import { catalogEntry, type GotoTarget } from '@/shared/keyboard/shortcut-catalog'
 import { type ShortcutDefinition, useShortcutScope } from '@/shared/keyboard/shortcut-registry'
@@ -39,8 +40,14 @@ export function AppShortcuts({ targets, isAdmin }: { targets: GotoTarget[]; isAd
         title: t('shortcuts.help'),
         run: () => setHelpOpen(true),
       },
+      ...SETTINGS_SECTIONS.map((entry) => ({
+        id: `settings-${entry.id}`,
+        section: 'commands' as const,
+        title: t('command.openSettings', { section: t(entry.labelKey) }),
+        run: () => navigate(`?${SETTINGS_PARAM}=${entry.id}`),
+      })),
     ],
-    [t],
+    [t, navigate],
   )
 
   return (

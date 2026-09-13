@@ -15,7 +15,7 @@ function hintKeys(): { symbol: string; active: boolean }[] {
 
 describe('the palette says what each prefix does without being asked', () => {
   it('shows the prefixes and their meaning as soon as the palette opens', () => {
-    renderWithProviders(<PaletteHintBar mode="smart" />)
+    renderWithProviders(<PaletteHintBar mode="smart" isAdmin />)
 
     expect(hintKeys().map((hint) => hint.symbol)).toEqual(['#', '@', '>', '/', '~'])
     expect(screen.getByText(i18n.t('common:palette.help.labelHackathons'))).toBeInTheDocument()
@@ -23,12 +23,12 @@ describe('the palette says what each prefix does without being asked', () => {
   })
 
   it('marks nothing active while the query carries no prefix', () => {
-    renderWithProviders(<PaletteHintBar mode="smart" />)
+    renderWithProviders(<PaletteHintBar mode="smart" isAdmin />)
     expect(hintKeys().filter((hint) => hint.active)).toEqual([])
   })
 
   it('marks the prefix in use, so the mode is visible at a glance', () => {
-    renderWithProviders(<PaletteHintBar mode="hackathons" />)
+    renderWithProviders(<PaletteHintBar mode="hackathons" isAdmin />)
 
     const active = hintKeys().filter((hint) => hint.active)
     expect(active).toHaveLength(1)
@@ -36,7 +36,7 @@ describe('the palette says what each prefix does without being asked', () => {
   })
 
   it('brings a rarely used prefix into the row when it is the one in use', () => {
-    renderWithProviders(<PaletteHintBar mode="admin" />)
+    renderWithProviders(<PaletteHintBar mode="admin" isAdmin />)
 
     const symbols = hintKeys().map((hint) => hint.symbol)
     expect(symbols).toContain('!')
@@ -44,16 +44,28 @@ describe('the palette says what each prefix does without being asked', () => {
   })
 
   it('keeps the row the same length whichever prefix is active', () => {
-    const { unmount } = renderWithProviders(<PaletteHintBar mode="smart" />)
+    const { unmount } = renderWithProviders(<PaletteHintBar mode="smart" isAdmin />)
     const bare = hintKeys().length
     unmount()
 
-    renderWithProviders(<PaletteHintBar mode="events" />)
+    renderWithProviders(<PaletteHintBar mode="events" isAdmin />)
     expect(hintKeys()).toHaveLength(bare)
   })
 
   it('still points at the question mark for the full list', () => {
-    renderWithProviders(<PaletteHintBar mode="smart" />)
+    renderWithProviders(<PaletteHintBar mode="smart" isAdmin />)
     expect(screen.getByText(i18n.t('common:palette.help.more'))).toBeInTheDocument()
+  })
+})
+
+describe('the admin prefix stays out of sight for people who cannot use it', () => {
+  it('never offers ! to an ordinary member', () => {
+    renderWithProviders(<PaletteHintBar mode="admin" isAdmin={false} />)
+    expect(hintKeys().map((hint) => hint.symbol)).not.toContain('!')
+  })
+
+  it('still offers ! to an administrator using it', () => {
+    renderWithProviders(<PaletteHintBar mode="admin" isAdmin />)
+    expect(hintKeys().map((hint) => hint.symbol)).toContain('!')
   })
 })

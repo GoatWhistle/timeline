@@ -71,8 +71,17 @@ export function CommandPalette({
   }, [open])
 
   useEffect(() => {
-    setActive(results[0]?.id ?? null)
+    setActive((current) => {
+      if (current !== null && results.some((result) => result.id === current)) return current
+      return results[0]?.id ?? null
+    })
   }, [results])
+
+  useEffect(() => {
+    if (active === null) return
+    const row = document.getElementById(`command-${active}`)
+    row?.scrollIntoView({ block: 'nearest' })
+  }, [active])
 
   useShortcutScope('command-palette', [], { mode: 'exclusive', enabled: open })
 
@@ -129,7 +138,7 @@ export function CommandPalette({
         }}
       >
         <DialogTitle className="sr-only">{t('palette.title')}</DialogTitle>
-        <div className="flex items-center gap-2 border-border border-b px-4 py-3">
+        <div className="flex h-14 items-center gap-2 border-border border-b px-4">
           <input
             autoFocus
             type="text"
@@ -150,7 +159,7 @@ export function CommandPalette({
           id="command-palette-list"
           role="listbox"
           aria-label={t('palette.title')}
-          className="max-h-80 overflow-y-auto p-1"
+          className="max-h-[19rem] overflow-y-auto p-1 [scrollbar-gutter:stable]"
         >
           {showHelp ? (
             <PalettePrefixList className="flex flex-col gap-2 px-3 py-2" />
@@ -168,7 +177,7 @@ export function CommandPalette({
           )}
         </div>
 
-        <PaletteHintBar mode={parsed.mode} />
+        <PaletteHintBar mode={parsed.mode} isAdmin={isAdmin} />
       </DialogContent>
     </Dialog>
   )
