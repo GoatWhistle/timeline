@@ -60,14 +60,18 @@ export function TeamLinksCard({ teamId, eventId }: { teamId: string; eventId: st
         <p className="mt-1 text-meta text-muted-foreground">{t('links.hint')}</p>
       </div>
 
-      <TeamLinksList
-        teamId={teamId}
-        eventId={eventId}
-        links={items}
-        canWrite={canWrite}
-        editingId={editing === null ? null : editing.id}
-        onEdit={setEditingId}
-      />
+      {links.isError ? (
+        <p className="text-meta text-muted-foreground">{t('links.loadFailed')}</p>
+      ) : (
+        <TeamLinksList
+          teamId={teamId}
+          eventId={eventId}
+          links={items}
+          canWrite={canWrite}
+          editingId={editing === null ? null : editing.id}
+          onEdit={setEditingId}
+        />
+      )}
 
       {canWrite && (
         <section

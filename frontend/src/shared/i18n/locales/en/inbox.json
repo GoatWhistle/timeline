@@ -8,7 +8,8 @@
       "open": "Open notifications",
       "title": "Notifications",
       "empty": "Nothing here yet",
-      "viewAll": "All notifications"
+      "viewAll": "All notifications",
+      "loadFailed": "Could not load notifications"
     },
     "page": {
       "title": "Notifications",

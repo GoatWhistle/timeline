@@ -82,7 +82,9 @@ export function EventFeedBell({ touch = false }: { touch?: boolean }) {
             <span className={styles.title}>{t('feed.title')}</span>
             {unread > 0 && <MarkAllRead onMark={() => markRead.mutate([])} />}
           </div>
-          {items.length === 0 ? (
+          {feed.isError ? (
+            <p className={styles.empty}>{t('feed.loadFailed')}</p>
+          ) : items.length === 0 ? (
             <p className={styles.empty}>{t('feed.empty')}</p>
           ) : (
             <ul className={styles.list}>

@@ -135,7 +135,8 @@
     "moveUp": "Move {{name}} up",
     "moveDown": "Move {{name}} down",
     "edit": "Change {{name}}",
-    "remove": "Remove {{name}}"
+    "remove": "Remove {{name}}",
+    "loadFailed": "Could not load the links"
   },
   "track": {
     "title": "Track",
@@ -152,5 +153,6 @@
     "leading": "You lead",
     "invited": "Invitations"
   },
-  "footnote": "A team is permanent; a lineup is drawn from it for each hackathon. Registration is what each person reports about themselves."
+  "footnote": "A team is permanent; a lineup is drawn from it for each hackathon. Registration is what each person reports about themselves.",
+  "linkLoadFailed": "Could not check the invite link"
 }

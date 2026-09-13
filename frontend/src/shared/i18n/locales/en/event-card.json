@@ -92,7 +92,8 @@
     "title": "Links",
     "pinned": "Pinned",
     "empty": "No links yet",
-    "stageScoped": "Stage link"
+    "stageScoped": "Stage link",
+    "loadFailed": "Could not load the links"
   },
   "linkKind": {
     "WEBSITE": "Event website",

@@ -72,7 +72,8 @@
       "WORKER_RECOVERED": "The background process recovered",
       "QUEUE_AGE_HIGH": "The queue is building up",
       "QUEUE_AGE_NORMAL": "The queue is clear"
-    }
+    },
+    "loadFailed": "Could not load the feed"
   },
   "preview": {
     "open": "Preview notification",

@@ -73,7 +73,11 @@ export function JoinLinkPanel({ teamId, open }: { teamId: string; open: boolean 
         </p>
       )}
 
-      {issued === null && !active && (
+      {issued === null && query.isError && (
+        <p className="text-caption text-muted-foreground">{t('linkLoadFailed')}</p>
+      )}
+
+      {issued === null && !active && !query.isError && (
         <p className="text-caption text-muted-foreground">{t('linkNone')}</p>
       )}
 

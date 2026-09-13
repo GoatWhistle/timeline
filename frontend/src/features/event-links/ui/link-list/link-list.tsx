@@ -10,8 +10,12 @@ function stageName(stages: StageResponse[], stageId: string): string | undefined
 
 export function LinkList({ eventId, stages = [] }: { eventId: string; stages?: StageResponse[] }) {
   const { t } = useTranslation('event')
-  const { data } = useQuery(eventLinksQuery(eventId))
+  const { data, isError } = useQuery(eventLinksQuery(eventId))
   const items: ResourceLink[] = data?.items ?? []
+
+  if (isError) {
+    return <p className="text-meta text-muted-foreground">{t('links.loadFailed')}</p>
+  }
 
   if (items.length === 0) {
     return <p className="text-meta text-muted-foreground">{t('links.empty')}</p>

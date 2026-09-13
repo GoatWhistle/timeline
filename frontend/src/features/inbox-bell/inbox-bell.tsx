@@ -73,7 +73,9 @@ export function InboxBell({ touch = false }: { touch?: boolean }) {
           <div className={styles.header}>
             <span className={styles.title}>{t('inbox.bell.title')}</span>
           </div>
-          {items.length === 0 ? (
+          {preview.isError ? (
+            <p className={styles.empty}>{t('inbox.bell.loadFailed')}</p>
+          ) : items.length === 0 ? (
             <p className={styles.empty}>{t('inbox.bell.empty')}</p>
           ) : (
             <ul className={styles.list}>
