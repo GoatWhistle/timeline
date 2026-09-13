@@ -14,23 +14,32 @@ import { cn } from '@/shared/styling/class-names/class-names'
 import { FLOATING_MOTION, FLOATING_SURFACE } from '@/shared/ui/overlays/overlay-chrome'
 import styles from './inbox-bell.module.css'
 
+const SUBJECT_ROUTES: Record<string, string> = { event: '/events', team: '/teams' }
+
+function itemHref(item: InboxItemResponse): string {
+  const open = item.actions.find((action) => action.kind === 'OPEN')
+  const target = open?.href ?? item.subject?.id
+  const base = item.subject?.kind ? SUBJECT_ROUTES[item.subject.kind] : undefined
+  if (!target || !base) return '/inbox'
+  return `${base}/${target}`
+}
+
 function InboxBellItem({ item }: { item: InboxItemResponse }) {
   const preview = markdownPreview(item.body_md)
   return (
     <DropdownMenu.Item asChild>
-      <Link
-        to={item.subject?.kind === 'event' ? `/events/${item.subject.id}` : '/inbox'}
-        className={cn(styles.item, !item.read_at && styles.itemUnread)}
-      >
-        <span className={styles.itemTitle}>{item.title}</span>
+      <Link to={itemHref(item)} className={cn(styles.item, !item.read_at && styles.itemUnread)}>
+        <span className={styles.itemHead}>
+          <span className={styles.itemTitle}>{item.title}</span>
+          <time
+            className={styles.itemTime}
+            dateTime={item.created_at}
+            title={formatDateTime(item.created_at)}
+          >
+            {formatRelative(item.created_at)}
+          </time>
+        </span>
         {preview && <span className={styles.itemBody}>{preview}</span>}
-        <time
-          className={styles.itemTime}
-          dateTime={item.created_at}
-          title={formatDateTime(item.created_at)}
-        >
-          {formatRelative(item.created_at)}
-        </time>
       </Link>
     </DropdownMenu.Item>
   )
