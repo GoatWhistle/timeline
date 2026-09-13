@@ -6,12 +6,14 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/auth"
 	"github.com/GoatWhistle/timeline/internal/controllers/event"
 	"github.com/GoatWhistle/timeline/internal/controllers/finance"
+	"github.com/GoatWhistle/timeline/internal/controllers/httpx"
 	"github.com/GoatWhistle/timeline/internal/controllers/inbox"
 	"github.com/GoatWhistle/timeline/internal/controllers/middleware"
 	"github.com/GoatWhistle/timeline/internal/controllers/notification"
 	"github.com/GoatWhistle/timeline/internal/controllers/participation"
 	"github.com/GoatWhistle/timeline/internal/controllers/personal"
 	"github.com/GoatWhistle/timeline/internal/controllers/team"
+	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/services/shared/mail"
 )
 
@@ -133,8 +135,7 @@ func NewRouter(deps Deps) http.Handler {
 	mountRetention(mux, rt, api, retentionC)
 	mountAdminRegistration(mux, rt, api, partC, regC, statusC, ruleC, previewC)
 	mountAdminQueries(mux, rt, api, queryC, auditC, opsC)
-	mountMailAssets(mux)
-	mountSwagger(mux, deps.SwaggerUI)
+	mountServiceRoutes(mux, api, deps.SwaggerUI)
 
 	return middleware.Chain(mux,
 		middleware.RequestID,
@@ -145,9 +146,21 @@ func NewRouter(deps Deps) http.Handler {
 	)
 }
 
+func mountServiceRoutes(mux *http.ServeMux, api string, ui http.Handler) {
+	mountMailAssets(mux)
+	mountSwagger(mux, ui)
+	mountUnknownAPIPath(mux, api)
+}
+
 func mountMailAssets(mux *http.ServeMux) {
 	mux.Handle("GET /mail/logo-light.png", mail.LogoHandler("light"))
 	mux.Handle("GET /mail/logo-dark.png", mail.LogoHandler("dark"))
+}
+
+func mountUnknownAPIPath(mux *http.ServeMux, api string) {
+	mux.Handle(api+"/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		httpx.Error(w, r, models.NewNotFound("no such endpoint"))
+	}))
 }
 
 func mountSwagger(mux *http.ServeMux, ui http.Handler) {
