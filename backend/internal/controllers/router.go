@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/auth"
 	"github.com/GoatWhistle/timeline/internal/controllers/event"
@@ -159,8 +160,28 @@ func mountMailAssets(mux *http.ServeMux) {
 
 func mountUnknownAPIPath(mux *http.ServeMux, api string) {
 	mux.Handle(api+"/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if wantsHTML(r) {
+			http.Redirect(w, r, "/404", http.StatusSeeOther)
+			return
+		}
 		httpx.Error(w, r, models.NewNotFound("no such endpoint"))
 	}))
+}
+
+func wantsHTML(r *http.Request) bool {
+	if r.Method != http.MethodGet {
+		return false
+	}
+	for _, accepted := range strings.Split(r.Header.Get("Accept"), ",") {
+		media := strings.TrimSpace(strings.SplitN(accepted, ";", 2)[0])
+		if media == "text/html" {
+			return true
+		}
+		if media == "application/json" {
+			return false
+		}
+	}
+	return false
 }
 
 func mountSwagger(mux *http.ServeMux, ui http.Handler) {
