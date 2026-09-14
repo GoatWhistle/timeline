@@ -26,6 +26,7 @@ export function CrossfadeSwap<K extends string | number>({
   const nodes = useRef(new Map<K, HTMLElement>())
   const pendingEnter = useRef<K | null>(null)
   const hasTransitioned = useRef(false)
+  const [lockedHeight, setLockedHeight] = useState<number | null>(null)
 
   useEffect(() => {
     const changedKey = previousKey.current !== swapKey
@@ -63,6 +64,22 @@ export function CrossfadeSwap<K extends string | number>({
     return undefined
   }, [slots, onEntered])
 
+  useLayoutEffect(() => {
+    const read = () => {
+      const node = nodes.current.get(swapKey)?.firstElementChild
+      if (!node) return
+      const height = node.getBoundingClientRect().height
+      if (height > 0) setLockedHeight(height)
+    }
+    read()
+    if (typeof ResizeObserver === 'undefined') return undefined
+    const observer = new ResizeObserver(read)
+    for (const slot of nodes.current.values()) {
+      if (slot.firstElementChild) observer.observe(slot.firstElementChild)
+    }
+    return () => observer.disconnect()
+  }, [slots, swapKey])
+
   useEffect(() => {
     const active = timers.current
     for (const slot of slots) {
@@ -95,7 +112,15 @@ export function CrossfadeSwap<K extends string | number>({
         : ''
 
   return (
-    <div className={cn('inline-grid', direction && 'overflow-hidden', className)}>
+    <div
+      style={lockedHeight === null ? undefined : { height: lockedHeight }}
+      className={cn(
+        'relative inline-grid',
+        direction && 'overflow-hidden',
+        'motion-safe:transition-[height] motion-safe:duration-base motion-safe:ease-out',
+        className,
+      )}
+    >
       {slots.map((slot) => (
         <div
           key={slot.key}
@@ -106,7 +131,11 @@ export function CrossfadeSwap<K extends string | number>({
           aria-hidden={slot.exiting || undefined}
           className={cn(
             '[grid-area:1/1] translate-x-0 motion-safe:transition-[opacity,filter,transform] motion-safe:duration-base motion-safe:ease-out',
-            slot.exiting && cn('motion-safe:opacity-0 motion-safe:blur-[2px]', exitTranslate),
+            slot.exiting &&
+              cn(
+                'pointer-events-none absolute inset-x-0 top-0 motion-safe:opacity-0 motion-safe:blur-[2px]',
+                exitTranslate,
+              ),
             !slot.exiting && !slot.settled && cn('opacity-0', enterFromTranslate),
             !slot.exiting && slot.settled && 'opacity-100 blur-none',
           )}

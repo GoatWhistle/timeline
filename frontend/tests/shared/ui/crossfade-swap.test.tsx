@@ -62,4 +62,18 @@ describe('CrossfadeSwap: text changes without the layout snapping', () => {
       expect(node.parentElement).toHaveClass('[grid-area:1/1]')
     }
   })
+
+  it('eases the container between two heights instead of snapping to the new one', () => {
+    render(<Harness />)
+    act(() => {
+      screen.getByRole('button', { name: 'switch' }).click()
+    })
+    const grid = screen.getAllByTestId('pitch')[0]?.parentElement?.parentElement
+
+    expect(grid, 'the swap container is missing').toBeTruthy()
+    expect(
+      grid?.className,
+      'a container that does not transition its height jumps when the panes differ in size',
+    ).toMatch(/transition-\[height\]|transition-\[grid-template-rows\]|transition-all/)
+  })
 })
