@@ -15,59 +15,59 @@
     "PERSONAL_RETROSPECTIVE_DUE": "Time to look back"
   },
   "explainer": {
-    "title": "What arrives and when",
-    "hint": "The occasions and channels are below. A switch decides whether that occasion reaches you on that channel at all.",
+    "title": "What arrives",
+    "hint": "Every occasion, and which channel carries it.",
     "type": {
       "REGISTRATION_REQUIRED": {
         "name": "Registration required",
-        "when": "Once, soon after you join an event whose registration is open, or after the organizer opens registration on an event you already joined. It carries the link and the deadline."
+        "when": "Once, when registration opens on an event you joined."
       },
       "REGISTRATION_OVERDUE": {
         "name": "The deadline has passed",
-        "when": "After the registration deadline, if you switched it on in your own reminder schedule. It arrives until the event ends."
+        "when": "After the deadline passes and you have not marked yourself registered."
       },
       "REMINDER_REGISTRATION_DEADLINE": {
         "name": "The registration deadline is near",
-        "when": "As many days before the deadline as you picked in your own reminder schedule. With no day picked, this reminder does not arrive."
+        "when": "Before the registration deadline."
       },
       "REMINDER_EVENT_START": {
         "name": "The event starts soon",
-        "when": "As many days before the event starts as you picked in your own reminder schedule. With no day picked, this reminder does not arrive."
+        "when": "Before the event starts."
       },
       "REMINDER_STAGE_START": {
         "name": "A stage starts soon",
-        "when": "As many days before a stage starts as you picked in your own reminder schedule. With no day picked, this reminder does not arrive."
+        "when": "Before a stage starts."
       },
       "REMINDER_EVENT_END": {
         "name": "The event ends soon",
-        "when": "As many days before the event ends as you picked in your own reminder schedule. With no day picked, this reminder does not arrive."
+        "when": "Before the event ends."
       },
       "WEEKLY_DIGEST": {
         "name": "Weekly digest",
-        "when": "Once a week, when the week had something worth telling: upcoming registration deadlines, stages about to start and your own tasks falling due."
+        "when": "Once a week, if the week had anything worth telling."
       },
       "PERSONAL_TASK_DUE": {
         "name": "A personal task is due",
-        "when": "Shortly before a task you set for yourself falls due. Organizers neither see these nor create them."
+        "when": "Shortly before a task you set yourself falls due."
       },
       "PERSONAL_RETROSPECTIVE_DUE": {
         "name": "Time to look back",
-        "when": "A couple of days after an event ends, so you can write down what you learned while it is fresh. Once per event."
+        "when": "A couple of days after an event ends."
       }
     },
-    "toggleUpdated": "Notification setting updated",
-    "toggleFailed": "Could not change the setting",
+    "toggleUpdated": "Saved",
+    "toggleFailed": "Could not save",
     "toggleLabel": "{{occasion}} by {{channel}}",
-    "allOffTitle": "Every switch for this occasion is off",
-    "allOffHint": "You chose not to receive this notification anywhere. This is separate from the channel list above: even if you later add a channel there, this occasion stays off until you switch it back on here."
+    "allOffTitle": "This never arrives",
+    "allOffHint": "Both channels are off for this occasion.",
+    "daysLegend": "Warn me",
+    "daysNever": "no warning"
   },
   "card": {
-    "title": "Notification channels",
-    "unavailable": " — unavailable",
-    "channelUpdated": "Notification channels updated",
+    "title": "Channels",
+    "channelUpdated": "Channels updated",
     "channelFailed": "Could not change the channels",
-    "emptyTitle": "No channel selected",
-    "emptyHint": "You have no delivery route at all: nothing below can reach you until you pick at least one channel here, whatever its own switches say."
+    "toggleLabel": "Deliver to {{channel}}"
   },
   "feed": {
     "open": "Open notifications",
@@ -106,20 +106,14 @@
     "nothingHint": "This status has no notification to render: the event, the registration or the participation rules it out."
   },
   "reminder": {
-    "title": "When to remind you",
-    "hint": "You decide how many days of warning you get. The setting is yours and applies to every event you take part in; organizers do not affect it.",
-    "day_one": "{{count}} day before",
-    "day_other": "{{count}} days before",
+    "day_one": "{{count}} day",
+    "day_other": "{{count}} days",
     "dayLabel_one": "{{occasion}} — {{count}} day before",
     "dayLabel_other": "{{occasion}} — {{count}} days before",
-    "selected_one": "Reminding you {{days}} day ahead",
-    "selected_other": "Reminding you {{days}} days ahead",
-    "never": "No reminder",
-    "overdueTitle": "Tell me about an overdue registration",
-    "overdueHint": "When the registration deadline has passed and you have not marked yourself as registered. It arrives until the event ends.",
-    "emptyTitle": "Reminders are off entirely",
-    "emptyHint": "No day is picked and overdue notices are off, so no deadline reminder will reach you. Other notifications are unaffected.",
+    "overdueTitle": "The deadline has passed",
     "updated": "Reminder schedule updated",
-    "failed": "Could not save the schedule"
+    "failed": "Could not save the schedule",
+    "overdueChip": "until the event ends",
+    "overdueLegend": "Keep telling me"
   }
 }

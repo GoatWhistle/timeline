@@ -16,10 +16,9 @@ import { NotificationExplainerCard } from '@/features/profile/notification-expla
 import { PasswordChangeCard } from '@/features/profile/password-change-card/password-change-card'
 import { PersonalDataCard } from '@/features/profile/personal-data-card/personal-data-card'
 import { ProfileLinksCard } from '@/features/profile/profile-links-card/profile-links-card'
-import { ReminderScheduleCard } from '@/features/profile/reminder-schedule-card/reminder-schedule-card'
 import { TelegramLinkCard } from '@/features/profile/telegram-link-card/telegram-link-card'
 import { ShortcutSettings } from '@/features/shortcut-settings/shortcut-settings'
-import type { MeResponse, NotificationPreference } from '@/shared/api/types.gen'
+import type { Channel, MeResponse, NotificationPreference } from '@/shared/api/types.gen'
 import { SYSTEM_TIME_ZONE } from '@/shared/datetime/datetime'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { TimezoneSelect } from '@/shared/ui/primitives/timezone-select/timezone-select'
@@ -98,11 +97,19 @@ function NotificationsPanel({
   user: MeResponse
   notificationPreferences: NotificationPreference[]
 }) {
+  const available: Record<Channel, boolean> = {
+    TELEGRAM: user.telegram_linked,
+    EMAIL: user.email_verified,
+  }
+  const liveChannels = new Set(user.notification_channels.filter((channel) => available[channel]))
+
   return (
     <div className="flex flex-col gap-4">
       <NotificationChannelCard user={user} />
-      <NotificationExplainerCard preferences={notificationPreferences} />
-      <ReminderScheduleCard />
+      <NotificationExplainerCard
+        preferences={notificationPreferences}
+        liveChannels={liveChannels}
+      />
     </div>
   )
 }

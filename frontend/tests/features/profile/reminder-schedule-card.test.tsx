@@ -1,17 +1,23 @@
 import { screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import { ReminderScheduleCard } from '@/features/profile/reminder-schedule-card/reminder-schedule-card'
+import { NotificationExplainerCard } from '@/features/profile/notification-explainer-card/notification-explainer-card'
 import type {
+  Channel,
+  NotificationPreference,
   ReminderScheduleResponse,
   UpdateReminderScheduleRequest,
 } from '@/shared/api/types.gen'
 import { i18n, i18nReady } from '@/shared/i18n/config'
 
 const DAY_CHOICES = [1, 2, 3, 7, 14]
+const LIVE: Set<Channel> = new Set<Channel>(['TELEGRAM', 'EMAIL'])
+const NO_PREFERENCES: NotificationPreference[] = []
 
 let schedule: ReminderScheduleResponse
 const sent: UpdateReminderScheduleRequest[] = []
+
+vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }))
 
 vi.mock('@/shared/api/client', () => ({
   api: {
@@ -55,6 +61,21 @@ function sentFor(occasion: string) {
   return last?.occasions?.find((entry) => entry.occasion === occasion)
 }
 
+function renderCard() {
+  return renderWithProviders(
+    <NotificationExplainerCard preferences={NO_PREFERENCES} liveChannels={LIVE} />,
+  )
+}
+
+function dayChip(occasion: string, count: number) {
+  return screen.findByRole('button', {
+    name: i18n.t('notification:reminder.dayLabel', {
+      occasion: i18n.t(`notification:explainer.type.${occasion}.name`),
+      count,
+    }),
+  })
+}
+
 beforeAll(async () => {
   await i18nReady
   await i18n.changeLanguage('ru')
@@ -67,15 +88,9 @@ afterEach(() => {
 describe('the reminder schedule is the reader own setting', () => {
   it('clearing the last day of an occasion sends that occasion with an empty day list', async () => {
     schedule = fullSchedule([3])
-    const { user } = renderWithProviders(<ReminderScheduleCard />)
+    const { user } = renderCard()
 
-    const checkbox = await screen.findByRole('checkbox', {
-      name: i18n.t('notification:reminder.dayLabel', {
-        occasion: i18n.t('notification:explainer.type.REMINDER_EVENT_START.name'),
-        count: 3,
-      }),
-    })
-    await user.click(checkbox)
+    await user.click(await dayChip('REMINDER_EVENT_START', 3))
 
     await waitFor(() => expect(sent).toHaveLength(1))
     expect(sentFor('REMINDER_EVENT_START')).toBeDefined()
@@ -89,15 +104,9 @@ describe('the reminder schedule is the reader own setting', () => {
         days_before: occasion === 'REMINDER_EVENT_END' ? [] : [3],
       })),
     )
-    const { user } = renderWithProviders(<ReminderScheduleCard />)
+    const { user } = renderCard()
 
-    const checkbox = await screen.findByRole('checkbox', {
-      name: i18n.t('notification:reminder.dayLabel', {
-        occasion: i18n.t('notification:explainer.type.REMINDER_EVENT_START.name'),
-        count: 3,
-      }),
-    })
-    await user.click(checkbox)
+    await user.click(await dayChip('REMINDER_EVENT_START', 3))
 
     await waitFor(() => expect(sent).toHaveLength(1))
     expect(sentFor('REMINDER_EVENT_END')).toBeDefined()
@@ -106,15 +115,9 @@ describe('the reminder schedule is the reader own setting', () => {
 
   it('carries every occasion in the replacing body, not only the one just touched', async () => {
     schedule = fullSchedule([1])
-    const { user } = renderWithProviders(<ReminderScheduleCard />)
+    const { user } = renderCard()
 
-    const checkbox = await screen.findByRole('checkbox', {
-      name: i18n.t('notification:reminder.dayLabel', {
-        occasion: i18n.t('notification:explainer.type.REMINDER_STAGE_START.name'),
-        count: 7,
-      }),
-    })
-    await user.click(checkbox)
+    await user.click(await dayChip('REMINDER_STAGE_START', 7))
 
     await waitFor(() => expect(sent).toHaveLength(1))
     expect(sent[0]?.occasions?.map((entry) => entry.occasion).sort()).toEqual(
@@ -126,9 +129,9 @@ describe('the reminder schedule is the reader own setting', () => {
 
   it('sends the overdue switch, and keeps the chosen days alongside it', async () => {
     schedule = fullSchedule([2], false)
-    const { user } = renderWithProviders(<ReminderScheduleCard />)
+    const { user } = renderCard()
 
-    const overdue = await screen.findByRole('switch', {
+    const overdue = await screen.findByRole('button', {
       name: i18n.t('notification:reminder.overdueTitle'),
     })
     await user.click(overdue)
@@ -140,9 +143,9 @@ describe('the reminder schedule is the reader own setting', () => {
 
   it('turning the overdue switch off sends false rather than dropping the field', async () => {
     schedule = fullSchedule([], true)
-    const { user } = renderWithProviders(<ReminderScheduleCard />)
+    const { user } = renderCard()
 
-    const overdue = await screen.findByRole('switch', {
+    const overdue = await screen.findByRole('button', {
       name: i18n.t('notification:reminder.overdueTitle'),
     })
     await user.click(overdue)
@@ -151,11 +154,15 @@ describe('the reminder schedule is the reader own setting', () => {
     expect(sent[0]?.overdue_enabled).toBe(false)
   })
 
-  it('shows exactly the four reminder occasions the schedule governs', async () => {
+  it('offers a day picker on exactly the four occasions the schedule governs', async () => {
     schedule = fullSchedule([])
-    renderWithProviders(<ReminderScheduleCard />)
+    renderCard()
 
-    await screen.findByText(i18n.t('notification:explainer.type.REMINDER_EVENT_START.name'))
+    await waitFor(() =>
+      expect(document.querySelectorAll('[data-reminder-occasion]')).toHaveLength(
+        ALL_OCCASIONS.length,
+      ),
+    )
     const rendered = [...document.querySelectorAll('[data-reminder-occasion]')].map((node) =>
       node.getAttribute('data-reminder-occasion'),
     )
@@ -168,17 +175,16 @@ describe('the reminder schedule is the reader own setting', () => {
       false,
     )
     schedule.day_choices = [1, 5]
-    renderWithProviders(<ReminderScheduleCard />)
+    renderCard()
 
-    await screen.findByText(i18n.t('notification:explainer.type.REMINDER_EVENT_START.name'))
-    const labelFor = (count: number) =>
-      i18n.t('notification:reminder.dayLabel', {
-        occasion: i18n.t('notification:explainer.type.REMINDER_EVENT_START.name'),
-        count,
-      })
-
-    expect(screen.getByRole('checkbox', { name: labelFor(5) })).toBeInTheDocument()
-    expect(screen.queryByRole('checkbox', { name: labelFor(14) })).not.toBeInTheDocument()
-    expect(screen.getAllByRole('checkbox')).toHaveLength(ALL_OCCASIONS.length * 2)
+    expect(await dayChip('REMINDER_EVENT_START', 5)).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', {
+        name: i18n.t('notification:reminder.dayLabel', {
+          occasion: i18n.t('notification:explainer.type.REMINDER_EVENT_START.name'),
+          count: 14,
+        }),
+      }),
+    ).not.toBeInTheDocument()
   })
 })

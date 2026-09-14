@@ -9,6 +9,7 @@ import { ensureLocale, i18n, i18nReady } from '@/shared/i18n/config'
 const OCCASIONS = Object.keys(NOTIFICATION_TYPE_KEY) as NotificationOccasion[]
 const TYPES = OCCASIONS
 const CHANNELS: Channel[] = ['TELEGRAM', 'EMAIL']
+const LIVE = new Set<Channel>(CHANNELS)
 
 const ALL_ENABLED: NotificationPreference[] = OCCASIONS.flatMap((occasion) =>
   CHANNELS.map((channel) => ({ occasion, channel, enabled: true })),
@@ -26,7 +27,7 @@ afterAll(async () => {
 describe('the notification explainer names every type the domain can send', () => {
   it('explains every type the domain can send, none left as a machine code', async () => {
     await i18n.changeLanguage('en')
-    renderWithProviders(<NotificationExplainerCard preferences={ALL_ENABLED} />)
+    renderWithProviders(<NotificationExplainerCard preferences={ALL_ENABLED} liveChannels={LIVE} />)
 
     for (const type of TYPES) {
       const term = document.querySelector(`[data-explainer-type="${type}"]`)
