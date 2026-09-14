@@ -48,10 +48,13 @@ describe('the idle cutoff is the reader own setting', () => {
       unit.className,
       'a label left at the top of the row rides above the middle of the field it names',
     ).toMatch(/items-center/)
+
+    const row = unit.parentElement
+    if (!(row instanceof HTMLElement)) throw new Error('the row is missing')
     expect(
-      unit.className.split(' '),
-      'the label must stand as tall as the field to centre against it',
-    ).toContain('h-9')
+      row.className,
+      'the row itself must centre its children, or the label drifts off the field centre line',
+    ).toMatch(/items-center/)
   })
 
   it('keeps the unit on one line in every language it is written in', async () => {

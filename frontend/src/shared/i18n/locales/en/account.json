@@ -2,7 +2,6 @@
   "profile": {
     "name": "Name",
     "saved": "Profile saved",
-    "sessionsHint": "Signs you out on every device.",
     "logoutAll": "End all sessions",
     "logoutAllFailed": "Could not end the sessions",
     "confirmLogoutTitle": "Sign out?",
@@ -10,7 +9,6 @@
     "confirmLogoutAllTitle": "End every session?",
     "confirmLogoutAllHint": "Every device signed in to this account is signed out, including this one. You will need to sign in again.",
     "deactivateTitle": "Account deactivation",
-    "deactivateHint": "An administrator can restore access.",
     "deactivate": "Deactivate",
     "confirmDeactivateTitle": "Deactivate the account?",
     "confirmDeactivateHint": "You will be signed out and sign-in will be blocked until an administrator restores it.",
@@ -26,7 +24,6 @@
     "emailSent": "Email sent",
     "emailSentHint": "The address changes only after confirming via the link in the email",
     "passwordTitle": "Password change",
-    "passwordHint": "Signs out every other device.",
     "changePassword": "Change password",
     "passwordChanged": "Password changed",
     "passwordChangedHint": "Every other session was signed out; this device stays signed in.",
@@ -173,7 +170,6 @@
     "groupWeek": "Active this week",
     "groupOlder": "Not used recently",
     "policyTitle": "Sign out if inactive",
-    "policyHint": "A device quiet this long is signed out.",
     "policyDaysLabel": "Days",
     "policySaved": "Session policy updated",
     "policyFailed": "Could not save the policy"

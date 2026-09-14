@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
 import { PasswordChangeForm } from './password-change-form'
@@ -12,12 +12,11 @@ export function PasswordChangeCard() {
   return (
     <>
       <Card className="flex-1 border-destructive/40">
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-4">
           <CardTitle>{t('profile.passwordTitle')}</CardTitle>
-          <CardDescription>{t('profile.passwordHint')}</CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-end pt-1 pb-4">
-          <Button variant="destructive" className="mt-[0.625rem]" onClick={() => setOpen(true)}>
+        <CardContent className="flex items-center justify-end pt-0 pb-5">
+          <Button variant="destructive" onClick={() => setOpen(true)}>
             {t('profile.changePassword')}
           </Button>
         </CardContent>

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useSaveSessionPolicy, useSessionPolicy } from '@/entities/session/session-policy.queries'
 import { Input } from '@/shared/ui/forms/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
 export function SessionPolicyCard() {
@@ -35,11 +35,10 @@ export function SessionPolicyCard() {
 
   return (
     <Card className="flex-1 border-destructive/40">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-4">
         <CardTitle>{t('devices.policyTitle')}</CardTitle>
-        <CardDescription>{t('devices.policyHint')}</CardDescription>
       </CardHeader>
-      <CardContent className="flex items-start gap-2 pt-1 pb-4">
+      <CardContent className="flex items-center gap-2 pt-0 pb-5">
         <Input
           id="session-policy-days"
           type="number"
@@ -52,12 +51,12 @@ export function SessionPolicyCard() {
           aria-label={t('devices.policyDaysLabel')}
           onChange={(event) => setDraft(event.target.value)}
         />
-        <span className="flex h-9 items-center text-copy text-muted-foreground">
+        <span className="flex items-center text-copy text-muted-foreground">
           {t('devices.policyDaysLabel')}
         </span>
         <Button
           variant="destructive"
-          className="ml-auto mt-[0.625rem]"
+          className="ml-auto"
           disabled={!changed || save.isPending}
           onClick={() => void store()}
         >

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useDeactivateAccount, useLogoutAllSessions } from '@/entities/user/profile.queries'
 import { resetCsrfToken } from '@/shared/api/client'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Button } from '@/shared/ui/primitives/button'
 
@@ -30,14 +30,12 @@ export function LogoutAllCard() {
   return (
     <>
       <Card className="flex-1 border-destructive/40">
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-4">
           <CardTitle>{t('profile.logoutAllTitle')}</CardTitle>
-          <CardDescription>{t('profile.sessionsHint')}</CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-end pt-1 pb-4">
+        <CardContent className="flex items-center justify-end pt-0 pb-5">
           <Button
             variant="destructive"
-            className="mt-[0.625rem]"
             disabled={logoutAll.isPending}
             onClick={() => setLogoutAllOpen(true)}
           >
@@ -81,16 +79,11 @@ export function DeactivateAccountCard() {
   return (
     <>
       <Card className="flex-1 border-destructive/40">
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-4">
           <CardTitle>{t('profile.deactivateTitle')}</CardTitle>
-          <CardDescription>{t('profile.deactivateHint')}</CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-end pt-1 pb-4">
-          <Button
-            variant="destructive"
-            className="mt-[0.625rem]"
-            onClick={() => setDeactivateOpen(true)}
-          >
+        <CardContent className="flex items-center justify-end pt-0 pb-5">
+          <Button variant="destructive" onClick={() => setDeactivateOpen(true)}>
             {t('profile.deactivate')}
           </Button>
         </CardContent>
