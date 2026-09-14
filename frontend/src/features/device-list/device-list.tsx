@@ -9,12 +9,11 @@ import { groupSessions } from '@/entities/session/session-recency'
 import { resetCsrfToken } from '@/shared/api/client'
 import { DeviceFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent } from '@/shared/ui/layout/card'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { QueryBoundary } from '@/shared/ui/states'
 import { DeviceRow } from './device-row'
 import { DeviceSkeleton } from './device-skeleton'
-import { RenameDevice } from './rename-device'
 
 export function DeviceList() {
   const { t } = useTranslation()
@@ -46,9 +45,6 @@ export function DeviceList() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{t('devices.title')}</CardTitle>
-      </CardHeader>
       <CardContent>
         <QueryBoundary
           isPending={query.isPending}
@@ -70,21 +66,17 @@ export function DeviceList() {
               {groups.map((group) => (
                 <section key={group.bucket} data-device-group={group.bucket}>
                   <ul className="flex flex-col gap-2">
-                    {group.sessions.map((session) =>
-                      renamingId === session.id ? (
-                        <li key={session.id}>
-                          <RenameDevice session={session} onDone={() => setRenamingId(null)} />
-                        </li>
-                      ) : (
-                        <DeviceRow
-                          key={session.id}
-                          session={session}
-                          pending={revoke.isPending}
-                          onRename={() => setRenamingId(session.id)}
-                          onRevoke={() => setConfirmId(session.id)}
-                        />
-                      ),
-                    )}
+                    {group.sessions.map((session) => (
+                      <DeviceRow
+                        key={session.id}
+                        session={session}
+                        pending={revoke.isPending}
+                        renaming={renamingId === session.id}
+                        onRename={() => setRenamingId(session.id)}
+                        onRenameDone={() => setRenamingId(null)}
+                        onRevoke={() => setConfirmId(session.id)}
+                      />
+                    ))}
                   </ul>
                 </section>
               ))}

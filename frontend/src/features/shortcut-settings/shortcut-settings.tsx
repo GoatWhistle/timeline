@@ -89,21 +89,16 @@ export function ShortcutSettings() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('shortcuts.settingsTitle')}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-5">
-          {sections.map((section) => (
-            <ShortcutSection
-              key={section.id}
-              title={t(section.titleKey)}
-              shortcuts={section.shortcuts}
-              {...shared}
-            />
-          ))}
-        </CardContent>
-      </Card>
+      {sections.map((section) => (
+        <Card key={section.id}>
+          <CardHeader>
+            <CardTitle>{t(section.titleKey)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ShortcutSection shortcuts={section.shortcuts} {...shared} />
+          </CardContent>
+        </Card>
+      ))}
     </div>
   )
 }

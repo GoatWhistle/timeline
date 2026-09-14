@@ -98,6 +98,30 @@ describe('device list', () => {
     expect(screen.queryByText(i18n.t('common:devices.groupCurrent'))).toBeNull()
   })
 
+  it('renames a device in place rather than replacing the row with a form', async () => {
+    const { queryClient, user } = renderWithProviders(<DeviceList />)
+    queryClient.setQueryData(deviceSessionsQueryKey, listBody([CURRENT, PHONE]))
+
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(2))
+
+    const [edit] = screen.getAllByRole('button', { name: /Chrome/ })
+    if (!edit) throw new Error('the rename button is missing')
+    await user.click(edit)
+
+    expect(screen.getAllByRole('listitem'), 'the row must stay in the list').toHaveLength(2)
+    expect(screen.getByRole('textbox')).toBeInTheDocument()
+    expect(screen.getByText(/Chrome/)).toBeInTheDocument()
+  })
+
+  it('carries no card title above the devices', async () => {
+    const { queryClient } = renderWithProviders(<DeviceList />)
+    queryClient.setQueryData(deviceSessionsQueryKey, listBody([CURRENT]))
+
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(1))
+
+    expect(screen.queryByText(i18n.t('common:devices.title'))).toBeNull()
+  })
+
   it('leaves the card without a lead-in line or a session tally', async () => {
     const { queryClient } = renderWithProviders(<DeviceList />)
     queryClient.setQueryData(deviceSessionsQueryKey, listBody([CURRENT, PHONE]))

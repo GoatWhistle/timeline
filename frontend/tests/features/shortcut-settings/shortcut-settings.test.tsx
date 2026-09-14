@@ -11,7 +11,7 @@ beforeAll(async () => {
 })
 
 const headings = () =>
-  screen.getAllByRole('heading', { level: 3 }).map((node) => node.textContent ?? '')
+  screen.getAllByRole('heading', { level: 2 }).map((node) => node.textContent ?? '')
 
 const MEMBER_CATALOG = catalogFor(false)
 
@@ -51,10 +51,25 @@ describe('the settings screen does not depend on the page underneath', () => {
     )
   })
 
+  it('gives each kind of shortcut its own card instead of one long list', () => {
+    const { container } = renderWith()
+    const cards = container.querySelectorAll('[data-slot="card"]')
+
+    expect(cards).toHaveLength(MEMBER_CATALOG.length)
+  })
+
+  it('drops the card title that only repeated the panel name', () => {
+    renderWith()
+
+    expect(screen.queryByText(i18n.t('common:shortcuts.settingsTitle'))).toBeNull()
+  })
+
   it('files a shortcut under the group the catalogue puts it in', () => {
     renderWith()
 
-    const sections = screen.getAllByRole('heading', { level: 3 }).map((node) => node.parentElement)
+    const sections = screen
+      .getAllByRole('heading', { level: 2 })
+      .map((node) => node.closest('[data-slot="card"]'))
     MEMBER_CATALOG.forEach((section, index) => {
       const host = sections[index] as HTMLElement
       for (const entry of section.shortcuts) {

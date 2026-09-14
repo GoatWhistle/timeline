@@ -10,7 +10,7 @@ const SUBMIT = /<Button\b[^>]*type="submit"/
 
 const SECTIONED = ['entities/event/event-flat-form.tsx', 'entities/event/event-staged-form.tsx']
 
-const COMPACT = ['features/device-list/rename-device.tsx']
+const COMPACT: string[] = []
 
 function tsxFiles(dir: string): string[] {
   const found: string[] = []

@@ -1,10 +1,8 @@
 import type { BindingRejection, ShortcutPlatform } from '@/shared/keyboard/shortcut-bindings'
 import type { ShortcutDefinition } from '@/shared/keyboard/shortcut-registry'
-import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
 import { ShortcutRow } from './shortcut-row'
 
 export type SectionProps = {
-  title: string
   shortcuts: ShortcutDefinition[]
   platform: ShortcutPlatform
   bindings: Record<string, string>
@@ -17,7 +15,6 @@ export type SectionProps = {
 }
 
 export function ShortcutSection({
-  title,
   shortcuts,
   platform,
   bindings,
@@ -29,24 +26,21 @@ export function ShortcutSection({
   onRecording,
 }: SectionProps) {
   return (
-    <section className="flex flex-col gap-1">
-      <GroupLabel>{title}</GroupLabel>
-      <dl className="flex flex-col">
-        {shortcuts.map((shortcut) => (
-          <ShortcutRow
-            key={shortcut.id}
-            shortcut={shortcut}
-            platform={platform}
-            overridden={bindings[shortcut.id] !== undefined}
-            rejection={rejected?.actionId === shortcut.id ? rejected.rejection : null}
-            busy={busy}
-            recording={recordingId === shortcut.id}
-            onAssign={onAssign}
-            onReset={onReset}
-            onRecording={onRecording}
-          />
-        ))}
-      </dl>
-    </section>
+    <dl className="flex flex-col">
+      {shortcuts.map((shortcut) => (
+        <ShortcutRow
+          key={shortcut.id}
+          shortcut={shortcut}
+          platform={platform}
+          overridden={bindings[shortcut.id] !== undefined}
+          rejection={rejected?.actionId === shortcut.id ? rejected.rejection : null}
+          busy={busy}
+          recording={recordingId === shortcut.id}
+          onAssign={onAssign}
+          onReset={onReset}
+          onRecording={onRecording}
+        />
+      ))}
+    </dl>
   )
 }

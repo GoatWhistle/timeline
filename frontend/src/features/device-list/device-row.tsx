@@ -6,6 +6,7 @@ import type { SessionResponse } from '@/shared/api/types.gen'
 import { formatDateTime, formatRelative } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
+import { DeviceName } from './device-name'
 
 const KIND_ICON: Record<DeviceKind, ComponentType<{ className?: string }>> = {
   mobile: Smartphone,
@@ -17,12 +18,16 @@ const KIND_ICON: Record<DeviceKind, ComponentType<{ className?: string }>> = {
 export function DeviceRow({
   session,
   pending,
+  renaming,
   onRename,
+  onRenameDone,
   onRevoke,
 }: {
   session: SessionResponse
   pending: boolean
+  renaming: boolean
   onRename: () => void
+  onRenameDone: () => void
   onRevoke: () => void
 }) {
   const { t } = useTranslation()
@@ -38,16 +43,23 @@ export function DeviceRow({
   return (
     <li
       className={cn(
-        'flex items-start gap-3 rounded-control border bg-card p-3',
+        'relative flex items-start gap-3 overflow-hidden rounded-control border bg-card p-3',
         current ? 'border-primary' : 'border-border',
       )}
     >
-      <Icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <Icon
+        className="-right-4 -bottom-5 pointer-events-none absolute size-28 text-muted-foreground/5"
+        aria-hidden="true"
+      />
 
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-copy">{title}</p>
+      <div className="relative min-w-0 flex-1">
+        {renaming ? (
+          <DeviceName session={session} title={title} onDone={onRenameDone} />
+        ) : (
+          <p className="truncate font-medium text-copy">{title}</p>
+        )}
 
-        {label ? (
+        {label || renaming ? (
           <p className="mt-0.5 truncate text-meta text-muted-foreground">{fallback}</p>
         ) : null}
 
@@ -69,19 +81,21 @@ export function DeviceRow({
         </dl>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1">
-        <EditAction
-          disabled={pending}
-          onClick={onRename}
-          label={t('devices.renameAria', { device: title })}
-        />
-        <DeleteAction
-          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-          disabled={pending}
-          onClick={onRevoke}
-          label={t('devices.revokeAria', { device: title })}
-        />
-      </div>
+      {renaming ? null : (
+        <div className="relative flex shrink-0 items-center gap-1">
+          <EditAction
+            disabled={pending || renaming}
+            onClick={onRename}
+            label={t('devices.renameAria', { device: title })}
+          />
+          <DeleteAction
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            disabled={pending}
+            onClick={onRevoke}
+            label={t('devices.revokeAria', { device: title })}
+          />
+        </div>
+      )}
     </li>
   )
 }

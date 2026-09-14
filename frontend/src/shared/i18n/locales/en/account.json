@@ -148,6 +148,8 @@
     "unnamed": "Unnamed session",
     "rename": "Rename",
     "renameAria": "Rename the session on {{device}}",
+    "saveNameAria": "Save the name for {{device}}",
+    "cancelNameAria": "Leave the name of {{device}} as it is",
     "renameTitle": "Name this session",
     "renameHint": "A name of your choosing, so you can tell your devices apart.",
     "nameLabel": "Name",
