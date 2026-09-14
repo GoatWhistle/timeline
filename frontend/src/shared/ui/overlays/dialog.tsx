@@ -26,8 +26,9 @@ export function DialogContent({
   className,
   children,
   onCloseAutoFocus,
+  hideClose = false,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content>) {
+}: React.ComponentProps<typeof DialogPrimitive.Content> & { hideClose?: boolean }) {
   const returnFocus = useContext(ReturnFocusContext)
 
   return (
@@ -45,9 +46,11 @@ export function DialogContent({
         )}
         {...props}
       >
-        <DialogPrimitive.Close asChild>
-          <CloseButton className="absolute top-3 right-3" />
-        </DialogPrimitive.Close>
+        {hideClose ? null : (
+          <DialogPrimitive.Close asChild>
+            <CloseButton className="absolute top-3 right-3" />
+          </DialogPrimitive.Close>
+        )}
         {children}
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>

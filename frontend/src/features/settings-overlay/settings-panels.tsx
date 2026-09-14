@@ -81,8 +81,10 @@ function AccountPanel({ user }: { user: MeResponse }) {
         pendingEmail={user.pending_email}
       />
       <TelegramLinkCard user={user} />
-      <PasswordChangeCard />
-      <DeactivateAccountCard />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
+        <PasswordChangeCard />
+        <DeactivateAccountCard />
+      </div>
     </div>
   )
 }

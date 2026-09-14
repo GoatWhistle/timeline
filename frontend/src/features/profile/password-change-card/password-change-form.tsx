@@ -7,6 +7,7 @@ import { useChangePassword } from '@/entities/user/profile.queries'
 import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Field } from '@/shared/ui/forms/field'
 import { PasswordInput } from '@/shared/ui/forms/password-input'
+import { DialogFooter } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
 
 const passwordSchema = z
@@ -21,7 +22,13 @@ const passwordSchema = z
   })
 type PasswordValues = z.infer<typeof passwordSchema>
 
-export function PasswordChangeForm({ onChanged }: { onChanged: () => void }) {
+export function PasswordChangeForm({
+  onChanged,
+  onCancel,
+}: {
+  onChanged: () => void
+  onCancel?: () => void
+}) {
   const { t } = useTranslation()
   const changePassword = useChangePassword()
   const passwordForm = useForm<PasswordValues>({
@@ -51,7 +58,7 @@ export function PasswordChangeForm({ onChanged }: { onChanged: () => void }) {
 
   return (
     <form
-      className="flex flex-col gap-4 border-border border-t pt-4"
+      className="flex flex-col gap-4"
       onSubmit={passwordForm.handleSubmit(onChangePassword)}
       noValidate
     >
@@ -96,11 +103,16 @@ export function PasswordChangeForm({ onChanged }: { onChanged: () => void }) {
           {errors.root.message}
         </p>
       )}
-      <div className="flex justify-end">
-        <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
+      <DialogFooter>
+        {onCancel ? (
+          <Button type="button" variant="outline" onClick={onCancel}>
+            {t('action.cancel')}
+          </Button>
+        ) : null}
+        <Button type="submit" variant="destructive" disabled={passwordForm.formState.isSubmitting}>
           {t('profile.changePassword')}
         </Button>
-      </div>
+      </DialogFooter>
     </form>
   )
 }
