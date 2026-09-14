@@ -14,6 +14,13 @@ import { DeviceGlyphMark } from '@/shared/ui/brand/device-glyph/device-glyph'
 import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
 import { DeviceName } from './device-name'
 
+const SCREEN: Record<DeviceKind, string> = {
+  mobile: 'inset-x-[20%] top-[12%] bottom-[30%]',
+  tablet: 'inset-x-[18%] top-[12%] bottom-[30%]',
+  desktop: 'inset-x-[18%] top-[24%] bottom-[36%]',
+  unknown: 'inset-0',
+}
+
 const KIND_ICON: Record<DeviceKind, ComponentType<{ className?: string }>> = {
   mobile: Smartphone,
   tablet: Tablet,
@@ -72,26 +79,27 @@ export function DeviceRow({
         current ? 'border-primary' : 'border-border',
       )}
     >
-      <Icon
-        className="-right-4 -bottom-5 pointer-events-none absolute size-28 text-muted-foreground/15"
-        aria-hidden="true"
-      />
+      <span
+        data-device-frame
+        className="-right-4 -bottom-5 absolute size-28 text-muted-foreground/15"
+      >
+        <Icon className="pointer-events-none size-full" aria-hidden="true" />
+        <span
+          className={cn('absolute flex items-center justify-center gap-1', SCREEN[device.kind])}
+        >
+          <MarkRow marks={marks} className="size-6 text-current" />
+        </span>
+      </span>
 
       <div className="relative min-w-0 flex-1">
         {renaming ? (
           <DeviceName session={session} title={title} onDone={onRenameDone} />
         ) : (
-          <div className="flex min-w-0 items-center gap-1.5">
-            {label ? null : <MarkRow marks={marks} className="text-muted-foreground/80" />}
-            <p className="truncate font-medium text-copy">{title}</p>
-          </div>
+          <p className="truncate font-medium text-copy">{title}</p>
         )}
 
-        {label || renaming ? (
-          <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
-            <MarkRow marks={marks} />
-            <p className="truncate text-meta text-muted-foreground">{fallback}</p>
-          </div>
+        {renaming ? (
+          <p className="mt-0.5 truncate text-meta text-muted-foreground">{fallback}</p>
         ) : null}
 
         <dl className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-meta text-muted-foreground">

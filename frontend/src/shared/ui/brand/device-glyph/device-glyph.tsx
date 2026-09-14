@@ -54,7 +54,7 @@ export function DeviceGlyphMark({
             <span className="sr-only">{name}</span>
           </span>
         </TooltipTrigger>
-        <TooltipContent>{name}</TooltipContent>
+        <TooltipContent side="bottom">{name}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   )

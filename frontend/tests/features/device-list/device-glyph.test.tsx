@@ -136,6 +136,37 @@ describe('device glyphs', () => {
     expect(PLATFORM_GLYPHS.ChromeOS, 'ChromeOS has no brand mark in the set').toBeUndefined()
   })
 
+  it('seats the marks inside the device silhouette, not in a row of their own', async () => {
+    const { queryClient } = renderWithProviders(<DeviceList />)
+    queryClient.setQueryData(
+      deviceSessionsQueryKey,
+      listBody([session({ user_agent: AGENTS.chromeWindows })]),
+    )
+
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(1))
+
+    const frame = document.querySelector('[data-device-frame]')
+    expect(frame, 'the silhouette needs to host the marks').not.toBeNull()
+    expect(frame?.querySelectorAll('[data-device-glyph]')).toHaveLength(2)
+  })
+
+  it('lets the marks speak for the hardware instead of repeating it as text', async () => {
+    const { queryClient } = renderWithProviders(<DeviceList />)
+    queryClient.setQueryData(
+      deviceSessionsQueryKey,
+      listBody([session({ user_agent: AGENTS.chromeWindows, label: 'Work laptop' })]),
+    )
+
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(1))
+
+    const row = screen.getAllByRole('listitem')[0]
+    const shown = [...(row?.querySelectorAll('p') ?? [])].map((node) => node.textContent)
+
+    expect(shown, 'the row must not spell out what the marks already show').not.toContain(
+      'Chrome, Windows',
+    )
+  })
+
   it('carries a mark for every browser and platform the product can name', () => {
     for (const agent of Object.values(AGENTS)) {
       const { browser } = describeDevice(agent)

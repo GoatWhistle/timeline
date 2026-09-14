@@ -35,6 +35,8 @@ export function TooltipContent({
           'max-w-xs px-2.5 py-1.5 text-caption',
           'data-[state=delayed-open]:motion-safe:animate-in data-[state=delayed-open]:motion-safe:fade-in-0',
           'data-[state=delayed-open]:motion-safe:duration-fast data-[state=delayed-open]:motion-safe:ease-out',
+          'data-[state=instant-open]:motion-safe:animate-in data-[state=instant-open]:motion-safe:fade-in-0',
+          'data-[state=instant-open]:motion-safe:duration-fast data-[state=instant-open]:motion-safe:ease-out',
           'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
           'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
           className,
