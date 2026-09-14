@@ -48,26 +48,28 @@ function AppearancePanel({ user }: { user: MeResponse }) {
           <ThemeChoice />
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('language.label')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <LanguageChoice />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('settings.timezone')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TimezoneSelect
-            value={user.timezone ?? SYSTEM_TIME_ZONE}
-            onChange={onChangeTimezone}
-            disabled={updateProfile.isPending}
-          />
-        </CardContent>
-      </Card>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
+        <Card className="flex-1">
+          <CardHeader>
+            <CardTitle>{t('language.label')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LanguageChoice />
+          </CardContent>
+        </Card>
+        <Card className="flex-1">
+          <CardHeader>
+            <CardTitle>{t('settings.timezone')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TimezoneSelect
+              value={user.timezone ?? SYSTEM_TIME_ZONE}
+              onChange={onChangeTimezone}
+              disabled={updateProfile.isPending}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

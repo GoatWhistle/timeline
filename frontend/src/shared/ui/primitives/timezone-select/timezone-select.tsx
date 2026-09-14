@@ -58,7 +58,7 @@ export function TimezoneSelect({
       <PopoverTrigger
         disabled={disabled}
         className={cn(
-          'flex w-72 items-center gap-3 rounded-control border border-border bg-surface-1',
+          'flex w-full items-center gap-3 rounded-control border border-border bg-surface-1',
           'px-3 py-2 text-left transition-colors duration-instant ease-out',
           'hover:border-border-strong disabled:opacity-50',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',

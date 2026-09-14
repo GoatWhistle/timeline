@@ -12,11 +12,14 @@ const THEME = join(SRC, 'features/appearance/theme-choice.tsx')
 const LANGUAGE = join(SRC, 'features/appearance/language-choice.tsx')
 
 describe('a choice of theme or language spells its options out, phone included', () => {
-  it('stacks the options one per row before the viewport is wide enough for a grid', () => {
+  it('stacks the options one per row before there is room for a grid', () => {
     for (const file of [THEME, LANGUAGE]) {
       const source = readFileSync(file, 'utf8')
-      expect(source).toContain('grid-cols-1')
-      expect(source).toMatch(/sm:grid-cols-[23]/)
+      expect(source, file).toContain('grid-cols-1')
+      expect(
+        source,
+        `${file} widens to a grid on a viewport breakpoint or on its own container`,
+      ).toMatch(/(sm:grid-cols-[23]|@\[[\d.]+rem\]:grid-cols-[23])/)
     }
   })
 
