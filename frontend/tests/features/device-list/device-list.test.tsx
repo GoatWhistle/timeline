@@ -46,7 +46,7 @@ describe('device list', () => {
     const { queryClient } = renderWithProviders(<DeviceList />)
     queryClient.setQueryData(deviceSessionsQueryKey, listBody([PHONE, CURRENT]))
 
-    await waitFor(() => expect(screen.getByText(/Chrome/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getAllByText(/Chrome/).length).toBeGreaterThan(0))
 
     const titles = screen.getAllByRole('listitem').map((item) => item.textContent ?? '')
     expect(titles[0]).toContain('Chrome')
@@ -110,7 +110,7 @@ describe('device list', () => {
 
     expect(screen.getAllByRole('listitem'), 'the row must stay in the list').toHaveLength(2)
     expect(screen.getByRole('textbox')).toBeInTheDocument()
-    expect(screen.getByText(/Chrome/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Chrome/).length).toBeGreaterThan(0)
   })
 
   it('carries no card title above the devices', async () => {

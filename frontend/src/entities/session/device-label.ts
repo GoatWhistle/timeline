@@ -2,21 +2,26 @@ import type { SessionResponse } from '@/shared/api/types.gen'
 
 export type DeviceKind = 'mobile' | 'tablet' | 'desktop' | 'unknown'
 
+export type BrowserName = 'Edge' | 'Opera' | 'Firefox' | 'Yandex' | 'Chrome' | 'Safari'
+
+export type PlatformName = 'Windows' | 'iOS' | 'Android' | 'macOS' | 'ChromeOS' | 'Linux'
+
 export type DeviceLabel = {
   kind: DeviceKind
-  browser: string | null
-  platform: string | null
+  browser: BrowserName | null
+  platform: PlatformName | null
 }
 
-const BROWSERS: [RegExp, string][] = [
+const BROWSERS: [RegExp, BrowserName][] = [
   [/\bEdgA?\/|\bEdge\//i, 'Edge'],
   [/\bOPR\/|\bOpera\//i, 'Opera'],
   [/\bFirefox\/|\bFxiOS\//i, 'Firefox'],
+  [/\bYaBrowser\//i, 'Yandex'],
   [/\bChrome\/|\bCriOS\//i, 'Chrome'],
   [/\bSafari\//i, 'Safari'],
 ]
 
-const PLATFORMS: [RegExp, string][] = [
+const PLATFORMS: [RegExp, PlatformName][] = [
   [/\bWindows\b/i, 'Windows'],
   [/\b(iPhone|iPad|iPod)\b/i, 'iOS'],
   [/\bAndroid\b/i, 'Android'],
@@ -25,7 +30,7 @@ const PLATFORMS: [RegExp, string][] = [
   [/\bLinux\b/i, 'Linux'],
 ]
 
-function firstMatch(source: string, table: [RegExp, string][]): string | null {
+function firstMatch<T extends string>(source: string, table: [RegExp, T][]): T | null {
   for (const [pattern, name] of table) {
     if (pattern.test(source)) return name
   }

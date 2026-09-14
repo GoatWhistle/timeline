@@ -1,10 +1,16 @@
 import { CircleDot, Laptop, Smartphone, Tablet } from 'lucide-react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
-import { type DeviceKind, describeDevice } from '@/entities/session/device-label'
+import {
+  type BrowserName,
+  type DeviceKind,
+  describeDevice,
+  type PlatformName,
+} from '@/entities/session/device-label'
 import type { SessionResponse } from '@/shared/api/types.gen'
 import { formatDateTime, formatRelative } from '@/shared/datetime/datetime'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { DeviceGlyphMark } from '@/shared/ui/brand/device-glyph/device-glyph'
 import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
 import { DeviceName } from './device-name'
 
@@ -13,6 +19,24 @@ const KIND_ICON: Record<DeviceKind, ComponentType<{ className?: string }>> = {
   tablet: Tablet,
   desktop: Laptop,
   unknown: CircleDot,
+}
+
+function MarkRow({
+  marks,
+  className,
+}: {
+  marks: (BrowserName | PlatformName)[]
+  className?: string
+}) {
+  if (marks.length === 0) return null
+
+  return (
+    <span className="flex shrink-0 items-center gap-1.5">
+      {marks.map((name) => (
+        <DeviceGlyphMark key={name} name={name} className={className} />
+      ))}
+    </span>
+  )
 }
 
 export function DeviceRow({
@@ -34,7 +58,8 @@ export function DeviceRow({
   const device = describeDevice(session.user_agent)
   const Icon = KIND_ICON[device.kind]
 
-  const hardware = [device.browser, device.platform].filter(Boolean).join(', ')
+  const marks = [device.browser, device.platform].filter((name) => name !== null)
+  const hardware = marks.join(', ')
   const fallback = hardware || t(`devices.kind_${device.kind}`)
   const label = session.label ?? ''
   const title = label || fallback
@@ -48,7 +73,7 @@ export function DeviceRow({
       )}
     >
       <Icon
-        className="-right-4 -bottom-5 pointer-events-none absolute size-28 text-muted-foreground/5"
+        className="-right-4 -bottom-5 pointer-events-none absolute size-28 text-muted-foreground/15"
         aria-hidden="true"
       />
 
@@ -56,11 +81,17 @@ export function DeviceRow({
         {renaming ? (
           <DeviceName session={session} title={title} onDone={onRenameDone} />
         ) : (
-          <p className="truncate font-medium text-copy">{title}</p>
+          <div className="flex min-w-0 items-center gap-1.5">
+            {label ? null : <MarkRow marks={marks} className="text-muted-foreground/80" />}
+            <p className="truncate font-medium text-copy">{title}</p>
+          </div>
         )}
 
         {label || renaming ? (
-          <p className="mt-0.5 truncate text-meta text-muted-foreground">{fallback}</p>
+          <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
+            <MarkRow marks={marks} />
+            <p className="truncate text-meta text-muted-foreground">{fallback}</p>
+          </div>
         ) : null}
 
         <dl className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-meta text-muted-foreground">
