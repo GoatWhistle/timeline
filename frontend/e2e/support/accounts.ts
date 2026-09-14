@@ -61,30 +61,24 @@ export async function createMember(): Promise<{
   id: string
   nickname: string
 }> {
-  const jar = await adminJar()
-
   const email = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`
-  const invited = await call(jar, 'POST', '/admin/invites', { email })
-  if (invited.status !== 201) throw new Error(`the invite was not created: ${invited.status}`)
-
-  const link = (invited.json as { accept_link?: string }).accept_link
-  const token = link?.split('/').pop()
-  if (!token) throw new Error('the invite carries no token')
+  const nickname = `e2e${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
 
   const guest: Jar = new Map()
   await call(guest, 'GET', '/auth/csrf')
-  const nickname = `e2e${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
-  const accepted = await call(guest, 'POST', '/invites/accept', {
-    token,
+  const registered = await call(guest, 'POST', '/auth/register', {
     first_name: 'End',
     last_name: 'ToEnd',
     nickname,
+    email,
     password: MEMBER_PASSWORD,
   })
-  if (accepted.status !== 200) throw new Error(`the invite was not accepted: ${accepted.status}`)
+  if (registered.status !== 200) {
+    throw new Error(`the account was not registered: ${registered.status}`)
+  }
 
-  const id = (accepted.json as { user?: { id?: string } }).user?.id
-  if (!id) throw new Error('accepting the invite returned no user')
+  const id = (registered.json as { user?: { id?: string } }).user?.id
+  if (!id) throw new Error('registration returned no user')
 
   return { email, password: MEMBER_PASSWORD, id, nickname }
 }

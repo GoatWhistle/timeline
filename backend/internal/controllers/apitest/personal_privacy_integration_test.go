@@ -21,7 +21,7 @@ func TestPersonalRecordsAreInvisibleToAnotherParticipant(t *testing.T) {
 	records := seedPersonal(owner, t, f.EventID)
 
 	other := s.Register(t, "second-"+uuid.NewString()+"@example.com")
-	assign(f.AdminClient, t, f.EventID, other.ID)
+	assign(s, t, f.EventID, other)
 	intruder := s.Session(t, other)
 
 	tasks := intruder.Get("/me/events/" + f.EventID + "/tasks")
@@ -57,7 +57,7 @@ func TestForeignPersonalRecordAnswersNotFoundNotForbidden(t *testing.T) {
 	records := seedPersonal(owner, t, f.EventID)
 
 	other := s.Register(t, "second-"+uuid.NewString()+"@example.com")
-	assign(f.AdminClient, t, f.EventID, other.ID)
+	assign(s, t, f.EventID, other)
 	intruder := s.Session(t, other)
 
 	foreignTask := intruder.Patch("/me/tasks/"+records.taskID,

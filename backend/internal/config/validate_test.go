@@ -16,8 +16,7 @@ func validConfig() *Config {
 	cfg.Auth.JWTSecret = "dev-insecure-secret-change-me"
 	cfg.Notify.Backoff = []time.Duration{time.Minute}
 	cfg.Notify.MaxProviderCalls = models.MaxAttemptCount
-	cfg.Notify.MaxRulesPerReg = models.MaxRuleSlots
-	cfg.Notify.MaxOffsetMinutes = models.MaxRuleOffsetMinutes
+	cfg.Notify.OverdueLead = 24 * time.Hour
 	cfg.Avatar.MaxBytes = 1
 	cfg.Avatar.MaxDimension = 1
 	cfg.Cover.MaxBytes = 1
@@ -44,15 +43,10 @@ func TestNotificationLimitsCannotExceedTheStoredCeiling(t *testing.T) {
 			raise:   func(c *Config) { c.Notify.MaxProviderCalls = models.MaxAttemptCount + 1 },
 			lower:   func(c *Config) { c.Notify.MaxProviderCalls = 0 },
 		},
-		"rules beyond notification_rules.slot_no": {
-			setting: "NOTIFICATION_MAX_RULES",
-			raise:   func(c *Config) { c.Notify.MaxRulesPerReg = models.MaxRuleSlots + 1 },
-			lower:   func(c *Config) { c.Notify.MaxRulesPerReg = 0 },
-		},
-		"offset beyond notification_rules.offset_minutes": {
-			setting: "NOTIFICATION_MAX_OFFSET_MINUTES",
-			raise:   func(c *Config) { c.Notify.MaxOffsetMinutes = models.MaxRuleOffsetMinutes + 1 },
-			lower:   func(c *Config) { c.Notify.MaxOffsetMinutes = 0 },
+		"overdue lead outside the accepted window": {
+			setting: "NOTIFICATION_OVERDUE_LEAD",
+			raise:   func(c *Config) { c.Notify.OverdueLead = maxOverdueLead + time.Hour },
+			lower:   func(c *Config) { c.Notify.OverdueLead = -time.Hour },
 		},
 	}
 

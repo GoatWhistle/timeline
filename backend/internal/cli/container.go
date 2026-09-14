@@ -50,7 +50,6 @@ type container struct {
 		profileLinks            *identity.ProfileLinks
 		sessions                *identity.Sessions
 		tokens                  *identity.Tokens
-		invites                 *identity.Invites
 		events                  *event.Events
 		stages                  *event.Stages
 		tracks                  *event.Tracks
@@ -58,7 +57,7 @@ type container struct {
 		participants            *participation.Participants
 		registrations           *participation.Registrations
 		statuses                *participation.Statuses
-		rules                   *participation.Rules
+		reminderSchedules       *identity.ReminderSchedules
 		notifications           *notification.Notifications
 		notificationPreferences *notification.Preferences
 		scheduler               *notification.Scheduler
@@ -91,7 +90,6 @@ type container struct {
 	limiter  *ratelimit.Limiter
 
 	auth          *svcauth.AuthService
-	invites       *svcauth.InviteService
 	profile       *svcauth.ProfileService
 	profileLinks  *svcauth.ProfileLinkService
 	avatars       *svcauth.AvatarService
@@ -106,7 +104,6 @@ type container struct {
 	participants  *svcparticipation.ParticipantService
 	registrations *svcparticipation.RegistrationService
 	statuses      *svcparticipation.StatusService
-	rules         *svcparticipation.RuleService
 	queries       *svcevent.QueryService
 	audit         *sharedaudit.AuditService
 	personal      *svcpersonal.PersonalService
@@ -149,13 +146,13 @@ func newContainer(ctx context.Context) (*container, error) {
 	c.audit = sharedaudit.NewAuditService(c.repos.audit)
 	c.notifier = svcnotification.NewNotificationService(c.repos.notifications, c.repos.notificationPreferences, cfg)
 	c.scheduler = svcscheduler.NewSchedulerService(db, c.repos.scheduler,
-		c.repos.rules, c.repos.statuses, c.notifier, cfg)
+		c.repos.statuses, c.notifier, cfg)
 
-	c.auth = svcauth.NewAuthService(db, c.repos.users, c.repos.sessions, c.repos.tokens, c.repos.invites,
+	c.auth = svcauth.NewAuthService(db, c.repos.users, c.repos.sessions, c.repos.tokens,
 		c.notifier, c.audit, c.hasher, issuer, mailer, limiter, cfg)
-	c.invites = svcauth.NewInviteService(db, c.repos.invites, c.repos.users, c.auth, c.audit, mailer, limiter, cfg)
 	c.profile = svcauth.NewProfileService(db, c.repos.users, c.repos.tokens, c.repos.sessions,
-		c.notifier, c.repos.notificationPreferences, c.repos.events, c.repos.profileLinks,
+		c.notifier, c.repos.notificationPreferences, c.repos.reminderSchedules, c.repos.events,
+		c.repos.profileLinks,
 		c.audit, c.hasher, mailer, c.telegram, cfg)
 	c.profileLinks = svcauth.NewProfileLinkService(db, c.repos.profileLinks)
 	if err := c.wireAvatars(cfg); err != nil {
@@ -197,7 +194,7 @@ func (c *container) wireDelivery(cfg *config.Config) {
 		c.repos.events, c.repos.stages, c.repos.participants, cfg.Personal)
 	c.links = svcevent.NewResourceLinkService(db, c.repos.links,
 		c.repos.events, c.repos.stages, c.repos.participants, c.audit, cfg.Links)
-	c.ops = svcdelivery.NewOpsService(db, c.repos.scheduler, c.repos.notifications, cfg)
+	c.ops = svcdelivery.NewOpsService(db)
 	c.feed = svcrealtime.NewSystemEventService(db, c.repos.feed)
 	c.hub = svcrealtime.NewRealtimeHub(c.repos.feed, cfg.Realtime.MaxPerUser)
 }
@@ -216,8 +213,6 @@ func (c *container) wireParticipation(cfg *config.Config) {
 		c.repos.participants, c.repos.statuses, c.repos.users, c.notifier, c.scheduler, c.audit)
 	c.statuses = svcparticipation.NewStatusService(db, c.repos.statuses, c.repos.registrations,
 		c.repos.participants, c.repos.events, c.repos.users, c.notifier, c.scheduler, c.audit)
-	c.rules = svcparticipation.NewRuleService(db, c.repos.rules, c.repos.events, c.repos.registrations,
-		c.notifier, c.scheduler, c.audit, cfg)
 }
 
 func (c *container) wireTeams(cfg *config.Config) {

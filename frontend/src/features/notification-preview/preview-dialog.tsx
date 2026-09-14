@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { derivePreviewState, notificationPreviewQuery } from '@/entities/notification-preview'
+import {
+  derivePreviewState,
+  notificationPreviewQuery,
+  type PreviewDaysBefore,
+  type PreviewOccasion,
+} from '@/entities/notification-preview'
 import {
   Dialog,
   DialogContent,
@@ -12,19 +17,23 @@ import { PreviewBody } from './preview-body'
 
 export function NotificationPreviewDialog({
   statusId,
-  ruleId,
+  occasion,
+  daysBefore,
   open,
   onOpenChange,
 }: {
   statusId: string | null
-  ruleId?: string
+  occasion?: PreviewOccasion
+  daysBefore?: PreviewDaysBefore
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
   const { t } = useTranslation('notification')
   const enabled = open && statusId !== null
 
-  const query = useQuery(notificationPreviewQuery({ statusId: statusId ?? '', ruleId, enabled }))
+  const query = useQuery(
+    notificationPreviewQuery({ statusId: statusId ?? '', occasion, daysBefore, enabled }),
+  )
 
   const state = derivePreviewState({
     enabled,

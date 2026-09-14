@@ -27,36 +27,6 @@ export function eventStateCountsQuery() {
   })
 }
 
-export function overdueCountQuery() {
-  return queryOptions({
-    queryKey: ['admin-stats', 'overdue'],
-    staleTime: STATS_STALE_MS,
-    gcTime: STATS_STALE_MS,
-    queryFn: async () => {
-      const page = await unwrap(
-        api.GET('/admin/queries/overdue', { params: { query: { page: 1, page_size: 1 } } }),
-      )
-      return page.meta?.total ?? 0
-    },
-  })
-}
-
-export function upcomingCountQuery(withinHours = 72) {
-  return queryOptions({
-    queryKey: ['admin-stats', 'upcoming', withinHours],
-    staleTime: STATS_STALE_MS,
-    gcTime: STATS_STALE_MS,
-    queryFn: async () => {
-      const page = await unwrap(
-        api.GET('/admin/queries/upcoming', {
-          params: { query: { within_hours: withinHours, page: 1, page_size: 1 } },
-        }),
-      )
-      return page.meta?.total ?? 0
-    },
-  })
-}
-
 export function registrationCoverageQuery() {
   return queryOptions({
     queryKey: ['admin-stats', 'registration-coverage'],

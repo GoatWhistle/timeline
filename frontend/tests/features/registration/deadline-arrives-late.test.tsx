@@ -39,8 +39,6 @@ vi.mock('@/entities/registration/registration.queries', async () => {
   }
 })
 
-vi.mock('@/features/registration/rules-editor', () => ({ RulesEditor: () => null }))
-
 const EVENT = {
   id: 'ev_1',
   title: 'Existing',

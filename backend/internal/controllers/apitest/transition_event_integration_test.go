@@ -118,8 +118,8 @@ func TestEventEndChangeBumpsScheduleVersionAndCancelsPending(t *testing.T) {
 	if cancelled := notificationCount(s, t, f.EventID, "CANCELLED"); cancelled <= cancelledBefore {
 		t.Fatalf("moving the event end cancelled nothing beyond the %d already cancelled", cancelledBefore)
 	}
-	if pending := notificationCount(s, t, f.EventID, "PENDING"); pending != 0 {
-		t.Fatalf("moving the event end left %d pending notifications on the old schedule", pending)
+	if stale := pendingOnScheduleVersion(s, t, f.EventID, before.ScheduleVersion); stale != 0 {
+		t.Fatalf("moving the event end left %d pending notifications on the old schedule", stale)
 	}
 }
 
@@ -161,9 +161,7 @@ func TestPublishBackfillsNotificationsForParticipantsAssignedToADraft(t *testing
 		}), http.StatusCreated, "creating the registration on the draft")
 
 	recruit := s.Register(t, "recruit-"+support.Nickname()+"@example.com")
-	addResp := f.AdminClient.Post("/admin/events/"+draft+"/participants/batch-add",
-		map[string]any{"items": []map[string]any{{"user_id": recruit.ID, "team_role": "Developer"}}})
-	support.RequireStatus(t, addResp, http.StatusOK, "assigning a participant to the draft")
+	s.Assign(t, draft, recruit.ID, "Developer")
 
 	if before := notificationCount(s, t, draft, "PENDING") + notificationCount(s, t, draft, "SENT") +
 		notificationCount(s, t, draft, "PROCESSING") + notificationCount(s, t, draft, "UNDELIVERABLE"); before != 0 {

@@ -7,7 +7,6 @@ import { i18n } from '@/shared/i18n/config'
 import { FilterFigure } from '@/shared/ui/data-display/empty-figures/filter-figure'
 import {
   BrokenLinkFigure,
-  InviteFigure,
   RosterFigure,
   TeamFigure,
 } from '@/shared/ui/data-display/empty-figures/people-figures'
@@ -37,7 +36,6 @@ const FIGURES = {
   device: DeviceFigure,
   eventList: EventListFigure,
   filter: FilterFigure,
-  invite: InviteFigure,
   preview: PreviewFigure,
   queue: QueueFigure,
   roster: RosterFigure,

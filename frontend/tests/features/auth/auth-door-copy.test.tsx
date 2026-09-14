@@ -81,7 +81,6 @@ describe('the sibling cards keep only the sentences that add something', () => {
     ['reset', 'noTokenHint'],
     ['verify', 'noTokenHint'],
     ['emailChange', 'noTokenHint'],
-    ['invite', 'invalidHint'],
   ]
 
   it.each(KEPT)('keeps %s.%s, which says something the heading does not', (group, key) => {
@@ -98,7 +97,6 @@ describe('no auth sentence merely restates the heading above it', () => {
     ['reset', 'noTokenTitle', 'noTokenHint'],
     ['verify', 'noTokenTitle', 'noTokenHint'],
     ['emailChange', 'noTokenTitle', 'noTokenHint'],
-    ['invite', 'invalidTitle', 'invalidHint'],
   ]
 
   const words = (value: string) =>

@@ -110,8 +110,7 @@ func (c *CatalogController) List(w http.ResponseWriter, r *http.Request) {
 // @Summary		Join an event
 // @Description	Self-signup: the user joins a published event and supplies their own team role.
 // @Description	A meetup has no team role, so the field may be omitted; for a hackathon it is
-// @Description	required. A finished event cannot be joined: only an administrator may assign a
-// @Description	participant after the fact.
+// @Description	required. A finished event cannot be joined.
 // @Tags			catalog
 // @Accept			json
 // @Produce		json

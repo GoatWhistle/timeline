@@ -122,7 +122,8 @@ func TestProviderCallStartsOnlyOnce(t *testing.T) {
 
 func TestRecipientDeactivationCancelsAndBlocksRecreation(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()

@@ -10,8 +10,8 @@ import (
 
 // @Summary		Invite a user into the team
 // @Description	Restricted to the team lead. The person is named by exactly one of `user_id`, `nickname`
-// @Description	and `email`, and must already have an account: a platform invitation to somebody who is
-// @Description	not registered yet is an administrator operation, so an address nobody uses answers 404
+// @Description	and `email`, and must already have an account: somebody who is not registered yet signs
+// @Description	up on their own first, so an address nobody uses answers 404
 // @Description	with the same body an unknown nickname gets. The invitation lands in the INVITED state
 // @Description	and the invited person accepts it themselves.
 // @Tags			teams

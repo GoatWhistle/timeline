@@ -75,15 +75,8 @@ func TestParticipantRemovedToAssignedBumpsTheAssignmentVersion(t *testing.T) {
 	before := assignmentVersion(s, t, f.MemberPart)
 
 	member := s.Session(t, f.Member)
-	requireErrorCode(t, member.Post("/admin/participants/"+f.MemberPart+"/reactivate",
-		map[string]any{"team_role": "Developer"}),
-		http.StatusForbidden, "forbidden", "a participant reactivating itself")
-	if state := participationStatus(s, t, f.MemberPart); state != "REMOVED" {
-		t.Fatalf("the refused attempt moved the participant to %q", state)
-	}
-
-	support.RequireStatus(t, f.AdminClient.Post("/admin/participants/"+f.MemberPart+"/reactivate",
-		map[string]any{"team_role": "Developer"}), http.StatusOK, "reactivating the member")
+	support.RequireStatus(t, member.Post("/events/"+f.EventID+"/join",
+		map[string]any{"team_role": "Developer"}), http.StatusCreated, "rejoining after removal")
 	if state := participationStatus(s, t, f.MemberPart); state != "ASSIGNED" {
 		t.Fatalf("the participant is %q instead of ASSIGNED", state)
 	}
@@ -92,28 +85,29 @@ func TestParticipantRemovedToAssignedBumpsTheAssignmentVersion(t *testing.T) {
 		t.Fatalf("assignment_version went from %d to %d instead of +1", before, after)
 	}
 
-	requireErrorCode(t, f.AdminClient.Post("/admin/participants/"+f.MemberPart+"/reactivate",
+	requireErrorCode(t, member.Post("/events/"+f.EventID+"/join",
 		map[string]any{"team_role": "Developer"}),
-		http.StatusConflict, "already_assigned", "reactivating an already assigned participant")
+		http.StatusConflict, "already_assigned", "rejoining an event already joined")
 	if again := assignmentVersion(s, t, f.MemberPart); again != after {
-		t.Fatalf("the refused reactivation still bumped assignment_version to %d", again)
+		t.Fatalf("the refused rejoin still bumped assignment_version to %d", again)
 	}
 }
 
-func TestReactivationIsRefusedForADeactivatedAccount(t *testing.T) {
+func TestRejoiningIsRefusedForADeactivatedAccount(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
+	member := s.Session(t, f.Member)
 	support.RequireStatus(t, removeMany(f.AdminClient, t, f.EventID, f.MemberPart),
 		http.StatusOK, "removing the member")
 	support.RequireStatus(t, f.AdminClient.Post("/admin/users/"+f.Member.ID+"/deactivate", nil),
 		http.StatusOK, "deactivating the member")
 
-	requireErrorCode(t, f.AdminClient.Post("/admin/participants/"+f.MemberPart+"/reactivate",
+	requireErrorCode(t, member.Post("/events/"+f.EventID+"/join",
 		map[string]any{"team_role": "Developer"}),
-		http.StatusConflict, "user_inactive", "reactivating a deactivated support.Account")
+		http.StatusForbidden, "forbidden", "a deactivated account rejoining an event")
 	if state := participationStatus(s, t, f.MemberPart); state != "REMOVED" {
-		t.Fatalf("the refused reactivation moved the participant to %q", state)
+		t.Fatalf("the refused rejoin moved the participant to %q", state)
 	}
 }
 

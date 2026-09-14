@@ -64,9 +64,6 @@ func compose(lang, userTheme, publicURL, key, name, link, ttl string) letter {
 		WhyReceived:    locale.Message(lang, "email.why_received", args...),
 	}
 	l.Preheader = l.Intro
-	if key == inviteKey && name != "" {
-		l.Attribution = locale.Message(lang, key+".attribution", args...)
-	}
 	return l
 }
 

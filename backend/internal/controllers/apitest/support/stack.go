@@ -80,13 +80,12 @@ func NewStack(t *testing.T) *Stack {
 	users := identity.NewUsers(db)
 	sessions := identity.NewSessions(db)
 	tokens := identity.NewTokens(db)
-	invites := identity.NewInvites(db)
 	events := event.NewEvents(db)
 	stages := event.NewStages(db)
 	participants := participation.NewParticipants(db)
 	registrations := participation.NewRegistrations(db)
 	statuses := participation.NewStatuses(db)
-	rules := participation.NewRules(db)
+	reminderSchedules := identity.NewReminderSchedules(db)
 	notifications := notification.NewNotifications(db)
 	notificationPreferences := notification.NewPreferences(db)
 	scheduleRepo := notification.NewScheduler(db)
@@ -121,14 +120,15 @@ func NewStack(t *testing.T) *Stack {
 	personalSvc.WithRetrospectives(retrosRepo)
 	linksRepo := resourcelink.NewLinks(db)
 	notifier := svcnotification.NewNotificationService(notifications, notificationPreferences, cfg)
-	scheduler := svcscheduler.NewSchedulerService(db, scheduleRepo, rules, statuses, notifier, cfg)
-	auth := svcauth.NewAuthService(db, users, sessions, tokens, invites,
+	scheduler := svcscheduler.NewSchedulerService(db, scheduleRepo, statuses, notifier, cfg)
+	auth := svcauth.NewAuthService(db, users, sessions, tokens,
 		notifier, auditSvc, hasher, issuer, mailer, limiter, cfg)
 	feed := svcrealtime.NewSystemEventService(db, feedRepo)
 	hub := svcrealtime.NewRealtimeHub(feedRepo, cfg.Realtime.MaxPerUser)
 	profileLinksRepo := identity.NewProfileLinks(db)
 	profileSvc := svcauth.NewProfileService(db, users, tokens, sessions,
-		notifier, notificationPreferences, events, profileLinksRepo, auditSvc, hasher, mailer, tg, cfg)
+		notifier, notificationPreferences, reminderSchedules, events, profileLinksRepo,
+		auditSvc, hasher, mailer, tg, cfg)
 	userSvc := svcauth.NewUserService(db, users, sessions, notifier, auditSvc, cfg)
 	auth.WithRealtime(hub)
 	profileSvc.WithRealtime(hub)
@@ -148,7 +148,6 @@ func NewStack(t *testing.T) *Stack {
 
 	deps := controllers.Deps{
 		Auth:           auth,
-		Invites:        svcauth.NewInviteService(db, invites, users, auth, auditSvc, mailer, limiter, cfg),
 		Profile:        profileSvc,
 		PublicProfiles: profileSvc,
 		Users:          userSvc,
@@ -164,10 +163,9 @@ func NewStack(t *testing.T) *Stack {
 		Registrations: svcparticipation.NewRegistrationService(db, registrations, events,
 			participants, statuses, users, notifier, scheduler, auditSvc),
 		Statuses: statusSvc,
-		Rules:    svcparticipation.NewRuleService(db, rules, events, registrations, notifier, scheduler, auditSvc, cfg),
 		Queries:  querySvc,
 		Audit:    auditSvc,
-		Ops:      svcdelivery.NewOpsService(db, scheduleRepo, notifications, cfg),
+		Ops:      svcdelivery.NewOpsService(db),
 		Previews: scheduler,
 		Personal: personalSvc,
 		Links: svcevent.NewResourceLinkService(db, linksRepo,
@@ -192,8 +190,6 @@ func NewStack(t *testing.T) *Stack {
 		SessionRateWindow:  cfg.RateLim.SessionWindow,
 		PreviewRate:        cfg.RateLim.PreviewRequests,
 		PreviewRateWindow:  cfg.RateLim.PreviewWindow,
-		QueueRate:          cfg.RateLim.QueueRequests,
-		QueueRateWindow:    cfg.RateLim.QueueWindow,
 		PersonalRate:       cfg.RateLim.PersonalRequests,
 		PersonalRateWindow: cfg.RateLim.PersonalWindow,
 		LinkRate:           cfg.RateLim.LinkRequests,

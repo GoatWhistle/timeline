@@ -9,7 +9,6 @@ export const NAMESPACES = [
   'notification',
   'auth',
   'errors',
-  'ops',
   'team',
 ] as const
 
@@ -31,7 +30,6 @@ export const BUNDLES: Record<Namespace, readonly string[]> = {
   notification: ['notification', 'inbox'],
   auth: ['auth'],
   errors: ['errors', 'field-errors'],
-  ops: ['ops'],
   team: ['team'],
 }
 

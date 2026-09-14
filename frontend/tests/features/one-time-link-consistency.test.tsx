@@ -4,10 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 const SRC = join(process.cwd(), 'src')
 
-const HANDOFFS = [
-  { name: 'the team join link', file: 'features/teams/join-link-panel.tsx' },
-  { name: 'the admin invite link', file: 'features/invite-list/invite-list.tsx' },
-]
+const HANDOFFS = [{ name: 'the team join link', file: 'features/teams/join-link-panel.tsx' }]
 
 function source(file: string): string {
   return readFileSync(join(SRC, file), 'utf8')

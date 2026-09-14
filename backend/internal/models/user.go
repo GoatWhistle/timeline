@@ -102,23 +102,6 @@ func (t *OneTimeToken) Usable(now time.Time) bool {
 	return t.ConsumedAt == nil && t.ExpiresAt.After(now)
 }
 
-type Invite struct {
-	ID              uuid.UUID  `json:"id"`
-	DisplayID       string     `json:"display_id"`
-	NormalizedEmail string     `json:"email"`
-	CreatedByUserID uuid.UUID  `json:"created_by_user_id"`
-	CreatedByUser   string     `json:"-"`
-	TokenHash       string     `json:"-"`
-	ExpiresAt       time.Time  `json:"expires_at"`
-	AcceptedAt      *time.Time `json:"accepted_at,omitempty"`
-	RevokedAt       *time.Time `json:"revoked_at,omitempty"`
-	CreatedAt       time.Time  `json:"created_at"`
-}
-
-func (i *Invite) Usable(now time.Time) bool {
-	return i.AcceptedAt == nil && i.RevokedAt == nil && i.ExpiresAt.After(now)
-}
-
 const (
 	LocaleRU = "ru"
 

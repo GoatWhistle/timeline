@@ -63,7 +63,7 @@ describe('an explanatory strip beside a control is one surface, not one per scre
 
   it('really does look at every screen, so an empty result means agreement, not an empty sweep', () => {
     expect(files.length).toBeGreaterThan(100)
-    expect(files.map(named)).toContain('features/ops-queue/ops-queue.tsx')
+    expect(files.map(named)).toContain('features/notification-preview/preview-body.tsx')
   })
 
   it('leaves the glyph out of the accessible name, since the words already carry it', () => {

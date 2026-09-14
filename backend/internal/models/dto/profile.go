@@ -167,41 +167,19 @@ type UserPage struct {
 	Meta  PageMeta      `json:"meta"`
 }
 
-type InviteResponse struct {
-	ID              string     `json:"id" example:"in_42ej2s5gh7e8"`
-	Email           string     `json:"email" example:"new@example.com"`
-	CreatedByUserID string     `json:"created_by_user_id" example:"us_42ej2s5gh7e8"`
-	ExpiresAt       time.Time  `json:"expires_at"`
-	AcceptedAt      *time.Time `json:"accepted_at,omitempty"`
-	RevokedAt       *time.Time `json:"revoked_at,omitempty"`
-	CreatedAt       time.Time  `json:"created_at"`
+type ReminderScheduleOccasion struct {
+	Occasion   string `json:"occasion" example:"REMINDER_REGISTRATION_DEADLINE" enums:"REMINDER_REGISTRATION_DEADLINE,REMINDER_EVENT_START,REMINDER_STAGE_START,REMINDER_EVENT_END"`
+	DaysBefore []int  `json:"days_before" example:"1,3"`
 }
 
-type InvitePage struct {
-	Items []InviteResponse `json:"items"`
-	Meta  PageMeta         `json:"meta"`
+type ReminderScheduleResponse struct {
+	Occasions      []ReminderScheduleOccasion `json:"occasions"`
+	OverdueEnabled bool                       `json:"overdue_enabled" example:"true"`
+	Version        int                        `json:"version" example:"1"`
+	DayChoices     []int                      `json:"day_choices" example:"1,2,3,7,14"`
 }
 
-type CreateInviteRequest struct {
-	Email string `json:"email" example:"new@example.com"`
-}
-
-type CreateInviteResponse struct {
-	Invite     InviteResponse `json:"invite"`
-	AcceptLink string         `json:"accept_link" example:"https://tracker.local/invite/abc123"`
-}
-
-type InvitePreview struct {
-	Email     string    `json:"email" example:"new@example.com"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Valid     bool      `json:"valid" example:"true"`
-}
-
-type AcceptInviteRequest struct {
-	Token      string  `json:"token" example:"abc123"`
-	FirstName  string  `json:"first_name" example:"John"`
-	MiddleName *string `json:"middle_name,omitempty" example:"Fitzgerald"`
-	LastName   string  `json:"last_name" example:"Smith"`
-	Nickname   string  `json:"nickname" binding:"required" example:"jsmith"`
-	Password   string  `json:"password" example:"correct-horse-battery"`
+type UpdateReminderScheduleRequest struct {
+	Occasions      []ReminderScheduleOccasion `json:"occasions"`
+	OverdueEnabled bool                       `json:"overdue_enabled" example:"true"`
 }

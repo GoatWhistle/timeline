@@ -19,9 +19,6 @@ export const ResetPasswordPage = lazy(() =>
     default: m.PasswordResetConfirm,
   })),
 )
-export const InvitePage = lazy(() =>
-  import('@/features/auth/invite/invite').then((m) => ({ default: m.InvitePage })),
-)
 export const EmailChangeConfirmPage = lazy(() =>
   import('@/features/auth/email-change-confirm/email-change-confirm').then((m) => ({
     default: m.EmailChangeConfirmPage,
@@ -78,17 +75,8 @@ export const AdminEventsPage = lazy(() =>
   adminBundle().then((m) => ({ default: m.AdminEventsPage })),
 )
 export const AdminEventPage = lazy(() => adminBundle().then((m) => ({ default: m.AdminEventPage })))
-export const AdminDeadlinesPage = lazy(() =>
-  adminBundle().then((m) => ({ default: m.AdminDeadlinesPage })),
-)
 export const AdminUsersPage = lazy(() => adminBundle().then((m) => ({ default: m.AdminUsersPage })))
-export const AdminInvitesPage = lazy(() =>
-  adminBundle().then((m) => ({ default: m.AdminInvitesPage })),
-)
 export const AdminAuditPage = lazy(() => adminBundle().then((m) => ({ default: m.AdminAuditPage })))
-export const AdminOpsQueuePage = lazy(() =>
-  adminBundle().then((m) => ({ default: m.AdminOpsQueuePage })),
-)
 export const AdminRetentionPage = lazy(() =>
   adminBundle().then((m) => ({ default: m.AdminRetentionPage })),
 )

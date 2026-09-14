@@ -27,24 +27,6 @@
     "formDescription": "Описание",
     "outOfRange": "Этап выходит за период события. Это допустимо — сохранение не блокируется."
   },
-  "deadlines": {
-    "title": "Дедлайны",
-    "description": "Участники, которые ещё не отметили регистрацию",
-    "window24": "ближайшие сутки",
-    "window72": "ближайшие 3 дня",
-    "window168": "ближайшая неделя",
-    "windowAria": "Окно",
-    "columnParticipant": "Участник",
-    "columnEvent": "Событие",
-    "columnDeadline": "Дедлайн",
-    "columnOverdue": "Просрочка",
-    "columnLeft": "Осталось",
-    "columnStatus": "Статус",
-    "tabUpcoming": "Приближаются",
-    "tabOverdue": "Просрочены",
-    "emptyUpcoming": "Ближайших дедлайнов нет",
-    "emptyOverdue": "Просроченных дедлайнов нет"
-  },
   "urgency": {
     "overdue": "просрочен",
     "today": "сегодня",

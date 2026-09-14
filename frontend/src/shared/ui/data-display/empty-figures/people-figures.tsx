@@ -1,4 +1,4 @@
-import { BrandMark, DashedCircle, DashedPath, DashedRect, FigureFrame } from './figure-frame'
+import { BrandMark, DashedCircle, DashedPath, FigureFrame } from './figure-frame'
 
 export function TeamFigure({ label }: { label: string }) {
   return (
@@ -17,18 +17,6 @@ export function RosterFigure({ label }: { label: string }) {
       <DashedPath d="M8 84c0-12 8-20 18-20s18 8 18 20" />
       <DashedCircle cx={174} cy={40} r={16} />
       <DashedPath d="M156 84c0-12 8-20 18-20s18 8 18 20" />
-      <BrandMark />
-    </FigureFrame>
-  )
-}
-
-export function InviteFigure({ label }: { label: string }) {
-  return (
-    <FigureFrame label={label}>
-      <DashedRect x={14} y={26} width={54} height={52} rx={8} />
-      <DashedPath d="M14 30l27 22 27-22" />
-      <DashedRect x={132} y={26} width={54} height={52} rx={8} />
-      <DashedPath d="M132 30l27 22 27-22" />
       <BrandMark />
     </FigureFrame>
   )

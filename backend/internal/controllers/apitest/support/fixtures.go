@@ -22,9 +22,11 @@ const (
 	MissingEventID  = "ev_zzzzzzzzzzzz"
 	MissingTaskID   = "tk_zzzzzzzzzzzz"
 	MissingStatusID = "rs_zzzzzzzzzzzz"
-	MissingRuleID   = "nr_zzzzzzzzzzzz"
 	MissingTrackID  = "tr_zzzzzzzzzzzz"
 	MissingSessID   = "se_zzzzzzzzzzzz"
+	MissingStageID  = "st_zzzzzzzzzzzz"
+	MissingCaseID   = "cs_zzzzzzzzzzzz"
+	MissingLinkID   = "rl_zzzzzzzzzzzz"
 )
 
 type Account struct {
@@ -100,7 +102,6 @@ type Fixture struct {
 	OtherEvent  string
 	MemberPart  string
 	StatusID    string
-	RegRuleID   string
 	AdminClient *Client
 }
 
@@ -127,27 +128,14 @@ func (s *Stack) Seed(t *testing.T) Fixture {
 			"deadline_at": start.Add(12 * time.Hour).Format(time.RFC3339),
 		}), http.StatusCreated, "creating the registration")
 
-	addResp := adminClient.Post("/admin/events/"+eventID+"/participants/batch-add",
-		map[string]any{"items": []map[string]any{{"user_id": member.ID, "team_role": "Developer"}}})
-	RequireStatus(t, addResp, http.StatusOK, "assigning the member")
-	if !ContainsAll(string(addResp.Body), `"succeeded":1`) {
-		t.Fatalf("assigning the member did not succeed: %s", addResp.Body)
-	}
+	s.Session(t, member).Join(t, eventID, "Developer")
 
 	memberPart, statusID := adminClient.RosterIDs(t, eventID, member.ID)
-
-	ruleResp := adminClient.Post("/admin/events/"+eventID+"/registration/rules",
-		map[string]any{"offset_minutes": 60})
-	RequireStatus(t, ruleResp, http.StatusCreated, "creating a reminder rule")
-	var rule struct {
-		ID string `json:"id"`
-	}
-	ruleResp.Decode(t, &rule)
 
 	return Fixture{
 		Admin: admin, Member: member, Outsider: outsider,
 		EventID: eventID, OtherEvent: otherEvent,
-		MemberPart: memberPart, StatusID: statusID, RegRuleID: rule.ID,
+		MemberPart: memberPart, StatusID: statusID,
 		AdminClient: adminClient,
 	}
 }
@@ -216,4 +204,31 @@ func (c *Client) RosterIDs(t *testing.T, eventID, userID string) (string, string
 	}
 	t.Fatalf("user %s is not in the roster of %s: %s", userID, eventID, resp.Body)
 	return "", ""
+}
+
+func (c *Client) Join(t *testing.T, eventID, teamRole string) {
+	t.Helper()
+	resp := c.Post("/events/"+eventID+"/join", map[string]any{"team_role": teamRole})
+	RequireStatus(t, resp, http.StatusCreated, "joining the event")
+}
+
+func (s *Stack) Assign(t *testing.T, eventID, userID, teamRole string) string {
+	t.Helper()
+	var displayID string
+	if err := s.DB().Pool().QueryRow(context.Background(), `
+		INSERT INTO event_participants (event_id, user_id, team_role)
+		SELECT e.id, u.id, $3 FROM events e, users u
+		WHERE e.display_id = $1 AND u.display_id = $2
+		RETURNING display_id`, eventID, userID, teamRole).Scan(&displayID); err != nil {
+		t.Fatalf("seeding a participant of %s: %v", eventID, err)
+	}
+	if _, err := s.DB().Pool().Exec(context.Background(), `
+		INSERT INTO registration_statuses (event_id, registration_id, participant_id)
+		SELECT r.event_id, r.id, p.id FROM registrations r, event_participants p
+		WHERE r.event_id = (SELECT id FROM events WHERE display_id = $1)
+		  AND p.display_id = $2
+		ON CONFLICT DO NOTHING`, eventID, displayID); err != nil {
+		t.Fatalf("seeding the registration status of %s: %v", displayID, err)
+	}
+	return displayID
 }

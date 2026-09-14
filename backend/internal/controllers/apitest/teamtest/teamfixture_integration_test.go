@@ -87,13 +87,13 @@ func seedTeam(s *support.Stack, t *testing.T, mates int, teamSizeMin, teamSizeMa
 		}), http.StatusCreated, "creating the registration")
 
 	teamID := createTeam(leadClient, t, "Night shift "+suffix[:8])
-	assignToEvent(adminClient, t, eventID, lead.ID)
+	assignToEvent(s, t, eventID, lead)
 
 	accounts := make([]support.Account, 0, mates)
 	for index := 0; index < mates; index++ {
 		mate := s.Register(t, "tmate"+suffix[:6]+string(rune('a'+index))+"@example.com")
 		inviteAndAccept(s, leadClient, t, teamID, mate)
-		assignToEvent(adminClient, t, eventID, mate.ID)
+		assignToEvent(s, t, eventID, mate)
 		accounts = append(accounts, mate)
 	}
 
@@ -148,14 +148,9 @@ func inviteAndAccept(s *support.Stack, lead *support.Client, t *testing.T,
 		http.StatusOK, mate.Email+" accepting the invitation")
 }
 
-func assignToEvent(admin *support.Client, t *testing.T, eventID, userID string) {
+func assignToEvent(s *support.Stack, t *testing.T, eventID string, acc support.Account) {
 	t.Helper()
-	resp := admin.Post("/admin/events/"+eventID+"/participants/batch-add",
-		map[string]any{"items": []map[string]any{{"user_id": userID, "team_role": "Developer"}}})
-	support.RequireStatus(t, resp, http.StatusOK, "assigning "+userID)
-	if !support.ContainsAll(string(resp.Body), `"succeeded":1`) {
-		t.Fatalf("assigning %s did not succeed: %s", userID, resp.Body)
-	}
+	s.Session(t, acc).Join(t, eventID, "Developer")
 }
 
 func enterEvent(c *support.Client, t *testing.T, teamID, eventID string) teamStanding {

@@ -1,4 +1,4 @@
-import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, resetCsrfToken, unwrap } from '@/shared/api/client'
 import type { AuthResponse, LoginRequest, RegisterRequest } from '@/shared/api/types.gen'
 
@@ -50,32 +50,5 @@ export function useForgotPassword() {
 export function useResetPassword() {
   return useMutation<unknown, Error, { token: string; password: string }>({
     mutationFn: (body) => unwrap(api.POST('/auth/password/reset', { body })),
-  })
-}
-
-export function useInvitePreview(token: string) {
-  return queryOptions({
-    queryKey: ['invite', token],
-    queryFn: () => unwrap(api.GET('/invites/{token}', { params: { path: { token } } })),
-    retry: false,
-  })
-}
-
-export function useAcceptInvite() {
-  const queryClient = useQueryClient()
-  return useMutation<
-    AuthResponse,
-    Error,
-    {
-      token: string
-      first_name: string
-      middle_name?: string | undefined
-      last_name: string
-      nickname: string
-      password: string
-    }
-  >({
-    mutationFn: (body) => unwrap(api.POST('/invites/accept', { body })),
-    onSuccess: (data) => queryClient.setQueryData(sessionQueryKey, data.user),
   })
 }

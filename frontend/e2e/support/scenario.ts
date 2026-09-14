@@ -54,13 +54,23 @@ export async function memberWithOpenRegistration(): Promise<AssignedMember> {
 
   await expectStatus(jar, 'POST', `/admin/events/${eventId}/publish`, undefined, 200, 'publishing')
 
+  const memberJar: Jar = new Map()
+  await call(memberJar, 'GET', '/auth/csrf')
   await expectStatus(
-    jar,
+    memberJar,
     'POST',
-    `/admin/events/${eventId}/participants/batch-add`,
-    { items: [{ user_id: member.id, team_role: 'Developer' }] },
+    '/auth/login',
+    { email: member.email, password: member.password },
     200,
-    'assigning the participant',
+    'signing the member in',
+  )
+  await expectStatus(
+    memberJar,
+    'POST',
+    `/events/${eventId}/join`,
+    { team_role: 'Developer' },
+    201,
+    'joining the event',
   )
 
   await expectStatus(

@@ -7,7 +7,7 @@ import { useUpdateProfile } from '@/entities/user/profile.queries'
 import type { Channel, MeResponse } from '@/shared/api/types.gen'
 import { Note } from '@/shared/ui/data-display/note/note'
 import { Checkbox } from '@/shared/ui/forms/checkbox'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { TelegramMark } from '@/shared/ui/navigation/service-link/service-icon'
 
 const ALL_CHANNELS: Channel[] = ['TELEGRAM', 'EMAIL']
@@ -44,11 +44,10 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
     <Card>
       <CardHeader>
         <CardTitle>{t('card.title')}</CardTitle>
-        <CardDescription>{t('card.hint')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <fieldset className="flex flex-col gap-3">
-          <legend className="sr-only">{t('card.hint')}</legend>
+          <legend className="sr-only">{t('card.title')}</legend>
           {ALL_CHANNELS.map((channel) => {
             const Icon = CHANNEL_ICON[channel]
             const available = channelAvailability[channel]
@@ -81,8 +80,6 @@ export function NotificationChannelCard({ user }: { user: MeResponse }) {
             {t('card.emptyHint')}
           </Note>
         )}
-
-        <p className="text-meta text-muted-foreground">{t('card.setUpInAccount')}</p>
       </CardContent>
     </Card>
   )

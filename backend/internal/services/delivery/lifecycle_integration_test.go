@@ -21,8 +21,8 @@ func TestActivationVersionBumpProducesNewPrimaryKey(t *testing.T) {
 	if err := r.notifier.CancelForRegistration(w.ctx, w.RegistrationID); err != nil {
 		t.Fatalf("cancelling on disable: %v", err)
 	}
-	if r.reconcile().Scanned != 0 {
-		t.Fatalf("a DISABLED registration must not be a candidate")
+	if again := r.reconcile(); again.Primary != 0 || again.Reminder != 0 || again.Overdue != 0 {
+		t.Fatalf("a DISABLED registration still produced notifications: %+v", again)
 	}
 
 	w.exec(`UPDATE registrations SET state = 'ACTIVE', activation_version = activation_version + 1,
@@ -69,7 +69,8 @@ func TestEventTitleChangeDoesNotRewriteSnapshot(t *testing.T) {
 
 func TestArchivedEventStopsReconciliation(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
@@ -98,12 +99,13 @@ func TestArchivedEventStopsReconciliation(t *testing.T) {
 
 func TestRetentionKeepsLogicalKeyAndBlocksRecreation(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	key := r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
+	key := r.reminderKey(1, models.ChannelTelegram)
 	old := r.byKey(key)
 	w.exec(`UPDATE notifications SET status = 'SENT', sent_at = now(), created_at = now() - interval '120 days'
 		WHERE id = $1`, old.ID)

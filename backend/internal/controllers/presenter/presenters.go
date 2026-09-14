@@ -121,27 +121,22 @@ func RegistrationResponse(r *models.Registration, eventDisplayID string) dto.Reg
 	}
 }
 
-func RuleResponse(r *models.NotificationRule) dto.NotificationRuleResponse {
-	return dto.NotificationRuleResponse{
-		ID:             r.DisplayID,
-		RegistrationID: r.RegistrationDisplayID,
-		OffsetMinutes:  r.OffsetMinutes,
-		Type:           r.NotificationType(),
-		Enabled:        r.Enabled,
-		SlotNo:         r.SlotNo,
-		CreatedAt:      r.CreatedAt,
-		UpdatedAt:      r.UpdatedAt,
+func ReminderScheduleResponse(s *models.ReminderSchedule) dto.ReminderScheduleResponse {
+	occasions := make([]dto.ReminderScheduleOccasion, 0, len(models.ReminderOccasions))
+	for _, occasion := range models.ReminderOccasions {
+		days := s.DaysFor(occasion)
+		if days == nil {
+			days = []int{}
+		}
+		occasions = append(occasions, dto.ReminderScheduleOccasion{
+			Occasion:   string(occasion),
+			DaysBefore: days,
+		})
 	}
-}
-
-func InviteResponse(i *models.Invite) dto.InviteResponse {
-	return dto.InviteResponse{
-		ID:              i.DisplayID,
-		Email:           i.NormalizedEmail,
-		CreatedByUserID: i.CreatedByUser,
-		ExpiresAt:       i.ExpiresAt,
-		AcceptedAt:      i.AcceptedAt,
-		RevokedAt:       i.RevokedAt,
-		CreatedAt:       i.CreatedAt,
+	return dto.ReminderScheduleResponse{
+		Occasions:      occasions,
+		OverdueEnabled: s.OverdueEnabled,
+		Version:        s.Version,
+		DayChoices:     models.ReminderDayChoices,
 	}
 }

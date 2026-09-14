@@ -12,13 +12,14 @@ import (
 	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
 
-func notificationsOfEvent(s *support.Stack, t *testing.T, eventID string) int {
+func primaryNotificationsOfEvent(s *support.Stack, t *testing.T, eventID string) int {
 	t.Helper()
 	var count int
 	if err := s.DB().Pool().QueryRow(context.Background(), `
 		SELECT count(*) FROM notifications n
 		JOIN registration_statuses rs ON rs.id = n.registration_status_id
-		WHERE rs.event_id = (SELECT id FROM events WHERE display_id = $1)`, eventID).Scan(&count); err != nil {
+		WHERE rs.event_id = (SELECT id FROM events WHERE display_id = $1)
+		  AND n.notification_type = 'REGISTRATION_REQUIRED'`, eventID).Scan(&count); err != nil {
 		t.Fatalf("counting the notifications of %s: %v", eventID, err)
 	}
 	return count
@@ -42,9 +43,7 @@ func TestRegistrationOnAnUnpublishedEventDefersEveryNotificationUntilPublication
 	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
 	draft := f.AdminClient.CreateEvent(t, "Draft with a registration", start)
 
-	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+draft+"/participants/batch-add",
-		map[string]any{"items": []map[string]any{{"user_id": f.Member.ID, "team_role": "Developer"}}}),
-		http.StatusOK, "assigning the member to the draft")
+	s.Assign(t, draft, f.Member.ID, "Developer")
 
 	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+draft+"/registration",
 		map[string]any{
@@ -55,13 +54,13 @@ func TestRegistrationOnAnUnpublishedEventDefersEveryNotificationUntilPublication
 	if statuses := statusesOfEvent(s, t, draft); statuses != 1 {
 		t.Fatalf("the unpublished event carries %d registration statuses instead of one", statuses)
 	}
-	if raised := notificationsOfEvent(s, t, draft); raised != 0 {
+	if raised := primaryNotificationsOfEvent(s, t, draft); raised != 0 {
 		t.Fatalf("a registration on an unpublished event raised %d notifications", raised)
 	}
 
 	f.AdminClient.Publish(t, draft)
 
-	afterPublish := notificationsOfEvent(s, t, draft)
+	afterPublish := primaryNotificationsOfEvent(s, t, draft)
 	if afterPublish != 2 {
 		t.Fatalf("publishing raised %d notifications instead of one per default channel (2)", afterPublish)
 	}
@@ -70,7 +69,7 @@ func TestRegistrationOnAnUnpublishedEventDefersEveryNotificationUntilPublication
 		map[string]any{"title": "Draft with a registration, renamed"}),
 		http.StatusOK, "touching the event so reconciliation runs again")
 
-	if again := notificationsOfEvent(s, t, draft); again != afterPublish {
+	if again := primaryNotificationsOfEvent(s, t, draft); again != afterPublish {
 		t.Fatalf("a second reconciliation moved the notification count from %d to %d",
 			afterPublish, again)
 	}
@@ -121,9 +120,7 @@ func TestMyEventsHidesArchivedUntilAskedAndNeverShowsForeignAssignments(t *testi
 	f.AdminClient.Publish(t, archived)
 
 	for _, id := range []string{finished, archived} {
-		support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+id+"/participants/batch-add",
-			map[string]any{"items": []map[string]any{{"user_id": f.Member.ID, "team_role": "Developer"}}}),
-			http.StatusOK, "assigning the member to "+id)
+		s.Assign(t, id, f.Member.ID, "Developer")
 	}
 	support.RequireStatus(t, archive(f.AdminClient, t, archived), http.StatusOK, "archiving one assignment")
 
@@ -213,11 +210,9 @@ func TestAdministrativeReadSurfacesNeverExposeAnInternalIdentifier(t *testing.T)
 		"/admin/events/" + f.EventID,
 		"/admin/events/" + f.EventID + "/participants",
 		"/admin/events/" + f.EventID + "/registration",
-		"/admin/events/" + f.EventID + "/registration/rules",
 		"/admin/events/" + f.EventID + "/registration-statuses",
 		"/events/" + f.EventID + "/stages",
 		"/admin/users",
-		"/admin/invites",
 		"/admin/queries/upcoming?within_hours=720",
 		"/admin/queries/overdue",
 	} {

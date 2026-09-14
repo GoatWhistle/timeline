@@ -8,7 +8,6 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
-	"github.com/GoatWhistle/timeline/internal/adapters/postgres/participation"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
@@ -136,26 +135,45 @@ func (r *Scheduler) CandidateByStatus(ctx context.Context, statusID uuid.UUID) (
 		WHERE`+reconcileWhere+` AND s.id = $1`, statusID))
 }
 
-func (r *Scheduler) EnabledRules(ctx context.Context, registrationIDs []uuid.UUID) (map[uuid.UUID][]models.NotificationRule, error) {
-	result := make(map[uuid.UUID][]models.NotificationRule, len(registrationIDs))
-	if len(registrationIDs) == 0 {
+func (r *Scheduler) Schedules(ctx context.Context, userIDs []uuid.UUID,
+) (map[uuid.UUID]*models.ReminderSchedule, error) {
+	result := make(map[uuid.UUID]*models.ReminderSchedule, len(userIDs))
+	if len(userIDs) == 0 {
 		return result, nil
 	}
+
 	rows, err := r.db.Q(ctx).Query(ctx, `
-		SELECT `+participation.RuleColumns+` FROM notification_rules
-		WHERE registration_id = ANY($1) AND enabled
-		ORDER BY slot_no`, registrationIDs)
+		SELECT u.id, u.reminder_overdue_enabled, u.reminder_schedule_version, s.occasion, s.days_before
+		FROM users u
+		LEFT JOIN user_reminder_schedule s ON s.user_id = u.id
+		WHERE u.id = ANY($1)`, userIDs)
 	if err != nil {
 		return nil, mapError(err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		rule, err := participation.ScanRule(rows)
-		if err != nil {
-			return nil, err
+		var (
+			userID   uuid.UUID
+			overdue  bool
+			version  int
+			occasion *string
+			days     *int
+		)
+		if err := rows.Scan(&userID, &overdue, &version, &occasion, &days); err != nil {
+			return nil, mapError(err)
 		}
-		result[rule.RegistrationID] = append(result[rule.RegistrationID], *rule)
+		schedule, ok := result[userID]
+		if !ok {
+			schedule = models.NewReminderSchedule()
+			schedule.OverdueEnabled = overdue
+			schedule.Version = version
+			result[userID] = schedule
+		}
+		if occasion != nil && days != nil {
+			key := models.NotificationOccasion(*occasion)
+			schedule.Days[key] = append(schedule.Days[key], *days)
+		}
 	}
 	return result, mapError(rows.Err())
 }

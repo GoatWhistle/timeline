@@ -1,11 +1,8 @@
 {
   "duration": {
-    "atDeadline": "в момент дедлайна",
     "days": "{{count}} дн.",
     "hours": "{{count}} ч.",
-    "minutes": "{{count}} мин.",
-    "before": "за {{amount}} до дедлайна",
-    "after": "через {{amount}} после дедлайна"
+    "minutes": "{{count}} мин."
   },
   "when": {
     "today": "Сегодня, {{time}}",

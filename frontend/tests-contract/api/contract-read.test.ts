@@ -89,14 +89,6 @@ describe('Contract compliance: reads', () => {
     assertMatchesContract('/admin/events/{id}/registration', 'get', 200, data)
   })
 
-  it('GET /admin/events/{id}/registration/rules', async () => {
-    const { data, response } = await api.GET('/admin/events/{id}/registration/rules', {
-      params: { path: { id: eventId } },
-    })
-    expect(response.status).toBe(200)
-    assertMatchesContract('/admin/events/{id}/registration/rules', 'get', 200, data)
-  })
-
   it('GET /admin/events/{id}/registration-statuses', async () => {
     const { data, response } = await api.GET('/admin/events/{id}/registration-statuses', {
       params: { path: { id: eventId }, query: {} },
@@ -111,41 +103,10 @@ describe('Contract compliance: reads', () => {
     assertMatchesContract('/admin/users', 'get', 200, data)
   })
 
-  it('GET /admin/invites', async () => {
-    const { data, response } = await api.GET('/admin/invites', { params: { query: {} } })
-    expect(response.status).toBe(200)
-    assertMatchesContract('/admin/invites', 'get', 200, data)
-  })
-
   it('GET /admin/audit', async () => {
     const { data, response } = await api.GET('/admin/audit', { params: { query: {} } })
     expect(response.status).toBe(200)
     assertMatchesContract('/admin/audit', 'get', 200, data)
-  })
-
-  it('GET /admin/queries/upcoming', async () => {
-    const { data, response } = await api.GET('/admin/queries/upcoming', {
-      params: { query: { within_hours: 24 * 30 } },
-    })
-    expect(response.status).toBe(200)
-    assertMatchesContract('/admin/queries/upcoming', 'get', 200, data)
-  })
-
-  it('GET /admin/queries/overdue', async () => {
-    const { data, response } = await api.GET('/admin/queries/overdue', { params: { query: {} } })
-    expect(response.status).toBe(200)
-    assertMatchesContract('/admin/queries/overdue', 'get', 200, data)
-  })
-
-  it('GET /ops/worker-heartbeat', async () => {
-    const { data, error, response } = await api.GET('/ops/worker-heartbeat')
-    expect([200, 503]).toContain(response.status)
-    assertMatchesContract(
-      '/ops/worker-heartbeat',
-      'get',
-      response.status,
-      response.status === 200 ? data : error,
-    )
   })
 
   it('GET /healthz and /readyz', async () => {

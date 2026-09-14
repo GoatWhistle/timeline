@@ -25,7 +25,6 @@ const named = (file: string) => relative(SRC, file).replaceAll('\\', '/')
 const AUTH_SURFACES = [
   'features/auth/login/login.tsx',
   'features/auth/register/register.tsx',
-  'features/auth/invite/invite.tsx',
   'features/auth/verify-email/verify-email.tsx',
   'features/auth/email-change-confirm/email-change-confirm.tsx',
   'features/password-reset/request/password-reset-request.tsx',

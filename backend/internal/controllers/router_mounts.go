@@ -13,7 +13,7 @@ import (
 )
 
 func mountAuth(mux *http.ServeMux, rt *routes, api string,
-	authC *auth.Controller, inviteC *auth.InviteController,
+	authC *auth.Controller,
 ) {
 	mux.Handle("POST "+api+"/auth/register", http.HandlerFunc(authC.Register))
 	mux.Handle("POST "+api+"/auth/login", http.HandlerFunc(authC.Login))
@@ -28,9 +28,6 @@ func mountAuth(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("GET "+api+"/auth/csrf", http.HandlerFunc(authC.CSRF))
 	mux.Handle("POST "+api+"/auth/logout-all", rt.authd(authC.LogoutAll))
 	mux.Handle("POST "+api+"/auth/password/change", rt.authd(authC.ChangePassword))
-
-	mux.Handle("GET "+api+"/invites/{token}", http.HandlerFunc(inviteC.Preview))
-	mux.Handle("POST "+api+"/invites/accept", http.HandlerFunc(inviteC.Accept))
 }
 
 func mountPublicProfile(mux *http.ServeMux, rt *routes, api string, c *auth.PublicProfileController) {
@@ -59,6 +56,8 @@ func mountMe(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("PUT "+api+"/me/profile-links/order", rt.authd(profileLinkC.Reorder))
 	mux.Handle("PATCH "+api+"/me/profile-links/{id}", rt.authd(profileLinkC.Update))
 	mux.Handle("DELETE "+api+"/me/profile-links/{id}", rt.authd(profileLinkC.Delete))
+	mux.Handle("GET "+api+"/me/reminder-schedule", rt.authd(profileC.ReminderSchedule))
+	mux.Handle("PUT "+api+"/me/reminder-schedule", rt.authd(profileC.UpdateReminderSchedule))
 	mux.Handle("GET "+api+"/me/notification-preferences", rt.authd(profileC.NotificationPreferences))
 	mux.Handle("PUT "+api+"/me/notification-preferences/{occasion}/{channel}",
 		rt.authd(profileC.SetNotificationPreference))
@@ -87,16 +86,12 @@ func mountMe(mux *http.ServeMux, rt *routes, api string,
 }
 
 func mountAdminIdentity(mux *http.ServeMux, rt *routes, api string,
-	userC *auth.UserController, inviteC *auth.InviteController, eventC *event.Controller,
+	userC *auth.UserController, eventC *event.Controller,
 ) {
 	mux.Handle("GET "+api+"/admin/users", rt.admin(userC.Search))
 	mux.Handle("POST "+api+"/admin/users/{id}/deactivate", rt.admin(userC.Deactivate))
 	mux.Handle("POST "+api+"/admin/users/{id}/activate", rt.admin(userC.Activate))
 	mux.Handle("DELETE "+api+"/admin/users/{id}", rt.admin(userC.Delete))
-	mux.Handle("POST "+api+"/admin/invites", rt.admin(inviteC.Create))
-	mux.Handle("GET "+api+"/admin/invites", rt.admin(inviteC.List))
-	mux.Handle("POST "+api+"/admin/invites/{id}/revoke", rt.admin(inviteC.Revoke))
-
 	mux.Handle("GET "+api+"/admin/events", rt.admin(eventC.List))
 	mux.Handle("POST "+api+"/admin/events", rt.admin(eventC.Create))
 	mux.Handle("GET "+api+"/admin/events/{id}", rt.admin(eventC.Get))
@@ -114,25 +109,18 @@ func mountAdminIdentity(mux *http.ServeMux, rt *routes, api string,
 
 func mountAdminRegistration(mux *http.ServeMux, rt *routes, api string,
 	partC *participation.Controller, regC *participation.RegistrationController,
-	statusC *participation.RegistrationStatusController, ruleC *notification.NotificationRuleController,
+	statusC *participation.RegistrationStatusController,
 	previewC *notification.PreviewController,
 ) {
 	mux.Handle("GET "+api+"/admin/events/{id}/participants", rt.admin(partC.List))
-	mux.Handle("POST "+api+"/admin/events/{id}/participants/batch-add", rt.admin(partC.AddMany))
 	mux.Handle("POST "+api+"/admin/events/{id}/participants/batch-remove", rt.admin(partC.RemoveMany))
-	mux.Handle("POST "+api+"/admin/events/{id}/participants/copy-from", rt.admin(partC.CopyFrom))
 	mux.Handle("PATCH "+api+"/admin/participants/{id}/team-role", rt.admin(partC.UpdateTeamRole))
-	mux.Handle("POST "+api+"/admin/participants/{id}/reactivate", rt.admin(partC.Reactivate))
 
 	mux.Handle("GET "+api+"/admin/events/{id}/registration", rt.admin(regC.Get))
 	mux.Handle("POST "+api+"/admin/events/{id}/registration", rt.admin(regC.Create))
 	mux.Handle("PATCH "+api+"/admin/events/{id}/registration", rt.admin(regC.Update))
 	mux.Handle("POST "+api+"/admin/events/{id}/registration/enable", rt.admin(regC.Enable))
 	mux.Handle("POST "+api+"/admin/events/{id}/registration/disable", rt.admin(regC.Disable))
-	mux.Handle("GET "+api+"/admin/events/{id}/registration/rules", rt.admin(ruleC.ListRules))
-	mux.Handle("POST "+api+"/admin/events/{id}/registration/rules", rt.admin(ruleC.CreateRule))
-	mux.Handle("PATCH "+api+"/admin/registration-rules/{id}", rt.admin(ruleC.UpdateRule))
-	mux.Handle("DELETE "+api+"/admin/registration-rules/{id}", rt.admin(ruleC.DisableRule))
 	mux.Handle("GET "+api+"/admin/events/{id}/registration-statuses", rt.admin(statusC.ListStatuses))
 	mux.Handle("POST "+api+"/admin/events/{id}/registration-statuses/batch-set", rt.admin(statusC.BatchSetStatus))
 	mux.Handle("POST "+api+"/admin/events/{id}/registration-statuses/batch-set/preview",
@@ -152,8 +140,6 @@ func mountAdminQueries(mux *http.ServeMux, rt *routes, api string,
 
 	mux.Handle("GET "+api+"/healthz", http.HandlerFunc(opsC.Health))
 	mux.Handle("GET "+api+"/readyz", http.HandlerFunc(opsC.Ready))
-	mux.Handle("GET "+api+"/ops/worker-heartbeat", rt.admin(opsC.Heartbeat))
-	mux.Handle("GET "+api+"/ops/queue", rt.admin(opsC.Queue))
 	mux.Handle("GET "+api+"/metrics", http.HandlerFunc(opsC.Metrics))
 	mux.Handle("GET /healthz", http.HandlerFunc(opsC.Health))
 	mux.Handle("GET /readyz", http.HandlerFunc(opsC.Ready))

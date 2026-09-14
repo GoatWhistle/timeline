@@ -52,16 +52,9 @@ func seedPersonal(c *support.Client, t *testing.T, eventID string) personalRecor
 	return personalRecords{taskID: task.ID, artifactID: artifact.ID}
 }
 
-func assign(c *support.Client, t *testing.T, eventID, userID string) {
+func assign(s *support.Stack, t *testing.T, eventID string, acc support.Account) {
 	t.Helper()
-	resp := c.Post("/admin/events/"+eventID+"/participants/batch-add",
-		map[string]any{"items": []map[string]any{
-			{"user_id": userID, "team_role": "Developer"},
-		}})
-	support.RequireStatus(t, resp, http.StatusOK, "assigning a participant")
-	if !support.ContainsAll(string(resp.Body), `"succeeded":1`) {
-		t.Fatalf("assigning a participant did not succeed: %s", resp.Body)
-	}
+	s.Session(t, acc).Join(t, eventID, "Developer")
 }
 
 func TestEmptyNoteDeletesTheRecord(t *testing.T) {

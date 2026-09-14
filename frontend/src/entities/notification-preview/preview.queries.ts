@@ -1,23 +1,34 @@
 import { queryOptions } from '@tanstack/react-query'
 import { api, unwrap } from '@/shared/api/client'
+import type { QueryParams } from '@/shared/api/params'
+
+type PreviewQuery = QueryParams<'/admin/registration-statuses/{id}/notification-preview', 'get'>
+
+export type PreviewOccasion = PreviewQuery['occasion']
+export type PreviewDaysBefore = PreviewQuery['days_before']
 
 export function notificationPreviewQuery({
   statusId,
-  ruleId,
+  occasion,
+  daysBefore,
   enabled,
 }: {
   statusId: string
-  ruleId?: string
+  occasion?: PreviewOccasion
+  daysBefore?: PreviewDaysBefore
   enabled: boolean
 }) {
   return queryOptions({
-    queryKey: ['notification-preview', statusId, ruleId ?? null],
+    queryKey: ['notification-preview', statusId, occasion ?? null, daysBefore ?? null],
     queryFn: () =>
       unwrap(
         api.GET('/admin/registration-statuses/{id}/notification-preview', {
           params: {
             path: { id: statusId },
-            query: ruleId ? { rule_id: ruleId } : {},
+            query: {
+              ...(occasion ? { occasion } : {}),
+              ...(daysBefore ? { days_before: daysBefore } : {}),
+            },
           },
         }),
       ),

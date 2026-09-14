@@ -27,33 +27,34 @@ type EventDisplayIDResolver interface {
 }
 
 type ProfileService struct {
-	db       *postgres.DB
-	users    *identity.Users
-	tokens   *identity.Tokens
-	sessions *identity.Sessions
-	notifier Notifier
-	prefs    *notification.Preferences
-	events   EventDisplayIDResolver
-	links    *identity.ProfileLinks
-	audit    *audit.AuditService
-	hasher   *crypto.PasswordHasher
-	mailer   *mail.Mailer
-	telegram mail.TelegramSender
-	realtime SessionDropper
-	avatars  AvatarPurger
-	cfg      *config.Config
-	now      func() time.Time
+	db        *postgres.DB
+	users     *identity.Users
+	tokens    *identity.Tokens
+	sessions  *identity.Sessions
+	notifier  Notifier
+	prefs     *notification.Preferences
+	reminders *identity.ReminderSchedules
+	events    EventDisplayIDResolver
+	links     *identity.ProfileLinks
+	audit     *audit.AuditService
+	hasher    *crypto.PasswordHasher
+	mailer    *mail.Mailer
+	telegram  mail.TelegramSender
+	realtime  SessionDropper
+	avatars   AvatarPurger
+	cfg       *config.Config
+	now       func() time.Time
 }
 
 func NewProfileService(db *postgres.DB, users *identity.Users,
 	tokens *identity.Tokens, sessions *identity.Sessions,
-	notifier Notifier, prefs *notification.Preferences, events EventDisplayIDResolver,
-	links *identity.ProfileLinks,
+	notifier Notifier, prefs *notification.Preferences, reminders *identity.ReminderSchedules,
+	events EventDisplayIDResolver, links *identity.ProfileLinks,
 	audit *audit.AuditService, hasher *crypto.PasswordHasher, mailer *mail.Mailer,
 	telegram mail.TelegramSender, cfg *config.Config) *ProfileService {
 	return &ProfileService{
 		db: db, users: users, tokens: tokens, sessions: sessions, notifier: notifier, prefs: prefs,
-		events: events, links: links,
+		reminders: reminders, events: events, links: links,
 		audit: audit, hasher: hasher, mailer: mailer, telegram: telegram, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() },
 	}

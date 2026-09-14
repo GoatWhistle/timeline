@@ -36,7 +36,7 @@ func (c *ProfileController) NotificationPreferences(w http.ResponseWriter, r *ht
 // @Accept			json
 // @Produce		json
 // @Security		CookieAuth
-// @Param			occasion	path		string									true	"Occasion"	Enums(REGISTRATION_REQUIRED, REGISTRATION_REMINDER, REGISTRATION_OVERDUE, WEEKLY_DIGEST, PERSONAL_TASK_DUE, PERSONAL_RETROSPECTIVE_DUE)
+// @Param			occasion	path		string									true	"Occasion"	Enums(REGISTRATION_REQUIRED, REGISTRATION_OVERDUE, REMINDER_REGISTRATION_DEADLINE, REMINDER_EVENT_START, REMINDER_STAGE_START, REMINDER_EVENT_END, WEEKLY_DIGEST, PERSONAL_TASK_DUE, PERSONAL_RETROSPECTIVE_DUE)
 // @Param			channel		path		string									true	"Channel"	Enums(TELEGRAM, EMAIL)
 // @Param			request		body		dto.UpdateNotificationPreferenceRequest	true	"Desired state"
 // @Success		200			{object}	dto.NotificationPreferencesResponse

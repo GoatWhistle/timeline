@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
-import { InvitePage } from '@/features/auth/invite/invite'
 import { RegisterPage } from '@/features/auth/register/register'
 import { nicknameProblem } from '@/shared/forms/nickname'
 import { i18n } from '@/shared/i18n/config'
@@ -52,15 +51,10 @@ describe('the registration form asks for a nickname', () => {
   })
 })
 
-describe('the invite form asks for a nickname too', () => {
+describe('the nickname rules are shared, not respelled per form', () => {
   it('shares one rule set with the registration form and the profile card', () => {
     expect(nicknameProblem('ab')).toBe('auth:validation.nicknameMin')
     expect(nicknameProblem('my-handle-')).toBe('auth:validation.nicknameEdges')
     expect(nicknameProblem('ivan')).toBeNull()
-  })
-
-  it('renders without crashing and carries no visibility switch', () => {
-    renderWithProviders(<InvitePage />, { route: '/invite/token123' })
-    expect(screen.queryByRole('switch')).toBeNull()
   })
 })

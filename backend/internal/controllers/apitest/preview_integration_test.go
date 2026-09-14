@@ -5,6 +5,7 @@ package apitest_test
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
@@ -12,7 +13,7 @@ import (
 
 type previewBody struct {
 	Type            string   `json:"type"`
-	RuleID          *string  `json:"rule_id"`
+	DaysBefore      *int     `json:"days_before"`
 	Language        string   `json:"language"`
 	Subject         string   `json:"subject"`
 	Body            string   `json:"body"`
@@ -24,17 +25,21 @@ type previewBody struct {
 	ScheduledAt     *string  `json:"scheduled_at"`
 }
 
-func previewPath(statusID string, ruleID *string) string {
+func previewPath(statusID string, query string) string {
 	path := "/admin/registration-statuses/" + statusID + "/notification-preview"
-	if ruleID != nil {
-		path += "?rule_id=" + *ruleID
+	if query != "" {
+		path += "?" + query
 	}
 	return path
 }
 
-func previewOf(c *support.Client, t *testing.T, statusID string, ruleID *string) previewBody {
+func reminderQuery(days int) string {
+	return "occasion=REMINDER_REGISTRATION_DEADLINE&days_before=" + strconv.Itoa(days)
+}
+
+func previewOf(c *support.Client, t *testing.T, statusID string, query string) previewBody {
 	t.Helper()
-	resp := c.Get(previewPath(statusID, ruleID))
+	resp := c.Get(previewPath(statusID, query))
 	support.RequireStatus(t, resp, http.StatusOK, "previewing a notification")
 	var body previewBody
 	resp.Decode(t, &body)
@@ -48,8 +53,8 @@ func TestNotificationPreviewCreatesNothing(t *testing.T) {
 	notifications := countNotifications(s, t)
 	audit := countAudit(s, t)
 
-	first := previewOf(f.AdminClient, t, f.StatusID, nil)
-	second := previewOf(f.AdminClient, t, f.StatusID, &f.RegRuleID)
+	first := previewOf(f.AdminClient, t, f.StatusID, "")
+	second := previewOf(f.AdminClient, t, f.StatusID, reminderQuery(3))
 
 	if first.Subject == "" || first.Body == "" {
 		t.Fatalf("the primary preview came back empty: %+v", first)
@@ -74,8 +79,8 @@ func TestNotificationPreviewLeavesDeduplicationFree(t *testing.T) {
 	before := logicalKeys(s, t, f.StatusID)
 
 	for range 3 {
-		previewOf(f.AdminClient, t, f.StatusID, &f.RegRuleID)
-		previewOf(f.AdminClient, t, f.StatusID, nil)
+		previewOf(f.AdminClient, t, f.StatusID, reminderQuery(3))
+		previewOf(f.AdminClient, t, f.StatusID, "")
 	}
 
 	after := logicalKeys(s, t, f.StatusID)
@@ -96,10 +101,10 @@ func TestNotificationPreviewRendersInTheRecipientLanguage(t *testing.T) {
 
 	setLocale(s, t, f.Admin.ID, "en")
 	setLocale(s, t, f.Member.ID, "ru")
-	russian := previewOf(f.AdminClient, t, f.StatusID, nil)
+	russian := previewOf(f.AdminClient, t, f.StatusID, "")
 
 	setLocale(s, t, f.Member.ID, "en")
-	english := previewOf(f.AdminClient, t, f.StatusID, nil)
+	english := previewOf(f.AdminClient, t, f.StatusID, "")
 
 	if russian.Language != "ru" {
 		t.Fatalf("a Russian recipient produced language %q", russian.Language)
@@ -113,44 +118,52 @@ func TestNotificationPreviewRendersInTheRecipientLanguage(t *testing.T) {
 	}
 }
 
-func TestNotificationPreviewFollowsTheRuleSign(t *testing.T) {
+func TestNotificationPreviewFollowsTheRequestedOccasion(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	resp := f.AdminClient.Post("/admin/events/"+f.EventID+"/registration/rules",
-		map[string]any{"offset_minutes": -120})
-	support.RequireStatus(t, resp, http.StatusCreated, "creating an overdue rule")
-	var overdue struct {
-		ID string `json:"id"`
-	}
-	resp.Decode(t, &overdue)
-
-	primary := previewOf(f.AdminClient, t, f.StatusID, nil)
-	reminder := previewOf(f.AdminClient, t, f.StatusID, &f.RegRuleID)
-	late := previewOf(f.AdminClient, t, f.StatusID, &overdue.ID)
+	primary := previewOf(f.AdminClient, t, f.StatusID, "")
+	reminder := previewOf(f.AdminClient, t, f.StatusID, reminderQuery(3))
+	late := previewOf(f.AdminClient, t, f.StatusID, "occasion=REGISTRATION_OVERDUE")
 
 	for want, got := range map[string]previewBody{
-		"REGISTRATION_REQUIRED": primary,
-		"REGISTRATION_REMINDER": reminder,
-		"REGISTRATION_OVERDUE":  late,
+		"REGISTRATION_REQUIRED":          primary,
+		"REMINDER_REGISTRATION_DEADLINE": reminder,
+		"REGISTRATION_OVERDUE":           late,
 	} {
 		if got.Type != want {
 			t.Fatalf("expected type %s, got %s", want, got.Type)
 		}
 	}
-	if primary.RuleID != nil {
-		t.Fatal("the primary notification came back carrying a rule identifier")
+	if primary.DaysBefore != nil {
+		t.Fatal("the primary notification came back carrying a day count")
+	}
+	if reminder.DaysBefore == nil || *reminder.DaysBefore != 3 {
+		t.Fatalf("the reminder preview lost the day it was asked for: %+v", reminder.DaysBefore)
 	}
 	if reminder.ScheduledAt == nil || late.ScheduledAt == nil {
-		t.Fatal("a rule preview came back without the moment it would be scheduled for")
+		t.Fatal("a scheduled occasion came back without the moment it would be scheduled for")
 	}
+}
+
+func TestNotificationPreviewRefusesADayOutsideTheAllowedSet(t *testing.T) {
+	s := support.NewStack(t)
+	f := s.Seed(t)
+
+	support.RequireStatus(t, f.AdminClient.Get(previewPath(f.StatusID, reminderQuery(5))),
+		http.StatusBadRequest, "previewing a reminder for a day the schedule never offers")
+	support.RequireStatus(t,
+		f.AdminClient.Get(previewPath(f.StatusID, "occasion=REMINDER_REGISTRATION_DEADLINE")),
+		http.StatusBadRequest, "previewing a deadline reminder without a day")
+	support.RequireStatus(t, f.AdminClient.Get(previewPath(f.StatusID, "occasion=WEEKLY_DIGEST")),
+		http.StatusBadRequest, "previewing an occasion that has no registration status")
 }
 
 func TestNotificationPreviewIsAdminOnly(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	path := previewPath(f.StatusID, nil)
+	path := previewPath(f.StatusID, "")
 	for name, acc := range map[string]support.Account{"the recipient": f.Member, "an outsider": f.Outsider} {
 		resp := s.Session(t, acc).Get(path)
 		support.RequireStatus(t, resp, http.StatusForbidden, "previewing a notification as "+name)
@@ -159,31 +172,23 @@ func TestNotificationPreviewIsAdminOnly(t *testing.T) {
 		"previewing a notification without signing in")
 }
 
-func TestNotificationPreviewRefusesAForeignRuleAndAnUnknownStatus(t *testing.T) {
+func TestNotificationPreviewRefusesAnUnknownStatus(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	support.RequireStatus(t, f.AdminClient.Get(previewPath(support.MissingStatusID, nil)), http.StatusNotFound,
+	support.RequireStatus(t, f.AdminClient.Get(previewPath(support.MissingStatusID, "")), http.StatusNotFound,
 		"previewing a status that does not exist")
-
-	unknown := support.MissingRuleID
-	support.RequireStatus(t, f.AdminClient.Get(previewPath(f.StatusID, &unknown)), http.StatusNotFound,
-		"previewing with a rule that does not exist")
-
-	foreign := foreignRule(f.AdminClient, t, f.OtherEvent)
-	support.RequireStatus(t, f.AdminClient.Get(previewPath(f.StatusID, &foreign)), http.StatusNotFound,
-		"previewing a status with a rule belonging to another registration")
 }
 
 func TestNotificationPreviewRefusesAnArchivedEvent(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	previewOf(f.AdminClient, t, f.StatusID, nil)
+	previewOf(f.AdminClient, t, f.StatusID, "")
 	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+f.EventID+"/archive", nil),
 		http.StatusOK, "archiving the event")
 
-	support.RequireStatus(t, f.AdminClient.Get(previewPath(f.StatusID, nil)), http.StatusNotFound,
+	support.RequireStatus(t, f.AdminClient.Get(previewPath(f.StatusID, "")), http.StatusNotFound,
 		"previewing a status of an archived event")
 }
 
@@ -191,7 +196,7 @@ func TestNotificationPreviewReportsTheAbsenceOfAChannel(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	preview := previewOf(f.AdminClient, t, f.StatusID, nil)
+	preview := previewOf(f.AdminClient, t, f.StatusID, "")
 	if preview.ChannelReady || len(preview.Channels) != 0 {
 		t.Fatalf("an unverified recipient without Telegram was reported as reachable: %+v", preview)
 	}
@@ -201,23 +206,17 @@ func TestNotificationPreviewReportsTheAbsenceOfAChannel(t *testing.T) {
 		t.Fatalf("verifying the email of %s: %v", f.Member.ID, err)
 	}
 
-	reachable := previewOf(f.AdminClient, t, f.StatusID, nil)
+	reachable := previewOf(f.AdminClient, t, f.StatusID, "")
 	if !reachable.ChannelReady || len(reachable.Channels) != 1 || reachable.Channels[0] != "EMAIL" {
 		t.Fatalf("a verified recipient was not reported as reachable by email: %+v", reachable)
 	}
 }
 
-func TestNotificationPreviewNamesTheRuleByDisplayIdentifier(t *testing.T) {
+func TestNotificationPreviewNeverExposesAnInternalIdentifier(t *testing.T) {
 	s := support.NewStack(t)
 	f := s.Seed(t)
 
-	resp := f.AdminClient.Get(previewPath(f.StatusID, &f.RegRuleID))
+	resp := f.AdminClient.Get(previewPath(f.StatusID, reminderQuery(3)))
 	support.RequireStatus(t, resp, http.StatusOK, "previewing a reminder")
 	requireNoUUID(t, resp.Body, "the notification preview")
-
-	var body previewBody
-	resp.Decode(t, &body)
-	if body.RuleID == nil || *body.RuleID != f.RegRuleID {
-		t.Fatalf("the preview named the rule %v instead of %s", body.RuleID, f.RegRuleID)
-	}
 }

@@ -13,10 +13,10 @@ const PREVIEW: NotificationPreviewResponse = {
   event_title: 'Autumn hackathon',
   language: 'ru',
   registration_url: 'https://example.com/register',
-  rule_id: 'rule-1',
+  days_before: 3,
   scheduled_at: '2026-09-13T18:00:00Z',
   timezone_id: 'Europe/Moscow',
-  type: 'REGISTRATION_REMINDER',
+  type: 'REMINDER_REGISTRATION_DEADLINE',
 }
 
 function base() {

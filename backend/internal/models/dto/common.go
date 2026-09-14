@@ -71,9 +71,7 @@ var (
 	DisplayKindResourceLink       = DisplayKind{Prefix: "rl", Entity: "resource link"}
 	DisplayKindProfileLink        = DisplayKind{Prefix: "pf", Entity: "profile link"}
 	DisplayKindSession            = DisplayKind{Prefix: "se", Entity: "session"}
-	DisplayKindInvite             = DisplayKind{Prefix: "in", Entity: "invite"}
 	DisplayKindArtifact           = DisplayKind{Prefix: "ar", Entity: "artifact"}
-	DisplayKindNotificationRule   = DisplayKind{Prefix: "nr", Entity: "notification rule"}
 	DisplayKindSystemEvent        = DisplayKind{Prefix: "sy", Entity: "system event"}
 	DisplayKindRegistration       = DisplayKind{Prefix: "rg", Entity: "registration"}
 	DisplayKindNotification       = DisplayKind{Prefix: "nt", Entity: "notification"}

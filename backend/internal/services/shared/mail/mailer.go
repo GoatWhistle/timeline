@@ -11,8 +11,6 @@ import (
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
-const inviteKey = "email.invite"
-
 type EmailSender interface {
 	Send(ctx context.Context, msg models.OutboundMessage) error
 }
@@ -54,11 +52,6 @@ func (m *Mailer) SendEmailChangeCancel(ctx context.Context, to, displayName, lan
 		m.query("/email-change/cancel", token), ttl, TelegramRecipient{})
 }
 
-func (m *Mailer) SendInvite(ctx context.Context, to, invitedBy, lang, token string, ttl time.Duration) {
-	m.sendTemplate(ctx, to, inviteKey, PersonalName(invitedBy), lang, "", m.link("/invite", token), ttl,
-		TelegramRecipient{})
-}
-
 func (m *Mailer) SendPasswordChanged(ctx context.Context, to, displayName, lang, theme string, tg TelegramRecipient) {
 	m.sendTemplate(ctx, to, "email.password_changed", displayName, lang, theme, m.publicURL+"/login", 0, tg)
 }
@@ -79,10 +72,6 @@ func (m *Mailer) sendTemplate(ctx context.Context, to, key, name, lang, theme st
 	tg TelegramRecipient) {
 	lang = locale.Normalize(lang)
 	m.send(ctx, to, compose(lang, theme, m.publicURL, key, name, link, humanDuration(lang, ttl)), tg)
-}
-
-func (m *Mailer) link(path, token string) string {
-	return m.publicURL + path + "/" + token
 }
 
 func (m *Mailer) query(path, token string) string {

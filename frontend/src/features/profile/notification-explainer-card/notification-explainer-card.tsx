@@ -1,17 +1,11 @@
 import { useTranslation } from 'react-i18next'
+import { NOTIFICATION_TYPE_KEY } from '@/entities/notification/notification.labels'
 import type { NotificationOccasion, NotificationPreference } from '@/shared/api/types.gen'
 import { Note } from '@/shared/ui/data-display/note/note'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { NotificationOccasionRow } from './notification-occasion-row'
 
-const EXPLAINED_TYPES: NotificationOccasion[] = [
-  'REGISTRATION_REQUIRED',
-  'REGISTRATION_REMINDER',
-  'REGISTRATION_OVERDUE',
-  'WEEKLY_DIGEST',
-  'PERSONAL_TASK_DUE',
-  'PERSONAL_RETROSPECTIVE_DUE',
-]
+const EXPLAINED_TYPES = Object.keys(NOTIFICATION_TYPE_KEY) as NotificationOccasion[]
 
 export function NotificationExplainerCard({
   preferences,
@@ -43,12 +37,6 @@ export function NotificationExplainerCard({
             {t('explainer.allOffHint')}
           </Note>
         ))}
-
-        <Note title={t('explainer.stopTitle')}>{t('explainer.stopHint')}</Note>
-
-        <p className="max-w-prose text-caption text-muted-foreground">
-          {t('explainer.timingNote')}
-        </p>
       </CardContent>
     </Card>
   )

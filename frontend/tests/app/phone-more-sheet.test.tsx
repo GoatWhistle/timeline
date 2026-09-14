@@ -76,14 +76,7 @@ describe('the sheet keeps everything the phone drawer used to carry', () => {
 
     const sheet = document.querySelector('[data-phone-more-sheet]') as HTMLElement
     const hrefs = [...sheet.querySelectorAll('a')].map((a) => a.getAttribute('href'))
-    for (const path of [
-      '/admin/events',
-      '/admin/deadlines',
-      '/admin/users',
-      '/admin/invites',
-      '/admin/audit',
-      '/admin/ops',
-    ]) {
+    for (const path of ['/admin/events', '/admin/users', '/admin/audit']) {
       expect(hrefs).toContain(path)
     }
   })
@@ -138,7 +131,7 @@ describe('a finger gets a sheet row it can actually hit', () => {
 
     const sheet = document.querySelector('[data-phone-more-sheet]') as HTMLElement
     const rows = sheet.querySelectorAll('[data-phone-profile], [data-phone-logout], nav a')
-    await waitFor(() => expect(rows.length).toBeGreaterThan(6))
+    await waitFor(() => expect(rows.length).toBeGreaterThan(5))
     for (const row of rows) {
       expect(row.className, row.outerHTML.slice(0, 80)).toContain('min-h-tap')
     }

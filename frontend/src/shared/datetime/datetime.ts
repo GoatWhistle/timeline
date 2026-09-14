@@ -124,24 +124,6 @@ export function formatDuration(totalMinutes: number): string {
   return parts.join(' ')
 }
 
-export function formatOffsetMinutes(offsetMinutes: number): string {
-  const t = i18n.getFixedT(null, 'common')
-  if (offsetMinutes === 0) return t('duration.atDeadline')
-
-  const total = Math.abs(offsetMinutes)
-  const days = Math.floor(total / 1440)
-  const hours = Math.floor((total % 1440) / 60)
-  const minutes = total % 60
-
-  const parts: string[] = []
-  if (days) parts.push(t('duration.days', { count: days }))
-  if (hours) parts.push(t('duration.hours', { count: hours }))
-  if (minutes) parts.push(t('duration.minutes', { count: minutes }))
-
-  const amount = parts.join(' ')
-  return offsetMinutes > 0 ? t('duration.before', { amount }) : t('duration.after', { amount })
-}
-
 export function localeCollator(locale = currentLocale()): Intl.Collator {
   return new Intl.Collator(locale, { numeric: true, sensitivity: 'base' })
 }

@@ -7,11 +7,8 @@ import { AnonymousOnly, RequireAdmin, RequireAuth } from './guards'
 import { ScrollPage } from './layouts/scroll-page/scroll-page'
 import {
   AdminAuditPage,
-  AdminDeadlinesPage,
   AdminEventPage,
   AdminEventsPage,
-  AdminInvitesPage,
-  AdminOpsQueuePage,
   AdminRetentionPage,
   AdminUsersPage,
   CatalogPage,
@@ -21,7 +18,6 @@ import {
   ForgotPasswordPage,
   HistoryPage,
   InboxPage,
-  InvitePage,
   LoginPage,
   MySchedulePage,
   RegisterPage,
@@ -47,7 +43,6 @@ const ANONYMOUS_PATHS = [
   '/verify-email',
   '/forgot-password',
   '/reset-password',
-  '/invite',
   '/email-change',
 ]
 
@@ -95,7 +90,6 @@ export function AppRouter() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/invite/:token" element={<InvitePage />} />
           </Route>
         </Route>
 
@@ -136,11 +130,8 @@ export function AppRouter() {
 
               <Route element={<RequireAdmin />}>
                 <Route path="/admin/events/:id" element={<AdminEventPage />} />
-                <Route path="/admin/deadlines" element={<AdminDeadlinesPage />} />
                 <Route path="/admin/users" element={<AdminUsersPage />} />
-                <Route path="/admin/invites" element={<AdminInvitesPage />} />
                 <Route path="/admin/audit" element={<AdminAuditPage />} />
-                <Route path="/admin/ops" element={<AdminOpsQueuePage />} />
                 <Route path="/admin/retention" element={<AdminRetentionPage />} />
               </Route>
 

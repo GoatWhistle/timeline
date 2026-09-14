@@ -119,12 +119,4 @@ func TestOrdinaryParticipantCannotReachAdminNotificationSurfaces(t *testing.T) {
 	preview := member.Get("/admin/registration-statuses/" + f.StatusID + "/notification-preview")
 	support.RequireStatus(t, preview, http.StatusForbidden,
 		"an ordinary participant asks for a notification preview")
-
-	queue := member.Get("/ops/queue")
-	support.RequireStatus(t, queue, http.StatusForbidden,
-		"an ordinary participant reads the delivery queue")
-
-	heartbeat := member.Get("/ops/worker-heartbeat")
-	support.RequireStatus(t, heartbeat, http.StatusForbidden,
-		"an ordinary participant reads the worker heartbeat")
 }

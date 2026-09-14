@@ -66,15 +66,6 @@ describe('Contract compliance: writes', () => {
     assertMatchesContract('/admin/events', 'post', 201, data)
   })
 
-  it('POST /admin/events/{id}/participants/batch-add', async () => {
-    const { data, response } = await api.POST('/admin/events/{id}/participants/batch-add', {
-      params: { path: { id: eventId } },
-      body: { items: [{ user_id: spareUserId, team_role: 'Developer' }] },
-    })
-    expect(response.status).toBe(200)
-    assertMatchesContract('/admin/events/{id}/participants/batch-add', 'post', 200, data)
-  })
-
   it('POST /admin/events/{id}/registration-statuses/batch-set/preview', async () => {
     const { data, response } = await api.POST(
       '/admin/events/{id}/registration-statuses/batch-set/preview',
@@ -114,23 +105,6 @@ describe('Contract compliance: writes', () => {
     })
     expect(response.status).toBe(201)
     assertMatchesContract('/admin/events/{id}/stages', 'post', 201, data)
-  })
-
-  it('POST /admin/events/{id}/registration/rules → 201', async () => {
-    const { data, response } = await api.POST('/admin/events/{id}/registration/rules', {
-      params: { path: { id: eventId } },
-      body: { offset_minutes: 777, enabled: true },
-    })
-    expect(response.status).toBe(201)
-    assertMatchesContract('/admin/events/{id}/registration/rules', 'post', 201, data)
-  })
-
-  it('POST /admin/invites → 201', async () => {
-    const { data, response } = await api.POST('/admin/invites', {
-      body: { email: `contract-${Date.now()}@example.com` },
-    })
-    expect(response.status).toBe(201)
-    assertMatchesContract('/admin/invites', 'post', 201, data)
   })
 
   it('POST /admin/users/{id}/deactivate', async () => {

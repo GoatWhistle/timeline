@@ -11,9 +11,14 @@ import (
 )
 
 func (s *SchedulerService) PreviewNotification(ctx context.Context, actor models.Actor,
-	statusID uuid.UUID, ruleID *uuid.UUID) (*dto.NotificationPreviewResponse, error) {
+	statusID uuid.UUID, req dto.NotificationPreviewQuery) (*dto.NotificationPreviewResponse, error) {
 	if !actor.IsAdmin {
 		return nil, models.NewForbidden("the operation is restricted to administrators")
+	}
+
+	kind, daysBefore, err := previewKind(req)
+	if err != nil {
+		return nil, err
 	}
 
 	candidate, err := s.scheduler.CandidateByStatus(ctx, statusID)
@@ -24,17 +29,7 @@ func (s *SchedulerService) PreviewNotification(ctx context.Context, actor models
 		return nil, err
 	}
 
-	rule, err := s.previewRule(ctx, candidate, ruleID)
-	if err != nil {
-		return nil, err
-	}
-
-	kind := models.NotificationRequired
-	if rule != nil {
-		kind = rule.NotificationType()
-	}
 	payload := s.notifier.Render(kind, *candidate)
-
 	resp := &dto.NotificationPreviewResponse{
 		Type:            kind,
 		Language:        payload.Language,
@@ -47,32 +42,46 @@ func (s *SchedulerService) PreviewNotification(ctx context.Context, actor models
 		TimezoneID:      payload.TimezoneID,
 	}
 
-	if rule != nil {
-		id := rule.DisplayID
-		resp.RuleID = &id
-		trigger := rule.TriggerAt(candidate.DeadlineAt)
+	if daysBefore != nil {
+		resp.DaysBefore = daysBefore
+		trigger := models.ReminderTriggerAt(candidate.DeadlineAt, *daysBefore)
 		resp.ScheduledAt = &trigger
 	}
+	if kind == models.NotificationOverdue {
+		trigger := candidate.DeadlineAt.Add(s.cfg.Notify.OverdueLead)
+		resp.ScheduledAt = &trigger
+	}
+
 	channels := candidate.RecipientChannels.Deliverable(kind)
 	resp.Channels = channels
 	resp.ChannelReady = !channels.Empty()
 	return resp, nil
 }
 
-func (s *SchedulerService) previewRule(ctx context.Context, candidate *models.ReconcileCandidate,
-	ruleID *uuid.UUID) (*models.NotificationRule, error) {
-	if ruleID == nil {
-		return nil, nil
+func previewKind(req dto.NotificationPreviewQuery) (models.NotificationType, *int, error) {
+	if req.Occasion == "" {
+		return models.NotificationRequired, nil, nil
 	}
-	rule, err := s.rules.GetByID(ctx, *ruleID)
-	if err != nil {
-		if errors.Is(err, models.ErrNotFound) {
-			return nil, models.NewNotFound("reminder rule not found")
+
+	occasion := models.NotificationOccasion(req.Occasion)
+	switch occasion {
+	case models.NotificationRequired:
+		return occasion, nil, nil
+	case models.NotificationOverdue:
+		return occasion, nil, nil
+	case models.NotificationDeadlineReminder:
+		if req.DaysBefore == nil {
+			return "", nil, models.NewValidation("days_before is required for this occasion",
+				models.FieldError{Field: "days_before", Message: "allowed values are 1, 2, 3, 7 and 14"})
 		}
-		return nil, err
+		if !models.ValidReminderDay(*req.DaysBefore) {
+			return "", nil, models.NewValidation("days_before is out of the allowed set",
+				models.FieldError{Field: "days_before", Message: "allowed values are 1, 2, 3, 7 and 14"})
+		}
+		return occasion, req.DaysBefore, nil
 	}
-	if rule.RegistrationID != candidate.RegistrationID {
-		return nil, models.NewNotFound("reminder rule not found")
-	}
-	return rule, nil
+	return "", nil, models.NewValidation("the occasion cannot be rendered for a registration status",
+		models.FieldError{Field: "occasion",
+			Message: "allowed values are REGISTRATION_REQUIRED, REGISTRATION_OVERDUE and " +
+				"REMINDER_REGISTRATION_DEADLINE"})
 }

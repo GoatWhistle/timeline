@@ -1,4 +1,3 @@
-import { screen } from '@testing-library/react'
 import { dictionaries, keyPaths, LOCALES } from '@tests/support/dictionaries'
 import { renderWithProviders } from '@tests/support/render'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -7,13 +6,8 @@ import { NotificationExplainerCard } from '@/features/profile/notification-expla
 import type { Channel, NotificationOccasion, NotificationPreference } from '@/shared/api/types.gen'
 import { ensureLocale, i18n, i18nReady } from '@/shared/i18n/config'
 
-const TYPES = Object.keys(NOTIFICATION_TYPE_KEY)
-
-const OCCASIONS: NotificationOccasion[] = [
-  'REGISTRATION_REQUIRED',
-  'REGISTRATION_REMINDER',
-  'REGISTRATION_OVERDUE',
-]
+const OCCASIONS = Object.keys(NOTIFICATION_TYPE_KEY) as NotificationOccasion[]
+const TYPES = OCCASIONS
 const CHANNELS: Channel[] = ['TELEGRAM', 'EMAIL']
 
 const ALL_ENABLED: NotificationPreference[] = OCCASIONS.flatMap((occasion) =>
@@ -30,7 +24,7 @@ afterAll(async () => {
 })
 
 describe('the notification explainer names every type the domain can send', () => {
-  it('explains each of the three types, none left as a machine code', async () => {
+  it('explains every type the domain can send, none left as a machine code', async () => {
     await i18n.changeLanguage('en')
     renderWithProviders(<NotificationExplainerCard preferences={ALL_ENABLED} />)
 
@@ -53,38 +47,6 @@ describe('the notification explainer names every type the domain can send', () =
           `explainer.type.${type}.when`,
         )
       }
-    }
-  })
-})
-
-describe('the explainer tells the truth about the domain', () => {
-  it('says marking the registration is what stops the reminders', async () => {
-    await i18n.changeLanguage('en')
-    renderWithProviders(<NotificationExplainerCard preferences={ALL_ENABLED} />)
-
-    expect(screen.getByText(i18n.t('notification:explainer.stopTitle'))).toBeInTheDocument()
-    expect(screen.getByText(i18n.t('notification:explainer.stopHint'))).toBeInTheDocument()
-  })
-
-  it('promises at least one delivery rather than exactly one', async () => {
-    await i18n.changeLanguage('en')
-    renderWithProviders(<NotificationExplainerCard preferences={ALL_ENABLED} />)
-
-    const note = screen.getByText(i18n.t('notification:explainer.timingNote'))
-    expect(note.textContent ?? '').toMatch(/at least one/i)
-    expect(note.textContent ?? '').not.toMatch(/exactly once/i)
-  })
-
-  it('repeats the self-report caveat the event card already makes, in both languages', () => {
-    for (const locale of LOCALES) {
-      const explainer = (dictionaries[locale].notification as Record<string, unknown>)
-        .explainer as Record<string, string | undefined>
-      const caveat = (dictionaries[locale].registration as Record<string, unknown>)
-        .statusHint as Record<string, string | undefined>
-      const negation = (caveat.TODO ?? '').split(/[.!]/).at(-2)?.trim() ?? ''
-
-      expect(negation.length, `${locale} has no caveat to borrow`).toBeGreaterThan(0)
-      expect(explainer.stopHint ?? '', `${locale} drops the self-report caveat`).toContain(negation)
     }
   })
 })

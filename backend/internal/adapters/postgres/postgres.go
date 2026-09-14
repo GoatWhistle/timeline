@@ -146,7 +146,6 @@ var constraintMessages = map[string]string{
 	"users_nickname_key":                    "this nickname is already taken",
 	"users_pending_email_key":               "this email is already awaiting confirmation",
 	"users_telegram_chat_id_key":            "this Telegram account is already linked",
-	"invites_one_pending_per_email_key":     "an active invite already exists for this address",
 	"participants_event_user_key":           "the participant is already added to the event",
 	"registrations_event_key":               "the event already has a registration",
 	"registrations_deadline_within_event":   "the registration deadline must not be later than the event end",

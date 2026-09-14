@@ -102,9 +102,11 @@
   color: var(--muted-foreground);
   font-size: var(--text-label);
   line-height: var(--leading-label);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .itemTime {

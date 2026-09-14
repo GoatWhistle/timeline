@@ -114,13 +114,6 @@ describe('No response body carries a UUID', () => {
     expectNoUuid('GET /admin/events/{id}/registration', data)
   })
 
-  it('GET /admin/events/{id}/registration/rules', async () => {
-    const { data } = await api.GET('/admin/events/{id}/registration/rules', {
-      params: { path: { id: eventId } },
-    })
-    expectNoUuid('GET /admin/events/{id}/registration/rules', data)
-  })
-
   it('GET /admin/events/{id}/registration-statuses', async () => {
     const { data } = await api.GET('/admin/events/{id}/registration-statuses', {
       params: { path: { id: eventId }, query: {} },
@@ -139,11 +132,6 @@ describe('No response body carries a UUID', () => {
   it('GET /admin/users', async () => {
     const { data } = await api.GET('/admin/users', { params: { query: {} } })
     expectNoUuid('GET /admin/users', data)
-  })
-
-  it('GET /admin/invites', async () => {
-    const { data } = await api.GET('/admin/invites', { params: { query: {} } })
-    expectNoUuid('GET /admin/invites', data)
   })
 
   it('GET /me', async () => {

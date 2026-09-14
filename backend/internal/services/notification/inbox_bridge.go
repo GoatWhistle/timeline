@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/google/uuid"
-
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
@@ -17,16 +15,30 @@ func inboxPrimaryKey(c models.ReconcileCandidate) string {
 		c.ActivationVersion, c.ContentVersion)
 }
 
-func inboxRuleKey(c models.ReconcileCandidate, ruleID uuid.UUID) string {
-	return fmt.Sprintf("inbox:rule:%s:%s:sv%d:tc%d:cv%d",
-		c.StatusID, ruleID, c.ScheduleVersion, c.TodoCycle, c.ContentVersion)
+func inboxReminderKey(c models.ReconcileCandidate, kind models.NotificationType,
+	daysBefore *int, reminderVersion int) string {
+	days := -1
+	if daysBefore != nil {
+		days = *daysBefore
+	}
+	return fmt.Sprintf("inbox:%s:%s:d%d:sv%d:tc%d:cv%d:rv%d",
+		kind, c.StatusID, days, c.ScheduleVersion, c.TodoCycle, c.ContentVersion, reminderVersion)
+}
+
+func inboxMomentKey(c models.MomentCandidate, daysBefore, reminderVersion int) string {
+	subject := c.EventID.String()
+	if c.StageID != nil {
+		subject = c.StageID.String()
+	}
+	return fmt.Sprintf("inbox:%s:%s:%s:d%d:rv%d",
+		c.Occasion, subject, c.RecipientID, daysBefore, reminderVersion)
 }
 
 func inboxKindName(kind models.NotificationType) string {
 	switch kind {
 	case models.NotificationOverdue:
 		return "overdue"
-	case models.NotificationReminder:
+	case models.NotificationDeadlineReminder:
 		return "reminder"
 	default:
 		return "primary"
@@ -111,4 +123,28 @@ func (s *NotificationService) personalInboxLink(notice models.PersonalNotice) st
 		return ""
 	}
 	return dto.NewDisplayID(dto.DisplayKindEvent, notice.EventDisplayID).String()
+}
+
+func (s *NotificationService) writeMomentInboxItem(ctx context.Context, c models.MomentCandidate,
+	daysBefore, reminderVersion int, payload *models.NotificationPayload) {
+	if s.inbox == nil {
+		return
+	}
+	subjectType := "event"
+	eventID := c.EventID
+	href := dto.NewDisplayID(dto.DisplayKindEvent, c.EventDisplayID).String()
+	item := &models.InboxItem{
+		RecipientUserID: c.RecipientID,
+		Kind:            "notification." + momentTemplateName(c.Occasion),
+		Title:           payload.Subject,
+		BodyMD:          payload.Body,
+		SubjectType:     &subjectType,
+		SubjectID:       &eventID,
+		Actions:         []models.InboxAction{{Kind: models.InboxActionOpen, Href: &href}},
+		LogicalKey:      inboxMomentKey(c, daysBefore, reminderVersion),
+	}
+	if err := s.inbox.Create(ctx, item); err != nil {
+		slog.WarnContext(ctx, "failed to write an inbox item for a reminder",
+			"error", err, "recipient_id", c.RecipientID, "logical_key", item.LogicalKey)
+	}
 }

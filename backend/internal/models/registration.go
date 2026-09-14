@@ -39,26 +39,3 @@ type RegistrationStatus struct {
 	CreatedAt           time.Time               `json:"created_at"`
 	UpdatedAt           time.Time               `json:"updated_at"`
 }
-
-type NotificationRule struct {
-	ID                    uuid.UUID `json:"id"`
-	DisplayID             string    `json:"display_id"`
-	RegistrationID        uuid.UUID `json:"registration_id"`
-	RegistrationDisplayID string    `json:"-"`
-	OffsetMinutes         int       `json:"offset_minutes"`
-	Enabled               bool      `json:"enabled"`
-	SlotNo                int       `json:"slot_no"`
-	CreatedAt             time.Time `json:"created_at"`
-	UpdatedAt             time.Time `json:"updated_at"`
-}
-
-func (r *NotificationRule) NotificationType() NotificationType {
-	if r.OffsetMinutes < 0 {
-		return NotificationOverdue
-	}
-	return NotificationReminder
-}
-
-func (r *NotificationRule) TriggerAt(deadline time.Time) time.Time {
-	return deadline.Add(-time.Duration(r.OffsetMinutes) * time.Minute)
-}

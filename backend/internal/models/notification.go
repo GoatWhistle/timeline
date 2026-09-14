@@ -6,11 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	MaxAttemptCount      = 4
-	MaxRuleSlots         = 10
-	MaxRuleOffsetMinutes = 525600
-)
+const MaxAttemptCount = 4
 
 type NotificationPayload struct {
 	EventTitle      string    `json:"event_title"`
@@ -32,12 +28,15 @@ type Notification struct {
 	NotificationType     NotificationType `json:"notification_type"`
 	RecipientUserID      uuid.UUID        `json:"recipient_user_id"`
 	RegistrationStatusID *uuid.UUID       `json:"registration_status_id,omitempty"`
-	RuleID               *uuid.UUID       `json:"rule_id,omitempty"`
+	EventID              *uuid.UUID       `json:"event_id,omitempty"`
+	StageID              *uuid.UUID       `json:"stage_id,omitempty"`
 
 	ScheduleVersion            *int `json:"schedule_version,omitempty"`
 	TodoCycle                  *int `json:"todo_cycle,omitempty"`
 	AssignmentVersion          *int `json:"assignment_version,omitempty"`
 	ActivationVersion          *int `json:"activation_version,omitempty"`
+	ReminderDaysBefore         *int `json:"reminder_days_before,omitempty"`
+	ReminderScheduleVersion    *int `json:"reminder_schedule_version,omitempty"`
 	NotificationContentVersion int  `json:"notification_content_version"`
 
 	LogicalKey       string    `json:"logical_key"`
@@ -201,4 +200,26 @@ func NewPermanentDeliveryError(reason string, err error) *DeliveryError {
 
 func NewTemporaryDeliveryError(reason string, err error) *DeliveryError {
 	return &DeliveryError{Permanent: false, Reason: reason, Err: err}
+}
+
+type MomentCandidate struct {
+	Occasion          NotificationOccasion
+	EventID           uuid.UUID
+	EventDisplayID    string
+	EventTitle        string
+	StageID           *uuid.UUID
+	StageName         string
+	MomentAt          time.Time
+	RecipientID       uuid.UUID
+	RecipientLocale   string
+	RecipientTimezone string
+	RecipientChannels RecipientChannels
+	ScheduleVersion   int
+}
+
+func (c MomentCandidate) Subject() string {
+	if c.StageID != nil {
+		return c.StageName
+	}
+	return c.EventTitle
 }

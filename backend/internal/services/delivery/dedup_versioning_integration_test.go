@@ -11,12 +11,13 @@ import (
 
 func TestScheduleVersionBumpProducesNewKey(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	oldKey := r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
+	oldKey := r.reminderKey(1, models.ChannelTelegram)
 	old := r.byKey(oldKey)
 	requireStatus(t, old, models.NotificationPending)
 
@@ -39,7 +40,7 @@ func TestScheduleVersionBumpProducesNewKey(t *testing.T) {
 	if result.Reminder != 1 {
 		t.Fatalf("expected one reminder for the new schedule version, got %+v", result)
 	}
-	freshKey := r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
+	freshKey := r.reminderKey(1, models.ChannelTelegram)
 	if freshKey == oldKey {
 		t.Fatalf("the schedule version bump did not change the logical key: %s", freshKey)
 	}
@@ -48,12 +49,13 @@ func TestScheduleVersionBumpProducesNewKey(t *testing.T) {
 
 func TestContentVersionBumpProducesNewKeyAndPayload(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	oldReminder := r.byKey(r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram))
+	oldReminder := r.byKey(r.reminderKey(1, models.ChannelTelegram))
 	oldPrimary := r.byKey(r.primaryKey(models.ChannelTelegram))
 	if oldReminder.Payload.RegistrationURL != "https://example.com/reg" {
 		t.Fatalf("unexpected snapshot url: %s", oldReminder.Payload.RegistrationURL)
@@ -72,7 +74,7 @@ func TestContentVersionBumpProducesNewKeyAndPayload(t *testing.T) {
 	if result.Primary != 1 || result.Reminder != 1 {
 		t.Fatalf("expected fresh notifications of both kinds, got %+v", result)
 	}
-	fresh := r.byKey(r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram))
+	fresh := r.byKey(r.reminderKey(1, models.ChannelTelegram))
 	if fresh.ID == oldReminder.ID {
 		t.Fatalf("the content version bump reused the old notification")
 	}
@@ -86,12 +88,13 @@ func TestContentVersionBumpProducesNewKeyAndPayload(t *testing.T) {
 
 func TestTodoCycleBumpProducesNewKey(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	r.reconcile()
 
-	firstKey := r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
+	firstKey := r.reminderKey(1, models.ChannelTelegram)
 	first := r.byKey(firstKey)
 
 	w.setStatus(models.StatusDONE)
@@ -105,7 +108,7 @@ func TestTodoCycleBumpProducesNewKey(t *testing.T) {
 	if result.Reminder != 1 {
 		t.Fatalf("expected one reminder in the new TODO cycle, got %+v", result)
 	}
-	secondKey := r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
+	secondKey := r.reminderKey(1, models.ChannelTelegram)
 	if secondKey == firstKey {
 		t.Fatalf("the new TODO cycle reused the old logical key: %s", secondKey)
 	}

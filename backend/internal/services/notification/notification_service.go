@@ -40,14 +40,27 @@ func PrimaryKey(participantID uuid.UUID, assignmentVersion, activationVersion, c
 		participantID, assignmentVersion, activationVersion, contentVersion, channel)
 }
 
-func RuleKey(kind models.NotificationType, statusID, ruleID uuid.UUID, scheduleVersion, todoCycle, contentVersion int,
-	channel models.Channel) string {
-	prefix := "reminder"
-	if kind == models.NotificationOverdue {
-		prefix = "overdue"
+func DeadlineReminderKey(statusID uuid.UUID, daysBefore, scheduleVersion, todoCycle, contentVersion,
+	reminderVersion int, channel models.Channel) string {
+	return fmt.Sprintf("reminder:%s:%s:d%d:sv%d:tc%d:cv%d:rv%d:ch%s",
+		models.NotificationDeadlineReminder, statusID, daysBefore,
+		scheduleVersion, todoCycle, contentVersion, reminderVersion, channel)
+}
+
+func OverdueKey(statusID uuid.UUID, scheduleVersion, todoCycle, contentVersion,
+	reminderVersion int, channel models.Channel) string {
+	return fmt.Sprintf("overdue:%s:sv%d:tc%d:cv%d:rv%d:ch%s",
+		statusID, scheduleVersion, todoCycle, contentVersion, reminderVersion, channel)
+}
+
+func MomentReminderKey(occasion models.NotificationOccasion, eventID uuid.UUID, stageID *uuid.UUID,
+	recipientID uuid.UUID, daysBefore, reminderVersion int, channel models.Channel) string {
+	subject := eventID.String()
+	if stageID != nil {
+		subject = stageID.String()
 	}
-	return fmt.Sprintf("%s:%s:%s:sv%d:tc%d:cv%d:ch%s",
-		prefix, statusID, ruleID, scheduleVersion, todoCycle, contentVersion, channel)
+	return fmt.Sprintf("moment:%s:%s:%s:d%d:rv%d:ch%s",
+		occasion, subject, recipientID, daysBefore, reminderVersion, channel)
 }
 
 func (s *NotificationService) recipientChannels(ctx context.Context, c *models.ReconcileCandidate) error {
@@ -114,36 +127,54 @@ func (s *NotificationService) CreatePrimary(ctx context.Context, c models.Reconc
 	return created, nil
 }
 
-func (s *NotificationService) CreateForRule(ctx context.Context, c models.ReconcileCandidate,
-	rule models.NotificationRule, scheduledAt time.Time) (int, error) {
+func (s *NotificationService) CreateDeadlineReminder(ctx context.Context, c models.ReconcileCandidate,
+	daysBefore, reminderVersion int, scheduledAt time.Time) (int, error) {
+	kind := models.NotificationDeadlineReminder
+	return s.createRegistrationReminder(ctx, c, kind, &daysBefore, reminderVersion, scheduledAt,
+		func(channel models.Channel) string {
+			return DeadlineReminderKey(c.StatusID, daysBefore, c.ScheduleVersion, c.TodoCycle,
+				c.ContentVersion, reminderVersion, channel)
+		})
+}
+
+func (s *NotificationService) CreateOverdue(ctx context.Context, c models.ReconcileCandidate,
+	reminderVersion int, scheduledAt time.Time) (int, error) {
+	return s.createRegistrationReminder(ctx, c, models.NotificationOverdue, nil, reminderVersion,
+		scheduledAt, func(channel models.Channel) string {
+			return OverdueKey(c.StatusID, c.ScheduleVersion, c.TodoCycle, c.ContentVersion,
+				reminderVersion, channel)
+		})
+}
+
+func (s *NotificationService) createRegistrationReminder(ctx context.Context,
+	c models.ReconcileCandidate, kind models.NotificationType, daysBefore *int, reminderVersion int,
+	scheduledAt time.Time, key func(models.Channel) string) (int, error) {
 	if err := s.recipientChannels(ctx, &c); err != nil {
 		return 0, err
 	}
-	kind := rule.NotificationType()
 	if c.RecipientChannels.MutedEntirely(kind) {
 		return 0, nil
 	}
 	channels := wantedOrDefault(c.RecipientChannels.Wanted(kind))
 	now := s.now()
-	ruleID := rule.ID
 	created := 0
 	for _, channel := range channels {
-		notification := &models.Notification{
+		entry := &models.Notification{
 			NotificationType:           kind,
 			RecipientUserID:            c.RecipientID,
 			RegistrationStatusID:       &c.StatusID,
-			RuleID:                     &ruleID,
 			ScheduleVersion:            &c.ScheduleVersion,
 			TodoCycle:                  &c.TodoCycle,
+			ReminderDaysBefore:         daysBefore,
+			ReminderScheduleVersion:    &reminderVersion,
 			NotificationContentVersion: c.ContentVersion,
-			LogicalKey: RuleKey(
-				kind, c.StatusID, rule.ID, c.ScheduleVersion, c.TodoCycle, c.ContentVersion, channel),
-			RequestedChannel: channel,
-			ScheduledAt:      scheduledAt,
-			NextAttemptAt:    &now,
-			Payload:          s.payload(kind, c),
+			LogicalKey:                 key(channel),
+			RequestedChannel:           channel,
+			ScheduledAt:                scheduledAt,
+			NextAttemptAt:              &now,
+			Payload:                    s.payload(kind, c),
 		}
-		_, ok, err := s.repo.Insert(ctx, notification)
+		_, ok, err := s.repo.Insert(ctx, entry)
 		if err != nil {
 			return created, err
 		}
@@ -152,7 +183,7 @@ func (s *NotificationService) CreateForRule(ctx context.Context, c models.Reconc
 		}
 	}
 	if created > 0 {
-		s.writeInboxItem(ctx, kind, c, inboxRuleKey(c, rule.ID))
+		s.writeInboxItem(ctx, kind, c, inboxReminderKey(c, kind, daysBefore, reminderVersion))
 	}
 	return created, nil
 }
@@ -201,7 +232,7 @@ func renderTemplate(lang string, kind models.NotificationType,
 	switch kind {
 	case models.NotificationOverdue:
 		name = "overdue"
-	case models.NotificationReminder:
+	case models.NotificationDeadlineReminder:
 		name = "reminder"
 	default:
 		name = "primary"
@@ -209,29 +240,4 @@ func renderTemplate(lang string, kind models.NotificationType,
 	args := []string{"title", title, "url", url, "deadline", deadlineLocal, "timezone", timezone}
 	return locale.Message(lang, "notification."+name+".subject", args...),
 		locale.Message(lang, "notification."+name+".body", args...)
-}
-
-func (s *NotificationService) CancelForStatus(ctx context.Context, statusID uuid.UUID) error {
-	_, err := s.repo.CancelPending(ctx, notification.CancelScope{StatusID: &statusID})
-	return err
-}
-
-func (s *NotificationService) CancelForParticipant(ctx context.Context, participantID uuid.UUID) error {
-	_, err := s.repo.CancelPending(ctx, notification.CancelScope{ParticipantID: &participantID})
-	return err
-}
-
-func (s *NotificationService) CancelForRegistration(ctx context.Context, registrationID uuid.UUID) error {
-	_, err := s.repo.CancelPending(ctx, notification.CancelScope{RegistrationID: &registrationID})
-	return err
-}
-
-func (s *NotificationService) CancelForEvent(ctx context.Context, eventID uuid.UUID) error {
-	_, err := s.repo.CancelPending(ctx, notification.CancelScope{EventID: &eventID})
-	return err
-}
-
-func (s *NotificationService) CancelForRecipient(ctx context.Context, userID uuid.UUID) error {
-	_, err := s.repo.CancelPending(ctx, notification.CancelScope{RecipientID: &userID})
-	return err
 }

@@ -13,24 +13,6 @@ import (
 	"github.com/GoatWhistle/timeline/internal/services/shared/validation"
 )
 
-func (s *AuthService) usableInvite(ctx context.Context, token, email string) (*models.Invite, error) {
-	if token == "" {
-		return nil, nil
-	}
-	invite, err := s.invites.GetByHash(ctx, crypto.HashSecret(token))
-	if err != nil {
-		return nil, models.NewValidation("invite not found or invalid")
-	}
-	if !invite.Usable(s.now()) {
-		return nil, models.NewConflict("invite_not_usable",
-			"the invite has already been used, revoked or expired")
-	}
-	if invite.NormalizedEmail != email {
-		return nil, models.NewValidation("email does not match the invited address")
-	}
-	return invite, nil
-}
-
 type registrationName struct {
 	first    string
 	middle   *string
@@ -64,16 +46,6 @@ func (s *AuthService) validateRegistration(req dto.RegisterRequest) (string, reg
 	return email, name, hash, nil
 }
 
-func (s *AuthService) acceptInvite(ctx context.Context, invite *models.Invite, email string) error {
-	if invite == nil {
-		return nil
-	}
-	if err := s.invites.MarkAccepted(ctx, invite.ID, s.now()); err != nil {
-		return err
-	}
-	return s.invites.RevokePendingByEmail(ctx, email)
-}
-
 func (s *AuthService) issueVerification(ctx context.Context, userID uuid.UUID) (string, error) {
 	secret, err := crypto.NewSecret()
 	if err != nil {
@@ -102,11 +74,6 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest,
 		verifySecret string
 	)
 	err = s.db.WithTx(ctx, func(ctx context.Context) error {
-		invite, err := s.usableInvite(ctx, req.InviteToken, email)
-		if err != nil {
-			return err
-		}
-
 		taken, err := s.users.EmailTaken(ctx, email, uuid.Nil)
 		if err != nil {
 			return err
@@ -121,10 +88,6 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest,
 
 		user, err = s.createUser(ctx, name, email, hash)
 		if err != nil {
-			return err
-		}
-
-		if err := s.acceptInvite(ctx, invite, email); err != nil {
 			return err
 		}
 

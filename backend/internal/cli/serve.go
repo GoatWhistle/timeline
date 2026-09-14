@@ -86,8 +86,6 @@ func applyRateLimits(deps *controllers.Deps, c *container) {
 	deps.ProfileRateWindow = c.cfg.RateLim.ProfileWindow
 	deps.PreviewRate = c.cfg.RateLim.PreviewRequests
 	deps.PreviewRateWindow = c.cfg.RateLim.PreviewWindow
-	deps.QueueRate = c.cfg.RateLim.QueueRequests
-	deps.QueueRateWindow = c.cfg.RateLim.QueueWindow
 	deps.PersonalRate = c.cfg.RateLim.PersonalRequests
 	deps.PersonalRateWindow = c.cfg.RateLim.PersonalWindow
 	deps.LinkRate = c.cfg.RateLim.LinkRequests
@@ -102,7 +100,6 @@ func applyRateLimits(deps *controllers.Deps, c *container) {
 func newRouter(c *container) http.Handler {
 	deps := controllers.Deps{
 		Auth:           c.auth,
-		Invites:        c.invites,
 		Profile:        c.profile,
 		Avatars:        c.avatars,
 		Covers:         c.covers,
@@ -118,7 +115,6 @@ func newRouter(c *container) http.Handler {
 		Participants:   c.participants,
 		Registrations:  c.registrations,
 		Statuses:       c.statuses,
-		Rules:          c.rules,
 		Queries:        c.queries,
 		Audit:          c.audit,
 		Ops:            c.ops,

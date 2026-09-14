@@ -26,7 +26,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
 import { RegistrationFacts } from './registration-facts'
-import { RulesEditor } from './rules-editor'
 
 const schema = z.object({
   url: z.string().refine((value) => isAcceptedUrl(value), {
@@ -183,18 +182,6 @@ export function RegistrationTab({ event }: { event: EventResponse }) {
                 </form>
               </CardContent>
             </Card>
-
-            {registration && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t('rules.title')}</CardTitle>
-                  <CardDescription>{t('rules.hint')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RulesEditor eventId={event.id} />
-                </CardContent>
-              </Card>
-            )}
           </div>
         </div>
       </div>

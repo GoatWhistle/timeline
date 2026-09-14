@@ -81,14 +81,9 @@ func TestParticipantCannotReachForeignParticipantObjects(t *testing.T) {
 		{"team role of a foreign participant", http.MethodPatch,
 			"/admin/participants/" + f.MemberPart + "/team-role",
 			map[string]any{"team_role": "Hijacked"}},
-		{"reactivation of a foreign participant", http.MethodPost,
-			"/admin/participants/" + f.MemberPart + "/reactivate", nil},
 		{"status of a foreign participant", http.MethodPatch,
 			"/admin/registration-statuses/" + f.StatusID,
 			map[string]any{"status": "DONE"}},
-		{"reminder rule of a foreign event", http.MethodPatch,
-			"/admin/registration-rules/" + f.RegRuleID,
-			map[string]any{"enabled": false}},
 		{"roster of a foreign event", http.MethodGet,
 			"/admin/events/" + f.EventID + "/participants", nil},
 		{"statuses of a foreign event", http.MethodGet,
@@ -198,19 +193,4 @@ func TestOwnSurfacesNeverExposeAnInternalIdentifier(t *testing.T) {
 		support.RequireStatus(t, resp, http.StatusOK, "reading "+path)
 		requireNoUUID(t, resp.Body, path)
 	}
-}
-
-func TestQueueDiagnosticsNameNotificationsByDisplayIdentifier(t *testing.T) {
-	s := support.NewStack(t)
-	f := s.Seed(t)
-
-	id := notificationOf(s, t, f.StatusID)
-	markTerminal(s, t, id, "FAILED", "the provider call limit is exhausted")
-
-	resp := f.AdminClient.Get("/ops/queue?scope=failures")
-	support.RequireStatus(t, resp, http.StatusOK, "reading the failure diagnostics")
-	if !support.ContainsAll(string(resp.Body), id) {
-		t.Fatalf("the diagnostics do not name the notification %s: %s", id, resp.Body)
-	}
-	requireNoUUID(t, resp.Body, "the queue diagnostics")
 }

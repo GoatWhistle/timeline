@@ -42,6 +42,7 @@ func testConfig(t *testing.T) *config.Config {
 	cfg.App.SystemTZ = loc
 	cfg.App.SystemTZID = "UTC"
 	cfg.Notify.SchedulerBatch = 100
+	cfg.Notify.OverdueLead = time.Hour
 	cfg.Notify.WorkerBatch = 20
 	cfg.Notify.LeaseTTL = 2 * time.Minute
 	cfg.Notify.MaxProviderCalls = 4
@@ -79,6 +80,7 @@ func newWorld(t *testing.T) *world {
 	w.StatusID = w.scanUUID(`
 		INSERT INTO registration_statuses (event_id, registration_id, participant_id)
 		VALUES ($1, $2, $3) RETURNING id`, w.EventID, w.RegistrationID, w.ParticipantID)
+	w.clearSchedule()
 	return w
 }
 
@@ -115,11 +117,32 @@ func (w *world) exec(query string, args ...any) {
 	}
 }
 
-func (w *world) addRule(offsetMinutes, slot int) uuid.UUID {
+func (w *world) wantReminder(days int) {
 	w.t.Helper()
-	return w.scanUUID(`
-		INSERT INTO notification_rules (registration_id, offset_minutes, slot_no)
-		VALUES ($1, $2, $3) RETURNING id`, w.RegistrationID, offsetMinutes, slot)
+	w.exec(`INSERT INTO user_reminder_schedule (user_id, occasion, days_before)
+		VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
+		w.UserID, string(models.NotificationDeadlineReminder), days)
+}
+
+func (w *world) wantOverdue(enabled bool) {
+	w.t.Helper()
+	w.exec(`UPDATE users SET reminder_overdue_enabled = $2 WHERE id = $1`, w.UserID, enabled)
+}
+
+func (w *world) clearSchedule() {
+	w.t.Helper()
+	w.exec(`DELETE FROM user_reminder_schedule WHERE user_id = $1`, w.UserID)
+	w.wantOverdue(false)
+}
+
+func (w *world) reminderVersion() int {
+	w.t.Helper()
+	var version int
+	if err := w.pool.QueryRow(w.ctx,
+		`SELECT reminder_schedule_version FROM users WHERE id = $1`, w.UserID).Scan(&version); err != nil {
+		w.t.Fatalf("reading the reminder schedule version: %v", err)
+	}
+	return version
 }
 
 func (w *world) setChannels(telegram, verified bool) {

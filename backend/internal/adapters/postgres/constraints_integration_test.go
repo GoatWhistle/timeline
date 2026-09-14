@@ -72,40 +72,36 @@ func TestStatusCrossEventIntegrity(t *testing.T) {
 	requireConstraint(t, err, "statuses_participant_fk")
 }
 
-func TestNotificationRuleSlotLimit(t *testing.T) {
+func TestReminderScheduleAcceptsOnlyKnownOccasionsAndDays(t *testing.T) {
 	pool := testsupport.Pool(t)
 	ctx := context.Background()
-	start := time.Now().UTC().Truncate(time.Second)
-	event := insertEvent(t, pool, start, start.Add(48*time.Hour))
-	registration := insertRegistration(t, pool, event, start.Add(24*time.Hour), start.Add(48*time.Hour))
+	_, userID := seedStatus(t, pool)
 
-	for slot := 1; slot <= 10; slot++ {
-		if _, err := pool.Exec(ctx, `
-			INSERT INTO notification_rules (registration_id, offset_minutes, slot_no)
-			VALUES ($1, $2, $3)`, registration, slot*60, slot); err != nil {
-			t.Fatalf("creating rule in slot %d: %v", slot, err)
-		}
+	if _, err := pool.Exec(ctx, `
+		INSERT INTO user_reminder_schedule (user_id, occasion, days_before)
+		VALUES ($1, 'REMINDER_EVENT_START', 7) ON CONFLICT DO NOTHING`, userID); err != nil {
+		t.Fatalf("storing a valid schedule row: %v", err)
 	}
 
 	_, err := pool.Exec(ctx, `
-		INSERT INTO notification_rules (registration_id, offset_minutes, slot_no)
-		VALUES ($1, 999, 11)`, registration)
-	requireConstraint(t, err, "rules_slot_range")
+		INSERT INTO user_reminder_schedule (user_id, occasion, days_before)
+		VALUES ($1, 'REMINDER_EVENT_START', 5)`, userID)
+	requireConstraint(t, err, "user_reminder_schedule_days_enum")
 
 	_, err = pool.Exec(ctx, `
-		INSERT INTO notification_rules (registration_id, offset_minutes, slot_no)
-		VALUES ($1, 12345, 3)`, registration)
-	requireConstraint(t, err, "rules_registration_slot_key")
+		INSERT INTO user_reminder_schedule (user_id, occasion, days_before)
+		VALUES ($1, 'REGISTRATION_REQUIRED', 7)`, userID)
+	requireConstraint(t, err, "user_reminder_schedule_occasion_enum")
+}
 
-	_, err = pool.Exec(ctx, `
-		INSERT INTO notification_rules (registration_id, offset_minutes, slot_no)
-		VALUES ($1, 60, 3)`, registration)
-	requireConstraint(t, err, "rules_registration_offset_key")
+func TestReminderScheduleVersionStaysPositive(t *testing.T) {
+	pool := testsupport.Pool(t)
+	ctx := context.Background()
+	_, userID := seedStatus(t, pool)
 
-	_, err = pool.Exec(ctx, `
-		INSERT INTO notification_rules (registration_id, offset_minutes, slot_no)
-		VALUES ($1, 600000, 5)`, registration)
-	requireConstraint(t, err, "rules_offset_range")
+	_, err := pool.Exec(ctx,
+		`UPDATE users SET reminder_schedule_version = 0 WHERE id = $1`, userID)
+	requireConstraint(t, err, "users_reminder_schedule_version_positive")
 }
 
 func TestNotificationLogicalKeyUnique(t *testing.T) {
@@ -153,7 +149,7 @@ func TestNotificationVersionsByType(t *testing.T) {
 		INSERT INTO notifications (
 			notification_type, recipient_user_id, registration_status_id,
 			notification_content_version, logical_key, requested_channel, scheduled_at)
-		VALUES ('REGISTRATION_REMINDER', $1, $2, 1, 'reminder:no-rule', 'EMAIL', now())`,
+		VALUES ('REMINDER_REGISTRATION_DEADLINE', $1, $2, 1, 'reminder:no-versions', 'EMAIL', now())`,
 		userID, statusID)
 	requireConstraint(t, err, "notifications_versions_by_type")
 }
@@ -247,28 +243,6 @@ func TestRegistrationUniquePerEvent(t *testing.T) {
 		VALUES ($1, 'https://example.com/second', $2, $3)`,
 		event, start.Add(12*time.Hour), start.Add(48*time.Hour))
 	requireConstraint(t, err, "registrations_event_key")
-}
-
-func TestInviteSinglePendingPerEmail(t *testing.T) {
-	pool := testsupport.Pool(t)
-	ctx := context.Background()
-	admin := insertUser(t, pool, "admin@example.com")
-
-	insert := `
-		INSERT INTO invites (normalized_email, created_by_user_id, token_hash, expires_at)
-		VALUES ('invitee@example.com', $1, $2, now() + interval '72 hours')`
-	if _, err := pool.Exec(ctx, insert, admin, "hash-1"); err != nil {
-		t.Fatalf("creating invite: %v", err)
-	}
-	_, err := pool.Exec(ctx, insert, admin, "hash-2")
-	requireConstraint(t, err, "invites_one_pending_per_email_key")
-
-	if _, err := pool.Exec(ctx, `UPDATE invites SET revoked_at = now() WHERE token_hash = 'hash-1'`); err != nil {
-		t.Fatalf("revoking invite: %v", err)
-	}
-	if _, err := pool.Exec(ctx, insert, admin, "hash-2"); err != nil {
-		t.Fatalf("recreating invite: %v", err)
-	}
 }
 
 func requireConstraint(t *testing.T, err error, constraint string) {

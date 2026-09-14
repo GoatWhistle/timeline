@@ -2,9 +2,12 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/GoatWhistle/timeline/internal/models"
 )
+
+const maxOverdueLead = 30 * 24 * time.Hour
 
 func (c *Config) validate() error {
 	if c.DB.DSN == "" {
@@ -23,12 +26,8 @@ func (c *Config) validate() error {
 		return fmt.Errorf("NOTIFICATION_MAX_PROVIDER_CALLS must be between 1 and %d",
 			models.MaxAttemptCount)
 	}
-	if c.Notify.MaxRulesPerReg < 1 || c.Notify.MaxRulesPerReg > models.MaxRuleSlots {
-		return fmt.Errorf("NOTIFICATION_MAX_RULES must be between 1 and %d", models.MaxRuleSlots)
-	}
-	if c.Notify.MaxOffsetMinutes < 1 || c.Notify.MaxOffsetMinutes > models.MaxRuleOffsetMinutes {
-		return fmt.Errorf("NOTIFICATION_MAX_OFFSET_MINUTES must be between 1 and %d",
-			models.MaxRuleOffsetMinutes)
+	if c.Notify.OverdueLead < 0 || c.Notify.OverdueLead > maxOverdueLead {
+		return fmt.Errorf("NOTIFICATION_OVERDUE_LEAD must be between 0 and %s", maxOverdueLead)
 	}
 	if err := c.Avatar.validate(); err != nil {
 		return err

@@ -58,6 +58,18 @@ describe('a notification row reads as one item, not a wall of text', () => {
     expect(styleSource).not.toContain('grid-template-areas')
   })
 
+  it('lets the notification text wrap instead of cutting it off mid-sentence', () => {
+    const body = styleSource.match(/\.itemBody\s*\{[^}]*\}/)?.[0] ?? ''
+
+    expect(body, 'the body rule is missing').not.toBe('')
+    expect(body, 'a single-line body hides most of the notification').not.toMatch(
+      /white-space:\s*nowrap/,
+    )
+    expect(body, 'the body needs a line budget so a long text stays bounded').toMatch(
+      /line-clamp:\s*2/,
+    )
+  })
+
   it('links the row to the event the action points at', async () => {
     const rendered = renderWithProviders(<InboxBell />)
     await openBell(rendered.user)

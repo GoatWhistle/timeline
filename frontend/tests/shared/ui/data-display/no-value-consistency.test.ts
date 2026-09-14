@@ -24,8 +24,6 @@ const ADOPTED = [
   'entities/catalog/catalog-table-row.tsx',
   'features/audit-log/audit-log.tsx',
   'features/notification-preview/preview-body.tsx',
-  'features/ops-queue/ops-queue.tsx',
-  'features/ops-queue/queue-row-cells.tsx',
   'features/participants/participants-table/participants-table.tsx',
   'features/registration/statuses-table/statuses-table.tsx',
   'shared/ui/primitives/deadline-time/deadline-time.tsx',

@@ -63,7 +63,6 @@ type Auth struct {
 	EmailVerifyTTL       time.Duration
 	EmailChangeCancelTTL time.Duration
 	PasswordResetTTL     time.Duration
-	InviteTTL            time.Duration
 	TeamJoinLinkTTL      time.Duration
 	TelegramLinkTTL      time.Duration
 	NicknameHoldTTL      time.Duration
@@ -91,8 +90,7 @@ type Notify struct {
 	RecoveryInterval  time.Duration
 	MaxProviderCalls  int
 	Backoff           []time.Duration
-	MaxRulesPerReg    int
-	MaxOffsetMinutes  int
+	OverdueLead       time.Duration
 }
 
 type Retention struct {
@@ -165,7 +163,6 @@ func Load() (*Config, error) {
 			EmailVerifyTTL:       envDuration("EMAIL_VERIFICATION_TTL", 24*time.Hour),
 			EmailChangeCancelTTL: envDuration("EMAIL_CHANGE_CANCEL_TTL", 7*24*time.Hour),
 			PasswordResetTTL:     envDuration("PASSWORD_RESET_TTL", 30*time.Minute),
-			InviteTTL:            envDuration("INVITE_TTL", 72*time.Hour),
 			TeamJoinLinkTTL:      envDuration("TEAM_JOIN_LINK_TTL", 14*24*time.Hour),
 			TelegramLinkTTL:      envDuration("TELEGRAM_LINK_TTL", time.Hour),
 			NicknameHoldTTL:      envDuration("NICKNAME_HOLD_TTL", 30*24*time.Hour),
@@ -192,8 +189,7 @@ func Load() (*Config, error) {
 			RecoveryInterval:  envDuration("WORKER_RECOVERY_INTERVAL", time.Minute),
 			MaxProviderCalls:  envInt("NOTIFICATION_MAX_PROVIDER_CALLS", 4),
 			Backoff:           envDurationList("NOTIFICATION_BACKOFF", []time.Duration{time.Minute, 5 * time.Minute, 30 * time.Minute}),
-			MaxRulesPerReg:    envInt("NOTIFICATION_MAX_RULES", 10),
-			MaxOffsetMinutes:  envInt("NOTIFICATION_MAX_OFFSET_MINUTES", 525600),
+			OverdueLead:       envDuration("NOTIFICATION_OVERDUE_LEAD", 24*time.Hour),
 		},
 		Retent: Retention{
 			NotificationPayload: envDuration("RETENTION_NOTIFICATION_PAYLOAD", 90*24*time.Hour),

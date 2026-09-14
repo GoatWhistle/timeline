@@ -50,7 +50,8 @@ func newRig(t *testing.T, w *world, telegram, email *recordingSender) *rig {
 	notifier := svcnotification.NewNotificationService(notifs, prefs, w.cfg)
 	inboxSvc := svcinbox.NewService(pginbox.NewItems(w.db), nil)
 	notifier.WithInbox(inboxSvc)
-	planner := svcscheduler.NewSchedulerService(w.db, scheduler, participation.NewRules(w.db), participation.NewStatuses(w.db), notifier, w.cfg)
+	planner := svcscheduler.NewSchedulerService(w.db, scheduler,
+		participation.NewStatuses(w.db), notifier, w.cfg)
 	delivery := svcdelivery.NewDeliveryService(w.db, notifs, scheduler,
 		identity.NewUsers(w.db), event.NewEvents(w.db), audit.NewAudit(w.db),
 		telegram, email, w.cfg)
@@ -127,7 +128,7 @@ func (r *rig) primaryKey(channel models.Channel) string {
 	return svcnotification.PrimaryKey(r.world.ParticipantID, assignment, activation, content, channel)
 }
 
-func (r *rig) ruleKey(kind models.NotificationType, ruleID uuid.UUID, channel models.Channel) string {
+func (r *rig) registrationVersions() (int, int, int) {
 	r.world.t.Helper()
 	var schedule, content, cycle int
 	err := r.world.pool.QueryRow(r.world.ctx, `
@@ -138,7 +139,21 @@ func (r *rig) ruleKey(kind models.NotificationType, ruleID uuid.UUID, channel mo
 	if err != nil {
 		r.world.t.Fatalf("reading versions: %v", err)
 	}
-	return svcnotification.RuleKey(kind, r.world.StatusID, ruleID, schedule, cycle, content, channel)
+	return schedule, cycle, content
+}
+
+func (r *rig) reminderKey(days int, channel models.Channel) string {
+	r.world.t.Helper()
+	schedule, cycle, content := r.registrationVersions()
+	return svcnotification.DeadlineReminderKey(r.world.StatusID, days, schedule, cycle, content,
+		r.world.reminderVersion(), channel)
+}
+
+func (r *rig) overdueKey(channel models.Channel) string {
+	r.world.t.Helper()
+	schedule, cycle, content := r.registrationVersions()
+	return svcnotification.OverdueKey(r.world.StatusID, schedule, cycle, content,
+		r.world.reminderVersion(), channel)
 }
 
 func requireStatus(t *testing.T, n *models.Notification, want models.NotificationStatus) {

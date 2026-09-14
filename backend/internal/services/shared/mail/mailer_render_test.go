@@ -23,9 +23,6 @@ func sendAll(t *testing.T, lang string) map[string]struct{ subject, text, html s
 		"email_change": func(m *Mailer) {
 			m.SendEmailChange(context.Background(), "user@example.test", "Maria Ivanova", lang, "dark", "tok", 24*time.Hour)
 		},
-		"invite": func(m *Mailer) {
-			m.SendInvite(context.Background(), "new@example.test", "Maria Ivanova", lang, "tok", 72*time.Hour)
-		},
 	}
 	for name, send := range cases {
 		sender := &recordingMailSender{}

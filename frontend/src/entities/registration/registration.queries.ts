@@ -1,17 +1,10 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, unwrap } from '@/shared/api/client'
 import type { RequestBody } from '@/shared/api/params'
-import type {
-  BatchResult,
-  NotificationRuleResponse,
-  PreviewResponse,
-  RegistrationResponse,
-} from '@/shared/api/types.gen'
+import type { BatchResult, PreviewResponse, RegistrationResponse } from '@/shared/api/types.gen'
 
 export type CreateRegistrationPayload = RequestBody<'/admin/events/{id}/registration', 'post'>
 export type UpdateRegistrationPayload = RequestBody<'/admin/events/{id}/registration', 'patch'>
-export type CreateRulePayload = RequestBody<'/admin/events/{id}/registration/rules', 'post'>
-export type UpdateRulePayload = RequestBody<'/admin/registration-rules/{id}', 'patch'>
 export type BatchSetStatusPayload = RequestBody<
   '/admin/events/{id}/registration-statuses/batch-set',
   'post'
@@ -22,19 +15,6 @@ export function registrationQuery(eventId: string) {
     queryKey: ['registration', eventId],
     queryFn: () =>
       unwrap(api.GET('/admin/events/{id}/registration', { params: { path: { id: eventId } } })),
-    retry: false,
-  })
-}
-
-export function rulesQuery(eventId: string) {
-  return queryOptions({
-    queryKey: ['rules', eventId],
-    queryFn: () =>
-      unwrap(
-        api.GET('/admin/events/{id}/registration/rules', {
-          params: { path: { id: eventId } },
-        }),
-      ),
     retry: false,
   })
 }
@@ -55,7 +35,6 @@ function useInvalidateRegistration(eventId: string) {
   const queryClient = useQueryClient()
   return () => {
     queryClient.invalidateQueries({ queryKey: ['registration', eventId] })
-    queryClient.invalidateQueries({ queryKey: ['rules', eventId] })
     queryClient.invalidateQueries({ queryKey: ['registration-statuses', eventId] })
     queryClient.invalidateQueries({ queryKey: ['participants', eventId] })
   }
@@ -104,38 +83,6 @@ export function useToggleRegistration(eventId: string) {
               params: { path: { id: eventId } },
             }),
           ),
-    onSuccess: invalidate,
-  })
-}
-
-export function useCreateRule(eventId: string) {
-  const invalidate = useInvalidateRegistration(eventId)
-  return useMutation<NotificationRuleResponse, Error, CreateRulePayload>({
-    mutationFn: (body) =>
-      unwrap(
-        api.POST('/admin/events/{id}/registration/rules', {
-          params: { path: { id: eventId } },
-          body,
-        }),
-      ),
-    onSuccess: invalidate,
-  })
-}
-
-export function useUpdateRule(eventId: string) {
-  const invalidate = useInvalidateRegistration(eventId)
-  return useMutation<NotificationRuleResponse, Error, { id: string; body: UpdateRulePayload }>({
-    mutationFn: ({ id, body }) =>
-      unwrap(api.PATCH('/admin/registration-rules/{id}', { params: { path: { id } }, body })),
-    onSuccess: invalidate,
-  })
-}
-
-export function useDisableRule(eventId: string) {
-  const invalidate = useInvalidateRegistration(eventId)
-  return useMutation<unknown, Error, string>({
-    mutationFn: (id) =>
-      unwrap(api.DELETE('/admin/registration-rules/{id}', { params: { path: { id } } })),
     onSuccess: invalidate,
   })
 }

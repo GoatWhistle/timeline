@@ -165,9 +165,6 @@ const (
 	AuditUserDelete          AuditAction = "USER_DELETE"
 	AuditUserProfileChange   AuditAction = "USER_PROFILE_CHANGE"
 	AuditUserAdminFlagChange AuditAction = "USER_ADMIN_FLAG_CHANGE"
-	AuditInviteCreate        AuditAction = "INVITE_CREATE"
-	AuditInviteRevoke        AuditAction = "INVITE_REVOKE"
-	AuditInviteAccept        AuditAction = "INVITE_ACCEPT"
 	AuditEventCreate         AuditAction = "EVENT_CREATE"
 	AuditEventUpdate         AuditAction = "EVENT_UPDATE"
 	AuditEventPublish        AuditAction = "EVENT_PUBLISH"
@@ -205,7 +202,6 @@ const (
 	AuditTeamEventLinkRemove AuditAction = "TEAM_EVENT_LINK_REMOVE"
 	AuditRegistrationChange  AuditAction = "REGISTRATION_CHANGE"
 	AuditStatusChange        AuditAction = "STATUS_CHANGE"
-	AuditRuleChange          AuditAction = "RULE_CHANGE"
 	AuditLinkCreate          AuditAction = "RESOURCE_LINK_CREATE"
 	AuditLinkUpdate          AuditAction = "RESOURCE_LINK_UPDATE"
 	AuditLinkDelete          AuditAction = "RESOURCE_LINK_DELETE"
@@ -220,7 +216,6 @@ type EntityType string
 
 const (
 	EntityUser               EntityType = "USER"
-	EntityInvite             EntityType = "INVITE"
 	EntityEvent              EntityType = "EVENT"
 	EntityStage              EntityType = "STAGE"
 	EntityEventTrack         EntityType = "EVENT_TRACK"
@@ -233,7 +228,6 @@ const (
 	EntityTeamEventLink      EntityType = "TEAM_EVENT_LINK"
 	EntityRegistration       EntityType = "REGISTRATION"
 	EntityRegistrationStatus EntityType = "REGISTRATION_STATUS"
-	EntityNotificationRule   EntityType = "NOTIFICATION_RULE"
 	EntityResourceLink       EntityType = "RESOURCE_LINK"
 	EntityRetentionSettings  EntityType = "RETENTION_SETTINGS"
 )

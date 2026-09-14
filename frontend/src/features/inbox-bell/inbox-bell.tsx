@@ -77,7 +77,7 @@ export function InboxBell({ touch = false }: { touch?: boolean }) {
           align="end"
           sideOffset={6}
           collisionPadding={12}
-          className={cn(FLOATING_SURFACE, FLOATING_MOTION, 'w-80 p-1')}
+          className={cn(FLOATING_SURFACE, FLOATING_MOTION, 'w-96 max-w-[calc(100vw-2rem)] p-1')}
         >
           <div className={styles.header}>
             <span className={styles.title}>{t('inbox.bell.title')}</span>

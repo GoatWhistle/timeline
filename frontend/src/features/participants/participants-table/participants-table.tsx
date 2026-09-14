@@ -1,4 +1,3 @@
-import { RotateCcw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PARTICIPATION_STATUS_KEY } from '@/entities/participant/participant.labels'
 import {
@@ -21,7 +20,6 @@ import {
 } from '@/shared/ui/data-display/table'
 import { Checkbox } from '@/shared/ui/forms/checkbox'
 import { Badge } from '@/shared/ui/primitives/badge'
-import { Button } from '@/shared/ui/primitives/button'
 import { Dot } from '@/shared/ui/primitives/dot'
 import { EditAction } from '@/shared/ui/primitives/row-actions'
 
@@ -29,20 +27,16 @@ export function ParticipantsTable({
   items,
   selected,
   allSelected,
-  reactivatePending,
   onToggleAll,
   onToggleOne,
   onEdit,
-  onReactivate,
 }: {
   items: ParticipantResponse[]
   selected: Set<string>
   allSelected: boolean
-  reactivatePending: boolean
   onToggleAll: (checked: boolean) => void
   onToggleOne: (id: string, checked: boolean) => void
   onEdit: (item: ParticipantResponse) => void
-  onReactivate: (item: ParticipantResponse) => void
 }) {
   const { t } = useTranslation('registration')
   const { locale } = useLocale()
@@ -109,17 +103,6 @@ export function ParticipantsTable({
                   label={t('participants.editRole', { name: listName(item.user, locale) })}
                   onClick={() => onEdit(item)}
                 />
-                {item.participation_status === 'REMOVED' && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t('participants.restore', { name: listName(item.user, locale) })}
-                    disabled={reactivatePending}
-                    onClick={() => onReactivate(item)}
-                  >
-                    <RotateCcw className="size-4" />
-                  </Button>
-                )}
               </div>
             </TableCell>
           </TableRow>

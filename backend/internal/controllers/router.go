@@ -21,7 +21,7 @@ import (
 // @title			Timeline API
 // @version		0.8.0
 // @description	Timeline REST API. Implements technical specification v0.8:
-// @description	accounts and invites, events and stages, participant assignments,
+// @description	accounts, events and stages, participant assignments,
 // @description	registration with self-reported status, reminder rules and the audit log.
 // @description
 // @description	The system does not verify the external registration site: the status is self-reported
@@ -43,8 +43,6 @@ import (
 // @description				Access token in an HttpOnly cookie, issued on sign-in and session refresh.
 // @tag.name					auth
 // @tag.description			Registration, sign-in, sessions and account recovery
-// @tag.name					invites
-// @tag.description			Registration invites
 // @tag.name					profile
 // @tag.description			Own profile and delivery channels
 // @tag.name					users
@@ -87,8 +85,6 @@ import (
 // @tag.description			The notification center: readable, deletable copies of what was sent
 func NewRouter(deps Deps) http.Handler {
 	authC := auth.NewController(deps.Auth, deps.Cookies, deps.CSRFTTL)
-	inviteC := auth.NewInviteController(deps.Invites, deps.Cookies, deps.PublicURL,
-		deps.CSRFTTL, deps.PageDefault, deps.PageMax)
 	profileC := auth.NewProfileController(deps.Profile, deps.Cookies, deps.Limiter,
 		deps.ProfileRate, deps.ProfileRateWindow)
 	telegramC := auth.NewTelegramWebhookController(deps.Profile, deps.TelegramWebhookSecret).
@@ -107,7 +103,6 @@ func NewRouter(deps Deps) http.Handler {
 		deps.ProfileRate, deps.ProfileRateWindow, deps.AvatarMaxBytes)
 	coverC := event.NewCoverController(deps.Covers, deps.CoverMaxBytes)
 	partC, regC, statusC := participationControllers(deps)
-	ruleC := notification.NewNotificationRuleController(deps.Rules)
 	queryC := event.NewQueryController(deps.Queries, deps.PageDefault, deps.PageMax)
 	auditC, opsC, previewC := notificationControllers(deps)
 	personalC := personal.NewController(deps.Personal, deps.Limiter, deps.PersonalRate,
@@ -122,7 +117,7 @@ func NewRouter(deps Deps) http.Handler {
 	mux := http.NewServeMux()
 	const api = "/api/v1"
 
-	mountAuth(mux, rt, api, authC, inviteC)
+	mountAuth(mux, rt, api, authC)
 	mux.Handle("POST "+api+"/telegram/webhook", http.HandlerFunc(telegramC.Handle))
 	mountPublicProfile(mux, rt, api, publicProfileC)
 	mountMe(mux, rt, api, profileC, sessionC, queryC, catalogC, eventC, statusC, profileLinkC, avatarC, inboxC)
@@ -132,9 +127,9 @@ func NewRouter(deps Deps) http.Handler {
 	mountTeams(mux, rt, api, teamC)
 	mountResourceLinks(mux, rt, api, linkC)
 	mountRealtime(mux, rt, api, deps)
-	mountAdminIdentity(mux, rt, api, userC, inviteC, eventC)
+	mountAdminIdentity(mux, rt, api, userC, eventC)
 	mountRetention(mux, rt, api, retentionC)
-	mountAdminRegistration(mux, rt, api, partC, regC, statusC, ruleC, previewC)
+	mountAdminRegistration(mux, rt, api, partC, regC, statusC, previewC)
 	mountAdminQueries(mux, rt, api, queryC, auditC, opsC)
 	mountServiceRoutes(mux, api, deps.SwaggerUI)
 
@@ -218,8 +213,7 @@ func participationControllers(deps Deps) (*participation.Controller,
 func notificationControllers(deps Deps) (*notification.AuditController,
 	*notification.OpsController, *notification.PreviewController) {
 	return notification.NewAuditController(deps.Audit, deps.PageDefault, deps.PageMax),
-		notification.NewOpsController(deps.Ops, deps.MetricsToken, deps.Metrics, deps.Limiter,
-			deps.QueueRate, deps.QueueRateWindow, deps.PageDefault, deps.PageMax),
+		notification.NewOpsController(deps.Ops, deps.MetricsToken, deps.Metrics),
 		notification.NewPreviewController(deps.Previews, deps.Limiter,
 			deps.PreviewRate, deps.PreviewRateWindow)
 }

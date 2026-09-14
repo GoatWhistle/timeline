@@ -939,85 +939,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/events/{id}/participants/batch-add": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Bulk participant assignment
-         * @description Re-adding a previously removed participant reactivates the record and increments
-         *     assignment_version. The assignment, registration status, primary notification and audit
-         *     entry run in a single transaction per participant; the result is returned per entry.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Event identifier
-                     * @example ev_3k7d8gb9be
-                     */
-                    id: string;
-                };
-                cookie?: never;
-            };
-            /** @description List of users and their roles */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["dto.AddParticipantsRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.BatchResult"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/events/{id}/participants/batch-remove": {
         parameters: {
             query?: never;
@@ -1048,85 +969,6 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["dto.RemoveParticipantsRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.BatchResult"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/events/{id}/participants/copy-from": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Copy the roster from another event
-         * @description Only assigned participants are copied. The participant role is copied as a value
-         *     by default and can be overridden. Existing participants are skipped
-         *     and returned as separate result entries.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Target event identifier
-                     * @example ev_3k7d8gb9be
-                     */
-                    id: string;
-                };
-                cookie?: never;
-            };
-            /** @description Source and role overrides */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["dto.CopyParticipantsRequest"];
                 };
             };
             responses: {
@@ -1879,138 +1721,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/events/{id}/registration/rules": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Reminder rules */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Event identifier
-                     * @example ev_3k7d8gb9be
-                     */
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.NotificationRuleResponse"][];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a reminder rule
-         * @description The sign of offset_minutes selects the type: a positive value is a reminder before the deadline,
-         *     zero fires at the deadline, and a negative value is an overdue notification.
-         *     A registration accepts at most 10 rules.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Event identifier
-                     * @example ev_3k7d8gb9be
-                     */
-                    id: string;
-                };
-                cookie?: never;
-            };
-            /** @description Rule parameters */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["dto.CreateRuleRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.NotificationRuleResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description a rule with this offset already exists or the slot limit is reached */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/events/{id}/stages": {
         parameters: {
             query?: never;
@@ -2156,260 +1866,6 @@ export interface paths {
                     };
                 };
                 /** @description Conflict */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/invites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Invite list */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Page size */
-                    page_size?: number;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.InvitePage"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an invite
-         * @description Creation is serialised by normalised email: a previous unaccepted invite is revoked,
-         *     then a new one is created. An invite for an existing user address is rejected with a conflict
-         *     regardless of that user's activity.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            /** @description Address of the invited person */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["dto.CreateInviteRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.CreateInviteResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description a user with this email already exists */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/invites/{id}/revoke": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Revoke an invite */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Invite identifier
-                     * @example in_42ej2s5gh7e8
-                     */
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.MessageResponse"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/participants/{id}/reactivate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reactivate a participant
-         * @description Returns participation to ASSIGNED, increments assignment_version, clears removed_at
-         *     and sets the role again. An existing registration status is preserved.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Participant identifier
-                     * @example pa_42ej2s5gh7e8
-                     */
-                    id: string;
-                };
-                cookie?: never;
-            };
-            /** @description Participant role */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["dto.UpdateTeamRoleRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ParticipantResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description the participant is already assigned */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -2664,139 +2120,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/registration-rules/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Disable a reminder rule
-         * @description The rule is set to enabled=false; the row is preserved so that the occupied slot
-         *     and offset stay reserved.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Rule identifier
-                     * @example nr_42ej2s5gh7e8
-                     */
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description the rule is disabled */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update a reminder rule
-         * @description Changing schedule fields increments schedule_version once per transaction
-         *     and triggers notification reconciliation.
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Rule identifier
-                     * @example nr_42ej2s5gh7e8
-                     */
-                    id: string;
-                };
-                cookie?: never;
-            };
-            /** @description Mutable fields */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["dto.UpdateRuleRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.NotificationRuleResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Conflict */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
     "/admin/registration-statuses/{id}": {
         parameters: {
             query?: never;
@@ -2894,8 +2217,7 @@ export interface paths {
         /**
          * Render a notification without sending it
          * @description Returns the text a recipient would receive for one registration status: the subject,
-         *     the body, the channel that the rules of specification section 10 would pick and the
-         *     moment the entry would be scheduled for.
+         *     the body and the channels that would carry it.
          *
          *     The call has no side effects at all. No notification row is created, no logical_key is
          *     claimed and no deduplication state is touched, no provider is contacted and nothing
@@ -2906,9 +2228,13 @@ export interface paths {
          *     the language of the administrator asking: the point of a preview is to show what the
          *     recipient will read.
          *
-         *     Pass rule_id to preview a reminder or an overdue notice; the type follows the sign of
-         *     the rule offset. Omit it for the primary REGISTRATION_REQUIRED notification, which has
-         *     no rule. A status that reconciliation would skip — an unpublished or archived event, an
+         *     Pass occasion to choose what is rendered. Omit it for the primary
+         *     REGISTRATION_REQUIRED notification. REMINDER_REGISTRATION_DEADLINE additionally needs
+         *     days_before, one of 1, 2, 3, 7 or 14, because the reminder text names the remaining
+         *     days; scheduled_at then shows when that reminder would fire for this deadline.
+         *     Reminders are configured by each recipient in their own profile, so a preview shows
+         *     the wording of an occasion, not a promise that this recipient asked for it.
+         *     A status that reconciliation would skip — an unpublished or archived event, an
          *     inactive registration, a participant who is no longer assigned, a status that is not
          *     TODO or a deactivated recipient — has no notification to render and answers 404.
          *
@@ -2918,11 +2244,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /**
-                     * @description Rule to render
-                     * @example nr_42ej2s5gh7e8
-                     */
-                    rule_id?: string;
+                    /** @description Days before the deadline */
+                    days_before?: 1 | 2 | 3 | 7 | 14;
+                    /** @description Occasion to render */
+                    occasion?: "REGISTRATION_REQUIRED" | "REGISTRATION_OVERDUE" | "REMINDER_REGISTRATION_DEADLINE";
                 };
                 header?: never;
                 path: {
@@ -2972,7 +2297,7 @@ export interface paths {
                         "application/json": components["schemas"]["dto.ErrorResponse"];
                     };
                 };
-                /** @description nothing to render, or a foreign rule */
+                /** @description nothing to render */
                 404: {
                     headers: {
                         [name: string]: unknown;
@@ -4140,7 +3465,6 @@ export interface paths {
          * Register a user
          * @description Creates an account, sends a confirmation email valid for 24 hours and opens a session.
          *     Sign-in is allowed before the address is confirmed; product email notifications are not.
-         *     If invite_token is supplied, the invite is accepted in the same transaction.
          */
         post: {
             parameters: {
@@ -4893,8 +4217,7 @@ export interface paths {
          * Join an event
          * @description Self-signup: the user joins a published event and supplies their own team role.
          *     A meetup has no team role, so the field may be omitted; for a hackathon it is
-         *     required. A finished event cannot be joined: only an administrator may assign a
-         *     participant after the fact.
+         *     required. A finished event cannot be joined.
          */
         post: {
             parameters: {
@@ -5569,120 +4892,6 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invites/{token}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Public invite preview
-         * @description Returns the address and expiry of the invite without disclosing any other data.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Invite token */
-                    token: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.InvitePreview"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invites/accept": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Accept an invite
-         * @description Creates an account for the invited address and opens a session.
-         *     Any other unexpired invites for this address are revoked in the same transaction.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            /** @description Token and account data */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["dto.AcceptInviteRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.AuthResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Conflict */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
         delete?: never;
         options?: never;
         head?: never;
@@ -7983,7 +7192,7 @@ export interface paths {
                     /** @description Channel */
                     channel: "TELEGRAM" | "EMAIL";
                     /** @description Occasion */
-                    occasion: "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE" | "WEEKLY_DIGEST" | "PERSONAL_TASK_DUE" | "PERSONAL_RETROSPECTIVE_DUE";
+                    occasion: "REGISTRATION_REQUIRED" | "REGISTRATION_OVERDUE" | "REMINDER_REGISTRATION_DEADLINE" | "REMINDER_EVENT_START" | "REMINDER_STAGE_START" | "REMINDER_EVENT_END" | "WEEKLY_DIGEST" | "PERSONAL_TASK_DUE" | "PERSONAL_RETROSPECTIVE_DUE";
                 };
                 cookie?: never;
             };
@@ -8356,6 +7565,116 @@ export interface paths {
                 };
                 /** @description Too Many Requests */
                 429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/reminder-schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your own reminder schedule
+         * @description Reminders belong to the recipient, not to the organiser of an event: an organiser
+         *     creates stages and a registration, and you alone decide how long before each of those
+         *     moments you want to hear about it. One setting covers every event you take part in.
+         *
+         *     Each occasion carries its own set of days, because "a week before the deadline" and
+         *     "a week before a stage" are different wishes. An empty set means this occasion never
+         *     reaches you. day_choices lists the days the server accepts.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ReminderScheduleResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Replace your reminder schedule
+         * @description The body replaces the whole schedule: an occasion left out of the list is cleared, and
+         *     so days are never merged with what was stored before. Allowed days are 1, 2, 3, 7 and
+         *     14; hours are deliberately not offered.
+         *
+         *     overdue_enabled asks to be told when a registration deadline has passed while your
+         *     status still says nothing was done. It is a switch, not a schedule: the moment is a
+         *     fixed lead after the deadline, set by the server.
+         *
+         *     Saving bumps the schedule version and cancels every reminder already queued for you
+         *     that has not been handed to a provider, so a shortened schedule stops sending at once
+         *     rather than after the old plan drains.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The schedule to store */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.UpdateReminderScheduleRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ReminderScheduleResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -9100,173 +8419,6 @@ export interface paths {
                     };
                     content: {
                         "text/plain": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ops/queue": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Queue diagnostics
-         * @description The rows an operator needs to tell a stuck queue apart from a busy one. The heartbeat
-         *     answers whether something is broken; this answers what exactly.
-         *
-         *     scope=failures lists terminal failures — FAILED after the four provider calls of
-         *     specification section 9.4.8 are spent, and UNDELIVERABLE when no channel was available
-         *     or every channel closed with a permanent error — each with the reason recorded in
-         *     last_error, the attempt count and the channels already tried.
-         *
-         *     scope=stuck-leases lists entries left in PROCESSING whose worker lease expired. That is
-         *     the same set the recovery task of section 9.4.9 returns to the queue; this endpoint only
-         *     reports it and recovers nothing. lease_overdue_seconds says how long the lease has been
-         *     overdue, which separates a worker that died from one that is merely slow.
-         *
-         *     The rows carry no payload_json, no recipient and no registration status: an operations
-         *     screen is not a way to read other people's notifications or assignments.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number, from 1 */
-                    page?: number;
-                    /** @description Page size */
-                    page_size?: number;
-                    /** @description Rows to return */
-                    scope?: "failures" | "stuck-leases";
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.QueueEntryPage"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Too Many Requests */
-                429: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ops/worker-heartbeat": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Background process status
-         * @description Last run times of the scheduler and worker, queue lengths by status
-         *     and the age of the oldest pending entry.
-         *
-         *     Restricted to administrators. The counts describe the delivery backlog, which is the
-         *     same class of operational detail as /ops/queue and is not something an anonymous
-         *     caller may read. Container liveness probes use /healthz and /readyz instead.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.WorkerHeartbeatResponse"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.ErrorResponse"];
-                    };
-                };
-                /** @description Service Unavailable */
-                503: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["dto.WorkerHeartbeatResponse"];
                     };
                 };
             };
@@ -10790,8 +9942,8 @@ export interface paths {
         /**
          * Invite a user into the team
          * @description Restricted to the team lead. The person is named by exactly one of `user_id`, `nickname`
-         *     and `email`, and must already have an account: a platform invitation to somebody who is
-         *     not registered yet is an administrator operation, so an address nobody uses answers 404
+         *     and `email`, and must already have an account: somebody who is not registered yet signs
+         *     up on their own first, so an address nobody uses answers 404
          *     with the same body an unknown nickname gets. The invitation lands in the INVITED state
          *     and the invited person accepts it themselves.
          */
@@ -11306,29 +10458,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        "dto.AcceptInviteRequest": {
-            /** @example John */
-            first_name?: string;
-            /** @example Smith */
-            last_name?: string;
-            /** @example Fitzgerald */
-            middle_name?: string;
-            /** @example jsmith */
-            nickname: string;
-            /** @example correct-horse-battery */
-            password?: string;
-            /** @example abc123 */
-            token?: string;
-        };
-        "dto.AddParticipantItem": {
-            /** @example Developer */
-            team_role: string;
-            /** @example us_42ej2s5gh7e8 */
-            user_id: string;
-        };
-        "dto.AddParticipantsRequest": {
-            items?: components["schemas"]["dto.AddParticipantItem"][];
-        };
         "dto.AdminChangeStatusRequest": {
             note?: string;
             status?: components["schemas"]["models.RegistrationStatusValue"];
@@ -11478,17 +10607,6 @@ export interface components {
             /** @example tr_42ej2s5gh7e8 */
             track_id?: string;
         };
-        "dto.CopyParticipantsRequest": {
-            overrides?: components["schemas"]["dto.CopyRoleOverride"][];
-            /** @example ev_gma9hq8a96q5 */
-            source_event_id?: string;
-        };
-        "dto.CopyRoleOverride": {
-            /** @example Mentor */
-            team_role: string;
-            /** @example us_42ej2s5gh7e8 */
-            user_id: string;
-        };
         "dto.CreateArtifactRequest": {
             kind?: components["schemas"]["models.ArtifactKind"];
             /** @example 0 */
@@ -11546,15 +10664,6 @@ export interface components {
             /** @example 1 */
             track_no?: number;
         };
-        "dto.CreateInviteRequest": {
-            /** @example new@example.com */
-            email?: string;
-        };
-        "dto.CreateInviteResponse": {
-            /** @example https://tracker.local/invite/abc123 */
-            accept_link: string;
-            invite: components["schemas"]["dto.InviteResponse"];
-        };
         "dto.CreateProfileLinkRequest": {
             /** @example My repositories */
             label?: string;
@@ -11581,14 +10690,6 @@ export interface components {
             title?: string;
             /** @example https://example.org/rules */
             url?: string;
-        };
-        "dto.CreateRuleRequest": {
-            /** @example true */
-            enabled?: boolean;
-            /** @example 1440 */
-            offset_minutes?: number;
-            /** @example 1 */
-            slot_no?: number;
         };
         "dto.CreateStageRequest": {
             /** @example Kazan */
@@ -11952,34 +11053,6 @@ export interface components {
              */
             kind: "event" | "team" | "task";
         };
-        "dto.InvitePage": {
-            items: components["schemas"]["dto.InviteResponse"][];
-            meta: components["schemas"]["dto.PageMeta"];
-        };
-        "dto.InvitePreview": {
-            /** @example new@example.com */
-            email?: string;
-            /** Format: date-time */
-            expires_at?: string;
-            /** @example true */
-            valid: boolean;
-        };
-        "dto.InviteResponse": {
-            /** Format: date-time */
-            accepted_at?: string;
-            /** Format: date-time */
-            created_at: string;
-            /** @example us_42ej2s5gh7e8 */
-            created_by_user_id: string;
-            /** @example new@example.com */
-            email: string;
-            /** Format: date-time */
-            expires_at: string;
-            /** @example in_42ej2s5gh7e8 */
-            id: string;
-            /** Format: date-time */
-            revoked_at?: string;
-        };
         "dto.InviteTeamMemberRequest": {
             /** @example ivan@example.com */
             email?: string;
@@ -12103,6 +11176,8 @@ export interface components {
             /** @example true */
             channel_ready: boolean;
             channels: components["schemas"]["models.Channel"][];
+            /** @example 3 */
+            days_before: number;
             /** @example 14.09.2026 18:00 */
             deadline_local: string;
             deadline_utc: string;
@@ -12112,8 +11187,6 @@ export interface components {
             language: string;
             /** @example https://example.com/register */
             registration_url: string;
-            /** @example nr_42ej2s5gh7e8 */
-            rule_id: string;
             /** Format: date-time */
             scheduled_at: string;
             /** @example Timeline: register for the event */
@@ -12121,23 +11194,6 @@ export interface components {
             /** @example Europe/Moscow */
             timezone_id: string;
             type: components["schemas"]["models.NotificationType"];
-        };
-        "dto.NotificationRuleResponse": {
-            /** Format: date-time */
-            created_at: string;
-            /** @example true */
-            enabled: boolean;
-            /** @example nr_42ej2s5gh7e8 */
-            id: string;
-            /** @example 1440 */
-            offset_minutes: number;
-            /** @example rg_42ej2s5gh7e8 */
-            registration_id: string;
-            /** @example 1 */
-            slot_no: number;
-            type: components["schemas"]["models.NotificationType"];
-            /** Format: date-time */
-            updated_at: string;
         };
         "dto.OrganizerSuggestions": {
             /**
@@ -12252,33 +11308,6 @@ export interface components {
             /** @example 2 */
             team_count: number;
         };
-        "dto.QueueEntryPage": {
-            items: components["schemas"]["dto.QueueEntryResponse"][];
-            meta: components["schemas"]["dto.PageMeta"];
-        };
-        "dto.QueueEntryResponse": {
-            actual_channel: components["schemas"]["models.Channel"];
-            /** @example 4 */
-            attempt_count: number;
-            /** Format: date-time */
-            created_at: string;
-            failed_channels: components["schemas"]["models.Channel"][];
-            /** @example nt_42ej2s5gh7e8 */
-            id: string;
-            /** @example permanent provider error */
-            last_error: string;
-            /** Format: date-time */
-            lease_expires_at: string;
-            /** @example 93.4 */
-            lease_overdue_seconds: number;
-            notification_type: components["schemas"]["models.NotificationType"];
-            requested_channel: components["schemas"]["models.Channel"];
-            /** Format: date-time */
-            scheduled_at: string;
-            status: components["schemas"]["models.NotificationStatus"];
-            /** Format: date-time */
-            updated_at: string;
-        };
         "dto.ReadyResponse": {
             /** @example ok */
             database: string;
@@ -12290,7 +11319,6 @@ export interface components {
             email?: string;
             /** @example John */
             first_name?: string;
-            invite_token?: string;
             /** @example Smith */
             last_name?: string;
             /** @example Fitzgerald */
@@ -12381,6 +11409,37 @@ export interface components {
             status: components["schemas"]["models.RegistrationStatusValue"];
             /** @example 1 */
             todo_cycle: number;
+        };
+        "dto.ReminderScheduleOccasion": {
+            /**
+             * @example [
+             *       1,
+             *       3
+             *     ]
+             */
+            days_before: number[];
+            /**
+             * @example REMINDER_REGISTRATION_DEADLINE
+             * @enum {string}
+             */
+            occasion: "REMINDER_REGISTRATION_DEADLINE" | "REMINDER_EVENT_START" | "REMINDER_STAGE_START" | "REMINDER_EVENT_END";
+        };
+        "dto.ReminderScheduleResponse": {
+            /**
+             * @example [
+             *       1,
+             *       2,
+             *       3,
+             *       7,
+             *       14
+             *     ]
+             */
+            day_choices: number[];
+            occasions: components["schemas"]["dto.ReminderScheduleOccasion"][];
+            /** @example true */
+            overdue_enabled: boolean;
+            /** @example 1 */
+            version: number;
         };
         "dto.RemoveParticipantsRequest": {
             /**
@@ -12851,6 +11910,11 @@ export interface components {
             description?: string;
             url?: string;
         };
+        "dto.UpdateReminderScheduleRequest": {
+            occasions?: components["schemas"]["dto.ReminderScheduleOccasion"][];
+            /** @example true */
+            overdue_enabled?: boolean;
+        };
         "dto.UpdateResourceLinkRequest": {
             /** @example false */
             clear_stage?: boolean;
@@ -12875,10 +11939,6 @@ export interface components {
             audit_log_retention_days?: number;
             delete_archive_after_months?: number;
             delete_covers_on_archive?: boolean;
-        };
-        "dto.UpdateRuleRequest": {
-            enabled?: boolean;
-            offset_minutes?: number;
         };
         "dto.UpdateSessionRequest": {
             /** @example false */
@@ -12962,28 +12022,10 @@ export interface components {
             /** @example jsmith */
             nickname?: string;
         };
-        "dto.WorkerHeartbeatResponse": {
-            /** @example 0 */
-            failed_count: number;
-            /** @example true */
-            healthy: boolean;
-            /** @example 12.5 */
-            oldest_pending_age_seconds: number;
-            /** @example 3 */
-            pending_count: number;
-            /** @example 1 */
-            processing_count: number;
-            /** Format: date-time */
-            scheduler_last_run_at?: string;
-            /** @example 0 */
-            undeliverable_count: number;
-            /** Format: date-time */
-            worker_last_run_at?: string;
-        };
         /** @enum {string} */
         "models.ArtifactKind": "REPOSITORY" | "VIDEO" | "SLIDES" | "DEMO" | "SUBMISSION" | "OTHER";
         /** @enum {string} */
-        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "INVITE_CREATE" | "INVITE_REVOKE" | "INVITE_ACCEPT" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "EVENT_DELETE" | "EVENT_COVER_SET" | "EVENT_COVER_CLEAR" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "TRACK_CREATE" | "TRACK_UPDATE" | "TRACK_DELETE" | "TRACK_PRIZE_SET" | "EVENT_CASE_CREATE" | "EVENT_CASE_UPDATE" | "EVENT_CASE_DELETE" | "TEAM_TRACK_CHOOSE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "TEAM_EVENT_LINK_ADD" | "TEAM_EVENT_LINK_UPDATE" | "TEAM_EVENT_LINK_REMOVE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RULE_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "RETENTION_SETTINGS_CHANGE" | "EVENT_AUTO_ARCHIVE" | "EVENT_PURGE_SCHEDULE" | "EVENT_PURGE_CANCEL" | "EVENT_PURGE_DELETE";
+        "models.AuditAction": "USER_REGISTER" | "USER_DEACTIVATE" | "USER_ACTIVATE" | "USER_DELETE" | "USER_PROFILE_CHANGE" | "USER_ADMIN_FLAG_CHANGE" | "EVENT_CREATE" | "EVENT_UPDATE" | "EVENT_PUBLISH" | "EVENT_ARCHIVE" | "EVENT_DELETE" | "EVENT_COVER_SET" | "EVENT_COVER_CLEAR" | "STAGE_CREATE" | "STAGE_UPDATE" | "STAGE_DELETE" | "TRACK_CREATE" | "TRACK_UPDATE" | "TRACK_DELETE" | "TRACK_PRIZE_SET" | "EVENT_CASE_CREATE" | "EVENT_CASE_UPDATE" | "EVENT_CASE_DELETE" | "TEAM_TRACK_CHOOSE" | "PARTICIPANT_ADD" | "PARTICIPANT_REMOVE" | "PARTICIPANT_REACTIVATE" | "TEAM_ROLE_CHANGE" | "TEAM_CREATE" | "TEAM_RENAME" | "TEAM_INVITE" | "TEAM_JOIN" | "TEAM_LEAVE" | "TEAM_EVENT_ENTER" | "TEAM_ROSTER_ADD" | "TEAM_ROSTER_REMOVE" | "TEAM_LINK_ISSUE" | "TEAM_LINK_REVOKE" | "TEAM_EVENT_LINK_ADD" | "TEAM_EVENT_LINK_UPDATE" | "TEAM_EVENT_LINK_REMOVE" | "REGISTRATION_CHANGE" | "STATUS_CHANGE" | "RESOURCE_LINK_CREATE" | "RESOURCE_LINK_UPDATE" | "RESOURCE_LINK_DELETE" | "RETENTION_SETTINGS_CHANGE" | "EVENT_AUTO_ARCHIVE" | "EVENT_PURGE_SCHEDULE" | "EVENT_PURGE_CANCEL" | "EVENT_PURGE_DELETE";
         /** @enum {string} */
         "models.ChangeSource": "SYSTEM" | "USER" | "ADMIN";
         /** @enum {string} */
@@ -13004,7 +12046,7 @@ export interface components {
         /** @enum {string} */
         "models.CoverSource": "MANUAL" | "AUTO";
         /** @enum {string} */
-        "models.EntityType": "USER" | "INVITE" | "EVENT" | "STAGE" | "EVENT_TRACK" | "EVENT_CASE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "TEAM_EVENT_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "NOTIFICATION_RULE" | "RESOURCE_LINK" | "RETENTION_SETTINGS";
+        "models.EntityType": "USER" | "EVENT" | "STAGE" | "EVENT_TRACK" | "EVENT_CASE" | "EVENT_PARTICIPANT" | "TEAM" | "TEAM_MEMBER" | "TEAM_EVENT_ENTRY" | "TEAM_JOIN_LINK" | "TEAM_EVENT_LINK" | "REGISTRATION" | "REGISTRATION_STATUS" | "RESOURCE_LINK" | "RETENTION_SETTINGS";
         "models.EventColor": {
             /** @enum {string} */
             family: "RU" | "WORLD";
@@ -13030,16 +12072,14 @@ export interface components {
         /** @enum {string} */
         "models.LinkKind": "WEBSITE" | "RULES" | "REGISTRATION" | "SUBMISSION" | "CHAT" | "DATASET" | "API_DOCS" | "JUDGING" | "MENTORS" | "RESULTS" | "SPONSOR" | "OTHER";
         /** @enum {string} */
-        "models.NotificationOccasion": "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE" | "WEEKLY_DIGEST" | "PERSONAL_TASK_DUE" | "PERSONAL_RETROSPECTIVE_DUE";
+        "models.NotificationOccasion": "REGISTRATION_REQUIRED" | "REGISTRATION_OVERDUE" | "REMINDER_REGISTRATION_DEADLINE" | "REMINDER_EVENT_START" | "REMINDER_STAGE_START" | "REMINDER_EVENT_END" | "WEEKLY_DIGEST" | "PERSONAL_TASK_DUE" | "PERSONAL_RETROSPECTIVE_DUE";
         "models.NotificationPreference": {
             channel: components["schemas"]["models.Channel"];
             enabled: boolean;
             occasion: components["schemas"]["models.NotificationOccasion"];
         };
         /** @enum {string} */
-        "models.NotificationStatus": "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "CANCELLED" | "UNDELIVERABLE";
-        /** @enum {string} */
-        "models.NotificationType": "REGISTRATION_REQUIRED" | "REGISTRATION_REMINDER" | "REGISTRATION_OVERDUE" | "WEEKLY_DIGEST" | "PERSONAL_TASK_DUE" | "PERSONAL_RETROSPECTIVE_DUE";
+        "models.NotificationType": "REGISTRATION_REQUIRED" | "REGISTRATION_OVERDUE" | "REMINDER_REGISTRATION_DEADLINE" | "REMINDER_EVENT_START" | "REMINDER_STAGE_START" | "REMINDER_EVENT_END" | "WEEKLY_DIGEST" | "PERSONAL_TASK_DUE" | "PERSONAL_RETROSPECTIVE_DUE";
         /** @enum {string} */
         "models.Outcome": "PARTICIPATED" | "SHORTLISTED" | "WINNER" | "PRIZE";
         "models.ParticipantArtifact": {

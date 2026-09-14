@@ -61,7 +61,7 @@ export function VerifyEmailPage() {
               {t('verify.resendSubmit')}
             </Button>
           </div>
-          <AuthExits exits={[{ to: '/login', label: t('invite.toLogin') }]} />
+          <AuthExits exits={[{ to: '/login', label: t('verify.toLogin') }]} />
         </CardContent>
       </Card>
     )
@@ -107,7 +107,7 @@ export function VerifyEmailPage() {
           </div>
         )}
 
-        <AuthExits exits={[{ to: '/login', label: t('invite.toLogin') }]} />
+        <AuthExits exits={[{ to: '/login', label: t('verify.toLogin') }]} />
       </CardContent>
     </Card>
   )

@@ -9,7 +9,6 @@ const SUBMIT = /<Button\b[^>]*type="submit"/
 const STRETCHED = [
   'features/auth/login/login.tsx',
   'features/auth/register/register.tsx',
-  'features/auth/invite/invite.tsx',
   'features/password-reset/request/password-reset-request.tsx',
   'features/password-reset/confirm/password-reset-confirm.tsx',
   'features/profile/nickname-card/nickname-card.tsx',

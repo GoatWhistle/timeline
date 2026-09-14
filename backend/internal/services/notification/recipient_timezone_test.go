@@ -17,7 +17,7 @@ func zoneCandidate(timezone string) models.ReconcileCandidate {
 func TestPayloadRendersDeadlineInRecipientTimezone(t *testing.T) {
 	svc := NewNotificationService(nil, nil, testConfig(t))
 
-	tokyo := svc.Render(models.NotificationReminder, zoneCandidate("Asia/Tokyo"))
+	tokyo := svc.Render(models.NotificationDeadlineReminder, zoneCandidate("Asia/Tokyo"))
 	if tokyo.TimezoneID != "Asia/Tokyo" {
 		t.Fatalf("timezone_id = %q, want Asia/Tokyo", tokyo.TimezoneID)
 	}
@@ -28,7 +28,7 @@ func TestPayloadRendersDeadlineInRecipientTimezone(t *testing.T) {
 		t.Fatalf("body does not name the recipient zone: %q", tokyo.Body)
 	}
 
-	moscow := svc.Render(models.NotificationReminder, zoneCandidate("Europe/Moscow"))
+	moscow := svc.Render(models.NotificationDeadlineReminder, zoneCandidate("Europe/Moscow"))
 	if moscow.DeadlineLocal != "01.09.2026 15:00" {
 		t.Fatalf("deadline in Moscow = %q, want 01.09.2026 15:00", moscow.DeadlineLocal)
 	}
@@ -41,7 +41,7 @@ func TestPayloadFallsBackToSystemTimezone(t *testing.T) {
 	svc := NewNotificationService(nil, nil, testConfig(t))
 
 	for _, timezone := range []string{"", "Mars/Olympus", "   "} {
-		payload := svc.Render(models.NotificationReminder, zoneCandidate(timezone))
+		payload := svc.Render(models.NotificationDeadlineReminder, zoneCandidate(timezone))
 		if payload.TimezoneID != "UTC" {
 			t.Fatalf("timezone %q produced timezone_id %q, want the system UTC",
 				timezone, payload.TimezoneID)
@@ -57,10 +57,10 @@ func TestPayloadSnapshotIgnoresLaterTimezoneChange(t *testing.T) {
 	svc := NewNotificationService(nil, nil, testConfig(t))
 
 	c := zoneCandidate("Asia/Tokyo")
-	frozen := svc.Render(models.NotificationReminder, c)
+	frozen := svc.Render(models.NotificationDeadlineReminder, c)
 
 	c.RecipientTimezone = "America/New_York"
-	later := svc.Render(models.NotificationReminder, c)
+	later := svc.Render(models.NotificationDeadlineReminder, c)
 
 	if frozen.TimezoneID != "Asia/Tokyo" {
 		t.Fatalf("the existing snapshot changed zone to %q", frozen.TimezoneID)

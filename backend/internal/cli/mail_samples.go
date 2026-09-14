@@ -57,8 +57,6 @@ func runMailSamples(ctx context.Context, to string) error {
 
 	sent := 0
 	for _, lang := range []string{"ru", "en"} {
-		mailer.SendInvite(ctx, to, "Administrator", lang, "sample-token", 72*time.Hour)
-		sent++
 		for _, theme := range []string{"dark", "light"} {
 			sendAccountSamples(ctx, mailer, to, lang, theme)
 			sendNotificationSamples(ctx, sender, cfg.App.PublicURL, to, lang, theme)
@@ -84,7 +82,7 @@ func sendNotificationSamples(ctx context.Context, sender mail.EmailSender, publi
 		{
 			Lang: lang, Theme: theme, PublicURL: publicURL,
 			Subject: "Registration required for HackTogether", Heading: "Registration required for HackTogether",
-			Body:            "You have been assigned to HackTogether. External registration is required.",
+			Body:            "Registration for HackTogether is open and you are taking part. External registration is required.",
 			RegistrationURL: "https://example.com/register",
 		},
 		{

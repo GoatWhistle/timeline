@@ -10,9 +10,10 @@ import (
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
-func TestOverdueRuleCreatesOneNotificationAfterDeadline(t *testing.T) {
+func TestOverdueSwitchCreatesOneNotificationAfterTheLead(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(-60, 1)
+	w.clearSchedule()
+	w.wantOverdue(true)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(61 * time.Minute)
 
@@ -20,7 +21,7 @@ func TestOverdueRuleCreatesOneNotificationAfterDeadline(t *testing.T) {
 	if result.Overdue != 1 {
 		t.Fatalf("expected one overdue notification, got %+v", result)
 	}
-	key := r.ruleKey(models.NotificationOverdue, rule, models.ChannelTelegram)
+	key := r.overdueKey(models.ChannelTelegram)
 	if !strings.HasPrefix(key, "overdue:") {
 		t.Fatalf("expected an overdue logical key, got %s", key)
 	}
@@ -38,39 +39,42 @@ func TestOverdueRuleCreatesOneNotificationAfterDeadline(t *testing.T) {
 	}
 }
 
-func TestOverdueRuleDoesNotFireBeforeTrigger(t *testing.T) {
+func TestOverdueDoesNotFireBeforeTheLeadElapses(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(-60, 1)
+	w.clearSchedule()
+	w.wantOverdue(true)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(30 * time.Minute)
 
 	result := r.reconcile()
 	if result.Overdue != 0 {
-		t.Fatalf("the overdue rule fired before its trigger moment: %+v", result)
+		t.Fatalf("the overdue notice fired before its trigger moment: %+v", result)
 	}
 }
 
-func TestOverdueRuleDoesNotFireAfterEventEnd(t *testing.T) {
+func TestOverdueDoesNotFireAfterEventEnd(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(-60, 1)
+	w.clearSchedule()
+	w.wantOverdue(true)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.EventEndAt.Add(time.Minute)
 
 	result := r.reconcile()
 	if result.Overdue != 0 {
-		t.Fatalf("the overdue rule fired after the event end: %+v", result)
+		t.Fatalf("the overdue notice fired after the event end: %+v", result)
 	}
 }
 
-func TestOverdueRuleSkipsDoneParticipant(t *testing.T) {
+func TestOverdueSkipsDoneParticipant(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(-60, 1)
+	w.clearSchedule()
+	w.wantOverdue(true)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(61 * time.Minute)
 	w.setStatus(models.StatusDONE)
 
 	result := r.reconcile()
-	if result.Scanned != 0 || result.Overdue != 0 {
+	if result.Overdue != 0 {
 		t.Fatalf("a DONE participant received an overdue notification: %+v", result)
 	}
 	if got := w.countAll(); got != 0 {
@@ -80,7 +84,8 @@ func TestOverdueRuleSkipsDoneParticipant(t *testing.T) {
 
 func TestReminderNotCreatedAfterDeadline(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(time.Minute)
 
@@ -90,31 +95,31 @@ func TestReminderNotCreatedAfterDeadline(t *testing.T) {
 	}
 }
 
-func TestReminderCreatedImmediatelyWhenRuleAddedLate(t *testing.T) {
+func TestReminderCreatedImmediatelyWhenTheDayWasChosenLate(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(120, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 
 	result := r.reconcile()
 	if result.Reminder != 1 {
-		t.Fatalf("expected an immediate reminder for a late rule, got %+v", result)
+		t.Fatalf("expected an immediate reminder for a day chosen late, got %+v", result)
 	}
-	n := r.byKey(r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram))
+	n := r.byKey(r.reminderKey(1, models.ChannelTelegram))
 	if n.ScheduledAt.After(r.clock.at) {
 		t.Fatalf("scheduled_at must be the trigger moment, got %v", n.ScheduledAt)
 	}
 }
 
-func TestDisabledRuleDoesNotFire(t *testing.T) {
+func TestAnEmptyScheduleFiresNothing(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1)
-	w.exec(`UPDATE notification_rules SET enabled = false WHERE id = $1`, rule)
+	w.clearSchedule()
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 
 	result := r.reconcile()
 	if result.Reminder != 0 {
-		t.Fatalf("a disabled rule fired: %+v", result)
+		t.Fatalf("an empty schedule produced a reminder: %+v", result)
 	}
 }

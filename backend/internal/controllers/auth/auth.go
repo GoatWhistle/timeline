@@ -41,7 +41,6 @@ func (c *Controller) issue(w http.ResponseWriter, user *models.User, pair *model
 // @Summary		Register a user
 // @Description	Creates an account, sends a confirmation email valid for 24 hours and opens a session.
 // @Description	Sign-in is allowed before the address is confirmed; product email notifications are not.
-// @Description	If invite_token is supplied, the invite is accepted in the same transaction.
 // @Tags			auth
 // @Accept			json
 // @Produce		json

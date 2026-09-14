@@ -40,7 +40,7 @@
     "tabStatuses": "Statuses",
     "publish": "Publish",
     "confirmPublishTitle": "Publish the event?",
-    "confirmPublishHint": "The event will appear in the catalog and assigned participants will receive the primary notifications held back until now. Publishing cannot be undone.",
+    "confirmPublishHint": "The event will appear in the catalog and its participants will receive the primary notifications held back until now. Publishing cannot be undone.",
     "published": "The event is published",
     "publishFailed": "Could not publish the event",
     "archive": "Archive",

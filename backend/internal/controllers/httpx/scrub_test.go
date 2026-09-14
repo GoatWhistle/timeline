@@ -39,16 +39,6 @@ func TestScrubPathRemovesTheLinkTokens(t *testing.T) {
 			"/api/v1/team-join",
 		},
 		{
-			"the invite preview route",
-			"/api/v1/invites/" + scrubSecret,
-			"/api/v1/invites/[redacted]",
-		},
-		{
-			"the invite listing carries no secret",
-			"/api/v1/admin/invites",
-			"/api/v1/admin/invites",
-		},
-		{
 			"an unrelated path is untouched",
 			"/api/v1/me/schedule",
 			"/api/v1/me/schedule",

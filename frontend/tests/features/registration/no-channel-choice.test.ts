@@ -6,8 +6,7 @@ const SRC = join(process.cwd(), 'src')
 
 const REGISTRATION_FILES = [
   join(SRC, 'features/registration/registration-tab.tsx'),
-  join(SRC, 'features/registration/rules-editor.tsx'),
-  join(SRC, 'features/registration/rule-dialog/rule-dialog.tsx'),
+  join(SRC, 'features/registration/registration-facts.tsx'),
 ]
 
 const BANNED_WORDS = ['channel', 'Channel', 'matrix', 'Matrix', 'mirror', 'Mirror']
@@ -18,7 +17,7 @@ describe('the event author picks when and what, never where', () => {
     expect(existsSync(join(SRC, 'entities/channel-matrix'))).toBe(false)
   })
 
-  it('keeps the registration screen and the rule dialog free of channel wording', () => {
+  it('keeps the registration screen free of channel wording', () => {
     for (const file of REGISTRATION_FILES) {
       const source = readFileSync(file, 'utf8')
       for (const word of BANNED_WORDS) {
@@ -27,14 +26,12 @@ describe('the event author picks when and what, never where', () => {
     }
   })
 
-  it('leaves the reminder rule table with exactly slot, when, type and enabled', () => {
-    const source = readFileSync(join(SRC, 'features/registration/rules-editor.tsx'), 'utf8')
-    expect(source).toContain("t('rules.slot')")
-    expect(source).toContain("t('rules.when')")
-    expect(source).toContain("t('rules.type')")
-    expect(source).toContain("t('rules.enabled')")
-    expect(source).not.toContain('SelectTrigger')
-    expect(source).not.toContain('SelectItem')
+  it('leaves the organizer no reminder-rule editor, the schedule belonging to the reader', () => {
+    expect(existsSync(join(SRC, 'features/registration/rules-editor.tsx'))).toBe(false)
+    expect(existsSync(join(SRC, 'features/registration/rule-dialog'))).toBe(false)
+    const source = readFileSync(join(SRC, 'features/registration/registration-tab.tsx'), 'utf8')
+    expect(source).not.toContain('RulesEditor')
+    expect(source).not.toContain("t('rules.")
   })
 
   it('leaves no orphan channel or mirror keys in the registration dictionary', () => {

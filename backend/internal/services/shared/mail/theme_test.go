@@ -43,11 +43,11 @@ func TestSystemUserThemeBehavesLikeDark(t *testing.T) {
 func TestNoUserThemeDefaultsToDark(t *testing.T) {
 	sender := &recordingMailSender{}
 	mailer := NewMailer(sender, nil, "https://timeline.test")
-	mailer.SendInvite(context.Background(), "new@example.test", "Admin", "en", "tok", time.Hour)
+	mailer.SendEmailChange(context.Background(), "new@example.test", "Admin", "en", "", "tok", time.Hour)
 	html := sender.last(t).HTML
 
 	if !strings.Contains(html, colorShellDark) {
-		t.Error("an invite has no user yet, it must default to dark")
+		t.Error("a letter with no user theme must default to dark")
 	}
 }
 

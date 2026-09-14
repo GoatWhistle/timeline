@@ -1,13 +1,10 @@
 import {
-  Activity,
-  AlarmClock,
   Archive,
   CalendarRange,
   ClipboardList,
   Compass,
   RotateCcwClock,
   ScrollText,
-  Send,
   Users,
   UsersRound,
 } from 'lucide-react'
@@ -35,11 +32,8 @@ export const MINE_NAV: NavItem[] = [
 
 export const ADMIN_NAV: NavItem[] = [
   { to: '/admin/events', labelKey: 'nav.adminEvents', icon: ClipboardList },
-  { to: '/admin/deadlines', labelKey: 'nav.adminDeadlines', icon: AlarmClock },
   { to: '/admin/users', labelKey: 'nav.adminUsers', icon: Users },
-  { to: '/admin/invites', labelKey: 'nav.adminInvites', icon: Send },
   { to: '/admin/audit', labelKey: 'nav.adminAudit', icon: ScrollText },
-  { to: '/admin/ops', labelKey: 'nav.adminOps', icon: Activity },
   { to: '/admin/retention', labelKey: 'nav.adminRetention', icon: Archive },
 ]
 

@@ -1,11 +1,8 @@
 {
   "duration": {
-    "atDeadline": "at the deadline",
     "days": "{{count}}d",
     "hours": "{{count}}h",
-    "minutes": "{{count}}m",
-    "before": "{{amount}} before the deadline",
-    "after": "{{amount}} after the deadline"
+    "minutes": "{{count}}m"
   },
   "when": {
     "today": "Today, {{time}}",

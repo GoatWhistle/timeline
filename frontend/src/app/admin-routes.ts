@@ -1,8 +1,5 @@
 export { AdminAuditPage } from '@/features/audit-log/audit-log'
-export { AdminDeadlinesPage } from '@/features/deadline-list/deadline-list'
 export { AdminEventsPage } from '@/features/event-list/admin/event-list'
-export { AdminInvitesPage } from '@/features/invite-list/invite-list'
-export { AdminOpsQueuePage } from '@/features/ops-queue/ops-queue'
 export { AdminRetentionPage } from '@/features/retention-settings/retention-settings'
 export { AdminUsersPage } from '@/features/user-list/user-list'
 export { AdminEventPage } from './pages/admin-event-page'

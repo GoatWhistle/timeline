@@ -18,7 +18,6 @@ import (
 type SchedulerService struct {
 	db        *postgres.DB
 	scheduler *notification.Scheduler
-	rules     *participation.Rules
 	statuses  *participation.Statuses
 	notifier  *svcnotification.NotificationService
 	cfg       *config.Config
@@ -26,9 +25,9 @@ type SchedulerService struct {
 }
 
 func NewSchedulerService(db *postgres.DB, scheduler *notification.Scheduler,
-	rules *participation.Rules, statuses *participation.Statuses,
-	notifier *svcnotification.NotificationService, cfg *config.Config) *SchedulerService {
-	return &SchedulerService{db: db, scheduler: scheduler, rules: rules, statuses: statuses,
+	statuses *participation.Statuses, notifier *svcnotification.NotificationService,
+	cfg *config.Config) *SchedulerService {
+	return &SchedulerService{db: db, scheduler: scheduler, statuses: statuses,
 		notifier: notifier, cfg: cfg,
 		now: func() time.Time { return time.Now().UTC() }}
 }
@@ -42,10 +41,6 @@ type ReconcileResult struct {
 
 func (s *SchedulerService) ResolveStatusDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
 	return s.statuses.ResolveDisplayID(ctx, displayID)
-}
-
-func (s *SchedulerService) ResolveRuleDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
-	return s.rules.ResolveDisplayID(ctx, displayID)
 }
 
 func (s *SchedulerService) Run(ctx context.Context) (*ReconcileResult, error) {
@@ -69,6 +64,10 @@ func (s *SchedulerService) Run(ctx context.Context) (*ReconcileResult, error) {
 		}
 	}
 
+	if err := s.runMoments(ctx, result); err != nil {
+		return result, err
+	}
+
 	if err := s.scheduler.TouchHeartbeat(ctx, "scheduler", s.now()); err != nil {
 		slog.WarnContext(ctx, "failed to store scheduler heartbeat", "error", err)
 	}
@@ -86,16 +85,17 @@ func (s *SchedulerService) ReconcileEvent(ctx context.Context, eventID uuid.UUID
 			return err
 		}
 		if len(candidates) == 0 {
-			return nil
+			break
 		}
 		if err := s.processBatch(ctx, candidates, result); err != nil {
 			return err
 		}
 		cursor = candidates[len(candidates)-1].StatusID
 		if len(candidates) < s.cfg.Notify.SchedulerBatch {
-			return nil
+			break
 		}
 	}
+	return s.reconcileEventMoments(ctx, eventID, result)
 }
 
 func (s *SchedulerService) processBatch(ctx context.Context, candidates []models.ReconcileCandidate,
@@ -105,15 +105,7 @@ func (s *SchedulerService) processBatch(ctx context.Context, candidates []models
 		return nil
 	}
 
-	registrationIDs := make([]uuid.UUID, 0, len(candidates))
-	seen := make(map[uuid.UUID]struct{}, len(candidates))
-	for _, c := range candidates {
-		if _, ok := seen[c.RegistrationID]; !ok {
-			seen[c.RegistrationID] = struct{}{}
-			registrationIDs = append(registrationIDs, c.RegistrationID)
-		}
-	}
-	rules, err := s.scheduler.EnabledRules(ctx, registrationIDs)
+	schedules, err := s.schedulesFor(ctx, recipientsOf(candidates))
 	if err != nil {
 		return err
 	}
@@ -121,53 +113,65 @@ func (s *SchedulerService) processBatch(ctx context.Context, candidates []models
 	now := s.now()
 	for _, candidate := range candidates {
 		result.Scanned++
-		if err := s.reconcileCandidate(ctx, candidate, rules[candidate.RegistrationID], now, result); err != nil {
+		if err := s.reconcileCandidate(ctx, candidate, schedules[candidate.RecipientID], now, result); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
+func recipientsOf(candidates []models.ReconcileCandidate) []uuid.UUID {
+	ids := make([]uuid.UUID, 0, len(candidates))
+	seen := make(map[uuid.UUID]struct{}, len(candidates))
+	for _, c := range candidates {
+		if _, ok := seen[c.RecipientID]; !ok {
+			seen[c.RecipientID] = struct{}{}
+			ids = append(ids, c.RecipientID)
+		}
+	}
+	return ids
+}
+
+func (s *SchedulerService) schedulesFor(ctx context.Context, userIDs []uuid.UUID,
+) (map[uuid.UUID]*models.ReminderSchedule, error) {
+	return s.scheduler.Schedules(ctx, userIDs)
+}
+
 func (s *SchedulerService) reconcileCandidate(ctx context.Context, c models.ReconcileCandidate,
-	rules []models.NotificationRule, now time.Time, result *ReconcileResult) error {
+	schedule *models.ReminderSchedule, now time.Time, result *ReconcileResult) error {
 	created, err := s.notifier.CreatePrimary(ctx, c)
 	if err != nil {
 		return err
 	}
 	result.Primary += created
 
-	for _, rule := range rules {
-		trigger := rule.TriggerAt(c.DeadlineAt)
-		if now.Before(trigger) {
+	if schedule == nil {
+		return nil
+	}
+
+	for _, days := range schedule.DaysFor(models.NotificationDeadlineReminder) {
+		trigger := models.ReminderTriggerAt(c.DeadlineAt, days)
+		if now.Before(trigger) || now.After(c.DeadlineAt) {
 			continue
 		}
-		if !s.ruleApplies(rule, c, now) {
-			continue
-		}
-		created, err := s.CreateRuleNotification(ctx, c, rule, trigger)
+		created, err := s.notifier.CreateDeadlineReminder(ctx, c, days, schedule.Version, trigger)
 		if err != nil {
 			return err
 		}
-		if rule.NotificationType() == models.NotificationOverdue {
+		result.Reminder += created
+	}
+
+	if schedule.OverdueEnabled {
+		trigger := c.DeadlineAt.Add(s.cfg.Notify.OverdueLead)
+		if !now.Before(trigger) && !now.After(c.EventEndAt) {
+			created, err := s.notifier.CreateOverdue(ctx, c, schedule.Version, trigger)
+			if err != nil {
+				return err
+			}
 			result.Overdue += created
-		} else {
-			result.Reminder += created
 		}
 	}
 	return nil
-}
-
-func (s *SchedulerService) ruleApplies(rule models.NotificationRule, c models.ReconcileCandidate,
-	now time.Time) bool {
-	if rule.OffsetMinutes >= 0 {
-		return !now.After(c.DeadlineAt)
-	}
-	return !now.After(c.EventEndAt)
-}
-
-func (s *SchedulerService) CreateRuleNotification(ctx context.Context, c models.ReconcileCandidate,
-	rule models.NotificationRule, scheduledAt time.Time) (int, error) {
-	return s.notifier.CreateForRule(ctx, c, rule, scheduledAt)
 }
 
 func (s *SchedulerService) Start(ctx context.Context) {

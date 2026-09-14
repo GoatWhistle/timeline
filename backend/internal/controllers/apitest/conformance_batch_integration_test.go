@@ -59,9 +59,7 @@ func decodePreview(t *testing.T, resp support.Response, what string) previewResu
 func foreignParticipant(s *support.Stack, f support.Fixture, t *testing.T) string {
 	t.Helper()
 	stray := s.Register(t, "stray-"+support.Nickname()+"@example.com")
-	support.RequireStatus(t, f.AdminClient.Post("/admin/events/"+f.OtherEvent+"/participants/batch-add",
-		map[string]any{"items": []map[string]any{{"user_id": stray.ID, "team_role": "Developer"}}}),
-		http.StatusOK, "assigning a participant to the foreign event")
+	s.Session(t, stray).Join(t, f.OtherEvent, "Developer")
 
 	resp := f.AdminClient.Get("/admin/events/" + f.OtherEvent + "/participants")
 	support.RequireStatus(t, resp, http.StatusOK, "listing the roster of the foreign event")
@@ -153,41 +151,5 @@ func TestBatchSetReportsEveryRowAndKeepsThePartialFailureAtTwoHundred(t *testing
 	}
 	if row := statusRow(s, t, f.StatusID); row.Status != "NOT_REQUIRED" {
 		t.Fatalf("the valid row of a partially failing batch was rolled back, the status is %q", row.Status)
-	}
-}
-
-func TestBatchAssignmentReportsTheConflictingRowApart(t *testing.T) {
-	s := support.NewStack(t)
-	f := s.Seed(t)
-
-	second := s.Register(t, "second-"+support.Nickname()+"@example.com")
-	third := s.Register(t, "third-"+support.Nickname()+"@example.com")
-
-	resp := f.AdminClient.Post("/admin/events/"+f.EventID+"/participants/batch-add",
-		map[string]any{"items": []map[string]any{
-			{"user_id": second.ID, "team_role": "Developer"},
-			{"user_id": f.Member.ID, "team_role": "Developer"},
-			{"user_id": third.ID, "team_role": "Developer"},
-		}})
-	applied := decodeBatch(t, resp, "assigning three users of whom one is already assigned")
-
-	if applied.Succeeded != 2 || applied.Skipped != 1 || applied.Failed != 0 {
-		t.Fatalf("the batch reported succeeded=%d skipped=%d failed=%d instead of 2/1/0",
-			applied.Succeeded, applied.Skipped, applied.Failed)
-	}
-	if len(applied.Results) != 3 {
-		t.Fatalf("a three-item batch returned %d rows: %+v", len(applied.Results), applied.Results)
-	}
-	if applied.Results[1].Status != "skipped" || applied.Results[1].Code != "already_assigned" {
-		t.Fatalf("the already assigned row is not reported as a skipped conflict: %+v", applied.Results[1])
-	}
-	if applied.Results[0].Status != "ok" || applied.Results[2].Status != "ok" {
-		t.Fatalf("the two fresh rows did not both succeed: %+v", applied.Results)
-	}
-
-	roster := f.AdminClient.Get("/admin/events/" + f.EventID + "/participants")
-	support.RequireStatus(t, roster, http.StatusOK, "listing the roster after the batch")
-	if !support.ContainsAll(string(roster.Body), second.ID, third.ID, f.Member.ID) {
-		t.Fatalf("the roster does not carry all three users: %s", roster.Body)
 	}
 }

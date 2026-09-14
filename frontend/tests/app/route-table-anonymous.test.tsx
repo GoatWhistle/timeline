@@ -9,7 +9,6 @@ const ANONYMOUS = [
   '/verify-email',
   '/forgot-password',
   '/reset-password',
-  '/invite',
   '/email-change',
 ]
 

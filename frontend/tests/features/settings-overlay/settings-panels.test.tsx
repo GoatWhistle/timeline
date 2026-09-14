@@ -20,7 +20,7 @@ import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
 
 const OCCASIONS: NotificationOccasion[] = [
   'REGISTRATION_REQUIRED',
-  'REGISTRATION_REMINDER',
+  'REMINDER_REGISTRATION_DEADLINE',
   'REGISTRATION_OVERDUE',
 ]
 const CHANNELS: Channel[] = ['TELEGRAM', 'EMAIL']
@@ -138,8 +138,11 @@ describe('account against profile', () => {
     renderSection('notifications')
 
     expect(screen.getByText(i18n.t('notification:explainer.title'))).toBeInTheDocument()
-    expect(screen.getByText(i18n.t('notification:explainer.stopTitle'))).toBeInTheDocument()
-    for (const type of ['REGISTRATION_REQUIRED', 'REGISTRATION_REMINDER', 'REGISTRATION_OVERDUE'])
+    for (const type of [
+      'REGISTRATION_REQUIRED',
+      'REMINDER_REGISTRATION_DEADLINE',
+      'REGISTRATION_OVERDUE',
+    ])
       expect(
         document.querySelector(`[data-explainer-type="${type}"]`),
         `type ${type} is unexplained`,

@@ -51,9 +51,9 @@ func TestMailerFallsBackToDefaultForUnknownLanguage(t *testing.T) {
 	sender := &recordingMailSender{}
 	mailer := NewMailer(sender, nil, "https://timeline.test")
 
-	mailer.SendInvite(context.Background(), "new@example.test", "Admin", "", "token123", time.Hour)
+	mailer.SendEmailChange(context.Background(), "new@example.test", "Admin", "", "dark", "token123", time.Hour)
 	got := sender.last(t)
-	if got.Subject != locale.Message(locale.Default, "email.invite.subject") {
+	if got.Subject != locale.Message(locale.Default, "email.email_change.subject") {
 		t.Errorf("fallback is not the default language: %q", got.Subject)
 	}
 }

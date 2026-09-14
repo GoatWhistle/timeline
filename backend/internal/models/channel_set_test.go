@@ -12,11 +12,11 @@ func TestRecipientChannelsMutingOneChannelLeavesTheOtherWorking(t *testing.T) {
 		EmailVerified:  true,
 		Selected:       models.ChannelSet{models.ChannelTelegram, models.ChannelEmail},
 		Preferences: models.NotificationPreferences{
-			models.NotificationReminder: models.ChannelSet{models.ChannelEmail},
+			models.NotificationDeadlineReminder: models.ChannelSet{models.ChannelEmail},
 		},
 	}
 
-	deliverable := channels.Deliverable(models.NotificationReminder)
+	deliverable := channels.Deliverable(models.NotificationDeadlineReminder)
 	if !deliverable.Has(models.ChannelTelegram) {
 		t.Fatalf("telegram must stay deliverable when only email is muted, got %v", deliverable)
 	}

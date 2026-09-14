@@ -106,3 +106,13 @@ func (s *DeliveryService) settleBeforeCall(ctx context.Context, n *models.Notifi
 	}
 	return false, nil
 }
+
+func fresh(at *time.Time, now time.Time, maxAge time.Duration) bool {
+	if at == nil {
+		return false
+	}
+	if maxAge < time.Minute {
+		maxAge = time.Minute
+	}
+	return now.Sub(*at) <= maxAge
+}

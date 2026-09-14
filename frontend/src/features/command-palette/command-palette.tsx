@@ -162,7 +162,7 @@ export function CommandPalette({
           className="max-h-[19rem] overflow-y-auto p-1 [scrollbar-gutter:stable]"
         >
           {showHelp ? (
-            <PalettePrefixList className="flex flex-col gap-2 px-3 py-2" />
+            <PalettePrefixList className="flex flex-col gap-2 px-3 py-2" isAdmin={isAdmin} />
           ) : results.length === 0 ? (
             <p className="px-3 py-6 text-center text-muted-foreground text-meta">
               {search.isSearching ? t('palette.searching') : t('palette.empty')}

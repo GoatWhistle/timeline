@@ -131,38 +131,6 @@ type ReadyResponse struct {
 	Database string `json:"database" example:"ok"`
 }
 
-type WorkerHeartbeatResponse struct {
-	SchedulerLastRunAt *time.Time `json:"scheduler_last_run_at,omitempty"`
-	WorkerLastRunAt    *time.Time `json:"worker_last_run_at,omitempty"`
-	PendingCount       int64      `json:"pending_count" example:"3"`
-	ProcessingCount    int64      `json:"processing_count" example:"1"`
-	FailedCount        int64      `json:"failed_count" example:"0"`
-	UndeliverableCount int64      `json:"undeliverable_count" example:"0"`
-	OldestPendingAgeS  float64    `json:"oldest_pending_age_seconds" example:"12.5"`
-	Healthy            bool       `json:"healthy" example:"true"`
-}
-
-type QueueEntryResponse struct {
-	ID               string                    `json:"id" example:"nt_42ej2s5gh7e8"`
-	NotificationType models.NotificationType   `json:"notification_type"`
-	Status           models.NotificationStatus `json:"status"`
-	RequestedChannel models.Channel            `json:"requested_channel" enums:"TELEGRAM,EMAIL"`
-	ActualChannel    *models.Channel           `json:"actual_channel,omitempty" enums:"TELEGRAM,EMAIL"`
-	FailedChannels   []models.Channel          `json:"failed_channels,omitempty"`
-	AttemptCount     int                       `json:"attempt_count" example:"4"`
-	ScheduledAt      time.Time                 `json:"scheduled_at"`
-	LeaseExpiresAt   *time.Time                `json:"lease_expires_at,omitempty"`
-	LeaseOverdueS    *float64                  `json:"lease_overdue_seconds,omitempty" example:"93.4"`
-	LastError        *string                   `json:"last_error,omitempty" example:"permanent provider error"`
-	CreatedAt        time.Time                 `json:"created_at"`
-	UpdatedAt        time.Time                 `json:"updated_at"`
-}
-
-type QueueEntryPage struct {
-	Items []QueueEntryResponse `json:"items"`
-	Meta  PageMeta             `json:"meta"`
-}
-
 type RegistrationCoverage struct {
 	Applicable       bool     `json:"applicable" example:"true"`
 	EventsCovered    int64    `json:"events_covered" example:"4"`

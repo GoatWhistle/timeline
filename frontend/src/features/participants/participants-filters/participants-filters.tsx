@@ -1,4 +1,3 @@
-import { Copy, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   REGISTRATION_STATUS_KEY,
@@ -23,8 +22,6 @@ export function ParticipantsFilters({
   onRoleInputChange,
   onStatusChange,
   onRemovedToggle,
-  onCopy,
-  onAdd,
 }: {
   roleInput: string
   status: string
@@ -32,8 +29,6 @@ export function ParticipantsFilters({
   onRoleInputChange: (value: string) => void
   onStatusChange: (value: string) => void
   onRemovedToggle: () => void
-  onCopy: () => void
-  onAdd: () => void
 }) {
   const { t } = useTranslation('registration')
   return (
@@ -64,17 +59,6 @@ export function ParticipantsFilters({
         </div>
         <Button variant={removed === '1' ? 'default' : 'outline'} onClick={onRemovedToggle}>
           {t('participants.showRemoved')}
-        </Button>
-      </div>
-
-      <div className="flex min-w-0 flex-wrap gap-2">
-        <Button variant="outline" onClick={onCopy}>
-          <Copy className="size-4" />
-          {t('participants.copyRoster')}
-        </Button>
-        <Button onClick={onAdd}>
-          <Plus className="size-4" />
-          {t('participants.add')}
         </Button>
       </div>
     </div>

@@ -59,8 +59,8 @@ func seedForeignTeamOn(s *support.Stack, t *testing.T, f teamFixture) foreignTea
 	teamID := createTeam(otherLeadClient, t, "Rival crew "+suffix[:6])
 	inviteAndAccept(s, otherLeadClient, t, teamID, otherMate)
 
-	assignToEvent(f.AdminClient, t, f.EventID, otherLead.ID)
-	assignToEvent(f.AdminClient, t, f.EventID, otherMate.ID)
+	assignToEvent(s, t, f.EventID, otherLead)
+	assignToEvent(s, t, f.EventID, otherMate)
 	enterEvent(otherLeadClient, t, teamID, f.EventID)
 	fillRoster(otherLeadClient, t, teamID, f.EventID, otherLead.ID, otherMate.ID)
 

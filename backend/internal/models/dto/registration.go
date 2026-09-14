@@ -63,31 +63,14 @@ type BatchSetStatusRequest struct {
 	Note           *string                        `json:"note,omitempty"`
 }
 
-type NotificationRuleResponse struct {
-	ID             string                  `json:"id" example:"nr_42ej2s5gh7e8"`
-	RegistrationID string                  `json:"registration_id" example:"rg_42ej2s5gh7e8"`
-	OffsetMinutes  int                     `json:"offset_minutes" example:"1440"`
-	Type           models.NotificationType `json:"type" enums:"REGISTRATION_REMINDER,REGISTRATION_OVERDUE"`
-	Enabled        bool                    `json:"enabled" example:"true"`
-	SlotNo         int                     `json:"slot_no" example:"1"`
-	CreatedAt      time.Time               `json:"created_at"`
-	UpdatedAt      time.Time               `json:"updated_at"`
-}
-
-type CreateRuleRequest struct {
-	OffsetMinutes int   `json:"offset_minutes" example:"1440"`
-	SlotNo        *int  `json:"slot_no,omitempty" example:"1"`
-	Enabled       *bool `json:"enabled,omitempty" example:"true"`
-}
-
-type UpdateRuleRequest struct {
-	OffsetMinutes *int  `json:"offset_minutes,omitempty"`
-	Enabled       *bool `json:"enabled,omitempty"`
+type NotificationPreviewQuery struct {
+	Occasion   string
+	DaysBefore *int
 }
 
 type NotificationPreviewResponse struct {
 	Type            models.NotificationType `json:"type"`
-	RuleID          *string                 `json:"rule_id,omitempty" example:"nr_42ej2s5gh7e8"`
+	DaysBefore      *int                    `json:"days_before,omitempty" example:"3"`
 	Language        string                  `json:"language" example:"ru"`
 	Subject         string                  `json:"subject" example:"Timeline: register for the event"`
 	Body            string                  `json:"body"`

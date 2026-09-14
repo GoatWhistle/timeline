@@ -56,7 +56,7 @@ func TestPayloadRendersInRecipientLanguage(t *testing.T) {
 func TestPayloadFallsBackToDefaultForUnknownLanguage(t *testing.T) {
 	svc := &NotificationService{cfg: testConfig(t), now: func() time.Time { return time.Now().UTC() }}
 
-	got := svc.payload(models.NotificationReminder, candidate("de"))
+	got := svc.payload(models.NotificationDeadlineReminder, candidate("de"))
 	if got.Language != locale.Default {
 		t.Errorf("payload language = %q, want %q", got.Language, locale.Default)
 	}

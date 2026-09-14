@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"strings"
 	"sync"
 	"testing"
 
@@ -153,29 +152,6 @@ func TestRegistrationWithoutANicknameIsRefusedByTheServer(t *testing.T) {
 		"nickname":   "   ",
 		"password":   support.Password,
 	}), "registration with a blank nickname")
-}
-
-func TestAcceptingAnInviteWithoutANicknameIsRefused(t *testing.T) {
-	s := support.NewStack(t)
-	f := s.Seed(t)
-
-	email := "invitee-" + support.Nickname() + "@example.com"
-	invited := f.AdminClient.Post("/admin/invites", map[string]string{"email": email})
-	support.RequireStatus(t, invited, http.StatusCreated, "creating the invite")
-
-	var invite struct {
-		AcceptLink string `json:"accept_link"`
-	}
-	invited.Decode(t, &invite)
-	parts := strings.Split(invite.AcceptLink, "/")
-	token := parts[len(parts)-1]
-
-	requireMissingNickname(t, s.Client(t).Post("/invites/accept", map[string]string{
-		"token":      token,
-		"first_name": "No",
-		"last_name":  "Nickname",
-		"password":   support.Password,
-	}), "accepting an invite with no nickname")
 }
 
 func TestTwoRegistrationsRacingForOneNicknameLeaveExactlyOneWinner(t *testing.T) {

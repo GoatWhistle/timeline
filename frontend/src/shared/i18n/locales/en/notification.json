@@ -5,31 +5,46 @@
   },
   "type": {
     "REGISTRATION_REQUIRED": "Registration required",
-    "REGISTRATION_REMINDER": "Reminder",
     "REGISTRATION_OVERDUE": "Overdue",
+    "REMINDER_REGISTRATION_DEADLINE": "Deadline reminder",
+    "REMINDER_EVENT_START": "Start reminder",
+    "REMINDER_STAGE_START": "Stage reminder",
+    "REMINDER_EVENT_END": "Ending reminder",
     "WEEKLY_DIGEST": "Weekly digest",
     "PERSONAL_TASK_DUE": "Task due",
     "PERSONAL_RETROSPECTIVE_DUE": "Time to look back"
   },
   "explainer": {
     "title": "What arrives and when",
-    "hint": "Three occasions, both channels below. A switch decides whether that occasion reaches you on that channel at all.",
+    "hint": "The occasions and channels are below. A switch decides whether that occasion reaches you on that channel at all.",
     "type": {
       "REGISTRATION_REQUIRED": {
         "name": "Registration required",
-        "when": "Once, soon after an organizer assigns you to an event that has an open registration. It carries the link and the deadline."
-      },
-      "REGISTRATION_REMINDER": {
-        "name": "Reminder before the deadline",
-        "when": "At each interval the organizer set before the deadline — for example a day before. There may be several, or none at all."
+        "when": "Once, soon after you join an event whose registration is open, or after the organizer opens registration on an event you already joined. It carries the link and the deadline."
       },
       "REGISTRATION_OVERDUE": {
         "name": "The deadline has passed",
-        "when": "After the deadline, if the organizer set such a reminder. It stops once the event ends."
+        "when": "After the registration deadline, if you switched it on in your own reminder schedule. It arrives until the event ends."
+      },
+      "REMINDER_REGISTRATION_DEADLINE": {
+        "name": "The registration deadline is near",
+        "when": "As many days before the deadline as you picked in your own reminder schedule. With no day picked, this reminder does not arrive."
+      },
+      "REMINDER_EVENT_START": {
+        "name": "The event starts soon",
+        "when": "As many days before the event starts as you picked in your own reminder schedule. With no day picked, this reminder does not arrive."
+      },
+      "REMINDER_STAGE_START": {
+        "name": "A stage starts soon",
+        "when": "As many days before a stage starts as you picked in your own reminder schedule. With no day picked, this reminder does not arrive."
+      },
+      "REMINDER_EVENT_END": {
+        "name": "The event ends soon",
+        "when": "As many days before the event ends as you picked in your own reminder schedule. With no day picked, this reminder does not arrive."
       },
       "WEEKLY_DIGEST": {
         "name": "Weekly digest",
-        "when": "Once a week, when the week had something worth telling: upcoming deadlines, new assignments, changes to your events."
+        "when": "Once a week, when the week had something worth telling: upcoming registration deadlines, stages about to start and your own tasks falling due."
       },
       "PERSONAL_TASK_DUE": {
         "name": "A personal task is due",
@@ -43,19 +58,14 @@
     "toggleUpdated": "Notification setting updated",
     "toggleFailed": "Could not change the setting",
     "toggleLabel": "{{occasion}} by {{channel}}",
-    "stopTitle": "Mark yourself registered and the reminders stop",
-    "stopHint": "Reminders go only to people whose registration is still unmarked. Open the event and press \"I registered\". You set it yourself — the system does not check the external site. Nothing else switches them off for one event.",
-    "timingNote": "Sending is checked every few minutes, so a notification can arrive slightly after the moment it was due. A message may also arrive twice: delivery guarantees at least one attempt, not exactly one.",
     "allOffTitle": "Every switch for this occasion is off",
     "allOffHint": "You chose not to receive this notification anywhere. This is separate from the channel list above: even if you later add a channel there, this occasion stays off until you switch it back on here."
   },
   "card": {
     "title": "Notification channels",
-    "hint": "Pick every channel that should receive your notifications. Both can be selected at once.",
     "unavailable": " — unavailable",
     "channelUpdated": "Notification channels updated",
     "channelFailed": "Could not change the channels",
-    "setUpInAccount": "Telegram and the email address are set up in the Account section.",
     "emptyTitle": "No channel selected",
     "emptyHint": "You have no delivery route at all: nothing below can reach you until you pick at least one channel here, whatever its own switches say."
   },
@@ -65,7 +75,7 @@
     "markAllRead": "Mark all as read",
     "empty": "Nothing has happened yet",
     "type": {
-      "REGISTRATION_REMINDER": "Registration reminder",
+      "REMINDER_REGISTRATION_DEADLINE": "Registration reminder",
       "NOTIFICATION_FAILED": "Notification was not delivered",
       "NOTIFICATION_UNDELIVERABLE": "No delivery channel available",
       "WORKER_STALLED": "The background process is silent",
@@ -79,8 +89,9 @@
     "open": "Preview notification",
     "title": "Notification preview",
     "subtitle": "The text this recipient would receive. Nothing is sent, queued or logged by opening this.",
-    "noSideEffects": "Preview only: no notification is created and no rule is switched on.",
-    "rule": "Rule",
+    "occasion": "Occasion",
+    "daysBefore": "Days before",
+    "noSideEffects": "Preview only: no notification is created and nothing is scheduled.",
     "subject": "Subject",
     "body": "Body",
     "channel": "Channel",
@@ -92,6 +103,23 @@
     "channelNotReady": "No usable channel",
     "channelNotReadyHint": "This recipient has neither a linked Telegram account nor a verified email, so this notification would end as undeliverable.",
     "nothingTitle": "Nothing would be sent",
-    "nothingHint": "This status has no notification to render: the event, the registration or the assignment rules it out."
+    "nothingHint": "This status has no notification to render: the event, the registration or the participation rules it out."
+  },
+  "reminder": {
+    "title": "When to remind you",
+    "hint": "You decide how many days of warning you get. The setting is yours and applies to every event you take part in; organizers do not affect it.",
+    "day_one": "{{count}} day before",
+    "day_other": "{{count}} days before",
+    "dayLabel_one": "{{occasion}} — {{count}} day before",
+    "dayLabel_other": "{{occasion}} — {{count}} days before",
+    "selected_one": "Reminding you {{days}} day ahead",
+    "selected_other": "Reminding you {{days}} days ahead",
+    "never": "No reminder",
+    "overdueTitle": "Tell me about an overdue registration",
+    "overdueHint": "When the registration deadline has passed and you have not marked yourself as registered. It arrives until the event ends.",
+    "emptyTitle": "Reminders are off entirely",
+    "emptyHint": "No day is picked and overdue notices are off, so no deadline reminder will reach you. Other notifications are unaffected.",
+    "updated": "Reminder schedule updated",
+    "failed": "Could not save the schedule"
   }
 }

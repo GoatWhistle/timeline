@@ -15,6 +15,7 @@ import { NotificationExplainerCard } from '@/features/profile/notification-expla
 import { PasswordChangeCard } from '@/features/profile/password-change-card/password-change-card'
 import { PersonalDataCard } from '@/features/profile/personal-data-card/personal-data-card'
 import { ProfileLinksCard } from '@/features/profile/profile-links-card/profile-links-card'
+import { ReminderScheduleCard } from '@/features/profile/reminder-schedule-card/reminder-schedule-card'
 import { TelegramLinkCard } from '@/features/profile/telegram-link-card/telegram-link-card'
 import { ShortcutSettings } from '@/features/shortcut-settings/shortcut-settings'
 import type { MeResponse, NotificationPreference } from '@/shared/api/types.gen'
@@ -96,6 +97,7 @@ function NotificationsPanel({
     <div className="flex flex-col gap-4">
       <NotificationChannelCard user={user} />
       <NotificationExplainerCard preferences={notificationPreferences} />
+      <ReminderScheduleCard />
     </div>
   )
 }

@@ -20,39 +20,37 @@ let seeded: Seeded | null = null
 
 const inThe = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString()
 
-function tokenFrom(acceptLink: string): string {
-  const token = acceptLink.split('/').pop()
-  if (!token) throw new Error(`no token in the invite link: ${acceptLink}`)
-  return token
-}
-
 async function createUser(displayName: string): Promise<{ email: string; id: string }> {
   const email = `contract-${displayName.toLowerCase()}-${Date.now()}-${Math.random()
     .toString(36)
     .slice(2, 8)}@example.com`
 
-  const invite = await api.POST('/admin/invites', { body: { email } })
-  expect(invite.response.status).toBe(201)
-  const acceptLink = invite.data?.accept_link
-  if (!acceptLink) throw new Error('the invite carries no accept_link')
-
   resetSession()
   resetCsrfToken()
-  const accepted = await api.POST('/invites/accept', {
+  const registered = await api.POST('/auth/register', {
     body: {
-      token: tokenFrom(acceptLink),
       first_name: displayName,
       last_name: 'Contract',
       nickname: `ct${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+      email,
       password: MEMBER_PASSWORD,
     },
   })
-  expect(accepted.response.status).toBe(200)
-  const id = accepted.data?.user?.id
-  if (!id) throw new Error('accepting the invite returned no user')
+  expect(registered.response.status).toBe(200)
+  const id = registered.data?.user?.id
+  if (!id) throw new Error('registration returned no user')
 
   await signIn(ADMIN_EMAIL, ADMIN_PASSWORD)
   return { email, id }
+}
+
+async function joinEvent(email: string, eventId: string, teamRole: string): Promise<void> {
+  await signIn(email, MEMBER_PASSWORD)
+  const joined = await api.POST('/events/{id}/join', {
+    params: { path: { id: eventId } },
+    body: { team_role: teamRole },
+  })
+  expect(joined.response.status).toBe(201)
 }
 
 async function createEvent(title: string): Promise<string> {
@@ -100,15 +98,6 @@ export async function seed(): Promise<Seeded> {
 
   expect(
     (
-      await api.POST('/admin/events/{id}/registration/rules', {
-        params: { path: { id: eventId } },
-        body: { offset_minutes: 1440, enabled: true },
-      })
-    ).response.status,
-  ).toBe(201)
-
-  expect(
-    (
       await api.POST('/admin/events/{id}/stages', {
         params: { path: { id: eventId } },
         body: {
@@ -122,16 +111,9 @@ export async function seed(): Promise<Seeded> {
     ).response.status,
   ).toBe(201)
 
-  const added = await api.POST('/admin/events/{id}/participants/batch-add', {
-    params: { path: { id: eventId } },
-    body: {
-      items: [
-        { user_id: member.id, team_role: 'Developer' },
-        { user_id: spare.id, team_role: 'Designer' },
-      ],
-    },
-  })
-  expect(added.response.status).toBe(200)
+  await joinEvent(member.email, eventId, 'Developer')
+  await joinEvent(spare.email, eventId, 'Designer')
+  await signIn(ADMIN_EMAIL, ADMIN_PASSWORD)
 
   const participants = await api.GET('/admin/events/{id}/participants', {
     params: { path: { id: eventId }, query: {} },

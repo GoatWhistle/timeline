@@ -12,7 +12,8 @@ import (
 
 func TestConcurrentSchedulersCreateOneNotification(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	base := newRig(t, w, newSender(), newSender())
 	base.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 
@@ -42,7 +43,7 @@ func TestConcurrentSchedulersCreateOneNotification(t *testing.T) {
 	close(start)
 	wg.Wait()
 
-	reminderKey := base.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)
+	reminderKey := base.reminderKey(1, models.ChannelTelegram)
 	if got := w.countByKey(reminderKey); got != 1 {
 		t.Fatalf("expected exactly one reminder for %s, got %d", reminderKey, got)
 	}
@@ -64,7 +65,8 @@ func TestConcurrentSchedulersCreateOneNotification(t *testing.T) {
 
 func TestReconciliationIsIdempotentAcrossPasses(t *testing.T) {
 	w := newWorld(t)
-	rule := w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 
@@ -79,20 +81,20 @@ func TestReconciliationIsIdempotentAcrossPasses(t *testing.T) {
 	if got := w.countAll(); got != 2 {
 		t.Fatalf("expected two notifications, got %d (%v)", got, w.keys())
 	}
-	_ = rule
 }
 
 func TestDoneBeforeSchedulerSuppressesCreation(t *testing.T) {
 	w := newWorld(t)
-	w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 
 	w.setStatus(models.StatusDONE)
 
 	result := r.reconcile()
-	if result.Scanned != 0 {
-		t.Fatalf("a DONE status must not be a reconciliation candidate, scanned %d", result.Scanned)
+	if result.Primary != 0 || result.Reminder != 0 || result.Overdue != 0 {
+		t.Fatalf("a DONE status still produced registration notifications: %+v", result)
 	}
 	if got := w.countAll(); got != 0 {
 		t.Fatalf("expected no notifications, got %d (%v)", got, w.keys())

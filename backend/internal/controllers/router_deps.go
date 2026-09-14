@@ -20,7 +20,6 @@ import (
 
 type Deps struct {
 	Auth          auth.AuthService
-	Invites       auth.InviteService
 	Profile       auth.ProfileService
 	Avatars       auth.AvatarService
 	ProfileLinks  auth.ProfileLinkService
@@ -35,7 +34,6 @@ type Deps struct {
 	Participants  participation.ParticipantService
 	Registrations participation.RegistrationService
 	Statuses      participation.StatusService
-	Rules         notification.RuleService
 	Queries       event.QueryService
 	Audit         notification.AuditService
 	Ops           notification.OpsService
@@ -67,8 +65,6 @@ type Deps struct {
 	ProfileRateWindow  time.Duration
 	PreviewRate        int
 	PreviewRateWindow  time.Duration
-	QueueRate          int
-	QueueRateWindow    time.Duration
 	PersonalRate       int
 	PersonalRateWindow time.Duration
 	FeedRate           int

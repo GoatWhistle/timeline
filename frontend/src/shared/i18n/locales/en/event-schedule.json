@@ -27,24 +27,6 @@
     "formDescription": "Description",
     "outOfRange": "The stage falls outside the event period. That is allowed — saving is not blocked."
   },
-  "deadlines": {
-    "title": "Deadlines",
-    "description": "Participants who have not marked their registration yet",
-    "window24": "next 24 hours",
-    "window72": "next 3 days",
-    "window168": "next week",
-    "windowAria": "Window",
-    "columnParticipant": "Participant",
-    "columnEvent": "Event",
-    "columnDeadline": "Deadline",
-    "columnOverdue": "Overdue",
-    "columnLeft": "Left",
-    "columnStatus": "Status",
-    "tabUpcoming": "Upcoming",
-    "tabOverdue": "Overdue",
-    "emptyUpcoming": "No upcoming deadlines",
-    "emptyOverdue": "No overdue deadlines"
-  },
   "urgency": {
     "overdue": "overdue",
     "today": "due today",

@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
   participantsQuery,
-  useReactivateParticipant,
   useRemoveParticipants,
   useUpdateTeamRole,
 } from '@/entities/participant/participant.queries'
@@ -19,8 +18,6 @@ import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
-import { AddParticipantsDialog } from './add-participants-dialog'
-import { CopyParticipantsDialog } from './copy-participants-dialog'
 import { ALL, ParticipantsFilters } from './participants-filters/participants-filters'
 import { ParticipantsTable } from './participants-table/participants-table'
 import { TeamRoleDialog } from './team-role-dialog/team-role-dialog'
@@ -35,8 +32,6 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
   const role = useDebouncedValue(roleInput, 300)
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [addOpen, setAddOpen] = useState(false)
-  const [copyOpen, setCopyOpen] = useState(false)
   const undoable = useUndoableAction()
   const [editing, setEditing] = useState<ParticipantResponse | null>(null)
   const [roleDraft, setRoleDraft] = useState('')
@@ -54,7 +49,6 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
 
   const removeMany = useRemoveParticipants(eventId)
   const updateRole = useUpdateTeamRole(eventId)
-  const reactivate = useReactivateParticipant(eventId)
 
   const filtered = role !== '' || filters.status !== ALL || filters.removed === '1'
 
@@ -115,8 +109,6 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
         }}
         onStatusChange={(value) => setFilters({ status: value })}
         onRemovedToggle={() => setFilters({ removed: filters.removed === '1' ? undefined : '1' })}
-        onCopy={() => setCopyOpen(true)}
-        onAdd={() => setAddOpen(true)}
       />
 
       {selected.size > 0 && (
@@ -152,28 +144,18 @@ export function ParticipantsTab({ eventId }: { eventId: string }) {
               items={items}
               selected={selected}
               allSelected={allSelected}
-              reactivatePending={reactivate.isPending}
               onToggleAll={toggleAll}
               onToggleOne={toggleOne}
               onEdit={(item) => {
                 setEditing(item)
                 setRoleDraft(item.team_role)
               }}
-              onReactivate={(item) =>
-                reactivate
-                  .mutateAsync({ id: item.id, team_role: item.team_role })
-                  .then(() => toast.success(t('participants.restored')))
-                  .catch(() => toast.error(t('participants.restoreFailed')))
-              }
             />
 
             {query.data && <Pagination meta={query.data.meta} onPageChange={setPage} />}
           </div>
         )}
       </QueryBoundary>
-
-      <AddParticipantsDialog eventId={eventId} open={addOpen} onOpenChange={setAddOpen} />
-      <CopyParticipantsDialog eventId={eventId} open={copyOpen} onOpenChange={setCopyOpen} />
 
       <TeamRoleDialog
         open={editing !== null}

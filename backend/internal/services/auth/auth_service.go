@@ -27,7 +27,6 @@ type AuthService struct {
 	users    *identity.Users
 	sessions *identity.Sessions
 	tokens   *identity.Tokens
-	invites  *identity.Invites
 	notifier Notifier
 	audit    *audit.AuditService
 	hasher   *crypto.PasswordHasher
@@ -41,11 +40,11 @@ type AuthService struct {
 
 func NewAuthService(db *postgres.DB, users *identity.Users,
 	sessions *identity.Sessions, tokens *identity.Tokens,
-	invites *identity.Invites, notifier Notifier, audit *audit.AuditService,
+	notifier Notifier, audit *audit.AuditService,
 	hasher *crypto.PasswordHasher, issuer *crypto.TokenIssuer, mailer *mail.Mailer, limiter RateLimiter,
 	cfg *config.Config) *AuthService {
 	return &AuthService{
-		db: db, users: users, sessions: sessions, tokens: tokens, invites: invites,
+		db: db, users: users, sessions: sessions, tokens: tokens,
 		notifier: notifier, audit: audit, hasher: hasher, issuer: issuer, mailer: mailer,
 		limiter: limiter, cfg: cfg, now: func() time.Time { return time.Now().UTC() },
 	}

@@ -4,9 +4,7 @@ package apitest_test
 
 import (
 	"context"
-	"net/http"
 	"testing"
-	"time"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
 )
@@ -72,23 +70,4 @@ func contains(items []string, want string) bool {
 		}
 	}
 	return false
-}
-
-func foreignRule(c *support.Client, t *testing.T, eventID string) string {
-	t.Helper()
-	start := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Second)
-	support.RequireStatus(t, c.Post("/admin/events/"+eventID+"/registration",
-		map[string]any{
-			"url":         "https://example.com/other",
-			"deadline_at": start.Add(6 * time.Hour).Format(time.RFC3339),
-		}), http.StatusCreated, "creating the registration of the other event")
-
-	resp := c.Post("/admin/events/"+eventID+"/registration/rules",
-		map[string]any{"offset_minutes": 30})
-	support.RequireStatus(t, resp, http.StatusCreated, "creating a rule on the other registration")
-	var rule struct {
-		ID string `json:"id"`
-	}
-	resp.Decode(t, &rule)
-	return rule.ID
 }

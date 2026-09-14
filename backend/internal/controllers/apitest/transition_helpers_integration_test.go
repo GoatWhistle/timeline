@@ -152,3 +152,18 @@ func userIsActive(s *support.Stack, t *testing.T, userID string) bool {
 	}
 	return active
 }
+
+func pendingOnScheduleVersion(s *support.Stack, t *testing.T, eventID string, version int) int {
+	t.Helper()
+	var count int
+	if err := s.DB().Pool().QueryRow(context.Background(), `
+		SELECT count(*) FROM notifications n
+		JOIN registration_statuses rs ON rs.id = n.registration_status_id
+		WHERE rs.event_id = (SELECT id FROM events WHERE display_id = $1)
+		  AND n.status = 'PENDING'
+		  AND n.schedule_version IS NOT NULL
+		  AND n.schedule_version <= $2`, eventID, version).Scan(&count); err != nil {
+		t.Fatalf("counting stale pending notifications of %s: %v", eventID, err)
+	}
+	return count
+}

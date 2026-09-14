@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "description": "Timeline REST API. Implements technical specification v0.8:\naccounts and invites, events and stages, participant assignments,\nregistration with self-reported status, reminder rules and the audit log.\n\nThe system does not verify the external registration site: the status is self-reported\nby the user or set administratively.\n\nAuthentication is cookie-based: the access token lives 15 minutes, the refresh token\nrotates and lives 30 days. Every mutating request must send\na CSRF token in the X-CSRF-Token header; obtain one from GET /auth/csrf.\nAll timestamps are transferred in UTC using RFC 3339.",
+    "description": "Timeline REST API. Implements technical specification v0.8:\naccounts, events and stages, participant assignments,\nregistration with self-reported status, reminder rules and the audit log.\n\nThe system does not verify the external registration site: the status is self-reported\nby the user or set administratively.\n\nAuthentication is cookie-based: the access token lives 15 minutes, the refresh token\nrotates and lives 30 days. Every mutating request must send\na CSRF token in the X-CSRF-Token header; obtain one from GET /auth/csrf.\nAll timestamps are transferred in UTC using RFC 3339.",
     "title": "Timeline API",
     "termsOfService": "https://github.com/GoatWhistle/timeline",
     "contact": {
@@ -1109,85 +1109,6 @@
         }
       }
     },
-    "/admin/events/{id}/participants/batch-add": {
-      "post": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "description": "Re-adding a previously removed participant reactivates the record and increments\nassignment_version. The assignment, registration status, primary notification and audit\nentry run in a single transaction per participant; the result is returned per entry.",
-        "tags": [
-          "participants"
-        ],
-        "summary": "Bulk participant assignment",
-        "parameters": [
-          {
-            "example": "ev_3k7d8gb9be",
-            "description": "Event identifier",
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dto.AddParticipantsRequest"
-              }
-            }
-          },
-          "description": "List of users and their roles",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.BatchResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/admin/events/{id}/participants/batch-remove": {
       "post": {
         "security": [
@@ -1221,85 +1142,6 @@
             }
           },
           "description": "Participant identifiers",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.BatchResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/events/{id}/participants/copy-from": {
-      "post": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "description": "Only assigned participants are copied. The participant role is copied as a value\nby default and can be overridden. Existing participants are skipped\nand returned as separate result entries.",
-        "tags": [
-          "participants"
-        ],
-        "summary": "Copy the roster from another event",
-        "parameters": [
-          {
-            "example": "ev_3k7d8gb9be",
-            "description": "Target event identifier",
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dto.CopyParticipantsRequest"
-              }
-            }
-          },
-          "description": "Source and role overrides",
           "required": true
         },
         "responses": {
@@ -2066,153 +1908,6 @@
         }
       }
     },
-    "/admin/events/{id}/registration/rules": {
-      "get": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "tags": [
-          "rules"
-        ],
-        "summary": "Reminder rules",
-        "parameters": [
-          {
-            "example": "ev_3k7d8gb9be",
-            "description": "Event identifier",
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/dto.NotificationRuleResponse"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "description": "The sign of offset_minutes selects the type: a positive value is a reminder before the deadline,\nzero fires at the deadline, and a negative value is an overdue notification.\nA registration accepts at most 10 rules.",
-        "tags": [
-          "rules"
-        ],
-        "summary": "Create a reminder rule",
-        "parameters": [
-          {
-            "example": "ev_3k7d8gb9be",
-            "description": "Event identifier",
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dto.CreateRuleRequest"
-              }
-            }
-          },
-          "description": "Rule parameters",
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.NotificationRuleResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "a rule with this offset already exists or the slot limit is reached",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/admin/events/{id}/stages": {
       "post": {
         "security": [
@@ -2368,272 +2063,6 @@
           },
           "409": {
             "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/invites": {
-      "get": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "tags": [
-          "invites"
-        ],
-        "summary": "Invite list",
-        "parameters": [
-          {
-            "description": "Page number",
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
-          },
-          {
-            "description": "Page size",
-            "name": "page_size",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "default": 50
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.InvitePage"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "description": "Creation is serialised by normalised email: a previous unaccepted invite is revoked,\nthen a new one is created. An invite for an existing user address is rejected with a conflict\nregardless of that user's activity.",
-        "tags": [
-          "invites"
-        ],
-        "summary": "Create an invite",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dto.CreateInviteRequest"
-              }
-            }
-          },
-          "description": "Address of the invited person",
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.CreateInviteResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "a user with this email already exists",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/invites/{id}/revoke": {
-      "post": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "tags": [
-          "invites"
-        ],
-        "summary": "Revoke an invite",
-        "parameters": [
-          {
-            "example": "in_42ej2s5gh7e8",
-            "description": "Invite identifier",
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.MessageResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/participants/{id}/reactivate": {
-      "post": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "description": "Returns participation to ASSIGNED, increments assignment_version, clears removed_at\nand sets the role again. An existing registration status is preserved.",
-        "tags": [
-          "participants"
-        ],
-        "summary": "Reactivate a participant",
-        "parameters": [
-          {
-            "example": "pa_42ej2s5gh7e8",
-            "description": "Participant identifier",
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dto.UpdateTeamRoleRequest"
-              }
-            }
-          },
-          "description": "Participant role",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ParticipantResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "the participant is already assigned",
             "content": {
               "application/json": {
                 "schema": {
@@ -2881,144 +2310,6 @@
         }
       }
     },
-    "/admin/registration-rules/{id}": {
-      "delete": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "description": "The rule is set to enabled=false; the row is preserved so that the occupied slot\nand offset stay reserved.",
-        "tags": [
-          "rules"
-        ],
-        "summary": "Disable a reminder rule",
-        "parameters": [
-          {
-            "example": "nr_42ej2s5gh7e8",
-            "description": "Rule identifier",
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "the rule is disabled"
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "description": "Changing schedule fields increments schedule_version once per transaction\nand triggers notification reconciliation.",
-        "tags": [
-          "rules"
-        ],
-        "summary": "Update a reminder rule",
-        "parameters": [
-          {
-            "example": "nr_42ej2s5gh7e8",
-            "description": "Rule identifier",
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dto.UpdateRuleRequest"
-              }
-            }
-          },
-          "description": "Mutable fields",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.NotificationRuleResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/admin/registration-statuses/{id}": {
       "patch": {
         "security": [
@@ -3115,9 +2406,9 @@
             "CookieAuth": []
           }
         ],
-        "description": "Returns the text a recipient would receive for one registration status: the subject,\nthe body, the channel that the rules of specification section 10 would pick and the\nmoment the entry would be scheduled for.\n\nThe call has no side effects at all. No notification row is created, no logical_key is\nclaimed and no deduplication state is touched, no provider is contacted and nothing\nreaches the audit log. Calling it twice changes nothing and never suppresses a real\nnotification that the scheduler is about to create.\n\nThe text is rendered in the recipient's own language taken from their profile, not in\nthe language of the administrator asking: the point of a preview is to show what the\nrecipient will read.\n\nPass rule_id to preview a reminder or an overdue notice; the type follows the sign of\nthe rule offset. Omit it for the primary REGISTRATION_REQUIRED notification, which has\nno rule. A status that reconciliation would skip — an unpublished or archived event, an\ninactive registration, a participant who is no longer assigned, a status that is not\nTODO or a deactivated recipient — has no notification to render and answers 404.\n\nchannel_ready=false means the recipient currently has no usable channel. That is not an\nerror of the preview: it is precisely what the administrator needs to see.",
+        "description": "Returns the text a recipient would receive for one registration status: the subject,\nthe body and the channels that would carry it.\n\nThe call has no side effects at all. No notification row is created, no logical_key is\nclaimed and no deduplication state is touched, no provider is contacted and nothing\nreaches the audit log. Calling it twice changes nothing and never suppresses a real\nnotification that the scheduler is about to create.\n\nThe text is rendered in the recipient's own language taken from their profile, not in\nthe language of the administrator asking: the point of a preview is to show what the\nrecipient will read.\n\nPass occasion to choose what is rendered. Omit it for the primary\nREGISTRATION_REQUIRED notification. REMINDER_REGISTRATION_DEADLINE additionally needs\ndays_before, one of 1, 2, 3, 7 or 14, because the reminder text names the remaining\ndays; scheduled_at then shows when that reminder would fire for this deadline.\nReminders are configured by each recipient in their own profile, so a preview shows\nthe wording of an occasion, not a promise that this recipient asked for it.\nA status that reconciliation would skip — an unpublished or archived event, an\ninactive registration, a participant who is no longer assigned, a status that is not\nTODO or a deactivated recipient — has no notification to render and answers 404.\n\nchannel_ready=false means the recipient currently has no usable channel. That is not an\nerror of the preview: it is precisely what the administrator needs to see.",
         "tags": [
-          "rules"
+          "notifications"
         ],
         "summary": "Render a notification without sending it",
         "parameters": [
@@ -3132,12 +2423,31 @@
             }
           },
           {
-            "example": "nr_42ej2s5gh7e8",
-            "description": "Rule to render",
-            "name": "rule_id",
+            "description": "Occasion to render",
+            "name": "occasion",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "REGISTRATION_REQUIRED",
+                "REGISTRATION_OVERDUE",
+                "REMINDER_REGISTRATION_DEADLINE"
+              ]
+            }
+          },
+          {
+            "description": "Days before the deadline",
+            "name": "days_before",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                7,
+                14
+              ]
             }
           }
         ],
@@ -3183,7 +2493,7 @@
             }
           },
           "404": {
-            "description": "nothing to render, or a foreign rule",
+            "description": "nothing to render",
             "content": {
               "application/json": {
                 "schema": {
@@ -4208,7 +3518,7 @@
     },
     "/auth/register": {
       "post": {
-        "description": "Creates an account, sends a confirmation email valid for 24 hours and opens a session.\nSign-in is allowed before the address is confirmed; product email notifications are not.\nIf invite_token is supplied, the invite is accepted in the same transaction.",
+        "description": "Creates an account, sends a confirmation email valid for 24 hours and opens a session.\nSign-in is allowed before the address is confirmed; product email notifications are not.",
         "tags": [
           "auth"
         ],
@@ -5023,7 +4333,7 @@
             "CookieAuth": []
           }
         ],
-        "description": "Self-signup: the user joins a published event and supplies their own team role.\nA meetup has no team role, so the field may be omitted; for a hackathon it is\nrequired. A finished event cannot be joined: only an administrator may assign a\nparticipant after the fact.",
+        "description": "Self-signup: the user joins a published event and supplies their own team role.\nA meetup has no team role, so the field may be omitted; for a hackathon it is\nrequired. A finished event cannot be joined.",
         "tags": [
           "catalog"
         ],
@@ -5688,100 +4998,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/dto.HealthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/invites/accept": {
-      "post": {
-        "description": "Creates an account for the invited address and opens a session.\nAny other unexpired invites for this address are revoked in the same transaction.",
-        "tags": [
-          "invites"
-        ],
-        "summary": "Accept an invite",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dto.AcceptInviteRequest"
-              }
-            }
-          },
-          "description": "Token and account data",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.AuthResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/invites/{token}": {
-      "get": {
-        "description": "Returns the address and expiry of the invite without disclosing any other data.",
-        "tags": [
-          "invites"
-        ],
-        "summary": "Public invite preview",
-        "parameters": [
-          {
-            "description": "Invite token",
-            "name": "token",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.InvitePreview"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
                 }
               }
             }
@@ -8083,8 +7299,11 @@
               "type": "string",
               "enum": [
                 "REGISTRATION_REQUIRED",
-                "REGISTRATION_REMINDER",
                 "REGISTRATION_OVERDUE",
+                "REMINDER_REGISTRATION_DEADLINE",
+                "REMINDER_EVENT_START",
+                "REMINDER_STAGE_START",
+                "REMINDER_EVENT_END",
                 "WEEKLY_DIGEST",
                 "PERSONAL_TASK_DUE",
                 "PERSONAL_RETROSPECTIVE_DUE"
@@ -8490,6 +7709,97 @@
           },
           "429": {
             "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/reminder-schedule": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Reminders belong to the recipient, not to the organiser of an event: an organiser\ncreates stages and a registration, and you alone decide how long before each of those\nmoments you want to hear about it. One setting covers every event you take part in.\n\nEach occasion carries its own set of days, because \"a week before the deadline\" and\n\"a week before a stage\" are different wishes. An empty set means this occasion never\nreaches you. day_choices lists the days the server accepts.",
+        "tags": [
+          "profile"
+        ],
+        "summary": "Your own reminder schedule",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ReminderScheduleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "The body replaces the whole schedule: an occasion left out of the list is cleared, and\nso days are never merged with what was stored before. Allowed days are 1, 2, 3, 7 and\n14; hours are deliberately not offered.\n\noverdue_enabled asks to be told when a registration deadline has passed while your\nstatus still says nothing was done. It is a switch, not a schedule: the moment is a\nfixed lead after the deadline, set by the server.\n\nSaving bumps the schedule version and cancels every reminder already queued for you\nthat has not been handed to a provider, so a shortened schedule stops sending at once\nrather than after the old plan drains.",
+        "tags": [
+          "profile"
+        ],
+        "summary": "Replace your reminder schedule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/dto.UpdateReminderScheduleRequest"
+              }
+            }
+          },
+          "description": "The schedule to store",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ReminderScheduleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -9173,158 +8483,6 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/ops/queue": {
-      "get": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "description": "The rows an operator needs to tell a stuck queue apart from a busy one. The heartbeat\nanswers whether something is broken; this answers what exactly.\n\nscope=failures lists terminal failures — FAILED after the four provider calls of\nspecification section 9.4.8 are spent, and UNDELIVERABLE when no channel was available\nor every channel closed with a permanent error — each with the reason recorded in\nlast_error, the attempt count and the channels already tried.\n\nscope=stuck-leases lists entries left in PROCESSING whose worker lease expired. That is\nthe same set the recovery task of section 9.4.9 returns to the queue; this endpoint only\nreports it and recovers nothing. lease_overdue_seconds says how long the lease has been\noverdue, which separates a worker that died from one that is merely slow.\n\nThe rows carry no payload_json, no recipient and no registration status: an operations\nscreen is not a way to read other people's notifications or assignments.",
-        "tags": [
-          "ops"
-        ],
-        "summary": "Queue diagnostics",
-        "parameters": [
-          {
-            "description": "Rows to return",
-            "name": "scope",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "failures",
-                "stuck-leases"
-              ]
-            }
-          },
-          {
-            "description": "Page number, from 1",
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "description": "Page size",
-            "name": "page_size",
-            "in": "query",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.QueueEntryPage"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/ops/worker-heartbeat": {
-      "get": {
-        "security": [
-          {
-            "CookieAuth": []
-          }
-        ],
-        "description": "Last run times of the scheduler and worker, queue lengths by status\nand the age of the oldest pending entry.\n\nRestricted to administrators. The counts describe the delivery backlog, which is the\nsame class of operational detail as /ops/queue and is not something an anonymous\ncaller may read. Container liveness probes use /healthz and /readyz instead.",
-        "tags": [
-          "ops"
-        ],
-        "summary": "Background process status",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.WorkerHeartbeatResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.ErrorResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service Unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dto.WorkerHeartbeatResponse"
                 }
               }
             }
@@ -10847,7 +10005,7 @@
             "CookieAuth": []
           }
         ],
-        "description": "Restricted to the team lead. The person is named by exactly one of `user_id`, `nickname`\nand `email`, and must already have an account: a platform invitation to somebody who is\nnot registered yet is an administrator operation, so an address nobody uses answers 404\nwith the same body an unknown nickname gets. The invitation lands in the INVITED state\nand the invited person accepts it themselves.",
+        "description": "Restricted to the team lead. The person is named by exactly one of `user_id`, `nickname`\nand `email`, and must already have an account: somebody who is not registered yet signs\nup on their own first, so an address nobody uses answers 404\nwith the same body an unknown nickname gets. The invitation lands in the INVITED state\nand the invited person accepts it themselves.",
         "tags": [
           "teams"
         ],
@@ -11411,66 +10569,6 @@
       }
     },
     "schemas": {
-      "dto.AcceptInviteRequest": {
-        "type": "object",
-        "required": [
-          "nickname"
-        ],
-        "properties": {
-          "first_name": {
-            "type": "string",
-            "example": "John"
-          },
-          "last_name": {
-            "type": "string",
-            "example": "Smith"
-          },
-          "middle_name": {
-            "type": "string",
-            "example": "Fitzgerald"
-          },
-          "nickname": {
-            "type": "string",
-            "example": "jsmith"
-          },
-          "password": {
-            "type": "string",
-            "example": "correct-horse-battery"
-          },
-          "token": {
-            "type": "string",
-            "example": "abc123"
-          }
-        }
-      },
-      "dto.AddParticipantItem": {
-        "type": "object",
-        "properties": {
-          "team_role": {
-            "type": "string",
-            "example": "Developer"
-          },
-          "user_id": {
-            "type": "string",
-            "example": "us_42ej2s5gh7e8"
-          }
-        },
-        "required": [
-          "team_role",
-          "user_id"
-        ]
-      },
-      "dto.AddParticipantsRequest": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/dto.AddParticipantItem"
-            }
-          }
-        }
-      },
       "dto.AdminChangeStatusRequest": {
         "type": "object",
         "properties": {
@@ -11897,38 +10995,6 @@
           }
         }
       },
-      "dto.CopyParticipantsRequest": {
-        "type": "object",
-        "properties": {
-          "overrides": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/dto.CopyRoleOverride"
-            }
-          },
-          "source_event_id": {
-            "type": "string",
-            "example": "ev_gma9hq8a96q5"
-          }
-        }
-      },
-      "dto.CopyRoleOverride": {
-        "type": "object",
-        "properties": {
-          "team_role": {
-            "type": "string",
-            "example": "Mentor"
-          },
-          "user_id": {
-            "type": "string",
-            "example": "us_42ej2s5gh7e8"
-          }
-        },
-        "required": [
-          "team_role",
-          "user_id"
-        ]
-      },
       "dto.CreateArtifactRequest": {
         "type": "object",
         "properties": {
@@ -12059,31 +11125,6 @@
           }
         }
       },
-      "dto.CreateInviteRequest": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "example": "new@example.com"
-          }
-        }
-      },
-      "dto.CreateInviteResponse": {
-        "type": "object",
-        "properties": {
-          "accept_link": {
-            "type": "string",
-            "example": "https://tracker.local/invite/abc123"
-          },
-          "invite": {
-            "$ref": "#/components/schemas/dto.InviteResponse"
-          }
-        },
-        "required": [
-          "accept_link",
-          "invite"
-        ]
-      },
       "dto.CreateProfileLinkRequest": {
         "type": "object",
         "properties": {
@@ -12139,23 +11180,6 @@
           "url": {
             "type": "string",
             "example": "https://example.org/rules"
-          }
-        }
-      },
-      "dto.CreateRuleRequest": {
-        "type": "object",
-        "properties": {
-          "enabled": {
-            "type": "boolean",
-            "example": true
-          },
-          "offset_minutes": {
-            "type": "integer",
-            "example": 1440
-          },
-          "slot_no": {
-            "type": "integer",
-            "example": 1
           }
         }
       },
@@ -13152,84 +12176,6 @@
           "kind"
         ]
       },
-      "dto.InvitePage": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/dto.InviteResponse"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/dto.PageMeta"
-          }
-        },
-        "required": [
-          "items",
-          "meta"
-        ]
-      },
-      "dto.InvitePreview": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "example": "new@example.com"
-          },
-          "expires_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "valid": {
-            "type": "boolean",
-            "example": true
-          }
-        },
-        "required": [
-          "valid"
-        ]
-      },
-      "dto.InviteResponse": {
-        "type": "object",
-        "properties": {
-          "accepted_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "created_by_user_id": {
-            "type": "string",
-            "example": "us_42ej2s5gh7e8"
-          },
-          "email": {
-            "type": "string",
-            "example": "new@example.com"
-          },
-          "expires_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "id": {
-            "type": "string",
-            "example": "in_42ej2s5gh7e8"
-          },
-          "revoked_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "created_at",
-          "created_by_user_id",
-          "email",
-          "expires_at",
-          "id"
-        ]
-      },
       "dto.InviteTeamMemberRequest": {
         "type": "object",
         "properties": {
@@ -13552,6 +12498,10 @@
               "$ref": "#/components/schemas/models.Channel"
             }
           },
+          "days_before": {
+            "type": "integer",
+            "example": 3
+          },
           "deadline_local": {
             "type": "string",
             "example": "14.09.2026 18:00"
@@ -13570,10 +12520,6 @@
           "registration_url": {
             "type": "string",
             "example": "https://example.com/register"
-          },
-          "rule_id": {
-            "type": "string",
-            "example": "nr_42ej2s5gh7e8"
           },
           "scheduled_at": {
             "type": "string",
@@ -13595,62 +12541,16 @@
           "body",
           "channel_ready",
           "channels",
+          "days_before",
           "deadline_local",
           "deadline_utc",
           "event_title",
           "language",
           "registration_url",
-          "rule_id",
           "scheduled_at",
           "subject",
           "timezone_id",
           "type"
-        ]
-      },
-      "dto.NotificationRuleResponse": {
-        "type": "object",
-        "properties": {
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "enabled": {
-            "type": "boolean",
-            "example": true
-          },
-          "id": {
-            "type": "string",
-            "example": "nr_42ej2s5gh7e8"
-          },
-          "offset_minutes": {
-            "type": "integer",
-            "example": 1440
-          },
-          "registration_id": {
-            "type": "string",
-            "example": "rg_42ej2s5gh7e8"
-          },
-          "slot_no": {
-            "type": "integer",
-            "example": 1
-          },
-          "type": {
-            "$ref": "#/components/schemas/models.NotificationType"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "created_at",
-          "enabled",
-          "id",
-          "offset_minutes",
-          "registration_id",
-          "slot_no",
-          "type",
-          "updated_at"
         ]
       },
       "dto.OrganizerSuggestions": {
@@ -13975,94 +12875,6 @@
           "team_count"
         ]
       },
-      "dto.QueueEntryPage": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/dto.QueueEntryResponse"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/dto.PageMeta"
-          }
-        },
-        "required": [
-          "items",
-          "meta"
-        ]
-      },
-      "dto.QueueEntryResponse": {
-        "type": "object",
-        "properties": {
-          "actual_channel": {
-            "$ref": "#/components/schemas/models.Channel"
-          },
-          "attempt_count": {
-            "type": "integer",
-            "example": 4
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "failed_channels": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/models.Channel"
-            }
-          },
-          "id": {
-            "type": "string",
-            "example": "nt_42ej2s5gh7e8"
-          },
-          "last_error": {
-            "type": "string",
-            "example": "permanent provider error"
-          },
-          "lease_expires_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "lease_overdue_seconds": {
-            "type": "number",
-            "example": 93.4
-          },
-          "notification_type": {
-            "$ref": "#/components/schemas/models.NotificationType"
-          },
-          "requested_channel": {
-            "$ref": "#/components/schemas/models.Channel"
-          },
-          "scheduled_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "status": {
-            "$ref": "#/components/schemas/models.NotificationStatus"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "actual_channel",
-          "attempt_count",
-          "created_at",
-          "failed_channels",
-          "id",
-          "last_error",
-          "lease_expires_at",
-          "lease_overdue_seconds",
-          "notification_type",
-          "requested_channel",
-          "scheduled_at",
-          "status",
-          "updated_at"
-        ]
-      },
       "dto.ReadyResponse": {
         "type": "object",
         "properties": {
@@ -14093,9 +12905,6 @@
           "first_name": {
             "type": "string",
             "example": "John"
-          },
-          "invite_token": {
-            "type": "string"
           },
           "last_name": {
             "type": "string",
@@ -14341,6 +13150,73 @@
           "id",
           "status",
           "todo_cycle"
+        ]
+      },
+      "dto.ReminderScheduleOccasion": {
+        "type": "object",
+        "properties": {
+          "days_before": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              1,
+              3
+            ]
+          },
+          "occasion": {
+            "type": "string",
+            "enum": [
+              "REMINDER_REGISTRATION_DEADLINE",
+              "REMINDER_EVENT_START",
+              "REMINDER_STAGE_START",
+              "REMINDER_EVENT_END"
+            ],
+            "example": "REMINDER_REGISTRATION_DEADLINE"
+          }
+        },
+        "required": [
+          "days_before",
+          "occasion"
+        ]
+      },
+      "dto.ReminderScheduleResponse": {
+        "type": "object",
+        "properties": {
+          "day_choices": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              1,
+              2,
+              3,
+              7,
+              14
+            ]
+          },
+          "occasions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/dto.ReminderScheduleOccasion"
+            }
+          },
+          "overdue_enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "version": {
+            "type": "integer",
+            "example": 1
+          }
+        },
+        "required": [
+          "day_choices",
+          "occasions",
+          "overdue_enabled",
+          "version"
         ]
       },
       "dto.RemoveParticipantsRequest": {
@@ -15586,6 +14462,21 @@
           }
         }
       },
+      "dto.UpdateReminderScheduleRequest": {
+        "type": "object",
+        "properties": {
+          "occasions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/dto.ReminderScheduleOccasion"
+            }
+          },
+          "overdue_enabled": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
       "dto.UpdateResourceLinkRequest": {
         "type": "object",
         "properties": {
@@ -15638,17 +14529,6 @@
           },
           "delete_covers_on_archive": {
             "type": "boolean"
-          }
-        }
-      },
-      "dto.UpdateRuleRequest": {
-        "type": "object",
-        "properties": {
-          "enabled": {
-            "type": "boolean"
-          },
-          "offset_minutes": {
-            "type": "integer"
           }
         }
       },
@@ -15849,51 +14729,6 @@
           "last_name"
         ]
       },
-      "dto.WorkerHeartbeatResponse": {
-        "type": "object",
-        "properties": {
-          "failed_count": {
-            "type": "integer",
-            "example": 0
-          },
-          "healthy": {
-            "type": "boolean",
-            "example": true
-          },
-          "oldest_pending_age_seconds": {
-            "type": "number",
-            "example": 12.5
-          },
-          "pending_count": {
-            "type": "integer",
-            "example": 3
-          },
-          "processing_count": {
-            "type": "integer",
-            "example": 1
-          },
-          "scheduler_last_run_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "undeliverable_count": {
-            "type": "integer",
-            "example": 0
-          },
-          "worker_last_run_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "failed_count",
-          "healthy",
-          "oldest_pending_age_seconds",
-          "pending_count",
-          "processing_count",
-          "undeliverable_count"
-        ]
-      },
       "models.ArtifactKind": {
         "type": "string",
         "enum": [
@@ -15922,9 +14757,6 @@
           "USER_DELETE",
           "USER_PROFILE_CHANGE",
           "USER_ADMIN_FLAG_CHANGE",
-          "INVITE_CREATE",
-          "INVITE_REVOKE",
-          "INVITE_ACCEPT",
           "EVENT_CREATE",
           "EVENT_UPDATE",
           "EVENT_PUBLISH",
@@ -15962,7 +14794,6 @@
           "TEAM_EVENT_LINK_REMOVE",
           "REGISTRATION_CHANGE",
           "STATUS_CHANGE",
-          "RULE_CHANGE",
           "RESOURCE_LINK_CREATE",
           "RESOURCE_LINK_UPDATE",
           "RESOURCE_LINK_DELETE",
@@ -15979,9 +14810,6 @@
           "AuditUserDelete",
           "AuditUserProfileChange",
           "AuditUserAdminFlagChange",
-          "AuditInviteCreate",
-          "AuditInviteRevoke",
-          "AuditInviteAccept",
           "AuditEventCreate",
           "AuditEventUpdate",
           "AuditEventPublish",
@@ -16019,7 +14847,6 @@
           "AuditTeamEventLinkRemove",
           "AuditRegistrationChange",
           "AuditStatusChange",
-          "AuditRuleChange",
           "AuditLinkCreate",
           "AuditLinkUpdate",
           "AuditLinkDelete",
@@ -16109,7 +14936,6 @@
         "type": "string",
         "enum": [
           "USER",
-          "INVITE",
           "EVENT",
           "STAGE",
           "EVENT_TRACK",
@@ -16122,13 +14948,11 @@
           "TEAM_EVENT_LINK",
           "REGISTRATION",
           "REGISTRATION_STATUS",
-          "NOTIFICATION_RULE",
           "RESOURCE_LINK",
           "RETENTION_SETTINGS"
         ],
         "x-enum-varnames": [
           "EntityUser",
-          "EntityInvite",
           "EntityEvent",
           "EntityStage",
           "EntityEventTrack",
@@ -16141,7 +14965,6 @@
           "EntityTeamEventLink",
           "EntityRegistration",
           "EntityRegistrationStatus",
-          "EntityNotificationRule",
           "EntityResourceLink",
           "EntityRetentionSettings"
         ]
@@ -16275,16 +15098,22 @@
         "type": "string",
         "enum": [
           "REGISTRATION_REQUIRED",
-          "REGISTRATION_REMINDER",
           "REGISTRATION_OVERDUE",
+          "REMINDER_REGISTRATION_DEADLINE",
+          "REMINDER_EVENT_START",
+          "REMINDER_STAGE_START",
+          "REMINDER_EVENT_END",
           "WEEKLY_DIGEST",
           "PERSONAL_TASK_DUE",
           "PERSONAL_RETROSPECTIVE_DUE"
         ],
         "x-enum-varnames": [
           "NotificationRequired",
-          "NotificationReminder",
           "NotificationOverdue",
+          "NotificationDeadlineReminder",
+          "NotificationEventStartReminder",
+          "NotificationStageStartReminder",
+          "NotificationEventEndReminder",
           "NotificationWeeklyDigest",
           "NotificationPersonalTaskDue",
           "NotificationRetrospectiveDue"
@@ -16309,39 +15138,26 @@
           "occasion"
         ]
       },
-      "models.NotificationStatus": {
-        "type": "string",
-        "enum": [
-          "PENDING",
-          "PROCESSING",
-          "SENT",
-          "FAILED",
-          "CANCELLED",
-          "UNDELIVERABLE"
-        ],
-        "x-enum-varnames": [
-          "NotificationPending",
-          "NotificationProcessing",
-          "NotificationSent",
-          "NotificationFailed",
-          "NotificationCancelled",
-          "NotificationUndeliverable"
-        ]
-      },
       "models.NotificationType": {
         "type": "string",
         "enum": [
           "REGISTRATION_REQUIRED",
-          "REGISTRATION_REMINDER",
           "REGISTRATION_OVERDUE",
+          "REMINDER_REGISTRATION_DEADLINE",
+          "REMINDER_EVENT_START",
+          "REMINDER_STAGE_START",
+          "REMINDER_EVENT_END",
           "WEEKLY_DIGEST",
           "PERSONAL_TASK_DUE",
           "PERSONAL_RETROSPECTIVE_DUE"
         ],
         "x-enum-varnames": [
           "NotificationRequired",
-          "NotificationReminder",
           "NotificationOverdue",
+          "NotificationDeadlineReminder",
+          "NotificationEventStartReminder",
+          "NotificationStageStartReminder",
+          "NotificationEventEndReminder",
           "NotificationWeeklyDigest",
           "NotificationPersonalTaskDue",
           "NotificationRetrospectiveDue"

@@ -19,7 +19,7 @@ func TestRenderTelegramTextEscapesTheEventTitle(t *testing.T) {
 }
 
 func TestRenderTelegramTextHasBoldHeadingAndDeadlineLine(t *testing.T) {
-	text := renderTelegramText("en", models.NotificationReminder, "Demo Day", "01.01.2026 12:00", "UTC")
+	text := renderTelegramText("en", models.NotificationDeadlineReminder, "Demo Day", "01.01.2026 12:00", "UTC")
 	if !strings.HasPrefix(text, "<b>") {
 		t.Fatalf("expected a bold heading first, got %q", text)
 	}

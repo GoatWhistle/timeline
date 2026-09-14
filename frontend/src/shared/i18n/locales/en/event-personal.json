@@ -144,7 +144,7 @@
       "title": "History",
       "subtitle": "Everything you took part in, with your outcomes and submissions.",
       "empty": "No history yet",
-      "emptyHint": "Events you were assigned to show up here once they are under way.",
+      "emptyHint": "Events you joined show up here once they are under way.",
       "tasks": "{{done}} of {{total}} tasks",
       "noTasks": "No tasks",
       "noOutcome": "No outcome recorded",

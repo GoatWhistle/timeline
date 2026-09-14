@@ -34,13 +34,6 @@ func TestMailerLinksMatchTheRoutesTheAppServes(t *testing.T) {
 			},
 			want: "https://timeline.test/email-change/confirm?token=tok",
 		},
-		{
-			name: "invite",
-			send: func(m *Mailer) {
-				m.SendInvite(context.Background(), "user@example.test", "Admin", "en", "tok", time.Hour)
-			},
-			want: "https://timeline.test/invite/tok",
-		},
 	}
 
 	for _, tc := range cases {

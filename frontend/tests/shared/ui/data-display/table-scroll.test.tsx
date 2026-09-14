@@ -87,15 +87,6 @@ function clusterClasses(source: string): string[] {
 describe('a filter bar wraps its controls instead of pushing the page wider', () => {
   const source = readFileSync(join(SRC, FILTERS), 'utf8')
 
-  it('lets the action cluster wrap, which is what stopped participants overflowing in Russian', () => {
-    const cluster = clusterClasses(source).find(
-      (cls) => /\bgap-2\b/.test(cls) && !/items-end/.test(cls),
-    )
-    expect(cluster, 'the button cluster beside the filters').toBeDefined()
-    expect(cluster).toContain('flex-wrap')
-    expect(cluster).toContain('min-w-0')
-  })
-
   it('lets the filter cluster shrink, so a long label cannot pin it open', () => {
     const cluster = clusterClasses(source).find(
       (cls) => /items-end/.test(cls) && /\bgap-3\b/.test(cls) && !/justify-between/.test(cls),

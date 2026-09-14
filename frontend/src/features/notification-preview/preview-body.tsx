@@ -60,7 +60,13 @@ function Rendered({ preview }: { preview: NotificationPreviewResponse }) {
 
       <dl className="divide-y divide-border">
         {preview.type ? (
-          <Line label={t('preview.rule')} value={t(NOTIFICATION_TYPE_KEY[preview.type])} />
+          <Line label={t('preview.occasion')} value={t(NOTIFICATION_TYPE_KEY[preview.type])} />
+        ) : null}
+        {preview.days_before ? (
+          <Line
+            label={t('preview.daysBefore')}
+            value={t('reminder.day', { count: preview.days_before })}
+          />
         ) : null}
         <Line label={t('preview.scheduledAt')} value={formatDateTime(preview.scheduled_at)} />
         <Line

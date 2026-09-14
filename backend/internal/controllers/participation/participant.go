@@ -95,37 +95,3 @@ func (c *Controller) UpdateTeamRole(w http.ResponseWriter, r *http.Request) {
 	}
 	httpx.JSON(w, http.StatusOK, p)
 }
-
-// @Summary		Reactivate a participant
-// @Description	Returns participation to ASSIGNED, increments assignment_version, clears removed_at
-// @Description	and sets the role again. An existing registration status is preserved.
-// @Tags			participants
-// @Accept			json
-// @Produce		json
-// @Security		CookieAuth
-// @Param			id		path		string						true	"Participant identifier"	example(pa_42ej2s5gh7e8)
-// @Param			request	body		dto.UpdateTeamRoleRequest	true	"Participant role"
-// @Success		200		{object}	dto.ParticipantResponse
-// @Failure		400		{object}	dto.ErrorResponse
-// @Failure		403		{object}	dto.ErrorResponse
-// @Failure		404		{object}	dto.ErrorResponse
-// @Failure		409		{object}	dto.ErrorResponse	"the participant is already assigned"
-// @Router			/admin/participants/{id}/reactivate [post]
-func (c *Controller) Reactivate(w http.ResponseWriter, r *http.Request) {
-	id, err := httpx.PathDisplayID(r, "id", dto.DisplayKindParticipant, c.svc.ResolveParticipantDisplayID)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	var req dto.UpdateTeamRoleRequest
-	if err := httpx.Decode(r, &req); err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	p, err := c.svc.Reactivate(r.Context(), middleware.ActorFrom(r), id, req.TeamRole)
-	if err != nil {
-		httpx.Error(w, r, err)
-		return
-	}
-	httpx.JSON(w, http.StatusOK, p)
-}

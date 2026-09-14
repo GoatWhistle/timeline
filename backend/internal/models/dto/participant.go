@@ -31,29 +31,10 @@ type ParticipantPage struct {
 	Meta  PageMeta              `json:"meta"`
 }
 
-type AddParticipantItem struct {
-	UserID   string  `json:"user_id" example:"us_42ej2s5gh7e8"`
-	TeamRole *string `json:"team_role,omitempty" example:"Developer"`
-}
-
-type AddParticipantsRequest struct {
-	Items []AddParticipantItem `json:"items"`
-}
-
 type RemoveParticipantsRequest struct {
 	ParticipantIDs []string `json:"participant_ids" example:"pa_42ej2s5gh7e8"`
 }
 
 type UpdateTeamRoleRequest struct {
 	TeamRole *string `json:"team_role,omitempty" example:"Captain"`
-}
-
-type CopyParticipantsRequest struct {
-	SourceEventID string             `json:"source_event_id" example:"ev_gma9hq8a96q5"`
-	Overrides     []CopyRoleOverride `json:"overrides,omitempty"`
-}
-
-type CopyRoleOverride struct {
-	UserID   string  `json:"user_id" example:"us_42ej2s5gh7e8"`
-	TeamRole *string `json:"team_role,omitempty" example:"Mentor"`
 }

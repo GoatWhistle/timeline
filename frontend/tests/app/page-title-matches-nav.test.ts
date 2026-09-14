@@ -49,13 +49,6 @@ const PAGES: Page[] = [
     path: 'list.adminTitle',
   },
   {
-    to: '/admin/deadlines',
-    source: 'features/deadline-list/deadline-list.tsx',
-    titleKey: 'deadlines.title',
-    bundle: 'event-schedule',
-    path: 'deadlines.title',
-  },
-  {
     to: '/admin/users',
     source: 'features/user-list/user-list.tsx',
     titleKey: 'users.title',
@@ -63,25 +56,11 @@ const PAGES: Page[] = [
     path: 'users.title',
   },
   {
-    to: '/admin/invites',
-    source: 'features/invite-list/invite-list.tsx',
-    titleKey: 'invites.title',
-    bundle: 'admin',
-    path: 'invites.title',
-  },
-  {
     to: '/admin/audit',
     source: 'features/audit-log/audit-log.tsx',
     titleKey: 'audit.title',
     bundle: 'admin',
     path: 'audit.title',
-  },
-  {
-    to: '/admin/ops',
-    source: 'features/ops-queue/ops-queue.tsx',
-    titleKey: 'ops:title',
-    bundle: 'ops',
-    path: 'title',
   },
   {
     to: '/admin/retention',

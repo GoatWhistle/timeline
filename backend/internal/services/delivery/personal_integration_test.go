@@ -47,8 +47,8 @@ func TestPersonalNoticeHasNoRegistrationStatus(t *testing.T) {
 	if n.RegistrationStatusID != nil {
 		t.Fatalf("a personal notification carries a registration status: %v", *n.RegistrationStatusID)
 	}
-	if n.RuleID != nil {
-		t.Fatalf("a personal notification carries a rule id: %v", *n.RuleID)
+	if n.EventID != nil {
+		t.Fatalf("a personal notification carries an event id: %v", *n.EventID)
 	}
 }
 

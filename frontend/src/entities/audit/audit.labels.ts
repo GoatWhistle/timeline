@@ -2,7 +2,6 @@ import type { AuditAction, EntityType } from '@/shared/api/types.gen'
 
 export const ENTITY_TYPES: EntityType[] = [
   'USER',
-  'INVITE',
   'EVENT',
   'STAGE',
   'EVENT_TRACK',
@@ -15,7 +14,6 @@ export const ENTITY_TYPES: EntityType[] = [
   'TEAM_EVENT_LINK',
   'REGISTRATION',
   'REGISTRATION_STATUS',
-  'NOTIFICATION_RULE',
   'RESOURCE_LINK',
   'RETENTION_SETTINGS',
 ]
@@ -27,9 +25,6 @@ export const AUDIT_ACTIONS: AuditAction[] = [
   'USER_DELETE',
   'USER_PROFILE_CHANGE',
   'USER_ADMIN_FLAG_CHANGE',
-  'INVITE_CREATE',
-  'INVITE_REVOKE',
-  'INVITE_ACCEPT',
   'EVENT_CREATE',
   'EVENT_UPDATE',
   'EVENT_PUBLISH',
@@ -67,7 +62,6 @@ export const AUDIT_ACTIONS: AuditAction[] = [
   'TEAM_EVENT_LINK_REMOVE',
   'REGISTRATION_CHANGE',
   'STATUS_CHANGE',
-  'RULE_CHANGE',
   'RESOURCE_LINK_CREATE',
   'RESOURCE_LINK_UPDATE',
   'RESOURCE_LINK_DELETE',

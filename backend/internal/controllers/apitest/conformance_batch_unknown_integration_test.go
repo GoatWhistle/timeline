@@ -3,7 +3,6 @@
 package apitest_test
 
 import (
-	"net/http"
 	"strings"
 	"testing"
 
@@ -68,38 +67,6 @@ func TestBatchSetKeepsMalformedAndUnknownIdentifiersOnTheirOwnRows(t *testing.T)
 	if applied.Succeeded != 1 || applied.Failed != 2 {
 		t.Fatalf("the batch reported succeeded=%d failed=%d instead of 1/2",
 			applied.Succeeded, applied.Failed)
-	}
-}
-
-func TestBatchAssignmentReportsAnUnknownUserAsARow(t *testing.T) {
-	s := support.NewStack(t)
-	f := s.Seed(t)
-
-	second := s.Register(t, "second-"+support.Nickname()+"@example.com")
-
-	applied := decodeBatch(t, f.AdminClient.Post("/admin/events/"+f.EventID+"/participants/batch-add",
-		map[string]any{"items": []map[string]any{
-			{"user_id": second.ID, "team_role": "Developer"},
-			{"user_id": "us_zzzzzzzzzzzz", "team_role": "Developer"},
-			{"user_id": f.Member.ID, "team_role": "Developer"},
-		}}), "assigning a batch whose middle row names a user that does not exist")
-
-	if len(applied.Results) != 3 {
-		t.Fatalf("an unknown user collapsed the batch to %d rows: %+v",
-			len(applied.Results), applied.Results)
-	}
-	if applied.Results[1].Status != "error" || applied.Results[1].Key != "us_zzzzzzzzzzzz" {
-		t.Fatalf("the unknown user is not reported as its own failed row: %+v", applied.Results[1])
-	}
-	if applied.Succeeded != 1 || applied.Skipped != 1 || applied.Failed != 1 {
-		t.Fatalf("the batch reported succeeded=%d skipped=%d failed=%d instead of 1/1/1",
-			applied.Succeeded, applied.Skipped, applied.Failed)
-	}
-
-	roster := f.AdminClient.Get("/admin/events/" + f.EventID + "/participants")
-	support.RequireStatus(t, roster, http.StatusOK, "listing the roster after the batch")
-	if !support.ContainsAll(string(roster.Body), second.ID) {
-		t.Fatalf("the valid row was discarded because a later row named an unknown user: %s", roster.Body)
 	}
 }
 

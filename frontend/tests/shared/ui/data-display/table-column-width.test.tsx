@@ -4,12 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 const SRC = join(process.cwd(), 'src')
 
-const ADMIN_TABLES = [
-  'features/user-list/user-list.tsx',
-  'features/deadline-list/deadline-list.tsx',
-  'features/invite-list/invite-list.tsx',
-  'features/audit-log/audit-log.tsx',
-]
+const ADMIN_TABLES = ['features/user-list/user-list.tsx', 'features/audit-log/audit-log.tsx']
 
 function tableHeadClasses(source: string): string[] {
   return [...source.matchAll(/<TableHead\b([^>]*)>/g)].map((match) => {

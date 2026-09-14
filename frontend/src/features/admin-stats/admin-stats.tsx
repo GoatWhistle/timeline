@@ -11,7 +11,7 @@ import {
   SummaryMetric,
 } from '@/shared/ui/data-display/summary-bar/summary-bar'
 import { Skeleton } from '@/shared/ui/states'
-import { COUNTED_STATES, eventStateCountsQuery, overdueCountQuery } from './admin-stats.queries'
+import { COUNTED_STATES, eventStateCountsQuery } from './admin-stats.queries'
 import { CoverageMetric } from './coverage-metric/coverage-metric'
 
 function StateMetric({
@@ -77,7 +77,6 @@ export function AdminStats({
 }) {
   const { t } = useTranslation('event')
   const counts = useQuery(eventStateCountsQuery())
-  const overdue = useQuery(overdueCountQuery())
 
   return (
     <SummaryBar label={t('stats.title')}>
@@ -93,12 +92,6 @@ export function AdminStats({
         />
       ))}
       <SummaryDivider />
-      <SummaryMetric
-        label={t('stats.overdue')}
-        value={overdue.data ?? t('common:state.dash')}
-        pending={overdue.isPending}
-        tone={overdue.data ? 'text-urgency-overdue' : undefined}
-      />
       <CoverageMetric />
     </SummaryBar>
   )

@@ -1,44 +1,5 @@
 basePath: /api/v1
 definitions:
-  dto.AcceptInviteRequest:
-    properties:
-      first_name:
-        example: John
-        type: string
-      last_name:
-        example: Smith
-        type: string
-      middle_name:
-        example: Fitzgerald
-        type: string
-      nickname:
-        example: jsmith
-        type: string
-      password:
-        example: correct-horse-battery
-        type: string
-      token:
-        example: abc123
-        type: string
-    required:
-    - nickname
-    type: object
-  dto.AddParticipantItem:
-    properties:
-      team_role:
-        example: Developer
-        type: string
-      user_id:
-        example: us_42ej2s5gh7e8
-        type: string
-    type: object
-  dto.AddParticipantsRequest:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/dto.AddParticipantItem'
-        type: array
-    type: object
   dto.AdminChangeStatusRequest:
     properties:
       note:
@@ -322,25 +283,6 @@ definitions:
         example: tr_42ej2s5gh7e8
         type: string
     type: object
-  dto.CopyParticipantsRequest:
-    properties:
-      overrides:
-        items:
-          $ref: '#/definitions/dto.CopyRoleOverride'
-        type: array
-      source_event_id:
-        example: ev_gma9hq8a96q5
-        type: string
-    type: object
-  dto.CopyRoleOverride:
-    properties:
-      team_role:
-        example: Mentor
-        type: string
-      user_id:
-        example: us_42ej2s5gh7e8
-        type: string
-    type: object
   dto.CreateArtifactRequest:
     properties:
       kind:
@@ -452,20 +394,6 @@ definitions:
         example: 1
         type: integer
     type: object
-  dto.CreateInviteRequest:
-    properties:
-      email:
-        example: new@example.com
-        type: string
-    type: object
-  dto.CreateInviteResponse:
-    properties:
-      accept_link:
-        example: https://tracker.local/invite/abc123
-        type: string
-      invite:
-        $ref: '#/definitions/dto.InviteResponse'
-    type: object
   dto.CreateProfileLinkRequest:
     properties:
       label:
@@ -505,18 +433,6 @@ definitions:
       url:
         example: https://example.org/rules
         type: string
-    type: object
-  dto.CreateRuleRequest:
-    properties:
-      enabled:
-        example: true
-        type: boolean
-      offset_minutes:
-        example: 1440
-        type: integer
-      slot_no:
-        example: 1
-        type: integer
     type: object
   dto.CreateStageRequest:
     properties:
@@ -1132,46 +1048,6 @@ definitions:
         example: event
         type: string
     type: object
-  dto.InvitePage:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/dto.InviteResponse'
-        type: array
-      meta:
-        $ref: '#/definitions/dto.PageMeta'
-    type: object
-  dto.InvitePreview:
-    properties:
-      email:
-        example: new@example.com
-        type: string
-      expires_at:
-        type: string
-      valid:
-        example: true
-        type: boolean
-    type: object
-  dto.InviteResponse:
-    properties:
-      accepted_at:
-        type: string
-      created_at:
-        type: string
-      created_by_user_id:
-        example: us_42ej2s5gh7e8
-        type: string
-      email:
-        example: new@example.com
-        type: string
-      expires_at:
-        type: string
-      id:
-        example: in_42ej2s5gh7e8
-        type: string
-      revoked_at:
-        type: string
-    type: object
   dto.InviteTeamMemberRequest:
     properties:
       email:
@@ -1384,6 +1260,9 @@ definitions:
           - TELEGRAM
           - EMAIL
         type: array
+      days_before:
+        example: 3
+        type: integer
       deadline_local:
         example: 14.09.2026 18:00
         type: string
@@ -1398,9 +1277,6 @@ definitions:
       registration_url:
         example: https://example.com/register
         type: string
-      rule_id:
-        example: nr_42ej2s5gh7e8
-        type: string
       scheduled_at:
         type: string
       subject:
@@ -1411,34 +1287,6 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/models.NotificationType'
-    type: object
-  dto.NotificationRuleResponse:
-    properties:
-      created_at:
-        type: string
-      enabled:
-        example: true
-        type: boolean
-      id:
-        example: nr_42ej2s5gh7e8
-        type: string
-      offset_minutes:
-        example: 1440
-        type: integer
-      registration_id:
-        example: rg_42ej2s5gh7e8
-        type: string
-      slot_no:
-        example: 1
-        type: integer
-      type:
-        allOf:
-        - $ref: '#/definitions/models.NotificationType'
-        enum:
-        - REGISTRATION_REMINDER
-        - REGISTRATION_OVERDUE
-      updated_at:
-        type: string
     type: object
   dto.OrganizerSuggestions:
     properties:
@@ -1624,58 +1472,6 @@ definitions:
         example: 2
         type: integer
     type: object
-  dto.QueueEntryPage:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/dto.QueueEntryResponse'
-        type: array
-      meta:
-        $ref: '#/definitions/dto.PageMeta'
-    type: object
-  dto.QueueEntryResponse:
-    properties:
-      actual_channel:
-        allOf:
-        - $ref: '#/definitions/models.Channel'
-        enum:
-        - TELEGRAM
-        - EMAIL
-      attempt_count:
-        example: 4
-        type: integer
-      created_at:
-        type: string
-      failed_channels:
-        items:
-          $ref: '#/definitions/models.Channel'
-        type: array
-      id:
-        example: nt_42ej2s5gh7e8
-        type: string
-      last_error:
-        example: permanent provider error
-        type: string
-      lease_expires_at:
-        type: string
-      lease_overdue_seconds:
-        example: 93.4
-        type: number
-      notification_type:
-        $ref: '#/definitions/models.NotificationType'
-      requested_channel:
-        allOf:
-        - $ref: '#/definitions/models.Channel'
-        enum:
-        - TELEGRAM
-        - EMAIL
-      scheduled_at:
-        type: string
-      status:
-        $ref: '#/definitions/models.NotificationStatus'
-      updated_at:
-        type: string
-    type: object
   dto.ReadyResponse:
     properties:
       database:
@@ -1692,8 +1488,6 @@ definitions:
         type: string
       first_name:
         example: John
-        type: string
-      invite_token:
         type: string
       last_name:
         example: Smith
@@ -1854,6 +1648,47 @@ definitions:
         - DONE
         - NOT_REQUIRED
       todo_cycle:
+        example: 1
+        type: integer
+    type: object
+  dto.ReminderScheduleOccasion:
+    properties:
+      days_before:
+        example:
+        - 1
+        - 3
+        items:
+          type: integer
+        type: array
+      occasion:
+        enum:
+        - REMINDER_REGISTRATION_DEADLINE
+        - REMINDER_EVENT_START
+        - REMINDER_STAGE_START
+        - REMINDER_EVENT_END
+        example: REMINDER_REGISTRATION_DEADLINE
+        type: string
+    type: object
+  dto.ReminderScheduleResponse:
+    properties:
+      day_choices:
+        example:
+        - 1
+        - 2
+        - 3
+        - 7
+        - 14
+        items:
+          type: integer
+        type: array
+      occasions:
+        items:
+          $ref: '#/definitions/dto.ReminderScheduleOccasion'
+        type: array
+      overdue_enabled:
+        example: true
+        type: boolean
+      version:
         example: 1
         type: integer
     type: object
@@ -2645,6 +2480,16 @@ definitions:
       url:
         type: string
     type: object
+  dto.UpdateReminderScheduleRequest:
+    properties:
+      occasions:
+        items:
+          $ref: '#/definitions/dto.ReminderScheduleOccasion'
+        type: array
+      overdue_enabled:
+        example: true
+        type: boolean
+    type: object
   dto.UpdateResourceLinkRequest:
     properties:
       clear_stage:
@@ -2683,13 +2528,6 @@ definitions:
         type: integer
       delete_covers_on_archive:
         type: boolean
-    type: object
-  dto.UpdateRuleRequest:
-    properties:
-      enabled:
-        type: boolean
-      offset_minutes:
-        type: integer
     type: object
   dto.UpdateSessionRequest:
     properties:
@@ -2833,31 +2671,6 @@ definitions:
         example: jsmith
         type: string
     type: object
-  dto.WorkerHeartbeatResponse:
-    properties:
-      failed_count:
-        example: 0
-        type: integer
-      healthy:
-        example: true
-        type: boolean
-      oldest_pending_age_seconds:
-        example: 12.5
-        type: number
-      pending_count:
-        example: 3
-        type: integer
-      processing_count:
-        example: 1
-        type: integer
-      scheduler_last_run_at:
-        type: string
-      undeliverable_count:
-        example: 0
-        type: integer
-      worker_last_run_at:
-        type: string
-    type: object
   models.ArtifactKind:
     enum:
     - REPOSITORY
@@ -2882,9 +2695,6 @@ definitions:
     - USER_DELETE
     - USER_PROFILE_CHANGE
     - USER_ADMIN_FLAG_CHANGE
-    - INVITE_CREATE
-    - INVITE_REVOKE
-    - INVITE_ACCEPT
     - EVENT_CREATE
     - EVENT_UPDATE
     - EVENT_PUBLISH
@@ -2922,7 +2732,6 @@ definitions:
     - TEAM_EVENT_LINK_REMOVE
     - REGISTRATION_CHANGE
     - STATUS_CHANGE
-    - RULE_CHANGE
     - RESOURCE_LINK_CREATE
     - RESOURCE_LINK_UPDATE
     - RESOURCE_LINK_DELETE
@@ -2939,9 +2748,6 @@ definitions:
     - AuditUserDelete
     - AuditUserProfileChange
     - AuditUserAdminFlagChange
-    - AuditInviteCreate
-    - AuditInviteRevoke
-    - AuditInviteAccept
     - AuditEventCreate
     - AuditEventUpdate
     - AuditEventPublish
@@ -2979,7 +2785,6 @@ definitions:
     - AuditTeamEventLinkRemove
     - AuditRegistrationChange
     - AuditStatusChange
-    - AuditRuleChange
     - AuditLinkCreate
     - AuditLinkUpdate
     - AuditLinkDelete
@@ -3039,7 +2844,6 @@ definitions:
   models.EntityType:
     enum:
     - USER
-    - INVITE
     - EVENT
     - STAGE
     - EVENT_TRACK
@@ -3052,13 +2856,11 @@ definitions:
     - TEAM_EVENT_LINK
     - REGISTRATION
     - REGISTRATION_STATUS
-    - NOTIFICATION_RULE
     - RESOURCE_LINK
     - RETENTION_SETTINGS
     type: string
     x-enum-varnames:
     - EntityUser
-    - EntityInvite
     - EntityEvent
     - EntityStage
     - EntityEventTrack
@@ -3071,7 +2873,6 @@ definitions:
     - EntityTeamEventLink
     - EntityRegistration
     - EntityRegistrationStatus
-    - EntityNotificationRule
     - EntityResourceLink
     - EntityRetentionSettings
   models.EventColor:
@@ -3168,16 +2969,22 @@ definitions:
   models.NotificationOccasion:
     enum:
     - REGISTRATION_REQUIRED
-    - REGISTRATION_REMINDER
     - REGISTRATION_OVERDUE
+    - REMINDER_REGISTRATION_DEADLINE
+    - REMINDER_EVENT_START
+    - REMINDER_STAGE_START
+    - REMINDER_EVENT_END
     - WEEKLY_DIGEST
     - PERSONAL_TASK_DUE
     - PERSONAL_RETROSPECTIVE_DUE
     type: string
     x-enum-varnames:
     - NotificationRequired
-    - NotificationReminder
     - NotificationOverdue
+    - NotificationDeadlineReminder
+    - NotificationEventStartReminder
+    - NotificationStageStartReminder
+    - NotificationEventEndReminder
     - NotificationWeeklyDigest
     - NotificationPersonalTaskDue
     - NotificationRetrospectiveDue
@@ -3190,35 +2997,25 @@ definitions:
       occasion:
         $ref: '#/definitions/models.NotificationOccasion'
     type: object
-  models.NotificationStatus:
-    enum:
-    - PENDING
-    - PROCESSING
-    - SENT
-    - FAILED
-    - CANCELLED
-    - UNDELIVERABLE
-    type: string
-    x-enum-varnames:
-    - NotificationPending
-    - NotificationProcessing
-    - NotificationSent
-    - NotificationFailed
-    - NotificationCancelled
-    - NotificationUndeliverable
   models.NotificationType:
     enum:
     - REGISTRATION_REQUIRED
-    - REGISTRATION_REMINDER
     - REGISTRATION_OVERDUE
+    - REMINDER_REGISTRATION_DEADLINE
+    - REMINDER_EVENT_START
+    - REMINDER_STAGE_START
+    - REMINDER_EVENT_END
     - WEEKLY_DIGEST
     - PERSONAL_TASK_DUE
     - PERSONAL_RETROSPECTIVE_DUE
     type: string
     x-enum-varnames:
     - NotificationRequired
-    - NotificationReminder
     - NotificationOverdue
+    - NotificationDeadlineReminder
+    - NotificationEventStartReminder
+    - NotificationStageStartReminder
+    - NotificationEventEndReminder
     - NotificationWeeklyDigest
     - NotificationPersonalTaskDue
     - NotificationRetrospectiveDue
@@ -3539,7 +3336,7 @@ info:
     name: Timeline team
   description: |-
     Timeline REST API. Implements technical specification v0.8:
-    accounts and invites, events and stages, participant assignments,
+    accounts, events and stages, participant assignments,
     registration with self-reported status, reminder rules and the audit log.
 
     The system does not verify the external registration site: the status is self-reported
@@ -4167,51 +3964,6 @@ paths:
       summary: Event participant roster
       tags:
       - participants
-  /admin/events/{id}/participants/batch-add:
-    post:
-      consumes:
-      - application/json
-      description: |-
-        Re-adding a previously removed participant reactivates the record and increments
-        assignment_version. The assignment, registration status, primary notification and audit
-        entry run in a single transaction per participant; the result is returned per entry.
-      parameters:
-      - description: Event identifier
-        example: ev_3k7d8gb9be
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: List of users and their roles
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.AddParticipantsRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.BatchResult'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Bulk participant assignment
-      tags:
-      - participants
   /admin/events/{id}/participants/batch-remove:
     post:
       consumes:
@@ -4253,51 +4005,6 @@ paths:
       security:
       - CookieAuth: []
       summary: Bulk participant removal
-      tags:
-      - participants
-  /admin/events/{id}/participants/copy-from:
-    post:
-      consumes:
-      - application/json
-      description: |-
-        Only assigned participants are copied. The participant role is copied as a value
-        by default and can be overridden. Existing participants are skipped
-        and returned as separate result entries.
-      parameters:
-      - description: Target event identifier
-        example: ev_3k7d8gb9be
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Source and role overrides
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CopyParticipantsRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.BatchResult'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Copy the roster from another event
       tags:
       - participants
   /admin/events/{id}/publish:
@@ -4694,86 +4401,6 @@ paths:
       summary: Enable registration
       tags:
       - registration
-  /admin/events/{id}/registration/rules:
-    get:
-      parameters:
-      - description: Event identifier
-        example: ev_3k7d8gb9be
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/dto.NotificationRuleResponse'
-            type: array
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Reminder rules
-      tags:
-      - rules
-    post:
-      consumes:
-      - application/json
-      description: |-
-        The sign of offset_minutes selects the type: a positive value is a reminder before the deadline,
-        zero fires at the deadline, and a negative value is an overdue notification.
-        A registration accepts at most 10 rules.
-      parameters:
-      - description: Event identifier
-        example: ev_3k7d8gb9be
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Rule parameters
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateRuleRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/dto.NotificationRuleResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "409":
-          description: a rule with this offset already exists or the slot limit is
-            reached
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Create a reminder rule
-      tags:
-      - rules
   /admin/events/{id}/stages:
     post:
       consumes:
@@ -4866,150 +4493,6 @@ paths:
       summary: Create a track
       tags:
       - tracks
-  /admin/invites:
-    get:
-      parameters:
-      - default: 1
-        description: Page number
-        in: query
-        name: page
-        type: integer
-      - default: 50
-        description: Page size
-        in: query
-        name: page_size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.InvitePage'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Invite list
-      tags:
-      - invites
-    post:
-      consumes:
-      - application/json
-      description: |-
-        Creation is serialised by normalised email: a previous unaccepted invite is revoked,
-        then a new one is created. An invite for an existing user address is rejected with a conflict
-        regardless of that user's activity.
-      parameters:
-      - description: Address of the invited person
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateInviteRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/dto.CreateInviteResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "409":
-          description: a user with this email already exists
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Create an invite
-      tags:
-      - invites
-  /admin/invites/{id}/revoke:
-    post:
-      parameters:
-      - description: Invite identifier
-        example: in_42ej2s5gh7e8
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.MessageResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Revoke an invite
-      tags:
-      - invites
-  /admin/participants/{id}/reactivate:
-    post:
-      consumes:
-      - application/json
-      description: |-
-        Returns participation to ASSIGNED, increments assignment_version, clears removed_at
-        and sets the role again. An existing registration status is preserved.
-      parameters:
-      - description: Participant identifier
-        example: pa_42ej2s5gh7e8
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Participant role
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateTeamRoleRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ParticipantResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "409":
-          description: the participant is already assigned
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Reactivate a participant
-      tags:
-      - participants
   /admin/participants/{id}/team-role:
     patch:
       consumes:
@@ -5143,83 +4626,6 @@ paths:
       summary: Upcoming registration deadlines
       tags:
       - queries
-  /admin/registration-rules/{id}:
-    delete:
-      description: |-
-        The rule is set to enabled=false; the row is preserved so that the occupied slot
-        and offset stay reserved.
-      parameters:
-      - description: Rule identifier
-        example: nr_42ej2s5gh7e8
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: the rule is disabled
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Disable a reminder rule
-      tags:
-      - rules
-    patch:
-      consumes:
-      - application/json
-      description: |-
-        Changing schedule fields increments schedule_version once per transaction
-        and triggers notification reconciliation.
-      parameters:
-      - description: Rule identifier
-        example: nr_42ej2s5gh7e8
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Mutable fields
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateRuleRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.NotificationRuleResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Update a reminder rule
-      tags:
-      - rules
   /admin/registration-statuses/{id}:
     patch:
       consumes:
@@ -5272,8 +4678,7 @@ paths:
     get:
       description: |-
         Returns the text a recipient would receive for one registration status: the subject,
-        the body, the channel that the rules of specification section 10 would pick and the
-        moment the entry would be scheduled for.
+        the body and the channels that would carry it.
 
         The call has no side effects at all. No notification row is created, no logical_key is
         claimed and no deduplication state is touched, no provider is contacted and nothing
@@ -5284,9 +4689,13 @@ paths:
         the language of the administrator asking: the point of a preview is to show what the
         recipient will read.
 
-        Pass rule_id to preview a reminder or an overdue notice; the type follows the sign of
-        the rule offset. Omit it for the primary REGISTRATION_REQUIRED notification, which has
-        no rule. A status that reconciliation would skip — an unpublished or archived event, an
+        Pass occasion to choose what is rendered. Omit it for the primary
+        REGISTRATION_REQUIRED notification. REMINDER_REGISTRATION_DEADLINE additionally needs
+        days_before, one of 1, 2, 3, 7 or 14, because the reminder text names the remaining
+        days; scheduled_at then shows when that reminder would fire for this deadline.
+        Reminders are configured by each recipient in their own profile, so a preview shows
+        the wording of an occasion, not a promise that this recipient asked for it.
+        A status that reconciliation would skip — an unpublished or archived event, an
         inactive registration, a participant who is no longer assigned, a status that is not
         TODO or a deactivated recipient — has no notification to render and answers 404.
 
@@ -5299,11 +4708,24 @@ paths:
         name: id
         required: true
         type: string
-      - description: Rule to render
-        example: nr_42ej2s5gh7e8
+      - description: Occasion to render
+        enum:
+        - REGISTRATION_REQUIRED
+        - REGISTRATION_OVERDUE
+        - REMINDER_REGISTRATION_DEADLINE
         in: query
-        name: rule_id
+        name: occasion
         type: string
+      - description: Days before the deadline
+        enum:
+        - 1
+        - 2
+        - 3
+        - 7
+        - 14
+        in: query
+        name: days_before
+        type: integer
       produces:
       - application/json
       responses:
@@ -5324,7 +4746,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
         "404":
-          description: nothing to render, or a foreign rule
+          description: nothing to render
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
         "429":
@@ -5335,7 +4757,7 @@ paths:
       - CookieAuth: []
       summary: Render a notification without sending it
       tags:
-      - rules
+      - notifications
   /admin/retention-settings:
     get:
       description: |-
@@ -5926,7 +5348,6 @@ paths:
       description: |-
         Creates an account, sends a confirmation email valid for 24 hours and opens a session.
         Sign-in is allowed before the address is confirmed; product email notifications are not.
-        If invite_token is supplied, the invite is accepted in the same transaction.
       parameters:
       - description: Registration payload
         in: body
@@ -6430,8 +5851,7 @@ paths:
       description: |-
         Self-signup: the user joins a published event and supplies their own team role.
         A meetup has no team role, so the field may be omitted; for a hackathon it is
-        required. A finished event cannot be joined: only an administrator may assign a
-        participant after the fact.
+        required. A finished event cannot be joined.
       parameters:
       - description: Event identifier
         example: ev_3k7d8gb9be
@@ -6806,62 +6226,6 @@ paths:
       summary: Liveness probe
       tags:
       - ops
-  /invites/{token}:
-    get:
-      description: Returns the address and expiry of the invite without disclosing
-        any other data.
-      parameters:
-      - description: Invite token
-        in: path
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.InvitePreview'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      summary: Public invite preview
-      tags:
-      - invites
-  /invites/accept:
-    post:
-      consumes:
-      - application/json
-      description: |-
-        Creates an account for the invited address and opens a session.
-        Any other unexpired invites for this address are revoked in the same transaction.
-      parameters:
-      - description: Token and account data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.AcceptInviteRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.AuthResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      summary: Accept an invite
-      tags:
-      - invites
   /me:
     get:
       produces:
@@ -8132,8 +7496,11 @@ paths:
       - description: Occasion
         enum:
         - REGISTRATION_REQUIRED
-        - REGISTRATION_REMINDER
         - REGISTRATION_OVERDUE
+        - REMINDER_REGISTRATION_DEADLINE
+        - REMINDER_EVENT_START
+        - REMINDER_STAGE_START
+        - REMINDER_EVENT_END
         - WEEKLY_DIGEST
         - PERSONAL_TASK_DUE
         - PERSONAL_RETROSPECTIVE_DUE
@@ -8360,6 +7727,74 @@ paths:
       security:
       - CookieAuth: []
       summary: Reorder the profile links
+      tags:
+      - profile
+  /me/reminder-schedule:
+    get:
+      description: |-
+        Reminders belong to the recipient, not to the organiser of an event: an organiser
+        creates stages and a registration, and you alone decide how long before each of those
+        moments you want to hear about it. One setting covers every event you take part in.
+
+        Each occasion carries its own set of days, because "a week before the deadline" and
+        "a week before a stage" are different wishes. An empty set means this occasion never
+        reaches you. day_choices lists the days the server accepts.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ReminderScheduleResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Your own reminder schedule
+      tags:
+      - profile
+    put:
+      consumes:
+      - application/json
+      description: |-
+        The body replaces the whole schedule: an occasion left out of the list is cleared, and
+        so days are never merged with what was stored before. Allowed days are 1, 2, 3, 7 and
+        14; hours are deliberately not offered.
+
+        overdue_enabled asks to be told when a registration deadline has passed while your
+        status still says nothing was done. It is a switch, not a schedule: the moment is a
+        fixed lead after the deadline, set by the server.
+
+        Saving bumps the schedule version and cancels every reminder already queued for you
+        that has not been handed to a provider, so a shortened schedule stops sending at once
+        rather than after the old plan drains.
+      parameters:
+      - description: The schedule to store
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateReminderScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ReminderScheduleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Replace your reminder schedule
       tags:
       - profile
   /me/schedule:
@@ -8756,101 +8191,6 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Prometheus metrics
-      tags:
-      - ops
-  /ops/queue:
-    get:
-      description: |-
-        The rows an operator needs to tell a stuck queue apart from a busy one. The heartbeat
-        answers whether something is broken; this answers what exactly.
-
-        scope=failures lists terminal failures — FAILED after the four provider calls of
-        specification section 9.4.8 are spent, and UNDELIVERABLE when no channel was available
-        or every channel closed with a permanent error — each with the reason recorded in
-        last_error, the attempt count and the channels already tried.
-
-        scope=stuck-leases lists entries left in PROCESSING whose worker lease expired. That is
-        the same set the recovery task of section 9.4.9 returns to the queue; this endpoint only
-        reports it and recovers nothing. lease_overdue_seconds says how long the lease has been
-        overdue, which separates a worker that died from one that is merely slow.
-
-        The rows carry no payload_json, no recipient and no registration status: an operations
-        screen is not a way to read other people's notifications or assignments.
-      parameters:
-      - description: Rows to return
-        enum:
-        - failures
-        - stuck-leases
-        in: query
-        name: scope
-        type: string
-      - description: Page number, from 1
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: page_size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.QueueEntryPage'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - CookieAuth: []
-      summary: Queue diagnostics
-      tags:
-      - ops
-  /ops/worker-heartbeat:
-    get:
-      description: |-
-        Last run times of the scheduler and worker, queue lengths by status
-        and the age of the oldest pending entry.
-
-        Restricted to administrators. The counts describe the delivery backlog, which is the
-        same class of operational detail as /ops/queue and is not something an anonymous
-        caller may read. Container liveness probes use /healthz and /readyz instead.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.WorkerHeartbeatResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "503":
-          description: Service Unavailable
-          schema:
-            $ref: '#/definitions/dto.WorkerHeartbeatResponse'
-      security:
-      - CookieAuth: []
-      summary: Background process status
       tags:
       - ops
   /organizers:
@@ -9719,8 +9059,8 @@ paths:
       - application/json
       description: |-
         Restricted to the team lead. The person is named by exactly one of `user_id`, `nickname`
-        and `email`, and must already have an account: a platform invitation to somebody who is
-        not registered yet is an administrator operation, so an address nobody uses answers 404
+        and `email`, and must already have an account: somebody who is not registered yet signs
+        up on their own first, so an address nobody uses answers 404
         with the same body an unknown nickname gets. The invitation lands in the INVITED state
         and the invited person accepts it themselves.
       parameters:

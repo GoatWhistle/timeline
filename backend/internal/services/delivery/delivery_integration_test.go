@@ -219,7 +219,8 @@ func TestUndeliverableRowStaysTerminalAfterChannelReappears(t *testing.T) {
 func TestRuleFollowsRecipientSelectionWithNoChannelChoiceOfItsOwn(t *testing.T) {
 	w := newWorld(t)
 	w.setChannels(true, true)
-	rule := w.addRule(60, 1)
+	w.clearSchedule()
+	w.wantReminder(1)
 	r := newRig(t, w, newSender(), newSender())
 	r.clock.at = w.DeadlineAt.Add(-30 * time.Minute)
 	result := r.reconcile()
@@ -227,12 +228,12 @@ func TestRuleFollowsRecipientSelectionWithNoChannelChoiceOfItsOwn(t *testing.T) 
 		t.Fatalf("expected one primary row per selected profile channel, got %+v", result)
 	}
 	if result.Reminder != 2 {
-		t.Fatalf("a rule has no channel of its own: it must fan out across every selected "+
+		t.Fatalf("a reminder has no channel of its own: it must fan out across every selected "+
 			"profile channel just like the primary occasion, got %+v", result)
 	}
 
-	requireStatus(t, r.byKey(r.ruleKey(models.NotificationReminder, rule, models.ChannelTelegram)),
+	requireStatus(t, r.byKey(r.reminderKey(1, models.ChannelTelegram)),
 		models.NotificationPending)
-	requireStatus(t, r.byKey(r.ruleKey(models.NotificationReminder, rule, models.ChannelEmail)),
+	requireStatus(t, r.byKey(r.reminderKey(1, models.ChannelEmail)),
 		models.NotificationPending)
 }

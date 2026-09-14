@@ -2,10 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   COUNTED_STATES,
   eventStateCountsQuery,
-  overdueCountQuery,
   registrationCoverageQuery,
   STATS_STALE_MS,
-  upcomingCountQuery,
 } from '@/features/admin-stats/admin-stats.queries'
 
 describe('admin statistics caching', () => {
@@ -14,18 +12,9 @@ describe('admin statistics caching', () => {
   })
 
   it('applies the cache window to every aggregate query', () => {
-    for (const options of [
-      eventStateCountsQuery(),
-      overdueCountQuery(),
-      upcomingCountQuery(),
-      registrationCoverageQuery(),
-    ]) {
+    for (const options of [eventStateCountsQuery(), registrationCoverageQuery()]) {
       expect(options.staleTime).toBe(STATS_STALE_MS)
     }
-  })
-
-  it('keys the upcoming aggregate by its window so a different window is not served stale', () => {
-    expect(upcomingCountQuery(72).queryKey).not.toEqual(upcomingCountQuery(24).queryKey)
   })
 
   it('counts the four live states and leaves archived out', () => {
@@ -42,7 +31,6 @@ describe('registration coverage aggregate', () => {
   })
 
   it('keys apart from the other aggregates so one does not serve another', () => {
-    expect(registrationCoverageQuery().queryKey).not.toEqual(overdueCountQuery().queryKey)
     expect(registrationCoverageQuery().queryKey).not.toEqual(eventStateCountsQuery().queryKey)
   })
 })

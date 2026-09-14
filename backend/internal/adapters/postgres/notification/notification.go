@@ -19,8 +19,9 @@ func NewNotifications(db *postgres.DB) *Notifications {
 	return &Notifications{db: db}
 }
 
-const notificationColumns = `id, display_id, notification_type, recipient_user_id, registration_status_id, rule_id,
-	schedule_version, todo_cycle, assignment_version, activation_version, notification_content_version,
+const notificationColumns = `id, display_id, notification_type, recipient_user_id, registration_status_id,
+	event_id, stage_id, schedule_version, todo_cycle, assignment_version, activation_version,
+	reminder_days_before, reminder_schedule_version, notification_content_version,
 	logical_key, requested_channel, actual_channel, failed_channels, status, scheduled_at,
 	next_attempt_at, attempt_count, lease_expires_at, provider_call_started_at, payload_json,
 	last_error, sent_at, created_at, updated_at`
@@ -31,8 +32,9 @@ func scanNotification(row pgx.Row) (*models.Notification, error) {
 		failed  []string
 		payload []byte
 	)
-	err := row.Scan(&n.ID, &n.DisplayID, &n.NotificationType, &n.RecipientUserID, &n.RegistrationStatusID, &n.RuleID,
-		&n.ScheduleVersion, &n.TodoCycle, &n.AssignmentVersion, &n.ActivationVersion, &n.NotificationContentVersion,
+	err := row.Scan(&n.ID, &n.DisplayID, &n.NotificationType, &n.RecipientUserID, &n.RegistrationStatusID,
+		&n.EventID, &n.StageID, &n.ScheduleVersion, &n.TodoCycle, &n.AssignmentVersion, &n.ActivationVersion,
+		&n.ReminderDaysBefore, &n.ReminderScheduleVersion, &n.NotificationContentVersion,
 		&n.LogicalKey, &n.RequestedChannel, &n.ActualChannel, &failed, &n.Status, &n.ScheduledAt,
 		&n.NextAttemptAt, &n.AttemptCount, &n.LeaseExpiresAt, &n.ProviderCallStartedAt, &payload,
 		&n.LastError, &n.SentAt, &n.CreatedAt, &n.UpdatedAt)
@@ -68,15 +70,17 @@ func (r *Notifications) Insert(ctx context.Context, n *models.Notification) (*mo
 	}
 	row := r.db.Q(ctx).QueryRow(ctx, `
 		INSERT INTO notifications (
-			notification_type, recipient_user_id, registration_status_id, rule_id,
+			notification_type, recipient_user_id, registration_status_id, event_id, stage_id,
 			schedule_version, todo_cycle, assignment_version, activation_version,
+			reminder_days_before, reminder_schedule_version,
 			notification_content_version, logical_key, requested_channel, status,
 			scheduled_at, next_attempt_at, payload_json)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'PENDING', $12, $13, $14)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 'PENDING', $15, $16, $17)
 		ON CONFLICT (logical_key) DO NOTHING
 		RETURNING `+notificationColumns,
-		n.NotificationType, n.RecipientUserID, n.RegistrationStatusID, n.RuleID,
+		n.NotificationType, n.RecipientUserID, n.RegistrationStatusID, n.EventID, n.StageID,
 		n.ScheduleVersion, n.TodoCycle, n.AssignmentVersion, n.ActivationVersion,
+		n.ReminderDaysBefore, n.ReminderScheduleVersion,
 		n.NotificationContentVersion, n.LogicalKey, n.RequestedChannel,
 		n.ScheduledAt, n.NextAttemptAt, payload)
 

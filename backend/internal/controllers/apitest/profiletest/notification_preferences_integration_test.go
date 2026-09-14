@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/GoatWhistle/timeline/internal/controllers/apitest/support"
+	"github.com/GoatWhistle/timeline/internal/models"
 )
 
 func requestedChannelsForMember(s *support.Stack, t *testing.T, eventID, userID string) []string {
@@ -60,9 +61,7 @@ func TestMutingOneChannelForAnOccasionStopsExactlyThatDeliveryAndLeavesTheOtherW
 			"deadline_at": start.Add(12 * time.Hour).Format(time.RFC3339),
 		}), http.StatusCreated, "creating the registration")
 
-	addResp := adminClient.Post("/admin/events/"+eventID+"/participants/batch-add",
-		map[string]any{"items": []map[string]any{{"user_id": member.ID, "team_role": "Developer"}}})
-	support.RequireStatus(t, addResp, http.StatusOK, "assigning the member")
+	memberClient.Join(t, eventID, "Developer")
 
 	channels := requestedChannelsForMember(s, t, eventID, member.ID)
 	hasTelegram, hasEmail := false, false
@@ -98,8 +97,9 @@ func TestNotificationPreferencesDefaultToEnabledForAnUntouchedAccount(t *testing
 		} `json:"preferences"`
 	}
 	resp.Decode(t, &body)
-	if len(body.Preferences) != 12 {
-		t.Fatalf("expected 6 occasions times 2 channels, got %d", len(body.Preferences))
+	want := len(models.AllOccasions) * len(models.AllChannels)
+	if len(body.Preferences) != want {
+		t.Fatalf("expected every occasion times every channel (%d), got %d", want, len(body.Preferences))
 	}
 	for _, pref := range body.Preferences {
 		if !pref.Enabled {

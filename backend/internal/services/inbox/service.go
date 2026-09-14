@@ -36,7 +36,6 @@ func (s *Service) notify(ctx context.Context, userID uuid.UUID) {
 	}
 }
 
-
 func externalSubjectID(it *models.InboxItem) string {
 	if it.SubjectType == nil || it.SubjectID == nil {
 		return ""

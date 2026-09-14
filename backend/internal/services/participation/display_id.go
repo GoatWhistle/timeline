@@ -26,14 +26,6 @@ func (s *RegistrationService) ResolveEventDisplayID(ctx context.Context, display
 	return s.events.ResolveDisplayID(ctx, displayID)
 }
 
-func (s *RuleService) ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
-	return s.events.ResolveDisplayID(ctx, displayID)
-}
-
-func (s *RuleService) ResolveRuleDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
-	return s.rules.ResolveDisplayID(ctx, displayID)
-}
-
 func (s *StatusService) ResolveEventDisplayID(ctx context.Context, displayID string) (uuid.UUID, error) {
 	return s.events.ResolveDisplayID(ctx, displayID)
 }
