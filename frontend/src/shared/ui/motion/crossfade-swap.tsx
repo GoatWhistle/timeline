@@ -64,10 +64,12 @@ export function CrossfadeSwap<K extends string | number>({
     return undefined
   }, [slots, onEntered])
 
+  const mountedKeys = slots.map((slot) => slot.key).join('|')
+
   useLayoutEffect(() => {
     const read = () => {
       const node = nodes.current.get(swapKey)?.firstElementChild
-      if (!node) return
+      if (!node || mountedKeys === '') return
       const height = node.getBoundingClientRect().height
       if (height > 0) setLockedHeight(height)
     }
@@ -78,7 +80,7 @@ export function CrossfadeSwap<K extends string | number>({
       if (slot.firstElementChild) observer.observe(slot.firstElementChild)
     }
     return () => observer.disconnect()
-  }, [slots, swapKey])
+  }, [mountedKeys, swapKey])
 
   useEffect(() => {
     const active = timers.current

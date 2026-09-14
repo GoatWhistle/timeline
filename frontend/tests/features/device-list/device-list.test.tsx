@@ -51,8 +51,6 @@ describe('device list', () => {
     const titles = screen.getAllByRole('listitem').map((item) => item.textContent ?? '')
     expect(titles[0]).toContain('Chrome')
     expect(titles[1]).toContain('Safari')
-    expect(screen.getAllByText(i18n.t('common:devices.current')).length).toBeGreaterThan(0)
-    expect(screen.getByText('2 активные сессии')).toBeInTheDocument()
   })
 
   it('drops the revoked session from the list once the cache no longer holds it', async () => {
@@ -65,7 +63,6 @@ describe('device list', () => {
 
     await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(1))
     expect(screen.queryByText(/Safari · iOS/)).not.toBeInTheDocument()
-    expect(screen.getByText('1 активная сессия')).toBeInTheDocument()
   })
 
   it('shows the empty state when the last other session is gone', async () => {
@@ -77,17 +74,37 @@ describe('device list', () => {
     )
   })
 
-  it('marks the current session with an icon as well as a colour', async () => {
-    const { container, queryClient } = renderWithProviders(<DeviceList />)
-    queryClient.setQueryData(deviceSessionsQueryKey, listBody([CURRENT]))
+  it('marks the current session by its own outline, not by a word', async () => {
+    const { queryClient } = renderWithProviders(<DeviceList />)
+    queryClient.setQueryData(deviceSessionsQueryKey, listBody([CURRENT, PHONE]))
 
-    await waitFor(() =>
-      expect(screen.getAllByText(i18n.t('common:devices.current')).length).toBeGreaterThan(0),
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(2))
+
+    const [mine, theirs] = screen.getAllByRole('listitem')
+
+    expect(mine?.className, 'the current device needs an outline of its own').not.toEqual(
+      theirs?.className,
     )
+    expect(mine?.className).toMatch(/border-primary|ring-/)
+  })
 
-    const row = screen.getAllByRole('listitem')[0]
-    const badge = row?.querySelector('[data-slot="badge"]')
-    expect(badge?.querySelector('svg')).not.toBeNull()
-    expect(container.querySelectorAll('svg').length).toBeGreaterThan(1)
+  it('names no device as the current one in words', async () => {
+    const { queryClient } = renderWithProviders(<DeviceList />)
+    queryClient.setQueryData(deviceSessionsQueryKey, listBody([CURRENT, PHONE]))
+
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(2))
+
+    expect(screen.queryByText(i18n.t('common:devices.current'))).toBeNull()
+    expect(screen.queryByText(i18n.t('common:devices.groupCurrent'))).toBeNull()
+  })
+
+  it('leaves the card without a lead-in line or a session tally', async () => {
+    const { queryClient } = renderWithProviders(<DeviceList />)
+    queryClient.setQueryData(deviceSessionsQueryKey, listBody([CURRENT, PHONE]))
+
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(2))
+
+    expect(screen.queryByText(i18n.t('common:devices.hint'))).toBeNull()
+    expect(screen.queryByText(i18n.t('common:devices.count', { count: 2 }))).toBeNull()
   })
 })
