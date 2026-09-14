@@ -8,10 +8,10 @@ import { DEFAULT_LOCALE, isLocale } from '@/shared/i18n/locale'
 import { useTouchViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { TooltipProvider } from '@/shared/ui/overlays/tooltip'
 import { buildCalendarSpans, type CalendarSpan } from '../../model/calendar-items'
-import { buildMonthBlocks, dayKey } from '../../model/month-grid'
+import { buildMonthBlocks, dayKey, packMonthWeek } from '../../model/month-grid'
 import { DAYS_PER_WEEK } from '../../model/pack-lanes'
 import { rowSentence } from '../../model/row-sentence'
-import { GRID_GAP, GRID_PADDING, touchColumns } from '../../model/schedule-scale'
+import { GRID_GAP, GRID_PADDING, touchColumns, viewLaneCount } from '../../model/schedule-scale'
 import { buildTimelineGrid } from '../../model/timeline-grid'
 import { useAnnouncer } from '../../model/use-announcer'
 import { useElementWidth } from '../../model/use-element-width'
@@ -67,6 +67,14 @@ export function WrappedGrid({
   const spans = useMemo(
     () => buildCalendarSpans(data, buildTimelineGrid(bounds.first, bounds.last)),
     [data, bounds],
+  )
+
+  const laneCount = useMemo(
+    () =>
+      viewLaneCount(
+        blocks.flatMap((block) => block.weeks.map((week) => packMonthWeek(week, spans).laneCount)),
+      ),
+    [blocks, spans],
   )
 
   const width = useElementWidth(containerRef)
@@ -160,6 +168,7 @@ export function WrappedGrid({
             now={now}
             barHeight={barHeight}
             maxBar={maxBar}
+            laneCount={laneCount}
             cellWidth={cellWidth}
             focusedKey={known ? cursorKey : fallbackKey}
             selectedId={selectedId}

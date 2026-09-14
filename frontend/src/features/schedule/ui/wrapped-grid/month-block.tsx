@@ -18,6 +18,7 @@ export type MonthBlockProps = {
   now: Date
   barHeight: number
   maxBar?: number
+  laneCount: number
   cellWidth: number
   focusedKey?: string
   selectedId?: string
@@ -39,6 +40,7 @@ function MonthBlockView({
   now,
   barHeight,
   maxBar = barHeight,
+  laneCount,
   cellWidth,
   focusedKey,
   selectedId,
@@ -53,6 +55,8 @@ function MonthBlockView({
   onOpenSpan,
 }: MonthBlockProps) {
   const weekdays = block.weeks[0]?.days ?? []
+  const laneHeight = wrappedBarHeight(cellWidth, barHeight, laneCount, maxBar)
+  const rowHeight = wrappedRowHeight(cellWidth, barHeight, laneCount, maxBar)
 
   return (
     <section className={styles.month} data-schedule-month={block.key}>
@@ -68,8 +72,6 @@ function MonthBlockView({
 
       {block.weeks.map((week) => {
         const row = packMonthWeek(week, spans)
-        const laneHeight = wrappedBarHeight(cellWidth, barHeight, row.laneCount, maxBar)
-        const rowHeight = wrappedRowHeight(cellWidth, barHeight, row.laneCount, maxBar)
 
         return (
           <div

@@ -52,6 +52,10 @@ export function wrappedHeader(barHeight: number): number {
   return barHeight >= WRAPPED_TEXT_BAR ? WRAPPED_HEADER : WRAPPED_COMPACT_HEADER
 }
 
+export function viewLaneCount(perWeek: readonly number[]): number {
+  return Math.max(1, ...perWeek)
+}
+
 export function wrappedBarHeight(
   cellHeight: number,
   preferred: number,
