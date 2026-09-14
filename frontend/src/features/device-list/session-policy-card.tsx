@@ -2,10 +2,8 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useSaveSessionPolicy, useSessionPolicy } from '@/entities/session/session-policy.queries'
-import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
-import { Switch } from '@/shared/ui/forms/switch'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
 
 export function SessionPolicyCard() {
@@ -15,68 +13,56 @@ export function SessionPolicyCard() {
   const [draft, setDraft] = useState('')
 
   const data = policy.data
-  const sweeping = data?.idle_days !== undefined && data.idle_days !== null
 
   useEffect(() => {
     if (data === undefined) return
     setDraft(String(data.idle_days ?? data.default_days))
   }, [data])
 
-  async function store(idleDays: number | null) {
+  const days = Number(draft)
+  const withinBounds =
+    data !== undefined && Number.isInteger(days) && days >= data.min_days && days <= data.max_days
+  const changed = withinBounds && days !== data?.idle_days
+
+  async function store() {
     try {
-      await save.mutateAsync({ idle_days: idleDays })
+      await save.mutateAsync({ idle_days: days })
       toast.success(t('devices.policySaved'))
     } catch {
       toast.error(t('devices.policyFailed'))
     }
   }
 
-  const days = Number(draft)
-  const withinBounds =
-    data !== undefined && Number.isInteger(days) && days >= data.min_days && days <= data.max_days
-  const changed = withinBounds && days !== data?.idle_days
-
   return (
     <Card className="flex-1 border-destructive/40">
       <CardHeader>
         <CardTitle>{t('devices.policyTitle')}</CardTitle>
-        <CardDescription>{t('devices.policyHint')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-3">
-          <label className="text-copy" htmlFor="session-policy-sweeping">
-            {t('devices.policySweeping')}
-          </label>
-          <Switch
-            id="session-policy-sweeping"
-            checked={sweeping}
+        <div className="flex items-center gap-2">
+          <Input
+            id="session-policy-days"
+            type="number"
+            inputMode="numeric"
+            className="h-9 w-24 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            value={draft}
+            min={data?.min_days}
+            max={data?.max_days}
             disabled={policy.isPending || save.isPending}
-            onCheckedChange={(on) => void store(on ? (data?.default_days ?? null) : null)}
+            aria-label={t('devices.policyDaysLabel')}
+            onChange={(event) => setDraft(event.target.value)}
           />
+          <span className="text-copy text-muted-foreground">{t('devices.policyDaysLabel')}</span>
         </div>
-
-        <Field label={t('devices.policyDaysLabel')} htmlFor="session-policy-days">
-          <div className="flex items-center gap-2">
-            <Input
-              id="session-policy-days"
-              type="number"
-              inputMode="numeric"
-              className="h-9 w-28"
-              value={draft}
-              min={data?.min_days}
-              max={data?.max_days}
-              disabled={!sweeping || policy.isPending || save.isPending}
-              onChange={(event) => setDraft(event.target.value)}
-            />
-            <Button
-              variant="outline"
-              disabled={!changed || save.isPending}
-              onClick={() => void store(days)}
-            >
-              {t('action.save')}
-            </Button>
-          </div>
-        </Field>
+        <div className="flex justify-end">
+          <Button
+            variant="destructive"
+            disabled={!changed || save.isPending}
+            onClick={() => void store()}
+          >
+            {t('action.save')}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   )

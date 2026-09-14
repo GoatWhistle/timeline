@@ -17,6 +17,17 @@ function renderCard(policy: Record<string, unknown> = POLICY) {
 }
 
 describe('the idle cutoff is the reader own setting', () => {
+  it('asks for the period with a plain number, not a stepper', async () => {
+    renderCard()
+
+    const field = await screen.findByRole('spinbutton')
+
+    expect(
+      field.className,
+      'the up and down arrows add nothing to a field measured in days',
+    ).toMatch(/appearance:textfield/)
+  })
+
   it('takes the bounds from the server rather than spelling them out itself', async () => {
     renderCard({ idle_days: 30, min_days: 7, max_days: 90, default_days: 60 })
 
@@ -29,17 +40,5 @@ describe('the idle cutoff is the reader own setting', () => {
     renderCard()
 
     await waitFor(() => expect(screen.getByRole('spinbutton')).toHaveValue(180))
-  })
-
-  it('offers a way to switch the sweep off entirely', async () => {
-    renderCard()
-
-    expect(await screen.findByRole('switch')).toBeInTheDocument()
-  })
-
-  it('leaves the field out of reach while the sweep is off', async () => {
-    renderCard({ min_days: 1, max_days: 365, default_days: 180 })
-
-    await waitFor(() => expect(screen.getByRole('spinbutton')).toBeDisabled())
   })
 })

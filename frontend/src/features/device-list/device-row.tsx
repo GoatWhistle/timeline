@@ -9,6 +9,7 @@ import {
 } from '@/entities/session/device-label'
 import type { SessionResponse } from '@/shared/api/types.gen'
 import { formatDateTime, formatRelative } from '@/shared/datetime/datetime'
+import { placeLine } from '@/shared/geo/country'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { DeviceGlyphMark } from '@/shared/ui/brand/device-glyph/device-glyph'
 import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
@@ -71,6 +72,7 @@ export function DeviceRow({
   const label = session.label ?? ''
   const title = label || fallback
   const current = session.current === true
+  const place = placeLine(session.city, session.country_code)
 
   return (
     <li
@@ -105,6 +107,12 @@ export function DeviceRow({
           ) : null}
           <dt className="text-muted-foreground/70">{t('devices.signedInTerm')}</dt>
           <dd className="min-w-0">{formatDateTime(session.created_at)}</dd>
+          {place ? (
+            <>
+              <dt className="text-muted-foreground/70">{t('devices.placeTerm')}</dt>
+              <dd className="min-w-0 truncate">{place}</dd>
+            </>
+          ) : null}
           {session.ip ? (
             <>
               <dt className="text-muted-foreground/70">{t('devices.ipTerm')}</dt>
