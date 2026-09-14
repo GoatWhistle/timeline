@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSaveShortcutBindings, useShortcutBindings } from '@/entities/user/shortcuts.queries'
+import { useSession } from '@/shared/api/session'
 import {
   applyBindings,
   type BindingRejection,
@@ -9,27 +10,28 @@ import {
   withBinding,
   withoutBinding,
 } from '@/shared/keyboard/shortcut-bindings'
-import { CATALOG } from '@/shared/keyboard/shortcut-catalog'
+import { catalogFor } from '@/shared/keyboard/shortcut-catalog'
 import type { ScopeListing } from '@/shared/keyboard/shortcut-registry'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/card'
 import { ShortcutSection } from './shortcut-section'
 
 export function ShortcutSettings() {
   const { t } = useTranslation()
+  const { isAdmin } = useSession()
   const bindings = useShortcutBindings()
   const save = useSaveShortcutBindings()
   const platform = useMemo(() => detectPlatform(), [])
 
   const sections = useMemo(
     () =>
-      CATALOG.map((section) => ({
+      catalogFor(isAdmin).map((section) => ({
         ...section,
         shortcuts: applyBindings(
           section.shortcuts.map((entry) => ({ ...entry, run: () => {} })),
           bindings,
         ),
       })),
-    [bindings],
+    [bindings, isAdmin],
   )
 
   const listings = useMemo<ScopeListing[]>(

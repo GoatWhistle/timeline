@@ -19,12 +19,15 @@ export const GOTO_USER: GotoTarget[] = [
   { id: 'catalog', path: '/catalog', key: 'c', titleKey: 'nav.catalog' },
   { id: 'events', path: '/catalog?joined=true', key: 'e', titleKey: 'nav.myEvents' },
   { id: 'schedule', path: '/schedule', key: 's', titleKey: 'nav.schedule' },
+  { id: 'teams', path: '/teams', key: 't', titleKey: 'nav.teams' },
+  { id: 'history', path: '/history', key: 'h', titleKey: 'nav.history' },
 ]
 
 export const GOTO_ADMIN: GotoTarget[] = [
   { id: 'admin-events', path: '/admin/events', key: 'a', titleKey: 'nav.adminEvents' },
   { id: 'admin-users', path: '/admin/users', key: 'u', titleKey: 'nav.adminUsers' },
   { id: 'admin-audit', path: '/admin/audit', key: 'l', titleKey: 'nav.adminAudit' },
+  { id: 'admin-retention', path: '/admin/retention', key: 'r', titleKey: 'nav.adminRetention' },
 ]
 
 function gotoEntry(target: GotoTarget): CatalogEntry {
@@ -55,13 +58,19 @@ const LISTS: CatalogEntry[] = [
   { id: 'focus-search', keys: ['/'], titleKey: 'shortcuts.search', group: 'list' },
 ]
 
-const NAVIGATION: CatalogEntry[] = [...GOTO_USER, ...GOTO_ADMIN].map(gotoEntry)
+function navigationFor(isAdmin: boolean): CatalogEntry[] {
+  return (isAdmin ? [...GOTO_USER, ...GOTO_ADMIN] : GOTO_USER).map(gotoEntry)
+}
 
-export const CATALOG: CatalogSection[] = [
-  { id: 'app', titleKey: 'shortcuts.scopeApp', shortcuts: APPLICATION },
-  { id: 'navigation', titleKey: 'shortcuts.scopeNavigation', shortcuts: NAVIGATION },
-  { id: 'list', titleKey: 'shortcuts.scopeLists', shortcuts: LISTS },
-]
+export function catalogFor(isAdmin: boolean): CatalogSection[] {
+  return [
+    { id: 'app', titleKey: 'shortcuts.scopeApp', shortcuts: APPLICATION },
+    { id: 'navigation', titleKey: 'shortcuts.scopeNavigation', shortcuts: navigationFor(isAdmin) },
+    { id: 'list', titleKey: 'shortcuts.scopeLists', shortcuts: LISTS },
+  ]
+}
+
+export const CATALOG: CatalogSection[] = catalogFor(true)
 
 const BY_ID = new Map<string, CatalogEntry>(
   CATALOG.flatMap((section) => section.shortcuts).map((entry) => [entry.id, entry]),

@@ -3,7 +3,7 @@ import { dictionaries, type Tree } from '@tests/support/dictionaries'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { i18n } from '@/shared/i18n/config'
 import { LOCALES } from '@/shared/i18n/locale'
-import { CATALOG } from '@/shared/keyboard/shortcut-catalog'
+import { catalogFor } from '@/shared/keyboard/shortcut-catalog'
 import { changeButtons, renderWith, rowNamed } from './harness'
 
 beforeAll(async () => {
@@ -13,7 +13,9 @@ beforeAll(async () => {
 const headings = () =>
   screen.getAllByRole('heading', { level: 3 }).map((node) => node.textContent ?? '')
 
-const everyEntry = () => CATALOG.flatMap((section) => section.shortcuts)
+const MEMBER_CATALOG = catalogFor(false)
+
+const everyEntry = () => MEMBER_CATALOG.flatMap((section) => section.shortcuts)
 
 describe('the settings screen does not depend on the page underneath', () => {
   it('lists every shortcut the catalogue holds, whatever page is open', () => {
@@ -44,14 +46,16 @@ describe('the settings screen does not depend on the page underneath', () => {
   it('groups the list rather than pouring it out flat', () => {
     renderWith()
 
-    expect(headings()).toEqual(CATALOG.map((section) => i18n.t(`common:${section.titleKey}`)))
+    expect(headings()).toEqual(
+      MEMBER_CATALOG.map((section) => i18n.t(`common:${section.titleKey}`)),
+    )
   })
 
   it('files a shortcut under the group the catalogue puts it in', () => {
     renderWith()
 
     const sections = screen.getAllByRole('heading', { level: 3 }).map((node) => node.parentElement)
-    CATALOG.forEach((section, index) => {
+    MEMBER_CATALOG.forEach((section, index) => {
       const host = sections[index] as HTMLElement
       for (const entry of section.shortcuts) {
         expect(
@@ -119,7 +123,7 @@ describe('what the screen no longer says', () => {
   it('names every catalogue group and every shortcut in both languages', () => {
     for (const locale of LOCALES) {
       const common = dictionaries[locale].common as Tree
-      for (const section of CATALOG) {
+      for (const section of MEMBER_CATALOG) {
         expect(i18n.getFixedT(locale, 'common')(section.titleKey), section.id).not.toBe(
           section.titleKey,
         )

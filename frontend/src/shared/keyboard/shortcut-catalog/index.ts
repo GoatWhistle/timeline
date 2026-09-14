@@ -3,6 +3,7 @@ export {
   type CatalogEntry,
   type CatalogSection,
   catalogEntry,
+  catalogFor,
   catalogKeys,
   catalogTitleKey,
   GOTO_ADMIN,
