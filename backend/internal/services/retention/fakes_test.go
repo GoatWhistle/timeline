@@ -144,3 +144,28 @@ func nowPtr() *time.Time {
 	t := time.Now().UTC()
 	return &t
 }
+
+type fakeSessionStore struct {
+	idleDays map[uuid.UUID]*int
+	revoked  []uuid.UUID
+	calls    int
+	now      time.Time
+	limit    int
+
+	sessions []fakeSession
+}
+
+type fakeSession struct {
+	id         uuid.UUID
+	userID     uuid.UUID
+	lastUsedAt *time.Time
+	createdAt  time.Time
+	revokedAt  *time.Time
+}
+
+func (f *fakeSessionStore) RevokeIdle(_ context.Context, now time.Time, limit int) (int, error) {
+	f.calls++
+	f.now = now
+	f.limit = limit
+	return len(f.revoked), nil
+}

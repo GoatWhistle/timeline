@@ -25,6 +25,35 @@ func (w *Worker) Start(ctx context.Context, interval time.Duration) {
 	}
 }
 
+func (w *Worker) StartSessionSweep(ctx context.Context, interval time.Duration) {
+	if w.sessions == nil {
+		return
+	}
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	w.sweepOnce(ctx)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			w.sweepOnce(ctx)
+		}
+	}
+}
+
+func (w *Worker) sweepOnce(ctx context.Context) {
+	revoked, err := w.sessions.RevokeIdle(ctx, w.now(), w.sessionBatch())
+	if err != nil {
+		slog.ErrorContext(ctx, "idle session sweep failed", "error", err)
+		return
+	}
+	if revoked > 0 {
+		slog.InfoContext(ctx, "idle sessions revoked", "sessions_revoked", revoked)
+	}
+}
+
 func (w *Worker) runOnce(ctx context.Context) {
 	result, err := w.Run(ctx)
 	if err != nil {

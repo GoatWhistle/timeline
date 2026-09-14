@@ -28,14 +28,16 @@ func (s *AuthService) ListSessions(ctx context.Context, actor models.Actor) ([]d
 
 func sessionResponse(session *models.Session, current uuid.UUID) dto.SessionResponse {
 	return dto.SessionResponse{
-		ID:         session.DisplayID,
-		UserAgent:  session.UserAgent,
-		IP:         session.IP,
-		Label:      session.Label,
-		Current:    session.ID == current,
-		CreatedAt:  session.CreatedAt,
-		LastUsedAt: session.LastUsedAt,
-		ExpiresAt:  session.ExpiresAt,
+		ID:          session.DisplayID,
+		UserAgent:   session.UserAgent,
+		IP:          session.IP,
+		CountryCode: session.CountryCode,
+		City:        session.City,
+		Label:       session.Label,
+		Current:     session.ID == current,
+		CreatedAt:   session.CreatedAt,
+		LastUsedAt:  session.LastUsedAt,
+		ExpiresAt:   session.ExpiresAt,
 	}
 }
 
@@ -96,4 +98,33 @@ func (s *AuthService) RevokeSession(ctx context.Context, actor models.Actor,
 	}
 	s.dropSession(session.ID)
 	return session.ID == actor.SessionID, nil
+}
+
+type PlaceLocator interface {
+	Locate(ip string) models.SessionPlace
+}
+
+func (s *AuthService) WithPlaces(locator PlaceLocator) { s.places = locator }
+
+func (s *AuthService) locatePlace(ip string) models.SessionPlace {
+	if s.places == nil || ip == "" {
+		return models.SessionPlace{}
+	}
+	return s.places.Locate(ip)
+}
+
+func placeColumns(place models.SessionPlace) (*string, *string) {
+	var country, city *string
+	if place.CountryCode != "" {
+		code := place.CountryCode
+		country = &code
+	}
+	if place.City != "" {
+		name := place.City
+		if len(name) > 128 {
+			name = name[:128]
+		}
+		city = &name
+	}
+	return country, city
 }

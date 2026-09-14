@@ -20,15 +20,13 @@ describe('country name', () => {
     expect(countryName('nl')).toBe('Netherlands')
   })
 
-  it('names a country in the language the reader is reading', async () => {
-    const inRussian = new Intl.DisplayNames(['ru'], { type: 'region' }).of('NL')
-
+  it('writes a country the way an address is written, not in the reader language', async () => {
     await i18n.changeLanguage('ru')
     expect(
       countryName('NL'),
-      'the row sits beside dates that already follow the reader language',
-    ).toBe(inRussian)
-    expect(countryName('NL')).not.toBe('Netherlands')
+      'an address names its country as the world writes it, whatever the reader reads',
+    ).toBe('Netherlands')
+    expect(countryName('US')).toBe('United States')
 
     await i18n.changeLanguage('en')
     expect(countryName('NL')).toBe('Netherlands')

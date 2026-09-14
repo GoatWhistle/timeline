@@ -32,6 +32,9 @@ type ProfileService interface {
 	ReminderSchedule(ctx context.Context, userID uuid.UUID) (*models.ReminderSchedule, error)
 	ReplaceReminderSchedule(ctx context.Context, actor models.Actor,
 		req dto.UpdateReminderScheduleRequest) (*models.ReminderSchedule, error)
+	SessionPolicy(ctx context.Context, userID uuid.UUID) (*int, error)
+	SetSessionPolicy(ctx context.Context, actor models.Actor,
+		req dto.UpdateSessionPolicyRequest) (*int, error)
 	RequestEmailChange(ctx context.Context, actor models.Actor, req dto.ChangeEmailRequest) error
 	Deactivate(ctx context.Context, actor models.Actor) error
 }

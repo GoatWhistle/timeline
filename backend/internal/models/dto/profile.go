@@ -183,3 +183,14 @@ type UpdateReminderScheduleRequest struct {
 	Occasions      []ReminderScheduleOccasion `json:"occasions"`
 	OverdueEnabled bool                       `json:"overdue_enabled" example:"true"`
 }
+
+type SessionPolicyResponse struct {
+	IdleDays    *int `json:"idle_days,omitempty" example:"180"`
+	MinDays     int  `json:"min_days" example:"1"`
+	MaxDays     int  `json:"max_days" example:"365"`
+	DefaultDays int  `json:"default_days" example:"180"`
+}
+
+type UpdateSessionPolicyRequest struct {
+	IdleDays *int `json:"idle_days" example:"180"`
+}

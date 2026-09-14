@@ -31,6 +31,7 @@ type User struct {
 	Locale               string            `json:"locale"`
 	Timezone             string            `json:"timezone"`
 	Shortcuts            Shortcuts         `json:"shortcuts"`
+	SessionIdleDays      *int              `json:"session_idle_days,omitempty"`
 	IsAdmin              bool              `json:"is_admin"`
 	IsActive             bool              `json:"is_active"`
 	DeletedAt            *time.Time        `json:"-"`
@@ -59,6 +60,8 @@ type Session struct {
 	DeviceHash       *string    `json:"-"`
 	UserAgent        *string    `json:"user_agent,omitempty"`
 	IP               *string    `json:"ip,omitempty"`
+	CountryCode      *string    `json:"country_code,omitempty"`
+	City             *string    `json:"city,omitempty"`
 	Label            *string    `json:"label,omitempty"`
 	ExpiresAt        time.Time  `json:"expires_at"`
 	LastUsedAt       *time.Time `json:"last_used_at,omitempty"`
@@ -66,7 +69,20 @@ type Session struct {
 	CreatedAt        time.Time  `json:"created_at"`
 }
 
+type SessionPlace struct {
+	CountryCode string
+	City        string
+}
+
+func (p SessionPlace) Empty() bool { return p.CountryCode == "" && p.City == "" }
+
 const SessionLabelMaxLength = 64
+
+const (
+	SessionIdleDaysMin     = 1
+	SessionIdleDaysMax     = 365
+	SessionIdleDaysDefault = 180
+)
 
 const DeviceIDLength = 32
 

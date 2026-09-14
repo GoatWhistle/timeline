@@ -11,6 +11,7 @@ import type { SessionResponse } from '@/shared/api/types.gen'
 import { formatDateTime, formatRelative } from '@/shared/datetime/datetime'
 import { placeLine } from '@/shared/geo/country'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { CountryFlag } from '@/shared/ui/brand/country-flag/country-flag'
 import { DeviceGlyphMark } from '@/shared/ui/brand/device-glyph/device-glyph'
 import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
 import { DeviceName } from './device-name'
@@ -110,7 +111,10 @@ export function DeviceRow({
           {place ? (
             <>
               <dt className="text-muted-foreground/70">{t('devices.placeTerm')}</dt>
-              <dd className="min-w-0 truncate">{place}</dd>
+              <dd className="flex min-w-0 items-center gap-1.5">
+                <span className="min-w-0 truncate">{place}</span>
+                <CountryFlag code={session.country_code} />
+              </dd>
             </>
           ) : null}
           {session.ip ? (

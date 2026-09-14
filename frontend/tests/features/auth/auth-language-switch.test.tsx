@@ -45,7 +45,7 @@ describe('the auth door language switch', () => {
     })
     const options = nav.querySelectorAll('button[data-indicator-item]')
     expect(options).toHaveLength(2)
-    expect(nav.querySelectorAll('svg[data-flag]')).toHaveLength(2)
+    expect(nav.querySelectorAll('img[data-flag]')).toHaveLength(2)
   })
 
   it('marks the active language and switches the interface on pick', async () => {

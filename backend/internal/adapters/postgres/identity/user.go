@@ -20,7 +20,7 @@ func NewUsers(db *postgres.DB) *Users { return &Users{db: db} }
 const userColumns = `id, display_id, first_name, middle_name, last_name, legacy_display_name, nickname,
 	profile_public, profile_visibility, pinned_event_ids, theme, email, pending_email, password_hash,
 	email_verified_at, telegram_username, telegram_chat_id, notification_channels, avatar_url, bio,
-	locale, timezone, shortcuts, is_admin, is_active, deleted_at, created_at, updated_at`
+	locale, timezone, shortcuts, session_idle_days, is_admin, is_active, deleted_at, created_at, updated_at`
 
 func scanUser(row pgx.Row) (*models.User, error) {
 	var (
@@ -33,7 +33,7 @@ func scanUser(row pgx.Row) (*models.User, error) {
 		&u.PasswordHash, &u.EmailVerifiedAt,
 		&u.TelegramUsername, &u.TelegramChatID, &channels,
 		&u.AvatarURL, &u.Bio,
-		&u.Locale, &u.Timezone, &u.Shortcuts, &u.IsAdmin, &u.IsActive,
+		&u.Locale, &u.Timezone, &u.Shortcuts, &u.SessionIdleDays, &u.IsAdmin, &u.IsActive,
 		&u.DeletedAt, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, mapError(err)

@@ -12,6 +12,7 @@ import (
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/identity"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/systemevent"
 	"github.com/GoatWhistle/timeline/internal/config"
+	svcauth "github.com/GoatWhistle/timeline/internal/services/auth"
 	svcevent "github.com/GoatWhistle/timeline/internal/services/event"
 	svcrealtime "github.com/GoatWhistle/timeline/internal/services/realtime"
 	svcretention "github.com/GoatWhistle/timeline/internal/services/retention"
@@ -44,3 +45,5 @@ func (s *Stack) Events() *event.Events { return s.events }
 func (s *Stack) EventService() *svcevent.EventService { return s.eventSvc }
 
 func (s *Stack) Retention() *svcretention.Service { return s.retention }
+
+func (s *Stack) Auth() *svcauth.AuthService { return s.auth }

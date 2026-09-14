@@ -1881,8 +1881,29 @@ definitions:
           $ref: '#/definitions/dto.SessionResponse'
         type: array
     type: object
+  dto.SessionPolicyResponse:
+    properties:
+      default_days:
+        example: 180
+        type: integer
+      idle_days:
+        example: 180
+        type: integer
+      max_days:
+        example: 365
+        type: integer
+      min_days:
+        example: 1
+        type: integer
+    type: object
   dto.SessionResponse:
     properties:
+      city:
+        example: Amsterdam
+        type: string
+      country_code:
+        example: NL
+        type: string
       created_at:
         type: string
       current:
@@ -2528,6 +2549,12 @@ definitions:
         type: integer
       delete_covers_on_archive:
         type: boolean
+    type: object
+  dto.UpdateSessionPolicyRequest:
+    properties:
+      idle_days:
+        example: 180
+        type: integer
     type: object
   dto.UpdateSessionRequest:
     properties:
@@ -7836,6 +7863,79 @@ paths:
       summary: User schedule
       tags:
       - queries
+  /me/session-policy:
+    get:
+      description: |-
+        How long a session of this account may sit unused before it is signed out on its
+        own. The setting belongs to the account holder alone: it is not a site-wide rule and
+        no administrator sets it for anybody.
+
+        Every account starts at default_days, so a forgotten session does not sit signed in
+        forever by default. idle_days absent means the holder has deliberately turned the
+        sweep off and sessions then live out their refresh lifetime; it is a choice made on
+        purpose, not the state an account is handed.
+
+        min_days, max_days and default_days come from the server, so a client need not carry
+        its own copy of the range or of the value to offer when restoring the default.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SessionPolicyResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Your own idle-session policy
+      tags:
+      - profile
+    put:
+      consumes:
+      - application/json
+      description: |-
+        Stores the number of days a session may stay unused before it is revoked. Sending
+        idle_days null turns the sweep off for this account, which is a deliberate choice
+        rather than a return to the default: sessions then live out their refresh lifetime
+        whether they are used or not. To go back to the default, send default_days.
+
+        A value outside min_days..max_days is refused with 400 and field idle_days, and the
+        stored setting is left as it was. The bound is enforced here and by the database, not
+        by the client.
+
+        The sweep that acts on this setting never revokes the session that is most recently
+        used, so setting a short period cannot sign the account out of the very device that
+        set it. Sessions are revoked, not deleted: the refresh chain ends and the row remains.
+      parameters:
+      - description: The idle period to store
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSessionPolicyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SessionPolicyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Set or clear your idle-session policy
+      tags:
+      - profile
   /me/sessions:
     get:
       description: |-

@@ -33,6 +33,7 @@ type AuthService struct {
 	issuer   *crypto.TokenIssuer
 	mailer   *mail.Mailer
 	limiter  RateLimiter
+	places   PlaceLocator
 	realtime SessionDropper
 	cfg      *config.Config
 	now      func() time.Time
@@ -67,6 +68,7 @@ func (s *AuthService) startSession(ctx context.Context, user *models.User,
 		ExpiresAt:        now.Add(s.cfg.Auth.RefreshTTL),
 		LastUsedAt:       &now,
 	}
+	next.CountryCode, next.City = placeColumns(s.locatePlace(meta.IP))
 	session, err := s.adoptDevice(ctx, next, now)
 	if err != nil {
 		return nil, err

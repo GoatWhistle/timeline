@@ -42,3 +42,7 @@ type Recorder interface {
 type UserLookup interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*models.User, error)
 }
+
+type SessionStore interface {
+	RevokeIdle(ctx context.Context, now time.Time, limit int) (int, error)
+}

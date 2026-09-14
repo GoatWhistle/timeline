@@ -41,6 +41,7 @@ const OPTIONAL = {
   'models.ParticipantTask': ['stage_id', 'notes', 'due_at', 'done_at', 'updated_at'],
   'models.ChecklistTemplateItem': ['due_offset_minutes'],
   'dto.ErrorBody': ['fields'],
+  'dto.SessionResponse': ['user_agent', 'ip', 'country_code', 'city', 'label', 'last_used_at'],
   'dto.TrackPrizeResponse': ['place', 'title'],
   'dto.TrackPrizeInput': ['place', 'title'],
   'dto.EventTrackResponse': ['description'],

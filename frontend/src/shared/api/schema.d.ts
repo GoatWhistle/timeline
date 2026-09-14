@@ -7758,6 +7758,121 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/session-policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your own idle-session policy
+         * @description How long a session of this account may sit unused before it is signed out on its
+         *     own. The setting belongs to the account holder alone: it is not a site-wide rule and
+         *     no administrator sets it for anybody.
+         *
+         *     Every account starts at default_days, so a forgotten session does not sit signed in
+         *     forever by default. idle_days absent means the holder has deliberately turned the
+         *     sweep off and sessions then live out their refresh lifetime; it is a choice made on
+         *     purpose, not the state an account is handed.
+         *
+         *     min_days, max_days and default_days come from the server, so a client need not carry
+         *     its own copy of the range or of the value to offer when restoring the default.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.SessionPolicyResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * Set or clear your idle-session policy
+         * @description Stores the number of days a session may stay unused before it is revoked. Sending
+         *     idle_days null turns the sweep off for this account, which is a deliberate choice
+         *     rather than a return to the default: sessions then live out their refresh lifetime
+         *     whether they are used or not. To go back to the default, send default_days.
+         *
+         *     A value outside min_days..max_days is refused with 400 and field idle_days, and the
+         *     stored setting is left as it was. The bound is enforced here and by the database, not
+         *     by the client.
+         *
+         *     The sweep that acts on this setting never revokes the session that is most recently
+         *     used, so setting a short period cannot sign the account out of the very device that
+         *     set it. Sessions are revoked, not deleted: the refresh chain ends and the row remains.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The idle period to store */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.UpdateSessionPolicyRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.SessionPolicyResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/sessions": {
         parameters: {
             query?: never;
@@ -11555,7 +11670,21 @@ export interface components {
         "dto.SessionListResponse": {
             items: components["schemas"]["dto.SessionResponse"][];
         };
+        "dto.SessionPolicyResponse": {
+            /** @example 180 */
+            default_days: number;
+            /** @example 180 */
+            idle_days: number;
+            /** @example 365 */
+            max_days: number;
+            /** @example 1 */
+            min_days: number;
+        };
         "dto.SessionResponse": {
+            /** @example Amsterdam */
+            city?: string;
+            /** @example NL */
+            country_code?: string;
             /** Format: date-time */
             created_at: string;
             /** @example true */
@@ -11565,13 +11694,13 @@ export interface components {
             /** @example se_42ej2s5gh7e8 */
             id: string;
             /** @example 203.0.113.7 */
-            ip: string;
+            ip?: string;
             /** @example Work laptop */
-            label: string;
+            label?: string;
             /** Format: date-time */
-            last_used_at: string;
+            last_used_at?: string;
             /** @example Mozilla/5.0 (X11; Linux x86_64) */
-            user_agent: string;
+            user_agent?: string;
         };
         "dto.ShortcutsResponse": {
             shortcuts: components["schemas"]["models.Shortcuts"];
@@ -11939,6 +12068,10 @@ export interface components {
             audit_log_retention_days?: number;
             delete_archive_after_months?: number;
             delete_covers_on_archive?: boolean;
+        };
+        "dto.UpdateSessionPolicyRequest": {
+            /** @example 180 */
+            idle_days?: number;
         };
         "dto.UpdateSessionRequest": {
             /** @example false */

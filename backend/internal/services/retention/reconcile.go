@@ -10,6 +10,7 @@ import (
 
 type Worker struct {
 	events   EventStore
+	sessions SessionStore
 	archiver Archiver
 	deleter  Deleter
 	covers   CoverClearer
@@ -19,13 +20,14 @@ type Worker struct {
 }
 
 type Limits struct {
-	Batch int
+	Batch        int
+	SessionBatch int
 }
 
-func NewWorker(events EventStore, archiver Archiver, deleter Deleter, covers CoverClearer,
-	audit Recorder, limits Limits) *Worker {
-	return &Worker{events: events, archiver: archiver, deleter: deleter, covers: covers, audit: audit,
-		limits: limits, now: func() time.Time { return time.Now().UTC() }}
+func NewWorker(events EventStore, sessions SessionStore, archiver Archiver, deleter Deleter,
+	covers CoverClearer, audit Recorder, limits Limits) *Worker {
+	return &Worker{events: events, sessions: sessions, archiver: archiver, deleter: deleter,
+		covers: covers, audit: audit, limits: limits, now: func() time.Time { return time.Now().UTC() }}
 }
 
 type ReconcileResult struct {
@@ -58,6 +60,13 @@ func (w *Worker) Run(ctx context.Context) (*ReconcileResult, error) {
 		return result, err
 	}
 	return result, nil
+}
+
+func (w *Worker) sessionBatch() int {
+	if w.limits.SessionBatch <= 0 {
+		return 500
+	}
+	return w.limits.SessionBatch
 }
 
 func (w *Worker) autoArchive(ctx context.Context, cutoff time.Time, clearCovers bool,

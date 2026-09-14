@@ -2,7 +2,7 @@
   "profile": {
     "name": "Name",
     "saved": "Profile saved",
-    "sessionsHint": "Ending all sessions signs you out on every device.",
+    "sessionsHint": "Signs you out on every device.",
     "logoutAll": "End all sessions",
     "logoutAllFailed": "Could not end the sessions",
     "confirmLogoutAllTitle": "End every session?",
@@ -164,6 +164,7 @@
     "groupWeek": "Active this week",
     "groupOlder": "Not used recently",
     "policyTitle": "Sign out if inactive",
+    "policyHint": "A device quiet this long is signed out.",
     "policyDaysLabel": "Days",
     "policySaved": "Session policy updated",
     "policyFailed": "Could not save the policy"

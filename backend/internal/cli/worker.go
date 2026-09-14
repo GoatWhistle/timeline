@@ -38,7 +38,7 @@ func worker(ctx context.Context) error {
 		"telegram_api_base", c.cfg.Telegram.APIBase)
 
 	var wg sync.WaitGroup
-	wg.Add(6)
+	wg.Add(7)
 	go func() {
 		defer wg.Done()
 		c.scheduler.Start(ctx)
@@ -58,6 +58,10 @@ func worker(ctx context.Context) error {
 	go func() {
 		defer wg.Done()
 		c.retentionJob.Start(ctx, c.cfg.Retent.Interval)
+	}()
+	go func() {
+		defer wg.Done()
+		c.retentionJob.StartSessionSweep(ctx, c.cfg.Retent.SessionInterval)
 	}()
 	go func() {
 		defer wg.Done()

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/GoatWhistle/timeline/internal/adapters/email"
+	"github.com/GoatWhistle/timeline/internal/adapters/geoip"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/audit"
 	"github.com/GoatWhistle/timeline/internal/adapters/postgres/event"
@@ -150,6 +151,7 @@ func newContainer(ctx context.Context) (*container, error) {
 
 	c.auth = svcauth.NewAuthService(db, c.repos.users, c.repos.sessions, c.repos.tokens,
 		c.notifier, c.audit, c.hasher, issuer, mailer, limiter, cfg)
+	c.auth.WithPlaces(geoip.New(cfg.GeoIP.DatabasePath))
 	c.profile = svcauth.NewProfileService(db, c.repos.users, c.repos.tokens, c.repos.sessions,
 		c.notifier, c.repos.notificationPreferences, c.repos.reminderSchedules, c.repos.events,
 		c.repos.profileLinks,
@@ -201,8 +203,9 @@ func (c *container) wireDelivery(cfg *config.Config) {
 
 func (c *container) wireRetention(cfg *config.Config) {
 	c.retention = svcretention.NewService(c.repos.events, c.repos.users, c.audit)
-	c.retentionJob = svcretention.NewWorker(c.repos.events, c.events, c.events, c.events, c.audit,
-		svcretention.Limits{Batch: cfg.Retent.EventBatch})
+	c.retentionJob = svcretention.NewWorker(c.repos.events, c.repos.sessions, c.events, c.events,
+		c.events, c.audit,
+		svcretention.Limits{Batch: cfg.Retent.EventBatch, SessionBatch: cfg.Retent.SessionBatch})
 }
 
 func (c *container) wireParticipation(cfg *config.Config) {

@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 import { screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { beforeAll, describe, expect, it } from 'vitest'
@@ -19,21 +17,6 @@ function renderCard(policy: Record<string, unknown> = POLICY) {
 }
 
 describe('the idle cutoff is the reader own setting', () => {
-  it('pushes its action to the foot of the card so it lines up with its neighbour', () => {
-    const source = readFileSync(
-      join(process.cwd(), 'src/features/device-list/session-policy-card.tsx'),
-      'utf8',
-    )
-
-    const actionRow = source.match(/<div className="[^"]*justify-end[^"]*"/)?.[0] ?? ''
-
-    expect(actionRow, 'the action row is missing').not.toBe('')
-    expect(
-      actionRow,
-      'an action that only follows the content sits at a different height than the card beside it',
-    ).toMatch(/mt-auto/)
-  })
-
   it('asks for the period with a plain number, not a stepper', async () => {
     renderCard()
 

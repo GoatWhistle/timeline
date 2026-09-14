@@ -24,6 +24,7 @@ type Config struct {
 	Links    ResourceLinks
 	Avatar   Avatar
 	Cover    Cover
+	GeoIP    GeoIP
 }
 
 type App struct {
@@ -100,6 +101,8 @@ type Retention struct {
 	InboxDeleted        time.Duration
 	Interval            time.Duration
 	EventBatch          int
+	SessionInterval     time.Duration
+	SessionBatch        int
 }
 
 type Email struct {
@@ -112,6 +115,10 @@ type Email struct {
 	FromName string
 	Timeout  time.Duration
 	StartTLS bool
+}
+
+type GeoIP struct {
+	DatabasePath string
 }
 
 type Ops struct {
@@ -198,6 +205,8 @@ func Load() (*Config, error) {
 			InboxDeleted:        envDuration("RETENTION_INBOX_DELETED", 30*24*time.Hour),
 			Interval:            envDuration("RETENTION_INTERVAL", 24*time.Hour),
 			EventBatch:          envInt("RETENTION_EVENT_BATCH", 200),
+			SessionInterval:     envDuration("SESSION_IDLE_SWEEP_INTERVAL", time.Hour),
+			SessionBatch:        envInt("SESSION_IDLE_SWEEP_BATCH", 500),
 		},
 		Telegram: loadTelegram(),
 		Email: Email{
@@ -223,6 +232,7 @@ func Load() (*Config, error) {
 		Avatar:   loadAvatar(),
 		Cover:    loadCover(),
 		Realtime: loadRealtime(),
+		GeoIP:    GeoIP{DatabasePath: env("GEOIP_DATABASE_PATH", "")},
 	}
 
 	if err := cfg.validate(); err != nil {

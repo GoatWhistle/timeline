@@ -1,32 +1,21 @@
-import { i18n } from '@/shared/i18n/config'
-import { DEFAULT_LOCALE, isLocale, type Locale } from '@/shared/i18n/locale'
-
 const CODE_PATTERN = /^[A-Za-z]{2}$/
 
-const resolvers = new Map<Locale, Intl.DisplayNames | null>()
+let regionNames: Intl.DisplayNames | null | undefined
 
-function currentLocale(): Locale {
-  const language = i18n.language?.split('-')[0]
-  return isLocale(language) ? language : DEFAULT_LOCALE
-}
-
-function regionNames(locale: Locale): Intl.DisplayNames | null {
-  const cached = resolvers.get(locale)
-  if (cached !== undefined) return cached
-  let created: Intl.DisplayNames | null = null
+function names(): Intl.DisplayNames | null {
+  if (regionNames !== undefined) return regionNames
   try {
-    created = new Intl.DisplayNames([locale], { type: 'region' })
+    regionNames = new Intl.DisplayNames(['en'], { type: 'region' })
   } catch {
-    created = null
+    regionNames = null
   }
-  resolvers.set(locale, created)
-  return created
+  return regionNames
 }
 
 export function countryName(code: string | null | undefined): string | null {
   if (!code || !CODE_PATTERN.test(code)) return null
   const upper = code.toUpperCase()
-  const resolver = regionNames(currentLocale())
+  const resolver = names()
   if (!resolver) return upper
   try {
     const resolved = resolver.of(upper)

@@ -43,14 +43,16 @@ type CSRFResponse struct {
 }
 
 type SessionResponse struct {
-	ID         string     `json:"id" example:"se_42ej2s5gh7e8"`
-	UserAgent  *string    `json:"user_agent,omitempty" example:"Mozilla/5.0 (X11; Linux x86_64)"`
-	IP         *string    `json:"ip,omitempty" example:"203.0.113.7"`
-	Label      *string    `json:"label,omitempty" example:"Work laptop"`
-	Current    bool       `json:"current" example:"true"`
-	CreatedAt  time.Time  `json:"created_at"`
-	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
-	ExpiresAt  time.Time  `json:"expires_at"`
+	ID          string     `json:"id" example:"se_42ej2s5gh7e8"`
+	UserAgent   *string    `json:"user_agent,omitempty" example:"Mozilla/5.0 (X11; Linux x86_64)"`
+	IP          *string    `json:"ip,omitempty" example:"203.0.113.7"`
+	CountryCode *string    `json:"country_code,omitempty" example:"NL"`
+	City        *string    `json:"city,omitempty" example:"Amsterdam"`
+	Label       *string    `json:"label,omitempty" example:"Work laptop"`
+	Current     bool       `json:"current" example:"true"`
+	CreatedAt   time.Time  `json:"created_at"`
+	LastUsedAt  *time.Time `json:"last_used_at,omitempty"`
+	ExpiresAt   time.Time  `json:"expires_at"`
 }
 
 type SessionListResponse struct {

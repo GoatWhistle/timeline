@@ -32,7 +32,7 @@ function listBody(items: SessionResponse[]) {
   return { items, total: items.length }
 }
 
-const NETHERLANDS = new Intl.DisplayNames(['ru'], { type: 'region' }).of('NL') ?? 'NL'
+const NETHERLANDS = 'Netherlands'
 
 function termsOf(row: HTMLElement): string[] {
   return [...row.querySelectorAll('dt')].map((node) => node.textContent ?? '')
@@ -90,6 +90,27 @@ describe('the place of a session', () => {
 
     expect(termsOf(row)).toContain(i18n.t('common:devices.placeTerm'))
     expect(within(row).getByText(`Amsterdam, ${NETHERLANDS}`)).toBeInTheDocument()
+  })
+
+  it('sets the flag after the place it belongs to, not before it', async () => {
+    const { queryClient } = renderWithProviders(<DeviceList />)
+    queryClient.setQueryData(deviceSessionsQueryKey, listBody([PLACED]))
+
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(1))
+
+    const row = screen.getAllByRole('listitem')[0]
+    if (!row) throw new Error('the session row is missing')
+
+    const cell = within(row).getByText(`Amsterdam, ${NETHERLANDS}`).parentElement
+    const parts = [...(cell?.children ?? [])]
+    const text = parts.findIndex((node) => (node.textContent ?? '').includes('Amsterdam'))
+    const flag = parts.findIndex(
+      (node) => node.querySelector('img') !== null || node.tagName === 'IMG',
+    )
+
+    expect(text, 'the place text is missing').toBeGreaterThanOrEqual(0)
+    expect(flag, 'the flag is missing').toBeGreaterThanOrEqual(0)
+    expect(flag, 'the flag trails the place it marks').toBeGreaterThan(text)
   })
 
   it('spells the country as a name, never as the bare two letters', async () => {

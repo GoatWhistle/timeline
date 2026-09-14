@@ -14,7 +14,7 @@ func TestRunSkipsAutoArchiveWhenDisabled(t *testing.T) {
 	store.settings = models.RetentionSettings{AuditLogRetentionDays: 365}
 	store.finishedPublished = []uuid.UUID{uuid.New()}
 	archiver := &fakeArchiver{}
-	worker := NewWorker(store, archiver, &fakeDeleter{}, &fakeCoverClearer{}, &fakeRecorder{}, Limits{})
+	worker := NewWorker(store, &fakeSessionStore{}, archiver, &fakeDeleter{}, &fakeCoverClearer{}, &fakeRecorder{}, Limits{})
 
 	result, err := worker.Run(context.Background())
 	if err != nil {
@@ -31,7 +31,7 @@ func TestRunArchivesFinishedEventsWhenEnabled(t *testing.T) {
 	id := uuid.New()
 	store.finishedPublished = []uuid.UUID{id}
 	archiver := &fakeArchiver{}
-	worker := NewWorker(store, archiver, &fakeDeleter{}, &fakeCoverClearer{}, &fakeRecorder{}, Limits{})
+	worker := NewWorker(store, &fakeSessionStore{}, archiver, &fakeDeleter{}, &fakeCoverClearer{}, &fakeRecorder{}, Limits{})
 
 	result, err := worker.Run(context.Background())
 	if err != nil {
@@ -50,7 +50,7 @@ func TestRunClearsCoversAfterArchiveOnlyWhenConfigured(t *testing.T) {
 	id := uuid.New()
 	store.finishedPublished = []uuid.UUID{id}
 	covers := &fakeCoverClearer{}
-	worker := NewWorker(store, &fakeArchiver{}, &fakeDeleter{}, covers, &fakeRecorder{}, Limits{})
+	worker := NewWorker(store, &fakeSessionStore{}, &fakeArchiver{}, &fakeDeleter{}, covers, &fakeRecorder{}, Limits{})
 
 	if _, err := worker.Run(context.Background()); err != nil {
 		t.Fatalf("Run returned an error: %v", err)
@@ -65,7 +65,7 @@ func TestRunLeavesCoversAloneWhenNotConfigured(t *testing.T) {
 	store.settings = models.RetentionSettings{ArchiveAfterDays: days(30), AuditLogRetentionDays: 365}
 	store.finishedPublished = []uuid.UUID{uuid.New()}
 	covers := &fakeCoverClearer{}
-	worker := NewWorker(store, &fakeArchiver{}, &fakeDeleter{}, covers, &fakeRecorder{}, Limits{})
+	worker := NewWorker(store, &fakeSessionStore{}, &fakeArchiver{}, &fakeDeleter{}, covers, &fakeRecorder{}, Limits{})
 
 	if _, err := worker.Run(context.Background()); err != nil {
 		t.Fatalf("Run returned an error: %v", err)
@@ -82,7 +82,7 @@ func TestRunSchedulesPurgeInsteadOfDeletingDirectly(t *testing.T) {
 	store.archivedNoPurge = []uuid.UUID{id}
 	store.events[id] = &models.Event{ID: id, ArchivedAt: nowPtr()}
 	deleter := &fakeDeleter{}
-	worker := NewWorker(store, &fakeArchiver{}, deleter, &fakeCoverClearer{}, &fakeRecorder{}, Limits{})
+	worker := NewWorker(store, &fakeSessionStore{}, &fakeArchiver{}, deleter, &fakeCoverClearer{}, &fakeRecorder{}, Limits{})
 
 	result, err := worker.Run(context.Background())
 	if err != nil {
@@ -105,7 +105,7 @@ func TestRunPurgesOnlyEventsPastTheirScheduledDate(t *testing.T) {
 	due := uuid.New()
 	store.purgeDue = []uuid.UUID{due}
 	deleter := &fakeDeleter{}
-	worker := NewWorker(store, &fakeArchiver{}, deleter, &fakeCoverClearer{}, &fakeRecorder{}, Limits{})
+	worker := NewWorker(store, &fakeSessionStore{}, &fakeArchiver{}, deleter, &fakeCoverClearer{}, &fakeRecorder{}, Limits{})
 
 	result, err := worker.Run(context.Background())
 	if err != nil {
@@ -123,7 +123,7 @@ func TestRunRecordsAuditForEveryScheduledPurge(t *testing.T) {
 	store.archivedNoPurge = []uuid.UUID{id}
 	store.events[id] = &models.Event{ID: id, ArchivedAt: nowPtr()}
 	recorder := &fakeRecorder{}
-	worker := NewWorker(store, &fakeArchiver{}, &fakeDeleter{}, &fakeCoverClearer{}, recorder, Limits{})
+	worker := NewWorker(store, &fakeSessionStore{}, &fakeArchiver{}, &fakeDeleter{}, &fakeCoverClearer{}, recorder, Limits{})
 
 	if _, err := worker.Run(context.Background()); err != nil {
 		t.Fatalf("Run returned an error: %v", err)
@@ -140,7 +140,7 @@ func TestRunRecordsAuditForEveryScheduledPurge(t *testing.T) {
 }
 
 func TestBatchDefaultsWhenNotConfigured(t *testing.T) {
-	worker := NewWorker(newFakeEventStore(), &fakeArchiver{}, &fakeDeleter{}, &fakeCoverClearer{},
+	worker := NewWorker(newFakeEventStore(), &fakeSessionStore{}, &fakeArchiver{}, &fakeDeleter{}, &fakeCoverClearer{},
 		&fakeRecorder{}, Limits{Batch: 0})
 	if worker.batch() != 200 {
 		t.Fatalf("batch() = %d, want the 200 default", worker.batch())

@@ -11,6 +11,7 @@ x-backend-env: &backend-env
   NICKNAME_HOLD_TTL: ${NICKNAME_HOLD_TTL:-720h}
   AVATAR_STORAGE_ROOT: /var/lib/timeline/avatars
   COVER_STORAGE_ROOT: /var/lib/timeline/covers
+  GEOIP_DATABASE_PATH: ${GEOIP_DATABASE_PATH-/usr/share/timeline/geoip/geoip-city.mmdb}
 
 x-backend: &backend
   image: timeline-backend:${VERSION:-0.8.0}

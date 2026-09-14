@@ -140,3 +140,12 @@ func ReminderScheduleResponse(s *models.ReminderSchedule) dto.ReminderScheduleRe
 		DayChoices:     models.ReminderDayChoices,
 	}
 }
+
+func SessionPolicyResponse(idleDays *int) dto.SessionPolicyResponse {
+	return dto.SessionPolicyResponse{
+		IdleDays:    idleDays,
+		MinDays:     models.SessionIdleDaysMin,
+		MaxDays:     models.SessionIdleDaysMax,
+		DefaultDays: models.SessionIdleDaysDefault,
+	}
+}

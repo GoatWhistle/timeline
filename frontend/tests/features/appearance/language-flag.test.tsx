@@ -37,7 +37,7 @@ describe('the language picker carries a flag beside every name', () => {
     renderChoice()
     for (const locale of LOCALES) {
       expect(flagOf(locale)?.getAttribute('aria-hidden'), locale).toBe('true')
-      expect(flagOf(locale)?.getAttribute('focusable'), locale).toBe('false')
+      expect(flagOf(locale)?.getAttribute('alt'), locale).toBe('')
     }
   })
 

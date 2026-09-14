@@ -52,6 +52,7 @@ type Stack struct {
 	events    *event.Events
 	eventSvc  *svcevent.EventService
 	retention *svcretention.Service
+	auth      *svcauth.AuthService
 	feed      *svcrealtime.SystemEventService
 	feedRepo  *systemevent.Events
 	hub       *svcrealtime.RealtimeHub
@@ -214,7 +215,7 @@ func NewStack(t *testing.T) *Stack {
 	return &Stack{
 		server: server, db: db, cfg: cfg,
 		users: users, sessions: sessions, events: events,
-		eventSvc: eventSvc, retention: retentionSvc,
+		eventSvc: eventSvc, retention: retentionSvc, auth: auth,
 		feed: feed, feedRepo: feedRepo, hub: hub,
 	}
 }

@@ -222,6 +222,9 @@ screenshots: ## Images only in screenshots/, assets and docs
 bundle-size: ## Production bundle size against the baseline
 	@node scripts/bundle-size.mjs
 
+vendor-flags: $(FRONTEND)/node_modules ## Copy the affordable country flags into frontend/public
+	@node scripts/vendor-flags.mjs
+
 lint-baseline: ## Total golangci-lint issues against the baseline (ratchet)
 	@bash scripts/check-lint-baseline.sh
 

@@ -6443,6 +6443,86 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/session-policy": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "How long a session of this account may sit unused before it is signed out on its\nown. The setting belongs to the account holder alone: it is not a site-wide rule and\nno administrator sets it for anybody.\n\nEvery account starts at default_days, so a forgotten session does not sit signed in\nforever by default. idle_days absent means the holder has deliberately turned the\nsweep off and sessions then live out their refresh lifetime; it is a choice made on\npurpose, not the state an account is handed.\n\nmin_days, max_days and default_days come from the server, so a client need not carry\nits own copy of the range or of the value to offer when restoring the default.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Your own idle-session policy",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SessionPolicyResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Stores the number of days a session may stay unused before it is revoked. Sending\nidle_days null turns the sweep off for this account, which is a deliberate choice\nrather than a return to the default: sessions then live out their refresh lifetime\nwhether they are used or not. To go back to the default, send default_days.\n\nA value outside min_days..max_days is refused with 400 and field idle_days, and the\nstored setting is left as it was. The bound is enforced here and by the database, not\nby the client.\n\nThe sweep that acts on this setting never revokes the session that is most recently\nused, so setting a short period cannot sign the account out of the very device that\nset it. Sessions are revoked, not deleted: the refresh chain ends and the row remains.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Set or clear your idle-session policy",
+                "parameters": [
+                    {
+                        "description": "The idle period to store",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateSessionPolicyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SessionPolicyResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me/sessions": {
             "get": {
                 "security": [
@@ -11318,9 +11398,38 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.SessionPolicyResponse": {
+            "type": "object",
+            "properties": {
+                "default_days": {
+                    "type": "integer",
+                    "example": 180
+                },
+                "idle_days": {
+                    "type": "integer",
+                    "example": 180
+                },
+                "max_days": {
+                    "type": "integer",
+                    "example": 365
+                },
+                "min_days": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "dto.SessionResponse": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string",
+                    "example": "Amsterdam"
+                },
+                "country_code": {
+                    "type": "string",
+                    "example": "NL"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -12261,6 +12370,15 @@ const docTemplate = `{
                 },
                 "delete_covers_on_archive": {
                     "type": "boolean"
+                }
+            }
+        },
+        "dto.UpdateSessionPolicyRequest": {
+            "type": "object",
+            "properties": {
+                "idle_days": {
+                    "type": "integer",
+                    "example": 180
                 }
             }
         },
