@@ -30,11 +30,14 @@ export function CrossfadeSwap<K extends string | number>({
 
   useEffect(() => {
     const changedKey = previousKey.current !== swapKey
-    previousKey.current = swapKey
     if (changedKey) {
+      const leaving = nodes.current.get(previousKey.current)
+      const from = leaving?.getBoundingClientRect().height ?? 0
+      if (from > 0) setLockedHeight(from)
       pendingEnter.current = swapKey
       hasTransitioned.current = true
     }
+    previousKey.current = swapKey
     setSlots((current) => {
       const withoutStale = current.filter((slot) => slot.key === swapKey || !slot.exiting)
       if (withoutStale.some((slot) => slot.key === swapKey)) {
@@ -76,7 +79,8 @@ export function CrossfadeSwap<K extends string | number>({
     read()
     if (typeof ResizeObserver === 'undefined') return undefined
     const observer = new ResizeObserver(read)
-    for (const slot of nodes.current.values()) observer.observe(slot)
+    const node = nodes.current.get(swapKey)
+    if (node) observer.observe(node)
     return () => observer.disconnect()
   }, [mountedKeys, swapKey])
 
@@ -130,14 +134,14 @@ export function CrossfadeSwap<K extends string | number>({
           }}
           aria-hidden={slot.exiting || undefined}
           className={cn(
-            '[grid-area:1/1] translate-x-0 self-start motion-safe:transition-[opacity,filter,transform] motion-safe:duration-base motion-safe:ease-out',
+            '[grid-area:1/1] self-start motion-safe:transition-[opacity,filter,translate] motion-safe:duration-base motion-safe:ease-out',
             slot.exiting &&
               cn(
                 'pointer-events-none absolute inset-x-0 top-0 motion-safe:opacity-0 motion-safe:blur-[2px]',
                 exitTranslate,
               ),
             !slot.exiting && !slot.settled && cn('opacity-0', enterFromTranslate),
-            !slot.exiting && slot.settled && 'opacity-100 blur-none',
+            !slot.exiting && slot.settled && 'opacity-100 blur-none motion-safe:translate-x-0',
           )}
         >
           {slot.content}
