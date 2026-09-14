@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cropCanvas } from './canvas-ops'
 import {
+  centredSquareIn,
   EDITOR_PALETTE_FALLBACK_HEX,
   type EditorTool,
   fitWithin,
@@ -28,8 +29,8 @@ export function useImageEditor(source: Blob) {
   const [colour, setColour] = useState<string>(EDITOR_PALETTE_FALLBACK_HEX)
   const [brushSize, setBrushSize] = useState<number>(6)
   const [textSize, setTextSize] = useState<number>(24)
-  const { crop, setCrop, cropZoom, zoomCrop, cropHandle, setCropHandle, resetCrop } =
-    useCropControls(canvasRef)
+  const { crop, setCrop, setCropHandle, setCropMoving, resetCrop } = useCropControls()
+  const [canvasSize, setCanvasSize] = useState<{ width: number; height: number } | null>(null)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
   const [canUndo, setCanUndo] = useState(false)
@@ -62,8 +63,8 @@ export function useImageEditor(source: Blob) {
     brushSize,
     crop,
     setCrop,
-    cropHandle,
     setCropHandle,
+    setCropMoving,
     setColour,
     beginText,
     pushHistory,
@@ -93,6 +94,8 @@ export function useImageEditor(source: Blob) {
         setCanUndo(false)
         setCanRedo(false)
         resetCrop()
+        setCanvasSize({ width, height })
+        setCrop(centredSquareIn(width, height))
         cancelText()
         setReady(true)
       })
@@ -106,7 +109,7 @@ export function useImageEditor(source: Blob) {
       cancelled = true
       bitmap?.close()
     }
-  }, [source, resetCrop, cancelText])
+  }, [source, resetCrop, setCrop, cancelText])
 
   const undo = useCallback(() => {
     const ctx = context()
@@ -119,7 +122,8 @@ export function useImageEditor(source: Blob) {
     canvas.width = outcome.restored.width
     canvas.height = outcome.restored.height
     ctx.putImageData(outcome.restored, 0, 0)
-    setCrop(null)
+    setCanvasSize({ width: canvas.width, height: canvas.height })
+    setCrop(centredSquareIn(canvas.width, canvas.height))
     setCanUndo(outcome.history.undoStack.length > 0)
     setCanRedo(true)
   }, [context, setCrop])
@@ -135,7 +139,8 @@ export function useImageEditor(source: Blob) {
     canvas.width = outcome.restored.width
     canvas.height = outcome.restored.height
     ctx.putImageData(outcome.restored, 0, 0)
-    setCrop(null)
+    setCanvasSize({ width: canvas.width, height: canvas.height })
+    setCrop(centredSquareIn(canvas.width, canvas.height))
     setCanUndo(true)
     setCanRedo(outcome.history.redoStack.length > 0)
   }, [context, setCrop])
@@ -151,8 +156,9 @@ export function useImageEditor(source: Blob) {
     canvas.height = cropped.height
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.drawImage(cropped, 0, 0)
-    resetCrop()
-  }, [context, crop, pushHistory, resetCrop])
+    setCanvasSize({ width: canvas.width, height: canvas.height })
+    setCrop(centredSquareIn(canvas.width, canvas.height))
+  }, [context, crop, pushHistory, setCrop])
 
   const toBlob = useCallback(
     () =>
@@ -178,8 +184,7 @@ export function useImageEditor(source: Blob) {
     textSize,
     setTextSize,
     crop,
-    cropZoom,
-    zoomCrop,
+    canvasSize,
     pendingText,
     commitText,
     cancelText,

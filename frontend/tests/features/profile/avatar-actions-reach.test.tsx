@@ -44,14 +44,20 @@ describe('the avatar actions sit on the avatar without becoming mouse-only', () 
     renderField()
     expect(screen.getByRole('button', { name: i18n.t('profile.avatarEdit') })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: i18n.t('profile.avatarRemove') })).toBeInTheDocument()
-    expect(screen.getByText(i18n.t('profile.avatarReplace'))).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: i18n.t('profile.avatarReplace') }),
+      'the upload action carries an icon, so its name must reach assistive technology',
+    ).toBeInTheDocument()
   })
 
   it('offers only uploading while there is no avatar to edit or remove', () => {
     renderField(null)
     expect(screen.queryByRole('button', { name: i18n.t('profile.avatarEdit') })).toBeNull()
     expect(screen.queryByRole('button', { name: i18n.t('profile.avatarRemove') })).toBeNull()
-    expect(screen.getByText(i18n.t('profile.avatarUpload'))).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: i18n.t('profile.avatarUpload') }),
+      'the only action left must still announce itself',
+    ).toBeInTheDocument()
   })
 })
 

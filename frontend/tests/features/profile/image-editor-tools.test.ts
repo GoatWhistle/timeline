@@ -1,34 +1,28 @@
 import { describe, expect, it } from 'vitest'
 import { drawText, resolveColourToken } from '@/features/profile/image-editor/canvas-ops'
 import {
-  clampCropZoom,
   EDITOR_PALETTE,
   EDITOR_PALETTE_FALLBACK_HEX,
   isValidHexColour,
-  MAX_CROP_ZOOM,
-  MIN_CROP_ZOOM,
   resizeCropByHandle,
 } from '@/features/profile/image-editor/editor-model'
-
-describe('crop zoom', () => {
-  it('clamps to the documented range instead of accepting anything', () => {
-    expect(clampCropZoom(0)).toBe(MIN_CROP_ZOOM)
-    expect(clampCropZoom(10)).toBe(MAX_CROP_ZOOM)
-    expect(clampCropZoom(2)).toBe(2)
-  })
-})
 
 describe('resizing an existing crop from a corner handle', () => {
   const rect = { x: 10, y: 10, width: 20, height: 20 }
 
   it('dragging the south-east handle keeps the opposite corner fixed', () => {
     const resized = resizeCropByHandle(rect, 'se', { x: 40, y: 50 })
-    expect(resized).toEqual({ x: 10, y: 10, width: 30, height: 40 })
+    expect(resized, 'the frame stays square, taking the longer reach').toEqual({
+      x: 10,
+      y: 10,
+      width: 40,
+      height: 40,
+    })
   })
 
   it('dragging the north-west handle keeps the bottom-right corner fixed', () => {
     const resized = resizeCropByHandle(rect, 'nw', { x: 5, y: 0 })
-    expect(resized).toEqual({ x: 5, y: 0, width: 25, height: 30 })
+    expect(resized).toEqual({ x: 0, y: 0, width: 30, height: 30 })
   })
 
   it('dragging past the opposite corner still produces a normalised rectangle', () => {

@@ -129,6 +129,33 @@ describe('flood fill', () => {
     expect(floodFill(data, 2, 2, 0, 0, '#ff0000')).toBe(false)
   })
 
+  it('does not bleed across a smooth gradient into a square block', () => {
+    const width = 900
+    const height = 8
+    const data = new Uint8ClampedArray(width * height * 4)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const offset = (y * width + x) * 4
+        data[offset] = Math.round((255 * x) / width)
+        data[offset + 1] = 40
+        data[offset + 2] = 90
+        data[offset + 3] = 255
+      }
+    }
+
+    floodFill(data, width, height, 0, 0, '#ff0000')
+
+    const filled = []
+    for (let x = 0; x < width; x += 1) {
+      if (pixelAt(data, width, x, 0)[0] === 255 && pixelAt(data, width, x, 0)[1] === 0)
+        filled.push(x)
+    }
+    expect(
+      filled.length,
+      'a wide tolerance paints a rectangle of its own instead of a region',
+    ).toBeLessThan(40)
+  })
+
   it('ignores a click outside the canvas instead of throwing', () => {
     const data = canvasData(2, 2, [255, 255, 255, 255])
     expect(floodFill(data, 2, 2, -1, 0, '#ff0000')).toBe(false)

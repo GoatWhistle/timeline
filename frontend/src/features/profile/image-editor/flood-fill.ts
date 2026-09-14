@@ -33,7 +33,7 @@ export function floodFill(
   startX: number,
   startY: number,
   colour: string,
-  tolerance = 12,
+  tolerance = 2,
 ): boolean {
   if (startX < 0 || startY < 0 || startX >= width || startY >= height) return false
 

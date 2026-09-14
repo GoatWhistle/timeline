@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AvatarField } from '@/features/profile/avatar-field/avatar-field'
+import { i18n } from '@/shared/i18n/config'
 
 const toastError = vi.fn()
 const toastSuccess = vi.fn()
@@ -46,7 +47,7 @@ function renderField() {
 async function openUploadDialog() {
   const rendered = renderField()
   await rendered.user.click(screen.getByRole('button', { name: /Upload/i }))
-  await screen.findByRole('alertdialog')
+  await screen.findByRole('dialog')
   return rendered
 }
 
@@ -103,7 +104,10 @@ describe('a chosen file is checked before the editor opens', () => {
     select(fileInput(), bad)
 
     await waitFor(() => expect(toastError).toHaveBeenCalledOnce())
-    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(
+      screen.queryByRole('dialog', { name: i18n.t('imageEditor.title') }),
+      'a refused file must never reach the editor',
+    ).toBeNull()
   })
 
   it('refuses a file past the 5 MB limit before it reaches the network', async () => {
@@ -113,6 +117,9 @@ describe('a chosen file is checked before the editor opens', () => {
     select(fileInput(), huge)
 
     await waitFor(() => expect(toastError).toHaveBeenCalledOnce())
-    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(
+      screen.queryByRole('dialog', { name: i18n.t('imageEditor.title') }),
+      'a refused file must never reach the editor',
+    ).toBeNull()
   })
 })

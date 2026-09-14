@@ -1,8 +1,10 @@
+import { Redo2, Undo2 } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { PANEL_SURFACE } from '@/shared/ui/overlays/overlay-chrome'
 import { Button } from '@/shared/ui/primitives/button'
+import { CloseButton } from '@/shared/ui/primitives/close-button'
 import { EditorCanvas } from './editor-canvas'
 import { isUsableCrop } from './editor-model'
 import { EditorToolbar } from './editor-toolbar'
@@ -33,11 +35,10 @@ export function ImageEditorOverlay({
   }, [editor.failed])
 
   async function save() {
+    if (editor.crop && isUsableCrop(editor.crop)) editor.applyCrop()
     const blob = await editor.toBlob()
     if (blob) onSave(blob)
   }
-
-  const cropReady = Boolean(editor.crop && isUsableCrop(editor.crop))
 
   return (
     <div
@@ -61,21 +62,38 @@ export function ImageEditorOverlay({
         aria-modal="true"
         aria-label={t('imageEditor.title')}
         className={cn(
-          'relative flex max-h-[min(94vh,56rem)] w-[min(94vw,60rem)] flex-col gap-4 overflow-y-auto p-5',
+          'relative flex max-h-[min(94vh,56rem)] w-[min(94vw,56rem)] flex-col gap-4 overflow-y-auto p-5',
           PANEL_SURFACE,
           'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95',
           'motion-safe:duration-zoom motion-safe:ease-out',
         )}
       >
-        <div className="flex flex-col gap-1">
-          <h2 className="font-semibold text-heading">{t('imageEditor.title')}</h2>
-          <p className="text-caption text-muted-foreground">
-            {editor.tool === 'crop'
-              ? t('imageEditor.cropHint')
-              : editor.tool === 'text'
-                ? t('imageEditor.textHint')
-                : t('imageEditor.hint')}
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="ml-auto flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t('imageEditor.undo')}
+              title={t('imageEditor.undo')}
+              onClick={editor.undo}
+              disabled={!editor.canUndo || busy}
+            >
+              <Undo2 className="size-4" aria-hidden="true" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t('imageEditor.redo')}
+              title={t('imageEditor.redo')}
+              onClick={editor.redo}
+              disabled={!editor.canRedo || busy}
+            >
+              <Redo2 className="size-4" aria-hidden="true" />
+            </Button>
+            <CloseButton aria-label={t('imageEditor.cancel')} onClick={onCancel} />
+          </div>
         </div>
 
         <EditorCanvas editor={editor} />
@@ -91,38 +109,8 @@ export function ImageEditorOverlay({
           onTextSizeChange={editor.setTextSize}
         />
 
-        <div className="flex flex-wrap items-center justify-end gap-2 border-border border-t pt-4">
-          <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={busy}>
-            {t('imageEditor.cancel')}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={editor.undo}
-            disabled={!editor.canUndo || busy}
-          >
-            {t('imageEditor.undo')}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={editor.redo}
-            disabled={!editor.canRedo || busy}
-          >
-            {t('imageEditor.redo')}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={editor.applyCrop}
-            disabled={!cropReady || busy}
-          >
-            {t('imageEditor.apply')}
-          </Button>
-          <Button type="button" size="sm" onClick={save} disabled={!editor.ready || busy}>
+        <div className="flex items-center justify-end">
+          <Button type="button" onClick={save} disabled={!editor.ready || busy}>
             {t('imageEditor.save')}
           </Button>
         </div>

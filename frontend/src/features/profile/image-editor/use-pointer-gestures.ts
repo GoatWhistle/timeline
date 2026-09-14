@@ -2,12 +2,13 @@ import { type RefObject, useCallback, useRef } from 'react'
 import { applyFill, drawBrushSegment, drawShape, pickColour, pointerPosition } from './canvas-ops'
 import {
   type CropHandle,
-  clampRectTo,
+  clampSquareTo,
   type EditorTool,
-  normaliseRect,
+  moveRectBy,
   type Point,
   type Rect,
   resizeCropByHandle,
+  squareFrom,
 } from './editor-model'
 
 export function usePointerGestures(options: {
@@ -18,8 +19,8 @@ export function usePointerGestures(options: {
   brushSize: number
   crop: Rect | null
   setCrop: (rect: Rect | null | ((current: Rect | null) => Rect | null)) => void
-  cropHandle: CropHandle | null
   setCropHandle: (handle: CropHandle | null) => void
+  setCropMoving: (moving: boolean) => void
   setColour: (colour: string) => void
   beginText: (point: Point) => void
   pushHistory: () => void
@@ -32,8 +33,8 @@ export function usePointerGestures(options: {
     brushSize,
     crop,
     setCrop,
-    cropHandle,
     setCropHandle,
+    setCropMoving,
     setColour,
     beginText,
     pushHistory,
@@ -41,13 +42,25 @@ export function usePointerGestures(options: {
   const strokeStart = useRef<Point | null>(null)
   const strokeLast = useRef<Point | null>(null)
   const snapshot = useRef<ImageData | null>(null)
+  const activeHandle = useRef<CropHandle | 'move' | null>(null)
 
   const begin = useCallback(
-    (clientX: number, clientY: number, handle?: CropHandle) => {
+    (clientX: number, clientY: number, handle?: CropHandle | 'move') => {
       const canvas = canvasRef.current
       const ctx = context()
       if (!canvas || !ctx) return
       const point = pointerPosition(canvas, clientX, clientY)
+
+      if (handle && crop) {
+        strokeStart.current = point
+        strokeLast.current = point
+        activeHandle.current = handle
+        setCropMoving(handle === 'move')
+        setCropHandle(handle === 'move' ? null : handle)
+        return
+      }
+
+      activeHandle.current = null
 
       if (tool === 'picker') {
         const picked = pickColour(ctx, point)
@@ -67,10 +80,7 @@ export function usePointerGestures(options: {
       strokeStart.current = point
       strokeLast.current = point
       if (tool === 'crop') {
-        if (handle && crop) {
-          setCropHandle(handle)
-          return
-        }
+        setCropMoving(false)
         setCropHandle(null)
         setCrop({ x: point.x, y: point.y, width: 0, height: 0 })
         return
@@ -89,6 +99,7 @@ export function usePointerGestures(options: {
       beginText,
       setCrop,
       setCropHandle,
+      setCropMoving,
       setColour,
       canvasRef,
     ],
@@ -102,14 +113,20 @@ export function usePointerGestures(options: {
       if (!canvas || !ctx || !start) return
       const point = pointerPosition(canvas, clientX, clientY)
 
-      if (tool === 'crop') {
-        if (cropHandle && crop) {
-          setCrop(
-            clampRectTo(resizeCropByHandle(crop, cropHandle, point), canvas.width, canvas.height),
-          )
+      const held = activeHandle.current
+      if (held && crop) {
+        if (held === 'move') {
+          const dx = point.x - (strokeLast.current ?? point).x
+          const dy = point.y - (strokeLast.current ?? point).y
+          strokeLast.current = point
+          setCrop(clampSquareTo(moveRectBy(crop, dx, dy), canvas.width, canvas.height))
           return
         }
-        setCrop(clampRectTo(normaliseRect(start, point), canvas.width, canvas.height))
+        setCrop(clampSquareTo(resizeCropByHandle(crop, held, point), canvas.width, canvas.height))
+        return
+      }
+      if (tool === 'crop') {
+        setCrop(clampSquareTo(squareFrom(start, point), canvas.width, canvas.height))
         return
       }
       if (tool === 'brush') {
@@ -120,15 +137,17 @@ export function usePointerGestures(options: {
       if (snapshot.current) ctx.putImageData(snapshot.current, 0, 0)
       drawShape(ctx, tool, start, point, colour, brushSize)
     },
-    [brushSize, colour, context, crop, cropHandle, tool, setCrop, canvasRef],
+    [brushSize, colour, context, crop, tool, setCrop, canvasRef],
   )
 
   const end = useCallback(() => {
     strokeStart.current = null
     strokeLast.current = null
     snapshot.current = null
+    activeHandle.current = null
     setCropHandle(null)
-  }, [setCropHandle])
+    setCropMoving(false)
+  }, [setCropHandle, setCropMoving])
 
   return { begin, move, end }
 }
