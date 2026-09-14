@@ -29,12 +29,12 @@ export function LogoutAllCard() {
 
   return (
     <>
-      <Card className="border-destructive/40">
+      <Card className="flex flex-1 flex-col border-destructive/40">
         <CardHeader>
           <CardTitle>{t('profile.logoutAllTitle')}</CardTitle>
           <CardDescription>{t('profile.sessionsHint')}</CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-end">
+        <CardContent className="mt-auto flex justify-end">
           <Button
             variant="destructive"
             disabled={logoutAll.isPending}
@@ -79,12 +79,12 @@ export function DeactivateAccountCard() {
 
   return (
     <>
-      <Card className="border-destructive/40">
+      <Card className="flex flex-1 flex-col border-destructive/40">
         <CardHeader>
           <CardTitle>{t('profile.deactivateTitle')}</CardTitle>
           <CardDescription>{t('profile.deactivateHint')}</CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-end">
+        <CardContent className="mt-auto flex justify-end">
           <Button variant="destructive" onClick={() => setDeactivateOpen(true)}>
             {t('profile.deactivate')}
           </Button>

@@ -34,17 +34,17 @@ export function SessionPolicyCard() {
   }
 
   return (
-    <Card className="flex-1 border-destructive/40">
+    <Card className="flex flex-1 flex-col border-destructive/40">
       <CardHeader>
         <CardTitle>{t('devices.policyTitle')}</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3">
+      <CardContent className="flex flex-1 flex-col gap-3">
         <div className="flex items-center gap-2">
           <Input
             id="session-policy-days"
             type="number"
             inputMode="numeric"
-            className="h-9 w-24 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className="h-9 w-20 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             value={draft}
             min={data?.min_days}
             max={data?.max_days}
@@ -54,7 +54,7 @@ export function SessionPolicyCard() {
           />
           <span className="text-copy text-muted-foreground">{t('devices.policyDaysLabel')}</span>
         </div>
-        <div className="flex justify-end">
+        <div className="mt-auto flex justify-end">
           <Button
             variant="destructive"
             disabled={!changed || save.isPending}
