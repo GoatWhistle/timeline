@@ -16,8 +16,9 @@ export function groupSeparator(locale: Locale): string {
 }
 
 export function groupDigits(digits: string, locale: Locale): string {
-  if (digits === '') return ''
-  return new Intl.NumberFormat(locale).format(BigInt(digits))
+  const whole = stripLeadingZeros(digits.split(/[.,]/)[0]?.replace(/\D/g, '') ?? '')
+  if (whole === '') return ''
+  return new Intl.NumberFormat(locale).format(BigInt(whole))
 }
 
 function countDigits(text: string, upTo: number): number {

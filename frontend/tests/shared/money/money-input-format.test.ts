@@ -58,6 +58,15 @@ describe('groupDigits', () => {
   it('renders an empty digit string as empty, not zero', () => {
     expect(groupDigits('', 'en')).toBe('')
   })
+
+  it('survives the trailing decimals the server sends for a whole amount', () => {
+    expect(groupDigits('5000.00', 'en')).toBe('5,000')
+    expect(groupDigits('4500.00', 'en')).toBe('4,500')
+  })
+
+  it('keeps the whole part rather than gluing the decimals onto it', () => {
+    expect(groupDigits('150000.75', 'en')).toBe('150,000')
+  })
 })
 
 describe('caretAfterDigitCount', () => {
