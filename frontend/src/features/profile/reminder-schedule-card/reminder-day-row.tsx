@@ -16,6 +16,26 @@ export function ReminderDayRow({
   onToggleDay: (day: number, checked: boolean) => void
 }) {
   const { t } = useTranslation('notification')
+  const head = dayChoices.slice(0, -1)
+  const last = dayChoices.at(-1)
+
+  function chipFor(day: number) {
+    return (
+      <ReminderChip
+        key={day}
+        id={`reminder-${occasion}-${day}`}
+        label={t('reminder.dayLabel', {
+          occasion: t(`explainer.type.${occasion}.name`),
+          count: day,
+        })}
+        checked={selected.includes(day)}
+        disabled={disabled}
+        onChange={(checked) => onToggleDay(day, checked)}
+      >
+        {day}
+      </ReminderChip>
+    )
+  }
 
   return (
     <div
@@ -23,24 +43,13 @@ export function ReminderDayRow({
       data-reminder-occasion={occasion}
     >
       <span className="text-meta text-muted-foreground">{t('explainer.daysLegend')}</span>
-      {dayChoices.map((day) => (
-        <ReminderChip
-          key={day}
-          id={`reminder-${occasion}-${day}`}
-          label={t('reminder.dayLabel', {
-            occasion: t(`explainer.type.${occasion}.name`),
-            count: day,
-          })}
-          checked={selected.includes(day)}
-          disabled={disabled}
-          onChange={(checked) => onToggleDay(day, checked)}
-        >
-          {t('reminder.day', { count: day })}
-        </ReminderChip>
-      ))}
-      {selected.length === 0 ? (
-        <span className="text-meta text-muted-foreground">{t('explainer.daysNever')}</span>
-      ) : null}
+      {head.map(chipFor)}
+      {last === undefined ? null : (
+        <span className="flex items-center gap-2">
+          {chipFor(last)}
+          <span className="text-meta text-muted-foreground">{t('reminder.daysUnit')}</span>
+        </span>
+      )}
     </div>
   )
 }

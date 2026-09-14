@@ -9,7 +9,6 @@ import {
   useReminderSchedule,
   useUpdateReminderSchedule,
 } from '@/entities/notification/reminder-schedule.queries'
-import { ReminderChip } from '@/features/profile/reminder-schedule-card/reminder-chip'
 import { ReminderDayRow } from '@/features/profile/reminder-schedule-card/reminder-day-row'
 import {
   daysOf,
@@ -63,6 +62,14 @@ export function NotificationExplainerCard({
               occasion={occasion}
               preferences={preferences}
               liveChannels={liveChannels}
+              onChannelsChange={
+                occasion === 'REGISTRATION_OVERDUE' && data
+                  ? (anyEnabled) =>
+                      anyEnabled === data.overdue_enabled
+                        ? undefined
+                        : save({ occasions: withOccasions(data), overdue_enabled: anyEnabled })
+                  : undefined
+              }
             >
               {isReminder(occasion) && data ? (
                 <ReminderDayRow
@@ -77,24 +84,6 @@ export function NotificationExplainerCard({
                     })
                   }
                 />
-              ) : null}
-              {occasion === 'REGISTRATION_OVERDUE' && data ? (
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-                  <span className="text-meta text-muted-foreground">
-                    {t('reminder.overdueLegend')}
-                  </span>
-                  <ReminderChip
-                    id="reminder-overdue"
-                    label={t('reminder.overdueTitle')}
-                    checked={data.overdue_enabled}
-                    disabled={update.isPending}
-                    onChange={(checked) =>
-                      save({ occasions: withOccasions(data), overdue_enabled: checked })
-                    }
-                  >
-                    {t('reminder.overdueChip')}
-                  </ReminderChip>
-                </div>
               ) : null}
             </NotificationOccasionRow>
           ))}

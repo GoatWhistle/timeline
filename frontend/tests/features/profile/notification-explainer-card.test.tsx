@@ -37,15 +37,12 @@ describe('the notification explainer names every type the domain can send', () =
     }
   })
 
-  it('gives every type both a name and a sentence saying when it arrives', () => {
+  it('names every type in every locale', () => {
     for (const locale of LOCALES) {
       const paths = new Set(keyPaths(dictionaries[locale].notification))
       for (const type of TYPES) {
         expect(paths, `${locale} misses the name of ${type}`).toContain(
           `explainer.type.${type}.name`,
-        )
-        expect(paths, `${locale} misses the timing of ${type}`).toContain(
-          `explainer.type.${type}.when`,
         )
       }
     }

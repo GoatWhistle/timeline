@@ -22,8 +22,8 @@ vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }))
 vi.mock('@/shared/api/client', () => ({
   api: {
     GET: vi.fn(async () => ({ data: schedule })),
-    PUT: vi.fn(async (_path: string, options: { body: UpdateReminderScheduleRequest }) => {
-      sent.push(options.body)
+    PUT: vi.fn(async (path: string, options: { body: UpdateReminderScheduleRequest }) => {
+      if (path === '/me/reminder-schedule') sent.push(options.body)
       return { data: schedule }
     }),
   },
@@ -61,10 +61,34 @@ function sentFor(occasion: string) {
   return last?.occasions?.find((entry) => entry.occasion === occasion)
 }
 
-function renderCard() {
+const OVERDUE_ON_BOTH: NotificationPreference[] = [
+  { occasion: 'REGISTRATION_OVERDUE', channel: 'TELEGRAM', enabled: true },
+  { occasion: 'REGISTRATION_OVERDUE', channel: 'EMAIL', enabled: true },
+]
+
+const OVERDUE_ON_EMAIL_ONLY: NotificationPreference[] = [
+  { occasion: 'REGISTRATION_OVERDUE', channel: 'TELEGRAM', enabled: false },
+  { occasion: 'REGISTRATION_OVERDUE', channel: 'EMAIL', enabled: true },
+]
+
+const OVERDUE_OFF_EVERYWHERE: NotificationPreference[] = [
+  { occasion: 'REGISTRATION_OVERDUE', channel: 'TELEGRAM', enabled: false },
+  { occasion: 'REGISTRATION_OVERDUE', channel: 'EMAIL', enabled: false },
+]
+
+function renderCard(preferences: NotificationPreference[] = NO_PREFERENCES) {
   return renderWithProviders(
-    <NotificationExplainerCard preferences={NO_PREFERENCES} liveChannels={LIVE} />,
+    <NotificationExplainerCard preferences={preferences} liveChannels={LIVE} />,
   )
+}
+
+function overdueSwitch(channel: Channel) {
+  return screen.findByRole('switch', {
+    name: i18n.t('notification:explainer.toggleLabel', {
+      occasion: i18n.t('notification:type.REGISTRATION_OVERDUE'),
+      channel: i18n.t(`notification:channel.${channel}`),
+    }),
+  })
 }
 
 function dayChip(occasion: string, count: number) {
@@ -127,31 +151,55 @@ describe('the reminder schedule is the reader own setting', () => {
     expect(sentFor('REMINDER_EVENT_END')?.days_before).toEqual([1])
   })
 
-  it('sends the overdue switch, and keeps the chosen days alongside it', async () => {
-    schedule = fullSchedule([2], false)
-    const { user } = renderCard()
+  it('silencing the last channel of the overdue occasion stops scheduling it', async () => {
+    schedule = fullSchedule([2], true)
+    const { user } = renderCard(OVERDUE_ON_EMAIL_ONLY)
 
-    const overdue = await screen.findByRole('button', {
-      name: i18n.t('notification:reminder.overdueTitle'),
-    })
-    await user.click(overdue)
+    await user.click(await overdueSwitch('EMAIL'))
+
+    await waitFor(() => expect(sent).toHaveLength(1))
+    expect(sent[0]?.overdue_enabled, 'no channel carries it, so it must stop').toBe(false)
+    expect(
+      sentFor('REMINDER_REGISTRATION_DEADLINE')?.days_before,
+      'the other occasions keep their days',
+    ).toEqual([2])
+  })
+
+  it('leaves it scheduled while another channel still carries it', async () => {
+    schedule = fullSchedule([2], true)
+    const { user } = renderCard(OVERDUE_ON_BOTH)
+
+    await user.click(await overdueSwitch('EMAIL'))
+
+    await waitFor(() => expect(sent).toHaveLength(0))
+  })
+
+  it('ignores a channel the reader cannot receive on when deciding it still arrives', async () => {
+    schedule = fullSchedule([2], true)
+    const { user } = renderWithProviders(
+      <NotificationExplainerCard
+        preferences={OVERDUE_ON_BOTH}
+        liveChannels={new Set<Channel>(['EMAIL'])}
+      />,
+    )
+
+    await user.click(await overdueSwitch('EMAIL'))
+
+    await waitFor(() => expect(sent).toHaveLength(1))
+    expect(
+      sent[0]?.overdue_enabled,
+      'telegram is enabled but unusable, so nothing carries it any more',
+    ).toBe(false)
+  })
+
+  it('re-enables scheduling when a channel is switched back on', async () => {
+    schedule = fullSchedule([2], false)
+    const { user } = renderCard(OVERDUE_OFF_EVERYWHERE)
+
+    await user.click(await overdueSwitch('EMAIL'))
 
     await waitFor(() => expect(sent).toHaveLength(1))
     expect(sent[0]?.overdue_enabled).toBe(true)
-    expect(sentFor('REMINDER_REGISTRATION_DEADLINE')?.days_before).toEqual([2])
-  })
-
-  it('turning the overdue switch off sends false rather than dropping the field', async () => {
-    schedule = fullSchedule([], true)
-    const { user } = renderCard()
-
-    const overdue = await screen.findByRole('button', {
-      name: i18n.t('notification:reminder.overdueTitle'),
-    })
-    await user.click(overdue)
-
-    await waitFor(() => expect(sent).toHaveLength(1))
-    expect(sent[0]?.overdue_enabled).toBe(false)
   })
 
   it('offers a day picker on exactly the four occasions the schedule governs', async () => {

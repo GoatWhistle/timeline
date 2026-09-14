@@ -17,40 +17,31 @@
   "explainer": {
     "type": {
       "REGISTRATION_REQUIRED": {
-        "name": "Registration required",
-        "when": "Once, when registration opens on an event you joined."
+        "name": "Registration required"
       },
       "REGISTRATION_OVERDUE": {
-        "name": "The deadline has passed",
-        "when": "After the deadline passes and you have not marked yourself registered."
+        "name": "The deadline has passed"
       },
       "REMINDER_REGISTRATION_DEADLINE": {
-        "name": "The registration deadline is near",
-        "when": "Before the registration deadline."
+        "name": "The registration deadline is near"
       },
       "REMINDER_EVENT_START": {
-        "name": "The event starts soon",
-        "when": "Before the event starts."
+        "name": "The event starts soon"
       },
       "REMINDER_STAGE_START": {
-        "name": "A stage starts soon",
-        "when": "Before a stage starts."
+        "name": "A stage starts soon"
       },
       "REMINDER_EVENT_END": {
-        "name": "The event ends soon",
-        "when": "Before the event ends."
+        "name": "The event ends soon"
       },
       "WEEKLY_DIGEST": {
-        "name": "Weekly digest",
-        "when": "Once a week, if the week had anything worth telling."
+        "name": "Weekly digest"
       },
       "PERSONAL_TASK_DUE": {
-        "name": "A personal task is due",
-        "when": "Shortly before a task you set yourself falls due."
+        "name": "A personal task is due"
       },
       "PERSONAL_RETROSPECTIVE_DUE": {
-        "name": "Time to look back",
-        "when": "A couple of days after an event ends."
+        "name": "Time to look back"
       }
     },
     "toggleUpdated": "Saved",
@@ -58,8 +49,7 @@
     "toggleLabel": "{{occasion}} by {{channel}}",
     "allOffTitle": "This never arrives",
     "allOffHint": "Both channels are off for this occasion.",
-    "daysLegend": "Warn me",
-    "daysNever": "no warning"
+    "daysLegend": "Warn me"
   },
   "card": {
     "title": "Channels",
@@ -104,14 +94,12 @@
     "nothingHint": "This status has no notification to render: the event, the registration or the participation rules it out."
   },
   "reminder": {
-    "day_one": "{{count}} day",
-    "day_other": "{{count}} days",
     "dayLabel_one": "{{occasion}} — {{count}} day before",
     "dayLabel_other": "{{occasion}} — {{count}} days before",
-    "overdueTitle": "The deadline has passed",
     "updated": "Reminder schedule updated",
     "failed": "Could not save the schedule",
-    "overdueChip": "until the event ends",
-    "overdueLegend": "Keep telling me"
+    "daysUnit": "days before",
+    "day_one": "{{count}} day before",
+    "day_other": "{{count}} days before"
   }
 }

@@ -24,7 +24,7 @@ export function ReminderChip({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={cn(
-        'whitespace-nowrap rounded-pill border px-2.5 py-1 text-meta',
+        'min-w-9 whitespace-nowrap rounded-pill border px-2.5 py-1.5 text-meta',
         'transition-colors duration-fast ease-out',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         'disabled:cursor-not-allowed disabled:opacity-50',
