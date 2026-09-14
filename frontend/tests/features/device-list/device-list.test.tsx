@@ -110,7 +110,24 @@ describe('device list', () => {
 
     expect(screen.getAllByRole('listitem'), 'the row must stay in the list').toHaveLength(2)
     expect(screen.getByRole('textbox')).toBeInTheDocument()
-    expect(screen.getAllByText(/Chrome/).length).toBeGreaterThan(0)
+  })
+
+  it('shows nothing but the field while the name is being typed', async () => {
+    const { queryClient, user } = renderWithProviders(<DeviceList />)
+    queryClient.setQueryData(deviceSessionsQueryKey, listBody([CURRENT]))
+
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(1))
+
+    const [edit] = screen.getAllByRole('button', { name: /Chrome/ })
+    if (!edit) throw new Error('the rename button is missing')
+    await user.click(edit)
+
+    const row = screen.getAllByRole('listitem')[0]
+    const spelled = [...(row?.querySelectorAll('p') ?? [])].map((node) => node.textContent)
+
+    expect(spelled, 'the hardware line has no business under the field').not.toContain(
+      'Chrome, Windows',
+    )
   })
 
   it('carries no card title above the devices', async () => {

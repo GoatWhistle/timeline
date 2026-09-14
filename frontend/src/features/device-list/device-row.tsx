@@ -98,10 +98,6 @@ export function DeviceRow({
           <p className="truncate font-medium text-copy">{title}</p>
         )}
 
-        {renaming ? (
-          <p className="mt-0.5 truncate text-meta text-muted-foreground">{fallback}</p>
-        ) : null}
-
         <dl className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-meta text-muted-foreground">
           {session.last_used_at ? (
             <>
