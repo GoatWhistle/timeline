@@ -1,6 +1,6 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { ArrowLeft } from 'lucide-react'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNotificationPreferences } from '@/entities/notification/notification-preferences.queries'
 import { useSession } from '@/shared/api/session'
@@ -8,6 +8,7 @@ import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus
 import { cn } from '@/shared/styling/class-names/class-names'
 import { SAFE_BOTTOM, SAFE_TOP, TAP_TARGET } from '@/shared/ui/layout/mobile/mobile-state'
 import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
+import { CrossfadeSwap } from '@/shared/ui/motion/crossfade-swap'
 import { PANEL_MOTION, PANEL_SURFACE, SCRIM } from '@/shared/ui/overlays/overlay-chrome'
 import { CloseButton } from '@/shared/ui/primitives/close-button'
 import { QueryBoundary } from '@/shared/ui/states'
@@ -24,6 +25,14 @@ export function SettingsOverlay() {
   const phone = usePhoneViewport()
   const activeRef = useRef<HTMLButtonElement>(null)
   const returnFocus = useReturnFocus(open)
+  const rank = SETTINGS_SECTIONS.findIndex((item) => item.id === section)
+  const previousRank = useRef(rank)
+  const direction =
+    rank === previousRank.current ? undefined : rank > previousRank.current ? 'left' : 'right'
+
+  useEffect(() => {
+    previousRank.current = rank
+  }, [rank])
 
   if (!user) return null
 
@@ -110,11 +119,13 @@ export function SettingsOverlay() {
                       section !== 'notifications' || notificationPreferences.data !== undefined
                     }
                   >
-                    <SettingsPanel
-                      section={section}
-                      user={user}
-                      notificationPreferences={notificationPreferences.data ?? []}
-                    />
+                    <CrossfadeSwap swapKey={section} direction={direction} className="w-full">
+                      <SettingsPanel
+                        section={section}
+                        user={user}
+                        notificationPreferences={notificationPreferences.data ?? []}
+                      />
+                    </CrossfadeSwap>
                   </QueryBoundary>
                 </div>
               </div>
