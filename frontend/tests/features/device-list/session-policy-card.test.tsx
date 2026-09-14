@@ -36,6 +36,37 @@ describe('the idle cutoff is the reader own setting', () => {
     expect(field).toHaveAttribute('max', '90')
   })
 
+  it('sets the unit beside the field on the field own centre line', async () => {
+    renderCard()
+
+    const field = await screen.findByRole('spinbutton')
+    const unit = field.nextElementSibling
+
+    if (!(unit instanceof HTMLElement)) throw new Error('the unit label is missing')
+    expect(unit.textContent?.trim()).toBe(i18n.t('common:devices.policyDaysLabel'))
+    expect(
+      unit.className,
+      'a label left at the top of the row rides above the middle of the field it names',
+    ).toMatch(/items-center/)
+    expect(
+      unit.className.split(' '),
+      'the label must stand as tall as the field to centre against it',
+    ).toContain('h-9')
+  })
+
+  it('keeps the unit on one line in every language it is written in', async () => {
+    for (const language of ['en', 'ru']) {
+      await i18n.changeLanguage(language)
+      const word = i18n.t('common:devices.policyDaysLabel')
+      expect(word.trim(), `${language} leaves the unit empty`).not.toBe('')
+      expect(
+        word.trim().split(/\s+/),
+        `${language} spells the unit in several words, which wraps beside a narrow field`,
+      ).toHaveLength(1)
+    }
+    await i18n.changeLanguage('en')
+  })
+
   it('shows the period the account currently keeps', async () => {
     renderCard()
 

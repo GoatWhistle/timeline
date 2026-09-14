@@ -52,7 +52,9 @@ export function SessionPolicyCard() {
           aria-label={t('devices.policyDaysLabel')}
           onChange={(event) => setDraft(event.target.value)}
         />
-        <span className="text-copy text-muted-foreground">{t('devices.policyDaysLabel')}</span>
+        <span className="flex h-9 items-center text-copy text-muted-foreground">
+          {t('devices.policyDaysLabel')}
+        </span>
         <Button
           variant="destructive"
           className="ml-auto mt-[0.625rem]"
