@@ -8,6 +8,7 @@ import { applyServerErrors } from '@/shared/forms/server-errors'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { PasswordInput } from '@/shared/ui/forms/password-input'
+import { DialogFooter } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
 
 const emailSchema = z.object({
@@ -16,7 +17,13 @@ const emailSchema = z.object({
 })
 type EmailValues = z.infer<typeof emailSchema>
 
-export function EmailChangeForm({ onSent }: { onSent: () => void }) {
+export function EmailChangeForm({
+  onSent,
+  onCancel,
+}: {
+  onSent: () => void
+  onCancel?: () => void
+}) {
   const { t } = useTranslation()
   const changeEmail = useChangeEmail()
   const emailForm = useForm<EmailValues>({
@@ -39,7 +46,7 @@ export function EmailChangeForm({ onSent }: { onSent: () => void }) {
 
   return (
     <form
-      className="flex flex-col gap-4 border-border border-t pt-4"
+      className="flex flex-col gap-4"
       onSubmit={emailForm.handleSubmit(onChangeEmail)}
       noValidate
     >
@@ -68,11 +75,16 @@ export function EmailChangeForm({ onSent }: { onSent: () => void }) {
           {errors.root.message}
         </p>
       )}
-      <div className="flex justify-end">
+      <DialogFooter>
+        {onCancel ? (
+          <Button type="button" variant="outline" onClick={onCancel}>
+            {t('action.cancel')}
+          </Button>
+        ) : null}
         <Button type="submit" disabled={emailForm.formState.isSubmitting}>
           {t('profile.sendConfirmation')}
         </Button>
-      </div>
+      </DialogFooter>
     </form>
   )
 }

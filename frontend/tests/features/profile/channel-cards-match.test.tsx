@@ -1,4 +1,3 @@
-import { render } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
 import { EmailChangeCard } from '@/features/profile/email-change-card/email-change-card'
@@ -39,11 +38,19 @@ const USER: MeResponse = {
 function shapeOf(container: HTMLElement) {
   const card = container.querySelector('[data-slot=card]')
   if (!card) throw new Error('no card')
-  const badge = card.querySelector('span[class*=rounded-control]')
+  const value = card.querySelector('span.font-medium')
+  const notes = [...card.querySelectorAll('[data-slot=card-description]')]
+  const withClasses = (node: Element | null | undefined) => {
+    if (!node) return ''
+    const inner = [...node.querySelectorAll('*')]
+      .map((child) => (typeof child.className === 'string' ? child.className : ''))
+      .join(' ')
+    return `${node.className} ${inner}`.trim()
+  }
   return {
     hasHeader: Boolean(card.querySelector('[data-slot=card-header]')),
-    hasBadge: Boolean(badge),
-    badgeClass: badge?.className ?? '',
+    valueClass: withClasses(value),
+    lineCount: (value ? 1 : 0) + notes.length,
     actionCount: card.querySelectorAll('[data-slot=card-content] button:not([data-email-verified])')
       .length,
   }
@@ -62,15 +69,20 @@ function telegramShape() {
 }
 
 describe('the two links are one component, not two shapes of the same idea', () => {
-  it('dresses the same state in the same badge, whichever channel wears it', () => {
+  it('writes the value under the title the same way, whichever channel wears it', () => {
     const linkedEmail = emailShape()
     const linkedTelegram = shapeOf(
-      renderWithProviders(<TelegramLinkCard user={{ ...USER, telegram_linked: true }} />).container,
+      renderWithProviders(
+        <TelegramLinkCard user={{ ...USER, telegram_linked: true, telegram_username: 'ivan' }} />,
+      ).container,
     )
 
-    expect(linkedEmail.hasBadge).toBe(true)
-    expect(linkedTelegram.hasBadge).toBe(true)
-    expect(linkedEmail.badgeClass).toBe(linkedTelegram.badgeClass)
+    expect(linkedEmail.valueClass, 'the email card must publish its address').not.toBe('')
+    expect(linkedTelegram.valueClass, 'the telegram card must publish its handle').not.toBe('')
+    expect(
+      linkedEmail.valueClass,
+      'two channels styling the same line differently read as two components',
+    ).toBe(linkedTelegram.valueClass)
   })
 
   it('gives both channels a header and a single action in the same place', () => {
@@ -82,13 +94,29 @@ describe('the two links are one component, not two shapes of the same idea', () 
     expect(email.actionCount).toBe(telegram.actionCount)
   })
 
-  it('names the same three states from one dictionary, not two wordings', () => {
+  it('names every state from one dictionary, not two wordings', () => {
     const { container } = renderWithProviders(<TelegramLinkCard user={USER} />)
     expect(container.textContent).toContain(i18n.t('account.channelUnlinked'))
 
-    const email = render(<EmailChangeCard email={USER.email} emailVerified={false} />, {
-      container: document.body.appendChild(document.createElement('div')),
-    })
-    expect(email.container.textContent).toContain(i18n.t('account.channelPending'))
+    const email = renderWithProviders(
+      <EmailChangeCard email={USER.email} emailVerified={false} pendingEmail="next@example.com" />,
+    )
+    expect(email.container.textContent).toContain(i18n.t('common:profile.emailPending'))
+    expect(
+      email.container.textContent,
+      'the reader has to know which address the confirmation went to',
+    ).toContain('next@example.com')
+  })
+
+  it('shows the value of each channel, not only one of them', () => {
+    const email = emailShape()
+    const telegram = shapeOf(
+      renderWithProviders(
+        <TelegramLinkCard user={{ ...USER, telegram_linked: true, telegram_username: 'ivan' }} />,
+      ).container,
+    )
+
+    expect(email.lineCount).toBeGreaterThan(0)
+    expect(telegram.lineCount).toBeGreaterThan(0)
   })
 })
