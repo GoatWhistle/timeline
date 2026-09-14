@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { beforeAll, describe, expect, it } from 'vitest'
@@ -165,6 +167,28 @@ describe('device glyphs', () => {
     expect(shown, 'the row must not spell out what the marks already show').not.toContain(
       'Chrome, Windows',
     )
+  })
+
+  it('centres the marks in the screen of every device, not against its outer box', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'src/features/device-list/device-row.tsx'),
+      'utf8',
+    )
+    const block = source.match(/const SCREEN[^}]*\}/)?.[0] ?? ''
+
+    expect(block, 'the screen insets are missing').not.toBe('')
+
+    for (const kind of ['mobile', 'tablet', 'desktop']) {
+      const row = block.match(new RegExp(`${kind}: '([^']*)'`))?.[1] ?? ''
+      const top = Number(row.match(/top-\[(\d+)%\]/)?.[1])
+      const bottom = Number(row.match(/bottom-\[(\d+)%\]/)?.[1])
+
+      expect(top, `${kind} has no top inset`).toBeGreaterThan(0)
+      expect(
+        bottom,
+        `${kind} hangs its marks against the top of the screen instead of its middle`,
+      ).toBeGreaterThan(top)
+    }
   })
 
   it('carries a mark for every browser and platform the product can name', () => {

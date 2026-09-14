@@ -15,9 +15,9 @@ import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
 import { DeviceName } from './device-name'
 
 const SCREEN: Record<DeviceKind, string> = {
-  mobile: 'inset-x-[20%] top-[12%] bottom-[30%]',
-  tablet: 'inset-x-[18%] top-[12%] bottom-[30%]',
-  desktop: 'inset-x-[18%] top-[24%] bottom-[36%]',
+  mobile: 'inset-x-[23%] top-[11%] bottom-[32%]',
+  tablet: 'inset-x-[19%] top-[11%] bottom-[32%]',
+  desktop: 'inset-x-[19%] top-[23%] bottom-[36%]',
   unknown: 'inset-0',
 }
 
