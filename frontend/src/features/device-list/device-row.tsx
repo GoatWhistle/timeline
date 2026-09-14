@@ -38,7 +38,7 @@ function MarkRow({
   if (marks.length === 0) return null
 
   return (
-    <span className="flex shrink-0 items-center gap-1.5">
+    <span className="flex shrink-0 items-center gap-0.5">
       {marks.map((name) => (
         <DeviceGlyphMark key={name} name={name} className={className} />
       ))}
@@ -84,9 +84,7 @@ export function DeviceRow({
         className="-right-4 -bottom-5 absolute size-28 text-muted-foreground/15"
       >
         <Icon className="pointer-events-none size-full" aria-hidden="true" />
-        <span
-          className={cn('absolute flex items-center justify-center gap-1', SCREEN[device.kind])}
-        >
+        <span className={cn('absolute flex items-center justify-center', SCREEN[device.kind])}>
           <MarkRow marks={marks} className="size-6 text-current" />
         </span>
       </span>
