@@ -4,6 +4,7 @@ import { useUpdateProfile } from '@/entities/user/profile.queries'
 import { LanguageChoice } from '@/features/appearance/language-choice'
 import { ThemeChoice } from '@/features/appearance/theme-choice'
 import { DeviceList } from '@/features/device-list/device-list'
+import { SessionPolicyCard } from '@/features/device-list/session-policy-card'
 import {
   DeactivateAccountCard,
   LogoutAllCard,
@@ -125,7 +126,10 @@ export function SettingsPanel({
     return (
       <div className="flex flex-col gap-4">
         <DeviceList />
-        <LogoutAllCard />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
+          <SessionPolicyCard />
+          <LogoutAllCard />
+        </div>
       </div>
     )
   }

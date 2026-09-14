@@ -161,7 +161,13 @@
     "groupCurrent": "This device",
     "groupToday": "Active today",
     "groupWeek": "Active this week",
-    "groupOlder": "Not used recently"
+    "groupOlder": "Not used recently",
+    "policyTitle": "Drop a device that went quiet",
+    "policyHint": "A session unused for this long is signed out on its own. The one you are on now is never dropped.",
+    "policySweeping": "Sign out idle devices",
+    "policyDaysLabel": "Days of silence",
+    "policySaved": "Session policy updated",
+    "policyFailed": "Could not save the policy"
   },
   "settings": {
     "title": "Settings",
