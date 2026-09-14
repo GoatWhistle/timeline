@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
@@ -15,6 +17,21 @@ function Harness() {
       </button>
       <CrossfadeSwap swapKey={key}>
         <p data-testid="pitch">{key === 'long' ? LONG_TEXT : SHORT_TEXT}</p>
+      </CrossfadeSwap>
+    </div>
+  )
+}
+
+function PairHarness() {
+  const [key, setKey] = useState<'long' | 'short'>('long')
+  return (
+    <div>
+      <button type="button" onClick={() => setKey('short')}>
+        switch
+      </button>
+      <CrossfadeSwap swapKey={key}>
+        <h2 data-testid="head">{key === 'long' ? LONG_TEXT : SHORT_TEXT}</h2>
+        <p data-testid="body">{key === 'long' ? LONG_TEXT : SHORT_TEXT}</p>
       </CrossfadeSwap>
     </div>
   )
@@ -60,6 +77,30 @@ describe('CrossfadeSwap: text changes without the layout snapping', () => {
     const nodes = screen.getAllByTestId('pitch')
     for (const node of nodes) {
       expect(node.parentElement).toHaveClass('[grid-area:1/1]')
+    }
+  })
+
+  it('measures the whole slot, not just its first child', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'src/shared/ui/motion/crossfade-swap.tsx'),
+      'utf8',
+    )
+
+    expect(
+      source,
+      'measuring only firstElementChild loses every sibling, so a two-part slot overflows',
+    ).not.toMatch(/firstElementChild/)
+  })
+
+  it('keeps a slot of several parts inside the swap container', () => {
+    render(<PairHarness />)
+    act(() => {
+      screen.getByRole('button', { name: 'switch' }).click()
+    })
+
+    const parts = [screen.getAllByTestId('head')[0], screen.getAllByTestId('body')[0]]
+    for (const part of parts) {
+      expect(part?.closest('[class*="inline-grid"]'), 'a part escaped the container').not.toBeNull()
     }
   })
 

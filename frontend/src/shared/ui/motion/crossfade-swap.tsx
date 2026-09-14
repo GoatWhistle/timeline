@@ -68,7 +68,7 @@ export function CrossfadeSwap<K extends string | number>({
 
   useLayoutEffect(() => {
     const read = () => {
-      const node = nodes.current.get(swapKey)?.firstElementChild
+      const node = nodes.current.get(swapKey)
       if (!node || mountedKeys === '') return
       const height = node.getBoundingClientRect().height
       if (height > 0) setLockedHeight(height)
@@ -76,9 +76,7 @@ export function CrossfadeSwap<K extends string | number>({
     read()
     if (typeof ResizeObserver === 'undefined') return undefined
     const observer = new ResizeObserver(read)
-    for (const slot of nodes.current.values()) {
-      if (slot.firstElementChild) observer.observe(slot.firstElementChild)
-    }
+    for (const slot of nodes.current.values()) observer.observe(slot)
     return () => observer.disconnect()
   }, [mountedKeys, swapKey])
 
@@ -132,7 +130,7 @@ export function CrossfadeSwap<K extends string | number>({
           }}
           aria-hidden={slot.exiting || undefined}
           className={cn(
-            '[grid-area:1/1] translate-x-0 motion-safe:transition-[opacity,filter,transform] motion-safe:duration-base motion-safe:ease-out',
+            '[grid-area:1/1] translate-x-0 self-start motion-safe:transition-[opacity,filter,transform] motion-safe:duration-base motion-safe:ease-out',
             slot.exiting &&
               cn(
                 'pointer-events-none absolute inset-x-0 top-0 motion-safe:opacity-0 motion-safe:blur-[2px]',
