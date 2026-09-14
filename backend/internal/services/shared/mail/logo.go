@@ -14,6 +14,7 @@ import (
 
 const logoScale = 12
 const logoViewbox = 24
+const logoSamples = 4
 
 type logoBar struct {
 	x, y, w, h, rx float64
@@ -53,13 +54,53 @@ func drawRoundedRect(img *image.RGBA, bar logoBar, fill color.RGBA) {
 	x1, y1 := (bar.x+bar.w)*logoScale, (bar.y+bar.h)*logoScale
 	r := bar.rx * logoScale
 
-	for y := int(y0); y < int(y1); y++ {
-		for x := int(x0); x < int(x1); x++ {
-			if insideRoundedRect(float64(x)+0.5, float64(y)+0.5, x0, y0, x1, y1, r) {
-				img.SetRGBA(x, y, fill)
+	for y := int(math.Floor(y0)); y < int(math.Ceil(y1)); y++ {
+		for x := int(math.Floor(x0)); x < int(math.Ceil(x1)); x++ {
+			coverage := pixelCoverage(float64(x), float64(y), x0, y0, x1, y1, r)
+			if coverage <= 0 {
+				continue
+			}
+			blendPixel(img, x, y, fill, coverage)
+		}
+	}
+}
+
+func pixelCoverage(px, py, x0, y0, x1, y1, r float64) float64 {
+	hit := 0
+	for sy := 0; sy < logoSamples; sy++ {
+		for sx := 0; sx < logoSamples; sx++ {
+			ox := px + (float64(sx)+0.5)/logoSamples
+			oy := py + (float64(sy)+0.5)/logoSamples
+			if insideRoundedRect(ox, oy, x0, y0, x1, y1, r) {
+				hit++
 			}
 		}
 	}
+	return float64(hit) / float64(logoSamples*logoSamples)
+}
+
+func blendPixel(img *image.RGBA, x, y int, fill color.RGBA, coverage float64) {
+	alpha := float64(fill.A) / 255 * coverage
+	if alpha <= 0 {
+		return
+	}
+	prev := img.RGBAAt(x, y)
+	prevA := float64(prev.A) / 255
+	outA := alpha + prevA*(1-alpha)
+	if outA <= 0 {
+		return
+	}
+	mix := func(src, dstPremultiplied uint8) uint8 {
+		s := float64(src) * alpha
+		d := float64(dstPremultiplied) / 255 * (1 - alpha) * 255
+		return uint8(math.Round(math.Min(255, s+d)))
+	}
+	img.SetRGBA(x, y, color.RGBA{
+		R: mix(fill.R, prev.R),
+		G: mix(fill.G, prev.G),
+		B: mix(fill.B, prev.B),
+		A: uint8(math.Round(outA * 255)),
+	})
 }
 
 func insideRoundedRect(px, py, x0, y0, x1, y1, r float64) bool {

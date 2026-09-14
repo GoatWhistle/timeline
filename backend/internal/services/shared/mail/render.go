@@ -75,6 +75,23 @@ func expiryText(lang, key string, args []string) string {
 	return locale.Message(lang, "email.expiry", args...)
 }
 
+func (l letter) Paragraphs() [][]string {
+	normalised := strings.ReplaceAll(l.Intro, "\r\n", "\n")
+	out := make([][]string, 0, 4)
+	for _, block := range strings.Split(normalised, "\n\n") {
+		lines := make([]string, 0, 3)
+		for _, line := range strings.Split(block, "\n") {
+			if trimmed := strings.TrimSpace(line); trimmed != "" {
+				lines = append(lines, trimmed)
+			}
+		}
+		if len(lines) > 0 {
+			out = append(out, lines)
+		}
+	}
+	return out
+}
+
 func (l letter) html() (string, error) {
 	var buf bytes.Buffer
 	if err := layout.ExecuteTemplate(&buf, "layout", l); err != nil {

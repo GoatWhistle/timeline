@@ -3,6 +3,7 @@ package delivery
 import (
 	"context"
 	"log/slog"
+	"strings"
 
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
@@ -28,6 +29,38 @@ func (s *DeliveryService) applyTelegramContent(msg *models.OutboundMessage, n *m
 	}
 }
 
+func emailHeadingKey(kind models.NotificationType) string {
+	switch kind {
+	case models.NotificationOverdue:
+		return "notification.overdue.telegram.heading"
+	case models.NotificationDeadlineReminder:
+		return "notification.reminder.telegram.heading"
+	case models.NotificationEventStartReminder:
+		return "notification.event_start.telegram.heading"
+	case models.NotificationStageStartReminder:
+		return "notification.stage_start.telegram.heading"
+	case models.NotificationEventEndReminder:
+		return "notification.event_end.telegram.heading"
+	case models.NotificationWeeklyDigest:
+		return "notification.weekly_digest.telegram.heading"
+	case models.NotificationPersonalTaskDue:
+		return "notification.task_due.telegram.heading"
+	case models.NotificationRetrospectiveDue:
+		return "notification.retrospective_due.telegram.heading"
+	default:
+		return "notification.primary.telegram.heading"
+	}
+}
+
+func emailHeading(lang string, n *models.Notification) string {
+	key := emailHeadingKey(n.NotificationType)
+	heading := locale.Message(lang, key, "days", "")
+	if heading == key || strings.TrimSpace(heading) == "" {
+		return n.Payload.Subject
+	}
+	return heading
+}
+
 func (s *DeliveryService) applyEmailContent(msg *models.OutboundMessage, n *models.Notification, user *models.User) {
 	if n.Payload == nil {
 		return
@@ -42,7 +75,7 @@ func (s *DeliveryService) applyEmailContent(msg *models.OutboundMessage, n *mode
 		Theme:           string(user.Theme),
 		PublicURL:       s.cfg.App.PublicURL,
 		Subject:         n.Payload.Subject,
-		Heading:         n.Payload.Subject,
+		Heading:         emailHeading(lang, n),
 		Body:            n.Payload.Body,
 		RegistrationURL: link,
 	})

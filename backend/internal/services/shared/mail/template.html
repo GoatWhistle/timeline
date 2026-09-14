@@ -40,10 +40,10 @@ a[x-apple-data-detectors] { color:inherit !important; text-decoration:none !impo
 
 <tr><td class="tl-pad" align="center" style="padding:0 8px 20px 8px;">
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
-    <td style="padding-right:10px;" valign="middle">
-      <img src="{{.LogoURL}}" width="28" height="28" alt="Timeline" style="display:block; width:28px; height:28px;" />
+    <td style="padding-right:12px;" valign="middle">
+      <img src="{{.LogoURL}}" width="40" height="40" alt="Timeline" style="display:block; width:40px; height:40px;" />
     </td>
-    <td class="tl-word" valign="middle" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:18px; font-weight:600; letter-spacing:2.5px; color:{{.Palette.Heading}};">TIME<span class="tl-accent" style="color:{{.Palette.Accent}};">LINE</span></td>
+    <td class="tl-word" valign="middle" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:23px; font-weight:600; letter-spacing:3px; color:{{.Palette.Heading}};">TIME<span class="tl-accent" style="color:{{.Palette.Accent}};">LINE</span></td>
   </tr></table>
 </td></tr>
 
@@ -59,20 +59,20 @@ a[x-apple-data-detectors] { color:inherit !important; text-decoration:none !impo
 </td></tr>
 
 <tr><td class="tl-pad" style="padding:12px 40px 0 40px;">
-  <p class="tl-text" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:25px; color:{{.Palette.Text}};">{{.Intro}}</p>
+  {{range $index, $lines := .Paragraphs}}<p class="tl-text" style="margin:{{if $index}}14px 0 0 0{{else}}0{{end}}; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:25px; color:{{$.Palette.Text}};">{{range $n, $line := $lines}}{{if $n}}<br />{{end}}{{$line}}{{end}}</p>{{end}}
 </td></tr>
 
-<tr><td class="tl-pad tl-btn" align="center" style="padding:28px 40px 0 40px;">
+{{if .Link}}<tr><td class="tl-pad tl-btn" align="center" style="padding:28px 40px 0 40px;">
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
     <td align="center" bgcolor="{{.Palette.Accent}}" style="border-radius:8px;">
       <a href="{{.Link}}" style="display:inline-block; padding:14px 30px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:20px; font-weight:600; color:{{.Palette.ButtonText}}; text-decoration:none; border-radius:8px;">{{.Action}}</a>
     </td>
   </tr></table>
-</td></tr>
+</td></tr>{{end}}
 
-<tr><td class="tl-pad" style="padding:16px 40px 0 40px;">
+{{if .Expiry}}<tr><td class="tl-pad" style="padding:28px 40px 0 40px;">
   <p class="tl-muted" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:14px; line-height:21px; color:{{.Palette.Muted}};">{{.Expiry}}</p>
-</td></tr>
+</td></tr>{{end}}
 
 {{if .Attribution}}<tr><td class="tl-pad" style="padding:6px 40px 0 40px;">
   <p class="tl-muted" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:14px; line-height:21px; color:{{.Palette.Muted}};">{{.Attribution}}</p>
@@ -82,18 +82,19 @@ a[x-apple-data-detectors] { color:inherit !important; text-decoration:none !impo
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td class="tl-rule" height="1" style="height:1px; background-color:{{.Palette.Rule}}; font-size:0; line-height:0;">&nbsp;</td></tr></table>
 </td></tr>
 
-<tr><td class="tl-pad" style="padding:20px 40px 0 40px;">
+{{if .Link}}<tr><td class="tl-pad" style="padding:20px 40px 0 40px;">
   <p class="tl-muted" style="margin:0 0 6px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:{{.Palette.Muted}};">{{.Fallback}}</p>
   <p style="margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; line-height:19px; word-break:break-all;"><a class="tl-url" href="{{.Link}}" style="color:{{.Palette.Muted}}; text-decoration:underline;">{{.Link}}</a></p>
-</td></tr>
+</td></tr>{{end}}
 
-<tr><td class="tl-pad" style="padding:24px 40px 40px 40px;">
+{{if .Aside}}<tr><td class="tl-pad" style="padding:24px 40px 40px 40px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
     <td class="tl-aside" style="background-color:{{.Palette.Aside}}; border-radius:8px; padding:14px 18px;">
       <p class="tl-muted" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:{{.Palette.Muted}};">{{.Aside}}</p>
     </td>
   </tr></table>
-</td></tr>
+</td></tr>{{end}}
+{{if not .Aside}}<tr><td class="tl-pad" style="padding:0 40px 40px 40px; font-size:0; line-height:0;">&nbsp;</td></tr>{{end}}
 
 </table>
 </td></tr>
