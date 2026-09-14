@@ -15,8 +15,6 @@
     "PERSONAL_RETROSPECTIVE_DUE": "Пора подвести итоги"
   },
   "explainer": {
-    "title": "Что приходит",
-    "hint": "Каждый повод и канал, который его несёт.",
     "type": {
       "REGISTRATION_REQUIRED": {
         "name": "Нужно зарегистрироваться",

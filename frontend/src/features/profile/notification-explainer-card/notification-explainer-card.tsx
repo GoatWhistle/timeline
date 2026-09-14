@@ -18,7 +18,7 @@ import {
 } from '@/features/profile/reminder-schedule-card/reminder-schedule.model'
 import type { Channel, NotificationOccasion, NotificationPreference } from '@/shared/api/types.gen'
 import { Note } from '@/shared/ui/data-display/note/note'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/layout/card'
+import { Card, CardContent } from '@/shared/ui/layout/card'
 import { NotificationOccasionRow } from './notification-occasion-row'
 
 const EXPLAINED_TYPES = Object.keys(NOTIFICATION_TYPE_KEY) as NotificationOccasion[]
@@ -55,11 +55,7 @@ export function NotificationExplainerCard({
 
   return (
     <Card>
-      <CardHeader className="pb-4">
-        <CardTitle>{t('explainer.title')}</CardTitle>
-        <CardDescription>{t('explainer.hint')}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4 pt-0 pb-5">
+      <CardContent className="flex flex-col gap-4 py-5">
         <div className="divide-y divide-border">
           {EXPLAINED_TYPES.map((occasion) => (
             <NotificationOccasionRow

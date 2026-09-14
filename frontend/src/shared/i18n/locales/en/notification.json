@@ -15,8 +15,6 @@
     "PERSONAL_RETROSPECTIVE_DUE": "Time to look back"
   },
   "explainer": {
-    "title": "What arrives",
-    "hint": "Every occasion, and which channel carries it.",
     "type": {
       "REGISTRATION_REQUIRED": {
         "name": "Registration required",

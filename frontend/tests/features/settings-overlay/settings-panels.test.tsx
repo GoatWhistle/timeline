@@ -137,7 +137,6 @@ describe('account against profile', () => {
   it('answers what arrives and when, not only which channel', () => {
     renderSection('notifications')
 
-    expect(screen.getByText(i18n.t('notification:explainer.title'))).toBeInTheDocument()
     for (const type of [
       'REGISTRATION_REQUIRED',
       'REMINDER_REGISTRATION_DEADLINE',
