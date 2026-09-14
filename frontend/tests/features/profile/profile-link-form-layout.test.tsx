@@ -28,36 +28,35 @@ beforeAll(async () => {
   await i18n.changeLanguage('en')
 })
 
-function urlFields() {
-  return screen.getAllByLabelText(i18n.t('profile.links.url'))
+async function openAddForm() {
+  const rendered = renderWithProviders(<ProfileLinksCard />)
+  await rendered.user.click(screen.getByRole('button', { name: i18n.t('profile.links.add') }))
+  await screen.findByLabelText(i18n.t('profile.links.url'))
+  return rendered
 }
 
-describe('the address and its caption share a row instead of stacking', () => {
-  it('puts both fields in one flex row rather than one under the other', () => {
+function urlField() {
+  return screen.getByLabelText(i18n.t('profile.links.url')) as HTMLElement
+}
+
+describe('adding a link happens in a dialog, not inline in the card', () => {
+  it('shows no form until the reader asks for one', () => {
     renderWithProviders(<ProfileLinksCard />)
-    const url = urlFields()[0] as HTMLElement
-    const caption = screen.getByLabelText(i18n.t('profile.links.label'))
-
-    const urlField = url.closest('div.flex.flex-col') as HTMLElement
-    const captionField = caption.closest('div.flex.flex-col') as HTMLElement
-    expect(urlField.parentElement).toBe(captionField.parentElement)
-
-    const row = urlField.parentElement as HTMLElement
-    expect(row.className).toContain('sm:flex-row')
+    expect(
+      screen.queryByLabelText(i18n.t('profile.links.url')),
+      'an unopened form must not occupy the card',
+    ).toBeNull()
   })
 
-  it('gives the address more of the row than the caption', () => {
-    renderWithProviders(<ProfileLinksCard />)
-    const url = urlFields()[0] as HTMLElement
-    const caption = screen.getByLabelText(i18n.t('profile.links.label'))
-
-    expect((url.closest('div.flex.flex-col') as HTMLElement).className).toContain('sm:flex-2')
-    expect((caption.closest('div.flex.flex-col') as HTMLElement).className).toContain('sm:flex-1')
+  it('opens the form in a dialog when the add button is pressed', async () => {
+    await openAddForm()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(urlField().closest('[role=dialog]'), 'the form belongs to the dialog').not.toBeNull()
   })
 
-  it('never lets either field push the row wider than the card', () => {
-    renderWithProviders(<ProfileLinksCard />)
-    const url = urlFields()[0] as HTMLElement
+  it('never lets either field push the dialog wider than itself', async () => {
+    await openAddForm()
+    const url = urlField()
     const caption = screen.getByLabelText(i18n.t('profile.links.label'))
 
     expect((url.closest('div.flex.flex-col') as HTMLElement).className).toContain('min-w-0')
@@ -66,9 +65,9 @@ describe('the address and its caption share a row instead of stacking', () => {
 })
 
 describe('the service glyph follows the address it describes', () => {
-  it('sits after the input in document order, not before it', () => {
-    renderWithProviders(<ProfileLinksCard />)
-    const url = urlFields()[0] as HTMLElement
+  it('sits after the input in document order, not before it', async () => {
+    await openAddForm()
+    const url = urlField()
     const glyph = (url.parentElement as HTMLElement).querySelector('svg') as SVGElement
 
     expect(glyph).not.toBeNull()
@@ -76,9 +75,9 @@ describe('the service glyph follows the address it describes', () => {
     expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
-  it('is pinned to the trailing edge, and the padding it needs is on that side', () => {
-    renderWithProviders(<ProfileLinksCard />)
-    const url = urlFields()[0] as HTMLElement
+  it('is pinned to the trailing edge, and the padding it needs is on that side', async () => {
+    await openAddForm()
+    const url = urlField()
     const glyph = (url.parentElement as HTMLElement).querySelector('svg') as SVGElement
 
     expect(glyph.getAttribute('class') ?? '').toContain('right-3')
@@ -88,34 +87,32 @@ describe('the service glyph follows the address it describes', () => {
   })
 })
 
-describe('the form spends no height on nothing', () => {
-  it('keeps no permanently reserved line under the address', () => {
-    renderWithProviders(<ProfileLinksCard />)
-    const detected = document.getElementById('new-link-detected') as HTMLElement
+describe('the form names the service without spending a visible line on it', () => {
+  it('shows the reader no written verdict about the address', async () => {
+    const { user } = await openAddForm()
 
-    expect(detected.className).not.toContain('min-h-5')
-    expect(detected.className).toContain('empty:hidden')
-    expect(detected.textContent).toBe('')
+    await user.type(urlField(), 'https://gitlab.com/ivan')
+
+    await waitFor(() => expect(urlField()).toHaveValue('https://gitlab.com/ivan'))
+    const detected = document.getElementById('new-link-detected') as HTMLElement
+    expect(
+      detected.className,
+      'the verdict belongs to assistive technology, not to the visible form',
+    ).toContain('sr-only')
   })
 
-  it('shows that line only once a service is actually recognised', async () => {
-    const { user } = renderWithProviders(<ProfileLinksCard />)
-    const detected = document.getElementById('new-link-detected') as HTMLElement
-    expect(detected.textContent).toBe('')
-
-    await user.type(urlFields()[0] as HTMLElement, 'https://gitlab.com/ivan')
-
-    await waitFor(() =>
-      expect(detected).toHaveTextContent(i18n.t('profile.links.detected', { name: 'GitLab' })),
-    )
-  })
-
-  it('still announces the recognised service to a screen reader', () => {
-    renderWithProviders(<ProfileLinksCard />)
-    const url = urlFields()[0] as HTMLElement
+  it('still announces the recognised service to a screen reader', async () => {
+    const { user } = await openAddForm()
+    const url = urlField()
     const detected = document.getElementById('new-link-detected') as HTMLElement
 
     expect(detected).toHaveAttribute('aria-live', 'polite')
     expect(url).toHaveAttribute('aria-describedby', detected.id)
+
+    await user.type(url, 'https://gitlab.com/ivan')
+
+    await waitFor(() =>
+      expect(detected).toHaveTextContent(i18n.t('profile.links.detected', { name: 'GitLab' })),
+    )
   })
 })

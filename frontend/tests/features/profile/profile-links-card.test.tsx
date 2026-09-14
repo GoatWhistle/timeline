@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
+import { BioCard, bioSchema } from '@/features/profile/bio-card/bio-card'
 import {
   PersonalDataCard,
   profileSchema,
@@ -71,9 +72,8 @@ describe('profile schema', () => {
   })
 
   it('bounds the bio at 2000 characters, matching the database constraint', () => {
-    const base = { ...NAMES }
-    expect(profileSchema.safeParse({ ...base, bio: 'a'.repeat(2000) }).success).toBe(true)
-    expect(profileSchema.safeParse({ ...base, bio: 'a'.repeat(2001) }).success).toBe(false)
+    expect(bioSchema.safeParse({ bio: 'a'.repeat(2000) }).success).toBe(true)
+    expect(bioSchema.safeParse({ bio: 'a'.repeat(2001) }).success).toBe(false)
   })
 })
 
@@ -140,14 +140,13 @@ describe('profile link preview', () => {
   })
 })
 
-describe('bio and avatar handling in the personal data card', () => {
-  function renderCard(props: { bio?: string; avatarUrl?: string }) {
+describe('bio and avatar handling in the profile panel', () => {
+  function renderCard(props: { avatarUrl?: string }) {
     return renderWithProviders(
       <PersonalDataCard
         userId="us_42ej2s5gh7e8"
         firstName="Ivan"
         lastName="Petrov"
-        bio={props.bio}
         avatarUrl={props.avatarUrl}
       />,
     )
@@ -155,7 +154,7 @@ describe('bio and avatar handling in the personal data card', () => {
 
   it('shows a bio containing markup as literal text in the editor', async () => {
     const bio = '<script>alert(1)</script> & "quotes"'
-    renderCard({ bio })
+    renderWithProviders(<BioCard bio={bio} />)
 
     const field = await screen.findByLabelText(i18n.t('profile.bio'))
     expect((field as HTMLTextAreaElement).value).toBe(bio)
@@ -163,7 +162,7 @@ describe('bio and avatar handling in the personal data card', () => {
   })
 
   it('offers no link preview for a bio, so its text can never become an anchor', () => {
-    renderCard({ bio: 'see https://evil.example.org' })
+    renderWithProviders(<BioCard bio="see https://evil.example.org" />)
     expect(screen.queryByRole('link')).toBeNull()
   })
 

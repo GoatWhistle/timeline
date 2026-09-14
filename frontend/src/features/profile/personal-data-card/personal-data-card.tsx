@@ -1,18 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useUpdateProfile } from '@/entities/user/profile.queries'
 import { AvatarField } from '@/features/profile/avatar-field/avatar-field'
 import { applyServerErrors } from '@/shared/forms/server-errors'
-import { MarkdownEditor } from '@/shared/markdown/markdown-editor'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { Card, CardContent } from '@/shared/ui/layout/card'
 import { Button } from '@/shared/ui/primitives/button'
-
-const BIO_MAX = 2000
 
 export const profileSchema = z.object({
   first_name: z
@@ -26,7 +23,6 @@ export const profileSchema = z.object({
     .trim()
     .min(1, 'auth:validation.lastNameMin')
     .max(80, 'auth:validation.nameMax'),
-  bio: z.string().max(BIO_MAX, 'validation.bioTooLong'),
 })
 type ProfileValues = z.infer<typeof profileSchema>
 
@@ -37,7 +33,6 @@ export function PersonalDataCard({
   lastName,
   legacyDisplayName,
   avatarUrl,
-  bio,
 }: {
   userId: string
   firstName: string
@@ -45,7 +40,6 @@ export function PersonalDataCard({
   lastName: string
   legacyDisplayName?: string | null
   avatarUrl?: string | null
-  bio?: string | null
 }) {
   const { t } = useTranslation()
   const updateProfile = useUpdateProfile()
@@ -55,7 +49,6 @@ export function PersonalDataCard({
       first_name: firstName,
       middle_name: middleName ?? '',
       last_name: lastName,
-      bio: bio ?? '',
     },
   })
 
@@ -65,16 +58,10 @@ export function PersonalDataCard({
         first_name: values.first_name,
         middle_name: values.middle_name,
         last_name: values.last_name,
-        bio: values.bio,
       })
       toast.success(t('profile.saved'))
     } catch (error) {
-      applyServerErrors(error, profileForm.setError, [
-        'first_name',
-        'middle_name',
-        'last_name',
-        'bio',
-      ])
+      applyServerErrors(error, profileForm.setError, ['first_name', 'middle_name', 'last_name'])
     }
   }
 
@@ -99,7 +86,7 @@ export function PersonalDataCard({
           onSubmit={profileForm.handleSubmit(onSaveProfile)}
           noValidate
         >
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
             <AvatarField
               seed={userId}
               firstName={firstName}
@@ -145,23 +132,6 @@ export function PersonalDataCard({
               </Field>
             </div>
           </div>
-          <Field label={t('profile.bio')} htmlFor="bio" error={errors.bio?.message}>
-            <Controller
-              control={profileForm.control}
-              name="bio"
-              render={({ field }) => (
-                <MarkdownEditor
-                  id="bio"
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  rows={4}
-                  maxLength={BIO_MAX}
-                />
-              )}
-            />
-          </Field>
-
           <div className="flex justify-end">
             <Button type="submit" disabled={profileForm.formState.isSubmitting}>
               {t('action.save')}

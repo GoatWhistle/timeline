@@ -6,6 +6,7 @@ import { cn } from '@/shared/styling/class-names/class-names'
 import { Field } from '@/shared/ui/forms/field'
 import { Input } from '@/shared/ui/forms/input'
 import { ServiceIcon, serviceLabel } from '@/shared/ui/navigation/service-link/service-icon'
+import { DialogFooter } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
 import { type NewLinkValues, newLinkSchema } from './links-schema'
 
@@ -57,11 +58,11 @@ export function ProfileLinkForm({
 
   return (
     <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(submit)} noValidate>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+      <div className="flex flex-col gap-4">
         <Field
           label={t('profile.links.url')}
           htmlFor={urlId}
-          className="min-w-0 sm:flex-2"
+          className="min-w-0"
           error={form.formState.errors.url?.message}
         >
           <div className="relative">
@@ -90,7 +91,7 @@ export function ProfileLinkForm({
         <Field
           label={t('profile.links.label')}
           htmlFor={labelId}
-          className="min-w-0 sm:flex-1"
+          className="min-w-0"
           error={form.formState.errors.label?.message}
         >
           <Input
@@ -104,15 +105,11 @@ export function ProfileLinkForm({
         </Field>
       </div>
 
-      <p
-        id={detectedId}
-        aria-live="polite"
-        className="text-meta text-muted-foreground empty:hidden"
-      >
+      <p id={detectedId} aria-live="polite" className="sr-only">
         {detected === null ? '' : t('profile.links.detected', { name: detected })}
       </p>
 
-      <div className="flex flex-wrap items-center justify-end gap-2">
+      <DialogFooter>
         {footnote !== undefined && footnote !== '' && (
           <p className="mr-auto text-meta text-muted-foreground">{footnote}</p>
         )}
@@ -134,7 +131,7 @@ export function ProfileLinkForm({
         <Button type="submit" disabled={submitDisabled || form.formState.isSubmitting}>
           {submitLabel}
         </Button>
-      </div>
+      </DialogFooter>
     </form>
   )
 }

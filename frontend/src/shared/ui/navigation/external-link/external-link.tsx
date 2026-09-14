@@ -49,8 +49,8 @@ export function ExternalLink({
       {...props}
     >
       {children}
-      {isInsecureLink(href) && <InsecureLinkMark />}
       {showIcon && <ExternalLinkIcon className="size-3.5" aria-hidden="true" />}
+      {isInsecureLink(href) && <InsecureLinkMark />}
     </a>
   )
 }

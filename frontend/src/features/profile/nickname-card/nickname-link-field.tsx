@@ -28,7 +28,7 @@ export function NicknameLinkField({
     <div
       data-invalid={invalid ? '' : undefined}
       className={cn(
-        'group flex h-9 w-full min-w-0 flex-1 items-stretch overflow-hidden rounded-control',
+        'group flex h-9 min-h-9 w-full min-w-0 flex-1 items-stretch overflow-hidden rounded-control text-copy',
         'border border-input bg-transparent shadow-flat',
         'transition-colors duration-fast ease-out',
         'focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-ring',

@@ -9,6 +9,7 @@ import {
   DeactivateAccountCard,
   LogoutAllCard,
 } from '@/features/profile/account-actions-card/account-actions-card'
+import { BioCard } from '@/features/profile/bio-card/bio-card'
 import { EmailChangeCard } from '@/features/profile/email-change-card/email-change-card'
 import { NicknameCard } from '@/features/profile/nickname-card/nickname-card'
 import { NotificationChannelCard } from '@/features/profile/notification-channel-card/notification-channel-card'
@@ -154,8 +155,8 @@ export function SettingsPanel({
         lastName={user.last_name ?? ''}
         legacyDisplayName={user.legacy_display_name}
         avatarUrl={user.avatar_url}
-        bio={user.bio}
       />
+      <BioCard bio={user.bio} />
       <NicknameCard nickname={user.nickname} profilePublic={user.profile_public} />
       <ProfileLinksCard />
     </div>

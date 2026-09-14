@@ -77,7 +77,7 @@
       "detected": "Recognised: {{name}}",
       "label": "Caption",
       "addTitle": "New link",
-      "add": "Add link",
+      "add": "Add",
       "added": "Link added",
       "limitReached": "The maximum number of links has been reached.",
       "edit": "Edit {{name}}",

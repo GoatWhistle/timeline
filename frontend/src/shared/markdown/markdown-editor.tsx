@@ -1,9 +1,10 @@
-import { Bold, Code, Heading, Italic, Link2, List, ListOrdered } from 'lucide-react'
+import { Bold, Code, Eye, Heading, Italic, Link2, List, ListOrdered } from 'lucide-react'
 import { useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Textarea } from '@/shared/ui/forms/textarea'
 import { Button } from '@/shared/ui/primitives/button'
+import { EditAction } from '@/shared/ui/primitives/row-actions'
 import { applyMark, type MarkName } from './apply-mark'
 import { MARKDOWN_MAX_LENGTH } from './limits'
 import { MarkdownView } from './markdown-view'
@@ -54,8 +55,6 @@ export function MarkdownEditor({
     })
   }
 
-  const over = value.length > maxLength - 200
-
   return (
     <div className={cn('flex flex-col gap-2', className)}>
       <div className="flex flex-wrap items-center gap-1">
@@ -77,45 +76,58 @@ export function MarkdownEditor({
             </Button>
           ))}
         </fieldset>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="ml-auto"
-          onClick={() => setPreview((current) => !current)}
-          aria-pressed={preview}
-          aria-controls={previewId}
-        >
-          {t(preview ? 'markdown.write' : 'markdown.preview')}
-        </Button>
+        {preview ? (
+          <EditAction
+            className="ml-auto"
+            label={t('markdown.write')}
+            aria-pressed={true}
+            aria-controls={previewId}
+            onClick={() => setPreview(false)}
+          />
+        ) : (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="ml-auto size-8"
+            onClick={() => setPreview(true)}
+            aria-pressed={false}
+            aria-controls={previewId}
+            title={t('markdown.preview')}
+          >
+            <Eye className="size-4" aria-hidden="true" />
+            <span className="sr-only">{t('markdown.preview')}</span>
+          </Button>
+        )}
       </div>
 
-      {preview ? (
-        <div
-          id={previewId}
-          className="min-h-32 rounded-control border border-input px-3 py-2"
-          data-markdown-preview=""
-        >
-          <MarkdownView source={value} />
-        </div>
-      ) : (
-        <Textarea
-          id={id}
-          ref={area}
-          rows={rows}
-          value={value}
-          maxLength={maxLength}
-          onChange={(event) => onChange(event.target.value)}
-          onBlur={onBlur}
-          className="font-mono text-caption"
-        />
-      )}
-
-      <div className="flex items-center justify-between gap-2 text-caption text-muted-foreground">
-        <span>{t('markdown.hint')}</span>
-        {over && (
-          <span className={value.length >= maxLength ? 'text-destructive' : undefined}>
-            {value.length} / {maxLength}
+      <div className="relative grid min-h-24">
+        {preview ? (
+          <div
+            id={previewId}
+            className="[grid-area:1/1] overflow-auto rounded-control border border-input px-3 py-2"
+            data-markdown-preview=""
+          >
+            <MarkdownView source={value} />
+          </div>
+        ) : (
+          <Textarea
+            id={id}
+            ref={area}
+            rows={rows}
+            value={value}
+            maxLength={maxLength}
+            onChange={(event) => onChange(event.target.value)}
+            onBlur={onBlur}
+            className="[grid-area:1/1] h-full resize-y pb-6 font-mono text-caption"
+          />
+        )}
+        {preview ? null : (
+          <span className="pointer-events-none absolute right-5 bottom-2 flex items-center gap-2 text-caption text-muted-foreground">
+            <span className="font-mono uppercase">{t('markdown.syntax')}</span>
+            <span className={value.length >= maxLength ? 'text-destructive' : undefined}>
+              {value.length} / {maxLength}
+            </span>
           </span>
         )}
       </div>

@@ -40,35 +40,27 @@ beforeEach(() => {
 })
 
 function urlFields() {
-  return screen.getAllByLabelText(i18n.t('profile.links.url'))
+  return screen.queryAllByLabelText(i18n.t('profile.links.url'))
+}
+
+function editPencil(name: string) {
+  return screen.getByLabelText(i18n.t('profile.links.edit', { name }))
 }
 
 describe('the links card holds one editor at a time', () => {
-  it('shows the add form, and only that form, before anything is edited', () => {
+  it('shows no form at all until the reader opens one', () => {
     renderWithProviders(<ProfileLinksCard />)
 
-    expect(urlFields()).toHaveLength(1)
-    expect(screen.getAllByLabelText(i18n.t('profile.links.label'))).toHaveLength(1)
+    expect(urlFields(), 'the card must not carry a form it was not asked for').toHaveLength(0)
     expect(screen.getByRole('button', { name: i18n.t('profile.links.add') })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: i18n.t('action.save') })).toBeNull()
   })
 
-  it('replaces the add form when a link is opened for editing, never stacks the two', async () => {
+  it('loads the edited link into the one form it opens', async () => {
     const { user } = renderWithProviders(<ProfileLinksCard />)
 
-    await user.click(screen.getByLabelText(i18n.t('profile.links.edit', { name: 'My code' })))
+    await user.click(editPencil('My code'))
 
     expect(urlFields()).toHaveLength(1)
-    expect(screen.getAllByLabelText(i18n.t('profile.links.label'))).toHaveLength(1)
-    expect(screen.queryByRole('button', { name: i18n.t('profile.links.add') })).toBeNull()
-    expect(screen.getByRole('button', { name: i18n.t('action.save') })).toBeInTheDocument()
-  })
-
-  it('loads the edited link into that one form', async () => {
-    const { user } = renderWithProviders(<ProfileLinksCard />)
-
-    await user.click(screen.getByLabelText(i18n.t('profile.links.edit', { name: 'My code' })))
-
     expect(urlFields()[0]).toHaveValue('https://github.com/ivan')
     expect(screen.getByLabelText(i18n.t('profile.links.label'))).toHaveValue('My code')
   })
@@ -76,29 +68,34 @@ describe('the links card holds one editor at a time', () => {
   it('switches between two links without ever showing two forms', async () => {
     const { user } = renderWithProviders(<ProfileLinksCard />)
 
-    await user.click(screen.getByLabelText(i18n.t('profile.links.edit', { name: 'My code' })))
-    await user.click(screen.getByLabelText(i18n.t('profile.links.edit', { name: 'Telegram' })))
+    await user.click(editPencil('My code'))
+    await user.click(screen.getByRole('button', { name: i18n.t('action.cancel') }))
+    await waitFor(() => expect(urlFields()).toHaveLength(0))
+    await user.click(editPencil('Telegram'))
 
     expect(urlFields()).toHaveLength(1)
     expect(urlFields()[0]).toHaveValue('https://t.me/ivan')
   })
 
-  it('returns to the add form when editing is cancelled', async () => {
+  it('closes the editor when editing is cancelled, leaving no form behind', async () => {
     const { user } = renderWithProviders(<ProfileLinksCard />)
 
-    await user.click(screen.getByLabelText(i18n.t('profile.links.edit', { name: 'My code' })))
+    await user.click(editPencil('My code'))
     await user.click(screen.getByRole('button', { name: i18n.t('action.cancel') }))
 
-    expect(urlFields()).toHaveLength(1)
-    expect(urlFields()[0]).toHaveValue('')
+    await waitFor(() => expect(urlFields()).toHaveLength(0))
     expect(screen.getByRole('button', { name: i18n.t('profile.links.add') })).toBeInTheDocument()
   })
 
   it('names the editor so the user can tell which mode they are in', async () => {
     const { user } = renderWithProviders(<ProfileLinksCard />)
-    expect(screen.getByText(i18n.t('profile.links.addTitle'))).toBeInTheDocument()
 
-    await user.click(screen.getByLabelText(i18n.t('profile.links.edit', { name: 'My code' })))
+    await user.click(screen.getByRole('button', { name: i18n.t('profile.links.add') }))
+    expect(screen.getByText(i18n.t('profile.links.addTitle'))).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: i18n.t('action.cancel') }))
+    await waitFor(() => expect(urlFields()).toHaveLength(0))
+
+    await user.click(editPencil('My code'))
 
     expect(screen.getByText(i18n.t('profile.links.editTitle'))).toBeInTheDocument()
     expect(screen.queryByText(i18n.t('profile.links.addTitle'))).toBeNull()
@@ -106,34 +103,38 @@ describe('the links card holds one editor at a time', () => {
 
   it('marks the row being edited, so the form is tied to a link', async () => {
     const { user } = renderWithProviders(<ProfileLinksCard />)
-    const pencil = screen.getByLabelText(i18n.t('profile.links.edit', { name: 'My code' }))
+    const pencil = editPencil('My code')
     expect(pencil).toHaveAttribute('aria-pressed', 'false')
 
     await user.click(pencil)
 
-    await waitFor(() =>
-      expect(
-        screen.getByLabelText(i18n.t('profile.links.edit', { name: 'My code' })),
-      ).toHaveAttribute('aria-pressed', 'true'),
-    )
-    expect(
-      screen.getByLabelText(i18n.t('profile.links.edit', { name: 'Telegram' })),
-    ).toHaveAttribute('aria-pressed', 'false')
+    await waitFor(() => expect(editPencil('My code')).toHaveAttribute('aria-pressed', 'true'))
+    expect(editPencil('Telegram')).toHaveAttribute('aria-pressed', 'false')
   })
 
-  it('keeps every row on screen while one of them is edited', async () => {
+  it('keeps every row in place while one of them is edited', async () => {
     const { user } = renderWithProviders(<ProfileLinksCard />)
-    expect(screen.getAllByRole('listitem')).toHaveLength(2)
+    expect(document.querySelectorAll('li')).toHaveLength(2)
 
-    await user.click(screen.getByLabelText(i18n.t('profile.links.edit', { name: 'My code' })))
+    await user.click(editPencil('My code'))
 
-    expect(screen.getAllByRole('listitem')).toHaveLength(2)
+    expect(
+      document.querySelectorAll('li'),
+      'opening the editor must not drop the rows behind it',
+    ).toHaveLength(2)
   })
 })
 
 describe('the card tells the user what it recognised, and never scolds', () => {
-  it('names the service once the address is recognised', async () => {
-    const { user } = renderWithProviders(<ProfileLinksCard />)
+  async function openAdd() {
+    const rendered = renderWithProviders(<ProfileLinksCard />)
+    await rendered.user.click(screen.getByRole('button', { name: i18n.t('profile.links.add') }))
+    await screen.findByLabelText(i18n.t('profile.links.url'))
+    return rendered
+  }
+
+  it('announces the service once the address is recognised', async () => {
+    const { user } = await openAdd()
 
     await user.type(urlFields()[0] as HTMLElement, 'https://gitlab.com/ivan')
 
@@ -145,7 +146,7 @@ describe('the card tells the user what it recognised, and never scolds', () => {
   })
 
   it('says nothing at all about an address it does not recognise', async () => {
-    const { user } = renderWithProviders(<ProfileLinksCard />)
+    const { user } = await openAdd()
 
     await user.type(urlFields()[0] as HTMLElement, 'https://example.org/me')
 
@@ -154,8 +155,8 @@ describe('the card tells the user what it recognised, and never scolds', () => {
     expect(screen.queryByText(/not recognised/i)).toBeNull()
   })
 
-  it('recognises a newly added service, and its mark reaches the field', async () => {
-    const { user } = renderWithProviders(<ProfileLinksCard />)
+  it('announces a newly added service too, so the list is not hardcoded', async () => {
+    const { user } = await openAdd()
 
     await user.type(urlFields()[0] as HTMLElement, 'https://kaggle.com/ivan')
 

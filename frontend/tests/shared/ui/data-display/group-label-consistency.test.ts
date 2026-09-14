@@ -24,7 +24,6 @@ const ADOPTED = [
   'features/shortcut-help/shortcut-help.tsx',
   'features/audit-log/audit-log.tsx',
   'features/teams/team-links/team-links-card.tsx',
-  'features/profile/profile-links-card/profile-links-card.tsx',
 ]
 
 function eyebrows(source: string): string[] {

@@ -89,6 +89,6 @@
     "code": "Code",
     "preview": "Preview",
     "write": "Write",
-    "hint": "Markdown: headings, lists, links and emphasis."
+    "syntax": "md"
   }
 }
