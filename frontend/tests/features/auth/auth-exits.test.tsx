@@ -44,6 +44,14 @@ function renderExits() {
   )
 }
 
+function renderSoleExit() {
+  return render(
+    <MemoryRouter>
+      <AuthExits exits={[{ to: '/login', label: 'Sign in' }]} />
+    </MemoryRouter>,
+  )
+}
+
 describe('the ways out of an auth screen are buttons, not footnotes', () => {
   it('gives every exit the button role rather than a bare link', () => {
     renderExits()
@@ -60,6 +68,22 @@ describe('the ways out of an auth screen are buttons, not footnotes', () => {
       const classes = screen.getByRole('link', { name }).className.split(/\s+/)
       for (const token of FLOOR) expect(classes).toContain(token)
     }
+  })
+
+  it('lets a sole exit run the full width instead of leaving a gap beside it', () => {
+    const { container } = renderSoleExit()
+    const row = container.querySelector('div')
+
+    expect(row?.className, 'a lone exit must not sit in a two-column grid').not.toMatch(
+      /grid-cols-2/,
+    )
+  })
+
+  it('still pairs two exits side by side', () => {
+    const { container } = renderExits()
+    const row = container.querySelector('div')
+
+    expect(row?.className, 'two exits share the row').toMatch(/grid-cols-2/)
   })
 
   it('keeps every exit reachable as a real destination', () => {
