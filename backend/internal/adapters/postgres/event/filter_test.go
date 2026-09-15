@@ -9,14 +9,13 @@ import (
 )
 
 func countPlaceholders(sql string) int {
-	seen := map[string]bool{}
-	for i := 1; i <= 9; i++ {
-		token := "$" + itoa(i)
-		if strings.Contains(sql, token) {
-			seen[token] = true
+	highest := 0
+	for i := 1; i <= 12; i++ {
+		if strings.Contains(sql, "$"+itoa(i)) {
+			highest = i
 		}
 	}
-	return len(seen)
+	return highest
 }
 
 func TestFilterSQLBindsEveryArgument(t *testing.T) {

@@ -3,6 +3,8 @@ package query
 import (
 	"context"
 	"strings"
+
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 )
 
 const organizerVisible = `e.organizer IS NOT NULL AND btrim(e.organizer) <> ''`
@@ -18,7 +20,7 @@ func (r *Catalog) Organizers(ctx context.Context, admin bool, search string,
 
 	args := make([]any, 0, 2)
 	if trimmed := strings.TrimSpace(search); trimmed != "" {
-		args = append(args, "%"+strings.ToLower(trimmed)+"%")
+		args = append(args, postgres.LikeContains(trimmed))
 		conds = append(conds, `lower(e.organizer) LIKE $`+itoa(len(args)))
 	}
 	args = append(args, limit)

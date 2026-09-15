@@ -131,7 +131,7 @@ func (r *Participants) List(ctx context.Context, eventID uuid.UUID, filter model
 		conds = append(conds, "s.status = $"+itoa(len(args)))
 	}
 	if filter.Search != "" {
-		args = append(args, "%"+strings.ToLower(filter.Search)+"%")
+		args = append(args, postgres.LikeContains(filter.Search))
 		conds = append(conds, "(lower(u.first_name) LIKE $"+itoa(len(args))+
 			" OR lower(u.last_name) LIKE $"+itoa(len(args))+" OR u.email LIKE $"+itoa(len(args))+")")
 	}

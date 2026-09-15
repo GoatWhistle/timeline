@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
 )
@@ -15,7 +16,7 @@ func catalogFilterSQL(viewer uuid.UUID, filter dto.CatalogFilter, now time.Time)
 	conds := []string{`e.published_at IS NOT NULL`, `e.archived_at IS NULL`}
 
 	if filter.Search != "" {
-		args = append(args, "%"+strings.ToLower(filter.Search)+"%")
+		args = append(args, postgres.LikeContains(filter.Search))
 		n := itoa(len(args))
 		conds = append(conds, `(lower(e.title) LIKE $`+n+` OR lower(coalesce(e.organizer, '')) LIKE $`+n+`)`)
 	}

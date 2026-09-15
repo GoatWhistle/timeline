@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
@@ -14,7 +15,7 @@ func eventFilterSQL(filter models.EventFilter, now time.Time) (string, []any) {
 	args := make([]any, 0, 4)
 
 	if filter.Search != "" {
-		args = append(args, "%"+strings.ToLower(filter.Search)+"%")
+		args = append(args, postgres.LikeContains(filter.Search))
 		n := itoa(len(args))
 		conds = append(conds,
 			`(lower(title) LIKE $`+n+` OR lower(coalesce(organizer, '')) LIKE $`+n+`)`)
@@ -31,8 +32,10 @@ func eventFilterSQL(filter models.EventFilter, now time.Time) (string, []any) {
 		conds = append(conds, `start_at <= $`+itoa(len(args)))
 	}
 	if len(filter.States) > 0 {
-		nowArg := `$` + itoa(len(args)+1)
-		usesNow := false
+		if statesNeedNow(filter.States) {
+			args = append(args, now)
+		}
+		nowArg := `$` + itoa(len(args))
 		stateConds := make([]string, 0, len(filter.States))
 		for _, st := range filter.States {
 			switch st {
@@ -41,19 +44,13 @@ func eventFilterSQL(filter models.EventFilter, now time.Time) (string, []any) {
 			case models.EventUnpublished:
 				stateConds = append(stateConds, `(archived_at IS NULL AND published_at IS NULL)`)
 			case models.EventUpcoming:
-				usesNow = true
 				stateConds = append(stateConds, publishedAnd+`start_at > `+nowArg+`)`)
 			case models.EventActive:
-				usesNow = true
 				stateConds = append(stateConds,
 					publishedAnd+`start_at <= `+nowArg+` AND end_at >= `+nowArg+`)`)
 			case models.EventFinished:
-				usesNow = true
 				stateConds = append(stateConds, publishedAnd+`end_at < `+nowArg+`)`)
 			}
-		}
-		if usesNow {
-			args = append(args, now)
 		}
 		if len(stateConds) > 0 {
 			conds = append(conds, `(`+strings.Join(stateConds, " OR ")+`)`)
@@ -123,4 +120,14 @@ func eventOrderSQL(sort models.CatalogSort) string {
 		return column + " " + direction + ", start_at ASC"
 	}
 	return column + " " + direction + ", lower(title) ASC"
+}
+
+func statesNeedNow(states []models.EventState) bool {
+	for _, st := range states {
+		switch st {
+		case models.EventUpcoming, models.EventActive, models.EventFinished:
+			return true
+		}
+	}
+	return false
 }

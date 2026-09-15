@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -177,4 +178,18 @@ func NullUUID(id uuid.UUID) *uuid.UUID {
 		return nil
 	}
 	return &id
+}
+
+func LikeContains(value string) string {
+	var b strings.Builder
+	b.Grow(len(value) + 2)
+	b.WriteByte('%')
+	for _, r := range strings.ToLower(strings.TrimSpace(value)) {
+		if r == '%' || r == '_' || r == '\\' {
+			b.WriteByte('\\')
+		}
+		b.WriteRune(r)
+	}
+	b.WriteByte('%')
+	return b.String()
 }

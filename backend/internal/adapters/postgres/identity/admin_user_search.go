@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/GoatWhistle/timeline/internal/adapters/postgres"
 	"github.com/GoatWhistle/timeline/internal/locale"
 	"github.com/GoatWhistle/timeline/internal/models"
 	"github.com/GoatWhistle/timeline/internal/models/dto"
@@ -25,7 +26,7 @@ func adminUserFilterSQL(filter models.UserFilter) (string, []any) {
 	args := make([]any, 0, 4)
 
 	if trimmed := strings.ToLower(strings.TrimSpace(filter.Query)); trimmed != "" {
-		args = append(args, "%"+trimmed+"%")
+		args = append(args, postgres.LikeContains(trimmed))
 		n := "$" + strconv.Itoa(len(args))
 		conds = append(conds, `(lower(first_name) LIKE `+n+` OR lower(last_name) LIKE `+n+
 			` OR lower(coalesce(nickname, '')) LIKE `+n+` OR lower(email) LIKE `+n+

@@ -18,6 +18,7 @@ export function CatalogColumnsMenu<T extends string>({
   all = CATALOG_COLUMNS as unknown as readonly T[],
   labels = CATALOG_COLUMN_KEY as unknown as Record<T, string>,
   locked = CATALOG_LOCKED_COLUMN as unknown as T,
+  namespace = 'event',
 }: {
   columns: T[]
   onToggle: (column: T) => void
@@ -25,8 +26,10 @@ export function CatalogColumnsMenu<T extends string>({
   all?: readonly T[]
   labels?: Record<T, string>
   locked?: T
+  namespace?: string
 }) {
   const { t } = useTranslation('event')
+  const { t: tLabel } = useTranslation(namespace)
 
   return (
     <Popover>
@@ -60,7 +63,7 @@ export function CatalogColumnsMenu<T extends string>({
                   htmlFor={`catalog-column-${column}`}
                   className={cn('flex-1', isLocked ? 'cursor-not-allowed' : 'cursor-pointer')}
                 >
-                  {t(labels[column])}
+                  {tLabel(labels[column])}
                 </Label>
               </div>
             )

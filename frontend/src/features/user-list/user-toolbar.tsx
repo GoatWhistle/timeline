@@ -56,6 +56,7 @@ export function UserToolbar({
           all={USER_COLUMNS}
           labels={USER_COLUMN_KEY}
           locked={USER_LOCKED_COLUMN}
+          namespace="common"
         />
       </div>
     </header>
