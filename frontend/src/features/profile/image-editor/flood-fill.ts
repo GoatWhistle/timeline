@@ -33,29 +33,25 @@ export function floodFill(
   startX: number,
   startY: number,
   colour: string,
-  tolerance = 2,
+  edge = 10,
 ): boolean {
   if (startX < 0 || startY < 0 || startX >= width || startY >= height) return false
 
-  const target = pixelAt(data, width, startX, startY)
   const [r, g, b, a] = toRgba(colour)
-  if (target[0] === r && target[1] === g && target[2] === b && target[3] === a) {
-    return false
-  }
+  const start = pixelAt(data, width, startX, startY)
+  if (start[0] === r && start[1] === g && start[2] === b && start[3] === a) return false
 
-  const stack: number[] = [startX, startY]
+  const original = new Uint8ClampedArray(data)
   const seen = new Uint8Array(width * height)
+  const stack: number[] = [startX, startY]
+  seen[startY * width + startX] = 1
   let changed = false
 
   while (stack.length > 0) {
     const y = stack.pop() as number
     const x = stack.pop() as number
     const index = y * width + x
-    if (seen[index] === 1) continue
-    seen[index] = 1
-
     const offset = index * CHANNELS
-    if (!matches(data, offset, target, tolerance)) continue
 
     data[offset] = r
     data[offset + 1] = g
@@ -63,10 +59,19 @@ export function floodFill(
     data[offset + 3] = a
     changed = true
 
-    if (x > 0) stack.push(x - 1, y)
-    if (x + 1 < width) stack.push(x + 1, y)
-    if (y > 0) stack.push(x, y - 1)
-    if (y + 1 < height) stack.push(x, y + 1)
+    const here = pixelAt(original, width, x, y)
+    const step = (nx: number, ny: number) => {
+      const next = ny * width + nx
+      if (seen[next] === 1) return
+      if (!matches(original, next * CHANNELS, here, edge)) return
+      seen[next] = 1
+      stack.push(nx, ny)
+    }
+
+    if (x > 0) step(x - 1, y)
+    if (x + 1 < width) step(x + 1, y)
+    if (y > 0) step(x, y - 1)
+    if (y + 1 < height) step(x, y + 1)
   }
 
   return changed

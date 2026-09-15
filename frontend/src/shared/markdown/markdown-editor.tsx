@@ -48,7 +48,7 @@ export function MarkdownEditor({
     const node = area.current
     if (!node) return
     const result = applyMark(value, { start: node.selectionStart, end: node.selectionEnd }, mark)
-    onChange(result.value.slice(0, maxLength))
+    onChange(result.value)
     requestAnimationFrame(() => {
       node.focus()
       node.setSelectionRange(result.selection.start, result.selection.end)
@@ -116,7 +116,7 @@ export function MarkdownEditor({
             ref={area}
             rows={rows}
             value={value}
-            maxLength={maxLength}
+            aria-invalid={value.length > maxLength}
             onChange={(event) => onChange(event.target.value)}
             onBlur={onBlur}
             className="[grid-area:1/1] h-full resize-y pb-6 font-mono text-caption"
@@ -125,7 +125,10 @@ export function MarkdownEditor({
         {preview ? null : (
           <span className="pointer-events-none absolute right-5 bottom-2 flex items-center gap-2 text-caption text-muted-foreground">
             <span className="font-mono uppercase">{t('markdown.syntax')}</span>
-            <span className={value.length >= maxLength ? 'text-destructive' : undefined}>
+            <span
+              data-over-limit={value.length > maxLength ? 'true' : undefined}
+              className={value.length > maxLength ? 'font-medium text-destructive' : undefined}
+            >
               {value.length} / {maxLength}
             </span>
           </span>

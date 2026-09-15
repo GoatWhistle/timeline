@@ -48,12 +48,7 @@ export function useImageEditor(source: Blob) {
     setCanRedo(false)
   }, [context])
 
-  const { pendingText, beginText, commitText, cancelText } = useTextTool(
-    context,
-    pushHistory,
-    colour,
-    textSize,
-  )
+  const text = useTextTool(context, pushHistory, colour, textSize)
 
   const { begin, move, end } = usePointerGestures({
     canvasRef,
@@ -66,7 +61,7 @@ export function useImageEditor(source: Blob) {
     setCropHandle,
     setCropMoving,
     setColour,
-    beginText,
+    beginText: text.beginText,
     pushHistory,
   })
 
@@ -96,7 +91,7 @@ export function useImageEditor(source: Blob) {
         resetCrop()
         setCanvasSize({ width, height })
         setCrop(centredSquareIn(width, height))
-        cancelText()
+        text.clearText()
         setReady(true)
       })
       .catch(() => {
@@ -109,7 +104,7 @@ export function useImageEditor(source: Blob) {
       cancelled = true
       bitmap?.close()
     }
-  }, [source, resetCrop, setCrop, cancelText])
+  }, [source, resetCrop, setCrop, text.clearText])
 
   const undo = useCallback(() => {
     const ctx = context()
@@ -185,9 +180,7 @@ export function useImageEditor(source: Blob) {
     setTextSize,
     crop,
     canvasSize,
-    pendingText,
-    commitText,
-    cancelText,
+    text,
     ready,
     failed,
     canUndo,

@@ -229,6 +229,7 @@
       "sand": "Песочный",
       "clay": "Глиняный"
     },
-    "brushSizeValue": "Толщина {{size}} пикселей"
+    "brushSizeValue": "Толщина {{size}} пикселей",
+    "textLayer": "Надпись: {{text}}"
   }
 }

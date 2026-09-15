@@ -25,6 +25,9 @@ export function BioCard({ bio }: { bio?: string | null }) {
     values: { bio: bio ?? '' },
   })
 
+  const length = (form.watch('bio') ?? '').length
+  const tooLong = length > BIO_MAX
+
   async function onSave(values: BioValues) {
     try {
       await updateProfile.mutateAsync({ bio: values.bio })
@@ -63,7 +66,7 @@ export function BioCard({ bio }: { bio?: string | null }) {
             />
           </Field>
           <div className="flex justify-end">
-            <Button type="submit" disabled={form.formState.isSubmitting}>
+            <Button type="submit" disabled={tooLong || form.formState.isSubmitting}>
               {t('action.save')}
             </Button>
           </div>

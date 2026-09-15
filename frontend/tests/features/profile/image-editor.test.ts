@@ -129,6 +129,33 @@ describe('flood fill', () => {
     expect(floodFill(data, 2, 2, 0, 0, '#ff0000')).toBe(false)
   })
 
+  it('fills a whole gradient region, because a sky is never one flat colour', () => {
+    const width = 40
+    const height = 40
+    const data = new Uint8ClampedArray(width * height * 4)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const offset = (y * width + x) * 4
+        const sky = y < height / 2
+        data[offset] = sky ? 90 + Math.round((120 * y) / height) : 20
+        data[offset + 1] = sky ? 140 : 200
+        data[offset + 2] = sky ? 220 : 40
+        data[offset + 3] = 255
+      }
+    }
+
+    floodFill(data, width, height, 5, 2, '#ff0000')
+
+    expect(
+      pixelAt(data, width, 20, 18),
+      'the far side of the gradient belongs to the same sky',
+    ).toEqual([255, 0, 0, 255])
+    expect(
+      pixelAt(data, width, 20, 30),
+      'the ground is a different colour and must survive',
+    ).not.toEqual([255, 0, 0, 255])
+  })
+
   it('does not bleed across a smooth gradient into a square block', () => {
     const width = 900
     const height = 8
@@ -152,8 +179,8 @@ describe('flood fill', () => {
     }
     expect(
       filled.length,
-      'a wide tolerance paints a rectangle of its own instead of a region',
-    ).toBeLessThan(40)
+      'a gradient with no edge is one region, so the whole row belongs to it',
+    ).toBe(width)
   })
 
   it('ignores a click outside the canvas instead of throwing', () => {

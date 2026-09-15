@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { CropOverlay } from './crop-overlay'
 import { isUsableCrop } from './editor-model'
-import { TextPopover } from './text-popover'
+import { TextLayerList } from './text-layer-list'
 import type { useImageEditor } from './use-image-editor'
 
 type Editor = ReturnType<typeof useImageEditor>
@@ -10,6 +10,8 @@ type Editor = ReturnType<typeof useImageEditor>
 export function EditorCanvas({ editor }: { editor: Editor }) {
   const { t } = useTranslation()
   const cropReady = Boolean(editor.crop && isUsableCrop(editor.crop))
+  const node = editor.canvasRef.current
+  const scale = node && node.width > 0 ? node.getBoundingClientRect().width / node.width : 1
 
   return (
     <div className="flex items-center justify-center">
@@ -46,14 +48,22 @@ export function EditorCanvas({ editor }: { editor: Editor }) {
             }
           />
         ) : null}
-        {editor.pendingText && editor.canvasSize ? (
-          <TextPopover
+        {editor.canvasSize ? (
+          <TextLayerList
             canvas={editor.canvasSize}
-            point={editor.pendingText}
-            colour={editor.colour}
-            size={editor.textSize}
-            onCommit={editor.commitText}
-            onCancel={editor.cancelText}
+            scale={scale}
+            layers={editor.text.layers}
+            activeId={editor.text.activeId}
+            onSelect={editor.text.setActiveId}
+            onEdit={editor.text.editLayer}
+            onDrag={(id, dx, dy) => {
+              const node = editor.canvasRef.current
+              const live =
+                node && node.width > 0 ? node.getBoundingClientRect().width / node.width : 1
+              editor.text.dragLayer(id, dx / live, dy / live)
+            }}
+            onRemove={editor.text.removeLayer}
+            onBlur={editor.text.blurText}
           />
         ) : null}
       </div>

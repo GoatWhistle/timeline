@@ -35,6 +35,7 @@ export function ImageEditorOverlay({
   }, [editor.failed])
 
   async function save() {
+    editor.text.bakeText()
     if (editor.crop && isUsableCrop(editor.crop)) editor.applyCrop()
     const blob = await editor.toBlob()
     if (blob) onSave(blob)

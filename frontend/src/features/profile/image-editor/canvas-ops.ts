@@ -94,6 +94,16 @@ export function drawShape(
   }
 }
 
+export function measureText(context: CanvasRenderingContext2D, text: string, size: number): number {
+  context.font = `${size}px sans-serif`
+  const lines = text.split('\n')
+  let widest = 0
+  for (const line of lines) {
+    widest = Math.max(widest, context.measureText(line).width)
+  }
+  return widest
+}
+
 export function drawText(
   context: CanvasRenderingContext2D,
   point: Point,
