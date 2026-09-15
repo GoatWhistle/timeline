@@ -1,4 +1,3 @@
-import { Download } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -8,7 +7,6 @@ import { ImageEditorOverlay } from '@/features/profile/image-editor/image-editor
 import { TOUCH_QUERY } from '@/shared/ui/layout/mobile/mobile-state'
 import { useMediaQuery } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
-import { Button } from '@/shared/ui/primitives/button'
 import { AvatarActions } from './avatar-actions'
 import { type AvatarRejection, downloadAvatar } from './avatar-file'
 import { AvatarUploadDialog } from './avatar-upload-dialog'
@@ -106,15 +104,9 @@ export function AvatarField({
           onUpload={() => setUploading(true)}
           onEdit={edit}
           onRemove={() => setConfirming(true)}
+          onDownload={download}
         />
       </div>
-
-      {avatarUrl ? (
-        <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={download}>
-          <Download className="size-4" aria-hidden="true" />
-          {t('profile.avatarDownload')}
-        </Button>
-      ) : null}
 
       {pending ? (
         <ImageEditorOverlay

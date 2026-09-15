@@ -1,4 +1,4 @@
-import { Upload } from 'lucide-react'
+import { Download, Upload } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { DeleteAction, EditAction } from '@/shared/ui/primitives/row-actions'
@@ -8,6 +8,15 @@ const ROUND_ACTION = cn(
   'hover:bg-accent-surface hover:text-accent-surface-foreground',
 )
 
+const PLAIN_ACTION = cn(
+  'inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-pill',
+  'border border-border bg-surface-1/90 shadow-raised backdrop-blur-sm',
+  'transition-colors duration-instant ease-out',
+  'hover:bg-accent-surface hover:text-accent-surface-foreground',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+  'disabled:pointer-events-none disabled:opacity-50',
+)
+
 export function AvatarActions({
   hasAvatar,
   busy,
@@ -15,6 +24,7 @@ export function AvatarActions({
   onUpload,
   onEdit,
   onRemove,
+  onDownload,
 }: {
   hasAvatar: boolean
   busy: boolean
@@ -22,6 +32,7 @@ export function AvatarActions({
   onUpload: () => void
   onEdit: () => void
   onRemove: () => void
+  onDownload: () => void
 }) {
   const { t } = useTranslation()
   const uploadLabel = hasAvatar ? t('profile.avatarReplace') : t('profile.avatarUpload')
@@ -30,7 +41,8 @@ export function AvatarActions({
     <fieldset
       aria-label={t('profile.avatarActions')}
       className={cn(
-        'absolute inset-0 flex items-center justify-center gap-2 rounded-pill',
+        'absolute inset-0 flex flex-wrap content-center items-center justify-center gap-2',
+        'rounded-pill px-10',
         'motion-safe:transition-opacity motion-safe:duration-fast motion-safe:ease-out',
         visible
           ? 'bg-background/70 opacity-100'
@@ -41,6 +53,17 @@ export function AvatarActions({
         busy && 'pointer-events-none opacity-50',
       )}
     >
+      <button
+        type="button"
+        disabled={busy}
+        onClick={onUpload}
+        title={uploadLabel}
+        aria-label={uploadLabel}
+        className={PLAIN_ACTION}
+      >
+        <Upload className="size-4" aria-hidden="true" />
+      </button>
+
       {hasAvatar ? (
         <EditAction
           label={t('profile.avatarEdit')}
@@ -50,23 +73,18 @@ export function AvatarActions({
         />
       ) : null}
 
-      <button
-        type="button"
-        disabled={busy}
-        onClick={onUpload}
-        title={uploadLabel}
-        aria-label={uploadLabel}
-        className={cn(
-          'inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-pill',
-          'border border-border bg-surface-1/90 shadow-raised backdrop-blur-sm',
-          'transition-colors duration-instant ease-out',
-          'hover:bg-accent-surface hover:text-accent-surface-foreground',
-          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-          'disabled:pointer-events-none disabled:opacity-50',
-        )}
-      >
-        <Upload className="size-4" aria-hidden="true" />
-      </button>
+      {hasAvatar ? (
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onDownload}
+          title={t('profile.avatarDownload')}
+          aria-label={t('profile.avatarDownload')}
+          className={PLAIN_ACTION}
+        >
+          <Download className="size-4" aria-hidden="true" />
+        </button>
+      ) : null}
 
       {hasAvatar ? (
         <DeleteAction

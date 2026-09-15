@@ -50,6 +50,27 @@ describe('the avatar actions sit on the avatar without becoming mouse-only', () 
     ).toBeInTheDocument()
   })
 
+  it('keeps every avatar action on the avatar, with none stranded below it', () => {
+    const { container } = renderField()
+    const group = actions()
+
+    for (const name of ['avatarReplace', 'avatarEdit', 'avatarDownload', 'avatarRemove']) {
+      const button = screen.getByRole('button', { name: i18n.t(`profile.${name}`) })
+      expect(
+        group.contains(button),
+        `${name} must live on the avatar, not in a row of its own`,
+      ).toBe(true)
+    }
+
+    const outside = [...container.querySelectorAll('button')].filter(
+      (button) => !group.contains(button),
+    )
+    expect(
+      outside.map((button) => button.textContent?.trim()),
+      'no avatar action is left standing under the picture',
+    ).toEqual([])
+  })
+
   it('offers only uploading while there is no avatar to edit or remove', () => {
     renderField(null)
     expect(screen.queryByRole('button', { name: i18n.t('profile.avatarEdit') })).toBeNull()
