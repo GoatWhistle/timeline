@@ -97,6 +97,23 @@ type AuditFilter struct {
 	To             *time.Time
 }
 
+type UserSortField string
+
+const (
+	UserSortName    UserSortField = "name"
+	UserSortEmail   UserSortField = "email"
+	UserSortCreated UserSortField = "created_at"
+)
+
+type UserFilter struct {
+	Query     string
+	Active    *bool
+	Admin     *bool
+	Telegram  *bool
+	Sort      UserSortField
+	Direction CatalogSortDirection
+}
+
 type MyEventFilter struct {
 	IncludeArchived bool
 	States          []EventState

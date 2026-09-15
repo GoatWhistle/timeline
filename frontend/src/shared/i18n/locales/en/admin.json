@@ -95,14 +95,10 @@
   },
   "users": {
     "title": "Users",
-    "description": "Search by name and address, access management",
     "searchAria": "Search by name or email",
     "searchPlaceholder": "Search",
     "empty": "Nobody has an account yet",
     "emptyFiltered": "No account matches this search",
-    "columnName": "Name",
-    "columnState": "State",
-    "columnActions": "Actions",
     "active": "active",
     "deactivated": "deactivated",
     "deactivate": "Deactivate",
@@ -116,7 +112,46 @@
     "confirmDeleteHint": "Deletion is irreversible. Credentials and delivery channels are removed, the name and email are anonymised. Participation links and audit records are kept.",
     "confirmDeleteLabel": "Delete permanently",
     "deleted": "Account deleted",
-    "deleteFailed": "Could not delete"
+    "deleteFailed": "Could not delete",
+    "column": {
+      "name": "Name",
+      "email": "Email",
+      "nickname": "Nickname",
+      "telegram": "Telegram",
+      "role": "Role",
+      "state": "State",
+      "verified": "Verified",
+      "created": "Registered",
+      "locale": "Language",
+      "timezone": "Time zone"
+    },
+    "sort": {
+      "name": "Name",
+      "email": "Email",
+      "created": "Registered"
+    },
+    "field": {
+      "state": "State",
+      "role": "Role",
+      "telegram": "Telegram"
+    },
+    "filters": {
+      "action": "Filters",
+      "empty": "No conditions yet. Add the first one.",
+      "add": "Add condition",
+      "reset": "Reset",
+      "remove": "Remove condition",
+      "where": "Where",
+      "and": "And",
+      "is": "is",
+      "fieldAria": "Filter field",
+      "valueAria": "Filter value"
+    },
+    "roleAdmin": "Administrator",
+    "roleMember": "Member",
+    "telegramLinked": "Linked",
+    "telegramMissing": "Not linked",
+    "notVerified": "Not verified"
   },
   "retention": {
     "title": "Storage",

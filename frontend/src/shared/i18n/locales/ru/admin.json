@@ -95,14 +95,10 @@
   },
   "users": {
     "title": "Пользователи",
-    "description": "Поиск по имени и адресу, управление доступом",
     "searchAria": "Поиск по имени или email",
     "searchPlaceholder": "Поиск",
     "empty": "Аккаунтов пока нет",
     "emptyFiltered": "Ни один аккаунт не подходит под этот поиск",
-    "columnName": "Имя",
-    "columnState": "Состояние",
-    "columnActions": "Действия",
     "active": "активен",
     "deactivated": "деактивирован",
     "deactivate": "Деактивировать",
@@ -116,7 +112,46 @@
     "confirmDeleteHint": "Удаление необратимо. Учётные данные и каналы доставки удаляются, имя и email обезличиваются. Ссылки участия и записи аудита сохраняются.",
     "confirmDeleteLabel": "Удалить безвозвратно",
     "deleted": "Учётная запись удалена",
-    "deleteFailed": "Не удалось удалить"
+    "deleteFailed": "Не удалось удалить",
+    "column": {
+      "name": "Имя",
+      "email": "Почта",
+      "nickname": "Никнейм",
+      "telegram": "Telegram",
+      "role": "Роль",
+      "state": "Состояние",
+      "verified": "Подтверждена",
+      "created": "Регистрация",
+      "locale": "Язык",
+      "timezone": "Часовой пояс"
+    },
+    "sort": {
+      "name": "Имя",
+      "email": "Почта",
+      "created": "Регистрация"
+    },
+    "field": {
+      "state": "Состояние",
+      "role": "Роль",
+      "telegram": "Telegram"
+    },
+    "filters": {
+      "action": "Фильтры",
+      "empty": "Условий пока нет. Добавьте первое.",
+      "add": "Добавить условие",
+      "reset": "Сбросить",
+      "remove": "Убрать условие",
+      "where": "Где",
+      "and": "И",
+      "is": "—",
+      "fieldAria": "Поле фильтра",
+      "valueAria": "Значение фильтра"
+    },
+    "roleAdmin": "Администратор",
+    "roleMember": "Участник",
+    "telegramLinked": "Привязан",
+    "telegramMissing": "Не привязан",
+    "notVerified": "Не подтверждена"
   },
   "retention": {
     "title": "Хранение",

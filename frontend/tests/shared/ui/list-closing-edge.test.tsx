@@ -19,14 +19,6 @@ function surfaceOf(source: string, anchor: string): string {
   return source.slice(open, at)
 }
 
-function listboxClassName(source: string): string {
-  const at = source.indexOf('role="listbox"')
-  if (at < 0) return ''
-  const open = source.lastIndexOf('<div', at)
-  const match = /className="([^"]*)"/.exec(source.slice(open))
-  return match?.[1] ?? ''
-}
-
 describe('a row list is drawn on a closed surface, not loose on the page background', () => {
   it('gives the shared table its own bounded surface', () => {
     expect(read(SHARED_TABLE)).toContain('rounded-surface border')

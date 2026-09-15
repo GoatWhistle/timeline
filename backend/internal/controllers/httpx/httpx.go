@@ -187,6 +187,18 @@ func QueryBool(r *http.Request, name string) (bool, error) {
 	return b, nil
 }
 
+func QueryTriBool(r *http.Request, name string) (*bool, error) {
+	v := r.URL.Query().Get(name)
+	if v == "" {
+		return nil, nil
+	}
+	b, err := strconv.ParseBool(v)
+	if err != nil {
+		return nil, models.NewValidationf("parameter %s must be a boolean", name)
+	}
+	return &b, nil
+}
+
 func QueryTime(r *http.Request, name string) (*time.Time, error) {
 	v := r.URL.Query().Get(name)
 	if v == "" {

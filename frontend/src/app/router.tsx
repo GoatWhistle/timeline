@@ -107,6 +107,7 @@ export function AppRouter() {
 
             <Route element={<RequireAdmin />}>
               <Route path="/admin/events" element={<AdminEventsPage />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
             </Route>
 
             <Route element={<ScrollPage />}>
@@ -130,7 +131,6 @@ export function AppRouter() {
 
               <Route element={<RequireAdmin />}>
                 <Route path="/admin/events/:id" element={<AdminEventPage />} />
-                <Route path="/admin/users" element={<AdminUsersPage />} />
                 <Route path="/admin/audit" element={<AdminAuditPage />} />
                 <Route path="/admin/retention" element={<AdminRetentionPage />} />
               </Route>

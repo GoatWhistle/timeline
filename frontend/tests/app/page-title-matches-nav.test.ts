@@ -50,7 +50,7 @@ const PAGES: Page[] = [
   },
   {
     to: '/admin/users',
-    source: 'features/user-list/user-list.tsx',
+    source: 'features/user-list/user-toolbar.tsx',
     titleKey: 'users.title',
     bundle: 'admin',
     path: 'users.title',

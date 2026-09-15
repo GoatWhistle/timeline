@@ -37,12 +37,12 @@ func (s *UserService) ResolveUserDisplayID(ctx context.Context, displayID string
 	return s.users.ResolveDisplayID(ctx, displayID)
 }
 
-func (s *UserService) Search(ctx context.Context, actor models.Actor, query string, page models.Page,
-) ([]dto.UserSummary, int64, error) {
+func (s *UserService) SearchForAdmin(ctx context.Context, actor models.Actor,
+	filter models.UserFilter, page models.Page) ([]dto.AdminUserSummary, int64, error) {
 	if !actor.IsAdmin {
 		return nil, 0, models.NewForbidden("user search is restricted to administrators")
 	}
-	return s.users.Search(ctx, query, page)
+	return s.users.SearchForAdmin(ctx, filter, page)
 }
 
 func (s *UserService) SetActive(ctx context.Context, actor models.Actor, userID uuid.UUID, active bool) error {

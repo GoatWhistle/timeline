@@ -2398,7 +2398,7 @@
                         "CookieAuth": []
                     }
                 ],
-                "description": "Search by display_name and normalised email to pick participants.\nOnly minimal fields are returned; credentials and channel data are withheld.",
+                "description": "Administrative directory: search by name, nickname, address and Telegram handle,\nwith filters and sorting. Credentials and the Telegram chat identifier are withheld.",
                 "produces": [
                     "application/json"
                 ],
@@ -2411,6 +2411,45 @@
                         "type": "string",
                         "description": "Search string",
                         "name": "query",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Only active or only deactivated accounts",
+                        "name": "active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Only administrators or only ordinary accounts",
+                        "name": "admin",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Only accounts with or without a Telegram handle",
+                        "name": "telegram",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "name",
+                            "email",
+                            "created_at"
+                        ],
+                        "type": "string",
+                        "description": "Sort field",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "description": "Sort direction",
+                        "name": "order",
                         "in": "query"
                     },
                     {
@@ -2432,7 +2471,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserPage"
+                            "$ref": "#/definitions/dto.AdminUserPage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {
@@ -8675,6 +8720,90 @@
                 }
             }
         },
+        "dto.AdminUserPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.AdminUserSummary"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/dto.PageMeta"
+                }
+            }
+        },
+        "dto.AdminUserSummary": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "/api/v1/avatars/ab12cd34.png"
+                },
+                "bio": {
+                    "type": "string",
+                    "example": "Backend developer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "display_name": {
+                    "type": "string",
+                    "example": "John Smith"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "ivan@example.com"
+                },
+                "email_verified_at": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "us_42ej2s5gh7e8"
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "is_admin": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                },
+                "locale": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Fitzgerald"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "jsmith"
+                },
+                "telegram_username": {
+                    "type": "string",
+                    "example": "@ivan"
+                },
+                "timezone": {
+                    "type": "string",
+                    "example": "Europe/Moscow"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ApplyTemplateRequest": {
             "type": "object",
             "properties": {
@@ -12570,20 +12699,6 @@
                 "team_role": {
                     "type": "string",
                     "example": "Captain"
-                }
-            }
-        },
-        "dto.UserPage": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.UserSummary"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/dto.PageMeta"
                 }
             }
         },

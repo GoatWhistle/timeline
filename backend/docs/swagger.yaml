@@ -12,6 +12,66 @@ definitions:
         - DONE
         - NOT_REQUIRED
     type: object
+  dto.AdminUserPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.AdminUserSummary'
+        type: array
+      meta:
+        $ref: '#/definitions/dto.PageMeta'
+    type: object
+  dto.AdminUserSummary:
+    properties:
+      avatar_url:
+        example: /api/v1/avatars/ab12cd34.png
+        type: string
+      bio:
+        example: Backend developer
+        type: string
+      created_at:
+        type: string
+      display_name:
+        example: John Smith
+        type: string
+      email:
+        example: ivan@example.com
+        type: string
+      email_verified_at:
+        type: string
+      first_name:
+        example: John
+        type: string
+      id:
+        example: us_42ej2s5gh7e8
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      is_admin:
+        example: false
+        type: boolean
+      last_name:
+        example: Smith
+        type: string
+      locale:
+        example: en
+        type: string
+      middle_name:
+        example: Fitzgerald
+        type: string
+      nickname:
+        example: jsmith
+        type: string
+      telegram_username:
+        example: '@ivan'
+        type: string
+      timezone:
+        example: Europe/Moscow
+        type: string
+      updated_at:
+        type: string
+    type: object
   dto.ApplyTemplateRequest:
     properties:
       template_id:
@@ -2662,15 +2722,6 @@ definitions:
         example: Captain
         type: string
     type: object
-  dto.UserPage:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/dto.UserSummary'
-        type: array
-      meta:
-        $ref: '#/definitions/dto.PageMeta'
-    type: object
   dto.UserSummary:
     properties:
       display_name:
@@ -5018,12 +5069,39 @@ paths:
   /admin/users:
     get:
       description: |-
-        Search by display_name and normalised email to pick participants.
-        Only minimal fields are returned; credentials and channel data are withheld.
+        Administrative directory: search by name, nickname, address and Telegram handle,
+        with filters and sorting. Credentials and the Telegram chat identifier are withheld.
       parameters:
       - description: Search string
         in: query
         name: query
+        type: string
+      - description: Only active or only deactivated accounts
+        in: query
+        name: active
+        type: boolean
+      - description: Only administrators or only ordinary accounts
+        in: query
+        name: admin
+        type: boolean
+      - description: Only accounts with or without a Telegram handle
+        in: query
+        name: telegram
+        type: boolean
+      - description: Sort field
+        enum:
+        - name
+        - email
+        - created_at
+        in: query
+        name: sort
+        type: string
+      - description: Sort direction
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
         type: string
       - default: 1
         description: Page number
@@ -5041,7 +5119,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.UserPage'
+            $ref: '#/definitions/dto.AdminUserPage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:

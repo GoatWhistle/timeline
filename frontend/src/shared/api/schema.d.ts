@@ -2702,18 +2702,28 @@ export interface paths {
         };
         /**
          * Search users
-         * @description Search by display_name and normalised email to pick participants.
-         *     Only minimal fields are returned; credentials and channel data are withheld.
+         * @description Administrative directory: search by name, nickname, address and Telegram handle,
+         *     with filters and sorting. Credentials and the Telegram chat identifier are withheld.
          */
         get: {
             parameters: {
                 query?: {
+                    /** @description Only active or only deactivated accounts */
+                    active?: boolean;
+                    /** @description Only administrators or only ordinary accounts */
+                    admin?: boolean;
+                    /** @description Sort direction */
+                    order?: "asc" | "desc";
                     /** @description Page number */
                     page?: number;
                     /** @description Page size */
                     page_size?: number;
                     /** @description Search string */
                     query?: string;
+                    /** @description Sort field */
+                    sort?: "name" | "email" | "created_at";
+                    /** @description Only accounts with or without a Telegram handle */
+                    telegram?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -2727,7 +2737,16 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["dto.UserPage"];
+                        "application/json": components["schemas"]["dto.AdminUserPage"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
                     };
                 };
                 /** @description Forbidden */
@@ -10594,6 +10613,46 @@ export interface components {
             note?: string;
             status?: components["schemas"]["models.RegistrationStatusValue"];
         };
+        "dto.AdminUserPage": {
+            items: components["schemas"]["dto.AdminUserSummary"][];
+            meta: components["schemas"]["dto.PageMeta"];
+        };
+        "dto.AdminUserSummary": {
+            /** @example /api/v1/avatars/ab12cd34.png */
+            avatar_url: string;
+            /** @example Backend developer */
+            bio: string;
+            /** Format: date-time */
+            created_at: string;
+            /** @example John Smith */
+            display_name: string;
+            /** @example ivan@example.com */
+            email: string;
+            /** Format: date-time */
+            email_verified_at: string;
+            /** @example John */
+            first_name: string;
+            /** @example us_42ej2s5gh7e8 */
+            id: string;
+            /** @example true */
+            is_active: boolean;
+            /** @example false */
+            is_admin: boolean;
+            /** @example Smith */
+            last_name: string;
+            /** @example en */
+            locale: string;
+            /** @example Fitzgerald */
+            middle_name: string;
+            /** @example jsmith */
+            nickname: string;
+            /** @example @ivan */
+            telegram_username: string;
+            /** @example Europe/Moscow */
+            timezone: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
         "dto.ApplyTemplateRequest": {
             /** @example preparation */
             template_id?: string;
@@ -12149,10 +12208,6 @@ export interface components {
         "dto.UpdateTeamRoleRequest": {
             /** @example Captain */
             team_role?: string;
-        };
-        "dto.UserPage": {
-            items: components["schemas"]["dto.UserSummary"][];
-            meta: components["schemas"]["dto.PageMeta"];
         };
         "dto.UserSummary": {
             /** @example John Smith */
