@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
+import { ArrowDown, ArrowUp, ChevronsUpDown, Shield } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { CatalogOrder } from '@/entities/catalog/catalog.views'
 import { listName } from '@/entities/user/person-name/person-name'
@@ -55,9 +55,12 @@ function Cell({ user, column }: { user: AdminUserSummary; column: UserColumn }) 
       )
     case 'role':
       return user.is_admin ? (
-        <Badge tone="primary">{t('users.roleAdmin')}</Badge>
+        <span className="flex items-center gap-1.5 text-foreground">
+          <Shield className="size-3.5 shrink-0" aria-hidden="true" />
+          {t('users.roleAdmin')}
+        </span>
       ) : (
-        <span className="text-muted-foreground">{t('users.roleMember')}</span>
+        <span>{t('users.roleMember')}</span>
       )
     case 'state':
       return user.is_active ? (
@@ -156,7 +159,6 @@ export function UserTable({
                 'cursor-pointer border-border/60 border-b',
                 'transition-colors duration-instant ease-out',
                 user.id === selected ? 'bg-accent-surface' : 'hover:bg-surface-2',
-                !user.is_active && 'opacity-60',
               )}
             >
               {columns.map((column) =>
