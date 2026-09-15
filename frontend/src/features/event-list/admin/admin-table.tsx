@@ -1,4 +1,3 @@
-import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   ADMIN_COLUMN_KEY,
@@ -9,6 +8,7 @@ import {
 import type { EventResponse } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
+import { SortIcon } from '@/shared/ui/data-display/sort-icon'
 import { AdminTableRow } from './admin-table-row'
 
 const COLUMN_SORT: Partial<Record<AdminColumn, CatalogSort>> = {
@@ -34,14 +34,6 @@ const COLUMN_WIDTH: Record<AdminColumn, string> = {
   cover: 'w-px whitespace-nowrap',
 }
 
-function SortIcon({ active, order }: { active: boolean; order: CatalogOrder }) {
-  if (!active) {
-    return <ChevronsUpDown className="size-3 shrink-0 opacity-40" aria-hidden="true" />
-  }
-  const Icon = order === 'asc' ? ArrowUp : ArrowDown
-  return <Icon className="size-3 shrink-0" aria-hidden="true" />
-}
-
 export function AdminTable({
   items,
   columns,
@@ -62,7 +54,7 @@ export function AdminTable({
   const { t } = useTranslation('event')
 
   function cellClass(column: AdminColumn) {
-    return cn('px-3 py-2 text-meta text-muted-foreground', COLUMN_WIDTH[column])
+    return cn('h-row-roomy px-3 py-2 text-meta text-muted-foreground', COLUMN_WIDTH[column])
   }
 
   return (

@@ -65,7 +65,7 @@ export function AdminTableRow({
           </td>
         ),
       )}
-      <td className="w-px whitespace-nowrap px-2 py-2">
+      <td className="h-row-roomy w-px whitespace-nowrap px-2 py-2">
         <ModerationMenu event={event} />
       </td>
     </tr>

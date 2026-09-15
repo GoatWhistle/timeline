@@ -33,7 +33,7 @@ export function CatalogTitleCell({
   const { t } = useTranslation('event')
 
   return (
-    <td className="w-full max-w-0 px-3 py-2 pointer-coarse:py-0">
+    <td className="h-row-roomy w-full max-w-0 px-3 py-2 pointer-coarse:py-0">
       <span className="flex min-w-0 items-center gap-2 pointer-coarse:h-11">
         <CatalogKindMark kind={event.kind} />
         <button

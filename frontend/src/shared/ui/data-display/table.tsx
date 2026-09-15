@@ -29,11 +29,13 @@ export function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
   )
 }
 
+export const ROW_CELL = 'h-row-roomy px-3 py-2 align-middle'
+
 export function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
   return (
     <th
       className={cn(
-        'h-10 px-3 text-left align-middle font-medium text-muted-foreground',
+        'h-row px-3 text-left align-middle font-medium text-meta text-muted-foreground',
         className,
       )}
       {...props}
@@ -42,5 +44,5 @@ export function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
 }
 
 export function TableCell({ className, ...props }: React.ComponentProps<'td'>) {
-  return <td className={cn('px-3 py-2 align-middle', className)} {...props} />
+  return <td className={cn(ROW_CELL, className)} {...props} />
 }

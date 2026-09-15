@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ChevronsUpDown, Shield } from 'lucide-react'
+import { Shield } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { CatalogOrder } from '@/entities/catalog/catalog.views'
 import { listName } from '@/entities/user/person-name/person-name'
@@ -10,6 +10,7 @@ import { useLocale } from '@/shared/i18n/i18n-context'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
+import { SortIcon } from '@/shared/ui/data-display/sort-icon'
 import { Badge } from '@/shared/ui/primitives/badge'
 
 const COLUMN_SORT: Partial<Record<UserColumn, UserSort>> = {
@@ -29,14 +30,6 @@ const COLUMN_WIDTH: Record<UserColumn, string> = {
   created: 'w-px whitespace-nowrap',
   locale: 'w-px whitespace-nowrap',
   timezone: 'w-px whitespace-nowrap',
-}
-
-function SortIcon({ active, order }: { active: boolean; order: CatalogOrder }) {
-  if (!active) {
-    return <ChevronsUpDown className="size-3 shrink-0 opacity-40" aria-hidden="true" />
-  }
-  const Icon = order === 'asc' ? ArrowUp : ArrowDown
-  return <Icon className="size-3 shrink-0" aria-hidden="true" />
 }
 
 function Cell({ user, column }: { user: AdminUserSummary; column: UserColumn }) {
@@ -163,7 +156,7 @@ export function UserTable({
             >
               {columns.map((column) =>
                 column === 'name' ? (
-                  <td key={column} className="w-full max-w-0 px-3 py-2">
+                  <td key={column} className="h-row-roomy w-full max-w-0 px-3 py-2">
                     <span className="flex min-w-0 items-center gap-2.5">
                       <UserAvatar
                         seed={user.id}
@@ -191,7 +184,7 @@ export function UserTable({
                   <td
                     key={column}
                     className={cn(
-                      'px-3 py-2 text-meta text-muted-foreground',
+                      'h-row-roomy px-3 py-2 text-meta text-muted-foreground',
                       COLUMN_WIDTH[column],
                     )}
                   >

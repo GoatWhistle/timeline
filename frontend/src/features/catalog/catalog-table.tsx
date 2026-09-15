@@ -1,4 +1,3 @@
-import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   CATALOG_COLUMN_KEY,
@@ -10,6 +9,7 @@ import { CatalogTableRow } from '@/entities/catalog/catalog-table-row'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
+import { SortIcon } from '@/shared/ui/data-display/sort-icon'
 
 const COLUMN_SORT: Partial<Record<CatalogColumn, CatalogSort>> = {
   title: 'title',
@@ -29,14 +29,6 @@ const COLUMN_WIDTH: Record<CatalogColumn, string> = {
   origin: 'w-px whitespace-nowrap',
   state: 'w-px whitespace-nowrap',
   participation: 'w-40 max-w-40',
-}
-
-function SortIcon({ active, order }: { active: boolean; order: CatalogOrder }) {
-  if (!active) {
-    return <ChevronsUpDown className="size-3 shrink-0 opacity-40" aria-hidden="true" />
-  }
-  const Icon = order === 'asc' ? ArrowUp : ArrowDown
-  return <Icon className="size-3 shrink-0" aria-hidden="true" />
 }
 
 export function CatalogTable({
@@ -59,7 +51,7 @@ export function CatalogTable({
   const { t } = useTranslation('event')
 
   function cellClass(column: CatalogColumn) {
-    return cn('px-3 py-2 text-meta text-muted-foreground', COLUMN_WIDTH[column])
+    return cn('h-row-roomy px-3 py-2 text-meta text-muted-foreground', COLUMN_WIDTH[column])
   }
 
   return (
