@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Point } from './editor-model'
 
@@ -10,7 +10,7 @@ export function TextPopover({
   onCommit,
   onCancel,
 }: {
-  canvas: HTMLCanvasElement
+  canvas: { width: number; height: number }
   point: Point
   colour: string
   size: number
@@ -19,20 +19,27 @@ export function TextPopover({
 }) {
   const { t } = useTranslation()
   const [value, setValue] = useState('')
+  const field = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => field.current?.focus())
+    return () => cancelAnimationFrame(frame)
+  }, [])
   const left = (point.x / canvas.width) * 100
   const top = (point.y / canvas.height) * 100
-  const scale = canvas.getBoundingClientRect().width / canvas.width || 1
 
   return (
     <input
-      autoFocus
+      ref={field}
       data-text-input
       aria-label={t('imageEditor.textInputLabel')}
       placeholder={t('imageEditor.textInputPlaceholder')}
       value={value}
       size={Math.max(value.length + 1, 8)}
       onChange={(event) => setValue(event.target.value)}
-      onBlur={() => (value.trim() === '' ? onCancel() : onCommit(value))}
+      onBlur={() => {
+        if (value.trim() !== '') onCommit(value)
+      }}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {
           event.preventDefault()
@@ -49,7 +56,7 @@ export function TextPopover({
         left: `${left}%`,
         top: `${top}%`,
         color: colour,
-        fontSize: `${size * scale}px`,
+        fontSize: `${size}px`,
         lineHeight: 1.1,
         caretColor: colour,
       }}

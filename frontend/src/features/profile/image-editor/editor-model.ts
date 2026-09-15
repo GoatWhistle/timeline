@@ -15,12 +15,12 @@ export type Rect = { x: number; y: number; width: number; height: number }
 export const EDITOR_TOOLS: EditorTool[] = [
   'crop',
   'brush',
+  'fill',
+  'picker',
   'rectangle',
   'ellipse',
   'line',
-  'fill',
   'text',
-  'picker',
 ]
 
 export const BRUSH_SIZES = [2, 6, 12, 24] as const

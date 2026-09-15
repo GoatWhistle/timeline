@@ -46,9 +46,9 @@ export function EditorCanvas({ editor }: { editor: Editor }) {
             }
           />
         ) : null}
-        {editor.pendingText && editor.canvasRef.current ? (
+        {editor.pendingText && editor.canvasSize ? (
           <TextPopover
-            canvas={editor.canvasRef.current}
+            canvas={editor.canvasSize}
             point={editor.pendingText}
             colour={editor.colour}
             size={editor.textSize}

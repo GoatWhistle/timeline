@@ -62,41 +62,41 @@ export function EditorToolbar({
   )
 
   return (
-    <div className="flex flex-wrap items-start gap-4">
-      <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <div
-          role="radiogroup"
-          aria-label={t('imageEditor.tool')}
-          className="flex flex-wrap items-center gap-1"
-        >
-          {EDITOR_TOOLS.map((item) => {
-            const Icon = TOOL_ICONS[item]
-            const active = item === tool
-            return (
-              <Button
-                key={item}
-                type="button"
-                role="radio"
-                aria-checked={active}
-                variant={active ? 'default' : 'ghost'}
-                size="icon"
-                title={t(`imageEditor.${TOOL_LABELS[item]}`)}
-                onClick={() => onToolChange(item)}
-              >
-                <Icon className="size-4" />
-                <span className="sr-only">{t(`imageEditor.${TOOL_LABELS[item]}`)}</span>
-              </Button>
-            )
-          })}
-        </div>
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div
+        role="radiogroup"
+        aria-label={t('imageEditor.tool')}
+        className="grid shrink-0 grid-cols-4 gap-1"
+      >
+        {EDITOR_TOOLS.map((item) => {
+          const Icon = TOOL_ICONS[item]
+          const active = item === tool
+          return (
+            <Button
+              key={item}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              variant={active ? 'default' : 'ghost'}
+              size="icon"
+              title={t(`imageEditor.${TOOL_LABELS[item]}`)}
+              onClick={() => onToolChange(item)}
+            >
+              <Icon className="size-4" />
+              <span className="sr-only">{t(`imageEditor.${TOOL_LABELS[item]}`)}</span>
+            </Button>
+          )
+        })}
+      </div>
 
+      <div className="flex min-w-0 flex-col items-center gap-4">
         <CustomColourField colour={colour} onColourChange={onColourChange} />
 
         {tool === 'text' ? (
           <div
             role="radiogroup"
             aria-label={t('imageEditor.textSize')}
-            className="flex items-center gap-1"
+            className="flex items-center gap-2"
           >
             {TEXT_SIZES.map((size) => (
               <Button
@@ -117,7 +117,7 @@ export function EditorToolbar({
             role="radiogroup"
             aria-label={t('imageEditor.brushSize')}
             data-brush-sizes
-            className="flex items-center gap-1"
+            className="flex items-center gap-2"
           >
             {BRUSH_SIZES.map((size) => (
               <button
@@ -145,7 +145,7 @@ export function EditorToolbar({
         )}
       </div>
 
-      <fieldset className="ml-auto grid shrink-0 grid-flow-col grid-rows-4 gap-1.5 border-0 p-0">
+      <fieldset className="grid shrink-0 grid-flow-col grid-rows-4 gap-1.5 border-0 p-0">
         <legend className="sr-only">{t('imageEditor.colour')}</legend>
         {resolved.map((swatch) => (
           <label
