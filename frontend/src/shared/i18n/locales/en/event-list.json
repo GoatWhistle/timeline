@@ -11,7 +11,9 @@
     "emptyFiltered": "No event matches these filters",
     "newTitle": "New event",
     "created": "Event created",
-    "createdHint": "It is not published yet"
+    "createdHint": "It is not published yet",
+    "moderateAria": "Moderate {{title}}",
+    "moderateHeader": "Moderation"
   },
   "catalog": {
     "title": "Catalog",
@@ -57,7 +59,9 @@
       "all": "All",
       "upcoming": "Upcoming",
       "active": "Active",
-      "finished": "Finished"
+      "finished": "Finished",
+      "unpublished": "Draft",
+      "archived": "Archived"
     },
     "format": {
       "all": "All",
@@ -88,7 +92,13 @@
       "organizer": "Organizer",
       "track": "Track",
       "teamSize": "Team size",
-      "origin": "Scope"
+      "origin": "Scope",
+      "created": "Created",
+      "updated": "Updated",
+      "published": "Published",
+      "cover": "Cover",
+      "notPublished": "Draft",
+      "updatedAt": "Updated {{at}}"
     },
     "export": {
       "action": "Export CSV",
@@ -122,7 +132,8 @@
       "origin": "Scope",
       "from": "Start date",
       "to": "End date",
-      "joined": "Participation"
+      "joined": "Participation",
+      "archived": "Archive"
     },
     "operator": {
       "is": "is",
@@ -141,6 +152,15 @@
       "all": "All",
       "mine": "I take part",
       "others": "I do not take part"
+    },
+    "archived": {
+      "shown": "Shown",
+      "hidden": "Hidden"
+    },
+    "cover": {
+      "MANUAL": "Uploaded",
+      "AUTO": "Fetched",
+      "NONE": "None"
     }
   }
 }

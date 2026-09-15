@@ -29,6 +29,8 @@ function ConditionRow({
   field,
   values,
   index,
+  fields,
+  admin,
   onField,
   onValue,
   onRemove,
@@ -36,13 +38,15 @@ function ConditionRow({
   field: CatalogFilterField
   values: CatalogFilterValues
   index: number
+  fields: readonly CatalogFilterField[]
+  admin: boolean
   onField: (from: CatalogFilterField, to: CatalogFilterField) => void
   onValue: (field: CatalogFilterField, value: string) => void
   onRemove: (field: CatalogFilterField) => void
 }) {
   const { t } = useTranslation('event')
-  const used = activeFields(values)
-  const available = CATALOG_FILTER_FIELDS.filter((item) => item === field || !used.includes(item))
+  const used = activeFields(values, fields)
+  const available = fields.filter((item) => item === field || !used.includes(item))
 
   return (
     <div className="flex items-center gap-1.5">
@@ -71,17 +75,17 @@ function ConditionRow({
         <div className="w-36">
           <DatePicker
             id={`catalog-condition-${field}`}
-            value={values[field]}
+            value={values[field] ?? ''}
             onChange={(date) => onValue(field, date)}
           />
         </div>
       ) : (
-        <Select value={values[field]} onValueChange={(next) => onValue(field, next)}>
+        <Select value={values[field] ?? ''} onValueChange={(next) => onValue(field, next)}>
           <SelectTrigger aria-label={t('catalog.filters.valueAria')} className="h-8 w-36">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {filterChoices(field).map((choice) => (
+            {filterChoices(field, admin).map((choice) => (
               <SelectItem key={choice.value} value={choice.value}>
                 {t(choice.labelKey)}
               </SelectItem>
@@ -99,23 +103,27 @@ export function CatalogFiltersPopover({
   values,
   onChange,
   onReset,
+  fields = CATALOG_FILTER_FIELDS,
+  admin = false,
 }: {
   values: CatalogFilterValues
   onChange: (patch: Partial<CatalogFilterValues>) => void
   onReset: () => void
+  fields?: readonly CatalogFilterField[]
+  admin?: boolean
 }) {
   const { t } = useTranslation('event')
-  const rows = activeFields(values)
-  const next = firstUnusedField(values)
+  const rows = activeFields(values, fields)
+  const next = firstUnusedField(values, fields)
 
   function addCondition() {
     if (next === null) return
-    onChange({ [next]: defaultValueFor(next) } as Partial<CatalogFilterValues>)
+    onChange({ [next]: defaultValueFor(next, admin) } as Partial<CatalogFilterValues>)
   }
 
   function changeField(from: CatalogFilterField, to: CatalogFilterField) {
     if (from === to) return
-    onChange({ [from]: '', [to]: defaultValueFor(to) } as Partial<CatalogFilterValues>)
+    onChange({ [from]: '', [to]: defaultValueFor(to, admin) } as Partial<CatalogFilterValues>)
   }
 
   return (
@@ -142,6 +150,8 @@ export function CatalogFiltersPopover({
                 key={field}
                 field={field}
                 index={index}
+                fields={fields}
+                admin={admin}
                 values={values}
                 onField={changeField}
                 onValue={(item, value) =>

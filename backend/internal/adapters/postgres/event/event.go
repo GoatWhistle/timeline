@@ -167,7 +167,7 @@ func (r *Events) List(ctx context.Context, filter models.EventFilter, page model
 	args = append(args, page.Limit(), page.Offset())
 	rows, err := r.db.Q(ctx).Query(ctx, `
 		SELECT `+eventColumns+` FROM events `+where+`
-		ORDER BY start_at DESC, title
+		ORDER BY `+eventOrderSQL(filter.Sort)+`
 		LIMIT $`+itoa(len(args)-1)+` OFFSET $`+itoa(len(args)), args...)
 	if err != nil {
 		return nil, 0, mapError(err)

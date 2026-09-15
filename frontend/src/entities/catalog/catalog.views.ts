@@ -26,6 +26,34 @@ export const CATALOG_STATE_KEY: Record<CatalogStateFilter, string> = {
   FINISHED: 'catalog.state.finished',
 }
 
+export const ADMIN_STATES = [
+  '',
+  'UNPUBLISHED',
+  'UPCOMING',
+  'ACTIVE',
+  'FINISHED',
+  'ARCHIVED',
+] as const
+export type AdminStateFilter = (typeof ADMIN_STATES)[number]
+
+export const ADMIN_STATE_KEY: Record<AdminStateFilter, string> = {
+  '': 'catalog.state.all',
+  UNPUBLISHED: 'catalog.state.unpublished',
+  UPCOMING: 'catalog.state.upcoming',
+  ACTIVE: 'catalog.state.active',
+  FINISHED: 'catalog.state.finished',
+  ARCHIVED: 'catalog.state.archived',
+}
+
+export const ADMIN_ARCHIVED = ['', 'true', 'false'] as const
+export type AdminArchivedFilter = (typeof ADMIN_ARCHIVED)[number]
+
+export const ADMIN_ARCHIVED_KEY: Record<AdminArchivedFilter, string> = {
+  '': 'catalog.archived.hidden',
+  true: 'catalog.archived.shown',
+  false: 'catalog.archived.hidden',
+}
+
 export const CATALOG_FORMATS = ['', 'OFFLINE', 'ONLINE', 'HYBRID'] as const
 export type CatalogFormatFilter = (typeof CATALOG_FORMATS)[number]
 
@@ -106,6 +134,58 @@ export const CATALOG_COLUMN_KEY: Record<CatalogColumn, string> = {
   origin: 'catalog.column.origin',
   state: 'catalog.column.state',
   participation: 'catalog.column.participation',
+}
+
+export const ADMIN_COLUMNS = [
+  'title',
+  'kind',
+  'format',
+  'place',
+  'period',
+  'prize',
+  'organizer',
+  'track',
+  'teamSize',
+  'origin',
+  'state',
+  'created',
+  'updated',
+  'published',
+  'cover',
+] as const
+export type AdminColumn = (typeof ADMIN_COLUMNS)[number]
+
+export const ADMIN_COLUMN_KEY: Record<AdminColumn, string> = {
+  title: 'catalog.column.title',
+  kind: 'catalog.column.kind',
+  format: 'catalog.column.format',
+  place: 'catalog.column.place',
+  period: 'catalog.column.period',
+  prize: 'catalog.column.prize',
+  organizer: 'catalog.column.organizer',
+  track: 'catalog.column.track',
+  teamSize: 'catalog.column.teamSize',
+  origin: 'catalog.column.origin',
+  state: 'catalog.column.state',
+  created: 'catalog.column.created',
+  updated: 'catalog.column.updated',
+  published: 'catalog.column.published',
+  cover: 'catalog.column.cover',
+}
+
+export const DEFAULT_ADMIN_COLUMNS: AdminColumn[] = [
+  'title',
+  'organizer',
+  'period',
+  'state',
+  'updated',
+]
+
+export function resolveAdminColumns(value: unknown): AdminColumn[] {
+  if (!Array.isArray(value)) return DEFAULT_ADMIN_COLUMNS
+  const picked = ADMIN_COLUMNS.filter((column) => value.includes(column))
+  if (picked.length === 0) return DEFAULT_ADMIN_COLUMNS
+  return picked.includes('title') ? picked : ['title', ...picked]
 }
 
 export const CATALOG_LOCKED_COLUMN: CatalogColumn = 'title'

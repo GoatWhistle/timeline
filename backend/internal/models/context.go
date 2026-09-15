@@ -68,6 +68,9 @@ type EventFilter struct {
 	Formats         []EventFormat
 	Kinds           []EventKind
 	IncludeArchived bool
+	From            *time.Time
+	To              *time.Time
+	Sort            CatalogSort
 }
 
 type ParticipantFilter struct {

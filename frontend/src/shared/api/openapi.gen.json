@@ -338,6 +338,47 @@
             }
           },
           {
+            "description": "Events ending on or after this moment",
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Events starting on or before this moment",
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort field",
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "start_at",
+                "end_at",
+                "title"
+              ]
+            }
+          },
+          {
+            "description": "Sort direction",
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
             "description": "Page number",
             "name": "page",
             "in": "query",
@@ -363,6 +404,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/dto.EventPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
                 }
               }
             }

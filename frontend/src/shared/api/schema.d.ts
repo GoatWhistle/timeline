@@ -222,10 +222,14 @@ export interface paths {
                 query?: {
                     /** @description Comma-separated format filter */
                     format?: "ONLINE" | "OFFLINE" | "HYBRID";
+                    /** @description Events ending on or after this moment */
+                    from?: string;
                     /** @description Include archived records */
                     include_archived?: boolean;
                     /** @description Comma-separated kind filter */
                     kind?: "HACKATHON" | "MEETUP";
+                    /** @description Sort direction */
+                    order?: "asc" | "desc";
                     /** @description Comma-separated origin filter */
                     origin?: "RU" | "WORLD";
                     /** @description Page number */
@@ -234,8 +238,12 @@ export interface paths {
                     page_size?: number;
                     /** @description Search by title and organiser */
                     search?: string;
+                    /** @description Sort field */
+                    sort?: "start_at" | "end_at" | "title";
                     /** @description Comma-separated state filter */
                     state?: "UNPUBLISHED" | "UPCOMING" | "ACTIVE" | "FINISHED" | "ARCHIVED";
+                    /** @description Events starting on or before this moment */
+                    to?: string;
                 };
                 header?: never;
                 path?: never;
@@ -250,6 +258,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["dto.EventPage"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
                     };
                 };
                 /** @description Forbidden */

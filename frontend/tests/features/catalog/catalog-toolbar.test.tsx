@@ -23,6 +23,9 @@ function props(overrides: Partial<CatalogToolbarProps> = {}): CatalogToolbarProp
     filters: NO_FILTERS,
     columns: ['title', 'period'],
     exporting: false,
+    searchValue: '',
+    searchRef: { current: null },
+    onSearch: vi.fn(),
     onLayout: vi.fn(),
     onSort: vi.fn(),
     onOrder: vi.fn(),
@@ -36,17 +39,22 @@ function props(overrides: Partial<CatalogToolbarProps> = {}): CatalogToolbarProp
 }
 
 describe('catalog toolbar', () => {
-  it('offers no free-text search in either view', () => {
+  it('offers free-text search in either view, as the admin list does', () => {
     for (const layout of ['table', 'grid'] as const) {
       const { unmount } = renderWithProviders(<CatalogToolbar {...props({ layout })} />)
-      expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
-      expect(screen.queryByRole('searchbox')).not.toBeInTheDocument()
       expect(
-        screen.queryByLabelText(i18n.t('event:list.searchAria')),
+        screen.getByLabelText(i18n.t('event:list.searchAria')),
         `layout ${layout}`,
-      ).not.toBeInTheDocument()
+      ).toBeInTheDocument()
       unmount()
     }
+  })
+
+  it('reports what was typed into search', async () => {
+    const onSearch = vi.fn()
+    const { user } = renderWithProviders(<CatalogToolbar {...props({ onSearch })} />)
+    await user.type(screen.getByLabelText(i18n.t('event:list.searchAria')), 'a')
+    expect(onSearch).toHaveBeenCalledWith('a')
   })
 
   it('hides the sort control in the table, where the headers already sort', () => {
@@ -73,14 +81,13 @@ describe('catalog toolbar', () => {
   it('shows no result count beside the heading, which was noise', () => {
     renderWithProviders(<CatalogToolbar {...props()} />)
     expect(screen.getByRole('heading', { name: i18n.t('event:catalog.title') })).toBeInTheDocument()
-    expect(screen.queryByText(/\d/)).not.toBeInTheDocument()
     expect(document.querySelector('[aria-live="polite"]')).toBeNull()
   })
 
-  it('separates the heading from the buttons with a scale step, not a hair', () => {
+  it('separates the heading from the search with a scale step, not a hair', () => {
     renderWithProviders(<CatalogToolbar {...props()} />)
     const heading = screen.getByRole('heading', { name: i18n.t('event:catalog.title') })
-    expect(heading.className).toContain('mr-6')
+    expect(heading.className).toContain('mr-2')
     expect(heading.className).not.toContain('mr-1')
   })
 

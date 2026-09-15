@@ -130,9 +130,14 @@ export function CatalogFilterSheet({
         <div className="flex flex-col gap-5 overflow-y-auto">
           {CATALOG_FILTER_FIELDS.map((field) =>
             isDateField(field) ? (
-              <DateField key={field} field={field} value={values[field]} onValue={setValue} />
+              <DateField key={field} field={field} value={values[field] ?? ''} onValue={setValue} />
             ) : (
-              <ChoiceGroup key={field} field={field} value={values[field]} onValue={setValue} />
+              <ChoiceGroup
+                key={field}
+                field={field}
+                value={values[field] ?? ''}
+                onValue={setValue}
+              />
             ),
           )}
         </div>

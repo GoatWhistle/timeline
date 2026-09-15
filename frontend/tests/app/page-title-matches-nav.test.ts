@@ -43,7 +43,7 @@ const PAGES: Page[] = [
   },
   {
     to: '/admin/events',
-    source: 'features/event-list/admin/event-list.tsx',
+    source: 'features/event-list/admin/admin-toolbar.tsx',
     titleKey: 'list.adminTitle',
     bundle: 'event-list',
     path: 'list.adminTitle',

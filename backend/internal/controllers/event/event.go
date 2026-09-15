@@ -46,9 +46,14 @@ func (c *Controller) stageID(r *http.Request, name string) (uuid.UUID, error) {
 // @Param			origin				query		string	false	"Comma-separated origin filter"	Enums(RU,WORLD)
 // @Param			format				query		string	false	"Comma-separated format filter"	Enums(ONLINE,OFFLINE,HYBRID)
 // @Param			include_archived	query		bool	false	"Include archived records"
-// @Param			page				query		int		false	"Page number"	default(1)
-// @Param			page_size			query		int		false	"Page size"		default(50)
+// @Param			from				query		string	false	"Events ending on or after this moment"
+// @Param			to					query		string	false	"Events starting on or before this moment"
+// @Param			sort				query		string	false	"Sort field"		Enums(start_at,end_at,title)
+// @Param			order				query		string	false	"Sort direction"	Enums(asc,desc)
+// @Param			page				query		int		false	"Page number"		default(1)
+// @Param			page_size			query		int		false	"Page size"			default(50)
 // @Success		200					{object}	dto.EventPage
+// @Failure		400					{object}	dto.ErrorResponse
 // @Failure		403					{object}	dto.ErrorResponse
 // @Router			/admin/events [get]
 func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
@@ -57,18 +62,10 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, err)
 		return
 	}
-	archived, err := httpx.QueryBool(r, "include_archived")
+	filter, err := parseEventFilter(r)
 	if err != nil {
 		httpx.Error(w, r, err)
 		return
-	}
-	filter := models.EventFilter{
-		Search:          httpx.QueryTrimmed(r, "search"),
-		States:          parseStates(httpx.QueryTrimmed(r, "state")),
-		Kinds:           parseKinds(httpx.QueryTrimmed(r, "kind")),
-		Origins:         parseOrigins(httpx.QueryTrimmed(r, "origin")),
-		Formats:         parseFormats(httpx.QueryTrimmed(r, "format")),
-		IncludeArchived: archived,
 	}
 	items, total, err := c.events.List(r.Context(), middleware.ActorFrom(r), filter, page)
 	if err != nil {
@@ -81,6 +78,39 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 		out = append(out, presenter.EventResponse(&items[i], now, true))
 	}
 	httpx.JSON(w, http.StatusOK, dto.EventPage{Items: out, Meta: httpx.Meta(page, total)})
+}
+
+func parseEventFilter(r *http.Request) (models.EventFilter, error) {
+	archived, err := httpx.QueryBool(r, "include_archived")
+	if err != nil {
+		return models.EventFilter{}, err
+	}
+	from, err := httpx.QueryTime(r, "from")
+	if err != nil {
+		return models.EventFilter{}, err
+	}
+	to, err := httpx.QueryTime(r, "to")
+	if err != nil {
+		return models.EventFilter{}, err
+	}
+	sort, err := models.ParseCatalogSort(
+		strings.ToLower(httpx.QueryTrimmed(r, "sort")),
+		strings.ToLower(httpx.QueryTrimmed(r, "order")),
+	)
+	if err != nil {
+		return models.EventFilter{}, err
+	}
+	return models.EventFilter{
+		Search:          httpx.QueryTrimmed(r, "search"),
+		States:          parseStates(httpx.QueryTrimmed(r, "state")),
+		Kinds:           parseKinds(httpx.QueryTrimmed(r, "kind")),
+		Origins:         parseOrigins(httpx.QueryTrimmed(r, "origin")),
+		Formats:         parseFormats(httpx.QueryTrimmed(r, "format")),
+		IncludeArchived: archived,
+		From:            from,
+		To:              to,
+		Sort:            sort,
+	}, nil
 }
 
 func parseStates(raw string) []models.EventState {

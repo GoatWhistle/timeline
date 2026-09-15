@@ -1,11 +1,12 @@
-import type { CatalogEvent } from '@/shared/api/types.gen'
-
 export type TeamSizeLabel = {
   key: string
   values: Record<string, number>
 }
 
-export function teamSizeLabelKey(event: CatalogEvent): TeamSizeLabel | null {
+export function teamSizeLabelKey(event: {
+  team_size_min?: number
+  team_size_max?: number
+}): TeamSizeLabel | null {
   const min = event.team_size_min
   const max = event.team_size_max
   if (min !== undefined && max !== undefined) {

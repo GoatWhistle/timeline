@@ -22,6 +22,14 @@ func eventFilterSQL(filter models.EventFilter, now time.Time) (string, []any) {
 	if !filter.IncludeArchived && !containsState(filter.States, models.EventArchived) {
 		conds = append(conds, `archived_at IS NULL`)
 	}
+	if filter.From != nil {
+		args = append(args, *filter.From)
+		conds = append(conds, `end_at >= $`+itoa(len(args)))
+	}
+	if filter.To != nil {
+		args = append(args, *filter.To)
+		conds = append(conds, `start_at <= $`+itoa(len(args)))
+	}
 	if len(filter.States) > 0 {
 		nowArg := `$` + itoa(len(args)+1)
 		usesNow := false
@@ -94,4 +102,25 @@ func containsState(states []models.EventState, target models.EventState) bool {
 		}
 	}
 	return false
+}
+
+var eventSortColumns = map[models.CatalogSortField]string{
+	models.CatalogSortStartAt: "start_at",
+	models.CatalogSortEndAt:   "end_at",
+	models.CatalogSortTitle:   "lower(title)",
+}
+
+func eventOrderSQL(sort models.CatalogSort) string {
+	column, ok := eventSortColumns[sort.Field]
+	if !ok {
+		return "start_at DESC, title"
+	}
+	direction := "ASC"
+	if sort.Direction == models.CatalogSortDesc {
+		direction = "DESC"
+	}
+	if sort.Field == models.CatalogSortTitle {
+		return column + " " + direction + ", start_at ASC"
+	}
+	return column + " " + direction + ", lower(title) ASC"
 }

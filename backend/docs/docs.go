@@ -291,6 +291,39 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "Events ending on or after this moment",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Events starting on or before this moment",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "start_at",
+                            "end_at",
+                            "title"
+                        ],
+                        "type": "string",
+                        "description": "Sort field",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "description": "Sort direction",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "default": 1,
                         "description": "Page number",
@@ -310,6 +343,12 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.EventPage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
                     "403": {

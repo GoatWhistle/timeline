@@ -17,6 +17,7 @@ import {
 import { CatalogCard } from '@/entities/catalog/catalog-card'
 import { CatalogEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
 import type { CatalogEvent } from '@/shared/api/types.gen'
+import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
@@ -24,6 +25,7 @@ import { ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
+import { useSearchShortcut } from '../event-list/use-search-shortcut'
 import {
   CATALOG_DEFAULTS,
   CATALOG_FILTER_FIELDS_URL,
@@ -48,6 +50,9 @@ export function CatalogPage() {
   const [filterSheet, setFilterSheet] = useState(false)
   const filterTriggerRef = useRef<HTMLButtonElement>(null)
   const exportMutation = useCatalogExport()
+  const searchRef = useRef<HTMLInputElement>(null)
+  const [searchInput, setSearchInput] = useState(filters.search)
+  const search = useDebouncedValue(searchInput, 300)
   const { columns, toggle: toggleColumn, reset: resetColumns } = useCatalogColumns()
   const phone = usePhoneViewport()
 
@@ -60,6 +65,7 @@ export function CatalogPage() {
   ) as CatalogFilterValues
 
   const params: CatalogParams = {
+    ...(search ? { search } : {}),
     origin: listParam<'origin'>(filters.origin),
     kind: listParam<'kind'>(filters.kind),
     format: listParam<'format'>(filters.format),
@@ -74,7 +80,7 @@ export function CatalogPage() {
   const query = useQuery(catalogQuery({ ...params, page }))
 
   const items = query.data?.items ?? []
-  const filtered = activeFilterCount(conditions) > 0
+  const filtered = search !== '' || activeFilterCount(conditions) > 0
   const selected = filters.selected || null
   const { openEventCard } = useEventOverlay()
 
@@ -85,6 +91,7 @@ export function CatalogPage() {
     onClear: () => setFilters({ selected: undefined }, { resetPage: false }),
     scopeId: 'catalog-list',
   })
+  useSearchShortcut(searchRef)
 
   function select(id: string) {
     setFilters({ selected: id }, { resetPage: false })
@@ -100,7 +107,11 @@ export function CatalogPage() {
   }
 
   function resetFilters() {
-    setFilters(Object.fromEntries(CATALOG_FILTER_FIELDS_URL.map((field) => [field, undefined])))
+    setSearchInput('')
+    setFilters({
+      search: undefined,
+      ...Object.fromEntries(CATALOG_FILTER_FIELDS_URL.map((field) => [field, undefined])),
+    })
   }
 
   function runExport() {
@@ -131,6 +142,12 @@ export function CatalogPage() {
             filters={conditions}
             columns={columns}
             exporting={exportMutation.isPending}
+            searchValue={searchInput}
+            searchRef={searchRef}
+            onSearch={(value) => {
+              setSearchInput(value)
+              setFilters({ search: value || undefined })
+            }}
             onLayout={(value) => setFilters({ layout: value }, { resetPage: false })}
             onSort={changeSort}
             onOrder={(value: CatalogOrder) => setFilters({ order: value })}

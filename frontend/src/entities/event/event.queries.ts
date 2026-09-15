@@ -103,6 +103,23 @@ export function useArchiveEvent(id: string) {
   })
 }
 
+export function useModerateEvent() {
+  const queryClient = useQueryClient()
+  return useMutation<EventResponse, Error, { id: string; action: 'publish' | 'archive' }>({
+    mutationFn: ({ id, action }) =>
+      unwrap(
+        action === 'publish'
+          ? api.POST('/admin/events/{id}/publish', { params: { path: { id } } })
+          : api.POST('/admin/events/{id}/archive', { params: { path: { id } } }),
+      ),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: eventKeys.adminOne(id) })
+      queryClient.invalidateQueries({ queryKey: ['admin-events'] })
+      queryClient.invalidateQueries({ queryKey: ['event-state-counts'] })
+    },
+  })
+}
+
 export function organizerSuggestionsQuery(search: string) {
   return queryOptions({
     queryKey: ['organizer-suggestions', search],

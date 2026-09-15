@@ -9,7 +9,7 @@ const SRC = join(process.cwd(), 'src')
 const read = (file: string) => readFileSync(join(SRC, file), 'utf8')
 
 const CATALOG_TABLE = 'features/catalog/catalog-table.tsx'
-const ADMIN_EVENT_LIST = 'features/event-list/admin/event-list.tsx'
+const ADMIN_TABLE = 'features/event-list/admin/admin-table.tsx'
 const SHARED_TABLE = 'shared/ui/data-display/table.tsx'
 
 function surfaceOf(source: string, anchor: string): string {
@@ -40,10 +40,11 @@ describe('a row list is drawn on a closed surface, not loose on the page backgro
     expect(surface, `catalog table wrapper: ${surface}`).toContain('border')
   })
 
-  it('bounds the admin event listbox the same way', () => {
-    const wrapper = listboxClassName(read(ADMIN_EVENT_LIST))
+  it('bounds the admin event table the same way', () => {
+    const source = read(ADMIN_TABLE)
+    const wrapper = surfaceOf(source, '<table')
 
-    expect(wrapper, `listbox wrapper: ${wrapper}`).toContain('rounded-surface')
+    expect(wrapper, `admin table surface: ${wrapper}`).toContain('rounded-surface border')
     expect(wrapper, `listbox wrapper: ${wrapper}`).toContain('border')
   })
 })
@@ -78,9 +79,11 @@ describe('a list closes its own bottom edge instead of ending on a dangling divi
   })
 
   it('strips the divider from the last admin event row', () => {
-    const wrapper = listboxClassName(read(ADMIN_EVENT_LIST))
+    const source = read(ADMIN_TABLE)
+    const at = source.indexOf('<tbody')
+    const tbody = source.slice(at, source.indexOf('>', at))
 
-    expect(wrapper, `listbox wrapper: ${wrapper}`).toContain('[&>*:last-child]:border-b-0')
+    expect(tbody, `admin tbody: ${tbody}`).toContain('[&_tr:last-child]:border-0')
   })
 
   it('keeps drawing the divider on the row itself, so rows stay separated', () => {

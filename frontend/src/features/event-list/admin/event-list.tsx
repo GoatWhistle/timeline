@@ -4,65 +4,66 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import { EVENT_STATE_KEY, EVENT_STATES } from '@/entities/event/event.labels'
+import { useAdminColumns } from '@/entities/catalog/admin.columns'
+import {
+  type CatalogOrder,
+  type CatalogSort,
+  effectiveLayout,
+  resolveLayout,
+  resolveOrder,
+  resolveSort,
+} from '@/entities/catalog/catalog.views'
 import { adminEventsQuery, useCreateEvent } from '@/entities/event/event.queries'
 import { EventForm } from '@/entities/event/event-form'
-import { EventRow } from '@/entities/event/event-row/event-row'
-import { AdminStats } from '@/features/admin-stats/admin-stats'
+import {
+  ADMIN_FILTER_FIELDS,
+  activeFilterCount,
+  type CatalogFilterValues,
+} from '@/features/catalog/catalog-filter-conditions'
 import { AdminEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
-import type { EventState } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
 import { EventListFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import { Input } from '@/shared/ui/forms/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/forms/select'
+import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
 import { useSearchShortcut } from '../use-search-shortcut'
-
-const ALL = 'ALL'
-const DEFAULTS = { search: '', state: ALL, archived: '', selected: '' }
+import { ADMIN_DEFAULTS, adminListParams } from './admin.params'
+import { AdminCards } from './admin-cards'
+import { AdminTable } from './admin-table'
+import { AdminToolbar } from './admin-toolbar'
 
 export function AdminEventsPage() {
   const { t } = useTranslation('event')
-  const [filters, setFilters] = useUrlFilters(DEFAULTS)
+  const [filters, setFilters] = useUrlFilters(ADMIN_DEFAULTS)
   const [page, setPage] = usePageParam()
   const [createOpen, setCreateOpen] = useState(false)
   const navigate = useNavigate()
   const create = useCreateEvent()
   const searchRef = useRef<HTMLInputElement>(null)
+  const { columns, toggle: toggleColumn, reset: resetColumns } = useAdminColumns()
+  const phone = usePhoneViewport()
 
   const [searchInput, setSearchInput] = useState(filters.search)
   const search = useDebouncedValue(searchInput, 300)
 
-  const query = useQuery(
-    adminEventsQuery({
-      page,
-      ...(search ? { search } : {}),
-      ...(filters.state !== ALL ? { state: filters.state as EventState } : {}),
-      ...(filters.archived === '1' ? { include_archived: true } : {}),
-    }),
-  )
+  const layout = effectiveLayout(resolveLayout(filters.layout), phone)
+  const sort = resolveSort(filters.sort)
+  const order = resolveOrder(filters.order)
+
+  const conditions = Object.fromEntries(
+    ADMIN_FILTER_FIELDS.map((field) => [field, filters[field]]),
+  ) as CatalogFilterValues
+
+  const query = useQuery(adminEventsQuery(adminListParams(filters, search, sort, order, page)))
 
   const items = query.data?.items ?? []
-  const filtered = search !== '' || filters.state !== ALL || filters.archived === '1'
-
-  function resetFilters() {
-    setSearchInput('')
-    setFilters({ search: undefined, state: undefined, archived: undefined })
-  }
-
+  const filtered = search !== '' || activeFilterCount(conditions, ADMIN_FILTER_FIELDS) > 0
   const selected = filters.selected || null
   const { openEventCard } = useEventOverlay()
 
@@ -75,51 +76,50 @@ export function AdminEventsPage() {
   })
   useSearchShortcut(searchRef)
 
+  function select(id: string) {
+    setFilters({ selected: id }, { resetPage: false })
+    openEventCard(id)
+  }
+
+  function changeSort(next: CatalogSort) {
+    if (next === sort) {
+      setFilters({ order: order === 'asc' ? 'desc' : 'asc' })
+      return
+    }
+    setFilters({ sort: next, order: 'asc' })
+  }
+
+  function resetFilters() {
+    setSearchInput('')
+    setFilters({
+      search: undefined,
+      ...Object.fromEntries(ADMIN_FILTER_FIELDS.map((field) => [field, undefined])),
+    })
+  }
+
   return (
     <ThreePane>
       <ListPane>
-        <header className="flex flex-wrap items-center gap-3 border-border border-b px-4 py-3">
-          <h1 className="w-full font-semibold text-screen tracking-tight sm:w-auto">
-            {t('list.adminTitle')}
-          </h1>
-          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
-            <Input
-              ref={searchRef}
-              aria-label={t('list.searchAria')}
-              placeholder={t('list.searchPlaceholder')}
-              value={searchInput}
-              className="h-8 min-w-24 flex-1 text-copy sm:w-56 sm:flex-none"
-              onChange={(event) => {
-                setSearchInput(event.target.value)
-                setFilters({ search: event.target.value || undefined })
-              }}
-            />
-            <Select value={filters.state} onValueChange={(value) => setFilters({ state: value })}>
-              <SelectTrigger
-                aria-label={t('list.stateAria')}
-                className="h-8 min-w-24 flex-1 text-copy sm:w-44 sm:flex-none"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL}>{t('list.allStates')}</SelectItem>
-                {EVENT_STATES.map((state) => (
-                  <SelectItem key={state} value={state}>
-                    {t(EVENT_STATE_KEY[state])}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              <Plus className="size-4" aria-hidden="true" />
-              {t('list.create')}
-            </Button>
-          </div>
-        </header>
-
-        <AdminStats
-          activeState={filters.state}
-          onSelectState={(state) => setFilters({ state: filters.state === state ? ALL : state })}
+        <AdminToolbar
+          layout={layout}
+          sort={sort}
+          order={order}
+          filters={conditions}
+          columns={columns}
+          searchValue={searchInput}
+          searchRef={searchRef}
+          onSearch={(value) => {
+            setSearchInput(value)
+            setFilters({ search: value || undefined })
+          }}
+          onLayout={(value) => setFilters({ layout: value }, { resetPage: false })}
+          onSort={changeSort}
+          onOrder={(value: CatalogOrder) => setFilters({ order: value })}
+          onFilters={(patch) => setFilters(patch)}
+          onResetFilters={resetFilters}
+          onToggleColumn={toggleColumn}
+          onResetColumns={resetColumns}
+          onCreate={() => setCreateOpen(true)}
         />
 
         <QueryBoundary
@@ -150,23 +150,19 @@ export function AdminEventsPage() {
           ) : (
             <>
               <div className="p-3 sm:p-4">
-                <div
-                  role="listbox"
-                  aria-label={t('list.adminTitle')}
-                  className="flex flex-col overflow-hidden rounded-surface border [&>*:last-child]:border-b-0"
-                >
-                  {items.map((item) => (
-                    <EventRow
-                      key={item.id}
-                      event={item}
-                      selected={item.id === selected}
-                      onSelect={(id) => {
-                        setFilters({ selected: id }, { resetPage: false })
-                        openEventCard(id)
-                      }}
-                    />
-                  ))}
-                </div>
+                {layout === 'table' ? (
+                  <AdminTable
+                    items={items}
+                    columns={columns}
+                    selected={selected}
+                    sort={sort}
+                    order={order}
+                    onSelect={select}
+                    onSort={changeSort}
+                  />
+                ) : (
+                  <AdminCards items={items} selected={selected} onSelect={select} />
+                )}
               </div>
               {query.data && (
                 <div className="p-4">

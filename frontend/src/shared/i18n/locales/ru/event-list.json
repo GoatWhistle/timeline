@@ -11,7 +11,9 @@
     "emptyFiltered": "Ни одно событие не подходит под эти фильтры",
     "newTitle": "Новое событие",
     "created": "Событие создано",
-    "createdHint": "Оно ещё не опубликовано"
+    "createdHint": "Оно ещё не опубликовано",
+    "moderateAria": "Модерация: {{title}}",
+    "moderateHeader": "Модерация"
   },
   "catalog": {
     "title": "Каталог",
@@ -57,7 +59,9 @@
       "all": "Все",
       "upcoming": "Предстоящие",
       "active": "Активные",
-      "finished": "Завершённые"
+      "finished": "Завершённые",
+      "unpublished": "Черновик",
+      "archived": "В архиве"
     },
     "format": {
       "all": "Все",
@@ -88,7 +92,13 @@
       "organizer": "Организатор",
       "track": "Трек",
       "teamSize": "Размер команды",
-      "origin": "Охват"
+      "origin": "Охват",
+      "created": "Создано",
+      "updated": "Изменено",
+      "published": "Опубликовано",
+      "cover": "Обложка",
+      "notPublished": "Черновик",
+      "updatedAt": "Изменено {{at}}"
     },
     "export": {
       "action": "Экспорт CSV",
@@ -122,7 +132,8 @@
       "origin": "Охват",
       "from": "Дата начала",
       "to": "Дата окончания",
-      "joined": "Участие"
+      "joined": "Участие",
+      "archived": "Архив"
     },
     "operator": {
       "is": "—",
@@ -141,6 +152,15 @@
       "all": "Все",
       "mine": "Участвую",
       "others": "Не участвую"
+    },
+    "archived": {
+      "shown": "Показывать",
+      "hidden": "Скрывать"
+    },
+    "cover": {
+      "MANUAL": "Загружена",
+      "AUTO": "Получена",
+      "NONE": "Нет"
     }
   }
 }

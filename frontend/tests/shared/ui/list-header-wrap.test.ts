@@ -7,7 +7,7 @@ const SRC = join(process.cwd(), 'src')
 const read = (file: string) => readFileSync(join(SRC, file), 'utf8')
 
 const HEADERS = [
-  { file: 'features/event-list/admin/event-list.tsx', anchor: '<header' },
+  { file: 'features/event-list/admin/admin-toolbar.tsx', anchor: '<header' },
   { file: 'features/catalog/catalog-toolbar.tsx', anchor: 'border-border border-b px-4 py-3' },
 ]
 
@@ -29,7 +29,7 @@ describe('a list header wraps its controls instead of pushing the page wider', (
   })
 
   it('the control cluster beside the title may shrink, so a fixed field cannot pin it open', () => {
-    const source = read('features/event-list/admin/event-list.tsx')
+    const source = read('features/event-list/admin/admin-toolbar.tsx')
     const cluster = /className="([^"]*\bflex-1\b[^"]*\bflex-wrap\b[^"]*)"/.exec(source)?.[1] ?? ''
     expect(cluster).not.toBe('')
     expect(cluster).toContain('min-w-0')
@@ -37,7 +37,7 @@ describe('a list header wraps its controls instead of pushing the page wider', (
   })
 
   it('no control in that header holds a fixed width down to the phone', () => {
-    const source = read('features/event-list/admin/event-list.tsx')
+    const source = read('features/event-list/admin/admin-toolbar.tsx')
     const fixed: string[] = []
     for (const match of source.matchAll(/className="([^"]*)"/g)) {
       const cls = match[1] ?? ''

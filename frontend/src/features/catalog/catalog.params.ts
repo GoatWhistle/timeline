@@ -2,6 +2,7 @@ import type { CatalogParams } from '@/entities/catalog/catalog.queries'
 import { dayEndIso, dayStartIso } from '@/shared/datetime/civil'
 
 export const CATALOG_DEFAULTS = {
+  search: '',
   origin: '',
   kind: '',
   format: '',

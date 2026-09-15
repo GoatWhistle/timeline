@@ -5,7 +5,7 @@ import {
   EventStateSign,
 } from '@/entities/event/event-state-mark/event-state-sign'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
-import type { CatalogEvent } from '@/shared/api/types.gen'
+import type { CatalogEvent, EventResponse } from '@/shared/api/types.gen'
 import { formatDateRange } from '@/shared/datetime/datetime'
 import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
@@ -15,12 +15,18 @@ import { CATALOG_SCOPE_KEY, type CatalogColumn } from './catalog.views'
 import { CatalogJoinedMark } from './catalog-joined-mark'
 import { CatalogKindMark } from './catalog-kind-mark'
 
-function TitleCell({
+type RowEvent = CatalogEvent | EventResponse
+
+function joinedOf(event: RowEvent): boolean {
+  return 'joined' in event && event.joined === true
+}
+
+export function CatalogTitleCell({
   event,
   selected,
   onSelect,
 }: {
-  event: CatalogEvent
+  event: RowEvent
   selected: boolean
   onSelect: (id: string) => void
 }) {
@@ -44,17 +50,17 @@ function TitleCell({
         >
           {event.title}
         </button>
-        {event.joined && <CatalogJoinedMark />}
+        {joinedOf(event) && <CatalogJoinedMark />}
       </span>
       {selected && <span className="sr-only">{t('catalog.selected')}</span>}
     </td>
   )
 }
 
-function CellContent({ event, column }: { event: CatalogEvent; column: CatalogColumn }) {
+export function CatalogCellContent({ event, column }: { event: RowEvent; column: string }) {
   const { t } = useTranslation('event')
   const FormatIcon = EVENT_FORMAT_ICON[event.effective_format]
-  const stage = event.offline_stages.at(-1)
+  const stage = 'offline_stages' in event ? event.offline_stages.at(-1) : undefined
 
   switch (column) {
     case 'kind':
@@ -94,15 +100,16 @@ function CellContent({ event, column }: { event: CatalogEvent; column: CatalogCo
       const size = teamSizeLabelKey(event)
       return <>{size ? t(size.key, size.values) : <NoValue />}</>
     }
-    case 'participation':
-      return event.joined ? (
+    case 'participation': {
+      if (!joinedOf(event)) return <NoValue />
+      const role = 'team_role' in event ? event.team_role : null
+      return (
         <span className="flex items-center gap-1.5">
           <CatalogJoinedMark />
-          <span className="truncate">{event.team_role ?? t('catalog.column.participation')}</span>
+          <span className="truncate">{role ?? t('catalog.column.participation')}</span>
         </span>
-      ) : (
-        <NoValue />
       )
+    }
     case 'origin':
       return <>{t(CATALOG_SCOPE_KEY[event.origin])}</>
     case 'state':
@@ -144,10 +151,10 @@ export function CatalogTableRow({
     >
       {columns.map((column) =>
         column === 'title' ? (
-          <TitleCell key={column} event={event} selected={selected} onSelect={onSelect} />
+          <CatalogTitleCell key={column} event={event} selected={selected} onSelect={onSelect} />
         ) : (
           <td key={column} className={cellClass(column)}>
-            <CellContent event={event} column={column} />
+            <CatalogCellContent event={event} column={column} />
           </td>
         ),
       )}

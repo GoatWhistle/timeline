@@ -3561,6 +3561,29 @@ paths:
         in: query
         name: include_archived
         type: boolean
+      - description: Events ending on or after this moment
+        in: query
+        name: from
+        type: string
+      - description: Events starting on or before this moment
+        in: query
+        name: to
+        type: string
+      - description: Sort field
+        enum:
+        - start_at
+        - end_at
+        - title
+        in: query
+        name: sort
+        type: string
+      - description: Sort direction
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
       - default: 1
         description: Page number
         in: query
@@ -3578,6 +3601,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.EventPage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
         "403":
           description: Forbidden
           schema:
