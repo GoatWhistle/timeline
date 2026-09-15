@@ -4,6 +4,7 @@ import {
   centredSquareIn,
   clampRectTo,
   clampSquareTo,
+  EDITOR_TOOLS,
   MIN_CROP_SIDE,
   moveRectBy,
   resizeCropByHandle,
@@ -134,5 +135,18 @@ describe('the frame can be carried without being resized', () => {
     )
     expect(moved.x).toBeGreaterThanOrEqual(0)
     expect(moved.y).toBeGreaterThanOrEqual(0)
+  })
+})
+
+describe('only the hand tool carries the frame; the others draw inside it', () => {
+  it('lists the hand before the pencil, so moving comes first', () => {
+    expect(EDITOR_TOOLS[0], 'the hand must lead the row').toBe('crop')
+    expect(EDITOR_TOOLS.indexOf('crop')).toBeLessThan(EDITOR_TOOLS.indexOf('brush'))
+  })
+
+  it('keeps every drawing tool in the row beside it', () => {
+    for (const tool of ['brush', 'rectangle', 'ellipse', 'line', 'fill', 'text', 'picker']) {
+      expect(EDITOR_TOOLS, `${tool} is missing from the toolbar`).toContain(tool)
+    }
   })
 })

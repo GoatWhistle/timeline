@@ -107,16 +107,6 @@ export function clampSquareTo(rect: Rect, width: number, height: number): Rect {
   return { x, y, width: side, height: side }
 }
 
-export function squareFrom(from: Point, to: Point): Rect {
-  const side = Math.max(Math.abs(to.x - from.x), Math.abs(to.y - from.y))
-  return {
-    x: to.x < from.x ? from.x - side : from.x,
-    y: to.y < from.y ? from.y - side : from.y,
-    width: side,
-    height: side,
-  }
-}
-
 export function moveRectBy(rect: Rect, dx: number, dy: number): Rect {
   return { x: rect.x + dx, y: rect.y + dy, width: rect.width, height: rect.height }
 }

@@ -169,7 +169,7 @@
   },
   "imageEditor": {
     "title": "Image editor",
-    "toolCrop": "Crop",
+    "toolCrop": "Move the frame",
     "toolBrush": "Brush",
     "toolRectangle": "Rectangle",
     "toolEllipse": "Ellipse",

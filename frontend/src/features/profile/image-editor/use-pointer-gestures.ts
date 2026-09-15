@@ -8,7 +8,6 @@ import {
   type Point,
   type Rect,
   resizeCropByHandle,
-  squareFrom,
 } from './editor-model'
 
 export function usePointerGestures(options: {
@@ -79,12 +78,7 @@ export function usePointerGestures(options: {
 
       strokeStart.current = point
       strokeLast.current = point
-      if (tool === 'crop') {
-        setCropMoving(false)
-        setCropHandle(null)
-        setCrop({ x: point.x, y: point.y, width: 0, height: 0 })
-        return
-      }
+      if (tool === 'crop') return
       pushHistory()
       snapshot.current = ctx.getImageData(0, 0, canvas.width, canvas.height)
       if (tool === 'brush') drawBrushSegment(ctx, point, point, colour, brushSize)
@@ -123,10 +117,6 @@ export function usePointerGestures(options: {
           return
         }
         setCrop(clampSquareTo(resizeCropByHandle(crop, held, point), canvas.width, canvas.height))
-        return
-      }
-      if (tool === 'crop') {
-        setCrop(clampSquareTo(squareFrom(start, point), canvas.width, canvas.height))
         return
       }
       if (tool === 'brush') {

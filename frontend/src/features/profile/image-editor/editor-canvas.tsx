@@ -39,7 +39,11 @@ export function EditorCanvas({ editor }: { editor: Editor }) {
             canvas={editor.canvasSize}
             crop={editor.crop}
             onHandleDown={(handle, clientX, clientY) => editor.begin(clientX, clientY, handle)}
-            onFrameDown={(clientX, clientY) => editor.begin(clientX, clientY, 'move')}
+            onFrameDown={
+              editor.tool === 'crop'
+                ? (clientX, clientY) => editor.begin(clientX, clientY, 'move')
+                : undefined
+            }
           />
         ) : null}
         {editor.pendingText && editor.canvasRef.current ? (

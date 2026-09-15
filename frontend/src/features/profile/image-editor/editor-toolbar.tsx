@@ -1,4 +1,4 @@
-import { Circle, Crop, Minus, PaintBucket, Pencil, Pipette, Square, Type } from 'lucide-react'
+import { Circle, Hand, Minus, PaintBucket, Pencil, Pipette, Square, Type } from 'lucide-react'
 import type { ComponentType } from 'react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -15,7 +15,7 @@ import {
 } from './editor-model'
 
 const TOOL_ICONS: Record<EditorTool, ComponentType<{ className?: string }>> = {
-  crop: Crop,
+  crop: Hand,
   brush: Pencil,
   rectangle: Square,
   ellipse: Circle,
@@ -69,7 +69,7 @@ export function EditorToolbar({
           aria-label={t('imageEditor.tool')}
           className="flex flex-wrap items-center gap-1"
         >
-          {EDITOR_TOOLS.filter((item) => item !== 'crop').map((item) => {
+          {EDITOR_TOOLS.map((item) => {
             const Icon = TOOL_ICONS[item]
             const active = item === tool
             return (

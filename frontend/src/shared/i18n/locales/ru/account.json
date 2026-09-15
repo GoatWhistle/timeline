@@ -170,7 +170,7 @@
   },
   "imageEditor": {
     "title": "Редактор изображения",
-    "toolCrop": "Кадрирование",
+    "toolCrop": "Перемещать рамку",
     "toolBrush": "Кисть",
     "toolRectangle": "Прямоугольник",
     "toolEllipse": "Эллипс",
