@@ -101,6 +101,8 @@
     "emptyFiltered": "No account matches this search",
     "active": "active",
     "deactivated": "deactivated",
+    "stateActive": "Active",
+    "stateDeactivated": "Deactivated",
     "deactivate": "Deactivate",
     "activate": "Activate",
     "delete": "Delete",
@@ -134,18 +136,6 @@
       "state": "State",
       "role": "Role",
       "telegram": "Telegram"
-    },
-    "filters": {
-      "action": "Filters",
-      "empty": "No conditions yet. Add the first one.",
-      "add": "Add condition",
-      "reset": "Reset",
-      "remove": "Remove condition",
-      "where": "Where",
-      "and": "And",
-      "is": "is",
-      "fieldAria": "Filter field",
-      "valueAria": "Filter value"
     },
     "roleAdmin": "Administrator",
     "roleMember": "Member",

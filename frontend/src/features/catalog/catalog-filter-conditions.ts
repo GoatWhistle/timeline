@@ -111,28 +111,37 @@ export function isDateField(field: CatalogFilterField): boolean {
   return field === 'from' || field === 'to'
 }
 
-export function activeFields(
-  values: CatalogFilterValues,
+export type CatalogRowField = Exclude<CatalogFilterField, 'from' | 'to'> | 'period'
+
+export const PERIOD_FIELD_KEY = 'catalog.field.period'
+
+export const PERIOD_OPERATOR_KEY = 'catalog.operator.between'
+
+export function rowFieldsOf(
   fields: readonly CatalogFilterField[] = CATALOG_FILTER_FIELDS,
-): CatalogFilterField[] {
-  return fields.filter((field) => values[field] !== undefined && values[field] !== '')
+): CatalogRowField[] {
+  const rows: CatalogRowField[] = []
+  for (const field of fields) {
+    const row: CatalogRowField = isDateField(field)
+      ? 'period'
+      : (field as Exclude<CatalogFilterField, 'from' | 'to'>)
+    if (!rows.includes(row)) rows.push(row)
+  }
+  return rows
+}
+
+export function rowActive(values: CatalogFilterValues, row: CatalogRowField): boolean {
+  if (row === 'period') return (values.from ?? '') !== '' || (values.to ?? '') !== ''
+  return (values[row] ?? '') !== ''
+}
+
+export function clearedRow(row: CatalogRowField): Partial<CatalogFilterValues> {
+  return row === 'period' ? { from: '', to: '' } : { [row]: '' }
 }
 
 export function activeFilterCount(
   values: CatalogFilterValues,
   fields: readonly CatalogFilterField[] = CATALOG_FILTER_FIELDS,
 ): number {
-  return activeFields(values, fields).length
-}
-
-export function firstUnusedField(
-  values: CatalogFilterValues,
-  fields: readonly CatalogFilterField[] = CATALOG_FILTER_FIELDS,
-): CatalogFilterField | null {
-  return fields.find((field) => values[field] === undefined || values[field] === '') ?? null
-}
-
-export function defaultValueFor(field: CatalogFilterField, admin = false): string {
-  if (isDateField(field)) return ''
-  return filterChoices(field, admin)[0]?.value ?? ''
+  return rowFieldsOf(fields).filter((row) => rowActive(values, row)).length
 }

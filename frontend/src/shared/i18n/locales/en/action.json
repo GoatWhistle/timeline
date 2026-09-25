@@ -61,5 +61,20 @@
   },
   "command": {
     "openSettings": "Open settings: {{section}}"
+  },
+  "filters": {
+    "title": "Filters",
+    "titleActive": "Filters: {{count}} active",
+    "add": "Add filter",
+    "reset": "Reset",
+    "remove": "Remove filter",
+    "empty": "No filters yet — everything is shown.",
+    "is": "is",
+    "fieldAria": "Filter field",
+    "valueAria": "Filter value",
+    "choose": "Choose…",
+    "rangeInverted": "The start can't be after the end.",
+    "from": "From",
+    "to": "To"
   }
 }

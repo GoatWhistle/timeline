@@ -65,8 +65,8 @@ export const USER_FILTER_CHOICES: Record<
   readonly { value: string; labelKey: string }[]
 > = {
   active: [
-    { value: 'true', labelKey: 'users.active' },
-    { value: 'false', labelKey: 'users.deactivated' },
+    { value: 'true', labelKey: 'users.stateActive' },
+    { value: 'false', labelKey: 'users.stateDeactivated' },
   ],
   admin: [
     { value: 'true', labelKey: 'users.roleAdmin' },

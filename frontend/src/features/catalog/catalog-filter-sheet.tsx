@@ -1,8 +1,8 @@
-import { SlidersHorizontal } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
-import { DatePicker } from '@/shared/ui/forms/calendar/date-picker'
+import { FilterDateRange } from '@/shared/ui/forms/filter-builder/filter-date-range'
+import { FilterTrigger } from '@/shared/ui/forms/filter-builder/filter-trigger'
 import { TAP_TARGET } from '@/shared/ui/layout/mobile/mobile-state'
 import {
   Dialog,
@@ -11,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/ui/overlays/dialog'
-import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import {
   activeFilterCount,
@@ -20,7 +19,8 @@ import {
   type CatalogFilterField,
   type CatalogFilterValues,
   filterChoices,
-  isDateField,
+  PERIOD_FIELD_KEY,
+  rowFieldsOf,
 } from './catalog-filter-conditions'
 
 function ChoiceGroup({
@@ -66,25 +66,26 @@ function ChoiceGroup({
   )
 }
 
-function DateField({
-  field,
-  value,
-  onValue,
+function PeriodField({
+  values,
+  onChange,
 }: {
-  field: CatalogFilterField
-  value: string
-  onValue: (field: CatalogFilterField, value: string) => void
+  values: CatalogFilterValues
+  onChange: (patch: Partial<CatalogFilterValues>) => void
 }) {
   const { t } = useTranslation('event')
-  const id = `catalog-filter-${field}`
 
   return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="font-medium text-copy">
-        {t(CATALOG_FILTER_FIELD_KEY[field])}
-      </label>
-      <DatePicker id={id} value={value} onChange={(date) => onValue(field, date)} />
-    </div>
+    <fieldset className="flex flex-col gap-2">
+      <legend className="font-medium text-copy">{t(PERIOD_FIELD_KEY)}</legend>
+      <FilterDateRange
+        id="catalog-filter-period"
+        stacked
+        from={values.from ?? ''}
+        to={values.to ?? ''}
+        onChange={(range) => onChange(range)}
+      />
+    </fieldset>
   )
 }
 
@@ -128,16 +129,11 @@ export function CatalogFilterSheet({
         </DialogHeader>
 
         <div className="flex flex-col gap-5 overflow-y-auto">
-          {CATALOG_FILTER_FIELDS.map((field) =>
-            isDateField(field) ? (
-              <DateField key={field} field={field} value={values[field] ?? ''} onValue={setValue} />
+          {rowFieldsOf(CATALOG_FILTER_FIELDS).map((row) =>
+            row === 'period' ? (
+              <PeriodField key={row} values={values} onChange={onChange} />
             ) : (
-              <ChoiceGroup
-                key={field}
-                field={field}
-                value={values[field] ?? ''}
-                onValue={setValue}
-              />
+              <ChoiceGroup key={row} field={row} value={values[row] ?? ''} onValue={setValue} />
             ),
           )}
         </div>
@@ -169,18 +165,5 @@ export function CatalogFilterSheetTrigger({
   onClick: () => void
   ref?: React.Ref<HTMLButtonElement>
 }) {
-  const { t } = useTranslation('event')
-  const count = activeFilterCount(values)
-
-  return (
-    <Button ref={ref} variant="outline" onClick={onClick} className={cn('gap-1.5', TAP_TARGET)}>
-      <SlidersHorizontal className="size-4" aria-hidden="true" />
-      {t('catalog.filters.action')}
-      {count > 0 && (
-        <Badge tone="primary" className="ml-0.5">
-          {count}
-        </Badge>
-      )}
-    </Button>
-  )
+  return <FilterTrigger ref={ref} touch count={activeFilterCount(values)} onClick={onClick} />
 }

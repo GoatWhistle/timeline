@@ -97,7 +97,8 @@ describe('the phone surfaces keep the rules the screen cannot show a test', () =
     const toolbar = readFileSync(TOOLBAR, 'utf8')
     expect(sheet).toContain('TAP_TARGET')
     expect(toolbar).toContain('TAP_TARGET')
-    expect(sheet.match(/TAP_TARGET/g)?.length ?? 0).toBeGreaterThanOrEqual(5)
+    expect(sheet.match(/TAP_TARGET/g)?.length ?? 0).toBeGreaterThanOrEqual(4)
+    expect(sheet, 'the sheet trigger lost its tap size').toMatch(/<FilterTrigger\b[^>]*\btouch\b/)
   })
 
   it('closing the sheet lands focus on the trigger, never on the body', async () => {

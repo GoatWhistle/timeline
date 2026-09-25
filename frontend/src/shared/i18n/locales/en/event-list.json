@@ -114,14 +114,7 @@
     },
     "filters": {
       "action": "Filters",
-      "where": "Where",
-      "and": "And",
-      "add": "Add condition",
       "reset": "Reset",
-      "remove": "Remove condition",
-      "empty": "No conditions yet. Everything is shown.",
-      "fieldAria": "Filter field",
-      "valueAria": "Filter value",
       "apply": "Show results",
       "sheetHint": "Pick conditions — the catalog updates as you go."
     },
@@ -133,12 +126,14 @@
       "from": "Start date",
       "to": "End date",
       "joined": "Participation",
-      "archived": "Archive"
+      "archived": "Archive",
+      "period": "Dates"
     },
     "operator": {
       "is": "is",
       "onOrAfter": "on or after",
-      "onOrBefore": "on or before"
+      "onOrBefore": "on or before",
+      "between": "between"
     },
     "card": {
       "noCover": "No cover image",
