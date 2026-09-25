@@ -1,38 +1,47 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { CatalogCover } from '@/entities/catalog/catalog-cover'
 import { CoverMissing } from '@/features/event-cover/cover-missing'
+import { i18n, i18nReady } from '@/shared/i18n/config'
 
 const INK = 'text-foreground'
 
-const TINTED = 'text-event-tint'
-
 const FADED = 'text-muted-foreground'
 
-describe('a cover placeholder is written in ink the tint cannot swallow', () => {
-  it('writes the catalog initial in the theme ink rather than the slot colour', () => {
-    render(<CatalogCover coverUrl={null} color={{ family: 'RU', slot: 3 }} initial="A" />)
-    const initial = screen.getByText('A')
-    const classes = initial.className.split(/\s+/)
-    expect(classes).toContain(INK)
-    expect(classes).not.toContain(TINTED)
-    expect(classes).not.toContain(FADED)
+beforeAll(async () => {
+  await i18nReady
+  await i18n.changeLanguage('en')
+})
+
+describe('a tile without a cover stays quiet', () => {
+  it('says there is no cover in a soft grey, with nothing drawn around it', () => {
+    const { container } = render(<CatalogCover coverUrl={null} color={{ family: 'RU', slot: 3 }} />)
+    const label = screen.getByText('No cover')
+    expect(label.className.split(/\s+/), 'the label shouts over the plate').toContain(FADED)
+    expect(container.querySelector('svg'), 'a figure came back into the tile').toBeNull()
   })
 
-  it('keeps the catalog initial in ink for every slot of every family', () => {
-    for (const family of ['RU', 'WORLD'] as const) {
-      for (const slot of [0, 7, 12, 23]) {
-        const { unmount } = render(
-          <CatalogCover coverUrl={null} color={{ family, slot }} initial="Z" />,
-        )
-        const classes = screen.getByText('Z').className.split(/\s+/)
-        expect(classes, `${family} slot ${slot}`).toContain(INK)
-        expect(classes, `${family} slot ${slot}`).not.toContain(TINTED)
-        unmount()
-      }
+  it('lays the label on a plain grey plate, not on the event colour', () => {
+    const { container } = render(
+      <CatalogCover coverUrl={null} color={{ family: 'WORLD', slot: 10 }} />,
+    )
+    const frame = container.querySelector('[data-catalog-cover]') as HTMLElement
+    const classes = frame.className.split(/\s+/)
+    expect(classes).toContain('bg-muted')
+    expect(classes).not.toContain('bg-event-fill')
+  })
+
+  it('keeps one 16:9 frame whether or not there is a picture, so a grid row stays even', () => {
+    for (const coverUrl of [null, 'https://example.test/cover.png']) {
+      const { container, unmount } = render(<CatalogCover coverUrl={coverUrl} color={null} />)
+      const frame = container.querySelector('[data-catalog-cover]') as HTMLElement
+      expect(frame.className.split(/\s+/), `cover ${coverUrl}`).toContain('aspect-[16/9]')
+      unmount()
     }
   })
+})
 
+describe('the event window keeps its own missing-cover figure', () => {
   it('writes the missing-cover label in the theme ink', () => {
     const { container } = render(<CoverMissing />)
     const label = container.querySelector('p')
@@ -40,16 +49,5 @@ describe('a cover placeholder is written in ink the tint cannot swallow', () => 
     const classes = (label as HTMLElement).className.split(/\s+/)
     expect(classes).toContain(INK)
     expect(classes).not.toContain(FADED)
-  })
-
-  it('still carries the slot colour on the fill behind the initial', () => {
-    const { container } = render(
-      <CatalogCover coverUrl={null} color={{ family: 'WORLD', slot: 10 }} initial="B" />,
-    )
-    const tinted = container.querySelector('[data-event-family="WORLD"][data-event-slot="10"]')
-    expect(tinted).not.toBeNull()
-    expect(screen.getByText('B').closest('span')?.parentElement?.className).toContain(
-      'bg-event-fill-strong',
-    )
   })
 })

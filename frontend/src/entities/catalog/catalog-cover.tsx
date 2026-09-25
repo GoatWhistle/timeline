@@ -7,12 +7,10 @@ import { cn } from '@/shared/styling/class-names/class-names'
 export function CatalogCover({
   coverUrl,
   color,
-  initial,
   className,
 }: {
   coverUrl: string | null | undefined
   color: EventColor | null | undefined
-  initial: string
   className?: string
 }) {
   const { t } = useTranslation('event')
@@ -22,10 +20,11 @@ export function CatalogCover({
   return (
     <span
       {...eventColorAttrs(color)}
+      data-catalog-cover=""
       className={cn(
-        'relative block w-full overflow-hidden rounded-control bg-event-fill',
-        'after:pointer-events-none after:absolute after:inset-0 after:rounded-control',
-        'after:border after:border-event-tint/30',
+        'relative block aspect-[16/9] w-full shrink-0 overflow-hidden rounded-control',
+        'after:pointer-events-none after:absolute after:inset-0 after:rounded-control after:border',
+        showImage ? 'bg-event-fill after:border-event-tint/30' : 'bg-muted after:border-border',
         className,
       )}
     >
@@ -43,11 +42,8 @@ export function CatalogCover({
           )}
         />
       ) : (
-        <span className="flex h-full w-full items-center justify-center bg-event-fill-strong">
-          <span aria-hidden="true" className="font-semibold text-foreground text-screen uppercase">
-            {initial}
-          </span>
-          <span className="sr-only">{t('catalog.card.noCover')}</span>
+        <span className="flex h-full w-full items-center justify-center text-caption text-muted-foreground">
+          {t('catalog.card.noCover')}
         </span>
       )}
     </span>

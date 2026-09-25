@@ -65,12 +65,7 @@ export function CatalogCard({
           'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
         )}
       >
-        <CatalogCover
-          coverUrl={event.cover_url}
-          color={event.color}
-          initial={event.title.slice(0, 1)}
-          className="aspect-[16/9] shrink-0"
-        />
+        <CatalogCover coverUrl={event.cover_url} color={event.color} />
 
         <span className="flex min-w-0 items-start gap-2">
           <CatalogKindMark kind={event.kind} className="mt-0.5" />

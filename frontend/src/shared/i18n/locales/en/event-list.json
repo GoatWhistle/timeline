@@ -136,7 +136,7 @@
       "between": "between"
     },
     "card": {
-      "noCover": "No cover image",
+      "noCover": "No cover",
       "teamExact": "{{size}} in a team",
       "teamRange": "{{min}}–{{max}} in a team",
       "teamUpTo": "up to {{max}} in a team",

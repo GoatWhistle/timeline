@@ -48,7 +48,7 @@ function AdminCard({
           'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
         )}
       >
-        <CatalogCover coverUrl={event.cover_url} color={event.color} initial={event.title} />
+        <CatalogCover coverUrl={event.cover_url} color={event.color} />
 
         <span className="flex min-w-0 items-center gap-2">
           <CatalogKindMark kind={event.kind} />
