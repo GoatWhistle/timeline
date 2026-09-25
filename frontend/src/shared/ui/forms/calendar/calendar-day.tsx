@@ -35,10 +35,7 @@ export function dayClassName(day: DayState): string {
     middle && !day.selected && 'bg-accent-surface text-accent-surface-foreground',
     banded && 'bg-primary font-semibold text-primary-foreground',
     day.selected && 'bg-primary font-semibold text-primary-foreground',
-    day.today &&
-      !day.selected &&
-      !banded &&
-      'font-semibold underline decoration-2 underline-offset-4',
+    day.today && !day.selected && !banded && 'font-semibold',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
   )
 }
@@ -82,6 +79,7 @@ export function CalendarDayCell({
       {day.today && (
         <span
           aria-hidden="true"
+          data-today-dot=""
           className={cn(
             'absolute bottom-1 size-1 rounded-pill',
             day.selected || day.rangeStart || day.rangeEnd ? 'bg-primary-foreground' : 'bg-primary',

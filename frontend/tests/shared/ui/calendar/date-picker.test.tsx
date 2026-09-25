@@ -163,14 +163,17 @@ describe('the calendar is operated from the keyboard alone', () => {
 })
 
 describe('today, the choice and the forbidden days differ by more than colour', () => {
-  it('marks today with aria-current and an underline, not only a tint', async () => {
+  it('marks today with aria-current and a single dot, not only a tint', async () => {
     const { user } = renderWithProviders(<Harness initial="2026-05-20" />)
     await user.click(open())
     const today = dayCells().find((cell) => cell.dataset.today === 'true')
     expect(today).toHaveAttribute('data-date', '2026-05-13')
     expect(today).toHaveAttribute('aria-current', 'date')
     expect(today).toHaveAttribute('aria-pressed', 'false')
-    expect(today?.className).toContain('underline')
+    expect(today?.querySelectorAll('[data-today-dot]'), 'today lost its dot').toHaveLength(1)
+    expect(today?.className, 'today carries a second mark on top of the dot').not.toContain(
+      'underline',
+    )
   })
 
   it('still announces today when today is also the choice', async () => {

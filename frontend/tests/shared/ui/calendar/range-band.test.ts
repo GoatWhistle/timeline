@@ -70,13 +70,13 @@ describe('a day that is both today and an end of the range still reads correctly
     expect(dayClassName(todayStart)).toContain('bg-primary')
   })
 
-  it('keeps the underline on a plain today outside any range', () => {
-    expect(dayClassName(day({ today: true }))).toContain('underline')
+  it('leaves the dot as the only mark on a plain today, with no underline beside it', () => {
+    expect(dayClassName(day({ today: true }))).not.toContain('underline')
   })
 
-  it('keeps the underline on today in the middle of a range, where it stays legible', () => {
+  it('adds no underline to today in the middle of a range either', () => {
     const todayMiddle = day({ today: true, inRange: true })
-    expect(dayClassName(todayMiddle)).toContain('underline')
+    expect(dayClassName(todayMiddle)).not.toContain('underline')
     expect(dayClassName(todayMiddle)).toContain('bg-accent-surface')
   })
 })
