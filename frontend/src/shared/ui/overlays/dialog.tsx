@@ -4,7 +4,19 @@ import { createContext, useContext } from 'react'
 import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { CloseButton } from '@/shared/ui/primitives/close-button'
-import { PANEL_MOTION, PANEL_SURFACE, SCRIM } from './overlay-chrome'
+import {
+  PANEL_MOTION,
+  PANEL_SURFACE,
+  SCRIM,
+  SHEET_MOTION,
+  SHEET_PLACE,
+  STILL_SCRIM,
+} from './overlay-chrome'
+
+function motionFor(sheet: boolean, still: boolean): string {
+  if (still) return ''
+  return sheet ? SHEET_MOTION : PANEL_MOTION
+}
 
 const ReturnFocusContext = createContext<((event?: Event) => void) | null>(null)
 
@@ -27,21 +39,29 @@ export function DialogContent({
   children,
   onCloseAutoFocus,
   hideClose = false,
+  sheet = false,
+  still = false,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content> & { hideClose?: boolean }) {
+}: React.ComponentProps<typeof DialogPrimitive.Content> & {
+  hideClose?: boolean
+  sheet?: boolean
+  still?: boolean
+}) {
   const returnFocus = useContext(ReturnFocusContext)
 
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className={SCRIM} />
+      <DialogPrimitive.Overlay className={still ? STILL_SCRIM : SCRIM} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        data-sheet={sheet ? '' : undefined}
         onCloseAutoFocus={onCloseAutoFocus ?? returnFocus ?? undefined}
         className={cn(
           'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 p-6',
           'max-h-[90vh] overflow-y-auto',
           PANEL_SURFACE,
-          PANEL_MOTION,
+          sheet && SHEET_PLACE,
+          motionFor(sheet, still),
           className,
         )}
         {...props}

@@ -121,7 +121,8 @@ export function CatalogFilterSheet({
           event.preventDefault()
           trigger.focus()
         }}
-        className="top-auto bottom-0 max-h-[85vh] max-w-none translate-y-0 rounded-b-none safe-pb"
+        sheet
+        className="max-h-[85vh] safe-pb"
       >
         <DialogHeader>
           <DialogTitle>{t('catalog.filters.action')}</DialogTitle>

@@ -3,7 +3,7 @@ import { Check, ChevronDown } from 'lucide-react'
 import type * as React from 'react'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
-import { FLOATING_SURFACE_COMPACT } from '@/shared/ui/overlays/overlay-chrome'
+import { FLOATING_ORIGIN, FLOATING_SURFACE_COMPACT } from '@/shared/ui/overlays/overlay-chrome'
 
 export const Select = SelectPrimitive.Root
 export const SelectValue = SelectPrimitive.Value
@@ -44,7 +44,9 @@ export function SelectContent({
         className={cn(
           FLOATING_SURFACE_COMPACT,
           'relative max-h-96 min-w-32 overflow-hidden',
+          FLOATING_ORIGIN,
           'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
+          'data-[state=open]:motion-safe:zoom-in-95 data-[state=closed]:motion-safe:zoom-out-95',
           'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
           'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
           'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',

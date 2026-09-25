@@ -58,10 +58,7 @@ export function PhoneMoreSheet({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent
-          data-phone-more-sheet=""
-          className="top-auto bottom-0 max-w-none translate-y-0 gap-2 rounded-b-none px-4 pt-11 pb-4 safe-pb"
-        >
+        <DialogContent data-phone-more-sheet="" sheet className="gap-2 px-4 pt-11 pb-4 safe-pb">
           <DialogHeader className="sr-only">
             <DialogTitle>{t('app.account')}</DialogTitle>
           </DialogHeader>
