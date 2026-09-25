@@ -13,7 +13,6 @@ import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 import { teamSizeLabelKey } from './catalog.facts'
 import { CATALOG_SCOPE_KEY, type CatalogColumn } from './catalog.views'
 import { CatalogJoinedMark } from './catalog-joined-mark'
-import { CatalogKindMark } from './catalog-kind-mark'
 
 type RowEvent = CatalogEvent | EventResponse
 
@@ -35,7 +34,6 @@ export function CatalogTitleCell({
   return (
     <td className="h-row-roomy w-full max-w-0 px-3 py-2 pointer-coarse:py-0">
       <span className="flex min-w-0 items-center gap-2 pointer-coarse:h-11">
-        <CatalogKindMark kind={event.kind} />
         <button
           type="button"
           onClick={(e) => {

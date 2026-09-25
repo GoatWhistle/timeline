@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next'
 import { CatalogCover } from '@/entities/catalog/catalog-cover'
-import { CatalogKindMark } from '@/entities/catalog/catalog-kind-mark'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import {
   EVENT_STATE_TEXT,
@@ -51,7 +50,6 @@ function AdminCard({
         <CatalogCover coverUrl={event.cover_url} color={event.color} />
 
         <span className="flex min-w-0 items-center gap-2">
-          <CatalogKindMark kind={event.kind} />
           <span className="min-w-0 flex-1 truncate font-medium text-copy">{event.title}</span>
         </span>
 

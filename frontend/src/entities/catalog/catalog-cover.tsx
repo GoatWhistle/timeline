@@ -23,8 +23,8 @@ export function CatalogCover({
       data-catalog-cover=""
       className={cn(
         'relative block aspect-[16/9] w-full shrink-0 overflow-hidden rounded-control',
-        'after:pointer-events-none after:absolute after:inset-0 after:rounded-control after:border',
-        showImage ? 'bg-event-fill after:border-event-tint/30' : 'bg-muted after:border-border',
+        'after:pointer-events-none after:absolute after:inset-0 after:rounded-control after:border-2',
+        showImage ? 'bg-event-fill after:border-event-tint/70' : 'bg-muted after:border-border',
         className,
       )}
     >

@@ -30,18 +30,11 @@ const kazanFinal = {
 }
 
 describe('CatalogCard', () => {
-  it('names the kind in text rather than by shape alone', () => {
-    const { unmount } = renderWithProviders(
+  it('draws no kind glyph beside the title, which only cluttered the card', () => {
+    const { container } = renderWithProviders(
       <CatalogCard event={base} selected={false} onSelect={vi.fn()} />,
     )
-    expect(screen.getByText(i18n.t('event:catalog.kindLabel.HACKATHON'))).toBeInTheDocument()
-    unmount()
-
-    renderWithProviders(
-      <CatalogCard event={{ ...base, kind: 'MEETUP' }} selected={false} onSelect={vi.fn()} />,
-    )
-    expect(screen.getByText(i18n.t('event:catalog.kindLabel.MEETUP'))).toBeInTheDocument()
-    expect(screen.queryByText(i18n.t('event:catalog.kindLabel.HACKATHON'))).not.toBeInTheDocument()
+    expect(container.querySelector('svg.lucide-laptop, svg.lucide-martini')).toBeNull()
   })
 
   it('shows the derived format rather than the declared one', () => {

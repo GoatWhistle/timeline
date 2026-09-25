@@ -11,7 +11,6 @@ import { Badge } from '@/shared/ui/primitives/badge'
 import { teamSizeLabelKey } from './catalog.facts'
 import { CatalogCover } from './catalog-cover'
 import { CatalogJoinedMark } from './catalog-joined-mark'
-import { CatalogKindMark } from './catalog-kind-mark'
 
 function PlaceLine({ event }: { event: CatalogEvent }) {
   const { t } = useTranslation('event')
@@ -68,7 +67,6 @@ export function CatalogCard({
         <CatalogCover coverUrl={event.cover_url} color={event.color} />
 
         <span className="flex min-w-0 items-start gap-2">
-          <CatalogKindMark kind={event.kind} className="mt-0.5" />
           <span className="min-w-0 flex-1 font-semibold text-screen leading-snug [text-wrap:balance]">
             {event.title}
           </span>

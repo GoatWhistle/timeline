@@ -1,11 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { EVENT_KIND_ICON, EVENT_KIND_KEY } from '@/entities/catalog/catalog.kind'
-import {
-  EVENT_KIND_ICON as SCHEDULE_KIND_ICON,
-  EVENT_KIND_KEY as SCHEDULE_KIND_KEY,
-} from '@/features/schedule/model/event-kind'
 
 const SRC = join(process.cwd(), 'src')
 
@@ -24,15 +19,6 @@ function tsFiles(dir: string): string[] {
 const named = (file: string) => relative(SRC, file).replaceAll('\\', '/')
 
 describe('an event kind wears one glyph everywhere it is drawn', () => {
-  it('gives the catalog the same icon component the schedule uses', () => {
-    expect(EVENT_KIND_ICON.HACKATHON).toBe(SCHEDULE_KIND_ICON.HACKATHON)
-    expect(EVENT_KIND_ICON.MEETUP).toBe(SCHEDULE_KIND_ICON.MEETUP)
-  })
-
-  it('names the kind with the same dictionary key on both surfaces', () => {
-    expect(EVENT_KIND_KEY).toEqual(SCHEDULE_KIND_KEY)
-  })
-
   it('lets no surface spell the meetup glyph its own way', () => {
     const spellings = new Map<string, string[]>()
 

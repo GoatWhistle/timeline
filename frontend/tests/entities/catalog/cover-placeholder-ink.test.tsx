@@ -41,6 +41,19 @@ describe('a tile without a cover stays quiet', () => {
   })
 })
 
+describe('a cover picture sits in a frame you can actually see', () => {
+  it('draws a two-pixel frame in a strong share of the event colour', () => {
+    const { container } = render(
+      <CatalogCover coverUrl="https://example.test/cover.png" color={{ family: 'RU', slot: 3 }} />,
+    )
+    const classes = (
+      container.querySelector('[data-catalog-cover]') as HTMLElement
+    ).className.split(/\s+/)
+    expect(classes, 'the frame went back to a hairline').toContain('after:border-2')
+    expect(classes).toContain('after:border-event-tint/70')
+  })
+})
+
 describe('the event window keeps its own missing-cover figure', () => {
   it('writes the missing-cover label in the theme ink', () => {
     const { container } = render(<CoverMissing />)
