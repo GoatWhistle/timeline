@@ -4,7 +4,7 @@ import { screen, within } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { i18n, i18nReady } from '@/shared/i18n/config'
-import { FilterPopover } from '@/shared/ui/forms/filter-builder/filter-builder'
+import { FilterCondition, FilterPopover } from '@/shared/ui/forms/filter-builder/filter-builder'
 
 const SRC = join(process.cwd(), 'src')
 const TRIGGER_FILE = 'shared/ui/forms/filter-builder/filter-trigger.tsx'
@@ -86,6 +86,27 @@ describe('the filter control is an icon that names itself only once opened', () 
     const opened = await screen.findByRole('dialog', { name: 'Filters' })
     await user.click(within(opened).getByRole('button', { name: 'Add filter' }))
     expect(await screen.findByRole('menuitem', { name: 'Kind' })).toBeTruthy()
+  })
+})
+
+describe('a condition reads as field, operator, value', () => {
+  it('centres the operator between the field and the value', () => {
+    renderWithProviders(
+      <FilterCondition
+        field="kind"
+        fields={[{ value: 'kind', label: 'Kind' }]}
+        operator="is"
+        onField={() => {}}
+        onRemove={() => {}}
+      >
+        {null}
+      </FilterCondition>,
+    )
+    const operator = screen.getByText('is')
+    expect(operator.hasAttribute('data-filter-operator')).toBe(true)
+    expect(operator.className.split(/\s+/), 'the operator slid to the left edge').toContain(
+      'justify-center',
+    )
   })
 })
 

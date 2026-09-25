@@ -39,7 +39,12 @@ export function FilterCondition({
         label={t('filters.fieldAria')}
         onChange={onField}
       />
-      <span className="flex h-9 items-center text-meta text-muted-foreground">{operator}</span>
+      <span
+        data-filter-operator=""
+        className="flex h-9 items-center justify-center text-center text-meta text-muted-foreground"
+      >
+        {operator}
+      </span>
       <div className="min-w-0">{children}</div>
       <span className="flex h-9 items-center justify-end">
         <CloseButton label={t('filters.remove')} onClick={onRemove} />
