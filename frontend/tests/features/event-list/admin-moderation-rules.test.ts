@@ -35,7 +35,9 @@ describe('the list offers only the moderation the domain allows', () => {
 
   it('never offers to publish an event archived after it was published', () => {
     expect(
-      canPublish(event({ published_at: '2026-09-02T00:00:00Z', archived_at: '2026-09-03T00:00:00Z' })),
+      canPublish(
+        event({ published_at: '2026-09-02T00:00:00Z', archived_at: '2026-09-03T00:00:00Z' }),
+      ),
     ).toBe(false)
   })
 

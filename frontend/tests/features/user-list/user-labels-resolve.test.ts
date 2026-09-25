@@ -13,7 +13,8 @@ function everyKey(): [string, string][] {
   const pairs: [string, string][] = []
   for (const [name, key] of Object.entries(USER_COLUMN_KEY)) pairs.push([`column ${name}`, key])
   for (const [name, key] of Object.entries(USER_SORT_KEY)) pairs.push([`sort ${name}`, key])
-  for (const [name, key] of Object.entries(USER_FILTER_FIELD_KEY)) pairs.push([`filter ${name}`, key])
+  for (const [name, key] of Object.entries(USER_FILTER_FIELD_KEY))
+    pairs.push([`filter ${name}`, key])
   for (const [field, choices] of Object.entries(USER_FILTER_CHOICES)) {
     for (const choice of choices) pairs.push([`choice ${field}=${choice.value}`, choice.labelKey])
   }

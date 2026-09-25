@@ -17,16 +17,12 @@ function AdminCellContent({ event, column }: { event: EventResponse; column: Adm
       return <>{formatDateTime(event.updated_at)}</>
     case 'published':
       return event.published_at ? (
-        <>{formatDateTime(event.published_at)}</>
+        formatDateTime(event.published_at)
       ) : (
         <span className="text-muted-foreground">{t('catalog.column.notPublished')}</span>
       )
     case 'cover':
-      return event.cover_url ? (
-        <>{t(`catalog.cover.${event.cover_source ?? 'NONE'}`)}</>
-      ) : (
-        <NoValue />
-      )
+      return event.cover_url ? t(`catalog.cover.${event.cover_source ?? 'NONE'}`) : <NoValue />
     default:
       return <CatalogCellContent event={event} column={column} />
   }

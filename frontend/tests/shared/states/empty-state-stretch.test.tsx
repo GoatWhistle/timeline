@@ -72,10 +72,7 @@ describe('a stretched column reaches the empty pane without a block box in betwe
     expect(stretches(className), `${file}: ${className}`).toBe(true)
   })
 
-  it.each([
-    'src/features/event-list/admin/event-list.tsx',
-    'src/features/user-list/user-list.tsx',
-  ])(
+  it.each(['src/features/event-list/admin/event-list.tsx', 'src/features/user-list/user-list.tsx'])(
     'stretches the padded wrapper that %s puts around its empty pane',
     (file) => {
       const className = classAttribute(source(file), '<EmptyState')

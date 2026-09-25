@@ -6,10 +6,7 @@ const SRC = join(process.cwd(), 'src')
 
 const read = (file: string) => readFileSync(join(SRC, file), 'utf8')
 
-const LIST_PAGES = [
-  'features/event-list/admin/event-list.tsx',
-  'features/user-list/user-list.tsx',
-]
+const LIST_PAGES = ['features/event-list/admin/event-list.tsx', 'features/user-list/user-list.tsx']
 
 const TOOLBARS = [
   'features/event-list/admin/admin-toolbar.tsx',
@@ -33,9 +30,10 @@ describe('the admin list pages are built on one frame, so they line up with each
     for (const path of ['/admin/events"', '/admin/users"']) {
       const at = router.indexOf(path)
       expect(at, `${path} is missing from the router`).toBeGreaterThan(-1)
-      expect(at, `${path} must be mounted before ScrollPage or it gains 24px of padding`).toBeLessThan(
-        scrollAt,
-      )
+      expect(
+        at,
+        `${path} must be mounted before ScrollPage or it gains 24px of padding`,
+      ).toBeLessThan(scrollAt)
     }
   })
 
