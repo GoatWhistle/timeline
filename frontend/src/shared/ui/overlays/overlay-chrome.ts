@@ -5,7 +5,7 @@ export const SCRIM = [
   'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:fade-in-0',
   'data-[state=open]:motion-safe:duration-base data-[state=open]:motion-safe:ease-out',
   'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
-  'data-[state=closed]:motion-safe:duration-base-exit data-[state=closed]:motion-safe:ease-in',
+  'data-[state=closed]:motion-safe:duration-base-exit data-[state=closed]:motion-safe:ease-out',
 ].join(' ')
 
 export const PANEL_MOTION = [
@@ -14,14 +14,14 @@ export const PANEL_MOTION = [
   'data-[state=open]:motion-safe:ease-out',
   'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
   'data-[state=closed]:motion-safe:zoom-out-95 data-[state=closed]:motion-safe:duration-base-exit',
-  'data-[state=closed]:motion-safe:ease-in',
+  'data-[state=closed]:motion-safe:ease-out',
 ].join(' ')
 
 export const SHEET_MOTION = [
   'data-[state=open]:motion-safe:animate-in data-[state=open]:motion-safe:slide-in-from-bottom',
   'data-[state=open]:motion-safe:duration-panel data-[state=open]:motion-safe:ease-out',
   'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:slide-out-to-bottom',
-  'data-[state=closed]:motion-safe:duration-base-exit data-[state=closed]:motion-safe:ease-in',
+  'data-[state=closed]:motion-safe:duration-base-exit data-[state=closed]:motion-safe:ease-out',
 ].join(' ')
 
 export const SHEET_PLACE = 'top-auto bottom-0 max-w-none translate-y-0 rounded-b-none'
@@ -48,5 +48,5 @@ export const FLOATING_MOTION = [
   'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
   'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
   'data-[state=closed]:motion-safe:zoom-out-95',
-  'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
+  'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-out',
 ].join(' ')

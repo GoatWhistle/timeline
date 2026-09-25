@@ -38,7 +38,7 @@ export function TooltipContent({
           'data-[state=instant-open]:motion-safe:animate-in data-[state=instant-open]:motion-safe:fade-in-0',
           'data-[state=instant-open]:motion-safe:duration-fast data-[state=instant-open]:motion-safe:ease-out',
           'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
-          'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
+          'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-out',
           className,
         )}
         {...props}

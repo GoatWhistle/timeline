@@ -49,7 +49,7 @@ export function SelectContent({
           'data-[state=open]:motion-safe:zoom-in-95 data-[state=closed]:motion-safe:zoom-out-95',
           'data-[state=open]:motion-safe:duration-fast data-[state=open]:motion-safe:ease-out',
           'data-[state=closed]:motion-safe:animate-out data-[state=closed]:motion-safe:fade-out-0',
-          'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-in',
+          'data-[state=closed]:motion-safe:duration-fast-exit data-[state=closed]:motion-safe:ease-out',
           className,
         )}
         {...props}

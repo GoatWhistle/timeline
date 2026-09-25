@@ -71,7 +71,7 @@ describe('reduced motion', () => {
 
 describe('motion tokens', () => {
   it('declares the easing and duration scale', () => {
-    for (const token of ['--ease-out', '--ease-in', '--ease-in-out', '--ease-linear']) {
+    for (const token of ['--ease-out', '--ease-in-out', '--ease-linear']) {
       expect(MOTION).toContain(`${token}:`)
     }
     for (const token of [
@@ -86,10 +86,19 @@ describe('motion tokens', () => {
     }
   })
 
-  it('easing decelerates on entry and accelerates on exit', () => {
+  it('easing decelerates on entry and on exit alike, so a dismissal answers at once', () => {
     expect(MOTION).toContain('--ease-out: cubic-bezier(0.22, 1, 0.36, 1)')
-    expect(MOTION).toContain('--ease-in: cubic-bezier(0.64, 0, 0.78, 0)')
     expect(MOTION).toContain('--ease-linear: linear')
+    expect(MOTION, 'an accelerating curve came back to stall the first frames').not.toMatch(
+      /--ease-in:/,
+    )
+  })
+
+  it('no surface leaves on an accelerating curve', () => {
+    for (const file of ANIMATED_SURFACES) {
+      const text = motionOf(file)
+      expect(text, `${file} exits on ease-in`).not.toMatch(/\bease-in(?!-out)\b/)
+    }
   })
 
   it('exits are faster than the entrances they mirror', () => {
@@ -118,7 +127,7 @@ describe('motion tokens', () => {
         /motion-safe:duration-(instant|fast|fast-exit|base|base-exit|panel|zoom|slow)/,
       )
       expect(text, `${file} animates without an easing token`).toMatch(
-        /motion-safe:ease-(out|in|in-out|linear)/,
+        /motion-safe:ease-(out|in-out|linear)/,
       )
     }
   })
