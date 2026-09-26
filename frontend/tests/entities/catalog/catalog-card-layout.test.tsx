@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
-import { CARD_CORNER, CARD_GRID, CatalogCard } from '@/entities/catalog/catalog-card'
+import { CARD_ARROW, CARD_CORNER, CARD_GRID, CatalogCard } from '@/entities/catalog/catalog-card'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { i18n, i18nReady } from '@/shared/i18n/config'
 
@@ -142,19 +142,19 @@ describe('tiles in one row share their rows, so a missing field leaves no hole m
   })
 })
 
-describe('the website arrow rides the corner of the cover, peeking just past its frame', () => {
+describe('the website arrow grows out of the corner of the cover frame', () => {
   const link = () =>
     screen.getByRole('link', {
       name: i18n.t('event:catalog.card.websiteOf', { title: base.title }),
     })
 
-  it('sits on the cover row at its far corner, nudged a hair outward', () => {
+  it('sits on the cover row, tucked against its far corner', () => {
     card()
     const spot = link().parentElement as HTMLElement
     expect(spot.className, 'the arrow left the cover').toContain('row-start-1')
     expect(spot.className).toContain('justify-self-end')
-    expect(spot.className, 'the arrow no longer peeks past the frame').toContain('-mt-0.5')
-    expect(spot.className).toContain('-mr-0.5')
+    expect(spot.className, 'the arrow drifted off the frame corner').toContain('mt-[3.5px]')
+    expect(spot.className).toContain('mr-[3.5px]')
   })
 
   it('takes the whole title width, since the arrow no longer shares its line', () => {
@@ -162,19 +162,41 @@ describe('the website arrow rides the corner of the cover, peeking just past its
     expect(title(container).querySelector('[data-corner-room]')).toBeNull()
   })
 
-  it('is a bare grey arrow, a size above the fact icons, with nothing behind it', () => {
-    expect(CARD_CORNER, 'a plate or a ring came back behind the arrow').not.toMatch(
-      /(^|\s)(border|bg-[\w-]+|shadow-[\w-]+|rounded-full|drop-shadow[\w-]*)(\s|$)/,
+  it('wears the colour of the frame it grows from, at the same strength', () => {
+    const { container } = card()
+    const spot = link().parentElement as HTMLElement
+    const cover = container.querySelector('[data-catalog-cover]') as HTMLElement
+    expect(spot.getAttribute('data-event-family'), 'the arrow lost the event colour').toBe(
+      cover.getAttribute('data-event-family'),
     )
-    expect(CARD_CORNER, 'the arrow lost its quiet grey').toContain('text-muted-foreground')
-    card()
-    const svg = link().querySelector('svg.lucide-arrow-up-right') as SVGElement
-    expect(svg.getAttribute('class')).toContain('size-6')
+    expect(spot.getAttribute('data-event-slot')).toBe(cover.getAttribute('data-event-slot'))
+    expect(CARD_ARROW, 'the arrow went grey again').toContain('text-event-tint/70')
+    expect(cover.className).toContain('after:border-event-tint/70')
   })
 
-  it('keeps the admin menu dots at their own size in the same grey corner', () => {
-    expect(CARD_CORNER, 'the corner forces its glyph size onto the admin dots').not.toContain(
-      '[&_svg]',
+  it('is a small bare arrow drawn as thick as the frame, with nothing behind it', () => {
+    expect(CARD_ARROW, 'a plate or a ring came back behind the arrow').not.toMatch(
+      /(^|\s)(border|bg-[\w-]+|shadow-[\w-]+|rounded-full|drop-shadow[\w-]*)(\s|$)/,
     )
+    card()
+    const svg = link().querySelector('svg[data-corner-arrow]') as SVGElement
+    expect(svg.getAttribute('class'), 'the arrow grew back').toContain('size-4')
+    expect(Number(svg.getAttribute('stroke-width')) * (16 / 24), 'thinner than the frame').toBe(3)
+    const [head, shaft] = [...svg.querySelectorAll('path')].map((path) => path.getAttribute('d'))
+    expect(head, 'the head changed shape').toBe('M7 7h10v10')
+    expect(shaft, 'the shaft grew back to full length').toBe('M10 14 17 7')
+  })
+
+  it('keeps the admin menu dots grey in their own corner', () => {
+    expect(CARD_CORNER).toContain('text-muted-foreground')
+    expect(CARD_CORNER).not.toContain('event-tint')
+    const { container } = renderWithProviders(
+      <CatalogCard event={base} selected={false} onSelect={vi.fn()} corner={<span>menu</span>} />,
+    )
+    const spot = container.querySelector('[data-card-corner]') as HTMLElement
+    expect(spot.hasAttribute('data-event-family'), 'the admin corner took the event colour').toBe(
+      false,
+    )
+    expect(spot.className).toContain('-mt-0.5')
   })
 })

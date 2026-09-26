@@ -1,7 +1,8 @@
-import { ArrowUpRight, CalendarDays } from 'lucide-react'
+import { CalendarDays } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
+import { eventColorAttrs } from '@/entities/event/event-color'
 import { TeamSizeFigures } from '@/entities/event/team-size/team-size-figures'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
 import type { CatalogEvent } from '@/shared/api/types.gen'
@@ -13,6 +14,7 @@ import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link
 import { durationDays } from './catalog.facts'
 import { CatalogCover } from './catalog-cover'
 import { CatalogJoinedMark } from './catalog-joined-mark'
+import { CornerArrow } from './corner-arrow'
 
 type ReaderOnly =
   | 'joined'
@@ -30,6 +32,14 @@ export const CARD_CORNER = cn(
   'text-muted-foreground transition-colors duration-instant ease-out',
   'hover:text-foreground',
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring',
+)
+
+export const CARD_ARROW = cn(
+  'relative flex size-4 items-center justify-center rounded-control',
+  TOUCH_REACH,
+  'before:absolute before:-inset-2 before:content-[""]',
+  'text-event-tint/70 transition-colors duration-instant ease-out hover:text-event-tint',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
 )
 
 export const CARD_GRID = cn(
@@ -76,9 +86,9 @@ export function CatalogCard({
         href={event.website_url}
         showIcon={false}
         aria-label={t('catalog.card.websiteOf', { title: event.title })}
-        className={CARD_CORNER}
+        className={CARD_ARROW}
       >
-        <ArrowUpRight className="size-6" strokeWidth={2.5} aria-hidden="true" />
+        <CornerArrow />
       </ExternalLink>
     ) : null)
 
@@ -163,7 +173,11 @@ export function CatalogCard({
       {cornerNode && (
         <span
           data-card-corner=""
-          className="z-10 col-start-1 row-start-1 -mt-0.5 -mr-0.5 flex self-start justify-self-end"
+          {...(corner ? {} : eventColorAttrs(event.color))}
+          className={cn(
+            'z-10 col-start-1 row-start-1 flex self-start justify-self-end',
+            corner ? '-mt-0.5 -mr-0.5' : 'mt-[3.5px] mr-[3.5px]',
+          )}
         >
           {cornerNode}
         </span>
