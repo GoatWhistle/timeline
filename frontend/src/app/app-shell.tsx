@@ -24,6 +24,7 @@ import { BottomNav } from './sidebar/bottom-nav'
 import { MobileTopBar } from './sidebar/mobile-top-bar'
 import { CATALOG_NAV, MINE_NAV } from './sidebar/nav-section'
 import { PhoneMoreSheet } from './sidebar/phone-more-sheet'
+import { useFollowSidebar } from './sidebar/use-follow-sidebar'
 import { useProfileLocale } from './use-profile-locale'
 
 const PHONE_NAV = [...CATALOG_NAV, ...MINE_NAV]
@@ -61,6 +62,7 @@ export function AppShell() {
   }, [])
 
   const drawerScrim = !phone && sidebar.overlay && !sidebar.collapsed
+  useFollowSidebar(mainRef, sidebar.collapsed)
 
   return (
     <div className="relative flex h-screen overflow-hidden">
