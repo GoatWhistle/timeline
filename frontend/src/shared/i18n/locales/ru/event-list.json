@@ -141,7 +141,9 @@
       "teamRange": "{{min}}–{{max}} в команде",
       "teamUpTo": "до {{max}} в команде",
       "teamFrom": "от {{min}} в команде",
-      "websiteOf": "Сайт «{{title}}» (откроется в новой вкладке)"
+      "websiteOf": "Сайт «{{title}}» (откроется в новой вкладке)",
+      "publishedAt": "Опубликовано {{at}}",
+      "purgeAt": "Удалится {{at}}"
     },
     "participation": {
       "all": "Все",

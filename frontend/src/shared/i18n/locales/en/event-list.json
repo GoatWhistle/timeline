@@ -141,7 +141,9 @@
       "teamRange": "{{min}}–{{max}} in a team",
       "teamUpTo": "up to {{max}} in a team",
       "teamFrom": "from {{min}} in a team",
-      "websiteOf": "Website of {{title}} (opens in a new tab)"
+      "websiteOf": "Website of {{title}} (opens in a new tab)",
+      "publishedAt": "Published {{at}}",
+      "purgeAt": "Deleted on {{at}}"
     },
     "participation": {
       "all": "All",

@@ -1,4 +1,5 @@
 import { ArrowUpRight, Users } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
@@ -12,9 +13,27 @@ import { teamSizeLabelKey } from './catalog.facts'
 import { CatalogCover } from './catalog-cover'
 import { CatalogJoinedMark } from './catalog-joined-mark'
 
-function PlaceLine({ event }: { event: CatalogEvent }) {
+type ReaderOnly =
+  | 'joined'
+  | 'offline_stages'
+  | 'registration_deadline'
+  | 'registration_status'
+  | 'registration_url'
+  | 'team_role'
+
+export type TileEvent = Omit<CatalogEvent, ReaderOnly> & Partial<Pick<CatalogEvent, ReaderOnly>>
+
+export const CARD_CORNER = cn(
+  'flex size-11 items-center justify-center rounded-control sm:size-7',
+  'border border-border bg-card/90 text-muted-foreground backdrop-blur-sm',
+  'transition-colors duration-instant ease-out',
+  'hover:bg-accent-surface hover:text-accent-surface-foreground',
+  'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring',
+)
+
+function PlaceLine({ event }: { event: TileEvent }) {
   const { t } = useTranslation('event')
-  const final = event.offline_stages.at(-1)
+  const final = event.offline_stages?.at(-1)
   if (!final) return null
 
   return (
@@ -32,10 +51,14 @@ export function CatalogCard({
   event,
   selected,
   onSelect,
+  corner,
+  footer,
 }: {
-  event: CatalogEvent
+  event: TileEvent
   selected: boolean
   onSelect: (id: string) => void
+  corner?: ReactNode
+  footer?: ReactNode
 }) {
   const { t } = useTranslation('event')
   const FormatIcon = EVENT_FORMAT_ICON[event.effective_format]
@@ -117,25 +140,24 @@ export function CatalogCard({
           </span>
         </span>
 
-        <span className="sr-only">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>
+        {footer ?? (
+          <span className="sr-only">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>
+        )}
       </button>
 
-      {event.website_url && (
-        <ExternalLink
-          href={event.website_url}
-          showIcon={false}
-          aria-label={t('catalog.card.websiteOf', { title: event.title })}
-          className={cn(
-            'absolute top-3 right-3 flex size-11 items-center justify-center rounded-control',
-            'sm:top-4 sm:right-4 sm:size-7',
-            'border border-border bg-card/90 text-muted-foreground backdrop-blur-sm',
-            'transition-colors duration-instant ease-out',
-            'hover:bg-accent-surface hover:text-accent-surface-foreground',
-            'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring',
-          )}
-        >
-          <ArrowUpRight className="size-4" aria-hidden="true" />
-        </ExternalLink>
+      {corner ? (
+        <span className="absolute top-3 right-3 sm:top-4 sm:right-4">{corner}</span>
+      ) : (
+        event.website_url && (
+          <ExternalLink
+            href={event.website_url}
+            showIcon={false}
+            aria-label={t('catalog.card.websiteOf', { title: event.title })}
+            className={cn('absolute top-3 right-3 sm:top-4 sm:right-4', CARD_CORNER)}
+          >
+            <ArrowUpRight className="size-4" aria-hidden="true" />
+          </ExternalLink>
+        )
       )}
     </div>
   )

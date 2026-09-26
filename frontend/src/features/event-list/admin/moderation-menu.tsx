@@ -17,7 +17,7 @@ export function canArchive(event: EventResponse): boolean {
   return event.archived_at === undefined
 }
 
-export function ModerationMenu({ event }: { event: EventResponse }) {
+export function ModerationMenu({ event, className }: { event: EventResponse; className?: string }) {
   const { t } = useTranslation('event')
   const moderate = useModerateEvent()
   const [publishOpen, setPublishOpen] = useState(false)
@@ -53,6 +53,7 @@ export function ModerationMenu({ event }: { event: EventResponse }) {
               'text-muted-foreground transition-colors duration-instant ease-out',
               'hover:bg-surface-2 hover:text-foreground',
               'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+              className,
             )}
           >
             <Ellipsis className="size-4" aria-hidden="true" />
