@@ -31,6 +31,18 @@ describe('a tile without a cover stays quiet', () => {
     expect(classes).not.toContain('bg-event-fill')
   })
 
+  it('still frames the empty plate in the event colour, not in a neutral grey', () => {
+    const { container } = render(
+      <CatalogCover coverUrl={null} color={{ family: 'WORLD', slot: 10 }} />,
+    )
+    const classes = (
+      container.querySelector('[data-catalog-cover]') as HTMLElement
+    ).className.split(/\s+/)
+    expect(classes, 'the frame went grey without a picture').toContain('after:border-event-tint/70')
+    expect(classes).toContain('after:border-2')
+    expect(classes).not.toContain('after:border-border')
+  })
+
   it('keeps one 16:9 frame whether or not there is a picture, so a grid row stays even', () => {
     for (const coverUrl of [null, 'https://example.test/cover.png']) {
       const { container, unmount } = render(<CatalogCover coverUrl={coverUrl} color={null} />)
