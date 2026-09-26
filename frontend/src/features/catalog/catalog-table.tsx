@@ -16,6 +16,9 @@ const COLUMN_SORT: Partial<Record<CatalogColumn, CatalogSort>> = {
   start: 'start_at',
   end: 'end_at',
   duration: 'duration',
+  prize: 'prize',
+  teamMin: 'team_min',
+  teamMax: 'team_max',
 }
 
 const COLUMN_WIDTH: Record<CatalogColumn, string> = {
@@ -25,11 +28,12 @@ const COLUMN_WIDTH: Record<CatalogColumn, string> = {
   place: 'w-48 max-w-48',
   start: 'w-px whitespace-nowrap',
   end: 'w-px whitespace-nowrap',
-  duration: 'w-px whitespace-nowrap',
+  duration: 'w-px whitespace-nowrap text-center',
   prize: 'w-px whitespace-nowrap text-right',
   organizer: 'w-40 max-w-40',
   track: 'w-36 max-w-36',
-  teamSize: 'w-px whitespace-nowrap text-right',
+  teamMin: 'w-px whitespace-nowrap text-center',
+  teamMax: 'w-px whitespace-nowrap text-center',
   origin: 'w-px whitespace-nowrap',
   state: 'w-px whitespace-nowrap',
   participation: 'w-40 max-w-40',

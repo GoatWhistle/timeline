@@ -103,6 +103,15 @@ func TestOrderSQLSortsByEveryField(t *testing.T) {
 		{"longest first", models.CatalogSort{
 			Field: models.CatalogSortDuration, Direction: models.CatalogSortDesc,
 		}, "(end_at - start_at) DESC"},
+		{"richest first, events without a prize last", models.CatalogSort{
+			Field: models.CatalogSortPrize, Direction: models.CatalogSortDesc,
+		}, "prize_pool DESC NULLS LAST"},
+		{"smallest minimum team first", models.CatalogSort{
+			Field: models.CatalogSortTeamMin, Direction: models.CatalogSortAsc,
+		}, "team_size_min ASC NULLS LAST"},
+		{"largest maximum team first", models.CatalogSort{
+			Field: models.CatalogSortTeamMax, Direction: models.CatalogSortDesc,
+		}, "team_size_max DESC NULLS LAST"},
 	}
 
 	for _, tc := range cases {

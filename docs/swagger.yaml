@@ -3626,6 +3626,9 @@ paths:
         - end_at
         - title
         - duration
+        - prize
+        - team_min
+        - team_max
         in: query
         name: sort
         type: string
@@ -5666,6 +5669,9 @@ paths:
         - end_at
         - title
         - duration
+        - prize
+        - team_min
+        - team_max
         in: query
         name: sort
         type: string
@@ -5777,6 +5783,9 @@ paths:
         - end_at
         - title
         - duration
+        - prize
+        - team_min
+        - team_max
         in: query
         name: sort
         type: string

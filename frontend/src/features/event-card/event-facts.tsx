@@ -1,13 +1,13 @@
 import { Globe } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
+import { TeamSizeFigures } from '@/entities/event/team-size/team-size-figures'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY } from '@/entities/stage/stage.place'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { formatMoney } from '@/shared/money/money'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { linkHost } from '@/shared/ui/navigation/external-link/external-url'
 import { EventPeriodFact } from './event-period-fact'
-import { TeamSizeFigures } from './team-size-figures'
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (

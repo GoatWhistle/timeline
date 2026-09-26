@@ -84,7 +84,15 @@ export function effectiveLayout(value: CatalogLayout, phone: boolean): CatalogLa
   return phone ? 'grid' : value
 }
 
-export const CATALOG_SORTS = ['start_at', 'end_at', 'duration', 'title'] as const
+export const CATALOG_SORTS = [
+  'start_at',
+  'end_at',
+  'duration',
+  'title',
+  'prize',
+  'team_min',
+  'team_max',
+] as const
 export type CatalogSort = (typeof CATALOG_SORTS)[number]
 
 export const CATALOG_ORDERS = ['asc', 'desc'] as const
@@ -116,7 +124,8 @@ export const CATALOG_COLUMNS = [
   'prize',
   'organizer',
   'track',
-  'teamSize',
+  'teamMin',
+  'teamMax',
   'origin',
   'state',
   'participation',
@@ -134,7 +143,8 @@ export const CATALOG_COLUMN_KEY: Record<CatalogColumn, string> = {
   prize: 'catalog.column.prize',
   organizer: 'catalog.column.organizer',
   track: 'catalog.column.track',
-  teamSize: 'catalog.column.teamSize',
+  teamMin: 'catalog.column.teamMin',
+  teamMax: 'catalog.column.teamMax',
   origin: 'catalog.column.origin',
   state: 'catalog.column.state',
   participation: 'catalog.column.participation',
@@ -151,7 +161,8 @@ export const ADMIN_COLUMNS = [
   'prize',
   'organizer',
   'track',
-  'teamSize',
+  'teamMin',
+  'teamMax',
   'origin',
   'state',
   'created',
@@ -172,7 +183,8 @@ export const ADMIN_COLUMN_KEY: Record<AdminColumn, string> = {
   prize: 'catalog.column.prize',
   organizer: 'catalog.column.organizer',
   track: 'catalog.column.track',
-  teamSize: 'catalog.column.teamSize',
+  teamMin: 'catalog.column.teamMin',
+  teamMax: 'catalog.column.teamMax',
   origin: 'catalog.column.origin',
   state: 'catalog.column.state',
   created: 'catalog.column.created',
@@ -191,15 +203,22 @@ export const DEFAULT_ADMIN_COLUMNS: AdminColumn[] = [
   'updated',
 ]
 
-const PERIOD_PARTS = ['start', 'end', 'duration'] as const
+const RETIRED_COLUMNS: Record<string, readonly string[]> = {
+  period: ['start', 'end', 'duration'],
+  teamSize: ['teamMin', 'teamMax'],
+}
 
-function unfoldPeriod(value: unknown[]): unknown[] {
-  return value.flatMap((column) => (column === 'period' ? [...PERIOD_PARTS] : [column]))
+function unfoldRetired(value: unknown[]): unknown[] {
+  return value.flatMap((column) =>
+    typeof column === 'string' && column in RETIRED_COLUMNS
+      ? [...(RETIRED_COLUMNS[column] ?? [])]
+      : [column],
+  )
 }
 
 export function resolveAdminColumns(value: unknown): AdminColumn[] {
   if (!Array.isArray(value)) return DEFAULT_ADMIN_COLUMNS
-  const saved = unfoldPeriod(value)
+  const saved = unfoldRetired(value)
   const picked = ADMIN_COLUMNS.filter((column) => saved.includes(column))
   if (picked.length === 0) return DEFAULT_ADMIN_COLUMNS
   return picked.includes('title') ? picked : ['title', ...picked]
@@ -220,7 +239,7 @@ export const DEFAULT_CATALOG_COLUMNS: CatalogColumn[] = [
 
 export function resolveColumns(value: unknown): CatalogColumn[] {
   if (!Array.isArray(value)) return DEFAULT_CATALOG_COLUMNS
-  const saved = unfoldPeriod(value)
+  const saved = unfoldRetired(value)
   const picked = CATALOG_COLUMNS.filter((column) => saved.includes(column))
   if (picked.length === 0) return DEFAULT_CATALOG_COLUMNS
   return picked.includes(CATALOG_LOCKED_COLUMN) ? picked : [CATALOG_LOCKED_COLUMN, ...picked]

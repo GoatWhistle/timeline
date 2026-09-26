@@ -22,6 +22,9 @@ func TestParseCatalogSortAcceptsWhitelist(t *testing.T) {
 	fields := []models.CatalogSortField{
 		models.CatalogSortStartAt, models.CatalogSortEndAt, models.CatalogSortTitle,
 		models.CatalogSortDuration,
+		models.CatalogSortPrize,
+		models.CatalogSortTeamMin,
+		models.CatalogSortTeamMax,
 	}
 	directions := []models.CatalogSortDirection{models.CatalogSortAsc, models.CatalogSortDesc}
 

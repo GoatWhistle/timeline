@@ -9,6 +9,9 @@ const (
 	CatalogSortEndAt    CatalogSortField = "end_at"
 	CatalogSortTitle    CatalogSortField = "title"
 	CatalogSortDuration CatalogSortField = "duration"
+	CatalogSortPrize    CatalogSortField = "prize"
+	CatalogSortTeamMin  CatalogSortField = "team_min"
+	CatalogSortTeamMax  CatalogSortField = "team_max"
 )
 
 type CatalogSortDirection string
@@ -30,6 +33,20 @@ var catalogSortFields = map[CatalogSortField]struct{}{
 	CatalogSortEndAt:    {},
 	CatalogSortTitle:    {},
 	CatalogSortDuration: {},
+	CatalogSortPrize:    {},
+	CatalogSortTeamMin:  {},
+	CatalogSortTeamMax:  {},
+}
+
+var catalogSortNullable = map[CatalogSortField]struct{}{
+	CatalogSortPrize:   {},
+	CatalogSortTeamMin: {},
+	CatalogSortTeamMax: {},
+}
+
+func (f CatalogSortField) Nullable() bool {
+	_, ok := catalogSortNullable[f]
+	return ok
 }
 
 var catalogSortDirections = map[CatalogSortDirection]struct{}{

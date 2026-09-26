@@ -75,7 +75,10 @@
       "start_at": "Дата начала",
       "end_at": "Дата окончания",
       "title": "Название",
-      "duration": "Длительность"
+      "duration": "Длительность",
+      "prize": "Призовой фонд",
+      "team_min": "Мин. команда",
+      "team_max": "Макс. команда"
     },
     "order": {
       "asc": "По возрастанию",
@@ -91,7 +94,8 @@
       "participation": "Участие",
       "organizer": "Организатор",
       "track": "Трек",
-      "teamSize": "Размер команды",
+      "teamMin": "Мин. команда",
+      "teamMax": "Макс. команда",
       "origin": "Охват",
       "created": "Создано",
       "updated": "Изменено",
@@ -105,7 +109,11 @@
       "durationDays_one": "{{count}} день",
       "durationDays_few": "{{count}} дня",
       "durationDays_many": "{{count}} дней",
-      "durationDays_other": "{{count}} дня"
+      "durationDays_other": "{{count}} дня",
+      "durationUnit_one": "день",
+      "durationUnit_few": "дня",
+      "durationUnit_many": "дней",
+      "durationUnit_other": "дня"
     },
     "export": {
       "action": "Скачать CSV",
@@ -142,10 +150,6 @@
     },
     "card": {
       "noCover": "Без обложки",
-      "teamExact": "{{size}} в команде",
-      "teamRange": "{{min}}–{{max}} в команде",
-      "teamUpTo": "до {{max}} в команде",
-      "teamFrom": "от {{min}} в команде",
       "websiteOf": "Сайт «{{title}}» (откроется в новой вкладке)",
       "publishedAt": "Опубликовано {{at}}",
       "purgeAt": "Удалится {{at}}"

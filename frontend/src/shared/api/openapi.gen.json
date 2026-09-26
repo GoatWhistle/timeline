@@ -363,7 +363,10 @@
                 "start_at",
                 "end_at",
                 "title",
-                "duration"
+                "duration",
+                "prize",
+                "team_min",
+                "team_max"
               ]
             }
           },
@@ -3914,7 +3917,10 @@
                 "start_at",
                 "end_at",
                 "title",
-                "duration"
+                "duration",
+                "prize",
+                "team_min",
+                "team_max"
               ],
               "default": "start_at"
             }
@@ -4094,7 +4100,10 @@
                 "start_at",
                 "end_at",
                 "title",
-                "duration"
+                "duration",
+                "prize",
+                "team_min",
+                "team_max"
               ],
               "default": "start_at"
             }

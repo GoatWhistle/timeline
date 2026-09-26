@@ -106,6 +106,9 @@ var eventSortColumns = map[models.CatalogSortField]string{
 	models.CatalogSortEndAt:    "end_at",
 	models.CatalogSortTitle:    "lower(title)",
 	models.CatalogSortDuration: "(end_at - start_at)",
+	models.CatalogSortPrize:    "prize_pool",
+	models.CatalogSortTeamMin:  "team_size_min",
+	models.CatalogSortTeamMax:  "team_size_max",
 }
 
 func eventOrderSQL(sort models.CatalogSort) string {
@@ -116,6 +119,9 @@ func eventOrderSQL(sort models.CatalogSort) string {
 	direction := "ASC"
 	if sort.Direction == models.CatalogSortDesc {
 		direction = "DESC"
+	}
+	if sort.Field.Nullable() {
+		direction += " NULLS LAST"
 	}
 	if sort.Field == models.CatalogSortTitle {
 		return column + " " + direction + ", start_at ASC"

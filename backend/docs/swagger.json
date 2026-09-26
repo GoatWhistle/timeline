@@ -305,7 +305,10 @@
                             "start_at",
                             "end_at",
                             "title",
-                            "duration"
+                            "duration",
+                            "prize",
+                            "team_min",
+                            "team_max"
                         ],
                         "type": "string",
                         "description": "Sort field",
@@ -3263,7 +3266,10 @@
                             "start_at",
                             "end_at",
                             "title",
-                            "duration"
+                            "duration",
+                            "prize",
+                            "team_min",
+                            "team_max"
                         ],
                         "type": "string",
                         "default": "start_at",
@@ -3408,7 +3414,10 @@
                             "start_at",
                             "end_at",
                             "title",
-                            "duration"
+                            "duration",
+                            "prize",
+                            "team_min",
+                            "team_max"
                         ],
                         "type": "string",
                         "default": "start_at",

@@ -75,8 +75,8 @@ func (c *CatalogController) allow(r *http.Request, scope string) bool {
 // @Param			from		query		string	false	"Lower bound of the period"																																format(date-time)
 // @Param			to			query		string	false	"Upper bound of the period"																																format(date-time)
 // @Param			joined		query		bool	false	"Participation filter: true keeps only the events the caller takes part in, false only the rest. Omit it for every event."
-// @Param			sort		query		string	false	"Sort field"		Enums(start_at,end_at,title,duration)	default(start_at)
-// @Param			order		query		string	false	"Sort direction"	Enums(asc,desc)							default(asc)
+// @Param			sort		query		string	false	"Sort field"		Enums(start_at,end_at,title,duration,prize,team_min,team_max)	default(start_at)
+// @Param			order		query		string	false	"Sort direction"	Enums(asc,desc)													default(asc)
 // @Param			page		query		int		false	"Page number"		default(1)
 // @Param			page_size	query		int		false	"Page size"			default(50)
 // @Success		200			{object}	dto.CatalogPage

@@ -17,6 +17,12 @@ func TestCatalogOrderSQLUsesWhitelistedColumns(t *testing.T) {
 		{Field: models.CatalogSortTitle, Direction: models.CatalogSortDesc}:    "lower(e.title) DESC, e.start_at ASC",
 		{Field: models.CatalogSortDuration, Direction: models.CatalogSortAsc}:  "(e.end_at - e.start_at) ASC, lower(e.title) ASC",
 		{Field: models.CatalogSortDuration, Direction: models.CatalogSortDesc}: "(e.end_at - e.start_at) DESC, lower(e.title) ASC",
+		{Field: models.CatalogSortPrize, Direction: models.CatalogSortAsc}:     "e.prize_pool ASC NULLS LAST, lower(e.title) ASC",
+		{Field: models.CatalogSortPrize, Direction: models.CatalogSortDesc}:    "e.prize_pool DESC NULLS LAST, lower(e.title) ASC",
+		{Field: models.CatalogSortTeamMin, Direction: models.CatalogSortAsc}:   "e.team_size_min ASC NULLS LAST, lower(e.title) ASC",
+		{Field: models.CatalogSortTeamMin, Direction: models.CatalogSortDesc}:  "e.team_size_min DESC NULLS LAST, lower(e.title) ASC",
+		{Field: models.CatalogSortTeamMax, Direction: models.CatalogSortAsc}:   "e.team_size_max ASC NULLS LAST, lower(e.title) ASC",
+		{Field: models.CatalogSortTeamMax, Direction: models.CatalogSortDesc}:  "e.team_size_max DESC NULLS LAST, lower(e.title) ASC",
 	}
 	for sort, want := range cases {
 		if got := catalogOrderSQL(sort); got != want {

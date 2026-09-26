@@ -1,8 +1,12 @@
 import { screen, within } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
+import {
+  FIGURE_LIMIT,
+  figureSlots,
+  teamSizeRange,
+} from '@/entities/event/team-size/team-size-figures'
 import { EventFacts } from '@/features/event-card/event-facts'
-import { FIGURE_LIMIT, figureSlots, teamSizeRange } from '@/features/event-card/team-size-figures'
 import type { EventResponse } from '@/shared/api/types.gen'
 import { formatEventDay } from '@/shared/datetime/datetime'
 import { i18n } from '@/shared/i18n/config'

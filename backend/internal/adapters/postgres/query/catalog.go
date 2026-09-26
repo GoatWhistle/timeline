@@ -154,6 +154,9 @@ var catalogSortColumns = map[models.CatalogSortField]string{
 	models.CatalogSortEndAt:    "e.end_at",
 	models.CatalogSortTitle:    "lower(e.title)",
 	models.CatalogSortDuration: "(e.end_at - e.start_at)",
+	models.CatalogSortPrize:    "e.prize_pool",
+	models.CatalogSortTeamMin:  "e.team_size_min",
+	models.CatalogSortTeamMax:  "e.team_size_max",
 }
 
 func catalogOrderSQL(sort models.CatalogSort) string {
@@ -164,6 +167,9 @@ func catalogOrderSQL(sort models.CatalogSort) string {
 	direction := "ASC"
 	if sort.Direction == models.CatalogSortDesc {
 		direction = "DESC"
+	}
+	if sort.Field.Nullable() {
+		direction += " NULLS LAST"
 	}
 	if sort.Field == models.CatalogSortTitle {
 		return column + " " + direction + ", e.start_at ASC"

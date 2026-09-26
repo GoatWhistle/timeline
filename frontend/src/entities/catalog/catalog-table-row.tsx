@@ -10,7 +10,7 @@ import { formatEventDay } from '@/shared/datetime/datetime'
 import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
-import { durationDays, teamSizeLabelKey } from './catalog.facts'
+import { durationDays } from './catalog.facts'
 import { CATALOG_SCOPE_KEY, type CatalogColumn } from './catalog.views'
 import { CatalogJoinedMark } from './catalog-joined-mark'
 
@@ -55,6 +55,28 @@ export function CatalogTitleCell({
   )
 }
 
+const NUMBER_BOX = 'inline-block w-[3ch] text-right tabular-nums'
+
+function TeamBound({ value }: { value: number | undefined }) {
+  return (
+    <span data-number-box="" className={NUMBER_BOX}>
+      {value === undefined ? <NoValue /> : value}
+    </span>
+  )
+}
+
+function DurationCell({ days }: { days: number }) {
+  const { t } = useTranslation('event')
+  return (
+    <span data-number-box="" className="inline-flex items-baseline gap-1">
+      <span className={NUMBER_BOX}>{days}</span>
+      <span className="min-w-[5ch] text-left">
+        {t('catalog.column.durationUnit', { count: days })}
+      </span>
+    </span>
+  )
+}
+
 export function CatalogCellContent({ event, column }: { event: RowEvent; column: string }) {
   const { t } = useTranslation('event')
   const FormatIcon = EVENT_FORMAT_ICON[event.effective_format]
@@ -81,11 +103,7 @@ export function CatalogCellContent({ event, column }: { event: RowEvent; column:
     case 'end':
       return <span className="tabular-nums">{formatEventDay(event.end_at)}</span>
     case 'duration':
-      return (
-        <span className="tabular-nums">
-          {t('catalog.column.durationDays', { count: durationDays(event.start_at, event.end_at) })}
-        </span>
-      )
+      return <DurationCell days={durationDays(event.start_at, event.end_at)} />
     case 'prize': {
       const prize = formatMoney(event.prize_pool, event.prize_currency)
       return prize ? <span className="font-medium text-prize">{prize}</span> : <NoValue />
@@ -102,10 +120,10 @@ export function CatalogCellContent({ event, column }: { event: RowEvent; column:
           )}
         </span>
       )
-    case 'teamSize': {
-      const size = teamSizeLabelKey(event)
-      return <>{size ? t(size.key, size.values) : <NoValue />}</>
-    }
+    case 'teamMin':
+      return <TeamBound value={event.team_size_min} />
+    case 'teamMax':
+      return <TeamBound value={event.team_size_max} />
     case 'participation': {
       if (!joinedOf(event)) return <NoValue />
       const role = 'team_role' in event ? event.team_role : null

@@ -109,7 +109,7 @@ describe('CatalogCard', () => {
     expect(screen.getByText('Organising committee')).toBeInTheDocument()
     expect(screen.getByText('Smart city')).toBeInTheDocument()
     expect(
-      screen.getByText(i18n.t('event:catalog.card.teamRange', { min: 3, max: 5 })),
+      screen.getByText(i18n.t('event:place.teamRange', { min: 3, max: 5 })),
     ).toBeInTheDocument()
   })
 

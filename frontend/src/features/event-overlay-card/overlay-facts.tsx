@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { TeamSizeFigures } from '@/entities/event/team-size/team-size-figures'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY } from '@/entities/stage/stage.place'
-import { TeamSizeFigures } from '@/features/event-card/team-size-figures'
 import type { EventTrackSummary } from '@/shared/api/types.gen'
 import { formatMoney } from '@/shared/money/money'
 import type { OverlayFacts } from './overlay-model'

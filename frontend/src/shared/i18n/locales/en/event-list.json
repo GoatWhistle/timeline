@@ -75,7 +75,10 @@
       "start_at": "Start date",
       "end_at": "End date",
       "title": "Title",
-      "duration": "Duration"
+      "duration": "Duration",
+      "prize": "Prize pool",
+      "team_min": "Smallest team",
+      "team_max": "Largest team"
     },
     "order": {
       "asc": "Ascending",
@@ -91,7 +94,8 @@
       "participation": "Participation",
       "organizer": "Organizer",
       "track": "Track",
-      "teamSize": "Team size",
+      "teamMin": "Min team",
+      "teamMax": "Max team",
       "origin": "Scope",
       "created": "Created",
       "updated": "Updated",
@@ -103,7 +107,9 @@
       "end": "End",
       "duration": "Duration",
       "durationDays_one": "{{count}} day",
-      "durationDays_other": "{{count}} days"
+      "durationDays_other": "{{count}} days",
+      "durationUnit_one": "day",
+      "durationUnit_other": "days"
     },
     "export": {
       "action": "Download CSV",
@@ -140,10 +146,6 @@
     },
     "card": {
       "noCover": "No cover",
-      "teamExact": "{{size}} in a team",
-      "teamRange": "{{min}}–{{max}} in a team",
-      "teamUpTo": "up to {{max}} in a team",
-      "teamFrom": "from {{min}} in a team",
       "websiteOf": "Website of {{title}} (opens in a new tab)",
       "publishedAt": "Published {{at}}",
       "purgeAt": "Deleted on {{at}}"
