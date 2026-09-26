@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -41,7 +41,10 @@ export function AdminUsersPage() {
   const sort = resolveUserSort(filters.sort)
   const order = resolveOrder(filters.order)
 
-  const query = useQuery(usersQuery(userListParams(filters, search, sort, order, page)))
+  const query = useQuery({
+    ...usersQuery(userListParams(filters, search, sort, order, page)),
+    placeholderData: keepPreviousData,
+  })
   const activate = useActivateUser()
   const deactivate = useDeactivateUser()
   const remove = useDeleteUser()

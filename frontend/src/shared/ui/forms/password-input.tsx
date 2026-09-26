@@ -5,10 +5,14 @@ import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { Input } from './input'
 
+const GLYPH = cn(
+  'absolute inset-0 size-4',
+  'motion-safe:transition-[opacity,scale] motion-safe:duration-fast motion-safe:ease-out',
+)
+
 export function PasswordInput({ className, ...props }: React.ComponentProps<'input'>) {
   const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
-  const Icon = visible ? EyeOff : Eye
 
   return (
     <div className="relative">
@@ -24,7 +28,10 @@ export function PasswordInput({ className, ...props }: React.ComponentProps<'inp
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         )}
       >
-        <Icon className="size-4" aria-hidden="true" />
+        <span aria-hidden="true" data-eye={visible ? 'open' : 'shut'} className="relative size-4">
+          <Eye className={cn(GLYPH, visible ? 'scale-75 opacity-0' : 'scale-100 opacity-100')} />
+          <EyeOff className={cn(GLYPH, visible ? 'scale-100 opacity-100' : 'scale-75 opacity-0')} />
+        </span>
       </button>
     </div>
   )

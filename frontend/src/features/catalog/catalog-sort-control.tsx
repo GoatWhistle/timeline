@@ -1,10 +1,11 @@
-import { ArrowDown, ArrowUp, Download } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   CATALOG_SORTS,
   type CatalogOrder,
   type CatalogSort,
 } from '@/entities/catalog/catalog.views'
+import { SortArrow } from '@/shared/ui/data-display/sort-icon'
 import {
   Select,
   SelectContent,
@@ -26,7 +27,6 @@ export function CatalogSortControl({
   onOrder: (value: CatalogOrder) => void
 }) {
   const { t } = useTranslation('event')
-  const OrderIcon = order === 'asc' ? ArrowUp : ArrowDown
 
   return (
     <div className="flex items-center gap-1">
@@ -51,7 +51,7 @@ export function CatalogSortControl({
         onClick={() => onOrder(order === 'asc' ? 'desc' : 'asc')}
         className="size-9 shrink-0 p-0"
       >
-        <OrderIcon className="size-4" aria-hidden="true" />
+        <SortArrow order={order} className="size-4" />
       </Button>
     </div>
   )

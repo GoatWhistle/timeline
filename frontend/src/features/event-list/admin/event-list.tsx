@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -60,7 +60,10 @@ export function AdminEventsPage() {
     ADMIN_FILTER_FIELDS.map((field) => [field, filters[field]]),
   ) as CatalogFilterValues
 
-  const query = useQuery(adminEventsQuery(adminListParams(filters, search, sort, order, page)))
+  const query = useQuery({
+    ...adminEventsQuery(adminListParams(filters, search, sort, order, page)),
+    placeholderData: keepPreviousData,
+  })
 
   const items = query.data?.items ?? []
   const filtered = search !== '' || activeFilterCount(conditions, ADMIN_FILTER_FIELDS) > 0

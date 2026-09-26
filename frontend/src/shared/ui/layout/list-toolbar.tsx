@@ -23,9 +23,9 @@ export function ListToolbar({
       data-list-toolbar=""
       className="flex flex-wrap items-center gap-2 border-border border-b px-4 py-3"
     >
-      <h1 className="mr-2 font-semibold text-screen tracking-tight">{title}</h1>
+      <h1 className="order-1 mr-2 font-semibold text-screen tracking-tight">{title}</h1>
 
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+      <div className="order-3 flex min-w-0 flex-1 basis-full flex-wrap items-center gap-2 sm:order-2 sm:basis-auto">
         <Input
           ref={search.ref}
           aria-label={search.label}
@@ -36,9 +36,9 @@ export function ListToolbar({
         />
 
         {tools}
-
-        {end && <div className="ml-auto flex items-center gap-2">{end}</div>}
       </div>
+
+      {end && <div className="order-2 ml-auto flex items-center gap-2 sm:order-3">{end}</div>}
     </header>
   )
 }

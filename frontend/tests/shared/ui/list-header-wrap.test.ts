@@ -35,7 +35,18 @@ describe('a list header wraps its controls instead of pushing the page wider', (
   })
 
   it('pushes the view switch and the main action to the far edge, whatever wraps before them', () => {
-    expect(read(TOOLBAR)).toMatch(/className="ml-auto flex items-center gap-2"/)
+    const end = /className="([^"]*\bml-auto\b[^"]*)"/.exec(read(TOOLBAR))?.[1] ?? ''
+    expect(end).not.toBe('')
+  })
+
+  it('on a phone lifts those actions into the title row and gives the tools their own rows', () => {
+    const source = read(TOOLBAR)
+    const end = /className="([^"]*\bml-auto\b[^"]*)"/.exec(source)?.[1] ?? ''
+    expect(end, 'the actions fell to the bottom of the phone bar').toContain('order-2')
+    expect(end).toContain('sm:order-3')
+    const cluster = /className="([^"]*\bflex-1\b[^"]*\bflex-wrap\b[^"]*)"/.exec(source)?.[1] ?? ''
+    expect(cluster, 'the tools squeeze beside the title again').toContain('basis-full')
+    expect(cluster).toContain('sm:basis-auto')
   })
 
   it('no control in that header holds a fixed width down to the phone', () => {

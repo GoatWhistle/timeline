@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -77,7 +77,10 @@ export function CatalogPage() {
     order,
   }
 
-  const query = useQuery(catalogQuery({ ...params, page }))
+  const query = useQuery({
+    ...catalogQuery({ ...params, page }),
+    placeholderData: keepPreviousData,
+  })
 
   const items = query.data?.items ?? []
   const filtered = search !== '' || activeFilterCount(conditions) > 0

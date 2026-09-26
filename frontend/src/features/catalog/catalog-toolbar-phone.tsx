@@ -1,4 +1,3 @@
-import { ArrowDown, ArrowUp } from 'lucide-react'
 import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -7,6 +6,7 @@ import {
   type CatalogSort,
 } from '@/entities/catalog/catalog.views'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { SortArrow } from '@/shared/ui/data-display/sort-icon'
 import {
   Select,
   SelectContent,
@@ -37,7 +37,6 @@ export function CatalogToolbarPhone({
   filterTriggerRef?: React.Ref<HTMLButtonElement>
 }) {
   const { t } = useTranslation('event')
-  const OrderIcon = order === 'asc' ? ArrowUp : ArrowDown
 
   return (
     <div className="flex items-center gap-2 border-border border-b px-4 py-2">
@@ -65,7 +64,7 @@ export function CatalogToolbarPhone({
         onClick={() => onOrder(order === 'asc' ? 'desc' : 'asc')}
         className={cn('shrink-0 p-0', TAP_TARGET)}
       >
-        <OrderIcon className="size-4" aria-hidden="true" />
+        <SortArrow order={order} className="size-4" />
       </Button>
     </div>
   )
