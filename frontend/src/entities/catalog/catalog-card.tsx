@@ -9,7 +9,7 @@ import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { Badge } from '@/shared/ui/primitives/badge'
-import { teamSizeLabelKey } from './catalog.facts'
+import { durationDays, teamSizeLabelKey } from './catalog.facts'
 import { CatalogCover } from './catalog-cover'
 import { CatalogJoinedMark } from './catalog-joined-mark'
 
@@ -113,6 +113,14 @@ export function CatalogCard({
             </span>
             <span className="truncate font-medium">
               {formatDateRange(event.start_at, event.end_at)}
+            </span>
+            <span aria-hidden="true" className="shrink-0 text-faint-foreground">
+              ·
+            </span>
+            <span data-card-duration="" className="shrink-0 text-muted-foreground tabular-nums">
+              {t('catalog.column.durationDays', {
+                count: durationDays(event.start_at, event.end_at),
+              })}
             </span>
           </span>
 

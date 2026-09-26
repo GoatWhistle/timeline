@@ -6,11 +6,11 @@ import {
 } from '@/entities/event/event-state-mark/event-state-sign'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
 import type { CatalogEvent, EventResponse } from '@/shared/api/types.gen'
-import { formatDateRange } from '@/shared/datetime/datetime'
+import { formatEventDay } from '@/shared/datetime/datetime'
 import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
-import { teamSizeLabelKey } from './catalog.facts'
+import { durationDays, teamSizeLabelKey } from './catalog.facts'
 import { CATALOG_SCOPE_KEY, type CatalogColumn } from './catalog.views'
 import { CatalogJoinedMark } from './catalog-joined-mark'
 
@@ -76,8 +76,16 @@ export function CatalogCellContent({ event, column }: { event: RowEvent; column:
           {stage ? placeLabel(stage.place, t('place.online')) : <NoValue />}
         </span>
       )
-    case 'period':
-      return <>{formatDateRange(event.start_at, event.end_at)}</>
+    case 'start':
+      return <span className="tabular-nums">{formatEventDay(event.start_at)}</span>
+    case 'end':
+      return <span className="tabular-nums">{formatEventDay(event.end_at)}</span>
+    case 'duration':
+      return (
+        <span className="tabular-nums">
+          {t('catalog.column.durationDays', { count: durationDays(event.start_at, event.end_at) })}
+        </span>
+      )
     case 'prize': {
       const prize = formatMoney(event.prize_pool, event.prize_currency)
       return prize ? <span className="font-medium text-prize">{prize}</span> : <NoValue />

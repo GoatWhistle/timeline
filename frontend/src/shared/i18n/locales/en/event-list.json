@@ -73,8 +73,9 @@
     "orderAria": "Sort direction",
     "sort": {
       "start_at": "Start date",
-      "end_at": "Deadline",
-      "title": "Title"
+      "end_at": "End date",
+      "title": "Title",
+      "duration": "Duration"
     },
     "order": {
       "asc": "Ascending",
@@ -85,7 +86,6 @@
       "kind": "Kind",
       "format": "Format",
       "place": "Place",
-      "period": "Period",
       "prize": "Prize pool",
       "state": "State",
       "participation": "Participation",
@@ -98,7 +98,12 @@
       "published": "Published",
       "cover": "Cover",
       "notPublished": "Draft",
-      "updatedAt": "Updated {{at}}"
+      "updatedAt": "Updated {{at}}",
+      "start": "Start",
+      "end": "End",
+      "duration": "Duration",
+      "durationDays_one": "{{count}} day",
+      "durationDays_other": "{{count}} days"
     },
     "export": {
       "action": "Export CSV",

@@ -1,11 +1,14 @@
 package models
 
+import "time"
+
 type CatalogSortField string
 
 const (
-	CatalogSortStartAt CatalogSortField = "start_at"
-	CatalogSortEndAt   CatalogSortField = "end_at"
-	CatalogSortTitle   CatalogSortField = "title"
+	CatalogSortStartAt  CatalogSortField = "start_at"
+	CatalogSortEndAt    CatalogSortField = "end_at"
+	CatalogSortTitle    CatalogSortField = "title"
+	CatalogSortDuration CatalogSortField = "duration"
 )
 
 type CatalogSortDirection string
@@ -23,9 +26,10 @@ type CatalogSort struct {
 var DefaultCatalogSort = CatalogSort{Field: CatalogSortStartAt, Direction: CatalogSortAsc}
 
 var catalogSortFields = map[CatalogSortField]struct{}{
-	CatalogSortStartAt: {},
-	CatalogSortEndAt:   {},
-	CatalogSortTitle:   {},
+	CatalogSortStartAt:  {},
+	CatalogSortEndAt:    {},
+	CatalogSortTitle:    {},
+	CatalogSortDuration: {},
 }
 
 var catalogSortDirections = map[CatalogSortDirection]struct{}{
@@ -65,4 +69,16 @@ func ParseCatalogSort(field, direction string) (CatalogSort, error) {
 		return CatalogSort{}, err
 	}
 	return CatalogSort{Field: parsedField, Direction: parsedDirection}, nil
+}
+
+func DurationDays(start, end time.Time) int {
+	span := end.Sub(start)
+	if span <= 0 {
+		return 1
+	}
+	days := int((span + 24*time.Hour - 1) / (24 * time.Hour))
+	if days < 1 {
+		return 1
+	}
+	return days
 }

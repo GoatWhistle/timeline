@@ -150,9 +150,10 @@ func (r *Catalog) attachPlaces(ctx context.Context, items []dto.CatalogEvent,
 }
 
 var catalogSortColumns = map[models.CatalogSortField]string{
-	models.CatalogSortStartAt: "e.start_at",
-	models.CatalogSortEndAt:   "e.end_at",
-	models.CatalogSortTitle:   "lower(e.title)",
+	models.CatalogSortStartAt:  "e.start_at",
+	models.CatalogSortEndAt:    "e.end_at",
+	models.CatalogSortTitle:    "lower(e.title)",
+	models.CatalogSortDuration: "(e.end_at - e.start_at)",
 }
 
 func catalogOrderSQL(sort models.CatalogSort) string {

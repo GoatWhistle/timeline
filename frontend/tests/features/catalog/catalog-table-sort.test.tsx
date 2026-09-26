@@ -28,7 +28,7 @@ function render(sort: 'start_at' | 'title', order: 'asc' | 'desc', onSort = vi.f
     ...renderWithProviders(
       <CatalogTable
         items={items}
-        columns={['title', 'period']}
+        columns={['title', 'start', 'end', 'duration']}
         selected={null}
         sort={sort}
         order={order}
@@ -47,8 +47,14 @@ describe('catalog table sorting', () => {
     await user.click(screen.getByRole('button', { name: i18n.t('event:catalog.column.title') }))
     expect(onSort).toHaveBeenCalledWith('title')
 
-    await user.click(screen.getByRole('button', { name: i18n.t('event:catalog.column.period') }))
+    await user.click(screen.getByRole('button', { name: i18n.t('event:catalog.column.start') }))
     expect(onSort).toHaveBeenCalledWith('start_at')
+
+    await user.click(screen.getByRole('button', { name: i18n.t('event:catalog.column.end') }))
+    expect(onSort).toHaveBeenCalledWith('end_at')
+
+    await user.click(screen.getByRole('button', { name: i18n.t('event:catalog.column.duration') }))
+    expect(onSort).toHaveBeenCalledWith('duration')
   })
 
   it('announces the active column and its direction to assistive technology', () => {
@@ -67,7 +73,7 @@ describe('catalog table sorting', () => {
   it('leaves the inactive sortable column unmarked', () => {
     render('title', 'asc')
     expect(
-      screen.getByRole('columnheader', { name: i18n.t('event:catalog.column.period') }),
+      screen.getByRole('columnheader', { name: i18n.t('event:catalog.column.start') }),
     ).not.toHaveAttribute('aria-sort')
   })
 })

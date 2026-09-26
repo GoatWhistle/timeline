@@ -48,7 +48,7 @@ func (c *Controller) stageID(r *http.Request, name string) (uuid.UUID, error) {
 // @Param			include_archived	query		bool	false	"Include archived records"
 // @Param			from				query		string	false	"Events ending on or after this moment"
 // @Param			to					query		string	false	"Events starting on or before this moment"
-// @Param			sort				query		string	false	"Sort field"		Enums(start_at,end_at,title)
+// @Param			sort				query		string	false	"Sort field"		Enums(start_at,end_at,title,duration)
 // @Param			order				query		string	false	"Sort direction"	Enums(asc,desc)
 // @Param			page				query		int		false	"Page number"		default(1)
 // @Param			page_size			query		int		false	"Page size"			default(50)

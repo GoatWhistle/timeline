@@ -17,7 +17,7 @@ const catalogExportFilename = "catalog.csv"
 
 var catalogExportHeader = []string{
 	"id", "title", "kind", "state", "format", "effective_format", "origin",
-	"country_code", "city", "start_at", "end_at", "organizer", "tracks",
+	"country_code", "city", "start_at", "end_at", "duration_days", "organizer", "tracks",
 	"prize_pool", "prize_currency", "team_size_min", "team_size_max", "website_url", "joined",
 }
 
@@ -43,8 +43,8 @@ var catalogExportHeader = []string{
 // @Param			state	query		string	false	"Comma-separated state filter"	Enums(UPCOMING,ACTIVE,FINISHED)
 // @Param			from	query		string	false	"Lower bound of the period"		format(date-time)
 // @Param			to		query		string	false	"Upper bound of the period"		format(date-time)
-// @Param			sort	query		string	false	"Sort field"					Enums(start_at,end_at,title)	default(start_at)
-// @Param			order	query		string	false	"Sort direction"				Enums(asc,desc)					default(asc)
+// @Param			sort	query		string	false	"Sort field"					Enums(start_at,end_at,title,duration)	default(start_at)
+// @Param			order	query		string	false	"Sort direction"				Enums(asc,desc)							default(asc)
 // @Success		200		{string}	string	"CSV payload"
 // @Failure		400		{object}	dto.ErrorResponse
 // @Failure		401		{object}	dto.ErrorResponse
@@ -112,6 +112,7 @@ func catalogExportRow(item dto.CatalogEvent) []string {
 		text(item.City),
 		item.StartAt.UTC().Format(time.RFC3339),
 		item.EndAt.UTC().Format(time.RFC3339),
+		strconv.Itoa(models.DurationDays(item.StartAt, item.EndAt)),
 		text(item.Organizer),
 		trackNames(item.Tracks),
 		text(item.PrizePool),

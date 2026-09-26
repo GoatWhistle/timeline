@@ -13,7 +13,9 @@ import { SortIcon } from '@/shared/ui/data-display/sort-icon'
 
 const COLUMN_SORT: Partial<Record<CatalogColumn, CatalogSort>> = {
   title: 'title',
-  period: 'start_at',
+  start: 'start_at',
+  end: 'end_at',
+  duration: 'duration',
 }
 
 const COLUMN_WIDTH: Record<CatalogColumn, string> = {
@@ -21,7 +23,9 @@ const COLUMN_WIDTH: Record<CatalogColumn, string> = {
   kind: 'w-px whitespace-nowrap',
   format: 'w-px whitespace-nowrap',
   place: 'w-48 max-w-48',
-  period: 'w-px whitespace-nowrap',
+  start: 'w-px whitespace-nowrap',
+  end: 'w-px whitespace-nowrap',
+  duration: 'w-px whitespace-nowrap',
   prize: 'w-px whitespace-nowrap text-right',
   organizer: 'w-40 max-w-40',
   track: 'w-36 max-w-36',

@@ -3625,6 +3625,7 @@ paths:
         - start_at
         - end_at
         - title
+        - duration
         in: query
         name: sort
         type: string
@@ -5664,6 +5665,7 @@ paths:
         - start_at
         - end_at
         - title
+        - duration
         in: query
         name: sort
         type: string
@@ -5774,6 +5776,7 @@ paths:
         - start_at
         - end_at
         - title
+        - duration
         in: query
         name: sort
         type: string

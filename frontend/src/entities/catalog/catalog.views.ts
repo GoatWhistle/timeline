@@ -84,7 +84,7 @@ export function effectiveLayout(value: CatalogLayout, phone: boolean): CatalogLa
   return phone ? 'grid' : value
 }
 
-export const CATALOG_SORTS = ['start_at', 'end_at', 'title'] as const
+export const CATALOG_SORTS = ['start_at', 'end_at', 'duration', 'title'] as const
 export type CatalogSort = (typeof CATALOG_SORTS)[number]
 
 export const CATALOG_ORDERS = ['asc', 'desc'] as const
@@ -110,7 +110,9 @@ export const CATALOG_COLUMNS = [
   'kind',
   'format',
   'place',
-  'period',
+  'start',
+  'end',
+  'duration',
   'prize',
   'organizer',
   'track',
@@ -126,7 +128,9 @@ export const CATALOG_COLUMN_KEY: Record<CatalogColumn, string> = {
   kind: 'catalog.column.kind',
   format: 'catalog.column.format',
   place: 'catalog.column.place',
-  period: 'catalog.column.period',
+  start: 'catalog.column.start',
+  end: 'catalog.column.end',
+  duration: 'catalog.column.duration',
   prize: 'catalog.column.prize',
   organizer: 'catalog.column.organizer',
   track: 'catalog.column.track',
@@ -141,7 +145,9 @@ export const ADMIN_COLUMNS = [
   'kind',
   'format',
   'place',
-  'period',
+  'start',
+  'end',
+  'duration',
   'prize',
   'organizer',
   'track',
@@ -160,7 +166,9 @@ export const ADMIN_COLUMN_KEY: Record<AdminColumn, string> = {
   kind: 'catalog.column.kind',
   format: 'catalog.column.format',
   place: 'catalog.column.place',
-  period: 'catalog.column.period',
+  start: 'catalog.column.start',
+  end: 'catalog.column.end',
+  duration: 'catalog.column.duration',
   prize: 'catalog.column.prize',
   organizer: 'catalog.column.organizer',
   track: 'catalog.column.track',
@@ -176,14 +184,23 @@ export const ADMIN_COLUMN_KEY: Record<AdminColumn, string> = {
 export const DEFAULT_ADMIN_COLUMNS: AdminColumn[] = [
   'title',
   'organizer',
-  'period',
+  'start',
+  'end',
+  'duration',
   'state',
   'updated',
 ]
 
+const PERIOD_PARTS = ['start', 'end', 'duration'] as const
+
+function unfoldPeriod(value: unknown[]): unknown[] {
+  return value.flatMap((column) => (column === 'period' ? [...PERIOD_PARTS] : [column]))
+}
+
 export function resolveAdminColumns(value: unknown): AdminColumn[] {
   if (!Array.isArray(value)) return DEFAULT_ADMIN_COLUMNS
-  const picked = ADMIN_COLUMNS.filter((column) => value.includes(column))
+  const saved = unfoldPeriod(value)
+  const picked = ADMIN_COLUMNS.filter((column) => saved.includes(column))
   if (picked.length === 0) return DEFAULT_ADMIN_COLUMNS
   return picked.includes('title') ? picked : ['title', ...picked]
 }
@@ -194,14 +211,17 @@ export const DEFAULT_CATALOG_COLUMNS: CatalogColumn[] = [
   'title',
   'format',
   'place',
-  'period',
+  'start',
+  'end',
+  'duration',
   'prize',
   'state',
 ]
 
 export function resolveColumns(value: unknown): CatalogColumn[] {
   if (!Array.isArray(value)) return DEFAULT_CATALOG_COLUMNS
-  const picked = CATALOG_COLUMNS.filter((column) => value.includes(column))
+  const saved = unfoldPeriod(value)
+  const picked = CATALOG_COLUMNS.filter((column) => saved.includes(column))
   if (picked.length === 0) return DEFAULT_CATALOG_COLUMNS
   return picked.includes(CATALOG_LOCKED_COLUMN) ? picked : [CATALOG_LOCKED_COLUMN, ...picked]
 }

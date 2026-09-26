@@ -49,7 +49,7 @@ function render() {
   return renderWithProviders(
     <CatalogTable
       items={items}
-      columns={['title', 'period']}
+      columns={['title', 'start']}
       selected={null}
       sort="start_at"
       order="asc"
@@ -66,7 +66,7 @@ function classesOfSortHeader(name: string): string[] {
 describe('the catalog table is reachable by thumb where a tablet shows it', () => {
   it('gives each sort header the 44px reach through the shared overlay', () => {
     render()
-    for (const key of ['event:catalog.column.title', 'event:catalog.column.period']) {
+    for (const key of ['event:catalog.column.title', 'event:catalog.column.start']) {
       const classes = classesOfSortHeader(i18n.t(key))
       for (const name of FLOOR) expect(classes).toContain(name)
     }
@@ -74,7 +74,7 @@ describe('the catalog table is reachable by thumb where a tablet shows it', () =
 
   it('centres the sort header reach so a short header is not dragged off its column', () => {
     render()
-    for (const key of ['event:catalog.column.title', 'event:catalog.column.period']) {
+    for (const key of ['event:catalog.column.title', 'event:catalog.column.start']) {
       const classes = classesOfSortHeader(i18n.t(key))
       for (const name of CENTRED) expect(classes).toContain(name)
       expect(classes).toContain('relative')

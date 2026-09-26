@@ -306,7 +306,8 @@ const docTemplate = `{
                         "enum": [
                             "start_at",
                             "end_at",
-                            "title"
+                            "title",
+                            "duration"
                         ],
                         "type": "string",
                         "description": "Sort field",
@@ -3263,7 +3264,8 @@ const docTemplate = `{
                         "enum": [
                             "start_at",
                             "end_at",
-                            "title"
+                            "title",
+                            "duration"
                         ],
                         "type": "string",
                         "default": "start_at",
@@ -3407,7 +3409,8 @@ const docTemplate = `{
                         "enum": [
                             "start_at",
                             "end_at",
-                            "title"
+                            "title",
+                            "duration"
                         ],
                         "type": "string",
                         "default": "start_at",

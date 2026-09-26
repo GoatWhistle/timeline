@@ -73,8 +73,9 @@
     "orderAria": "Направление сортировки",
     "sort": {
       "start_at": "Дата начала",
-      "end_at": "Дедлайн",
-      "title": "Название"
+      "end_at": "Дата окончания",
+      "title": "Название",
+      "duration": "Длительность"
     },
     "order": {
       "asc": "По возрастанию",
@@ -85,7 +86,6 @@
       "kind": "Вид",
       "format": "Формат",
       "place": "Место",
-      "period": "Период",
       "prize": "Призовой фонд",
       "state": "Состояние",
       "participation": "Участие",
@@ -98,7 +98,14 @@
       "published": "Опубликовано",
       "cover": "Обложка",
       "notPublished": "Черновик",
-      "updatedAt": "Изменено {{at}}"
+      "updatedAt": "Изменено {{at}}",
+      "start": "Начало",
+      "end": "Окончание",
+      "duration": "Длительность",
+      "durationDays_one": "{{count}} день",
+      "durationDays_few": "{{count}} дня",
+      "durationDays_many": "{{count}} дней",
+      "durationDays_other": "{{count}} дня"
     },
     "export": {
       "action": "Экспорт CSV",

@@ -100,6 +100,9 @@ func TestOrderSQLSortsByEveryField(t *testing.T) {
 		{"title descending", models.CatalogSort{
 			Field: models.CatalogSortTitle, Direction: models.CatalogSortDesc,
 		}, "lower(title) DESC"},
+		{"longest first", models.CatalogSort{
+			Field: models.CatalogSortDuration, Direction: models.CatalogSortDesc,
+		}, "(end_at - start_at) DESC"},
 	}
 
 	for _, tc := range cases {

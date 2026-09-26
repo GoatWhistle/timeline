@@ -102,9 +102,10 @@ func containsState(states []models.EventState, target models.EventState) bool {
 }
 
 var eventSortColumns = map[models.CatalogSortField]string{
-	models.CatalogSortStartAt: "start_at",
-	models.CatalogSortEndAt:   "end_at",
-	models.CatalogSortTitle:   "lower(title)",
+	models.CatalogSortStartAt:  "start_at",
+	models.CatalogSortEndAt:    "end_at",
+	models.CatalogSortTitle:    "lower(title)",
+	models.CatalogSortDuration: "(end_at - start_at)",
 }
 
 func eventOrderSQL(sort models.CatalogSort) string {

@@ -3,6 +3,7 @@ package models_test
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/GoatWhistle/timeline/internal/models"
 )
@@ -20,6 +21,7 @@ func TestParseCatalogSortDefaults(t *testing.T) {
 func TestParseCatalogSortAcceptsWhitelist(t *testing.T) {
 	fields := []models.CatalogSortField{
 		models.CatalogSortStartAt, models.CatalogSortEndAt, models.CatalogSortTitle,
+		models.CatalogSortDuration,
 	}
 	directions := []models.CatalogSortDirection{models.CatalogSortAsc, models.CatalogSortDesc}
 
@@ -61,6 +63,26 @@ func TestParseCatalogSortRejectsUnknownDirection(t *testing.T) {
 			t.Fatalf("sort direction %q must be rejected, not passed through", raw)
 		} else if !errors.Is(err, models.ErrValidation) {
 			t.Fatalf("sort direction %q must fail validation, got %v", raw, err)
+		}
+	}
+}
+
+func TestDurationDaysCountsEveryStartedDay(t *testing.T) {
+	day := func(d, h, m int) time.Time { return time.Date(2026, 8, d, h, m, 0, 0, time.UTC) }
+	cases := []struct {
+		name       string
+		start, end time.Time
+		want       int
+	}{
+		{"a full week", day(24, 0, 0), day(30, 23, 59), 7},
+		{"one evening", day(24, 18, 0), day(24, 21, 0), 1},
+		{"exactly two days", day(24, 0, 0), day(26, 0, 0), 2},
+		{"a moment past two days", day(24, 0, 0), day(26, 0, 1), 3},
+		{"an end before the start", day(26, 0, 0), day(24, 0, 0), 1},
+	}
+	for _, tc := range cases {
+		if got := models.DurationDays(tc.start, tc.end); got != tc.want {
+			t.Fatalf("%s: got %d days, want %d", tc.name, got, tc.want)
 		}
 	}
 }

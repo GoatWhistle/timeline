@@ -304,7 +304,8 @@
                         "enum": [
                             "start_at",
                             "end_at",
-                            "title"
+                            "title",
+                            "duration"
                         ],
                         "type": "string",
                         "description": "Sort field",
@@ -3261,7 +3262,8 @@
                         "enum": [
                             "start_at",
                             "end_at",
-                            "title"
+                            "title",
+                            "duration"
                         ],
                         "type": "string",
                         "default": "start_at",
@@ -3405,7 +3407,8 @@
                         "enum": [
                             "start_at",
                             "end_at",
-                            "title"
+                            "title",
+                            "duration"
                         ],
                         "type": "string",
                         "default": "start_at",

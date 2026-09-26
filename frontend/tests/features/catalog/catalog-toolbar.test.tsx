@@ -21,7 +21,7 @@ function props(overrides: Partial<CatalogToolbarProps> = {}): CatalogToolbarProp
     sort: 'start_at',
     order: 'asc',
     filters: NO_FILTERS,
-    columns: ['title', 'period'],
+    columns: ['title', 'start'],
     exporting: false,
     searchValue: '',
     searchRef: { current: null },

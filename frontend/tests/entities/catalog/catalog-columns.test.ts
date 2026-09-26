@@ -26,6 +26,12 @@ describe('resolveColumns', () => {
     expect(resolveColumns('title')).toEqual(DEFAULT_CATALOG_COLUMNS)
   })
 
+  it('turns a saved period column into start, end and duration', () => {
+    const upgraded = resolveColumns(['title', 'period', 'prize'])
+    expect(upgraded).toEqual(expect.arrayContaining(['start', 'end', 'duration', 'prize']))
+    expect(upgraded as string[]).not.toContain('period')
+  })
+
   it('always keeps the locked title column', () => {
     expect(resolveColumns(['prize'])).toContain(CATALOG_LOCKED_COLUMN)
   })
@@ -33,13 +39,13 @@ describe('resolveColumns', () => {
 
 describe('toggleColumn', () => {
   it('adds and removes an optional column', () => {
-    const added = toggleColumn(['title', 'period'], 'prize')
+    const added = toggleColumn(['title', 'start'], 'prize')
     expect(added).toContain('prize')
     expect(toggleColumn(added, 'prize')).not.toContain('prize')
   })
 
   it('refuses to remove the locked title column', () => {
-    const columns = ['title', 'period'] as const
+    const columns = ['title', 'start'] as const
     expect(toggleColumn([...columns], CATALOG_LOCKED_COLUMN)).toEqual([...columns])
   })
 })
