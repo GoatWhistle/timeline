@@ -1,4 +1,4 @@
-import { CalendarDays, ExternalLink as ExternalLinkIcon } from 'lucide-react'
+import { ArrowUpRight, CalendarDays } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
@@ -10,7 +10,6 @@ import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
-import { Badge } from '@/shared/ui/primitives/badge'
 import { durationDays } from './catalog.facts'
 import { CatalogCover } from './catalog-cover'
 import { CatalogJoinedMark } from './catalog-joined-mark'
@@ -33,7 +32,9 @@ export const CARD_CORNER = cn(
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring',
 )
 
-const CORNER_SPOT = 'absolute right-3 top-[calc(1.5rem_+_(100cqw_-_1.5rem)_*_9_/_16)] flex'
+export const CARD_GRID = cn(
+  'grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-x-3 sm:gap-x-4',
+)
 
 function FactRow({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
@@ -68,12 +69,6 @@ export function CatalogCard({
   const FormatIcon = EVENT_FORMAT_ICON[event.effective_format]
   const prize = formatMoney(event.prize_pool, event.prize_currency)
   const place = finalPlace(event, t('place.online'))
-  const track =
-    event.tracks.length === 1 && event.tracks[0]
-      ? event.tracks[0].name
-      : event.tracks.length > 1
-        ? t('card.trackCount', { count: event.tracks.length })
-        : null
   const cornerNode =
     corner ??
     (event.website_url ? (
@@ -83,14 +78,19 @@ export function CatalogCard({
         aria-label={t('catalog.card.websiteOf', { title: event.title })}
         className={CARD_CORNER}
       >
-        <ExternalLinkIcon className="size-4" aria-hidden="true" />
+        <ArrowUpRight className="size-4" aria-hidden="true" />
       </ExternalLink>
     ) : null)
 
+  const hasTeam = event.team_size_min !== undefined || event.team_size_max !== undefined
+
   return (
     <div
+      data-card-rows={footer ? 4 : 3}
       className={cn(
-        'group @container relative flex h-full min-w-0 flex-col rounded-surface border bg-card',
+        'group relative mb-3 grid min-w-0 grid-rows-subgrid gap-y-2.5 sm:mb-4',
+        footer ? 'row-span-4' : 'row-span-3',
+        'rounded-surface border bg-card',
         'motion-safe:animate-stage-in',
         'motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-base',
         'motion-safe:ease-out',
@@ -105,13 +105,14 @@ export function CatalogCard({
         data-event-row={event.id}
         onClick={() => onSelect(event.id)}
         className={cn(
-          'flex min-w-0 flex-1 flex-col gap-3 rounded-surface p-3 text-left',
+          'col-start-1 row-start-1 grid min-w-0 grid-rows-subgrid rounded-surface p-3 text-left',
+          footer ? 'row-span-4' : 'row-span-3',
           'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
         )}
       >
         <CatalogCover coverUrl={event.cover_url} color={event.color} />
 
-        <span className="flex min-w-0 flex-col gap-1">
+        <span data-card-heading="" className="flex min-w-0 flex-col gap-0.5">
           <span data-card-title="" className="block font-semibold text-screen leading-snug">
             {cornerNode && (
               <span aria-hidden="true" data-corner-room="" className="float-right ml-2 h-7 w-7" />
@@ -126,7 +127,7 @@ export function CatalogCard({
           )}
         </span>
 
-        <span data-card-facts="" className="mt-auto flex flex-col gap-1.5 text-meta">
+        <span data-card-facts="" className="flex min-w-0 flex-col gap-1 text-meta">
           <FactRow icon={<CalendarDays className="size-3.5" />}>
             <span className="truncate font-medium">
               {formatDateRange(event.start_at, event.end_at)}
@@ -145,37 +146,31 @@ export function CatalogCard({
               </span>
             )}
           </FactRow>
-          <TeamSizeFigures
-            min={event.team_size_min}
-            max={event.team_size_max}
-            className="self-start"
-          />
+          {(hasTeam || prize) && (
+            <span data-card-stakes="" className="flex min-h-6 min-w-0 items-center gap-2">
+              <TeamSizeFigures min={event.team_size_min} max={event.team_size_max} />
+              {prize && (
+                <span className="ml-auto shrink-0 font-semibold text-heading text-prize tabular-nums">
+                  {prize}
+                </span>
+              )}
+            </span>
+          )}
         </span>
-
-        {(track || prize) && (
-          <span
-            data-card-stakes=""
-            className="flex min-w-0 items-center gap-2 border-border border-t pt-2.5"
-          >
-            {track && (
-              <Badge tone="neutral" className="min-w-0 truncate">
-                {track}
-              </Badge>
-            )}
-            {prize && (
-              <span className="ml-auto shrink-0 font-semibold text-heading text-prize tabular-nums">
-                {prize}
-              </span>
-            )}
-          </span>
-        )}
 
         {footer ?? (
           <span className="sr-only">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>
         )}
       </button>
 
-      {cornerNode && <span className={CORNER_SPOT}>{cornerNode}</span>}
+      {cornerNode && (
+        <span
+          data-card-corner=""
+          className="z-10 col-start-1 row-start-2 mr-3 flex self-start justify-self-end"
+        >
+          {cornerNode}
+        </span>
+      )}
     </div>
   )
 }

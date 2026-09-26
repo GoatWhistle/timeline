@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { CARD_CORNER, CatalogCard } from '@/entities/catalog/catalog-card'
+import { CARD_CORNER, CARD_GRID, CatalogCard } from '@/entities/catalog/catalog-card'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import {
   EVENT_STATE_TEXT,
@@ -53,11 +53,7 @@ export function AdminCards({
   const { t } = useTranslation('event')
 
   return (
-    <div
-      role="listbox"
-      aria-label={t('list.adminTitle')}
-      className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-3 sm:gap-4"
-    >
+    <div role="listbox" aria-label={t('list.adminTitle')} className={CARD_GRID}>
       {items.map((item) => (
         <CatalogCard
           key={item.id}

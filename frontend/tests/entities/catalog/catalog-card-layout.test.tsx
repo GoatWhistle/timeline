@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
-import { CARD_CORNER, CatalogCard } from '@/entities/catalog/catalog-card'
+import { CARD_CORNER, CARD_GRID, CatalogCard } from '@/entities/catalog/catalog-card'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { i18n, i18nReady } from '@/shared/i18n/config'
 
@@ -85,17 +85,60 @@ describe('a catalog tile reads as title, facts, then what is at stake', () => {
     ).toBeTruthy()
   })
 
-  it('sets the tracks and the prize apart below a rule', () => {
+  it('keeps the tracks off the tile, which only added a row of noise', () => {
     const { container } = card()
-    const stakes = container.querySelector('[data-card-stakes]') as HTMLElement
-    expect(stakes.className).toContain('border-t')
-    expect(stakes.textContent).toContain(i18n.t('event:card.trackCount', { count: 2 }))
-    expect(stakes.textContent).toContain('$10,000')
+    expect(container.textContent).not.toContain(i18n.t('event:card.trackCount', { count: 2 }))
+    expect(container.textContent).not.toContain('Agents')
   })
 
-  it('draws no empty rule when there is nothing at stake', () => {
-    const { container } = card({ tracks: [], prize_pool: undefined, prize_currency: undefined })
+  it('sets the prize on the team line, at its far end, with no rule above it', () => {
+    const { container } = card()
+    const stakes = container.querySelector('[data-card-stakes]') as HTMLElement
+    expect(stakes.parentElement?.hasAttribute('data-card-facts')).toBe(true)
+    expect(stakes.className).not.toContain('border-t')
+    expect(stakes.querySelectorAll('svg.lucide-user')).toHaveLength(4)
+    expect(stakes.lastElementChild?.textContent).toBe('$10,000')
+    expect(stakes.lastElementChild?.className).toContain('ml-auto')
+  })
+
+  it('drops that line when neither the team nor the prize is known', () => {
+    const { container } = card({
+      team_size_min: undefined,
+      team_size_max: undefined,
+      prize_pool: undefined,
+      prize_currency: undefined,
+    })
     expect(container.querySelector('[data-card-stakes]')).toBeNull()
+  })
+})
+
+describe('tiles in one row share their rows, so a missing field leaves no hole mid-card', () => {
+  it('lays the tile on the rows of the list grid rather than stretching a column', () => {
+    const { container } = card()
+    const tile = container.querySelector('[data-card-rows]') as HTMLElement
+    expect(tile.className).toContain('grid-rows-subgrid')
+    expect(tile.className).toContain('row-span-3')
+    expect(tile.className, 'a stretched column pushes the facts down again').not.toMatch(
+      /h-full|mt-auto/,
+    )
+    const option = screen.getByRole('option')
+    expect(option.className).toContain('grid-rows-subgrid')
+    expect(option.className).toContain('row-span-3')
+    expect(container.querySelector('.mt-auto')).toBeNull()
+  })
+
+  it('takes one more shared row when the admin footer is present', () => {
+    const { container } = renderWithProviders(
+      <CatalogCard event={base} selected={false} onSelect={vi.fn()} footer={<span>admin</span>} />,
+    )
+    const tile = container.querySelector('[data-card-rows]') as HTMLElement
+    expect(tile.className).toContain('row-span-4')
+    expect(screen.getByRole('option').className).toContain('row-span-4')
+  })
+
+  it('leaves the vertical rhythm to the tiles, since shared rows cannot take a row gap', () => {
+    expect(CARD_GRID).toContain('grid-cols-[repeat(auto-fill,minmax(16rem,1fr))]')
+    expect(CARD_GRID).not.toMatch(/(^|\s)(sm:)?gap-(y-)?\d/)
   })
 })
 
@@ -109,8 +152,9 @@ describe('the website link sits beside the title, not over the cover', () => {
       name: i18n.t('event:catalog.card.websiteOf', { title: base.title }),
     })
     const spot = link.parentElement as HTMLElement
-    expect(spot.className, 'the link is pinned to the cover again').toContain('100cqw')
-    expect(spot.className).not.toMatch(/(^|\s)top-3(\s|$)/)
+    expect(spot.className, 'the link drifted off the title row').toContain('row-start-2')
+    expect(spot.className).toContain('self-start')
+    expect(spot.className).not.toMatch(/(^|\s)(absolute|top-3)(\s|$)/)
   })
 
   it('keeps the whole title width when there is no link to make room for', () => {
@@ -121,6 +165,6 @@ describe('the website link sits beside the title, not over the cover', () => {
   it('draws the link as a quiet icon rather than a framed tile', () => {
     expect(CARD_CORNER).not.toMatch(/(^|\s)border(\s|$)|backdrop-blur/)
     const link = card().container.querySelector('a[href]') as HTMLElement
-    expect(link.querySelector('svg.lucide-external-link')).toBeTruthy()
+    expect(link.querySelector('svg.lucide-arrow-up-right')).toBeTruthy()
   })
 })

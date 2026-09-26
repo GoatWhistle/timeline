@@ -14,12 +14,13 @@ import {
   resolveOrder,
   resolveSort,
 } from '@/entities/catalog/catalog.views'
-import { CatalogCard } from '@/entities/catalog/catalog-card'
+import { CARD_GRID, CatalogCard } from '@/entities/catalog/catalog-card'
 import { CatalogEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import { cn } from '@/shared/styling/class-names/class-names'
 import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
@@ -191,7 +192,7 @@ export function CatalogPage() {
                 <div
                   role="listbox"
                   aria-label={t('catalog.title')}
-                  className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-3 p-3 sm:gap-4 sm:p-4"
+                  className={cn(CARD_GRID, 'p-3 pb-0 sm:p-4 sm:pb-0')}
                 >
                   {items.map((item) => (
                     <CatalogCard
