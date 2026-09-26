@@ -6,7 +6,7 @@ import type {
   CatalogOrder,
   CatalogSort,
 } from '@/entities/catalog/catalog.views'
-import { Input } from '@/shared/ui/forms/input'
+import { ListToolbar } from '@/shared/ui/layout/list-toolbar'
 import { CatalogColumnsMenu } from './catalog-columns-menu'
 import type { CatalogFilterValues } from './catalog-filter-conditions'
 import { CatalogFiltersPopover } from './catalog-filters-popover'
@@ -55,31 +55,31 @@ export function CatalogToolbar({
   const { t } = useTranslation('event')
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-border border-b px-4 py-3">
-      <h1 className="mr-2 font-semibold text-screen tracking-tight">{t('catalog.title')}</h1>
-
-      <Input
-        ref={searchRef}
-        aria-label={t('list.searchAria')}
-        placeholder={t('list.searchPlaceholder')}
-        value={searchValue}
-        className="h-9 w-48 text-copy"
-        onChange={(event) => onSearch(event.target.value)}
-      />
-
-      <CatalogFiltersPopover values={filters} onChange={onFilters} onReset={onResetFilters} />
-
-      {layout === 'table' ? (
-        <CatalogColumnsMenu columns={columns} onToggle={onToggleColumn} onReset={onResetColumns} />
-      ) : (
-        <CatalogSortControl sort={sort} order={order} onSort={onSort} onOrder={onOrder} />
-      )}
-
-      <CatalogExportButton pending={exporting} onExport={onExport} />
-
-      <div className="ml-auto">
-        <CatalogViewSwitch layout={layout} onLayout={onLayout} />
-      </div>
-    </div>
+    <ListToolbar
+      title={t('catalog.title')}
+      search={{
+        value: searchValue,
+        label: t('list.searchAria'),
+        placeholder: t('list.searchPlaceholder'),
+        ref: searchRef,
+        onChange: onSearch,
+      }}
+      tools={
+        <>
+          <CatalogFiltersPopover values={filters} onChange={onFilters} onReset={onResetFilters} />
+          {layout === 'table' ? (
+            <CatalogColumnsMenu
+              columns={columns}
+              onToggle={onToggleColumn}
+              onReset={onResetColumns}
+            />
+          ) : (
+            <CatalogSortControl sort={sort} order={order} onSort={onSort} onOrder={onOrder} />
+          )}
+          <CatalogExportButton pending={exporting} onExport={onExport} />
+        </>
+      }
+      end={<CatalogViewSwitch layout={layout} onLayout={onLayout} />}
+    />
   )
 }

@@ -31,7 +31,7 @@ function openFilters() {
   )
 }
 
-const tokens = (element: Element | null) => element?.className.split(/\s+/) ?? []
+const tokens = (element: Element | null | undefined) => element?.className.split(/\s+/) ?? []
 
 beforeAll(async () => {
   await i18nReady

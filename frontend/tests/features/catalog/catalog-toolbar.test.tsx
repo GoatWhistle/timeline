@@ -60,7 +60,9 @@ describe('catalog toolbar', () => {
   it('hides the sort control in the table, where the headers already sort', () => {
     renderWithProviders(<CatalogToolbar {...props({ layout: 'table' })} />)
     expect(screen.queryByLabelText(i18n.t('event:catalog.sortAria'))).not.toBeInTheDocument()
-    expect(screen.getByText(i18n.t('event:catalog.columns.action'))).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: i18n.t('event:catalog.columns.action') }),
+    ).toBeInTheDocument()
   })
 
   it('keeps the sort control in the tiles, which have no headers', () => {

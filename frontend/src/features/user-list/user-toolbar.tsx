@@ -1,13 +1,14 @@
 import type { RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+  DEFAULT_USER_COLUMNS,
   USER_COLUMN_KEY,
   USER_COLUMNS,
   USER_LOCKED_COLUMN,
   type UserColumn,
 } from '@/entities/user/user.views'
 import { CatalogColumnsMenu } from '@/features/catalog/catalog-columns-menu'
-import { Input } from '@/shared/ui/forms/input'
+import { ListToolbar } from '@/shared/ui/layout/list-toolbar'
 import { UserFiltersPopover, type UserFilterValues } from './user-filters-popover'
 
 export function UserToolbar({
@@ -34,31 +35,30 @@ export function UserToolbar({
   const { t } = useTranslation()
 
   return (
-    <header className="flex flex-wrap items-center gap-2 border-border border-b px-4 py-3">
-      <h1 className="mr-2 font-semibold text-screen tracking-tight">{t('users.title')}</h1>
-
-      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
-        <Input
-          ref={searchRef}
-          aria-label={t('users.searchAria')}
-          placeholder={t('users.searchPlaceholder')}
-          value={searchValue}
-          className="h-9 min-w-24 flex-1 text-copy sm:w-56 sm:flex-none"
-          onChange={(event) => onSearch(event.target.value)}
-        />
-
-        <UserFiltersPopover values={filters} onChange={onFilters} onReset={onResetFilters} />
-
-        <CatalogColumnsMenu
-          columns={columns}
-          onToggle={onToggleColumn}
-          onReset={onResetColumns}
-          all={USER_COLUMNS}
-          labels={USER_COLUMN_KEY}
-          locked={USER_LOCKED_COLUMN}
-          namespace="common"
-        />
-      </div>
-    </header>
+    <ListToolbar
+      title={t('users.title')}
+      search={{
+        value: searchValue,
+        label: t('users.searchAria'),
+        placeholder: t('users.searchPlaceholder'),
+        ref: searchRef,
+        onChange: onSearch,
+      }}
+      tools={
+        <>
+          <UserFiltersPopover values={filters} onChange={onFilters} onReset={onResetFilters} />
+          <CatalogColumnsMenu
+            columns={columns}
+            onToggle={onToggleColumn}
+            onReset={onResetColumns}
+            all={USER_COLUMNS}
+            labels={USER_COLUMN_KEY}
+            locked={USER_LOCKED_COLUMN}
+            defaults={DEFAULT_USER_COLUMNS}
+            namespace="common"
+          />
+        </>
+      }
+    />
   )
 }

@@ -8,6 +8,7 @@ import {
   type CatalogLayout,
   type CatalogOrder,
   type CatalogSort,
+  DEFAULT_ADMIN_COLUMNS,
 } from '@/entities/catalog/catalog.views'
 import { CatalogColumnsMenu } from '@/features/catalog/catalog-columns-menu'
 import {
@@ -17,7 +18,7 @@ import {
 import { CatalogFiltersPopover } from '@/features/catalog/catalog-filters-popover'
 import { CatalogSortControl } from '@/features/catalog/catalog-sort-control'
 import { CatalogViewSwitch } from '@/features/catalog/catalog-view-switch'
-import { Input } from '@/shared/ui/forms/input'
+import { ListToolbar } from '@/shared/ui/layout/list-toolbar'
 import { Button } from '@/shared/ui/primitives/button'
 
 export function AdminToolbar({
@@ -58,47 +59,48 @@ export function AdminToolbar({
   const { t } = useTranslation('event')
 
   return (
-    <header className="flex flex-wrap items-center gap-2 border-border border-b px-4 py-3">
-      <h1 className="mr-2 font-semibold text-screen tracking-tight">{t('list.adminTitle')}</h1>
-
-      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
-        <Input
-          ref={searchRef}
-          aria-label={t('list.searchAria')}
-          placeholder={t('list.searchPlaceholder')}
-          value={searchValue}
-          className="h-9 min-w-24 flex-1 text-copy sm:w-48 sm:flex-none"
-          onChange={(event) => onSearch(event.target.value)}
-        />
-
-        <CatalogFiltersPopover
-          values={filters}
-          onChange={onFilters}
-          onReset={onResetFilters}
-          fields={ADMIN_FILTER_FIELDS}
-          admin
-        />
-
-        {layout === 'table' ? (
-          <CatalogColumnsMenu
-            columns={columns}
-            onToggle={onToggleColumn}
-            onReset={onResetColumns}
-            all={ADMIN_COLUMNS}
-            labels={ADMIN_COLUMN_KEY}
-            locked="title"
+    <ListToolbar
+      title={t('list.adminTitle')}
+      search={{
+        value: searchValue,
+        label: t('list.searchAria'),
+        placeholder: t('list.searchPlaceholder'),
+        ref: searchRef,
+        onChange: onSearch,
+      }}
+      tools={
+        <>
+          <CatalogFiltersPopover
+            values={filters}
+            onChange={onFilters}
+            onReset={onResetFilters}
+            fields={ADMIN_FILTER_FIELDS}
+            admin
           />
-        ) : (
-          <CatalogSortControl sort={sort} order={order} onSort={onSort} onOrder={onOrder} />
-        )}
-
-        <CatalogViewSwitch layout={layout} onLayout={onLayout} />
-
-        <Button size="sm" className="h-9" onClick={onCreate}>
-          <Plus className="size-4" aria-hidden="true" />
-          {t('list.create')}
-        </Button>
-      </div>
-    </header>
+          {layout === 'table' ? (
+            <CatalogColumnsMenu
+              columns={columns}
+              onToggle={onToggleColumn}
+              onReset={onResetColumns}
+              all={ADMIN_COLUMNS}
+              labels={ADMIN_COLUMN_KEY}
+              locked="title"
+              defaults={DEFAULT_ADMIN_COLUMNS}
+            />
+          ) : (
+            <CatalogSortControl sort={sort} order={order} onSort={onSort} onOrder={onOrder} />
+          )}
+        </>
+      }
+      end={
+        <>
+          <CatalogViewSwitch layout={layout} onLayout={onLayout} />
+          <Button size="sm" className="h-9" onClick={onCreate}>
+            <Plus className="size-4" aria-hidden="true" />
+            {t('list.create')}
+          </Button>
+        </>
+      }
+    />
   )
 }
