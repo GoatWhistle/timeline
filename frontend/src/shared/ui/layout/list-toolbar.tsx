@@ -21,11 +21,11 @@ export function ListToolbar({
   return (
     <header
       data-list-toolbar=""
-      className="flex flex-wrap items-center gap-2 border-border border-b px-4 py-3"
+      className="flex flex-wrap items-center gap-2 border-border border-b px-4 py-3 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
     >
       <h1 className="order-1 mr-2 font-semibold text-screen tracking-tight">{title}</h1>
 
-      <div className="order-3 flex min-w-0 flex-1 basis-full flex-wrap items-center gap-2 sm:order-2 sm:basis-auto">
+      <div className="order-3 flex min-w-0 flex-1 basis-full flex-wrap items-center gap-2 sm:order-2 sm:basis-auto lg:justify-center">
         <Input
           ref={search.ref}
           aria-label={search.label}
@@ -38,7 +38,11 @@ export function ListToolbar({
         {tools}
       </div>
 
-      {end && <div className="order-2 ml-auto flex items-center gap-2 sm:order-3">{end}</div>}
+      {end && (
+        <div className="order-2 ml-auto flex items-center gap-2 sm:order-3 lg:justify-self-end">
+          {end}
+        </div>
+      )}
     </header>
   )
 }

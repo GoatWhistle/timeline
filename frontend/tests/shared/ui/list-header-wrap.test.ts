@@ -39,6 +39,19 @@ describe('a list header wraps its controls instead of pushing the page wider', (
     expect(end).not.toBe('')
   })
 
+  it('on a wide screen centres the tools in the bar, whatever the title and actions weigh', () => {
+    const source = read(TOOLBAR)
+    const bar = barClassName(source, '<header')
+    expect(bar).toContain('lg:grid')
+    expect(bar, 'the middle column no longer balances its sides').toContain(
+      'lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]',
+    )
+    const cluster = /className="([^"]*\bflex-1\b[^"]*\bflex-wrap\b[^"]*)"/.exec(source)?.[1] ?? ''
+    expect(cluster).toContain('lg:justify-center')
+    const end = /className="([^"]*\bml-auto\b[^"]*)"/.exec(source)?.[1] ?? ''
+    expect(end).toContain('lg:justify-self-end')
+  })
+
   it('on a phone lifts those actions into the title row and gives the tools their own rows', () => {
     const source = read(TOOLBAR)
     const end = /className="([^"]*\bml-auto\b[^"]*)"/.exec(source)?.[1] ?? ''
