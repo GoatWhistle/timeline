@@ -109,6 +109,7 @@ var eventSortColumns = map[models.CatalogSortField]string{
 	models.CatalogSortPrize:    "prize_pool",
 	models.CatalogSortTeamMin:  "team_size_min",
 	models.CatalogSortTeamMax:  "team_size_max",
+	models.CatalogSortTracks:   "(SELECT count(*) FROM event_tracks et WHERE et.event_id = events.id)",
 }
 
 func eventOrderSQL(sort models.CatalogSort) string {

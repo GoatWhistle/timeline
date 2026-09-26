@@ -12,18 +12,16 @@ import type { AuditAction, AuditResponse, EntityType } from '@/shared/api/types.
 import { dayEndIso, dayStartIso } from '@/shared/datetime/civil'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
+import {
+  ResizableHead,
+  ResizableTable,
+  type TableColumn,
+} from '@/shared/ui/data-display/column-resize/resizable-table'
 import { AuditFigure } from '@/shared/ui/data-display/empty-figures/system-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { GroupLabel } from '@/shared/ui/data-display/group-label/group-label'
 import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/ui/data-display/table'
+import { TableBody, TableCell, TableHeader, TableRow } from '@/shared/ui/data-display/table'
 import { DatePicker } from '@/shared/ui/forms/calendar/date-picker'
 import { Label } from '@/shared/ui/forms/label'
 import {
@@ -38,6 +36,14 @@ import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/overlays/dialog'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
+
+const AUDIT_COLUMNS: TableColumn[] = [
+  { id: 'time', width: 170 },
+  { id: 'actor', width: 220 },
+  { id: 'action', width: 170 },
+  { id: 'entity', width: 150 },
+  { id: 'changes', width: 120 },
+]
 
 const ALL = 'ALL'
 const DEFAULTS = { action: ALL, entity: ALL, from: '', to: '' }
@@ -158,36 +164,34 @@ export function AdminAuditPage() {
           />
         ) : (
           <div className="flex flex-col gap-4">
-            <Table>
+            <ResizableTable
+              storageKey="timeline-audit-widths"
+              columns={AUDIT_COLUMNS}
+              flexible="actor"
+            >
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-px whitespace-nowrap">{t('audit.columnTime')}</TableHead>
-                  <TableHead className="w-full">{t('audit.columnActor')}</TableHead>
-                  <TableHead className="w-px whitespace-nowrap">
-                    {t('audit.columnAction')}
-                  </TableHead>
-                  <TableHead className="w-px whitespace-nowrap">
-                    {t('audit.columnEntity')}
-                  </TableHead>
-                  <TableHead className="w-px whitespace-nowrap">
-                    {t('audit.columnChanges')}
-                  </TableHead>
+                  <ResizableHead column="time" label={t('audit.columnTime')} />
+                  <ResizableHead column="actor" label={t('audit.columnActor')} />
+                  <ResizableHead column="action" label={t('audit.columnAction')} />
+                  <ResizableHead column="entity" label={t('audit.columnEntity')} />
+                  <ResizableHead column="changes" label={t('audit.columnChanges')} />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {(query.data?.items ?? []).map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                    <TableCell className="truncate text-muted-foreground">
                       {formatDateTime(item.created_at)}
                     </TableCell>
-                    <TableCell>{item.actor_email ?? t('audit.system')}</TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {t(auditActionKey(item.action))}
+                    <TableCell data-lead="" className="truncate">
+                      {item.actor_email ?? t('audit.system')}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                    <TableCell className="truncate">{t(auditActionKey(item.action))}</TableCell>
+                    <TableCell className="truncate text-muted-foreground">
                       {t(entityTypeKey(item.entity_type))}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap">
+                    <TableCell className="truncate">
                       <Button variant="ghost" size="sm" onClick={() => setDetail(item)}>
                         {t('audit.show')}
                       </Button>
@@ -195,7 +199,7 @@ export function AdminAuditPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+            </ResizableTable>
 
             {query.data && <Pagination meta={query.data.meta} onPageChange={setPage} />}
           </div>

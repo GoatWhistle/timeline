@@ -8,11 +8,7 @@ const SRC = join(process.cwd(), 'src')
 
 const read = (file: string) => readFileSync(join(SRC, file), 'utf8')
 
-const TABLES = [
-  'features/catalog/catalog-table.tsx',
-  'features/event-list/admin/admin-table.tsx',
-  'features/user-list/user-table.tsx',
-]
+const TABLES = ['shared/ui/data-display/column-resize/resizable-table.tsx']
 
 const LIST_PAGES = [
   'features/catalog/catalog.tsx',

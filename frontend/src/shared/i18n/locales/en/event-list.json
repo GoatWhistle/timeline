@@ -78,7 +78,8 @@
       "duration": "Duration",
       "prize": "Prize pool",
       "team_min": "Smallest team",
-      "team_max": "Largest team"
+      "team_max": "Largest team",
+      "tracks": "Track count"
     },
     "order": {
       "asc": "Ascending",
@@ -94,6 +95,7 @@
       "participation": "Participation",
       "organizer": "Organizer",
       "track": "Track",
+      "tracks": "Track count",
       "teamMin": "Min team",
       "teamMax": "Max team",
       "origin": "Scope",

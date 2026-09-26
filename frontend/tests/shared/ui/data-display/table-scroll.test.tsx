@@ -2,10 +2,11 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { Table, TableBody, TableCell, TableRow } from '@/shared/ui/data-display/table'
+import { ResizableTable } from '@/shared/ui/data-display/column-resize/resizable-table'
+import { TableBody, TableCell, TableRow } from '@/shared/ui/data-display/table'
 
 const SRC = join(process.cwd(), 'src')
-const SHARED_TABLE = join(SRC, 'shared/ui/data-display/table.tsx')
+const SHARED_TABLE = join(SRC, 'shared/ui/data-display/column-resize/resizable-table.tsx')
 
 function tsxFiles(dir: string): string[] {
   const found: string[] = []
@@ -24,13 +25,17 @@ const NOT_A_DATA_TABLE = ['shared/ui/forms/calendar/calendar-grid.tsx']
 describe('a table scrolls inside itself, never widening the page', () => {
   it('wraps every shared table in a scroller, so a wide row cannot push the page open', () => {
     const { container } = render(
-      <Table>
+      <ResizableTable
+        storageKey="test-widths"
+        columns={[{ id: 'only', width: 120 }]}
+        flexible="only"
+      >
         <TableBody>
           <TableRow>
             <TableCell>cell</TableCell>
           </TableRow>
         </TableBody>
-      </Table>,
+      </ResizableTable>,
     )
     const wrapper = container.querySelector('table')?.parentElement
     expect(wrapper?.className).toContain('overflow-x-auto')
@@ -38,13 +43,17 @@ describe('a table scrolls inside itself, never widening the page', () => {
 
   it('holds that scroller to the width it is given, so it yields instead of the page', () => {
     const { container } = render(
-      <Table>
+      <ResizableTable
+        storageKey="test-widths"
+        columns={[{ id: 'only', width: 120 }]}
+        flexible="only"
+      >
         <TableBody>
           <TableRow>
             <TableCell>cell</TableCell>
           </TableRow>
         </TableBody>
-      </Table>,
+      </ResizableTable>,
     )
     const wrapper = container.querySelector('table')?.parentElement
     expect(wrapper?.className).toContain('w-full')
@@ -68,7 +77,7 @@ describe('a table scrolls inside itself, never widening the page', () => {
       .filter((file) => !NOT_A_DATA_TABLE.includes(named(file)))
       .filter((file) => readFileSync(file, 'utf8').includes('<table'))
       .map(named)
-    expect(handRolled).toContain('features/catalog/catalog-table.tsx')
+    expect(handRolled).toContain('shared/ui/states/skeleton-table/skeleton-table.tsx')
   })
 
   it('every exemption still names a file that really builds a table', () => {

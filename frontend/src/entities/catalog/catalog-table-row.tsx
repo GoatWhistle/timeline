@@ -29,7 +29,7 @@ export function CatalogTitleCell({
   const { t } = useTranslation('event')
 
   return (
-    <td className="h-row-roomy w-full max-w-0 px-3 py-2 pointer-coarse:py-0">
+    <td data-lead="" className="h-row-roomy px-3 py-2 pointer-coarse:py-0">
       <span className="flex min-w-0 items-center gap-2 pointer-coarse:h-11">
         <button
           type="button"
@@ -54,7 +54,7 @@ export function CatalogTitleCell({
 
 const NUMBER_BOX = 'inline-block w-[3ch] text-right tabular-nums'
 
-function TeamBound({ value }: { value: number | undefined }) {
+function CountBox({ value }: { value: number | undefined }) {
   return (
     <span data-number-box="" className={NUMBER_BOX}>
       {value === undefined ? <NoValue /> : value}
@@ -84,7 +84,7 @@ export function CatalogCellContent({ event, column }: { event: RowEvent; column:
       return <>{t(`catalog.kindLabel.${event.kind}`)}</>
     case 'format':
       return (
-        <span className="flex items-center gap-1.5">
+        <span className="inline-flex max-w-full items-center gap-1.5 align-middle">
           <FormatIcon className="size-3 shrink-0" aria-hidden="true" />
           <span className="truncate">{t(EVENT_FORMAT_KEY[event.effective_format])}</span>
         </span>
@@ -103,7 +103,16 @@ export function CatalogCellContent({ event, column }: { event: RowEvent; column:
       return <DurationCell days={durationDays(event.start_at, event.end_at)} />
     case 'prize': {
       const prize = formatMoney(event.prize_pool, event.prize_currency)
-      return prize ? <span className="font-medium text-prize">{prize}</span> : <NoValue />
+      return prize ? (
+        <span
+          data-number-box=""
+          className="inline-block min-w-[9ch] text-right font-medium text-prize tabular-nums"
+        >
+          {prize}
+        </span>
+      ) : (
+        <NoValue />
+      )
     }
     case 'organizer':
       return <span className="block truncate">{event.organizer ?? <NoValue />}</span>
@@ -117,15 +126,17 @@ export function CatalogCellContent({ event, column }: { event: RowEvent; column:
           )}
         </span>
       )
+    case 'tracks':
+      return <CountBox value={event.tracks.length || undefined} />
     case 'teamMin':
-      return <TeamBound value={event.team_size_min} />
+      return <CountBox value={event.team_size_min} />
     case 'teamMax':
-      return <TeamBound value={event.team_size_max} />
+      return <CountBox value={event.team_size_max} />
     case 'participation': {
       if (!joinedOf(event)) return <NoValue />
       const role = 'team_role' in event ? event.team_role : null
       return (
-        <span className="flex items-center gap-1.5">
+        <span className="inline-flex max-w-full items-center gap-1.5 align-middle">
           <CatalogJoinedMark />
           <span className="truncate">{role ?? t('catalog.column.participation')}</span>
         </span>

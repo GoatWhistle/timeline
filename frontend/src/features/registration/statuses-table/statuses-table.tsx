@@ -10,9 +10,13 @@ import { listName } from '@/entities/user/person-name/person-name'
 import type { RegistrationStatusResponse } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { useLocale } from '@/shared/i18n/i18n-context'
+import {
+  ResizableHead,
+  ResizableTable,
+  type TableColumn,
+} from '@/shared/ui/data-display/column-resize/resizable-table'
 import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -22,6 +26,16 @@ import {
 import { Checkbox } from '@/shared/ui/forms/checkbox'
 import { Button } from '@/shared/ui/primitives/button'
 import { Dot } from '@/shared/ui/primitives/dot'
+
+const STATUS_COLUMNS: TableColumn[] = [
+  { id: 'select', width: 44, fixed: true },
+  { id: 'participant', width: 260 },
+  { id: 'status', width: 160 },
+  { id: 'source', width: 160 },
+  { id: 'markedAt', width: 180 },
+]
+
+const PREVIEW_COLUMN: TableColumn = { id: 'preview', width: 56, fixed: true }
 
 export function StatusesTable({
   items,
@@ -41,21 +55,25 @@ export function StatusesTable({
   const { t } = useTranslation('registration')
   const { locale } = useLocale()
   return (
-    <Table>
+    <ResizableTable
+      storageKey="timeline-statuses-widths"
+      columns={onPreview ? [...STATUS_COLUMNS, PREVIEW_COLUMN] : STATUS_COLUMNS}
+      flexible="participant"
+    >
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">
+          <TableHead className="text-center">
             <Checkbox
               aria-label={t('statuses.selectAll')}
               checked={allSelected}
               onCheckedChange={(checked) => onToggleAll(checked === true)}
             />
           </TableHead>
-          <TableHead>{t('statuses.participant')}</TableHead>
-          <TableHead>{t('statuses.status')}</TableHead>
-          <TableHead>{t('statuses.source')}</TableHead>
-          <TableHead>{t('statuses.markedAt')}</TableHead>
-          {onPreview ? <TableHead className="w-12" /> : null}
+          <ResizableHead column="participant" label={t('statuses.participant')} />
+          <ResizableHead column="status" label={t('statuses.status')} />
+          <ResizableHead column="source" label={t('statuses.source')} />
+          <ResizableHead column="markedAt" label={t('statuses.markedAt')} />
+          {onPreview ? <TableHead /> : null}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -68,17 +86,17 @@ export function StatusesTable({
                 onCheckedChange={(checked) => onToggleOne(item.participant_id, checked === true)}
               />
             </TableCell>
-            <TableCell>
+            <TableCell data-lead="">
               <span className="font-medium">{listName(item.user, locale)}</span>
               <span className="ml-2 text-muted-foreground">{item.user.email}</span>
               {item.note && (
-                <p className="text-muted-foreground text-caption">
+                <p className="truncate text-muted-foreground text-caption">
                   {t('statuses.note', { note: item.note })}
                 </p>
               )}
             </TableCell>
-            <TableCell>
-              <span className="inline-flex items-center gap-1.5">
+            <TableCell className="truncate">
+              <span className="inline-flex max-w-full items-center gap-1.5 align-middle">
                 <Dot
                   shape={REGISTRATION_STATUS_SHAPE[item.status]}
                   className={REGISTRATION_STATUS_COLOR[item.status]}
@@ -86,10 +104,10 @@ export function StatusesTable({
                 {t(REGISTRATION_STATUS_KEY[item.status])}
               </span>
             </TableCell>
-            <TableCell className="text-muted-foreground">
+            <TableCell className="truncate text-muted-foreground">
               {t(CHANGE_SOURCE_KEY[item.last_change_source])}
             </TableCell>
-            <TableCell className="text-muted-foreground">
+            <TableCell className="truncate text-muted-foreground">
               {item.registered_at ? formatDateTime(item.registered_at) : <NoValue />}
             </TableCell>
             {onPreview ? (
@@ -107,6 +125,6 @@ export function StatusesTable({
           </TableRow>
         ))}
       </TableBody>
-    </Table>
+    </ResizableTable>
   )
 }

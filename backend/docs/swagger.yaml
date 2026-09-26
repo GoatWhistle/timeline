@@ -3629,6 +3629,7 @@ paths:
         - prize
         - team_min
         - team_max
+        - tracks
         in: query
         name: sort
         type: string
@@ -5672,6 +5673,7 @@ paths:
         - prize
         - team_min
         - team_max
+        - tracks
         in: query
         name: sort
         type: string
@@ -5786,6 +5788,7 @@ paths:
         - prize
         - team_min
         - team_max
+        - tracks
         in: query
         name: sort
         type: string

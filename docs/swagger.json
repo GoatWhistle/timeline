@@ -308,7 +308,8 @@
                             "duration",
                             "prize",
                             "team_min",
-                            "team_max"
+                            "team_max",
+                            "tracks"
                         ],
                         "type": "string",
                         "description": "Sort field",
@@ -3269,7 +3270,8 @@
                             "duration",
                             "prize",
                             "team_min",
-                            "team_max"
+                            "team_max",
+                            "tracks"
                         ],
                         "type": "string",
                         "default": "start_at",
@@ -3417,7 +3419,8 @@
                             "duration",
                             "prize",
                             "team_min",
-                            "team_max"
+                            "team_max",
+                            "tracks"
                         ],
                         "type": "string",
                         "default": "start_at",

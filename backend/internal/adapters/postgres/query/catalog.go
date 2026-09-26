@@ -157,6 +157,7 @@ var catalogSortColumns = map[models.CatalogSortField]string{
 	models.CatalogSortPrize:    "e.prize_pool",
 	models.CatalogSortTeamMin:  "e.team_size_min",
 	models.CatalogSortTeamMax:  "e.team_size_max",
+	models.CatalogSortTracks:   "(SELECT count(*) FROM event_tracks et WHERE et.event_id = e.id)",
 }
 
 func catalogOrderSQL(sort models.CatalogSort) string {

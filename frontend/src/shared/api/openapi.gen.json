@@ -366,7 +366,8 @@
                 "duration",
                 "prize",
                 "team_min",
-                "team_max"
+                "team_max",
+                "tracks"
               ]
             }
           },
@@ -3920,7 +3921,8 @@
                 "duration",
                 "prize",
                 "team_min",
-                "team_max"
+                "team_max",
+                "tracks"
               ],
               "default": "start_at"
             }
@@ -4103,7 +4105,8 @@
                 "duration",
                 "prize",
                 "team_min",
-                "team_max"
+                "team_max",
+                "tracks"
               ],
               "default": "start_at"
             }

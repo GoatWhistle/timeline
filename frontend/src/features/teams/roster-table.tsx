@@ -3,16 +3,21 @@ import { toast } from 'sonner'
 import { useRosterMember } from '@/entities/team/team.queries'
 import type { TeamEventEntryResponse, TeamMemberResponse } from '@/shared/api/types.gen'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/ui/data-display/table'
+  ResizableHead,
+  ResizableTable,
+  type TableColumn,
+} from '@/shared/ui/data-display/column-resize/resizable-table'
+import { TableBody, TableCell, TableHeader, TableRow } from '@/shared/ui/data-display/table'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { statusLabelKey, statusTone } from './member-state'
+
+const ROSTER_COLUMNS: TableColumn[] = [
+  { id: 'user', width: 240 },
+  { id: 'state', width: 200 },
+]
+
+const ROSTER_ACTIONS: TableColumn = { id: 'actions', width: 240 }
 
 export function RosterTable({
   teamId,
@@ -57,18 +62,22 @@ export function RosterTable({
           {t('rosterEmpty')}
         </p>
       ) : (
-        <Table>
+        <ResizableTable
+          storageKey="timeline-roster-widths"
+          columns={isLead ? [...ROSTER_COLUMNS, ROSTER_ACTIONS] : ROSTER_COLUMNS}
+          flexible="user"
+        >
           <TableHeader>
             <TableRow>
-              <TableHead>{t('columnUser')}</TableHead>
-              <TableHead className="w-56">{t('columnState')}</TableHead>
-              {isLead && <TableHead className="w-56">{t('columnActions')}</TableHead>}
+              <ResizableHead column="user" label={t('columnUser')} />
+              <ResizableHead column="state" label={t('columnState')} />
+              {isLead && <ResizableHead column="actions" label={t('columnActions')} />}
             </TableRow>
           </TableHeader>
           <TableBody>
             {entry.roster.map((row) => (
               <TableRow key={row.id}>
-                <TableCell>
+                <TableCell data-lead="">
                   <span className="font-medium">{row.user.display_name}</span>
                   {row.is_lead && (
                     <Badge tone="outline" className="ml-2">
@@ -92,7 +101,7 @@ export function RosterTable({
                 </TableCell>
                 {isLead && (
                   <TableCell>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap justify-center gap-1">
                       {row.assigned && row.registration_status === 'TODO' && (
                         <Button
                           variant="ghost"
@@ -118,7 +127,7 @@ export function RosterTable({
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </ResizableTable>
       )}
 
       {isLead && candidates.length > 0 && (

@@ -43,8 +43,8 @@ var catalogExportHeader = []string{
 // @Param			state	query		string	false	"Comma-separated state filter"	Enums(UPCOMING,ACTIVE,FINISHED)
 // @Param			from	query		string	false	"Lower bound of the period"		format(date-time)
 // @Param			to		query		string	false	"Upper bound of the period"		format(date-time)
-// @Param			sort	query		string	false	"Sort field"					Enums(start_at,end_at,title,duration,prize,team_min,team_max)	default(start_at)
-// @Param			order	query		string	false	"Sort direction"				Enums(asc,desc)													default(asc)
+// @Param			sort	query		string	false	"Sort field"					Enums(start_at,end_at,title,duration,prize,team_min,team_max,tracks)	default(start_at)
+// @Param			order	query		string	false	"Sort direction"				Enums(asc,desc)															default(asc)
 // @Success		200		{string}	string	"CSV payload"
 // @Failure		400		{object}	dto.ErrorResponse
 // @Failure		401		{object}	dto.ErrorResponse

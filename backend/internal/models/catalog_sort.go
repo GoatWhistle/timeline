@@ -12,6 +12,7 @@ const (
 	CatalogSortPrize    CatalogSortField = "prize"
 	CatalogSortTeamMin  CatalogSortField = "team_min"
 	CatalogSortTeamMax  CatalogSortField = "team_max"
+	CatalogSortTracks   CatalogSortField = "tracks"
 )
 
 type CatalogSortDirection string
@@ -36,6 +37,7 @@ var catalogSortFields = map[CatalogSortField]struct{}{
 	CatalogSortPrize:    {},
 	CatalogSortTeamMin:  {},
 	CatalogSortTeamMax:  {},
+	CatalogSortTracks:   {},
 }
 
 var catalogSortNullable = map[CatalogSortField]struct{}{

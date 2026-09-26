@@ -1,62 +1,64 @@
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join, relative } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const SRC = join(process.cwd(), 'src')
 
-const ADMIN_TABLES = ['features/audit-log/audit-log.tsx']
-const PLAIN_TABLES = ['features/user-list/user-table.tsx']
+const RESIZABLE = 'shared/ui/data-display/column-resize/resizable-table.tsx'
+const NOT_A_DATA_TABLE = [
+  'shared/ui/forms/calendar/calendar-grid.tsx',
+  'shared/ui/states/skeleton-table/skeleton-table.tsx',
+]
 
-function tableHeadClasses(source: string): string[] {
-  return [...source.matchAll(/<TableHead\b([^>]*)>/g)].map((match) => {
-    const attrs = match[1] ?? ''
-    const className = /className="([^"]*)"/.exec(attrs)
-    return className?.[1] ?? ''
+function tsxFiles(dir: string): string[] {
+  const found: string[] = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) found.push(...tsxFiles(full))
+    else if (entry.name.endsWith('.tsx')) found.push(full)
+  }
+  return found
+}
+
+const files = tsxFiles(SRC).map((file) => ({
+  name: relative(SRC, file).replaceAll('\\', '/'),
+  source: readFileSync(file, 'utf8'),
+}))
+
+const users = files.filter(
+  (file) => file.name !== RESIZABLE && file.source.includes('<ResizableTable'),
+)
+
+describe('every data table lets its columns be dragged wider, with one column taking the slack', () => {
+  it('builds no data table by hand, so none can skip the resize handles', () => {
+    const handRolled = files
+      .filter((file) => file.source.includes('<table'))
+      .map((file) => file.name)
+      .filter((name) => name !== RESIZABLE && !NOT_A_DATA_TABLE.includes(name))
+    expect(handRolled).toEqual([])
   })
-}
 
-function columnWidthValues(source: string): string[] {
-  const block = /const COLUMN_WIDTH[^=]*=\s*\{([\s\S]*?)\n\}/.exec(source)?.[1] ?? ''
-  return [...block.matchAll(/'([^']*)'/g)].map((match) => match[1] ?? '')
-}
-
-describe('an admin list table collects its slack in one column, not every column', () => {
-  it('marks every column as either the one that grows or one that stays tight', () => {
-    for (const file of ADMIN_TABLES) {
-      const source = readFileSync(join(SRC, file), 'utf8')
-      const heads = tableHeadClasses(source)
-      expect(heads.length, file).toBeGreaterThan(1)
-
-      const growing = heads.filter((cls) => /(^|\s)w-full(\s|$)/.test(cls))
-      expect(growing.length, file).toBeGreaterThan(0)
-
-      const shrinking = heads.filter((cls) => !/(^|\s)w-full(\s|$)/.test(cls))
-      for (const cls of shrinking) {
-        expect(cls, `${file}: ${cls}`).toContain('w-px')
-        expect(cls, `${file}: ${cls}`).toContain('whitespace-nowrap')
-      }
+  it('names the one column that takes the slack in every table', () => {
+    expect(users.length, 'the rule watches no table').toBeGreaterThanOrEqual(9)
+    for (const file of users) {
+      expect(file.source, `${file.name} has no growing column`).toMatch(/\bflexible=/)
     }
   })
 
-  it('collects the slack in one column when the table is built by hand too', () => {
-    for (const file of PLAIN_TABLES) {
-      const source = readFileSync(join(SRC, file), 'utf8')
-      const widths = columnWidthValues(source)
-      expect(widths.length, file).toBeGreaterThan(1)
-
-      const growing = widths.filter((cls) => /(^|\s)w-full(\s|$)/.test(cls))
-      expect(growing.length, `${file}: ${widths.join(' | ')}`).toBe(1)
-
-      for (const cls of widths.filter((item) => !/(^|\s)w-full(\s|$)/.test(item))) {
-        expect(cls, `${file}: ${cls}`).toContain('w-px')
-        expect(cls, `${file}: ${cls}`).toContain('whitespace-nowrap')
-      }
+  it('heads every named column with the resizable head, never the bare one', () => {
+    for (const file of users) {
+      const bare = [...file.source.matchAll(/<(TableHead|th)\b[^>]*>([\s\S]*?)<\/(TableHead|th)>/g)]
+        .map((match) => match[2] ?? '')
+        .filter((inner) => /\{t\(/.test(inner))
+        .filter((inner) => !/<Checkbox\b/.test(inner) && !/\bsr-only\b/.test(inner))
+      expect(bare, `${file.name} still labels a column it cannot resize`).toEqual([])
+      expect(file.source, file.name).toMatch(/<ResizableHead\b|<EventHeaderCell\b/)
     }
   })
 
-  it('still checks real files, so the rule cannot pass by watching none', () => {
-    for (const file of [...ADMIN_TABLES, ...PLAIN_TABLES]) {
-      expect(() => readFileSync(join(SRC, file), 'utf8'), file).not.toThrow()
+  it('every exemption still names a file that really builds a table', () => {
+    for (const name of NOT_A_DATA_TABLE) {
+      expect(readFileSync(join(SRC, name), 'utf8'), name).toContain('<table')
     }
   })
 })

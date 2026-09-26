@@ -110,12 +110,14 @@ describe('short numbers sit as one block in the middle of their column', () => {
       expect(th.className, `${key} header`).toContain('text-center')
     }
     const boxes = container.querySelectorAll('tbody [data-number-box]')
-    expect(boxes).toHaveLength(3)
+    expect(boxes).toHaveLength(4)
     for (const box of boxes) {
-      expect((box.closest('td') as HTMLElement).className).toContain('text-center')
-      const digits = box.matches('.w-\\[3ch\\]') ? box : box.querySelector('.w-\\[3ch\\]')
+      const td = box.closest('td') as HTMLElement
+      expect(td.hasAttribute('data-lead'), 'a number cell was set flush left').toBe(false)
+      expect(td.closest('table')?.className).toContain('[&_tbody_td]:text-center')
+      const digits = box.matches('.text-right') ? box : box.querySelector('.text-right')
       expect(digits, 'the digits float free, so 5 and 10 centre on each other').toBeTruthy()
-      expect((digits as HTMLElement).className).toContain('text-right')
+      expect((digits as HTMLElement).className).toMatch(/(^|\s)(min-)?w-\[\d+ch\]/)
     }
   })
 
@@ -124,5 +126,40 @@ describe('short numbers sit as one block in the middle of their column', () => {
     const box = container.querySelector('tbody td [data-number-box]:not(.w-\\[3ch\\])')
     expect(box?.children[0]?.textContent).toBe('19')
     expect(box?.children[1]?.textContent).toBe('days')
+  })
+})
+
+describe('the number of tracks is its own sortable column', () => {
+  function tracksTable(tracks: CatalogEvent['tracks'], onSort = vi.fn()) {
+    return {
+      onSort,
+      ...renderWithProviders(
+        <CatalogTable
+          items={[{ ...event, tracks }]}
+          columns={['title', 'tracks']}
+          selected={null}
+          sort="start_at"
+          order="asc"
+          onSelect={vi.fn()}
+          onSort={onSort}
+        />,
+      ),
+    }
+  }
+
+  it('counts the tracks in the cell and sorts by that count from the header', async () => {
+    const { user, onSort } = tracksTable([
+      { id: 'tr_1', track_no: 1, name: 'Agents', prize_total: '0' },
+      { id: 'tr_2', track_no: 2, name: 'Voice', prize_total: '0' },
+    ])
+    expect(screen.getAllByRole('cell').at(-1)?.textContent).toBe('2')
+    await user.click(header('tracks'))
+    expect(onSort).toHaveBeenLastCalledWith('tracks')
+    expect(CATALOG_SORTS).toContain('tracks')
+  })
+
+  it('draws a dash rather than a zero when an event has no tracks', () => {
+    tracksTable([])
+    expect(screen.getAllByRole('cell').at(-1)?.textContent).toContain('—')
   })
 })

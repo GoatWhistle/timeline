@@ -239,7 +239,7 @@ export interface paths {
                     /** @description Search by title and organiser */
                     search?: string;
                     /** @description Sort field */
-                    sort?: "start_at" | "end_at" | "title" | "duration" | "prize" | "team_min" | "team_max";
+                    sort?: "start_at" | "end_at" | "title" | "duration" | "prize" | "team_min" | "team_max" | "tracks";
                     /** @description Comma-separated state filter */
                     state?: "UNPUBLISHED" | "UPCOMING" | "ACTIVE" | "FINISHED" | "ARCHIVED";
                     /** @description Events starting on or before this moment */
@@ -3756,7 +3756,7 @@ export interface paths {
                     /** @description Search by title and organiser */
                     search?: string;
                     /** @description Sort field */
-                    sort?: "start_at" | "end_at" | "title" | "duration" | "prize" | "team_min" | "team_max";
+                    sort?: "start_at" | "end_at" | "title" | "duration" | "prize" | "team_min" | "team_max" | "tracks";
                     /** @description Comma-separated state filter */
                     state?: "UPCOMING" | "ACTIVE" | "FINISHED";
                     /** @description Upper bound of the period */
@@ -3851,7 +3851,7 @@ export interface paths {
                     /** @description Search by title and organiser */
                     search?: string;
                     /** @description Sort field */
-                    sort?: "start_at" | "end_at" | "title" | "duration" | "prize" | "team_min" | "team_max";
+                    sort?: "start_at" | "end_at" | "title" | "duration" | "prize" | "team_min" | "team_max" | "tracks";
                     /** @description Comma-separated state filter */
                     state?: "UPCOMING" | "ACTIVE" | "FINISHED";
                     /** @description Upper bound of the period */

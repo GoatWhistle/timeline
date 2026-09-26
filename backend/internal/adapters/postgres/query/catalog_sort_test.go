@@ -23,6 +23,7 @@ func TestCatalogOrderSQLUsesWhitelistedColumns(t *testing.T) {
 		{Field: models.CatalogSortTeamMin, Direction: models.CatalogSortDesc}:  "e.team_size_min DESC NULLS LAST, lower(e.title) ASC",
 		{Field: models.CatalogSortTeamMax, Direction: models.CatalogSortAsc}:   "e.team_size_max ASC NULLS LAST, lower(e.title) ASC",
 		{Field: models.CatalogSortTeamMax, Direction: models.CatalogSortDesc}:  "e.team_size_max DESC NULLS LAST, lower(e.title) ASC",
+		{Field: models.CatalogSortTracks, Direction: models.CatalogSortDesc}:   "(SELECT count(*) FROM event_tracks et WHERE et.event_id = e.id) DESC, lower(e.title) ASC",
 	}
 	for sort, want := range cases {
 		if got := catalogOrderSQL(sort); got != want {

@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
-import { Table, TableBody, TableCell, TableRow } from '@/shared/ui/data-display/table'
+import { ResizableTable } from '@/shared/ui/data-display/column-resize/resizable-table'
+import { TableBody, TableCell, TableRow } from '@/shared/ui/data-display/table'
 
 const SRC = join(process.cwd(), 'src')
 
@@ -11,33 +12,18 @@ const read = (file: string) => readFileSync(join(SRC, file), 'utf8')
 const CATALOG_TABLE = 'features/catalog/catalog-table.tsx'
 const ADMIN_TABLE = 'features/event-list/admin/admin-table.tsx'
 const SHARED_TABLE = 'shared/ui/data-display/table.tsx'
-
-function surfaceOf(source: string, anchor: string): string {
-  const at = source.indexOf(anchor)
-  if (at < 0) return ''
-  const open = source.lastIndexOf('<div', at)
-  return source.slice(open, at)
-}
+const RESIZABLE_TABLE = 'shared/ui/data-display/column-resize/resizable-table.tsx'
 
 describe('a row list is drawn on a closed surface, not loose on the page background', () => {
   it('gives the shared table its own bounded surface', () => {
-    expect(read(SHARED_TABLE)).toContain('rounded-surface border')
+    expect(read(RESIZABLE_TABLE)).toContain('rounded-surface border')
   })
 
-  it('bounds the catalog table the same way the shared table is bounded', () => {
-    const source = read(CATALOG_TABLE)
-    const surface = surfaceOf(source, '<table')
-
-    expect(surface, `catalog table wrapper: ${surface}`).toContain('rounded-surface')
-    expect(surface, `catalog table wrapper: ${surface}`).toContain('border')
-  })
-
-  it('bounds the admin event table the same way', () => {
-    const source = read(ADMIN_TABLE)
-    const wrapper = surfaceOf(source, '<table')
-
-    expect(wrapper, `admin table surface: ${wrapper}`).toContain('rounded-surface border')
-    expect(wrapper, `listbox wrapper: ${wrapper}`).toContain('border')
+  it('draws the catalog and admin event tables on that same bounded surface', () => {
+    for (const file of [CATALOG_TABLE, ADMIN_TABLE]) {
+      expect(read(file), `${file} built its own table again`).toContain('<ResizableTable')
+      expect(read(file)).not.toContain('<table')
+    }
   })
 })
 
@@ -48,13 +34,17 @@ describe('a list closes its own bottom edge instead of ending on a dangling divi
 
   it('renders that closed edge on the real shared table', () => {
     const { container } = renderWithProviders(
-      <Table>
+      <ResizableTable
+        storageKey="test-widths"
+        columns={[{ id: 'only', width: 120 }]}
+        flexible="only"
+      >
         <TableBody>
           <TableRow>
             <TableCell>only</TableCell>
           </TableRow>
         </TableBody>
-      </Table>,
+      </ResizableTable>,
     )
 
     const body = container.querySelector('tbody')

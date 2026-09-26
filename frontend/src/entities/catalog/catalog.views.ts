@@ -92,6 +92,7 @@ export const CATALOG_SORTS = [
   'prize',
   'team_min',
   'team_max',
+  'tracks',
 ] as const
 export type CatalogSort = (typeof CATALOG_SORTS)[number]
 
@@ -124,6 +125,7 @@ export const CATALOG_COLUMNS = [
   'prize',
   'organizer',
   'track',
+  'tracks',
   'teamMin',
   'teamMax',
   'origin',
@@ -132,23 +134,9 @@ export const CATALOG_COLUMNS = [
 ] as const
 export type CatalogColumn = (typeof CATALOG_COLUMNS)[number]
 
-export const CATALOG_COLUMN_KEY: Record<CatalogColumn, string> = {
-  title: 'catalog.column.title',
-  kind: 'catalog.column.kind',
-  format: 'catalog.column.format',
-  place: 'catalog.column.place',
-  start: 'catalog.column.start',
-  end: 'catalog.column.end',
-  duration: 'catalog.column.duration',
-  prize: 'catalog.column.prize',
-  organizer: 'catalog.column.organizer',
-  track: 'catalog.column.track',
-  teamMin: 'catalog.column.teamMin',
-  teamMax: 'catalog.column.teamMax',
-  origin: 'catalog.column.origin',
-  state: 'catalog.column.state',
-  participation: 'catalog.column.participation',
-}
+export const CATALOG_COLUMN_KEY = Object.fromEntries(
+  CATALOG_COLUMNS.map((column) => [column, `catalog.column.${column}`]),
+) as Record<CatalogColumn, string>
 
 export const ADMIN_COLUMNS = [
   'title',
@@ -161,6 +149,7 @@ export const ADMIN_COLUMNS = [
   'prize',
   'organizer',
   'track',
+  'tracks',
   'teamMin',
   'teamMax',
   'origin',
@@ -172,26 +161,9 @@ export const ADMIN_COLUMNS = [
 ] as const
 export type AdminColumn = (typeof ADMIN_COLUMNS)[number]
 
-export const ADMIN_COLUMN_KEY: Record<AdminColumn, string> = {
-  title: 'catalog.column.title',
-  kind: 'catalog.column.kind',
-  format: 'catalog.column.format',
-  place: 'catalog.column.place',
-  start: 'catalog.column.start',
-  end: 'catalog.column.end',
-  duration: 'catalog.column.duration',
-  prize: 'catalog.column.prize',
-  organizer: 'catalog.column.organizer',
-  track: 'catalog.column.track',
-  teamMin: 'catalog.column.teamMin',
-  teamMax: 'catalog.column.teamMax',
-  origin: 'catalog.column.origin',
-  state: 'catalog.column.state',
-  created: 'catalog.column.created',
-  updated: 'catalog.column.updated',
-  published: 'catalog.column.published',
-  cover: 'catalog.column.cover',
-}
+export const ADMIN_COLUMN_KEY = Object.fromEntries(
+  ADMIN_COLUMNS.map((column) => [column, `catalog.column.${column}`]),
+) as Record<AdminColumn, string>
 
 export const DEFAULT_ADMIN_COLUMNS: AdminColumn[] = [
   'title',

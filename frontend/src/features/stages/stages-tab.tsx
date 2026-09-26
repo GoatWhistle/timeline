@@ -13,16 +13,14 @@ import {
 import { StageTypeMark } from '@/entities/stage/stage-type-mark/stage-type-mark'
 import type { EventResponse, StageResponse } from '@/shared/api/types.gen'
 import { formatMomentRange } from '@/shared/datetime/datetime'
+import {
+  ResizableHead,
+  ResizableTable,
+  type TableColumn,
+} from '@/shared/ui/data-display/column-resize/resizable-table'
 import { StageFigure } from '@/shared/ui/data-display/empty-figures/schedule-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/ui/data-display/table'
+import { TableBody, TableCell, TableHeader, TableRow } from '@/shared/ui/data-display/table'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/overlays/dialog'
 import {
@@ -42,6 +40,13 @@ import {
 import { QueryBoundary, SkeletonTable } from '@/shared/ui/states'
 import { StageForm } from './stage-form'
 import { canMove, moveStage, sortedStages } from './stage-order'
+
+const STAGE_COLUMNS: TableColumn[] = [
+  { id: 'name', width: 260 },
+  { id: 'type', width: 150 },
+  { id: 'period', width: 260 },
+  { id: 'actions', width: 170 },
+]
 
 function overlaps(stage: StageResponse, all: StageResponse[]): boolean {
   return all.some(
@@ -104,22 +109,26 @@ export function StagesTab({ event }: { event: EventResponse }) {
               }
             />
           ) : (
-            <Table>
+            <ResizableTable
+              storageKey="timeline-stages-widths"
+              columns={STAGE_COLUMNS}
+              flexible="name"
+            >
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('stages.columnName')}</TableHead>
-                  <TableHead>{t('stages.columnType')}</TableHead>
-                  <TableHead>{t('stages.columnPeriod')}</TableHead>
-                  <TableHead className="w-40">{t('stages.columnActions')}</TableHead>
+                  <ResizableHead column="name" label={t('stages.columnName')} />
+                  <ResizableHead column="type" label={t('stages.columnType')} />
+                  <ResizableHead column="period" label={t('stages.columnPeriod')} />
+                  <ResizableHead column="actions" label={t('stages.columnActions')} />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {stages.map((stage) => (
                   <TableRow key={stage.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
+                    <TableCell data-lead="">
+                      <div className="flex min-w-0 items-center gap-2">
                         <StageTypeMark type={stage.type} labelled={false} />
-                        <span className="font-medium">{stage.name}</span>
+                        <span className="truncate font-medium">{stage.name}</span>
                         {overlaps(stage, stages) && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -132,12 +141,12 @@ export function StagesTab({ event }: { event: EventResponse }) {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{t(STAGE_TYPE_KEY[stage.type])}</TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                    <TableCell className="truncate">{t(STAGE_TYPE_KEY[stage.type])}</TableCell>
+                    <TableCell className="truncate text-muted-foreground">
                       {formatMomentRange(stage.start_at, stage.end_at)}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
+                      <div className="flex justify-center gap-1">
                         <MoveUpAction
                           label={t('stages.moveUpAria', { name: stage.name })}
                           disabled={!canMove(stages, stage.id, -1) || update.isPending}
@@ -161,7 +170,7 @@ export function StagesTab({ event }: { event: EventResponse }) {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+            </ResizableTable>
           )}
         </QueryBoundary>
 

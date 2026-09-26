@@ -310,7 +310,8 @@ const docTemplate = `{
                             "duration",
                             "prize",
                             "team_min",
-                            "team_max"
+                            "team_max",
+                            "tracks"
                         ],
                         "type": "string",
                         "description": "Sort field",
@@ -3271,7 +3272,8 @@ const docTemplate = `{
                             "duration",
                             "prize",
                             "team_min",
-                            "team_max"
+                            "team_max",
+                            "tracks"
                         ],
                         "type": "string",
                         "default": "start_at",
@@ -3419,7 +3421,8 @@ const docTemplate = `{
                             "duration",
                             "prize",
                             "team_min",
-                            "team_max"
+                            "team_max",
+                            "tracks"
                         ],
                         "type": "string",
                         "default": "start_at",

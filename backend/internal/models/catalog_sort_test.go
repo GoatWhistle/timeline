@@ -25,6 +25,7 @@ func TestParseCatalogSortAcceptsWhitelist(t *testing.T) {
 		models.CatalogSortPrize,
 		models.CatalogSortTeamMin,
 		models.CatalogSortTeamMax,
+		models.CatalogSortTracks,
 	}
 	directions := []models.CatalogSortDirection{models.CatalogSortAsc, models.CatalogSortDesc}
 

@@ -5,19 +5,24 @@ import { toast } from 'sonner'
 import { useRemoveTeamMember } from '@/entities/team/team.queries'
 import type { TeamMemberResponse } from '@/shared/api/types.gen'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/ui/data-display/table'
+  ResizableHead,
+  ResizableTable,
+  type TableColumn,
+} from '@/shared/ui/data-display/column-resize/resizable-table'
+import { TableBody, TableCell, TableHeader, TableRow } from '@/shared/ui/data-display/table'
 import { ConfirmDialog } from '@/shared/ui/overlays/confirm-dialog'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { InviteMemberDialog } from './invite-member-dialog'
 import { memberStateTone } from './member-state'
 import { useTeamContext } from './team-context'
+
+const MEMBER_COLUMNS: TableColumn[] = [
+  { id: 'user', width: 280 },
+  { id: 'state', width: 160 },
+]
+
+const MEMBER_ACTIONS: TableColumn = { id: 'actions', width: 150 }
 
 export function TeamMembers() {
   const { t } = useTranslation('team')
@@ -57,18 +62,22 @@ export function TeamMembers() {
         )}
       </div>
 
-      <Table>
+      <ResizableTable
+        storageKey="timeline-team-members-widths"
+        columns={isLead ? [...MEMBER_COLUMNS, MEMBER_ACTIONS] : MEMBER_COLUMNS}
+        flexible="user"
+      >
         <TableHeader>
           <TableRow>
-            <TableHead>{t('columnUser')}</TableHead>
-            <TableHead className="w-40">{t('columnState')}</TableHead>
-            {isLead && <TableHead className="w-32">{t('columnActions')}</TableHead>}
+            <ResizableHead column="user" label={t('columnUser')} />
+            <ResizableHead column="state" label={t('columnState')} />
+            {isLead && <ResizableHead column="actions" label={t('columnActions')} />}
           </TableRow>
         </TableHeader>
         <TableBody>
           {active.map((member) => (
             <TableRow key={member.id}>
-              <TableCell>
+              <TableCell data-lead="" className="truncate">
                 <span className="font-medium">{member.user.display_name}</span>
                 <span className="ml-2 text-muted-foreground">{member.user.email}</span>
                 {member.is_lead && (
@@ -99,7 +108,7 @@ export function TeamMembers() {
             </TableRow>
           ))}
         </TableBody>
-      </Table>
+      </ResizableTable>
 
       <InviteMemberDialog teamId={teamId} open={inviting} onOpenChange={setInviting} />
 

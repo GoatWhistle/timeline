@@ -112,6 +112,9 @@ func TestOrderSQLSortsByEveryField(t *testing.T) {
 		{"largest maximum team first", models.CatalogSort{
 			Field: models.CatalogSortTeamMax, Direction: models.CatalogSortDesc,
 		}, "team_size_max DESC NULLS LAST"},
+		{"most tracks first", models.CatalogSort{
+			Field: models.CatalogSortTracks, Direction: models.CatalogSortDesc,
+		}, "(SELECT count(*) FROM event_tracks et WHERE et.event_id = events.id) DESC"},
 	}
 
 	for _, tc := range cases {
