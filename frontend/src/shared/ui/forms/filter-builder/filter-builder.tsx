@@ -1,12 +1,12 @@
-import { RotateCcw } from 'lucide-react'
-import { Children, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/shared/styling/class-names/class-names'
+import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/overlays/popover'
-import { Button } from '@/shared/ui/primitives/button'
 import { CloseButton } from '@/shared/ui/primitives/close-button'
-import { FilterAddMenu } from './filter-add-menu'
 import { FilterChoice, type FilterOption } from './filter-choice'
-import { FilterRowList } from './filter-row-list'
+import { FilterBody, FilterHead, type FilterSurfaceProps } from './filter-parts'
+import { FilterSheet } from './filter-sheet'
 import { FilterTrigger } from './filter-trigger'
 
 export { FilterChoice, type FilterOption }
@@ -31,45 +31,55 @@ export function FilterCondition({
   return (
     <div
       data-filter-condition={field}
-      className="grid grid-cols-[9rem_4rem_minmax(0,1fr)_2rem] items-start gap-2"
+      className={cn(
+        'grid grid-cols-[3.5rem_minmax(0,1fr)_2rem] items-start gap-2',
+        '@xl:grid-cols-[8.5rem_3.5rem_minmax(0,1fr)_2rem]',
+      )}
     >
-      <FilterChoice
-        value={field}
-        choices={fields}
-        label={t('filters.fieldAria')}
-        onChange={onField}
-      />
+      <div className="col-span-2 @xl:col-span-1">
+        <FilterChoice
+          value={field}
+          choices={fields}
+          label={t('filters.fieldAria')}
+          onChange={onField}
+        />
+      </div>
       <span
         data-filter-operator=""
-        className="flex h-9 items-center justify-center text-center text-meta text-muted-foreground"
+        className={cn(
+          'col-start-1 row-start-2 flex h-9 items-center justify-center text-center',
+          'text-meta text-muted-foreground',
+          '@xl:col-start-2 @xl:row-start-1',
+        )}
       >
         {operator}
       </span>
-      <div className="min-w-0">{children}</div>
-      <span className="flex h-9 items-center justify-end">
+      <div
+        className={cn(
+          'col-span-2 col-start-2 row-start-2 min-w-0',
+          '@xl:col-span-1 @xl:col-start-3 @xl:row-start-1',
+        )}
+      >
+        {children}
+      </div>
+      <span
+        className={cn(
+          'col-start-3 row-start-1 flex h-9 items-center justify-end',
+          '@xl:col-start-4',
+        )}
+      >
         <CloseButton label={t('filters.remove')} onClick={onRemove} />
       </span>
     </div>
   )
 }
 
-export function FilterPopover({
-  count,
-  available,
-  onAdd,
-  onReset,
-  onOpenChange,
-  children,
-}: {
-  count: number
-  available: readonly FilterOption[]
-  onAdd: (field: string) => void
-  onReset: () => void
-  onOpenChange?: (open: boolean) => void
-  children: ReactNode
-}) {
+export function FilterPopover(props: FilterSurfaceProps) {
   const { t } = useTranslation()
-  const empty = Children.count(children) === 0
+  const phone = usePhoneViewport()
+  const { count, available, onAdd, onReset, onOpenChange, children } = props
+
+  if (phone) return <FilterSheet {...props} />
 
   return (
     <Popover onOpenChange={onOpenChange}>
@@ -78,37 +88,28 @@ export function FilterPopover({
       </PopoverTrigger>
 
       <PopoverContent
-        align="end"
+        align="start"
+        collisionPadding={12}
         aria-label={t('filters.title')}
         data-filter-panel=""
-        className="w-[38rem] max-w-[calc(100vw-2rem)] p-0"
+        className={cn(
+          'flex w-[38rem] max-w-[calc(100vw-1.5rem)] flex-col p-0',
+          'max-h-(--radix-popover-content-available-height)',
+        )}
       >
-        <header className="flex h-row items-center justify-between gap-2 border-border border-b pr-1.5 pl-3">
-          <span className="font-medium text-caption text-muted-foreground">
-            {t('filters.title')}
-          </span>
-          {count > 0 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={t('filters.reset')}
-              title={t('filters.reset')}
-              onClick={onReset}
-              className="size-8 shrink-0 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-75 motion-safe:duration-fast"
-            >
-              <RotateCcw className="size-4" aria-hidden="true" />
-            </Button>
-          )}
-        </header>
-
-        <div className="flex flex-col p-3">
-          {empty && (
-            <p className="pb-3 text-meta text-muted-foreground motion-safe:animate-in motion-safe:fade-in-0 motion-safe:duration-base">
-              {t('filters.empty')}
-            </p>
-          )}
-          <FilterRowList>{children}</FilterRowList>
-          <FilterAddMenu available={available} onAdd={onAdd} />
+        <FilterHead
+          count={count}
+          onReset={onReset}
+          title={
+            <span className="font-medium text-caption text-muted-foreground">
+              {t('filters.title')}
+            </span>
+          }
+        />
+        <div className="min-h-0 overflow-y-auto">
+          <FilterBody available={available} onAdd={onAdd}>
+            {children}
+          </FilterBody>
         </div>
       </PopoverContent>
     </Popover>

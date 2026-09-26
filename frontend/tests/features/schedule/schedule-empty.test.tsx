@@ -15,15 +15,17 @@ function Grid() {
   )
 }
 
-describe('an empty schedule offers the catalog once, then says nothing at all', () => {
-  it('pitches the catalog the one time the account has nothing at all', () => {
-    renderWithProviders(
+describe('an empty schedule is just an empty calendar', () => {
+  it('leaves even a brand-new account with just the empty calendar, no pitch above it', () => {
+    const { container } = renderWithProviders(
       <ScheduleEmpty reason="invitation">
         <Grid />
       </ScheduleEmpty>,
     )
 
-    expect(screen.getByRole('link', { name: /catalog/i })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /catalog/i })).not.toBeInTheDocument()
+    expect(container.querySelector('p'), 'a notice came back above the calendar').toBeNull()
+    expect(container.querySelector('svg'), 'the empty figure came back').toBeNull()
   })
 
   it('drops the catalog pitch on every later empty period of the same session', () => {
@@ -99,7 +101,7 @@ describe('an empty schedule offers the catalog once, then says nothing at all', 
     expect(screen.getByRole('table', { name: 'calendar' })).toBeInTheDocument()
   })
 
-  it('draws the grid behind the catalog pitch too, so no view is ever swapped out', () => {
+  it('draws the grid for a brand-new account too, so no view is ever swapped out', () => {
     renderWithProviders(
       <ScheduleEmpty reason="invitation">
         <Grid />

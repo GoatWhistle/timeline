@@ -54,13 +54,13 @@ export function FilterDateRange({
   const noteId = `${id}-note`
 
   return (
-    <div ref={box} className="flex flex-col gap-1.5">
+    <div ref={box} className="@container/range flex flex-col gap-1.5">
       <div
         className={cn(
           'grid items-center gap-1.5',
           stacked
             ? 'grid-cols-[2rem_minmax(0,1fr)]'
-            : 'grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]',
+            : 'grid-cols-1 @[20rem]/range:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]',
         )}
       >
         {stacked && (
@@ -82,7 +82,10 @@ export function FilterDateRange({
             {t('filters.to')}
           </label>
         ) : (
-          <span aria-hidden="true" className="text-meta text-muted-foreground">
+          <span
+            aria-hidden="true"
+            className="hidden text-meta text-muted-foreground @[20rem]/range:inline"
+          >
             –
           </span>
         )}

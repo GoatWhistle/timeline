@@ -77,6 +77,8 @@ export function DialogContent({
   )
 }
 
+export const DialogClose = DialogPrimitive.Close
+
 export function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return <div className={cn('flex flex-col gap-1.5', className)} {...props} />
 }
