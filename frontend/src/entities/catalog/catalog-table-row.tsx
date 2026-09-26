@@ -1,9 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
-import {
-  EVENT_STATE_TEXT,
-  EventStateSign,
-} from '@/entities/event/event-state-mark/event-state-sign'
+import { EVENT_STATE_TEXT } from '@/entities/event/event-state-mark/event-state-sign'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
 import type { CatalogEvent, EventResponse } from '@/shared/api/types.gen'
 import { formatEventDay } from '@/shared/datetime/datetime'
@@ -138,9 +135,8 @@ export function CatalogCellContent({ event, column }: { event: RowEvent; column:
       return <>{t(CATALOG_SCOPE_KEY[event.origin])}</>
     case 'state':
       return (
-        <span className={cn('flex items-center gap-1.5', EVENT_STATE_TEXT[event.state])}>
-          {event.state === 'ACTIVE' && <EventStateSign state={event.state} />}
-          <span className="truncate">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>
+        <span data-state-cell="" className={cn('block truncate', EVENT_STATE_TEXT[event.state])}>
+          {t(EVENT_STATE_KEY[event.state].replace('event:', ''))}
         </span>
       )
     default:
