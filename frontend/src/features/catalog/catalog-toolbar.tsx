@@ -26,6 +26,7 @@ export type CatalogToolbarProps = {
   onLayout: (value: CatalogLayout) => void
   onSort: (value: CatalogSort) => void
   onOrder: (value: CatalogOrder) => void
+  onResetSort: () => void
   onFilters: (patch: Partial<CatalogFilterValues>) => void
   onResetFilters: () => void
   onToggleColumn: (column: CatalogColumn) => void
@@ -46,6 +47,7 @@ export function CatalogToolbar({
   onLayout,
   onSort,
   onOrder,
+  onResetSort,
   onFilters,
   onResetFilters,
   onToggleColumn,
@@ -74,7 +76,13 @@ export function CatalogToolbar({
               onReset={onResetColumns}
             />
           ) : (
-            <CatalogSortControl sort={sort} order={order} onSort={onSort} onOrder={onOrder} />
+            <CatalogSortControl
+              sort={sort}
+              order={order}
+              onSort={onSort}
+              onOrder={onOrder}
+              onReset={onResetSort}
+            />
           )}
           <CatalogExportButton pending={exporting} onExport={onExport} />
         </>

@@ -66,6 +66,8 @@ describe('a tab strip scrolls inside itself, never widening the page', () => {
 const HORIZONTAL_STRIP = /useSlidingIndicator<[^>]*>\(\s*[^,]+,\s*'x'\s*\)/
 
 const NOT_A_STRIP = [
+  'features/catalog/catalog-sort-control.tsx',
+  'features/catalog/catalog-view-switch.tsx',
   'app/sidebar/bottom-nav.tsx',
   'app/sidebar/nav-section.tsx',
   'entities/event/event-stage-nav.tsx',

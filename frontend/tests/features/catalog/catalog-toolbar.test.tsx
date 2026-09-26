@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
 import type { CatalogFilterValues } from '@/features/catalog/catalog-filter-conditions'
@@ -29,6 +29,7 @@ function props(overrides: Partial<CatalogToolbarProps> = {}): CatalogToolbarProp
     onLayout: vi.fn(),
     onSort: vi.fn(),
     onOrder: vi.fn(),
+    onResetSort: vi.fn(),
     onFilters: vi.fn(),
     onResetFilters: vi.fn(),
     onToggleColumn: vi.fn(),
@@ -65,19 +66,49 @@ describe('catalog toolbar', () => {
     ).toBeInTheDocument()
   })
 
-  it('keeps the sort control in the tiles, which have no headers', () => {
+  it('keeps sorting in the tiles as one icon that names the current order', () => {
     renderWithProviders(<CatalogToolbar {...props({ layout: 'grid' })} />)
-    expect(screen.getByLabelText(i18n.t('event:catalog.sortAria'))).toBeInTheDocument()
-    expect(screen.getByLabelText(i18n.t('event:catalog.order.asc'))).toBeInTheDocument()
+    const trigger = screen.getByRole('button', { name: 'Sort: Start date, Ascending' })
+    expect(trigger.textContent?.trim(), 'the sort button printed words again').toBe('')
   })
 
-  it('flips the direction from the tiles order button', async () => {
+  it('picks the direction inside the sort panel', async () => {
     const onOrder = vi.fn()
     const { user } = renderWithProviders(
       <CatalogToolbar {...props({ layout: 'grid', order: 'asc', onOrder })} />,
     )
-    await user.click(screen.getByLabelText(i18n.t('event:catalog.order.asc')))
+    await user.click(screen.getByRole('button', { name: 'Sort: Start date, Ascending' }))
+    const panel = await screen.findByRole('dialog', { name: 'Sort' })
+    await user.click(within(panel).getByRole('button', { name: 'Descending' }))
     expect(onOrder).toHaveBeenCalledWith('desc')
+  })
+
+  it('titles the sort panel and offers reset only once the order differs from the default', async () => {
+    const onResetSort = vi.fn()
+    const first = renderWithProviders(<CatalogToolbar {...props({ layout: 'grid' })} />)
+    await first.user.click(screen.getByRole('button', { name: /^Sort: / }))
+    const plain = await screen.findByRole('dialog', { name: 'Sort' })
+    expect(within(plain).queryByRole('button', { name: 'Reset to default' })).toBeNull()
+    first.unmount()
+
+    const { user } = renderWithProviders(
+      <CatalogToolbar {...props({ layout: 'grid', sort: 'title', order: 'desc', onResetSort })} />,
+    )
+    await user.click(screen.getByRole('button', { name: 'Sort: Title, Descending' }))
+    const changed = await screen.findByRole('dialog', { name: 'Sort' })
+    const head = changed.querySelector('[data-panel-head]') as HTMLElement
+    await user.click(within(head).getByRole('button', { name: 'Reset to default' }))
+    expect(onResetSort).toHaveBeenCalledOnce()
+  })
+
+  it('marks the chosen field and asks the list to sort by another', async () => {
+    const onSort = vi.fn()
+    const { user } = renderWithProviders(<CatalogToolbar {...props({ layout: 'grid', onSort })} />)
+    await user.click(screen.getByRole('button', { name: /^Sort: / }))
+    const panel = await screen.findByRole('dialog', { name: 'Sort' })
+    expect(within(panel).getByRole('button', { name: 'Start date', pressed: true })).toBeTruthy()
+    await user.click(within(panel).getByRole('button', { name: 'Title' }))
+    expect(onSort).toHaveBeenCalledWith('title')
   })
 
   it('shows no result count beside the heading, which was noise', () => {

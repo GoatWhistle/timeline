@@ -118,6 +118,7 @@ export function AdminEventsPage() {
           onLayout={(value) => setFilters({ layout: value }, { resetPage: false })}
           onSort={changeSort}
           onOrder={(value: CatalogOrder) => setFilters({ order: value })}
+          onResetSort={() => setFilters({ sort: '', order: '' })}
           onFilters={(patch) => setFilters(patch)}
           onResetFilters={resetFilters}
           onToggleColumn={toggleColumn}

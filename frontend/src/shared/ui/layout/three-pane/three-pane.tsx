@@ -7,6 +7,13 @@ export function ThreePane({ children, className }: { children: ReactNode; classN
 
 export function ListPane({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('flex min-w-0 flex-1 flex-col overflow-y-auto', className)}>{children}</div>
+    <div
+      className={cn(
+        'flex min-w-0 flex-1 flex-col overflow-y-auto [scrollbar-gutter:stable]',
+        className,
+      )}
+    >
+      {children}
+    </div>
   )
 }

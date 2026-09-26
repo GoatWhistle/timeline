@@ -158,6 +158,11 @@
       "MANUAL": "Uploaded",
       "AUTO": "Fetched",
       "NONE": "None"
+    },
+    "sortPanel": {
+      "title": "Sort",
+      "trigger": "Sort: {{field}}, {{order}}",
+      "reset": "Reset to default"
     }
   }
 }
