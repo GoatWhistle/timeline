@@ -107,11 +107,10 @@
   inset-inline-start: 4px;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
+  inline-size: 20px;
+  block-size: 20px;
   border-radius: var(--radius-pill, 999px);
   color: var(--muted-foreground);
-  padding-inline: 5px;
   font-size: var(--text-label);
   font-variant-numeric: tabular-nums;
   font-weight: 500;

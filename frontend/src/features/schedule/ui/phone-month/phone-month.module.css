@@ -70,8 +70,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 30px;
-  height: 30px;
+  inline-size: 30px;
+  block-size: 30px;
   border-radius: var(--radius-pill, 999px);
   color: var(--foreground);
   font-size: var(--text-body);

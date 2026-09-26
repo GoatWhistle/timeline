@@ -40,11 +40,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 26px;
-  height: 26px;
+  inline-size: 26px;
+  block-size: 26px;
   border-radius: var(--radius-pill, 999px);
   color: var(--foreground);
-  padding-inline: 6px;
   font-size: var(--text-body);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
