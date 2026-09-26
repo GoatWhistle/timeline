@@ -142,29 +142,39 @@ describe('tiles in one row share their rows, so a missing field leaves no hole m
   })
 })
 
-describe('the website link sits beside the title, not over the cover', () => {
-  it('holds room at the end of the first title line and puts the link on it', () => {
-    const { container } = card()
-    const room = title(container).querySelector('[data-corner-room]') as HTMLElement
-    expect(room, 'the title no longer keeps a place for the link').toBeTruthy()
-    expect(room.className).toContain('float-right')
-    const link = screen.getByRole('link', {
+describe('the website arrow rides the corner of the cover, peeking just past its frame', () => {
+  const link = () =>
+    screen.getByRole('link', {
       name: i18n.t('event:catalog.card.websiteOf', { title: base.title }),
     })
-    const spot = link.parentElement as HTMLElement
-    expect(spot.className, 'the link drifted off the title row').toContain('row-start-2')
-    expect(spot.className).toContain('self-start')
-    expect(spot.className).not.toMatch(/(^|\s)(absolute|top-3)(\s|$)/)
+
+  it('sits on the cover row at its far corner, nudged a hair outward', () => {
+    card()
+    const spot = link().parentElement as HTMLElement
+    expect(spot.className, 'the arrow left the cover').toContain('row-start-1')
+    expect(spot.className).toContain('justify-self-end')
+    expect(spot.className, 'the arrow no longer peeks past the frame').toContain('-mt-0.5')
+    expect(spot.className).toContain('-mr-0.5')
   })
 
-  it('keeps the whole title width when there is no link to make room for', () => {
-    const { container } = card({ website_url: undefined })
+  it('takes the whole title width, since the arrow no longer shares its line', () => {
+    const { container } = card()
     expect(title(container).querySelector('[data-corner-room]')).toBeNull()
   })
 
-  it('draws the link as a quiet icon rather than a framed tile', () => {
-    expect(CARD_CORNER).not.toMatch(/(^|\s)border(\s|$)|backdrop-blur/)
-    const link = card().container.querySelector('a[href]') as HTMLElement
-    expect(link.querySelector('svg.lucide-arrow-up-right')).toBeTruthy()
+  it('is a bare grey arrow, a size above the fact icons, with nothing behind it', () => {
+    expect(CARD_CORNER, 'a plate or a ring came back behind the arrow').not.toMatch(
+      /(^|\s)(border|bg-[\w-]+|shadow-[\w-]+|rounded-full|drop-shadow[\w-]*)(\s|$)/,
+    )
+    expect(CARD_CORNER, 'the arrow lost its quiet grey').toContain('text-muted-foreground')
+    card()
+    const svg = link().querySelector('svg.lucide-arrow-up-right') as SVGElement
+    expect(svg.getAttribute('class')).toContain('size-6')
+  })
+
+  it('keeps the admin menu dots at their own size in the same grey corner', () => {
+    expect(CARD_CORNER, 'the corner forces its glyph size onto the admin dots').not.toContain(
+      '[&_svg]',
+    )
   })
 })

@@ -25,10 +25,10 @@ type ReaderOnly =
 export type TileEvent = Omit<CatalogEvent, ReaderOnly> & Partial<Pick<CatalogEvent, ReaderOnly>>
 
 export const CARD_CORNER = cn(
-  'flex size-7 items-center justify-center rounded-control',
+  'flex size-8 items-center justify-center rounded-control',
   TOUCH_REACH,
   'text-muted-foreground transition-colors duration-instant ease-out',
-  'hover:bg-surface-2 hover:text-foreground',
+  'hover:text-foreground',
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring',
 )
 
@@ -78,7 +78,7 @@ export function CatalogCard({
         aria-label={t('catalog.card.websiteOf', { title: event.title })}
         className={CARD_CORNER}
       >
-        <ArrowUpRight className="size-4" aria-hidden="true" />
+        <ArrowUpRight className="size-6" strokeWidth={2.5} aria-hidden="true" />
       </ExternalLink>
     ) : null)
 
@@ -114,9 +114,6 @@ export function CatalogCard({
 
         <span data-card-heading="" className="flex min-w-0 flex-col gap-0.5">
           <span data-card-title="" className="block font-semibold text-screen leading-snug">
-            {cornerNode && (
-              <span aria-hidden="true" data-corner-room="" className="float-right ml-2 h-7 w-7" />
-            )}
             {event.title}
             {event.joined && <CatalogJoinedMark className="ml-1.5 align-[-0.125em]" />}
           </span>
@@ -166,7 +163,7 @@ export function CatalogCard({
       {cornerNode && (
         <span
           data-card-corner=""
-          className="z-10 col-start-1 row-start-2 mr-3 flex self-start justify-self-end"
+          className="z-10 col-start-1 row-start-1 -mt-0.5 -mr-0.5 flex self-start justify-self-end"
         >
           {cornerNode}
         </span>
