@@ -39,7 +39,7 @@ describe('a tile without a cover stays quiet', () => {
       container.querySelector('[data-catalog-cover]') as HTMLElement
     ).className.split(/\s+/)
     expect(classes, 'the frame went grey without a picture').toContain('after:border-event-tint/70')
-    expect(classes).toContain('after:border-2')
+    expect(classes).toContain('after:border-3')
     expect(classes).not.toContain('after:border-border')
   })
 
@@ -54,14 +54,14 @@ describe('a tile without a cover stays quiet', () => {
 })
 
 describe('a cover picture sits in a frame you can actually see', () => {
-  it('draws a two-pixel frame in a strong share of the event colour', () => {
+  it('draws a three-pixel frame in a strong share of the event colour', () => {
     const { container } = render(
       <CatalogCover coverUrl="https://example.test/cover.png" color={{ family: 'RU', slot: 3 }} />,
     )
     const classes = (
       container.querySelector('[data-catalog-cover]') as HTMLElement
     ).className.split(/\s+/)
-    expect(classes, 'the frame went back to a hairline').toContain('after:border-2')
+    expect(classes, 'the frame went back to a hairline').toContain('after:border-3')
     expect(classes).toContain('after:border-event-tint/70')
   })
 })
