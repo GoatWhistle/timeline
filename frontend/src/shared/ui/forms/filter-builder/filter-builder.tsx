@@ -88,7 +88,7 @@ export function FilterPopover(props: FilterSurfaceProps) {
       </PopoverTrigger>
 
       <PopoverContent
-        align="start"
+        align="center"
         collisionPadding={12}
         aria-label={t('filters.title')}
         data-filter-panel=""

@@ -55,7 +55,7 @@ export function CatalogColumnsMenu<T extends string>({
       </PopoverTrigger>
 
       <PopoverContent
-        align="start"
+        align="center"
         collisionPadding={12}
         aria-label={title}
         data-columns-panel=""

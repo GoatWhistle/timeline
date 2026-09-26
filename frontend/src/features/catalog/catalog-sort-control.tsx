@@ -10,6 +10,7 @@ import {
 } from '@/entities/catalog/catalog.views'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { SortArrow } from '@/shared/ui/data-display/sort-icon'
+import { Spinner } from '@/shared/ui/data-display/spinner'
 import { SlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/sliding-indicator'
 import { useSlidingIndicator } from '@/shared/ui/navigation/sliding-indicator/use-sliding-indicator'
 import { PanelHead, PanelTitle } from '@/shared/ui/overlays/panel-head'
@@ -141,7 +142,7 @@ export function CatalogSortControl({
       </PopoverTrigger>
 
       <PopoverContent
-        align="start"
+        align="center"
         collisionPadding={12}
         aria-label={title}
         data-sort-panel=""
@@ -167,18 +168,24 @@ export function CatalogExportButton({
   onExport: () => void
 }) {
   const { t } = useTranslation('event')
+  const label = t('catalog.export.action')
 
   return (
     <Button
       variant="outline"
-      size="sm"
+      aria-label={label}
+      title={label}
+      aria-busy={pending || undefined}
       disabled={pending}
       onClick={onExport}
-      title={t('catalog.export.hint')}
-      className="h-9 gap-1.5"
+      data-export-trigger=""
+      className="size-9 shrink-0 p-0"
     >
-      <Download className="size-4" aria-hidden="true" />
-      {pending ? t('catalog.export.pending') : t('catalog.export.action')}
+      {pending ? (
+        <Spinner label={t('catalog.export.pending')} />
+      ) : (
+        <Download className="size-4" aria-hidden="true" />
+      )}
     </Button>
   )
 }

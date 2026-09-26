@@ -54,13 +54,15 @@ describe('the filters open in a way that fits the screen they are on', () => {
     expect(within(header).getByRole('button', { name: /close/i })).toBeTruthy()
   })
 
-  it('hangs from the left of its button on a desk, clear of the window edge', async () => {
+  it('hangs centred under its button on a desk, clear of the window edge', async () => {
     pretendPhone(false)
     const { user } = openFilters()
     await user.click(screen.getByRole('button', { name: 'Filters: 1 active' }))
     const panel = await screen.findByRole('dialog', { name: 'Filters' })
     expect(panel.hasAttribute('data-sheet')).toBe(false)
-    expect(panel.getAttribute('data-align'), 'the panel swings left over the sidebar').toBe('start')
+    expect(panel.getAttribute('data-align'), 'the panel drifts to one side of its button').toBe(
+      'center',
+    )
     expect(tokens(panel)).toContain('max-w-[calc(100vw-1.5rem)]')
     expect(tokens(panel), 'a long list can run off the bottom').toContain(
       'max-h-(--radix-popover-content-available-height)',

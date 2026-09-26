@@ -29,6 +29,9 @@ describe('the columns control works like the filters control', () => {
     const panel = await screen.findByRole('dialog', { name: 'Columns' })
     const head = panel.querySelector('[data-panel-head]') as HTMLElement
     expect(within(head).getByText('Columns')).toBeTruthy()
+    expect(panel.getAttribute('data-align'), 'the panel drifts to one side of its button').toBe(
+      'center',
+    )
     expect(within(panel).queryByRole('button', { name: 'Reset to default' })).toBeNull()
   })
 

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { screen, within } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it, vi } from 'vitest'
@@ -124,10 +126,35 @@ describe('catalog toolbar', () => {
     expect(heading.className).not.toContain('mr-1')
   })
 
+  it('shows a spinner in place of the download icon while the file is prepared', () => {
+    renderWithProviders(<CatalogToolbar {...props({ exporting: true })} />)
+    const download = screen.getByRole('button', { name: 'Download CSV' })
+    expect(download).toBeDisabled()
+    expect(download.querySelector('[data-busy-spin]')).not.toBeNull()
+  })
+
+  it('downloads without announcing success, and only speaks up when it fails', () => {
+    const page = readFileSync(join(process.cwd(), 'src/features/catalog/catalog.tsx'), 'utf8')
+    const run = page.slice(
+      page.indexOf('function runExport'),
+      page.indexOf('function runExport') + 300,
+    )
+    expect(run, 'a success toast came back after the download').not.toContain('toast.success')
+    expect(run).toContain('toast.error')
+  })
+
+  it('opens the sort panel centred under its button', async () => {
+    const { user } = renderWithProviders(<CatalogToolbar {...props({ layout: 'grid' })} />)
+    await user.click(screen.getByRole('button', { name: /^Sort: / }))
+    const panel = await screen.findByRole('dialog', { name: 'Sort' })
+    expect(panel.getAttribute('data-align')).toBe('center')
+  })
+
   it('keeps the export and the view switch in both views', () => {
     for (const layout of ['table', 'grid'] as const) {
       const { unmount } = renderWithProviders(<CatalogToolbar {...props({ layout })} />)
-      expect(screen.getByText(i18n.t('event:catalog.export.action'))).toBeInTheDocument()
+      const download = screen.getByRole('button', { name: 'Download CSV' })
+      expect(download.textContent?.trim(), 'the download button printed words again').toBe('')
       expect(screen.getByLabelText(i18n.t('event:catalog.layout.table'))).toBeInTheDocument()
       expect(screen.getByLabelText(i18n.t('event:catalog.layout.grid'))).toBeInTheDocument()
       unmount()

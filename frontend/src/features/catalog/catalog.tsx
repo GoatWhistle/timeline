@@ -119,7 +119,6 @@ export function CatalogPage() {
 
   function runExport() {
     exportMutation.mutate(params, {
-      onSuccess: () => toast.success(t('catalog.export.done')),
       onError: () => toast.error(t('catalog.export.failed')),
     })
   }

@@ -106,11 +106,9 @@
       "durationDays_other": "{{count}} days"
     },
     "export": {
-      "action": "Export CSV",
+      "action": "Download CSV",
       "pending": "Preparing the export",
-      "failed": "Could not export the catalog",
-      "done": "The export has been downloaded",
-      "hint": "Downloads every event matching the current filters, not only this page."
+      "failed": "Could not export the catalog"
     },
     "selected": "Selected",
     "columns": {
