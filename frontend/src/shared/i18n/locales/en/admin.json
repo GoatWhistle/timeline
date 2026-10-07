@@ -1,7 +1,9 @@
 {
   "audit": {
     "title": "Audit",
-    "description": "History of administrative changes. File export is not available yet.",
+    "searchAria": "Search the audit log",
+    "searchPlaceholder": "Who, action or entity",
+    "period": "Period",
     "action": "Action",
     "allActions": "All actions",
     "entity": "Entity type",

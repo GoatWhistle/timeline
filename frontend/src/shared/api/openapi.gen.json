@@ -20,7 +20,7 @@
             "CookieAuth": []
           }
         ],
-        "description": "Restricted to administrators. Entries are immutable; file export is not supported in the MVP.\n\nThe actor is identified by the external display identifier of the user. The row id and\nentity_id stay internal: the journal records arbitrary entity types, which have no single\nexternal identifier space.",
+        "description": "Restricted to administrators. Entries are immutable.\n\nThe actor is identified by the external display identifier of the user. The row id and\nentity_id stay internal: the journal records arbitrary entity types, which have no single\nexternal identifier space.\n\nThe search is a case-insensitive substring match over the actor email, the action and\nthe entity type. Entries are sorted newest first by default; sorting by actor orders by\nthe actor email and places system entries without an actor last in both directions.",
         "tags": [
           "audit"
         ],
@@ -77,6 +77,42 @@
             }
           },
           {
+            "description": "Search by actor email, action and entity type",
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort field",
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created_at",
+                "actor",
+                "action",
+                "entity_type"
+              ],
+              "default": "created_at"
+            }
+          },
+          {
+            "description": "Sort direction",
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          },
+          {
             "description": "Page number",
             "name": "page",
             "in": "query",
@@ -120,6 +156,150 @@
             "description": "Forbidden",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/audit/export": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Restricted to administrators. Every entry the audit log returns under the same filters,\nthe same search and the same sort, written as CSV instead of paginated JSON. Rows are\nwritten page by page as they are read.\n\nThe actor is the external display identifier, empty for system entries. The changes\ncolumn carries the before and after payloads as one compact JSON object.",
+        "tags": [
+          "audit"
+        ],
+        "summary": "Export the audit log as CSV",
+        "parameters": [
+          {
+            "example": "us_3k7d8gb9be",
+            "description": "Filter by actor",
+            "name": "actor_user_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by action",
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by entity type",
+            "name": "entity_type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by entity identifier",
+            "name": "entity_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "description": "Start of the period, RFC3339",
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "End of the period, RFC3339",
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Search by actor email, action and entity type",
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort field",
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created_at",
+                "actor",
+                "action",
+                "entity_type"
+              ],
+              "default": "created_at"
+            }
+          },
+          {
+            "description": "Sort direction",
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV payload",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/csv": {
                 "schema": {
                   "$ref": "#/components/schemas/dto.ErrorResponse"
                 }
@@ -3220,6 +3400,121 @@
             "description": "Forbidden",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/export": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Restricted to administrators. Every account the user search returns under the same\nfilters and the same sort, written as CSV instead of paginated JSON. Rows are written\npage by page as they are read.\n\nCredentials, tokens and the Telegram chat identifier are never exported.",
+        "tags": [
+          "users"
+        ],
+        "summary": "Export the user directory as CSV",
+        "parameters": [
+          {
+            "description": "Search string",
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only active or only deactivated accounts",
+            "name": "active",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Only administrators or only ordinary accounts",
+            "name": "admin",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Only accounts with or without a Telegram handle",
+            "name": "telegram",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Sort field",
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "email",
+                "created_at"
+              ]
+            }
+          },
+          {
+            "description": "Sort direction",
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV payload",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/dto.ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/csv": {
                 "schema": {
                   "$ref": "#/components/schemas/dto.ErrorResponse"
                 }

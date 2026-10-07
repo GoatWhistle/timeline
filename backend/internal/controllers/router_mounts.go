@@ -92,6 +92,7 @@ func mountAdminIdentity(mux *http.ServeMux, rt *routes, api string,
 	userC *auth.UserController, eventC *event.Controller,
 ) {
 	mux.Handle("GET "+api+"/admin/users", rt.admin(userC.Search))
+	mux.Handle("GET "+api+"/admin/users/export", rt.admin(userC.Export))
 	mux.Handle("POST "+api+"/admin/users/{id}/deactivate", rt.admin(userC.Deactivate))
 	mux.Handle("POST "+api+"/admin/users/{id}/activate", rt.admin(userC.Activate))
 	mux.Handle("DELETE "+api+"/admin/users/{id}", rt.admin(userC.Delete))
@@ -141,6 +142,7 @@ func mountAdminQueries(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("GET "+api+"/admin/queries/overdue", rt.admin(queryC.Overdue))
 	mux.Handle("GET "+api+"/admin/queries/registration-coverage", rt.admin(queryC.RegistrationCoverage))
 	mux.Handle("GET "+api+"/admin/audit", rt.admin(auditC.List))
+	mux.Handle("GET "+api+"/admin/audit/export", rt.admin(auditC.Export))
 
 	mux.Handle("GET "+api+"/healthz", http.HandlerFunc(opsC.Health))
 	mux.Handle("GET "+api+"/readyz", http.HandlerFunc(opsC.Ready))

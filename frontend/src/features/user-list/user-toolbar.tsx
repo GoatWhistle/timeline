@@ -8,6 +8,7 @@ import {
   type UserColumn,
 } from '@/entities/user/user.views'
 import { CatalogColumnsMenu } from '@/features/catalog/catalog-columns-menu'
+import { CatalogExportButton } from '@/features/catalog/catalog-sort-control'
 import { ListToolbar } from '@/shared/ui/layout/list-toolbar'
 import { UserFiltersPopover, type UserFilterValues } from './user-filters-popover'
 
@@ -21,6 +22,8 @@ export function UserToolbar({
   onResetFilters,
   onToggleColumn,
   onResetColumns,
+  exporting,
+  onExport,
 }: {
   filters: UserFilterValues
   columns: UserColumn[]
@@ -31,6 +34,8 @@ export function UserToolbar({
   onResetFilters: () => void
   onToggleColumn: (column: UserColumn) => void
   onResetColumns: () => void
+  exporting: boolean
+  onExport: () => void
 }) {
   const { t } = useTranslation()
 
@@ -57,6 +62,7 @@ export function UserToolbar({
             defaults={DEFAULT_USER_COLUMNS}
             namespace="common"
           />
+          <CatalogExportButton pending={exporting} onExport={onExport} />
         </>
       }
     />

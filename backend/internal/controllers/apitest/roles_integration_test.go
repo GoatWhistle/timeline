@@ -23,6 +23,7 @@ func adminRoutes(f support.Fixture) []adminRoute {
 	event := f.EventID
 	return []adminRoute{
 		{"user search", http.MethodGet, "/admin/users", nil},
+		{"user export", http.MethodGet, "/admin/users/export", nil},
 		{"user deactivation", http.MethodPost, "/admin/users/" + f.Member.ID + "/deactivate", nil},
 		{"user activation", http.MethodPost, "/admin/users/" + f.Member.ID + "/activate", nil},
 		{"user deletion", http.MethodDelete, "/admin/users/" + f.Member.ID, nil},
@@ -58,6 +59,7 @@ func adminRoutes(f support.Fixture) []adminRoute {
 		{"upcoming query", http.MethodGet, "/admin/queries/upcoming", nil},
 		{"overdue query", http.MethodGet, "/admin/queries/overdue", nil},
 		{"audit log", http.MethodGet, "/admin/audit", nil},
+		{"audit export", http.MethodGet, "/admin/audit/export", nil},
 		{"track creation", http.MethodPost, "/admin/events/" + event + "/tracks",
 			map[string]any{"name": "Injected", "prizes": []map[string]any{{"place": 1, "amount": "1"}}}},
 		{"track update", http.MethodPatch, "/admin/tracks/" + support.MissingTrackID,
@@ -201,6 +203,8 @@ func TestUnauthenticatedRequestsAreRejectedBeforeRoleChecks(t *testing.T) {
 		"/admin/users",
 		"/admin/events",
 		"/admin/audit",
+		"/admin/audit/export",
+		"/admin/users/export",
 	} {
 		t.Run(path, func(t *testing.T) {
 			support.RequireStatus(t, anonymous.Get(path), http.StatusUnauthorized, "anonymous "+path)

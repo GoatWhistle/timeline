@@ -22,7 +22,7 @@ const ADOPTED = [
   'app/sidebar/nav-section.tsx',
   'features/personal-layer/shell/personal-summary.tsx',
   'features/shortcut-help/shortcut-help.tsx',
-  'features/audit-log/audit-log.tsx',
+  'features/audit-log/audit-detail-dialog.tsx',
   'features/teams/team-links/team-links-card.tsx',
 ]
 

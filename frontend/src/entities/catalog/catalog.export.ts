@@ -33,7 +33,11 @@ function save(blob: Blob, filename: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 60_000)
 }
 
-type ExportPath = '/catalog/export' | '/admin/events/export'
+export type ExportPath =
+  | '/catalog/export'
+  | '/admin/events/export'
+  | '/admin/users/export'
+  | '/admin/audit/export'
 
 export async function downloadExport(
   path: ExportPath,
@@ -65,5 +69,11 @@ export function useCatalogExport() {
 export function useAdminEventsExport() {
   return useMutation<void, Error, AdminListParams>({
     mutationFn: (params) => downloadExport('/admin/events/export', params),
+  })
+}
+
+export function useListExport<P extends object>(path: ExportPath) {
+  return useMutation<void, Error, P>({
+    mutationFn: (params) => downloadExport(path, params as Record<string, unknown>),
   })
 }

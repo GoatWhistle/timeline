@@ -95,6 +95,50 @@ type AuditFilter struct {
 	EntityID       *uuid.UUID
 	From           *time.Time
 	To             *time.Time
+	Search         string
+	Sort           AuditSort
+}
+
+type AuditSortField string
+
+const (
+	AuditSortCreatedAt  AuditSortField = "created_at"
+	AuditSortActor      AuditSortField = "actor"
+	AuditSortAction     AuditSortField = "action"
+	AuditSortEntityType AuditSortField = "entity_type"
+)
+
+type AuditSort struct {
+	Field     AuditSortField
+	Direction CatalogSortDirection
+}
+
+var DefaultAuditSort = AuditSort{Field: AuditSortCreatedAt, Direction: CatalogSortDesc}
+
+var auditSortFields = map[AuditSortField]struct{}{
+	AuditSortCreatedAt:  {},
+	AuditSortActor:      {},
+	AuditSortAction:     {},
+	AuditSortEntityType: {},
+}
+
+func ParseAuditSort(field, direction string) (AuditSort, error) {
+	sort := DefaultAuditSort
+	if field != "" {
+		parsed := AuditSortField(field)
+		if _, ok := auditSortFields[parsed]; !ok {
+			return AuditSort{}, NewValidationf("unknown sort field %q", field)
+		}
+		sort.Field = parsed
+	}
+	if direction != "" {
+		parsed, err := ParseCatalogSortDirection(direction)
+		if err != nil {
+			return AuditSort{}, err
+		}
+		sort.Direction = parsed
+	}
+	return sort, nil
 }
 
 type UserSortField string

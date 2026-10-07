@@ -12,11 +12,15 @@ export interface paths {
         };
         /**
          * Audit log
-         * @description Restricted to administrators. Entries are immutable; file export is not supported in the MVP.
+         * @description Restricted to administrators. Entries are immutable.
          *
          *     The actor is identified by the external display identifier of the user. The row id and
          *     entity_id stay internal: the journal records arbitrary entity types, which have no single
          *     external identifier space.
+         *
+         *     The search is a case-insensitive substring match over the actor email, the action and
+         *     the entity type. Entries are sorted newest first by default; sorting by actor orders by
+         *     the actor email and places system entries without an actor last in both directions.
          */
         get: {
             parameters: {
@@ -34,10 +38,16 @@ export interface paths {
                     entity_type?: string;
                     /** @description Start of the period, RFC3339 */
                     from?: string;
+                    /** @description Sort direction */
+                    order?: "asc" | "desc";
                     /** @description Page number */
                     page?: number;
                     /** @description Page size */
                     page_size?: number;
+                    /** @description Search by actor email, action and entity type */
+                    search?: string;
+                    /** @description Sort field */
+                    sort?: "created_at" | "actor" | "action" | "entity_type";
                     /** @description End of the period, RFC3339 */
                     to?: string;
                 };
@@ -72,6 +82,99 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/audit/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export the audit log as CSV
+         * @description Restricted to administrators. Every entry the audit log returns under the same filters,
+         *     the same search and the same sort, written as CSV instead of paginated JSON. Rows are
+         *     written page by page as they are read.
+         *
+         *     The actor is the external display identifier, empty for system entries. The changes
+         *     column carries the before and after payloads as one compact JSON object.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Filter by action */
+                    action?: string;
+                    /**
+                     * @description Filter by actor
+                     * @example us_3k7d8gb9be
+                     */
+                    actor_user_id?: string;
+                    /** @description Filter by entity identifier */
+                    entity_id?: string;
+                    /** @description Filter by entity type */
+                    entity_type?: string;
+                    /** @description Start of the period, RFC3339 */
+                    from?: string;
+                    /** @description Sort direction */
+                    order?: "asc" | "desc";
+                    /** @description Search by actor email, action and entity type */
+                    search?: string;
+                    /** @description Sort field */
+                    sort?: "created_at" | "actor" | "action" | "entity_type";
+                    /** @description End of the period, RFC3339 */
+                    to?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description CSV payload */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
                     };
                 };
             };
@@ -3041,6 +3144,89 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export the user directory as CSV
+         * @description Restricted to administrators. Every account the user search returns under the same
+         *     filters and the same sort, written as CSV instead of paginated JSON. Rows are written
+         *     page by page as they are read.
+         *
+         *     Credentials, tokens and the Telegram chat identifier are never exported.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Only active or only deactivated accounts */
+                    active?: boolean;
+                    /** @description Only administrators or only ordinary accounts */
+                    admin?: boolean;
+                    /** @description Sort direction */
+                    order?: "asc" | "desc";
+                    /** @description Search string */
+                    query?: string;
+                    /** @description Sort field */
+                    sort?: "name" | "email" | "created_at";
+                    /** @description Only accounts with or without a Telegram handle */
+                    telegram?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description CSV payload */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;

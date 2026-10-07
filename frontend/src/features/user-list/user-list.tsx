@@ -2,12 +2,13 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { useListExport } from '@/entities/catalog/catalog.export'
 import { resolveOrder } from '@/entities/catalog/catalog.views'
 import { listName } from '@/entities/user/person-name/person-name'
 import { useUserColumns } from '@/entities/user/user.columns'
 import { useActivateUser, useDeactivateUser, useDeleteUser } from '@/entities/user/user.queries'
 import { resolveUserSort, type UserSort } from '@/entities/user/user.views'
-import { usersQuery } from '@/shared/api/directory'
+import { type UsersParams, usersQuery } from '@/shared/api/directory'
 import type { AdminUserSummary } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
@@ -40,6 +41,7 @@ export function AdminUsersPage() {
 
   const sort = resolveUserSort(filters.sort)
   const order = resolveOrder(filters.order)
+  const exportMutation = useListExport<UsersParams>('/admin/users/export')
 
   const query = useQuery({
     ...usersQuery(userListParams(filters, search, sort, order, page)),
@@ -92,6 +94,12 @@ export function AdminUsersPage() {
           onResetFilters={resetFilters}
           onToggleColumn={toggleColumn}
           onResetColumns={resetColumns}
+          exporting={exportMutation.isPending}
+          onExport={() =>
+            exportMutation.mutate(userListParams(filters, search, sort, order, 1), {
+              onError: () => toast.error(t('event:catalog.export.failed')),
+            })
+          }
         />
 
         <QueryBoundary

@@ -3433,11 +3433,15 @@ paths:
   /admin/audit:
     get:
       description: |-
-        Restricted to administrators. Entries are immutable; file export is not supported in the MVP.
+        Restricted to administrators. Entries are immutable.
 
         The actor is identified by the external display identifier of the user. The row id and
         entity_id stay internal: the journal records arbitrary entity types, which have no single
         external identifier space.
+
+        The search is a case-insensitive substring match over the actor email, the action and
+        the entity type. Entries are sorted newest first by default; sorting by actor orders by
+        the actor email and places system entries without an actor last in both directions.
       parameters:
       - description: Filter by actor
         example: us_3k7d8gb9be
@@ -3464,6 +3468,28 @@ paths:
       - description: End of the period, RFC3339
         in: query
         name: to
+        type: string
+      - description: Search by actor email, action and entity type
+        in: query
+        name: search
+        type: string
+      - default: created_at
+        description: Sort field
+        enum:
+        - created_at
+        - actor
+        - action
+        - entity_type
+        in: query
+        name: sort
+        type: string
+      - default: desc
+        description: Sort direction
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
         type: string
       - default: 1
         description: Page number
@@ -3493,6 +3519,88 @@ paths:
       security:
       - CookieAuth: []
       summary: Audit log
+      tags:
+      - audit
+  /admin/audit/export:
+    get:
+      description: |-
+        Restricted to administrators. Every entry the audit log returns under the same filters,
+        the same search and the same sort, written as CSV instead of paginated JSON. Rows are
+        written page by page as they are read.
+
+        The actor is the external display identifier, empty for system entries. The changes
+        column carries the before and after payloads as one compact JSON object.
+      parameters:
+      - description: Filter by actor
+        example: us_3k7d8gb9be
+        in: query
+        name: actor_user_id
+        type: string
+      - description: Filter by action
+        in: query
+        name: action
+        type: string
+      - description: Filter by entity type
+        in: query
+        name: entity_type
+        type: string
+      - description: Filter by entity identifier
+        format: uuid
+        in: query
+        name: entity_id
+        type: string
+      - description: Start of the period, RFC3339
+        in: query
+        name: from
+        type: string
+      - description: End of the period, RFC3339
+        in: query
+        name: to
+        type: string
+      - description: Search by actor email, action and entity type
+        in: query
+        name: search
+        type: string
+      - default: created_at
+        description: Sort field
+        enum:
+        - created_at
+        - actor
+        - action
+        - entity_type
+        in: query
+        name: sort
+        type: string
+      - default: desc
+        description: Sort direction
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: CSV payload
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Export the audit log as CSV
       tags:
       - audit
   /admin/cases/{id}:
@@ -5328,6 +5436,70 @@ paths:
       security:
       - CookieAuth: []
       summary: Deactivate a user
+      tags:
+      - users
+  /admin/users/export:
+    get:
+      description: |-
+        Restricted to administrators. Every account the user search returns under the same
+        filters and the same sort, written as CSV instead of paginated JSON. Rows are written
+        page by page as they are read.
+
+        Credentials, tokens and the Telegram chat identifier are never exported.
+      parameters:
+      - description: Search string
+        in: query
+        name: query
+        type: string
+      - description: Only active or only deactivated accounts
+        in: query
+        name: active
+        type: boolean
+      - description: Only administrators or only ordinary accounts
+        in: query
+        name: admin
+        type: boolean
+      - description: Only accounts with or without a Telegram handle
+        in: query
+        name: telegram
+        type: boolean
+      - description: Sort field
+        enum:
+        - name
+        - email
+        - created_at
+        in: query
+        name: sort
+        type: string
+      - description: Sort direction
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: CSV payload
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Export the user directory as CSV
       tags:
       - users
   /auth/csrf:

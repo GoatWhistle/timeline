@@ -22,7 +22,7 @@ const LONE_DASH = /(['"`]\s*—\s*['"`]|>\s*—\s*<|=\s*\{\s*'—'\s*\})/g
 
 const ADOPTED = [
   'entities/catalog/catalog-table-row.tsx',
-  'features/audit-log/audit-log.tsx',
+  'features/audit-log/audit-detail-dialog.tsx',
   'features/notification-preview/preview-body.tsx',
   'features/participants/participants-table/participants-table.tsx',
   'features/registration/statuses-table/statuses-table.tsx',
