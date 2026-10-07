@@ -134,12 +134,7 @@ export function OverlayTracks({ facts }: { facts: OverlayFacts }) {
 
   return (
     <section data-overlay-tracks="" className="flex flex-col gap-2">
-      <h3 className="flex items-baseline gap-2 text-caption text-muted-foreground">
-        {t('place.tracks')}
-        <span data-overlay-track-count="" className="tabular-nums">
-          {facts.tracks.length}
-        </span>
-      </h3>
+      <h3 className="text-caption text-muted-foreground">{t('place.tracks')}</h3>
       <ul className="overflow-hidden rounded-control border border-border bg-surface-1">
         {facts.tracks.map((track) => (
           <TrackLine key={track.id} track={track} currency={currency} />

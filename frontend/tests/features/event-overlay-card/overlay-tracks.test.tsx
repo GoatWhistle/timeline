@@ -28,9 +28,12 @@ function draw(value: OverlayFacts = facts) {
 }
 
 describe('the tracks read as a small numbered table', () => {
-  it('counts the tracks beside the heading', () => {
+  it('heads the list with the word alone, no count beside it', () => {
     const { container } = draw()
-    expect(container.querySelector('[data-overlay-track-count]')?.textContent).toBe('3')
+    const heading = container.querySelector('[data-overlay-tracks] h3') as HTMLElement
+    expect(heading.textContent, 'a count came back beside the heading').toBe(
+      i18n.t('event:place.tracks'),
+    )
   })
 
   it('numbers each track, names it and sets its prize at the far end', () => {
