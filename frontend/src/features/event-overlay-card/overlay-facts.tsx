@@ -29,8 +29,6 @@ function Fact({
   )
 }
 
-const TRAILING = 'sm:col-start-3 sm:items-end sm:text-right'
-
 export function OverlayFactList({
   facts,
   state,
@@ -59,6 +57,15 @@ export function OverlayFactList({
           {t(EVENT_STATE_KEY[state].replace('event:', ''))}
         </span>
       </Fact>
+      {prize && (
+        <Fact
+          name="prize"
+          label={t('place.prizePoolShort')}
+          className="sm:col-start-1 sm:row-start-2"
+        >
+          <span className="font-semibold text-prize tabular-nums">{prize}</span>
+        </Fact>
+      )}
       <div
         data-overlay-dates=""
         className="flex min-w-0 flex-col gap-3 sm:col-start-2 sm:row-span-2 sm:row-start-1"
@@ -70,31 +77,27 @@ export function OverlayFactList({
           <span className="tabular-nums">{formatDateTime(endAt)}</span>
         </Fact>
       </div>
-      <Fact name="format" label={t('place.effective')} className={cn(TRAILING, 'sm:row-start-1')}>
-        <span className="inline-flex max-w-full items-center gap-1.5">
-          <FormatIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-          <span className="truncate">{t(EVENT_FORMAT_KEY[facts.effectiveFormat])}</span>
-        </span>
-        {place && (
-          <span className={cn('block truncate font-normal text-caption text-muted-foreground')}>
-            {place}
+      <div
+        data-overlay-trailing=""
+        className="flex min-w-0 flex-col gap-3 sm:col-start-3 sm:row-span-2 sm:row-start-1 sm:justify-self-end"
+      >
+        <Fact name="format" label={t('place.effective')}>
+          <span className="inline-flex max-w-full items-center gap-1.5">
+            <FormatIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <span className="truncate">{t(EVENT_FORMAT_KEY[facts.effectiveFormat])}</span>
           </span>
+          {place && (
+            <span className={cn('block truncate font-normal text-caption text-muted-foreground')}>
+              {place}
+            </span>
+          )}
+        </Fact>
+        {hasTeamSize && (
+          <Fact name="team" label={t('place.teamSize')}>
+            <TeamSizeFigures min={facts.teamSizeMin} max={facts.teamSizeMax} />
+          </Fact>
         )}
-      </Fact>
-      {prize && (
-        <Fact
-          name="prize"
-          label={t('place.prizePoolShort')}
-          className="sm:col-start-1 sm:row-start-2"
-        >
-          <span className="font-semibold text-prize tabular-nums">{prize}</span>
-        </Fact>
-      )}
-      {hasTeamSize && (
-        <Fact name="team" label={t('place.teamSize')} className={cn(TRAILING, 'sm:row-start-2')}>
-          <TeamSizeFigures min={facts.teamSizeMin} max={facts.teamSizeMax} />
-        </Fact>
-      )}
+      </div>
     </dl>
   )
 }

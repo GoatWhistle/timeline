@@ -56,7 +56,14 @@ describe('the event window reads like the tile it was opened from', () => {
     const names = [...container.querySelectorAll('[data-overlay-fact]')].map((node) =>
       node.getAttribute('data-overlay-fact'),
     )
-    expect(names).toEqual(['state', 'start', 'end', 'format', 'prize', 'team'])
+    expect(names, 'the fields no longer read column by column').toEqual([
+      'state',
+      'prize',
+      'start',
+      'end',
+      'format',
+      'team',
+    ])
     const field = (name: string) =>
       container.querySelector(`[data-overlay-fact="${name}"]`) as HTMLElement
     expect(field('start').querySelector('dt')?.textContent).toBe(
@@ -117,13 +124,15 @@ describe('the event window reads like the tile it was opened from', () => {
     expect(screen.queryByText('Committee'), 'the organiser came back under the cover').toBeNull()
   })
 
-  it('pins the format and the team to the right edge of the window', () => {
+  it('sets the format and the team as one column on the right, read from its left edge', () => {
     const { container } = draw()
-    for (const name of ['format', 'team']) {
-      const cell = container.querySelector(`[data-overlay-fact="${name}"]`) as HTMLElement
-      expect(cell.className, `${name} drifted off the right edge`).toContain('sm:col-start-3')
-      expect(cell.className).toContain('sm:text-right')
-      expect(cell.className).toContain('sm:items-end')
-    }
+    const column = container.querySelector('[data-overlay-trailing]') as HTMLElement
+    expect(column.className, 'the column left the right side').toContain('sm:col-start-3')
+    expect(column.className).toContain('sm:justify-self-end')
+    expect(column.className, 'the column is flush right again').not.toMatch(/text-right|items-end/)
+    expect([...column.children].map((node) => node.getAttribute('data-overlay-fact'))).toEqual([
+      'format',
+      'team',
+    ])
   })
 })
