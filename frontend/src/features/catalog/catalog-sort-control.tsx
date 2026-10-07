@@ -71,13 +71,13 @@ function SortDirection({
   onOrder: (value: CatalogOrder) => void
 }) {
   const { t } = useTranslation('event')
-  const { containerRef, box } = useSlidingIndicator<HTMLDivElement>(order, 'x')
+  const { containerRef, box } = useSlidingIndicator<HTMLDivElement>(order, 'y')
 
   return (
     <fieldset className="border-border border-t p-1.5">
       <legend className="sr-only">{t('catalog.orderAria')}</legend>
-      <div ref={containerRef} className="relative grid grid-cols-2 gap-0.5">
-        <SlidingIndicator box={box} axis="x" />
+      <div ref={containerRef} data-sort-direction="" className="relative flex flex-col gap-0.5">
+        <SlidingIndicator box={box} axis="y" />
         {CATALOG_ORDERS.map((value) => {
           const chosen = value === order
           return (
@@ -90,14 +90,21 @@ function SortDirection({
               onClick={() => onOrder(value)}
               className={cn(
                 CHOICE,
-                'justify-center',
                 chosen
                   ? 'text-accent-surface-foreground'
                   : 'text-muted-foreground hover:text-foreground',
               )}
             >
-              <SortArrow order={value} className="size-3.5" />
-              {t(`catalog.order.${value}`)}
+              <SortArrow order={value} className="size-3.5 shrink-0" />
+              <span className="min-w-0 flex-1 truncate">{t(`catalog.order.${value}`)}</span>
+              <Check
+                aria-hidden="true"
+                className={cn(
+                  'size-4 shrink-0',
+                  'motion-safe:transition-[opacity,scale] motion-safe:duration-fast motion-safe:ease-out',
+                  chosen ? 'scale-100 opacity-100' : 'scale-50 opacity-0',
+                )}
+              />
             </button>
           )
         })}

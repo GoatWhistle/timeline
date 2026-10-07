@@ -1,17 +1,29 @@
 import { useTranslation } from 'react-i18next'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
+import { eventColorAttrs } from '@/entities/event/event-color'
 import { EVENT_STATE_TEXT } from '@/entities/event/event-state-mark/event-state-sign'
 import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
 import type { CatalogEvent, EventResponse } from '@/shared/api/types.gen'
 import { formatEventDay } from '@/shared/datetime/datetime'
 import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
+import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
 import { durationDays } from './catalog.facts'
 import { CATALOG_SCOPE_KEY, type CatalogColumn } from './catalog.views'
 import { CatalogJoinedMark } from './catalog-joined-mark'
+import { CornerArrow } from './corner-arrow'
 
 type RowEvent = CatalogEvent | EventResponse
+
+export const TITLE_SITE = cn(
+  'relative -ml-1.5 inline-flex shrink-0 items-center rounded-control',
+  TOUCH_REACH,
+  'before:absolute before:-inset-1.5 before:content-[""]',
+  'text-event-tint/70 transition-colors duration-instant ease-out hover:text-event-tint',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+)
 
 function joinedOf(event: RowEvent): boolean {
   return 'joined' in event && event.joined === true
@@ -45,6 +57,19 @@ export function CatalogTitleCell({
         >
           {event.title}
         </button>
+        {event.website_url && (
+          <ExternalLink
+            href={event.website_url}
+            showIcon={false}
+            aria-label={t('catalog.card.websiteOf', { title: event.title })}
+            data-title-site=""
+            {...eventColorAttrs(event.color)}
+            onClick={(clickEvent) => clickEvent.stopPropagation()}
+            className={TITLE_SITE}
+          >
+            <CornerArrow className="size-3.5" />
+          </ExternalLink>
+        )}
         {joinedOf(event) && <CatalogJoinedMark />}
       </span>
       {selected && <span className="sr-only">{t('catalog.selected')}</span>}
