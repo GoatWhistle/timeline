@@ -8,7 +8,7 @@ export function ListToolbar({
   end,
 }: {
   title: string
-  search: {
+  search?: {
     value: string
     label: string
     placeholder: string
@@ -26,14 +26,16 @@ export function ListToolbar({
       <h1 className="order-1 mr-2 font-semibold text-screen tracking-tight">{title}</h1>
 
       <div className="order-3 flex min-w-0 flex-1 basis-full flex-wrap items-center gap-2 sm:order-2 sm:basis-auto lg:justify-center">
-        <Input
-          ref={search.ref}
-          aria-label={search.label}
-          placeholder={search.placeholder}
-          value={search.value}
-          className="h-9 min-w-24 flex-1 text-copy sm:w-56 sm:flex-none"
-          onChange={(event) => search.onChange(event.target.value)}
-        />
+        {search && (
+          <Input
+            ref={search.ref}
+            aria-label={search.label}
+            placeholder={search.placeholder}
+            value={search.value}
+            className="h-9 min-w-24 flex-1 text-copy sm:w-56 sm:flex-none"
+            onChange={(event) => search.onChange(event.target.value)}
+          />
+        )}
 
         {tools}
       </div>

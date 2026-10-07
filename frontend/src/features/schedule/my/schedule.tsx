@@ -13,12 +13,12 @@ import { PhoneSchedule } from '@/features/schedule/ui/phone-agenda/phone-schedul
 import { RibbonGrid } from '@/features/schedule/ui/ribbon/ribbon-grid'
 import { ScheduleEmpty } from '@/features/schedule/ui/schedule-empty/schedule-empty'
 import { ViewSwap } from '@/features/schedule/ui/view-swap/view-swap'
-import { ViewTabs } from '@/features/schedule/ui/view-tabs/view-tabs'
+import { PeriodNav, ScaleTabs } from '@/features/schedule/ui/view-tabs/view-tabs'
 import { WeekGrid } from '@/features/schedule/ui/week-grid/week-grid'
 import { WrappedGrid } from '@/features/schedule/ui/wrapped-grid/wrapped-grid'
 import { DEFAULT_LOCALE, isLocale } from '@/shared/i18n/locale'
+import { ListToolbar } from '@/shared/ui/layout/list-toolbar'
 import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
-import { PageHeader } from '@/shared/ui/layout/page-header'
 import { QueryBoundary } from '@/shared/ui/states'
 
 const DATE_FNS_LOCALES = { ru, en: enUS }
@@ -65,7 +65,23 @@ export function MySchedulePage() {
 
   return (
     <div>
-      <PageHeader title={t('schedule.myTitle')} />
+      <div data-schedule-toolbar="" className="-mx-4 -mt-4 mb-4">
+        <ListToolbar
+          title={t('schedule.myTitle')}
+          tools={<ScaleTabs value={view.scale} onChange={view.setScale} />}
+          end={
+            view.scale === 'all' ? undefined : (
+              <PeriodNav
+                value={view.scale}
+                period={label}
+                onStep={view.step}
+                onPresent={view.goToday}
+                atPresent={view.atPresent}
+              />
+            )
+          }
+        />
+      </div>
 
       <QueryBoundary
         isPending={query.isPending}
@@ -78,14 +94,6 @@ export function MySchedulePage() {
       >
         {query.data && (
           <div className="flex flex-col gap-4">
-            <ViewTabs
-              value={view.scale}
-              onChange={view.setScale}
-              period={label}
-              onStep={view.scale === 'all' ? undefined : view.step}
-              onPresent={view.goToday}
-              atPresent={view.atPresent}
-            />
             <ScheduleEmpty reason={reason}>
               <ViewSwap token={swapToken} direction={direction}>
                 {view.wrapped && phone ? (

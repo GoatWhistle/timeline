@@ -40,14 +40,13 @@ export type ViewTabsProps = {
   atPresent?: boolean
 }
 
-export function ViewTabs({
+export function ScaleTabs({
   value,
   onChange,
-  period,
-  onStep,
-  onPresent,
-  atPresent = true,
-}: ViewTabsProps) {
+}: {
+  value: ScheduleScale
+  onChange: (next: ScheduleScale) => void
+}) {
   const { t } = useTranslation()
 
   const options = useMemo<SegmentedOption<ScheduleScale>[]>(
@@ -56,63 +55,101 @@ export function ViewTabs({
   )
 
   return (
+    <Segmented
+      value={value}
+      options={options}
+      onChange={onChange}
+      label={t('schedule.scaleLegend')}
+    />
+  )
+}
+
+export function PeriodNav({
+  value,
+  period,
+  onStep,
+  onPresent,
+  atPresent = true,
+}: {
+  value: ScheduleScale
+  period?: string
+  onStep: (direction: 1 | -1) => void
+  onPresent?: () => void
+  atPresent?: boolean
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <nav className={styles.period} data-schedule-period aria-label={t('schedule.periodNav')}>
+      <button
+        type="button"
+        className={cn(styles.step, TOUCH_REACH)}
+        data-schedule-previous
+        aria-label={t(PREVIOUS_KEY[value])}
+        onClick={() => onStep(-1)}
+      >
+        <ChevronLeft className={styles.stepIcon} aria-hidden="true" />
+      </button>
+
+      <p
+        className={styles.present}
+        data-schedule-present
+        data-at-present={atPresent ? 'true' : 'false'}
+      >
+        <span className="sr-only">{t('schedule.periodCurrent', { period })}</span>
+        <span
+          key={period}
+          className={styles.periodText}
+          data-schedule-period-label
+          aria-hidden="true"
+        >
+          {period}
+        </span>
+      </p>
+
+      <button
+        type="button"
+        className={cn(styles.step, TOUCH_REACH)}
+        data-schedule-next
+        aria-label={t(NEXT_KEY[value])}
+        onClick={() => onStep(1)}
+      >
+        <ChevronRight className={styles.stepIcon} aria-hidden="true" />
+      </button>
+
+      <button
+        type="button"
+        className={cn(styles.home, TOUCH_REACH)}
+        data-schedule-home
+        aria-label={t('schedule.backToPresent')}
+        disabled={atPresent}
+        onClick={() => onPresent?.()}
+      >
+        <House className={styles.homeIcon} aria-hidden="true" />
+      </button>
+    </nav>
+  )
+}
+
+export function ViewTabs({
+  value,
+  onChange,
+  period,
+  onStep,
+  onPresent,
+  atPresent = true,
+}: ViewTabsProps) {
+  return (
     <div className={styles.bar}>
-      <Segmented
-        value={value}
-        options={options}
-        onChange={onChange}
-        label={t('schedule.scaleLegend')}
-      />
-
+      <ScaleTabs value={value} onChange={onChange} />
       {onStep && (
-        <nav className={styles.period} data-schedule-period aria-label={t('schedule.periodNav')}>
-          <button
-            type="button"
-            className={cn(styles.step, TOUCH_REACH)}
-            data-schedule-previous
-            aria-label={t(PREVIOUS_KEY[value])}
-            onClick={() => onStep(-1)}
-          >
-            <ChevronLeft className={styles.stepIcon} aria-hidden="true" />
-          </button>
-
-          <p
-            className={styles.present}
-            data-schedule-present
-            data-at-present={atPresent ? 'true' : 'false'}
-          >
-            <span className="sr-only">{t('schedule.periodCurrent', { period })}</span>
-            <span
-              key={period}
-              className={styles.periodText}
-              data-schedule-period-label
-              aria-hidden="true"
-            >
-              {period}
-            </span>
-          </p>
-
-          <button
-            type="button"
-            className={cn(styles.step, TOUCH_REACH)}
-            data-schedule-next
-            aria-label={t(NEXT_KEY[value])}
-            onClick={() => onStep(1)}
-          >
-            <ChevronRight className={styles.stepIcon} aria-hidden="true" />
-          </button>
-
-          <button
-            type="button"
-            className={cn(styles.home, TOUCH_REACH)}
-            data-schedule-home
-            aria-label={t('schedule.backToPresent')}
-            disabled={atPresent}
-            onClick={() => onPresent?.()}
-          >
-            <House className={styles.homeIcon} aria-hidden="true" />
-          </button>
-        </nav>
+        <PeriodNav
+          value={value}
+          period={period}
+          onStep={onStep}
+          onPresent={onPresent}
+          atPresent={atPresent}
+        />
       )}
     </div>
   )
