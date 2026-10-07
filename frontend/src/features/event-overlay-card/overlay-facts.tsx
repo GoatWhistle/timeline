@@ -8,6 +8,7 @@ import type { EventState, EventTrackSummary } from '@/shared/api/types.gen'
 import { formatDateTime } from '@/shared/datetime/datetime'
 import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
+import { NoValue } from '@/shared/ui/data-display/no-value/no-value'
 import type { OverlayFacts } from './overlay-model'
 
 function Fact({
@@ -109,11 +110,19 @@ function TrackLine({
   track: EventTrackSummary
   currency: string | undefined
 }) {
-  const total = formatMoney(track.prize_total, currency)
+  const total = Number(track.prize_total) > 0 ? formatMoney(track.prize_total, currency) : null
   return (
-    <li className="flex items-baseline justify-between gap-3">
-      <span className="min-w-0 truncate">{track.name}</span>
-      {total && <span className="shrink-0 text-prize tabular-nums">{total}</span>}
+    <li
+      data-overlay-track=""
+      className="flex h-row min-w-0 items-center gap-3 border-border/60 border-b px-3 last:border-b-0"
+    >
+      <span className="w-5 shrink-0 text-caption text-muted-foreground tabular-nums">
+        {String(track.track_no).padStart(2, '0')}
+      </span>
+      <span className="min-w-0 flex-1 truncate font-medium text-copy">{track.name}</span>
+      <span className="shrink-0 text-meta tabular-nums">
+        {total ? <span className="font-semibold text-prize">{total}</span> : <NoValue />}
+      </span>
     </li>
   )
 }
@@ -124,9 +133,14 @@ export function OverlayTracks({ facts }: { facts: OverlayFacts }) {
   if (facts.tracks.length === 0) return null
 
   return (
-    <section data-overlay-tracks="" className="flex flex-col gap-1">
-      <h3 className="text-caption text-muted-foreground">{t('place.tracks')}</h3>
-      <ul className="flex flex-col gap-1 font-medium text-copy">
+    <section data-overlay-tracks="" className="flex flex-col gap-2">
+      <h3 className="flex items-baseline gap-2 text-caption text-muted-foreground">
+        {t('place.tracks')}
+        <span data-overlay-track-count="" className="tabular-nums">
+          {facts.tracks.length}
+        </span>
+      </h3>
+      <ul className="overflow-hidden rounded-control border border-border bg-surface-1">
         {facts.tracks.map((track) => (
           <TrackLine key={track.id} track={track} currency={currency} />
         ))}
