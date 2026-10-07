@@ -27,6 +27,7 @@ func adminRoutes(f support.Fixture) []adminRoute {
 		{"user activation", http.MethodPost, "/admin/users/" + f.Member.ID + "/activate", nil},
 		{"user deletion", http.MethodDelete, "/admin/users/" + f.Member.ID, nil},
 		{"event list", http.MethodGet, "/admin/events", nil},
+		{"event list export", http.MethodGet, "/admin/events/export", nil},
 		{"event creation", http.MethodPost, "/admin/events", map[string]any{
 			"title":    "Injected",
 			"start_at": time.Now().UTC().Add(time.Hour).Format(time.RFC3339),
