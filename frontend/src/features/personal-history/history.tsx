@@ -6,7 +6,7 @@ import { historyQuery } from '@/entities/personal/history.queries'
 import { HistoryFigure } from '@/shared/ui/data-display/empty-figures/personal-figures'
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { ListFootnote } from '@/shared/ui/data-display/list-footnote/list-footnote'
-import { PageHeader } from '@/shared/ui/layout/page-header'
+import { PageToolbar } from '@/shared/ui/layout/list-toolbar'
 import { Pagination } from '@/shared/ui/navigation/pagination'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
@@ -22,10 +22,7 @@ export function HistoryPage() {
 
   return (
     <>
-      <PageHeader
-        title={t('personal.history.title')}
-        description={t('personal.history.subtitle')}
-      />
+      <PageToolbar title={t('personal.history.title')} />
 
       <QueryBoundary
         isPending={query.isPending}

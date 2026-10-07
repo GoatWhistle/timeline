@@ -1,10 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, Outlet, useParams } from 'react-router'
+import { Outlet, useParams } from 'react-router'
 import { teamQuery } from '@/entities/team/team.queries'
-import { cn } from '@/shared/styling/class-names/class-names'
-import { PageHeader } from '@/shared/ui/layout/page-header'
+import { PageToolbar } from '@/shared/ui/layout/list-toolbar'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { QueryBoundary } from '@/shared/ui/states'
 import { TeamOwnActions } from './team-own-actions'
@@ -19,18 +17,6 @@ export function TeamLayout() {
 
   return (
     <div className="flex min-w-0 flex-col">
-      <NavLink
-        to="/teams"
-        className={cn(
-          'mb-4 inline-flex w-fit items-center gap-1.5 text-meta text-muted-foreground',
-          'hover:text-foreground transition-colors duration-instant ease-out',
-          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-        )}
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        {t('title')}
-      </NavLink>
-
       <QueryBoundary
         isPending={query.isPending}
         isFetching={query.isFetching}
@@ -41,23 +27,23 @@ export function TeamLayout() {
         shape="unknown"
       >
         {query.data && team && (
-          <div className="flex min-w-0 flex-col gap-6">
-            <div className="flex min-w-0 flex-col gap-4">
-              <PageHeader
-                title={team.name}
-                description={`${t('lead')}: ${team.lead.display_name}`}
-                actions={<TeamOwnActions teamId={id} team={team} />}
-              />
-              {team.my_state === 'INVITED' && (
-                <Badge tone="primary" className="w-fit">
-                  {t('stateInvited')}
-                </Badge>
-              )}
-              <TeamSectionNav teamId={id} />
-            </div>
+          <>
+            <PageToolbar
+              title={team.name}
+              back={{ to: '/teams', label: t('title') }}
+              tools={<TeamSectionNav teamId={id} />}
+              end={<TeamOwnActions teamId={id} team={team} />}
+            />
+            <p
+              data-team-byline=""
+              className="mb-6 flex flex-wrap items-center gap-2 text-meta text-muted-foreground"
+            >
+              {t('lead')}: {team.lead.display_name}
+              {team.my_state === 'INVITED' && <Badge tone="primary">{t('stateInvited')}</Badge>}
+            </p>
 
             <Outlet context={{ teamId: id, detail: query.data, isLead: team.is_lead === true }} />
-          </div>
+          </>
         )}
       </QueryBoundary>
     </div>

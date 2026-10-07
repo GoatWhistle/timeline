@@ -17,7 +17,7 @@ import { PeriodNav, ScaleTabs } from '@/features/schedule/ui/view-tabs/view-tabs
 import { WeekGrid } from '@/features/schedule/ui/week-grid/week-grid'
 import { WrappedGrid } from '@/features/schedule/ui/wrapped-grid/wrapped-grid'
 import { DEFAULT_LOCALE, isLocale } from '@/shared/i18n/locale'
-import { ListToolbar } from '@/shared/ui/layout/list-toolbar'
+import { PageToolbar } from '@/shared/ui/layout/list-toolbar'
 import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { QueryBoundary } from '@/shared/ui/states'
 
@@ -65,8 +65,8 @@ export function MySchedulePage() {
 
   return (
     <div>
-      <div data-schedule-toolbar="" className="-mx-4 -mt-4 mb-4">
-        <ListToolbar
+      <div data-schedule-toolbar="">
+        <PageToolbar
           title={t('schedule.myTitle')}
           tools={<ScaleTabs value={view.scale} onChange={view.setScale} />}
           end={

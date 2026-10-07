@@ -9,7 +9,7 @@ import { TeamFigure } from '@/shared/ui/data-display/empty-figures/people-figure
 import { EmptyState } from '@/shared/ui/data-display/empty-state'
 import { ListFootnote } from '@/shared/ui/data-display/list-footnote/list-footnote'
 import { Card } from '@/shared/ui/layout/card'
-import { PageHeader } from '@/shared/ui/layout/page-header'
+import { PageToolbar } from '@/shared/ui/layout/list-toolbar'
 import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary } from '@/shared/ui/states'
@@ -25,13 +25,12 @@ export function TeamsPage() {
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <PageHeader
+      <PageToolbar
         title={t('title')}
-        description={t('subtitle')}
-        actions={
+        end={
           empty ? undefined : (
-            <Button onClick={() => setCreating(true)}>
-              <Plus aria-hidden="true" />
+            <Button size="sm" className="h-9" onClick={() => setCreating(true)}>
+              <Plus className="size-4" aria-hidden="true" />
               {t('create')}
             </Button>
           )
