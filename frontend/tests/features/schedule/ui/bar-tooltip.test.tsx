@@ -37,45 +37,33 @@ describe('the hover card of a schedule bar', () => {
     expect(getByText(TITLE)).toBeInTheDocument()
   })
 
-  it('shows the prize as a bare figure, with no label spelling it out', () => {
-    const { container, getByText } = renderWithProviders(<BarTooltip row={rowWithCover()} />)
-
-    expect(getByText('500,000 ₽')).toBeInTheDocument()
-    expect(container.textContent ?? '').not.toContain(i18n.t('schedule.prizePool'))
+  it('frames the cover the way a tile does, in the event colour', () => {
+    const { container } = renderWithProviders(<BarTooltip row={rowWithCover()} />)
+    const frame = container.querySelector('[data-catalog-cover]') as HTMLElement
+    expect(frame, 'the hover card drew its own cover again').not.toBeNull()
+    expect(frame.className).toContain('after:border-3')
+    expect(frame.className).toContain('after:border-event-tint/70')
   })
 
-  it('names the format the event runs in', () => {
-    const { getByText } = renderWithProviders(<BarTooltip row={rowWithCover()} />)
-
-    expect(getByText(i18n.t(EVENT_FORMAT_KEY.ONLINE))).toBeInTheDocument()
-  })
-
-  it('carries nothing but cover, title, format and prize: no kind, no dates, no key hint', () => {
+  it('carries the cover and the title alone: no money, no format, no dates', () => {
     const { container } = renderWithProviders(<BarTooltip row={rowWithCover()} />)
     const text = container.textContent ?? ''
 
+    expect(text).not.toContain('500')
+    expect(text).not.toContain(i18n.t(EVENT_FORMAT_KEY.ONLINE))
     expect(text).not.toContain(i18n.t('schedule.selectHint'))
     expect(text).not.toContain(i18n.t(EVENT_KIND_KEY.HACKATHON))
     expect(text).not.toContain(i18n.t(EVENT_STATE_KEY.ACTIVE))
     expect(text).not.toMatch(/2026/)
-    expect(text).not.toContain('Participant registration')
+    expect(container.querySelector('svg'), 'a format glyph came back').toBeNull()
   })
 
-  it('falls back to the initial when the event has no cover, never a broken image', () => {
+  it('shows the quiet no-cover plate when the event has no cover, never a broken image', () => {
     const { container } = renderWithProviders(
       <BarTooltip row={rowWithCover({ cover_url: undefined })} />,
     )
 
     expect(container.querySelector('img')).toBeNull()
-    expect(container.textContent).toContain('W')
-  })
-
-  it('drops the prize line entirely when the event has no prize pool', () => {
-    const { container, queryByText } = renderWithProviders(
-      <BarTooltip row={rowWithCover({ prize_pool: undefined, prize_currency: undefined })} />,
-    )
-
-    expect(queryByText(i18n.t('schedule.prizePool'))).toBeNull()
-    expect(container.textContent).not.toContain('500')
+    expect(container.textContent).toContain(i18n.t('event:catalog.card.noCover'))
   })
 })
