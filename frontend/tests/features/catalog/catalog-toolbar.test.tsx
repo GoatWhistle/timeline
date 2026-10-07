@@ -24,6 +24,7 @@ function props(overrides: Partial<CatalogToolbarProps> = {}): CatalogToolbarProp
     order: 'asc',
     filters: NO_FILTERS,
     columns: ['title', 'start'],
+    cardFields: ['dates', 'prize'],
     exporting: false,
     searchValue: '',
     searchRef: { current: null },
@@ -36,6 +37,8 @@ function props(overrides: Partial<CatalogToolbarProps> = {}): CatalogToolbarProp
     onResetFilters: vi.fn(),
     onToggleColumn: vi.fn(),
     onResetColumns: vi.fn(),
+    onToggleField: vi.fn(),
+    onResetFields: vi.fn(),
     onExport: vi.fn(),
     ...overrides,
   }

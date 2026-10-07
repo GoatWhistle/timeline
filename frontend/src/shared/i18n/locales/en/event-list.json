@@ -106,9 +106,13 @@
       "pending": "Preparing the export",
       "failed": "Could not export the catalog"
     },
+    "cardField": {
+      "dates": "Dates"
+    },
     "selected": "Selected",
     "columns": {
       "action": "Columns",
+      "fields": "Card fields",
       "reset": "Reset to default"
     },
     "filters": {

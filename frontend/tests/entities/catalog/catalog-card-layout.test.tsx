@@ -66,14 +66,24 @@ describe('a catalog tile reads as title, facts, then what is at stake', () => {
     expect(container.textContent).not.toContain('·')
   })
 
-  it('puts each fact behind its own icon: the dates, then the format with the place', () => {
+  it('lays the facts on two columns: dates across, format and length, team and prize', () => {
     const { container } = card()
     const facts = container.querySelector('[data-card-facts]') as HTMLElement
-    const rows = [...facts.children]
-    expect(rows[0]?.querySelector('svg.lucide-calendar-days')).toBeTruthy()
-    expect(rows[0]?.textContent).toContain('7 days')
-    expect(rows[1]?.textContent).toContain(i18n.t('event:place.format.HYBRID'))
-    expect(rows[1]?.querySelector('[data-card-place]')?.textContent).toBe('Kazan')
+    expect(facts.className, 'the facts fell back to a loose stack').toContain(
+      'grid-cols-[minmax(0,1fr)_auto]',
+    )
+    const dates = facts.querySelector('[data-card-dates]')?.parentElement
+      ?.parentElement as HTMLElement
+    expect(dates.className).toContain('col-span-2')
+    expect(dates.querySelector('svg.lucide-calendar-days')).toBeTruthy()
+    const format = facts.querySelector('[data-card-format]') as HTMLElement
+    expect(format.textContent).toBe(i18n.t('event:place.format.HYBRID'))
+    expect(facts.querySelector('[data-card-place]')?.textContent).toBe('Kazan')
+    const duration = facts.querySelector('[data-card-duration]') as HTMLElement
+    expect(duration.textContent).toContain('7 days')
+    expect(duration.className).toContain('col-start-2')
+    expect(duration.className).toContain('justify-self-end')
+    expect(duration.querySelector('svg.lucide-timer')).toBeTruthy()
   })
 
   it('draws the team as the figures used everywhere else, one per seat', () => {
@@ -91,14 +101,17 @@ describe('a catalog tile reads as title, facts, then what is at stake', () => {
     expect(container.textContent).not.toContain('Agents')
   })
 
-  it('sets the prize on the team line, at its far end, with no rule above it', () => {
+  it('sets the prize opposite the team, at the far end, with no rule above it', () => {
     const { container } = card()
     const stakes = container.querySelector('[data-card-stakes]') as HTMLElement
+    const team = container.querySelector('[data-card-team]') as HTMLElement
     expect(stakes.parentElement?.hasAttribute('data-card-facts')).toBe(true)
     expect(stakes.className).not.toContain('border-t')
-    expect(stakes.querySelectorAll('svg.lucide-user')).toHaveLength(4)
-    expect(stakes.lastElementChild?.textContent).toBe('$10,000')
-    expect(stakes.lastElementChild?.className).toContain('ml-auto')
+    expect(team.querySelectorAll('svg.lucide-user')).toHaveLength(4)
+    expect(team.className).toContain('col-start-1')
+    expect(stakes.textContent).toBe('$10,000')
+    expect(stakes.className).toContain('col-start-2')
+    expect(stakes.className).toContain('justify-self-end')
   })
 
   it('drops that line when neither the team nor the prize is known', () => {

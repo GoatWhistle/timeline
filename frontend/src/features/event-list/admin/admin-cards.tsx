@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import type { CardField } from '@/entities/catalog/card-fields'
 import { CARD_CORNER, CARD_GRID, CatalogCard } from '@/entities/catalog/catalog-card'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import {
@@ -45,10 +46,12 @@ export function AdminCards({
   items,
   selected,
   onSelect,
+  fields,
 }: {
   items: EventResponse[]
   selected: string | null
   onSelect: (id: string) => void
+  fields?: readonly CardField[]
 }) {
   const { t } = useTranslation('event')
 
@@ -62,6 +65,7 @@ export function AdminCards({
           onSelect={onSelect}
           corner={<ModerationMenu event={item} className={CARD_CORNER} />}
           footer={<AdminFacts event={item} />}
+          fields={fields}
         />
       ))}
     </div>

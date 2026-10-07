@@ -6,6 +6,7 @@ import type { CatalogEvent } from '@/shared/api/types.gen'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
+import { CARD_FIELDS, type CardField } from './card-fields'
 import { CatalogCover } from './catalog-cover'
 import { CatalogJoinedMark } from './catalog-joined-mark'
 import { CornerArrow } from './corner-arrow'
@@ -47,12 +48,14 @@ export function CatalogCard({
   onSelect,
   corner,
   footer,
+  fields = CARD_FIELDS,
 }: {
   event: TileEvent
   selected: boolean
   onSelect: (id: string) => void
   corner?: ReactNode
   footer?: ReactNode
+  fields?: readonly CardField[]
 }) {
   const { t } = useTranslation('event')
   const cornerNode =
@@ -101,7 +104,7 @@ export function CatalogCard({
             {event.title}
             {event.joined && <CatalogJoinedMark className="ml-1.5 align-[-0.125em]" />}
           </span>
-          {event.organizer && (
+          {fields.includes('organizer') && event.organizer && (
             <span className="block truncate text-caption text-muted-foreground">
               {event.organizer}
             </span>
@@ -109,6 +112,7 @@ export function CatalogCard({
         </span>
 
         <EventFactRows
+          fields={fields}
           facts={{
             startAt: event.start_at,
             endAt: event.end_at,

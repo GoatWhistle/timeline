@@ -129,6 +129,8 @@
 
   --animate-duration-instant: var(--duration-instant);
   --animate-stage-in: stage-in var(--duration-base) var(--ease-out) both;
+  --animate-tool-in: tool-in var(--duration-base) var(--ease-out) both;
+  --animate-tool-out: tool-out var(--duration-base-exit) var(--ease-out) both;
 
   --transition-duration-instant: var(--duration-instant);
   --transition-duration-fast: var(--duration-fast);
@@ -138,6 +140,28 @@
   --transition-duration-panel: var(--duration-panel);
   --transition-duration-zoom: var(--duration-zoom);
   --transition-duration-slow: var(--duration-slow);
+
+  @keyframes tool-in {
+    from {
+      opacity: 0;
+      transform: translateX(-6px) scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  @keyframes tool-out {
+    from {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-6px) scale(0.92);
+    }
+  }
 
   @keyframes stage-in {
     from {

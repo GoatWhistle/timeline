@@ -2,6 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { CATALOG_CARD_FIELDS_KEY, useCardFields } from '@/entities/catalog/card-fields'
 import { useCatalogColumns } from '@/entities/catalog/catalog.columns'
 import { useCatalogExport } from '@/entities/catalog/catalog.export'
 import type { CatalogParams } from '@/entities/catalog/catalog.queries'
@@ -51,6 +52,7 @@ export function CatalogPage() {
   const [searchInput, setSearchInput] = useState(filters.search)
   const search = useDebouncedValue(searchInput, 300)
   const { columns, toggle: toggleColumn, reset: resetColumns } = useCatalogColumns()
+  const cardFields = useCardFields(CATALOG_CARD_FIELDS_KEY)
   const phone = usePhoneViewport()
 
   const layout = effectiveLayout(resolveLayout(filters.layout), phone)
@@ -140,6 +142,7 @@ export function CatalogPage() {
             order={order}
             filters={conditions}
             columns={columns}
+            cardFields={cardFields.fields}
             exporting={exportMutation.isPending}
             searchValue={searchInput}
             searchRef={searchRef}
@@ -155,6 +158,8 @@ export function CatalogPage() {
             onResetFilters={resetFilters}
             onToggleColumn={toggleColumn}
             onResetColumns={resetColumns}
+            onToggleField={cardFields.toggle}
+            onResetFields={cardFields.reset}
             onExport={runExport}
           />
         )}
@@ -192,6 +197,7 @@ export function CatalogPage() {
                 >
                   {items.map((item) => (
                     <CatalogCard
+                      fields={cardFields.fields}
                       key={item.id}
                       event={item}
                       selected={item.id === selected}

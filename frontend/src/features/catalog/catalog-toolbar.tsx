@@ -1,5 +1,6 @@
 import type { RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { CardField } from '@/entities/catalog/card-fields'
 import type {
   CatalogColumn,
   CatalogLayout,
@@ -7,6 +8,7 @@ import type {
   CatalogSort,
 } from '@/entities/catalog/catalog.views'
 import { ListToolbar } from '@/shared/ui/layout/list-toolbar'
+import { CardFieldsMenu, GridSortSlot } from './card-fields-menu'
 import { CatalogColumnsMenu } from './catalog-columns-menu'
 import type { CatalogFilterValues } from './catalog-filter-conditions'
 import { CatalogFiltersPopover } from './catalog-filters-popover'
@@ -19,6 +21,7 @@ export type CatalogToolbarProps = {
   order: CatalogOrder
   filters: CatalogFilterValues
   columns: CatalogColumn[]
+  cardFields: CardField[]
   exporting: boolean
   searchValue: string
   searchRef: RefObject<HTMLInputElement | null>
@@ -31,6 +34,8 @@ export type CatalogToolbarProps = {
   onResetFilters: () => void
   onToggleColumn: (column: CatalogColumn) => void
   onResetColumns: () => void
+  onToggleField: (field: CardField) => void
+  onResetFields: () => void
   onExport: () => void
 }
 
@@ -40,6 +45,7 @@ export function CatalogToolbar({
   order,
   filters,
   columns,
+  cardFields,
   exporting,
   searchValue,
   searchRef,
@@ -52,6 +58,8 @@ export function CatalogToolbar({
   onResetFilters,
   onToggleColumn,
   onResetColumns,
+  onToggleField,
+  onResetFields,
   onExport,
 }: CatalogToolbarProps) {
   const { t } = useTranslation('event')
@@ -76,6 +84,9 @@ export function CatalogToolbar({
               onReset={onResetColumns}
             />
           ) : (
+            <CardFieldsMenu fields={cardFields} onToggle={onToggleField} onReset={onResetFields} />
+          )}
+          <GridSortSlot show={layout === 'grid'}>
             <CatalogSortControl
               sort={sort}
               order={order}
@@ -83,7 +94,7 @@ export function CatalogToolbar({
               onOrder={onOrder}
               onReset={onResetSort}
             />
-          )}
+          </GridSortSlot>
           <CatalogExportButton pending={exporting} onExport={onExport} />
         </>
       }

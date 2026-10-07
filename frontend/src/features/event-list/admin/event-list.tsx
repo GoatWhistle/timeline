@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useAdminColumns } from '@/entities/catalog/admin.columns'
+import { ADMIN_CARD_FIELDS_KEY, useCardFields } from '@/entities/catalog/card-fields'
 import {
   type CatalogOrder,
   type CatalogSort,
@@ -47,6 +48,7 @@ export function AdminEventsPage() {
   const create = useCreateEvent()
   const searchRef = useRef<HTMLInputElement>(null)
   const { columns, toggle: toggleColumn, reset: resetColumns } = useAdminColumns()
+  const cardFields = useCardFields(ADMIN_CARD_FIELDS_KEY)
   const phone = usePhoneViewport()
 
   const [searchInput, setSearchInput] = useState(filters.search)
@@ -109,6 +111,7 @@ export function AdminEventsPage() {
           order={order}
           filters={conditions}
           columns={columns}
+          cardFields={cardFields.fields}
           searchValue={searchInput}
           searchRef={searchRef}
           onSearch={(value) => {
@@ -123,6 +126,8 @@ export function AdminEventsPage() {
           onResetFilters={resetFilters}
           onToggleColumn={toggleColumn}
           onResetColumns={resetColumns}
+          onToggleField={cardFields.toggle}
+          onResetFields={cardFields.reset}
           onCreate={() => setCreateOpen(true)}
         />
 
@@ -165,7 +170,12 @@ export function AdminEventsPage() {
                     onSort={changeSort}
                   />
                 ) : (
-                  <AdminCards items={items} selected={selected} onSelect={select} />
+                  <AdminCards
+                    items={items}
+                    selected={selected}
+                    onSelect={select}
+                    fields={cardFields.fields}
+                  />
                 )}
               </div>
               {query.data && (

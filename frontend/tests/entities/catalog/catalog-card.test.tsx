@@ -141,7 +141,7 @@ describe('CatalogCard', () => {
     const prize = screen.getByText('$15,000')
 
     expect(title.className).toContain('text-screen')
-    expect(prize.className).toContain('text-heading')
+    expect(prize.className, 'the prize shouts over the facts again').toContain('text-copy')
 
     const spoken = [...container.querySelectorAll('.text-screen')].filter(
       (node) => node.getAttribute('aria-hidden') !== 'true',

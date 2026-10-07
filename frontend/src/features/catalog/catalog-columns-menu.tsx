@@ -1,4 +1,4 @@
-import { Columns3 } from 'lucide-react'
+import { Columns3, type LucideIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   CATALOG_COLUMN_KEY,
@@ -26,19 +26,25 @@ export function CatalogColumnsMenu<T extends string>({
   locked = CATALOG_LOCKED_COLUMN as unknown as T,
   defaults = DEFAULT_CATALOG_COLUMNS as unknown as readonly T[],
   namespace = 'event',
+  heading,
+  icon: Icon = Columns3,
+  kind = 'columns',
 }: {
   columns: T[]
   onToggle: (column: T) => void
   onReset: () => void
   all?: readonly T[]
   labels?: Record<T, string>
-  locked?: T
+  locked?: T | null
   defaults?: readonly T[]
   namespace?: string
+  heading?: string
+  icon?: LucideIcon
+  kind?: 'columns' | 'fields'
 }) {
   const { t } = useTranslation('event')
   const { t: tLabel } = useTranslation(namespace)
-  const title = t('catalog.columns.action')
+  const title = heading ?? t('catalog.columns.action')
 
   return (
     <Popover>
@@ -47,10 +53,11 @@ export function CatalogColumnsMenu<T extends string>({
           variant="outline"
           aria-label={title}
           title={title}
-          data-columns-trigger=""
+          data-columns-trigger={kind === 'columns' ? '' : undefined}
+          data-fields-trigger={kind === 'fields' ? '' : undefined}
           className="size-9 shrink-0 p-0"
         >
-          <Columns3 className="size-4" aria-hidden="true" />
+          <Icon className="size-4" aria-hidden="true" />
         </Button>
       </PopoverTrigger>
 
@@ -58,7 +65,8 @@ export function CatalogColumnsMenu<T extends string>({
         align="center"
         collisionPadding={12}
         aria-label={title}
-        data-columns-panel=""
+        data-columns-panel={kind === 'columns' ? '' : undefined}
+        data-fields-panel={kind === 'fields' ? '' : undefined}
         className="w-60 p-0"
       >
         <PanelHead
@@ -78,13 +86,13 @@ export function CatalogColumnsMenu<T extends string>({
                 )}
               >
                 <Checkbox
-                  id={`catalog-column-${column}`}
+                  id={`catalog-${kind}-${column}`}
                   checked={columns.includes(column)}
                   disabled={isLocked}
                   onCheckedChange={() => onToggle(column)}
                 />
                 <Label
-                  htmlFor={`catalog-column-${column}`}
+                  htmlFor={`catalog-${kind}-${column}`}
                   className={cn('flex-1', isLocked ? 'cursor-not-allowed' : 'cursor-pointer')}
                 >
                   {tLabel(labels[column])}

@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react'
 import type { RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { CardField } from '@/entities/catalog/card-fields'
 import {
   ADMIN_COLUMN_KEY,
   ADMIN_COLUMNS,
@@ -10,6 +11,7 @@ import {
   type CatalogSort,
   DEFAULT_ADMIN_COLUMNS,
 } from '@/entities/catalog/catalog.views'
+import { CardFieldsMenu, GridSortSlot } from '@/features/catalog/card-fields-menu'
 import { CatalogColumnsMenu } from '@/features/catalog/catalog-columns-menu'
 import {
   ADMIN_FILTER_FIELDS,
@@ -27,6 +29,7 @@ export function AdminToolbar({
   order,
   filters,
   columns,
+  cardFields,
   searchValue,
   searchRef,
   onSearch,
@@ -38,6 +41,8 @@ export function AdminToolbar({
   onResetFilters,
   onToggleColumn,
   onResetColumns,
+  onToggleField,
+  onResetFields,
   onCreate,
 }: {
   layout: CatalogLayout
@@ -45,6 +50,7 @@ export function AdminToolbar({
   order: CatalogOrder
   filters: CatalogFilterValues
   columns: AdminColumn[]
+  cardFields: CardField[]
   searchValue: string
   searchRef: RefObject<HTMLInputElement | null>
   onSearch: (value: string) => void
@@ -56,6 +62,8 @@ export function AdminToolbar({
   onResetFilters: () => void
   onToggleColumn: (column: AdminColumn) => void
   onResetColumns: () => void
+  onToggleField: (field: CardField) => void
+  onResetFields: () => void
   onCreate: () => void
 }) {
   const { t } = useTranslation('event')
@@ -90,6 +98,9 @@ export function AdminToolbar({
               defaults={DEFAULT_ADMIN_COLUMNS}
             />
           ) : (
+            <CardFieldsMenu fields={cardFields} onToggle={onToggleField} onReset={onResetFields} />
+          )}
+          <GridSortSlot show={layout === 'grid'}>
             <CatalogSortControl
               sort={sort}
               order={order}
@@ -97,7 +108,7 @@ export function AdminToolbar({
               onOrder={onOrder}
               onReset={onResetSort}
             />
-          )}
+          </GridSortSlot>
         </>
       }
       end={
