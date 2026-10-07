@@ -63,7 +63,7 @@ describe('a stretched column reaches the empty pane without a block box in betwe
   })
 
   it.each([
-    ['src/features/teams/teams.tsx', '<PageHeader'],
+    ['src/features/teams/teams.tsx', '<PageToolbar'],
     ['src/features/audit-log/audit-log.tsx', "<PageHeader title={t('audit.title')}"],
   ])('gives %s a stretched column root so its pane can fill the pane', (file, anchor) => {
     const className = classAttribute(source(file), anchor)

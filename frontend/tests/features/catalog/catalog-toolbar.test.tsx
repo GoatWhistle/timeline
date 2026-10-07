@@ -125,8 +125,9 @@ describe('catalog toolbar', () => {
   it('separates the heading from the search with a scale step, not a hair', () => {
     renderWithProviders(<CatalogToolbar {...props()} />)
     const heading = screen.getByRole('heading', { name: i18n.t('event:catalog.title') })
-    expect(heading.className).toContain('mr-2')
-    expect(heading.className).not.toContain('mr-1')
+    const group = heading.parentElement as HTMLElement
+    expect(group.className).toContain('mr-2')
+    expect(group.className).not.toContain('mr-1')
   })
 
   it('shows a spinner in place of the download icon while the file is prepared', () => {
