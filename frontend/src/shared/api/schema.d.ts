@@ -3814,6 +3814,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/catalog/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Catalog event
+         * @description One published event in the catalog payload, for anyone signed in, whether or not
+         *     they take part. It is the full card of an event the caller has not joined: the
+         *     participant card on /events/{id} stays private to its participants. An unpublished
+         *     or archived event is answered with 404, the same as an unknown one, because the
+         *     catalog never shows it.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Event identifier
+                     * @example ev_3k7d8gb9be
+                     */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.CatalogEvent"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description too many catalog requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalog/export": {
         parameters: {
             query?: never;

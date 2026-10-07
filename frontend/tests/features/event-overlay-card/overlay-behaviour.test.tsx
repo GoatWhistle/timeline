@@ -24,6 +24,7 @@ const card: OverlayCard = {
     teamSizeMin: undefined,
     teamSizeMax: undefined,
     tracks: [],
+    place: null,
   },
   stages: [],
   joined: true,
@@ -74,19 +75,13 @@ describe('event overlay card', () => {
   it('carries the cover and the event colour into the card', async () => {
     await openFrom('tile')
 
-    const cover = screen.getByRole('img')
-    expect(cover).toHaveAttribute('src', '/api/v1/covers/a.png')
-
-    const tinted = document.querySelector('[data-event-family="RU"][data-event-slot="4"]')
-    expect(tinted).not.toBeNull()
-
-    const scope = cover.closest('[data-event-family]')
-    expect(scope, 'the cover sits inside the event colour scope').not.toBeNull()
-    expect(scope).toHaveAttribute('data-event-slot', '4')
-
-    const period = document.querySelector('.bg-event-fill')
-    expect(period, 'the period is painted with the event fill').not.toBeNull()
-    expect((period as Element).closest('[data-event-family]')).toBe(scope)
+    const frame = document.querySelector('[data-overlay-cover] [data-catalog-cover]') as HTMLElement
+    expect(frame.querySelector('img')).toHaveAttribute('src', '/api/v1/covers/a.png')
+    expect(frame).toHaveAttribute('data-event-family', 'RU')
+    expect(frame).toHaveAttribute('data-event-slot', '4')
+    expect(frame.className, 'the frame lost the event colour').toContain(
+      'after:border-event-tint/70',
+    )
   })
 
   it('offers the way through to the full event page', async () => {

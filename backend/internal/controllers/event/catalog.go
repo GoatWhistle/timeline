@@ -20,6 +20,7 @@ type CatalogService interface {
 	List(
 		ctx context.Context, actor models.Actor, filter dto.CatalogFilter, page models.Page,
 	) ([]dto.CatalogEvent, int64, error)
+	Get(ctx context.Context, actor models.Actor, eventID uuid.UUID) (dto.CatalogEvent, error)
 	Stream(
 		ctx context.Context, actor models.Actor, filter dto.CatalogFilter,
 		fn func(dto.CatalogEvent) error,

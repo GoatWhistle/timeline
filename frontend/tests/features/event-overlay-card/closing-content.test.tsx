@@ -30,6 +30,7 @@ const card: OverlayCard = {
     teamSizeMin: undefined,
     teamSizeMax: undefined,
     tracks: [],
+    place: null,
   },
   stages: [],
   joined: true,

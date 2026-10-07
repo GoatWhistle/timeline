@@ -1,20 +1,15 @@
-import { CalendarDays } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EVENT_STATE_KEY } from '@/entities/event/event.labels'
 import { eventColorAttrs } from '@/entities/event/event-color'
-import { TeamSizeFigures } from '@/entities/event/team-size/team-size-figures'
-import { EVENT_FORMAT_ICON, EVENT_FORMAT_KEY, placeLabel } from '@/entities/stage/stage.place'
 import type { CatalogEvent } from '@/shared/api/types.gen'
-import { formatDateRange } from '@/shared/datetime/datetime'
-import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
 import { TOUCH_REACH } from '@/shared/styling/touch/touch-reach'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
-import { durationDays } from './catalog.facts'
 import { CatalogCover } from './catalog-cover'
 import { CatalogJoinedMark } from './catalog-joined-mark'
 import { CornerArrow } from './corner-arrow'
+import { EventFactRows } from './event-fact-rows'
 
 type ReaderOnly =
   | 'joined'
@@ -46,22 +41,6 @@ export const CARD_GRID = cn(
   'grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-x-3 sm:gap-x-4',
 )
 
-function FactRow({ icon, children }: { icon: ReactNode; children: ReactNode }) {
-  return (
-    <span className="flex min-w-0 items-center gap-2">
-      <span aria-hidden="true" className="flex w-4 shrink-0 justify-center text-muted-foreground">
-        {icon}
-      </span>
-      <span className="flex min-w-0 items-baseline gap-2">{children}</span>
-    </span>
-  )
-}
-
-function finalPlace(event: TileEvent, online: string): string | null {
-  const final = event.offline_stages?.at(-1)
-  return final ? placeLabel(final.place, online) : null
-}
-
 export function CatalogCard({
   event,
   selected,
@@ -76,9 +55,6 @@ export function CatalogCard({
   footer?: ReactNode
 }) {
   const { t } = useTranslation('event')
-  const FormatIcon = EVENT_FORMAT_ICON[event.effective_format]
-  const prize = formatMoney(event.prize_pool, event.prize_currency)
-  const place = finalPlace(event, t('place.online'))
   const cornerNode =
     corner ??
     (event.website_url ? (
@@ -91,8 +67,6 @@ export function CatalogCard({
         <CornerArrow />
       </ExternalLink>
     ) : null)
-
-  const hasTeam = event.team_size_min !== undefined || event.team_size_max !== undefined
 
   return (
     <div
@@ -134,36 +108,18 @@ export function CatalogCard({
           )}
         </span>
 
-        <span data-card-facts="" className="flex min-w-0 flex-col gap-1 text-meta">
-          <FactRow icon={<CalendarDays className="size-3.5" />}>
-            <span className="truncate font-medium">
-              {formatDateRange(event.start_at, event.end_at)}
-            </span>
-            <span data-card-duration="" className="shrink-0 text-muted-foreground tabular-nums">
-              {t('catalog.column.durationDays', {
-                count: durationDays(event.start_at, event.end_at),
-              })}
-            </span>
-          </FactRow>
-          <FactRow icon={<FormatIcon className="size-3.5" />}>
-            <span className="shrink-0">{t(EVENT_FORMAT_KEY[event.effective_format])}</span>
-            {place && (
-              <span data-card-place="" className="truncate text-muted-foreground">
-                {place}
-              </span>
-            )}
-          </FactRow>
-          {(hasTeam || prize) && (
-            <span data-card-stakes="" className="flex min-h-6 min-w-0 items-center gap-2">
-              <TeamSizeFigures min={event.team_size_min} max={event.team_size_max} />
-              {prize && (
-                <span className="ml-auto shrink-0 font-semibold text-heading text-prize tabular-nums">
-                  {prize}
-                </span>
-              )}
-            </span>
-          )}
-        </span>
+        <EventFactRows
+          facts={{
+            startAt: event.start_at,
+            endAt: event.end_at,
+            format: event.effective_format,
+            place: event.offline_stages?.at(-1)?.place ?? null,
+            teamSizeMin: event.team_size_min,
+            teamSizeMax: event.team_size_max,
+            prizePool: event.prize_pool,
+            prizeCurrency: event.prize_currency,
+          }}
+        />
 
         {footer ?? (
           <span className="sr-only">{t(EVENT_STATE_KEY[event.state].replace('event:', ''))}</span>

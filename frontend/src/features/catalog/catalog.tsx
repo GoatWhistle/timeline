@@ -16,7 +16,6 @@ import {
 } from '@/entities/catalog/catalog.views'
 import { CARD_GRID, CatalogCard } from '@/entities/catalog/catalog-card'
 import { CatalogEventOverlay, useEventOverlay } from '@/features/event-overlay-card'
-import type { CatalogEvent } from '@/shared/api/types.gen'
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value/use-debounced-value'
 import { useListNavigation } from '@/shared/hooks/use-list-navigation/use-list-navigation'
 import { usePageParam, useUrlFilters } from '@/shared/hooks/use-url-filters/use-url-filters'
@@ -24,7 +23,6 @@ import { cn } from '@/shared/styling/class-names/class-names'
 import { usePhoneViewport } from '@/shared/ui/layout/mobile/use-phone-viewport'
 import { ListPane, ThreePane } from '@/shared/ui/layout/three-pane/three-pane'
 import { Pagination } from '@/shared/ui/navigation/pagination'
-import { Button } from '@/shared/ui/primitives/button'
 import { QueryBoundary, SkeletonRows } from '@/shared/ui/states'
 import { useSearchShortcut } from '../event-list/use-search-shortcut'
 import {
@@ -41,13 +39,11 @@ import { CatalogFilterSheet } from './catalog-filter-sheet'
 import { CatalogTable } from './catalog-table'
 import { CatalogToolbar } from './catalog-toolbar'
 import { CatalogToolbarPhone } from './catalog-toolbar-phone'
-import { JoinEventDialog } from './join-event-dialog'
 
 export function CatalogPage() {
   const { t } = useTranslation('event')
   const [filters, setFilters] = useUrlFilters(CATALOG_DEFAULTS)
   const [page, setPage] = usePageParam()
-  const [joining, setJoining] = useState<CatalogEvent | null>(null)
   const [filterSheet, setFilterSheet] = useState(false)
   const filterTriggerRef = useRef<HTMLButtonElement>(null)
   const exportMutation = useCatalogExport()
@@ -214,16 +210,7 @@ export function CatalogPage() {
         </QueryBoundary>
       </ListPane>
 
-      <CatalogEventOverlay
-        items={items}
-        actions={(event) =>
-          event.joined ? null : (
-            <Button onClick={() => setJoining(event)} disabled={event.state === 'FINISHED'}>
-              {t('catalog.join.action')}
-            </Button>
-          )
-        }
-      />
+      <CatalogEventOverlay items={items} />
 
       {phone && (
         <CatalogFilterSheet
@@ -233,16 +220,6 @@ export function CatalogPage() {
           open={filterSheet}
           onOpenChange={setFilterSheet}
           returnFocusTo={filterTriggerRef}
-        />
-      )}
-
-      {joining && (
-        <JoinEventDialog
-          event={joining}
-          open
-          onOpenChange={(open) => {
-            if (!open) setJoining(null)
-          }}
         />
       )}
     </ThreePane>

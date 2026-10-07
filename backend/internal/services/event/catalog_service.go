@@ -55,6 +55,21 @@ func (s *CatalogService) List(ctx context.Context, actor models.Actor, filter dt
 	return s.catalog.List(ctx, actor.UserID, filter, page, s.now())
 }
 
+func (s *CatalogService) Get(ctx context.Context, actor models.Actor,
+	eventID uuid.UUID) (dto.CatalogEvent, error) {
+	items, _, err := s.List(ctx, actor, dto.CatalogFilter{
+		EventID: &eventID,
+		Sort:    models.DefaultCatalogSort,
+	}, models.Page{Number: 1, Size: 1})
+	if err != nil {
+		return dto.CatalogEvent{}, err
+	}
+	if len(items) == 0 {
+		return dto.CatalogEvent{}, models.NewNotFound("event not found")
+	}
+	return items[0], nil
+}
+
 const organizerSuggestionLimit = 20
 
 func (s *CatalogService) Organizers(ctx context.Context, actor models.Actor,

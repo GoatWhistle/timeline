@@ -9,6 +9,7 @@ import { LinkList } from '@/features/event-links/ui/link-list/link-list'
 import { PinnedLinks } from '@/features/event-links/ui/pinned-links/pinned-links'
 import { EventFinanceSection } from '@/features/finance/event-finance'
 import { PersonalSection } from '@/features/personal-layer'
+import { ApiError } from '@/shared/api/errors'
 import type { EventCard } from '@/shared/api/types.gen'
 import { formatDate } from '@/shared/datetime/datetime'
 import { MarkdownView } from '@/shared/markdown/markdown-view'
@@ -16,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/layout/car
 import { PageHeader } from '@/shared/ui/layout/page-header'
 import { PAGE_WIDTH } from '@/shared/ui/layout/page-width'
 import { QueryBoundary, SkeletonDetail } from '@/shared/ui/states'
+import { CatalogEventView } from './catalog-event-view'
 import { EventFacts } from './event-facts'
 import { EventPlaceSummary } from './event-place-summary'
 import { RegistrationSection, StagesSection } from './event-sections'
@@ -38,6 +40,10 @@ export function EventCardPage() {
     } catch {
       toast.error(t('card.markFailed'))
     }
+  }
+
+  if (query.error instanceof ApiError && query.error.status === 404) {
+    return <CatalogEventView id={id} />
   }
 
   return (

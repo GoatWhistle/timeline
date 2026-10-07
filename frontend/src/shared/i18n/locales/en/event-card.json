@@ -1,5 +1,7 @@
 {
   "card": {
+    "joinThroughTeam": "You take part in an event through a team.",
+    "toTeams": "Go to teams",
     "participation": "Participation",
     "teamRole": "Team role",
     "nextStage": "Next stage",

@@ -20,6 +20,10 @@ func catalogFilterSQL(viewer uuid.UUID, filter dto.CatalogFilter, now time.Time)
 		n := itoa(len(args))
 		conds = append(conds, `(lower(e.title) LIKE $`+n+` OR lower(coalesce(e.organizer, '')) LIKE $`+n+`)`)
 	}
+	if filter.EventID != nil {
+		args = append(args, *filter.EventID)
+		conds = append(conds, `e.id = $`+itoa(len(args)))
+	}
 	if filter.From != nil {
 		args = append(args, *filter.From)
 		conds = append(conds, `e.end_at >= $`+itoa(len(args)))

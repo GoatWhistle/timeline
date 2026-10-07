@@ -1,5 +1,7 @@
 {
   "card": {
+    "joinThroughTeam": "Участие в событии оформляется через команду.",
+    "toTeams": "К командам",
     "participation": "Участие",
     "teamRole": "Роль в команде",
     "nextStage": "Ближайший этап",

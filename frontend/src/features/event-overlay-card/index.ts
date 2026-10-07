@@ -1,3 +1,4 @@
+export { EventSummary } from './event-overlay-body'
 export { EventOverlayCard } from './event-overlay-card'
 export {
   fromCatalogEvent,

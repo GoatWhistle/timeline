@@ -1,3 +1,4 @@
+import { isOffline } from '@/entities/stage/stage.place'
 import type {
   CatalogEvent,
   EventCard,
@@ -6,6 +7,7 @@ import type {
   EventResponse,
   EventState,
   EventTrackSummary,
+  Place,
   StageType,
 } from '@/shared/api/types.gen'
 
@@ -24,6 +26,7 @@ export type OverlayFacts = {
   teamSizeMin: number | undefined
   teamSizeMax: number | undefined
   tracks: EventTrackSummary[]
+  place: Place | null
 }
 
 export type OverlayCard = {
@@ -44,7 +47,7 @@ export type OverlayCard = {
   joined: boolean
 }
 
-function facts(event: CatalogEvent | EventResponse): OverlayFacts {
+function facts(event: CatalogEvent | EventResponse, place: Place | null): OverlayFacts {
   return {
     effectiveFormat: event.effective_format,
     prizePool: event.prize_pool ?? null,
@@ -52,6 +55,7 @@ function facts(event: CatalogEvent | EventResponse): OverlayFacts {
     teamSizeMin: event.team_size_min,
     teamSizeMax: event.team_size_max,
     tracks: event.tracks ?? [],
+    place,
   }
 }
 
@@ -60,7 +64,10 @@ export function fromEventCard(card: EventCard): OverlayCard {
   return {
     id: event.id,
     title: event.title,
-    facts: facts(event),
+    facts: facts(
+      event,
+      card.stages.filter((stage) => isOffline(stage.place)).at(-1)?.place ?? null,
+    ),
     organizer: event.organizer ?? null,
     description: event.description ?? null,
     websiteUrl: event.website_url ?? null,
@@ -86,7 +93,7 @@ export function fromCatalogEvent(event: CatalogEvent): OverlayCard {
   return {
     id: event.id,
     title: event.title,
-    facts: facts(event),
+    facts: facts(event, event.offline_stages.at(-1)?.place ?? null),
     organizer: event.organizer ?? null,
     description: event.description ?? null,
     websiteUrl: event.website_url ?? null,
@@ -112,7 +119,7 @@ export function fromEventResponse(event: EventResponse): OverlayCard {
   return {
     id: event.id,
     title: event.title,
-    facts: facts(event),
+    facts: facts(event, null),
     organizer: event.organizer ?? null,
     description: event.description ?? null,
     websiteUrl: event.website_url ?? null,

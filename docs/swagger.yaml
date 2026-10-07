@@ -5719,6 +5719,45 @@ paths:
       summary: Event catalog
       tags:
       - catalog
+  /catalog/{id}:
+    get:
+      description: |-
+        One published event in the catalog payload, for anyone signed in, whether or not
+        they take part. It is the full card of an event the caller has not joined: the
+        participant card on /events/{id} stays private to its participants. An unpublished
+        or archived event is answered with 404, the same as an unknown one, because the
+        catalog never shows it.
+      parameters:
+      - description: Event identifier
+        example: ev_3k7d8gb9be
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CatalogEvent'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "429":
+          description: too many catalog requests
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Catalog event
+      tags:
+      - catalog
   /catalog/export:
     get:
       description: |-

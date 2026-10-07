@@ -3,6 +3,8 @@ package dto
 import (
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/GoatWhistle/timeline/internal/models"
 )
 
@@ -65,6 +67,7 @@ type CatalogFilter struct {
 	To      *time.Time
 	Joined  *bool
 	Sort    models.CatalogSort
+	EventID *uuid.UUID
 }
 
 type ParticipantSelfResponse struct {

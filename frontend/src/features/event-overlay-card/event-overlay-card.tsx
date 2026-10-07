@@ -1,5 +1,5 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { type ReactNode, useRef } from 'react'
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '@/shared/api/session'
 import { useReturnFocus } from '@/shared/hooks/use-return-focus/use-return-focus'
@@ -13,13 +13,7 @@ import { EventOverlayBody } from './event-overlay-body'
 import type { OverlayResult } from './overlay-resolvers'
 import { useEventOverlay, useInAdminSection } from './use-event-overlay'
 
-export function EventOverlayCard({
-  result,
-  actions,
-}: {
-  result: OverlayResult
-  actions?: ReactNode
-}) {
+export function EventOverlayCard({ result }: { result: OverlayResult }) {
   const { t } = useTranslation('event')
   const { isAdmin } = useSession()
   const inAdminSection = useInAdminSection()
@@ -65,7 +59,7 @@ export function EventOverlayCard({
 
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 [scrollbar-gutter:stable_both-edges]">
             <TooltipProvider>
-              <OverlayContent result={held} canOpenAdmin={canOpenAdmin} actions={actions} />
+              <OverlayContent result={held} canOpenAdmin={canOpenAdmin} />
             </TooltipProvider>
           </div>
         </DialogPrimitive.Content>
@@ -77,11 +71,9 @@ export function EventOverlayCard({
 function OverlayContent({
   result,
   canOpenAdmin,
-  actions,
 }: {
   result: OverlayResult
   canOpenAdmin: boolean
-  actions?: ReactNode
 }) {
   if (result.error) return <ErrorState error={result.error} onRetry={result.retry} />
   if (result.loading) return <SkeletonDetail />
@@ -89,7 +81,7 @@ function OverlayContent({
 
   return (
     <div className={result.stale ? 'opacity-60 transition-opacity duration-fast' : ''}>
-      <EventOverlayBody card={result.card} canOpenAdmin={canOpenAdmin} actions={actions} />
+      <EventOverlayBody card={result.card} canOpenAdmin={canOpenAdmin} />
     </div>
   )
 }

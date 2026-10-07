@@ -1,7 +1,15 @@
+import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
+import { EVENT_STATE_TEXT } from '@/entities/event/event-state-mark/event-state-sign'
 import { EventOverlayBody } from '@/features/event-overlay-card/event-overlay-body'
 import type { OverlayCard } from '@/features/event-overlay-card/overlay-model'
+import { i18n, i18nReady } from '@/shared/i18n/config'
+
+beforeAll(async () => {
+  await i18nReady
+  await i18n.changeLanguage('en')
+})
 
 const card: OverlayCard = {
   id: 'ev_1',
@@ -11,73 +19,93 @@ const card: OverlayCard = {
   websiteUrl: 'https://example.com',
   coverUrl: null,
   color: { family: 'RU', slot: 4 },
-  state: 'UPCOMING',
+  state: 'ACTIVE',
   startAt: '2026-10-01T09:00:00Z',
   endAt: '2026-10-03T18:00:00Z',
   deadlineAt: null,
   status: null,
   facts: {
-    effectiveFormat: 'ONLINE',
-    prizePool: null,
-    prizeCurrency: null,
-    teamSizeMin: undefined,
-    teamSizeMax: undefined,
+    effectiveFormat: 'HYBRID',
+    prizePool: '750000.00',
+    prizeCurrency: 'RUB',
+    teamSizeMin: 1,
+    teamSizeMax: 4,
     tracks: [],
+    place: { format: 'OFFLINE', country_code: 'RU', city: 'Moscow', inherited: false },
   },
   stages: [],
   joined: true,
 }
 
-const TYPE_SIZE = /^text-(screen|heading|copy|meta|caption|label)$/
-
-function headerPills(container: HTMLElement): HTMLElement[] {
-  const row = container.querySelector<HTMLElement>('.flex.flex-wrap.items-center.gap-2')
-  if (!row) throw new Error('the card header row is missing')
-  return [...row.children].filter(
-    (node): node is HTMLElement =>
-      node instanceof HTMLElement &&
-      node.tagName === 'SPAN' &&
-      node.className.split(/\s+/).some((token) => token.startsWith('px-')),
-  )
+function draw() {
+  return renderWithProviders(<EventOverlayBody card={card} canOpenAdmin={false} />)
 }
 
-function typeSizeOf(node: HTMLElement): string | undefined {
-  return node.className.split(/\s+/).find((token) => TYPE_SIZE.test(token))
-}
-
-describe('the pills in the card header keep one rhythm', () => {
-  function renderBody() {
-    return renderWithProviders(<EventOverlayBody card={card} canOpenAdmin={false} />)
-  }
-
-  it('shows the state and the dates side by side', () => {
-    const pills = headerPills(renderBody().container)
-    expect(pills.length).toBeGreaterThanOrEqual(2)
+describe('the event window reads like the tile it was opened from', () => {
+  it('frames the cover the way a tile does, in the event colour', () => {
+    const { container } = draw()
+    const frame = container.querySelector('[data-overlay-cover] [data-catalog-cover]')
+    expect(frame, 'the window drew its own cover again').not.toBeNull()
+    expect(frame?.className).toContain('after:border-3')
+    expect(frame?.className).toContain('after:border-event-tint/70')
+    expect(screen.getByText(i18n.t('event:catalog.card.noCover'))).toBeTruthy()
   })
 
-  it('sets every pill on the same step of the type scale', () => {
-    const sizes = headerPills(renderBody().container).map(typeSizeOf).filter(Boolean)
-    expect(sizes.length).toBeGreaterThanOrEqual(2)
-    expect(new Set(sizes).size).toBe(1)
-  })
-
-  it('builds the date pill from the badge primitive, so it cannot drift again', () => {
-    const pills = headerPills(renderBody().container)
-    const dates = pills.at(-1)
-    expect(dates?.className).toContain('inline-flex')
-    expect(dates?.className).toContain('rounded-control')
-    expect(typeSizeOf(dates as HTMLElement)).toBe('text-caption')
-  })
-
-  it('gives the pills one padding and one radius', () => {
-    const pills = headerPills(renderBody().container)
-    const shape = pills.map((pill) =>
-      pill.className
-        .split(/\s+/)
-        .filter((token) => token.startsWith('px-') || token.startsWith('py-'))
-        .sort()
-        .join(' '),
+  it('lays the facts out as labelled fields, the state first and the dates apart', () => {
+    const { container } = draw()
+    const names = [...container.querySelectorAll('[data-overlay-fact]')].map((node) =>
+      node.getAttribute('data-overlay-fact'),
     )
-    expect(new Set(shape).size).toBe(1)
+    expect(names).toEqual(['state', 'start', 'end', 'format', 'prize', 'team'])
+    const field = (name: string) =>
+      container.querySelector(`[data-overlay-fact="${name}"]`) as HTMLElement
+    expect(field('start').querySelector('dt')?.textContent).toBe(
+      i18n.t('event:catalog.sort.start_at'),
+    )
+    expect(field('end').querySelector('dt')?.textContent).toBe(i18n.t('event:catalog.sort.end_at'))
+    expect(field('start').querySelector('dd')?.textContent, 'the start lost its time').toMatch(
+      /\d{1,2}:\d{2}/,
+    )
+    expect(field('end').querySelector('dd')?.textContent).toMatch(/\d{1,2}:\d{2}/)
+    const dates = container.querySelector('[data-overlay-dates]') as HTMLElement
+    expect(dates.className, 'the dates sit side by side again').toContain('flex-col')
+    expect([...dates.children].map((node) => node.getAttribute('data-overlay-fact'))).toEqual([
+      'start',
+      'end',
+    ])
+    expect(field('format').textContent).toContain('Moscow')
+    expect(field('team').querySelectorAll('svg.lucide-user')).toHaveLength(4)
+  })
+
+  it('names the state in its table colour, with no pill, square or dot beside it', () => {
+    const { container } = draw()
+    const state = container.querySelector('[data-overlay-fact="state"] dd span') as HTMLElement
+    expect(state.textContent).toBe(i18n.t('event:state.ACTIVE'))
+    expect(state.className).toContain(EVENT_STATE_TEXT.ACTIVE)
+    expect(container.querySelector('[data-event-state-sign], [data-event-color-mark]')).toBeNull()
+    expect(container.querySelector('.bg-event-fill'), 'the date pill came back').toBeNull()
+  })
+
+  it('stands the cover a little taller than a strip', () => {
+    const { container } = draw()
+    const frame = container.querySelector('[data-overlay-cover] [data-catalog-cover]')
+    expect(frame?.className, 'the cover went flat again').toContain('aspect-[5/2]')
+  })
+
+  it('ends with only the way to the full card, on the right, and no join button', () => {
+    const { container } = renderWithProviders(
+      <EventOverlayBody card={{ ...card, joined: false }} canOpenAdmin={false} />,
+    )
+    const actions = container.querySelector('[data-overlay-actions]') as HTMLElement
+    expect(actions.className).toContain('justify-end')
+    const controls = [...actions.querySelectorAll('a, button')]
+    expect(controls.map((node) => node.textContent)).toEqual([i18n.t('event:overlay.openFull')])
+    expect(controls[0]?.getAttribute('href')).toBe('/events/ev_1')
+    expect(screen.queryByRole('button', { name: /take part|join/i })).toBeNull()
+  })
+
+  it('keeps the organiser under the cover', () => {
+    draw()
+    expect(screen.getByText('Committee')).toBeTruthy()
   })
 })

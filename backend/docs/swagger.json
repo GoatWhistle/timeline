@@ -3468,6 +3468,59 @@
                 }
             }
         },
+        "/catalog/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "One published event in the catalog payload, for anyone signed in, whether or not\nthey take part. It is the full card of an event the caller has not joined: the\nparticipant card on /events/{id} stays private to its participants. An unpublished\nor archived event is answered with 404, the same as an unknown one, because the\ncatalog never shows it.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "catalog"
+                ],
+                "summary": "Catalog event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "ev_3k7d8gb9be",
+                        "description": "Event identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CatalogEvent"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "too many catalog requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/covers/{key}": {
             "get": {
                 "description": "Serves a stored cover by its server-generated key. The key is opaque and\nunguessable; no client-supplied path ever reaches the storage.",

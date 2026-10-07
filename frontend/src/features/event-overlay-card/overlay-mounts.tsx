@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import type { CatalogEvent } from '@/shared/api/types.gen'
 import { EventOverlayCard } from './event-overlay-card'
 import { useAdminOverlay, useAssignedOverlay, useCatalogOverlay } from './overlay-resolvers'
@@ -16,17 +15,8 @@ export function AdminEventOverlay() {
   return <EventOverlayCard result={result} />
 }
 
-export function CatalogEventOverlay({
-  items,
-  actions,
-}: {
-  items: readonly CatalogEvent[]
-  actions?: (event: CatalogEvent) => ReactNode
-}) {
+export function CatalogEventOverlay({ items }: { items: readonly CatalogEvent[] }) {
   const { eventId } = useEventOverlay()
   const result = useCatalogOverlay(eventId, items)
-  const match = items.find((item) => item.id === eventId) ?? null
-  return (
-    <EventOverlayCard result={result} actions={match && actions ? actions(match) : undefined} />
-  )
+  return <EventOverlayCard result={result} />
 }

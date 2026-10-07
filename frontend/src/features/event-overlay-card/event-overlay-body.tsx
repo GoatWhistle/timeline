@@ -1,71 +1,86 @@
-import { Globe } from 'lucide-react'
-import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { EventColorMark, eventColorAttrs } from '@/entities/event/event-color'
-import { EventStateBadge } from '@/entities/event/event-state-badge'
-import { EventCover } from '@/features/event-cover'
-import { formatDateRange } from '@/shared/datetime/datetime'
+import { CARD_ARROW } from '@/entities/catalog/catalog-card'
+import { CatalogCover } from '@/entities/catalog/catalog-cover'
+import { CornerArrow } from '@/entities/catalog/corner-arrow'
+import { eventColorAttrs } from '@/entities/event/event-color'
 import { ExternalLink } from '@/shared/ui/navigation/external-link/external-link'
-import { Badge } from '@/shared/ui/primitives/badge'
 import { Button } from '@/shared/ui/primitives/button'
-import { OverlayFactList } from './overlay-facts'
+import { OverlayFactList, OverlayTracks } from './overlay-facts'
 import type { OverlayCard } from './overlay-model'
 
-export function EventOverlayBody({
+export function EventSummary({
   card,
-  canOpenAdmin,
-  actions,
+  coverClassName = 'aspect-[5/2]',
 }: {
   card: OverlayCard
-  canOpenAdmin: boolean
-  actions?: ReactNode
+  coverClassName?: string
 }) {
   const { t } = useTranslation('event')
 
   return (
     <div className="flex flex-col gap-4">
-      <div {...eventColorAttrs(card.color)} className="flex flex-col gap-3">
-        <EventCover
-          coverUrl={card.coverUrl}
-          title={card.title}
-          className="aspect-[3/1] w-full border-event-tint"
-        />
-
-        <div className="flex flex-wrap items-center gap-2">
-          <EventColorMark color={card.color} />
-          <EventStateBadge state={card.state} />
-          <Badge className="border-transparent bg-event-fill text-event-tint">
-            {formatDateRange(card.startAt, card.endAt)}
-          </Badge>
-        </div>
+      <div {...eventColorAttrs(card.color)} data-overlay-cover="" className="relative">
+        <CatalogCover coverUrl={card.coverUrl} color={card.color} className={coverClassName} />
+        {card.websiteUrl && (
+          <span data-card-corner="" className="absolute -top-[8.5px] -right-[8.5px] z-10 flex">
+            <ExternalLink
+              href={card.websiteUrl}
+              showIcon={false}
+              aria-label={t('catalog.card.websiteOf', { title: card.title })}
+              className={CARD_ARROW}
+            >
+              <CornerArrow />
+            </ExternalLink>
+          </span>
+        )}
       </div>
+
+      {card.organizer && (
+        <span className="-mt-1 truncate text-caption text-muted-foreground">{card.organizer}</span>
+      )}
+
+      <OverlayFactList
+        facts={card.facts}
+        state={card.state}
+        startAt={card.startAt}
+        endAt={card.endAt}
+      />
 
       {card.description && (
         <p className="max-w-prose text-copy [text-wrap:pretty]">{card.description}</p>
       )}
 
-      <OverlayFactList facts={card.facts} />
+      <OverlayTracks facts={card.facts} />
+    </div>
+  )
+}
 
-      <div className="flex flex-wrap items-center gap-2 border-border border-t pt-4">
-        {actions}
-        {card.joined && (
-          <Button asChild>
-            <Link to={`/events/${card.id}`}>{t('overlay.openFull')}</Link>
-          </Button>
-        )}
+export function EventOverlayBody({
+  card,
+  canOpenAdmin,
+}: {
+  card: OverlayCard
+  canOpenAdmin: boolean
+}) {
+  const { t } = useTranslation('event')
+
+  return (
+    <div className="flex flex-col gap-4">
+      <EventSummary card={card} />
+
+      <div
+        data-overlay-actions=""
+        className="flex flex-wrap items-center justify-end gap-2 border-border border-t pt-4"
+      >
         {canOpenAdmin && (
           <Button asChild variant="outline">
             <Link to={`/admin/events/${card.id}`}>{t('overlay.openAdmin')}</Link>
           </Button>
         )}
-        {card.websiteUrl && (
-          <Button asChild variant="ghost" size="icon" aria-label={t('card.website')}>
-            <ExternalLink href={card.websiteUrl} showIcon={false} title={t('card.website')}>
-              <Globe className="size-4" aria-hidden="true" />
-            </ExternalLink>
-          </Button>
-        )}
+        <Button asChild>
+          <Link to={`/events/${card.id}`}>{t('overlay.openFull')}</Link>
+        </Button>
       </div>
     </div>
   )

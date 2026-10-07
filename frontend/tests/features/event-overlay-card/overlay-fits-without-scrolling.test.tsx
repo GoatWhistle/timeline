@@ -28,6 +28,7 @@ const card: OverlayCard = {
       { id: 'tr_1', track_no: 1, name: 'Voice agents', prize_total: '7000' },
       { id: 'tr_2', track_no: 2, name: 'Telephony integration', prize_total: '3000' },
     ],
+    place: null,
   },
   stages: [
     {
@@ -106,16 +107,19 @@ describe('the card ends with a way out, and the website is an icon', () => {
     expect(link).toHaveAttribute('href', `/events/${card.id}`)
   })
 
-  it('reaches the website by an icon rather than by a worded button', () => {
+  it('reaches the website by the arrow out of the cover corner, as a tile does', () => {
     render()
-    const site = screen.getByRole('link', { name: i18n.t('event:card.website') })
+    const site = screen.getByRole('link', {
+      name: i18n.t('event:catalog.card.websiteOf', { title: card.title }),
+    })
     expect(site).toHaveAttribute('href', card.websiteUrl)
-    expect(site.querySelector('svg')).not.toBeNull()
+    expect(site.querySelector('svg[data-corner-arrow]')).not.toBeNull()
     expect(site.textContent?.trim()).toBe('')
+    expect(site.closest('[data-overlay-cover]'), 'the arrow left the cover').not.toBeNull()
   })
 
   it('draws no website control when the event names no site', () => {
     render({ websiteUrl: null })
-    expect(screen.queryByRole('link', { name: i18n.t('event:card.website') })).toBeNull()
+    expect(document.querySelector('[data-overlay-cover] a')).toBeNull()
   })
 })
