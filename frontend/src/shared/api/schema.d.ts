@@ -1899,6 +1899,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/events/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export the administrative event list as CSV
+         * @description Every event the administrative list returns under the same filters and the same
+         *     sort, drafts and archived records included when the filters ask for them, streamed
+         *     as CSV instead of paginated JSON. Rows are written page by page as they are read.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Comma-separated format filter */
+                    format?: "ONLINE" | "OFFLINE" | "HYBRID";
+                    /** @description Events ending on or after this moment */
+                    from?: string;
+                    /** @description Include archived records */
+                    include_archived?: boolean;
+                    /** @description Comma-separated kind filter */
+                    kind?: "HACKATHON" | "MEETUP";
+                    /** @description Sort direction */
+                    order?: "asc" | "desc";
+                    /** @description Comma-separated origin filter */
+                    origin?: "RU" | "WORLD";
+                    /** @description Search by title and organiser */
+                    search?: string;
+                    /** @description Sort field */
+                    sort?: "start_at" | "end_at" | "title" | "duration" | "prize" | "team_min" | "team_max" | "tracks";
+                    /** @description Comma-separated state filter */
+                    state?: "UNPUBLISHED" | "UPCOMING" | "ACTIVE" | "FINISHED" | "ARCHIVED";
+                    /** @description Events starting on or before this moment */
+                    to?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description CSV payload */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["dto.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/participants/{id}/team-role": {
         parameters: {
             query?: never;

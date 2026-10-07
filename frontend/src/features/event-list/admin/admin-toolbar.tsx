@@ -18,7 +18,7 @@ import {
   type CatalogFilterValues,
 } from '@/features/catalog/catalog-filter-conditions'
 import { CatalogFiltersPopover } from '@/features/catalog/catalog-filters-popover'
-import { CatalogSortControl } from '@/features/catalog/catalog-sort-control'
+import { CatalogExportButton, CatalogSortControl } from '@/features/catalog/catalog-sort-control'
 import { CatalogViewSwitch } from '@/features/catalog/catalog-view-switch'
 import { ListToolbar } from '@/shared/ui/layout/list-toolbar'
 import { Button } from '@/shared/ui/primitives/button'
@@ -30,6 +30,7 @@ export function AdminToolbar({
   filters,
   columns,
   cardFields,
+  exporting,
   searchValue,
   searchRef,
   onSearch,
@@ -43,6 +44,7 @@ export function AdminToolbar({
   onResetColumns,
   onToggleField,
   onResetFields,
+  onExport,
   onCreate,
 }: {
   layout: CatalogLayout
@@ -51,6 +53,7 @@ export function AdminToolbar({
   filters: CatalogFilterValues
   columns: AdminColumn[]
   cardFields: CardField[]
+  exporting: boolean
   searchValue: string
   searchRef: RefObject<HTMLInputElement | null>
   onSearch: (value: string) => void
@@ -64,6 +67,7 @@ export function AdminToolbar({
   onResetColumns: () => void
   onToggleField: (field: CardField) => void
   onResetFields: () => void
+  onExport: () => void
   onCreate: () => void
 }) {
   const { t } = useTranslation('event')
@@ -109,6 +113,7 @@ export function AdminToolbar({
               onReset={onResetSort}
             />
           </GridSortSlot>
+          <CatalogExportButton pending={exporting} onExport={onExport} />
         </>
       }
       end={

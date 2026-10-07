@@ -96,6 +96,7 @@ func mountAdminIdentity(mux *http.ServeMux, rt *routes, api string,
 	mux.Handle("POST "+api+"/admin/users/{id}/activate", rt.admin(userC.Activate))
 	mux.Handle("DELETE "+api+"/admin/users/{id}", rt.admin(userC.Delete))
 	mux.Handle("GET "+api+"/admin/events", rt.admin(eventC.List))
+	mux.Handle("GET "+api+"/admin/events/export", rt.admin(eventC.Export))
 	mux.Handle("POST "+api+"/admin/events", rt.admin(eventC.Create))
 	mux.Handle("GET "+api+"/admin/events/{id}", rt.admin(eventC.Get))
 	mux.Handle("PATCH "+api+"/admin/events/{id}", rt.admin(eventC.Update))

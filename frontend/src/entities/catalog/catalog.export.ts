@@ -1,10 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
+import type { AdminListParams } from '@/entities/event/event.queries'
 import { BASE_URL } from '@/shared/api/client'
 import type { CatalogParams } from './catalog.queries'
 
 const EXPORT_FILENAME = 'catalog.csv'
 
-export function exportSearch(params: CatalogParams): string {
+export function exportSearch(params: Record<string, unknown>): string {
   const search = new URLSearchParams()
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined || value === '') continue
@@ -32,22 +33,37 @@ function save(blob: Blob, filename: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 60_000)
 }
 
-export async function downloadCatalogExport(params: CatalogParams): Promise<void> {
+type ExportPath = '/catalog/export' | '/admin/events/export'
+
+export async function downloadExport(
+  path: ExportPath,
+  params: Record<string, unknown>,
+): Promise<void> {
   const search = exportSearch(params)
-  const response = await fetch(`${BASE_URL}/catalog/export${search === '' ? '' : `?${search}`}`, {
+  const response = await fetch(`${BASE_URL}${path}${search === '' ? '' : `?${search}`}`, {
     method: 'GET',
     credentials: 'include',
     headers: { Accept: 'text/csv' },
   })
   if (!response.ok) {
-    throw new Error(`catalog export failed with status ${response.status}`)
+    throw new Error(`export failed with status ${response.status}`)
   }
   const blob = await response.blob()
   save(blob, filenameFrom(response.headers.get('Content-Disposition')))
 }
 
+export function downloadCatalogExport(params: CatalogParams): Promise<void> {
+  return downloadExport('/catalog/export', params)
+}
+
 export function useCatalogExport() {
   return useMutation<void, Error, CatalogParams>({
     mutationFn: (params) => downloadCatalogExport(params),
+  })
+}
+
+export function useAdminEventsExport() {
+  return useMutation<void, Error, AdminListParams>({
+    mutationFn: (params) => downloadExport('/admin/events/export', params),
   })
 }

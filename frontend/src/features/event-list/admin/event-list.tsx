@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useAdminColumns } from '@/entities/catalog/admin.columns'
 import { ADMIN_CARD_FIELDS_KEY, useCardFields } from '@/entities/catalog/card-fields'
+import { useAdminEventsExport } from '@/entities/catalog/catalog.export'
 import {
   type CatalogOrder,
   type CatalogSort,
@@ -49,6 +50,7 @@ export function AdminEventsPage() {
   const searchRef = useRef<HTMLInputElement>(null)
   const { columns, toggle: toggleColumn, reset: resetColumns } = useAdminColumns()
   const cardFields = useCardFields(ADMIN_CARD_FIELDS_KEY)
+  const exportMutation = useAdminEventsExport()
   const phone = usePhoneViewport()
 
   const [searchInput, setSearchInput] = useState(filters.search)
@@ -112,6 +114,7 @@ export function AdminEventsPage() {
           filters={conditions}
           columns={columns}
           cardFields={cardFields.fields}
+          exporting={exportMutation.isPending}
           searchValue={searchInput}
           searchRef={searchRef}
           onSearch={(value) => {
@@ -128,6 +131,11 @@ export function AdminEventsPage() {
           onResetColumns={resetColumns}
           onToggleField={cardFields.toggle}
           onResetFields={cardFields.reset}
+          onExport={() =>
+            exportMutation.mutate(adminListParams(filters, search, sort, order, 1), {
+              onError: () => toast.error(t('catalog.export.failed')),
+            })
+          }
           onCreate={() => setCreateOpen(true)}
         />
 

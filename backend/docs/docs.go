@@ -414,6 +414,145 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/events/export": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Every event the administrative list returns under the same filters and the same\nsort, drafts and archived records included when the filters ask for them, streamed\nas CSV instead of paginated JSON. Rows are written page by page as they are read.",
+                "produces": [
+                    "text/csv"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Export the administrative event list as CSV",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search by title and organiser",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "UNPUBLISHED",
+                            "UPCOMING",
+                            "ACTIVE",
+                            "FINISHED",
+                            "ARCHIVED"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated state filter",
+                        "name": "state",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "HACKATHON",
+                            "MEETUP"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated kind filter",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "RU",
+                            "WORLD"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated origin filter",
+                        "name": "origin",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "ONLINE",
+                            "OFFLINE",
+                            "HYBRID"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated format filter",
+                        "name": "format",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include archived records",
+                        "name": "include_archived",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Events ending on or after this moment",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Events starting on or before this moment",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "start_at",
+                            "end_at",
+                            "title",
+                            "duration",
+                            "prize",
+                            "team_min",
+                            "team_max",
+                            "tracks"
+                        ],
+                        "type": "string",
+                        "description": "Sort field",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "description": "Sort direction",
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "CSV payload",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/events/{id}": {
             "get": {
                 "security": [
