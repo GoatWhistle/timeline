@@ -10,14 +10,26 @@ import { formatMoney } from '@/shared/money/money'
 import { cn } from '@/shared/styling/class-names/class-names'
 import type { OverlayFacts } from './overlay-model'
 
-function Fact({ label, children, name }: { label: string; children: ReactNode; name: string }) {
+function Fact({
+  label,
+  children,
+  name,
+  className,
+}: {
+  label: string
+  children: ReactNode
+  name: string
+  className?: string
+}) {
   return (
-    <div data-overlay-fact={name} className="flex min-w-0 flex-col gap-1">
+    <div data-overlay-fact={name} className={cn('flex min-w-0 flex-col gap-1', className)}>
       <dt className="text-caption text-muted-foreground">{label}</dt>
       <dd className="min-w-0 font-medium text-copy">{children}</dd>
     </div>
   )
 }
+
+const TRAILING = 'sm:col-start-3 sm:items-end sm:text-right'
 
 export function OverlayFactList({
   facts,
@@ -38,12 +50,19 @@ export function OverlayFactList({
 
   return (
     <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
-      <Fact name="state" label={t('catalog.column.state')}>
+      <Fact
+        name="state"
+        label={t('catalog.column.state')}
+        className="sm:col-start-1 sm:row-start-1"
+      >
         <span className={EVENT_STATE_TEXT[state]}>
           {t(EVENT_STATE_KEY[state].replace('event:', ''))}
         </span>
       </Fact>
-      <div data-overlay-dates="" className="flex min-w-0 flex-col gap-3 sm:row-span-2">
+      <div
+        data-overlay-dates=""
+        className="flex min-w-0 flex-col gap-3 sm:col-start-2 sm:row-span-2 sm:row-start-1"
+      >
         <Fact name="start" label={t('catalog.sort.start_at')}>
           <span className="tabular-nums">{formatDateTime(startAt)}</span>
         </Fact>
@@ -51,7 +70,7 @@ export function OverlayFactList({
           <span className="tabular-nums">{formatDateTime(endAt)}</span>
         </Fact>
       </div>
-      <Fact name="format" label={t('place.effective')}>
+      <Fact name="format" label={t('place.effective')} className={cn(TRAILING, 'sm:row-start-1')}>
         <span className="inline-flex max-w-full items-center gap-1.5">
           <FormatIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <span className="truncate">{t(EVENT_FORMAT_KEY[facts.effectiveFormat])}</span>
@@ -63,12 +82,16 @@ export function OverlayFactList({
         )}
       </Fact>
       {prize && (
-        <Fact name="prize" label={t('place.prizePoolShort')}>
+        <Fact
+          name="prize"
+          label={t('place.prizePoolShort')}
+          className="sm:col-start-1 sm:row-start-2"
+        >
           <span className="font-semibold text-prize tabular-nums">{prize}</span>
         </Fact>
       )}
       {hasTeamSize && (
-        <Fact name="team" label={t('place.teamSize')}>
+        <Fact name="team" label={t('place.teamSize')} className={cn(TRAILING, 'sm:row-start-2')}>
           <TeamSizeFigures min={facts.teamSizeMin} max={facts.teamSizeMax} />
         </Fact>
       )}

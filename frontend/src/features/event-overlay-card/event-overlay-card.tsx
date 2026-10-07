@@ -49,9 +49,19 @@ export function EventOverlayCard({ result }: { result: OverlayResult }) {
           )}
         >
           <header className="flex items-center gap-2 border-border border-b px-5 py-3">
-            <DialogPrimitive.Title className="min-w-0 flex-1 truncate font-semibold text-heading">
-              {held.card?.title ?? t('overlay.title')}
-            </DialogPrimitive.Title>
+            <div className="flex min-w-0 flex-1 items-baseline gap-2">
+              <DialogPrimitive.Title className="min-w-0 truncate font-semibold text-heading">
+                {held.card?.title ?? t('overlay.title')}
+              </DialogPrimitive.Title>
+              {held.card?.organizer && (
+                <span
+                  data-overlay-organizer=""
+                  className="min-w-0 max-w-[45%] shrink-0 truncate text-caption text-muted-foreground"
+                >
+                  {t('overlay.by', { organizer: held.card.organizer })}
+                </span>
+              )}
+            </div>
             <DialogPrimitive.Close asChild>
               <CloseButton ref={closeRef} label={t('detail.close')} />
             </DialogPrimitive.Close>

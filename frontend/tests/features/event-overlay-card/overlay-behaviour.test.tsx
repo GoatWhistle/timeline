@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '@tests/support/render'
 import { describe, expect, it } from 'vitest'
 import { EventOverlayCard, type OverlayCard, useEventOverlay } from '@/features/event-overlay-card'
+import { i18n } from '@/shared/i18n/config'
 import { Button } from '@/shared/ui/primitives/button'
 
 const card: OverlayCard = {
@@ -81,6 +82,20 @@ describe('event overlay card', () => {
     expect(frame).toHaveAttribute('data-event-slot', '4')
     expect(frame.className, 'the frame lost the event colour').toContain(
       'after:border-event-tint/70',
+    )
+  })
+
+  it('names the organiser beside the title, smaller and quieter, as a byline', async () => {
+    await openFrom('tile')
+    const byline = document.querySelector('[data-overlay-organizer]') as HTMLElement
+    expect(byline, 'the organiser left the header').not.toBeNull()
+    expect(byline.textContent).toBe(i18n.t('event:overlay.by', { organizer: 'Committee' }))
+    expect(byline.className).toContain('text-caption')
+    expect(byline.className).toContain('text-muted-foreground')
+    const title = screen.getByRole('heading', { level: 2 })
+    expect(title.nextElementSibling, 'the byline drifted from the title').toBe(byline)
+    expect(title.textContent, 'the byline leaked into the accessible title').not.toContain(
+      'Committee',
     )
   })
 

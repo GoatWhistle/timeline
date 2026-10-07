@@ -104,8 +104,26 @@ describe('the event window reads like the tile it was opened from', () => {
     expect(screen.queryByRole('button', { name: /take part|join/i })).toBeNull()
   })
 
-  it('keeps the organiser under the cover', () => {
-    draw()
-    expect(screen.getByText('Committee')).toBeTruthy()
+  it('reads cover, description, then the facts, with the organiser left to the header', () => {
+    const { container } = draw()
+    const pick = (selector: string) => container.querySelector(selector) as HTMLElement
+    const cover = pick('[data-overlay-cover]')
+    const description = pick('[data-overlay-description]')
+    const state = pick('[data-overlay-fact="state"]')
+    const after = (first: Node, second: Node) =>
+      Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(after(cover, description), 'the description fell below the cover').toBe(true)
+    expect(after(description, state), 'the facts came before the description').toBe(true)
+    expect(screen.queryByText('Committee'), 'the organiser came back under the cover').toBeNull()
+  })
+
+  it('pins the format and the team to the right edge of the window', () => {
+    const { container } = draw()
+    for (const name of ['format', 'team']) {
+      const cell = container.querySelector(`[data-overlay-fact="${name}"]`) as HTMLElement
+      expect(cell.className, `${name} drifted off the right edge`).toContain('sm:col-start-3')
+      expect(cell.className).toContain('sm:text-right')
+      expect(cell.className).toContain('sm:items-end')
+    }
   })
 })

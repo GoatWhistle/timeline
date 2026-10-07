@@ -36,8 +36,10 @@ export function EventSummary({
         )}
       </div>
 
-      {card.organizer && (
-        <span className="-mt-1 truncate text-caption text-muted-foreground">{card.organizer}</span>
+      {card.description && (
+        <p data-overlay-description="" className="max-w-prose text-copy [text-wrap:pretty]">
+          {card.description}
+        </p>
       )}
 
       <OverlayFactList
@@ -46,10 +48,6 @@ export function EventSummary({
         startAt={card.startAt}
         endAt={card.endAt}
       />
-
-      {card.description && (
-        <p className="max-w-prose text-copy [text-wrap:pretty]">{card.description}</p>
-      )}
 
       <OverlayTracks facts={card.facts} />
     </div>

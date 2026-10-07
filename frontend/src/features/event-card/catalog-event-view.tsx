@@ -26,7 +26,12 @@ export function CatalogEventView({ id }: { id: string }) {
     >
       {event && (
         <div className={PAGE_WIDTH} data-catalog-event-view="">
-          <PageHeader title={event.title} />
+          <PageHeader
+            title={event.title}
+            description={
+              event.organizer ? t('overlay.by', { organizer: event.organizer }) : undefined
+            }
+          />
           <div className="pr-2.5">
             <EventSummary
               card={fromCatalogEvent(event)}

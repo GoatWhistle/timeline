@@ -112,6 +112,7 @@
     "OTHER": "Other"
   },
   "overlay": {
+    "by": "by {{organizer}}",
     "title": "Event",
     "openFull": "Show the full statistics",
     "openAdmin": "Administrative card"
