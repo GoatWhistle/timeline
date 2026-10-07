@@ -32,7 +32,6 @@
   "cover": {
     "title": "Cover",
     "alt": "Cover of {{title}}",
-    "missing": "No cover",
     "upload": "Upload a cover",
     "replace": "Replace the cover",
     "remove": "Remove the uploaded cover",

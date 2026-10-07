@@ -66,13 +66,12 @@ describe('a cover picture sits in a frame you can actually see', () => {
   })
 })
 
-describe('the event window keeps its own missing-cover figure', () => {
-  it('writes the missing-cover label in the theme ink', () => {
-    const { container } = render(<CoverMissing />)
-    const label = container.querySelector('p')
-    expect(label).not.toBeNull()
-    const classes = (label as HTMLElement).className.split(/\s+/)
-    expect(classes).toContain(INK)
-    expect(classes).not.toContain(FADED)
+describe('the event window says there is no cover the way the tile does', () => {
+  it('uses the tile wording in the same soft grey', () => {
+    render(<CoverMissing />)
+    const label = screen.getByText(i18n.t('event:catalog.card.noCover'))
+    const classes = label.className.split(/\s+/)
+    expect(classes, 'the window shouts over the plate again').toContain(FADED)
+    expect(classes).not.toContain(INK)
   })
 })

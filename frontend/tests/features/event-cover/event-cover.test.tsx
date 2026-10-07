@@ -35,10 +35,13 @@ describe('event cover', () => {
     expect(screen.getByRole('img', { name: 'No cover' })).toBeInTheDocument()
   })
 
-  it('keeps the placeholder animation behind motion-safe', () => {
+  it('draws the same quiet plate as a tile, with no figure and nothing moving', () => {
     const { container } = renderWithProviders(<CoverMissing />)
-    const spinner = container.querySelector('[class*="animate-"]')
-    expect(spinner?.getAttribute('class')).toContain('motion-safe:')
+    expect(container.querySelector('svg'), 'the figure came back into the event window').toBeNull()
+    expect(container.querySelector('[class*="animate-"]')).toBeNull()
+    const label = screen.getByText('No cover')
+    expect(label.className).toContain('text-muted-foreground')
+    expect(label.className).toContain('text-caption')
   })
 
   it('labels the placeholder for assistive technology', () => {
