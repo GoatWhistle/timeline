@@ -110,10 +110,10 @@ describe('the event window reads like the tile it was opened from', () => {
     const cover = pick('[data-overlay-cover]')
     const description = pick('[data-overlay-description]')
     const state = pick('[data-overlay-fact="state"]')
-    const after = (first: Node, second: Node) =>
+    const follows = (first: Node, second: Node) =>
       Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
-    expect(after(cover, description), 'the description fell below the cover').toBe(true)
-    expect(after(description, state), 'the facts came before the description').toBe(true)
+    expect(follows(cover, description), 'the description fell below the cover').toBe(true)
+    expect(follows(description, state), 'the facts came before the description').toBe(true)
     expect(screen.queryByText('Committee'), 'the organiser came back under the cover').toBeNull()
   })
 
