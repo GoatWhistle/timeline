@@ -53,7 +53,7 @@ export WEB_PORT API_PORT POSTGRES_PORT CONTRACT_API_PORT
 	docker-psql dev dev-down dev-restart dev-logs seed \
 	install types types-check typecheck lint format test test-contract e2e verify build \
 	cyrillic baseline-cyrillic import-cycles lint-baseline baseline-lint \
-	package-size baseline-package-size package-subject screenshots mail-colors \
+	package-size baseline-package-size package-subject screenshots mail-colors readme readme-preview \
 	back-fmt back-vet back-test back-test-integration back-build back-cover back-cover-integration back-docs clean
 
 .DEFAULT_GOAL := help
@@ -221,6 +221,12 @@ screenshots: ## Images only in screenshots/, assets and docs
 
 bundle-size: ## Production bundle size against the baseline
 	@node scripts/bundle-size.mjs
+
+readme: $(FRONTEND)/node_modules ## Render the README banner, buttons and badges from the app tokens
+	@node scripts/readme/render.mjs
+
+readme-preview: $(FRONTEND)/node_modules ## Show the README header as GitHub renders it, in screenshots/readme
+	@node scripts/readme/preview.mjs
 
 vendor-flags: $(FRONTEND)/node_modules ## Copy the affordable country flags into frontend/public
 	@node scripts/vendor-flags.mjs

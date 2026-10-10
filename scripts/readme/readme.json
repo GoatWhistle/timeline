@@ -1,0 +1,99 @@
+{
+  "buttons": [
+    {
+      "name": "live",
+      "label": "Open the app",
+      "icon": "external-link",
+      "href": "https://timeline.goatwhistle.ru",
+      "primary": true
+    },
+    {
+      "name": "run",
+      "label": "Run it locally",
+      "icon": "terminal",
+      "href": "#running-it"
+    },
+    {
+      "name": "contract",
+      "label": "API contract",
+      "icon": "file-text",
+      "href": "docs/swagger.yaml"
+    }
+  ],
+  "status": [
+    {
+      "label": "registration",
+      "value": "self-reported, never verified",
+      "href": "#the-rule",
+      "tone": "accent"
+    },
+    {
+      "label": "reminders",
+      "value": "Telegram and email",
+      "href": "#how-it-works"
+    },
+    {
+      "label": "delivery",
+      "value": "at least once",
+      "href": "#limitations"
+    },
+    {
+      "label": "interface",
+      "value": "RU and EN"
+    },
+    {
+      "label": "license",
+      "value": "MIT",
+      "href": "LICENSE"
+    }
+  ],
+  "stack": [
+    {
+      "label": "frontend",
+      "value": "React 19 and TypeScript"
+    },
+    {
+      "label": "API",
+      "value": "Go 1.25"
+    },
+    {
+      "label": "storage",
+      "value": "PostgreSQL 16"
+    },
+    {
+      "label": "contract",
+      "value": "OpenAPI"
+    },
+    {
+      "label": "runs in",
+      "value": "Docker Compose"
+    }
+  ],
+  "nav": [
+    {
+      "value": "The rule",
+      "href": "#the-rule"
+    },
+    {
+      "value": "What it does",
+      "href": "#what-it-does"
+    },
+    {
+      "value": "How it works",
+      "href": "#how-it-works"
+    },
+    {
+      "value": "Running it",
+      "href": "#running-it"
+    },
+    {
+      "value": "How it is built",
+      "href": "#how-it-is-built"
+    },
+    {
+      "value": "Limitations",
+      "href": "#limitations",
+      "tone": "warning"
+    }
+  ]
+}
