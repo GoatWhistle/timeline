@@ -1,10 +1,8 @@
 <p align="center">
-  <a href="https://github.com/GoatWhistle/GoatWhistle">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/readme/banner.dark.png">
-      <img src="docs/readme/banner.light.png" alt="Timeline: every hackathon you are in, on one timeline" width="880" height="200">
-    </picture>
-  </a>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/readme/banner.dark.png">
+    <img src="docs/readme/banner.light.png" alt="Timeline: every hackathon you are in, on one timeline" width="880" height="200">
+  </picture>
 </p>
 
 <p align="center">
@@ -15,7 +13,6 @@
 
 <p align="center">
   <!-- readme:buttons -->
-  <a href="https://timeline.goatwhistle.ru"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/cta-live.dark.png"><img src="docs/readme/cta-live.light.png" alt="Open the app" width="165" height="44"></picture></a>
   <a href="#running-it"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/cta-run.dark.png"><img src="docs/readme/cta-run.light.png" alt="Run it locally" width="161" height="44"></picture></a>
   <a href="docs/swagger.yaml"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/cta-contract.dark.png"><img src="docs/readme/cta-contract.light.png" alt="API contract" width="157" height="44"></picture></a>
   <!-- /readme:buttons -->
@@ -143,7 +140,7 @@ an administrator from the system.
    email.
 
 ```mermaid
-%%{init: {"theme":"base","themeVariables":{"primaryColor":"oklch(1 0 74)","primaryTextColor":"oklch(0.22 0.012 74)","primaryBorderColor":"oklch(0.52 0.17 58)","secondaryColor":"oklch(0.94 0.009 74)","tertiaryColor":"oklch(0.977 0.006 74)","lineColor":"oklch(0.49 0.017 74)","textColor":"oklch(0.22 0.012 74)","fontFamily":"Geist"}}}%%
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#ffffff","primaryTextColor":"#1e1a14","primaryBorderColor":"#ac4600","secondaryColor":"#efeae5","tertiaryColor":"#faf7f3","lineColor":"#665f56","textColor":"#1e1a14","fontFamily":"Geist"}}}%%
 flowchart LR
     SPA["React SPA"] --> Edge["nginx, one origin"]
     Edge --> API["Go API<br/>controllers"]
@@ -240,7 +237,10 @@ tokens, font and mark by `make readme`.
   about each one at start.
 
 <p align="center">
-  <img src="docs/readme/mark.light.png" alt="Timeline mark" width="32" height="32">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/readme/mark.dark.png">
+    <img src="docs/readme/mark.light.png" alt="" width="32" height="32">
+  </picture>
   <br>
-  <sub>Timeline, MIT license. Geist and Geist Mono are used under the SIL Open Font License.</sub>
+  <sub>Team GoatWhistle, 2026. Licensed under <a href="LICENSE">MIT</a>. Geist and Geist Mono are used under the SIL Open Font License.</sub>
 </p>

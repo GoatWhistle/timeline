@@ -21,7 +21,6 @@ frontend/test-results/
 .DS_Store
 Thumbs.db
 
-**/.claude/RESUME.md
 
 screenshots/
 .playwright-mcp/
@@ -36,4 +35,3 @@ screenshots/
 
 TODO.md
 .impeccable/
-.claude/

@@ -1,17 +1,11 @@
 {
   "buttons": [
     {
-      "name": "live",
-      "label": "Open the app",
-      "icon": "external-link",
-      "href": "https://timeline.goatwhistle.ru",
-      "primary": true
-    },
-    {
       "name": "run",
       "label": "Run it locally",
       "icon": "terminal",
-      "href": "#running-it"
+      "href": "#running-it",
+      "primary": true
     },
     {
       "name": "contract",

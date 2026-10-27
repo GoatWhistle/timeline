@@ -99,7 +99,7 @@ await page.evaluate(
 )
 await page.evaluate(() => document.fonts.ready)
 await page.evaluate(() => {
-  const canvas = document.createElement('canvas').getContext('2d')
+  const canvas = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
   for (const asset of document.querySelectorAll('#generated [data-asset]')) {
     const texts = [...asset.querySelectorAll('.text')]
     const shifts = texts.map((el) => {
@@ -144,12 +144,14 @@ await page.evaluate(() => {
 const palette = await page.evaluate(() => {
   const probe = document.createElement('span')
   document.body.append(probe)
-  const canvas = document.createElement('canvas').getContext('2d')
+  const canvas = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
   const hex = (name) => {
     probe.style.color = `var(${name})`
-    canvas.fillStyle = '#000'
+    canvas.clearRect(0, 0, 1, 1)
     canvas.fillStyle = getComputedStyle(probe).color
-    return canvas.fillStyle
+    canvas.fillRect(0, 0, 1, 1)
+    const [r, g, b] = canvas.getImageData(0, 0, 1, 1).data
+    return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
   }
   const value = {
     primaryColor: hex('--card'),

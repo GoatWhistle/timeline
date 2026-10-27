@@ -1,8 +1,0 @@
-{
-	email kaifarikman.infuture@gmail.com
-}
-
-timeline.goatwhistle.ru {
-	encode zstd gzip
-	reverse_proxy frontend:8080
-}
